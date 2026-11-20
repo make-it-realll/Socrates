@@ -161,6 +161,24 @@ export default {
 
 画图的要求：标注用英文术语；文字不能互相压住，也不能压在线条上；不要超出 560 宽的画布；曲线和数据点必须是算出来的，不是随手画的。画完跑 `node tools/preview.mjs <CODE>`，逐张打开 `fig-NN.png` 看。
 
+## 人文社科的课（哲学、心理学、历史、政治、经济与社会）
+
+标准不变，落到这些学科上是这样的：
+
+- **动机来自必要性**：每个理论是为了回答一个具体的难题才出现的。先把难题摆出来（一个思想实验、一场审判、一次实验的意外结果、一段历史上解释不通的事），让读者看到常识性的回答在哪里走不下去，再引入理论。
+- **不跳步**：
+  - 哲学：把 argument 重构成编号的 premise 和 conclusion，说明它是否 valid，每个 premise 靠什么支持，反对者否认的是哪一条，以及最强的 objection 和回应。不能只写“Kant 认为……”。
+  - 心理学：一项研究要写清 design（谁、多少人、怎么分组、操纵了什么、测了什么）、主要结果的数字、它能支持和不能支持的结论，以及后来的 replication 情况。很多经典研究没有复现成功或被重新解读，查到了就如实写，查不到就写“没有查到 replication 的情况”。
+  - 历史：一个论断靠什么 source 支持，同一件事有哪几种 interpretation，它们分歧在哪条证据上。
+  - 政治、经济、社会学：概念给出可操作的定义，理论给出它预测什么、哪个 case 支持它、哪个 case 是它的麻烦。经济学的模型要像数学课一样推导并算一个数值例子。
+- **从头走到尾的例子**：完整分析一段原文、一个 case、一项实验或一组数据，而不是罗列人名和主义。
+- **`:::wrong`**：写这门课里真实存在的误读（例如把 Milgram 实验读成“人性本恶”，把 utilitarianism 读成“多数人说了算”）。
+- **有争议的问题**：把主要立场各自最强的版本讲清楚，写明分歧所在，页面自己不下结论，也不替读者选边。
+- **准确**：不编造引文、年份、数字和文献。人名、书名、年份、实验数据都要查到来源；直接引语只在查到原文时用，而且要短（一句以内），其余用自己的话转述。
+- **术语**：同样全部用英文（argument、premise、valid、sound、categorical imperative、confound、effect size、sovereignty、collective action problem……）。专有名词用通行的英文拼法（Socrates、Kant、Thucydides）。
+- **参考来源**：Yale Open Courses（PHIL 176、PHIL 181、PLSC 114、PSYC 110、HIST 系列，有完整逐字稿）、MIT OCW（24.xx 哲学、9.00SC 心理学导论、17.xx 政治、14.01 微观经济学）、Harvard 的 Justice（Sandel）、Stanford Encyclopedia of Philosophy（plato.stanford.edu）、Internet Encyclopedia of Philosophy、OpenStax 和 Noba 的心理学开放教材、CORE Econ，以及公版的原著（Project Gutenberg、Perseus）。同样要真的读过才能列。
+- **图**：argument 的结构图、时间线、实验 design 的示意、用已发表数字画的数据图（注明出处）、概念之间的关系图。数量可以比数学课少（4 到 8 张），但每张都要有用。
+
 ## 交付前自查
 
 - `node tools/preview.mjs <CODE>` 两种宽度都“没有发现版面问题”。
