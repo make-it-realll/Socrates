@@ -1,7 +1,7 @@
-// Socretes 的前端脚本：只做三件事——记住你点的等级、在谱系图上高亮先修链、导出/恢复进度块。
+// Socrates 的前端脚本：只做三件事——记住你点的等级、在谱系图上高亮先修链、导出/恢复进度块。
 (function () {
   'use strict';
-  var KEY = 'socretes:v1';
+  var KEY = 'socrates:v1';
   var NAMES = ['没听过', '听过', '能跟上', '有提示能做', '能独立做', '能讲给别人'];
 
   function load() {
@@ -54,9 +54,9 @@
     paint();
 
     var block = function () {
-      var lines = ['resume from:', 'Topic: ' + code + ' ' + main.dataset.title + '（' + main.dataset.zh + '）', 'Target: 4/5 on every subskill', 'Skill map (self-rated on Socretes, not yet verified by questioning):'];
+      var lines = ['resume from:', 'Topic: ' + code + ' ' + main.dataset.title + '（' + main.dataset.zh + '）', 'Target: 4/5 on every subskill', 'Skill map (self-rated on Socrates, not yet verified by questioning):'];
       stops.forEach(function (st) { lines.push('- ' + st.dataset.name + ' [' + st.dataset.skill + ']: ' + (rec.lv[st.dataset.skill] || 0) + '/5'); });
-      lines.push('Notes: 等级是我在 Socretes 上自评的，没有被提问检验过。请先用两三个问题核对每一项，再从最弱的一项开始。');
+      lines.push('Notes: 等级是我在 Socrates 上自评的，没有被提问检验过。请先用两三个问题核对每一项，再从最弱的一项开始。');
       return lines.join('\n');
     };
     $('#btn-copy').addEventListener('click', function () {
@@ -86,67 +86,85 @@
     }
   }
 
-  // ---------- 首页谱系图 ----------
-  var gmap = $('#gmap');
-  if (gmap) {
-    var sts = $$('.st', gmap), eds = $$('.edge', gmap), bands = $$('.band', gmap);
-    var up = {}, down = {};
-    eds.forEach(function (e) {
-      (down[e.dataset.from] = down[e.dataset.from] || []).push(e.dataset.to);
-      (up[e.dataset.to] = up[e.dataset.to] || []).push(e.dataset.from);
-    });
-    var chain = function (c) {
-      var set = {}; set[c] = 1;
-      var walk = function (x, g) { (g[x] || []).forEach(function (y) { if (!set[y]) { set[y] = 1; walk(y, g); } }); };
-      walk(c, up); var a = Object.assign({}, set); set = {}; set[c] = 1; walk(c, down);
-      return { up: a, down: set };
-    };
-    var apply = function (keepSt, keepEd) {
-      gmap.classList.add('dim');
-      sts.forEach(function (s) { s.classList.toggle('hl', keepSt(s)); });
-      eds.forEach(function (e) { e.classList.toggle('hl', keepEd(e)); });
-      bands.forEach(function (b) { b.classList.add('hl'); });
-    };
-    var pinned = null, query = '';
-    var reset = function () {
-      if (pinned) return apply(function (s) { return s.dataset.line === pinned; }, function (e) { var f = $('.st[data-code="' + e.dataset.from + '"]'), t = $('.st[data-code="' + e.dataset.to + '"]'); return f.dataset.line === pinned && t.dataset.line === pinned; });
-      if (query) return apply(function (s) { return s.getAttribute('aria-label').toLowerCase().indexOf(query) >= 0; }, function () { return false; });
-      gmap.classList.remove('dim');
-      $$('.hl', gmap).forEach(function (x) { x.classList.remove('hl'); });
-    };
-    sts.forEach(function (s) {
-      var on = function () {
-        var ch = chain(s.dataset.code);
-        apply(function (x) { return ch.up[x.dataset.code] || ch.down[x.dataset.code]; },
-          function (e) { return (ch.up[e.dataset.from] && ch.up[e.dataset.to]) || (ch.down[e.dataset.from] && ch.down[e.dataset.to]); });
+  // ---------- 首页：线路图与关系图 ----------
+  var maps = $$('.gmap');
+  if (maps.length) {
+    var pinned = null, query = '', resets = [];
+    maps.forEach(function (gmap) {
+      var sts = $$('.st', gmap), eds = $$('.edge', gmap), bands = $$('.band', gmap);
+      var up = {}, down = {}, lineOfCode = {};
+      sts.forEach(function (s) { lineOfCode[s.dataset.code] = s.dataset.line; });
+      eds.forEach(function (e) {
+        (down[e.dataset.from] = down[e.dataset.from] || []).push(e.dataset.to);
+        (up[e.dataset.to] = up[e.dataset.to] || []).push(e.dataset.from);
+      });
+      var chain = function (c) {
+        var a = {}, b = {}; a[c] = 1; b[c] = 1;
+        var walk = function (x, g, set) { (g[x] || []).forEach(function (y) { if (!set[y]) { set[y] = 1; walk(y, g, set); } }); };
+        walk(c, up, a); walk(c, down, b);
+        return { up: a, down: b };
       };
-      s.addEventListener('mouseenter', on); s.addEventListener('focus', on);
-      s.addEventListener('mouseleave', reset); s.addEventListener('blur', reset);
+      var apply = function (keepSt, keepEd) {
+        gmap.classList.add('dim');
+        sts.forEach(function (s) { s.classList.toggle('hl', !!keepSt(s)); });
+        eds.forEach(function (e) { e.classList.toggle('hl', !!keepEd(e)); });
+        bands.forEach(function (b) { b.classList.add('hl'); });
+      };
+      var reset = function () {
+        if (pinned) return apply(function (s) { return s.dataset.line === pinned; }, function (e) { return lineOfCode[e.dataset.from] === pinned && lineOfCode[e.dataset.to] === pinned; });
+        if (query) return apply(function (s) { return s.getAttribute('aria-label').toLowerCase().indexOf(query) >= 0; }, function () { return false; });
+        gmap.classList.remove('dim');
+        $$('.hl', gmap).forEach(function (x) { x.classList.remove('hl'); });
+      };
+      resets.push(reset);
+      sts.forEach(function (s) {
+        var on = function () {
+          var ch = chain(s.dataset.code);
+          apply(function (x) { return ch.up[x.dataset.code] || ch.down[x.dataset.code]; },
+            function (e) { return (ch.up[e.dataset.from] && ch.up[e.dataset.to]) || (ch.down[e.dataset.from] && ch.down[e.dataset.to]); });
+        };
+        s.addEventListener('mouseenter', on); s.addEventListener('focus', on);
+        s.addEventListener('mouseleave', reset); s.addEventListener('blur', reset);
+      });
     });
+    var resetAll = function () { resets.forEach(function (r) { r(); }); };
     $$('.lg').forEach(function (b) {
       b.addEventListener('click', function () {
         pinned = pinned === b.dataset.line ? null : b.dataset.line;
         $$('.lg').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.line === pinned)); });
-        reset();
+        resetAll();
       });
     });
     var find = $('#find');
     find.addEventListener('input', function () {
       query = find.value.trim().toLowerCase();
-      reset();
-      if (query) { var hit = $('.st.hl', gmap); if (hit && hit.scrollIntoView) hit.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+      resetAll();
+      if (query) { var hit = $('.map-wrap:not([hidden]) .st.hl'); if (hit && hit.scrollIntoView) hit.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
     });
+    // 两种画法之间切换，记住上次的选择
+    var NOTES = { lines: '按线分行，先修在左，后续在右。', net: '箭头从先修指向后续；圆越大，后面接着它的课越多。' };
+    var show = function (v) {
+      $$('.map-wrap').forEach(function (w) { w.hidden = w.dataset.view !== v; });
+      $$('.view-sw button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+      $('#view-note').textContent = NOTES[v];
+      try { localStorage.setItem(KEY + ':view', v); } catch (e) {}
+    };
+    $$('.view-sw button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.view); }); });
+    var last = null; try { last = localStorage.getItem(KEY + ':view'); } catch (e) {}
+    if (last === 'net') show('net');
     // 已经点过等级的课，在站名后面标上百分比
     var saved = load().courses;
     Object.keys(saved).forEach(function (c) {
-      var r = saved[c], st = $('.st[data-code="' + c + '"] .st-code');
-      if (!st || !r.n) return;
+      var r = saved[c];
+      if (!r.n) return;
       var sum = 0; Object.keys(r.lv || {}).forEach(function (k) { sum += r.lv[k]; });
       if (!sum) return;
-      var t = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-      t.setAttribute('class', 'st-pct'); t.setAttribute('dx', '6');
-      t.textContent = Math.round((sum / (5 * r.n)) * 100) + '%';
-      st.appendChild(t);
+      $$('.st[data-code="' + c + '"] .st-code').forEach(function (st) {
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        t.setAttribute('class', 'st-pct'); t.setAttribute('dx', '5');
+        t.textContent = Math.round((sum / (5 * r.n)) * 100) + '%';
+        st.appendChild(t);
+      });
     });
   }
 })();

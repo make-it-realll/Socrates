@@ -1,4 +1,4 @@
-/* Socretes — 线路图式的课程谱系站。颜色、字体、间距都在这里。 */
+/* Socrates — 线路图式的课程谱系站。颜色、字体、间距都在这里。 */
 :root {
   --paper: #F3F5F4; --card: #FFFFFF; --ink: #17212A; --mute: #5B6771; --rule: #D3D9DC; --on-line: #FFFFFF;
   --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
@@ -51,6 +51,18 @@ button, input, textarea { font: inherit; color: inherit; }
 .k-con { border-top-style: dashed; }
 .map-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; }
 .gmap { display: block; font-family: var(--sans); width: 100%; height: auto; min-width: 1040px; }
+.gmap.net { min-width: 900px; }
+.gmap.net .st-code { text-anchor: middle; font-size: 12.5px; }
+.st-zh2 { font: 400 11px var(--sans); fill: var(--mute); text-anchor: middle; paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
+.gmap.net .edge.same { stroke-width: 2.6; opacity: .6; }
+.edge.arr { stroke: none; }
+.edge.arr.same { fill: var(--line); }
+.edge.arr.cross { fill: var(--mute); }
+[hidden] { display: none !important; }
+.view-sw { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0 0 .7rem; }
+.view-sw button { padding: .32rem .95rem; border: 1.5px solid var(--ink); background: var(--card); border-radius: 8px; font-size: .9rem; cursor: pointer; }
+.view-sw button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.view-note { margin-left: .6rem; font-size: .84rem; color: var(--mute); }
 .band-bg { fill: color-mix(in srgb, var(--line) 5%, transparent); }
 .band-bar { fill: var(--line); }
 .band-name { font-size: 12.5px; font-weight: 650; fill: var(--line); }

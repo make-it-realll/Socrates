@@ -1,5 +1,5 @@
 {
-  "name": "socretes",
+  "name": "socrates",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,6 +10,7 @@
   "dependencies": {
     "gray-matter": "^4.0.3",
     "katex": "^0.16.0",
-    "markdown-it": "^14.0.0"
+    "markdown-it": "^14.0.0",
+    "d3-force": "^3.0.0"
   }
 }

@@ -22,6 +22,7 @@ const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
 const lineOf = Object.fromEntries(lines.map((l) => [l.id, l]));
 const courseOf = Object.fromEntries(courses.map((c) => [c.code, c]));
 const problems = [];
+let EDGES_R = [];
 
 // ---------- Markdown + 公式 + 自定义块 ----------
 const BLOCKS = {
@@ -102,7 +103,7 @@ function shell({ title, root, body, line, cls = '' }) {
 <body class="${cls}"${style}>
 <a class="skip-link" href="#main">跳到正文</a>
 <header class="top">
-  <a class="brand" href="${root}index.html"><span class="brand-mark" aria-hidden="true"></span>Socretes</a>
+  <a class="brand" href="${root}index.html"><span class="brand-mark" aria-hidden="true"></span>Socrates</a>
   <nav class="top-nav" aria-label="全站">
     <a href="${root}index.html#map">谱系图</a>
     <a href="${root}index.html#lines">全部课程</a>
@@ -193,7 +194,7 @@ ${secs.join('\n')}
 ${openHtml ? `<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links">${openHtml}</ul></section>` : ''}
 ${srcHtml ? `<section class="plain" id="src"><h2>来源</h2><ul class="links">${srcHtml}</ul></section>` : ''}
 </div></div></main>`;
-  fs.writeFileSync(path.join(OUT, 'courses', c.code + '.html'), shell({ title: `${c.code} ${c.zh} · Socretes`, root: '../', body, line: c.line, cls: 'p-course' }));
+  fs.writeFileSync(path.join(OUT, 'courses', c.code + '.html'), shell({ title: `${c.code} ${c.zh} · Socrates`, root: '../', body, line: c.line, cls: 'p-course' }));
   return { code: c.code, skills: skills.map((s) => ({ id: s.id, name: s.name })) };
 }
 
@@ -203,7 +204,7 @@ function buildThread(file) {
   const slug = path.basename(file, '.md');
   const body = `<main id="main" class="thread"><header class="c-head"><p class="c-line">概念线</p><h1><span class="c-zh">${esc(fm.title)}</span></h1><p class="c-title">${inl(fm.lead || '')}</p></header>
 <div class="t-body">${renderMd(content, 'thread:' + slug)}</div></main>`;
-  fs.writeFileSync(path.join(OUT, 'threads', slug + '.html'), shell({ title: `${fm.title} · 概念线 · Socretes`, root: '../', body, line: fm.line, cls: 'p-thread' }));
+  fs.writeFileSync(path.join(OUT, 'threads', slug + '.html'), shell({ title: `${fm.title} · 概念线 · Socrates`, root: '../', body, line: fm.line, cls: 'p-thread' }));
   return { slug, title: fm.title, lead: fm.lead || '', stops: fm.stops || [] };
 }
 
@@ -218,6 +219,7 @@ function buildMap(written) {
     return false;
   };
   const E = edges.filter((e) => !reach(e.from, e.to, true));
+  EDGES_R = E;
   const inc = {};
   for (const e of edges) (inc[e.to] ||= []).push(e.from);
   const depth = {};
@@ -268,6 +270,57 @@ function buildMap(written) {
   return `<svg id="gmap" class="gmap" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="课程谱系图：${courses.length} 门课，先修在左，后续在右">${o}</svg>`;
 }
 
+// ---------- 关系图（力导向布局，构建时算好） ----------
+function buildGraph(written) {
+  const d3 = require('d3-force');
+  const CX = 600, CY = 420;
+  const center = {};
+  lines.forEach((l, i) => { const a = (i / lines.length) * 2 * Math.PI - Math.PI / 2; center[l.id] = [CX + 430 * Math.cos(a), CY + 300 * Math.sin(a)]; });
+  const out = {};
+  for (const e of EDGES_R) out[e.from] = (out[e.from] || 0) + 1;
+  const seenInLine = {};
+  const nodes = courses.map((c) => {
+    const k = (seenInLine[c.line] = (seenInLine[c.line] || 0) + 1);
+    return { id: c.code, line: c.line, r: Math.min(6 + 1.1 * (out[c.code] || 0), 15), x: center[c.line][0] + 24 * Math.cos(k * 2.4), y: center[c.line][1] + 24 * Math.sin(k * 2.4) };
+  });
+  const links = EDGES_R.map((e) => ({ source: e.from, target: e.to, kind: e.kind, same: courseOf[e.from].line === courseOf[e.to].line }));
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id((n) => n.id).distance((l) => (l.same ? 84 : 170)).strength((l) => (l.same ? 0.7 : 0.06)))
+    .force('charge', d3.forceManyBody().strength(-380).distanceMax(460))
+    .force('collide', d3.forceCollide(47).strength(1))
+    .force('x', d3.forceX((n) => center[n.line][0]).strength(0.15))
+    .force('y', d3.forceY((n) => center[n.line][1]).strength(0.2))
+    .stop();
+  for (let i = 0; i < 600; i++) sim.tick();
+  const xs = nodes.map((n) => n.x), ys = nodes.map((n) => n.y);
+  const minX = Math.min(...xs), minY = Math.min(...ys);
+  const PADX = 70, PADT = 30, PADB = 50;
+  nodes.forEach((n) => { n.x = Math.round(n.x - minX + PADX); n.y = Math.round(n.y - minY + PADT); });
+  const W = Math.round(Math.max(...xs) - minX + 2 * PADX), H = Math.round(Math.max(...ys) - minY + PADT + PADB);
+  const at = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  let o = '<g class="edges">';
+  for (const l of links) {
+    const a = l.source, b = l.target, dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    const tx = b.x - ux * (b.r + 4), ty = b.y - uy * (b.r + 4);
+    const ln = lineOf[b.line];
+    const cls = `${l.same ? 'same' : 'cross'} ${l.kind}`, data = `data-from="${a.id}" data-to="${b.id}" style="--line-l:${ln.color};--line-dk:${ln.dark}"`;
+    o += `<line class="edge ${cls}" ${data} x1="${a.x}" y1="${a.y}" x2="${(tx - ux * 6).toFixed(1)}" y2="${(ty - uy * 6).toFixed(1)}"/>`;
+    const s = l.same ? 5 : 4;
+    o += `<polygon class="edge arr ${cls}" ${data} points="${tx.toFixed(1)},${ty.toFixed(1)} ${(tx - ux * 9 - uy * s).toFixed(1)},${(ty - uy * 9 + ux * s).toFixed(1)} ${(tx - ux * 9 + uy * s).toFixed(1)},${(ty - uy * 9 - ux * s).toFixed(1)}"/>`;
+  }
+  o += '</g><g class="stations">';
+  for (const c of courses) {
+    const n = at[c.code], l = lineOf[c.line], has = written.has(c.code);
+    const inner = `<circle class="st-dot" cx="${n.x}" cy="${n.y}" r="${n.r.toFixed(1)}"/><text class="st-code" x="${n.x}" y="${(n.y + n.r + 14).toFixed(1)}">${c.code}</text><text class="st-zh2" x="${n.x}" y="${(n.y + n.r + 27).toFixed(1)}">${c.zh}</text>`;
+    const attrs = `class="st ${has ? 'on' : 'off'}" data-code="${c.code}" data-line="${c.line}" style="--line-l:${l.color};--line-dk:${l.dark}"`;
+    o += has
+      ? `<a ${attrs} href="courses/${c.code}.html" aria-label="${c.code} ${c.zh}，已写好">${inner}</a>`
+      : `<g ${attrs} tabindex="0" role="img" aria-label="${c.code} ${c.zh}，还没写">${inner}</g>`;
+  }
+  o += '</g>';
+  return `<svg class="gmap net" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="课程关系图：箭头从先修指向后续，圆越大后续课越多">${o}</svg>`;
+}
+
 // ---------- 首页 ----------
 function buildHome(built, threads) {
   const written = new Set(built.map((b) => b.code));
@@ -290,7 +343,9 @@ function buildHome(built, threads) {
     <div class="legend" role="group" aria-label="只看一条线">${legend}</div>
     <p class="key"><span class="k-on" aria-hidden="true"></span>已写好 <span class="k-off" aria-hidden="true"></span>还没写 <span class="k-pre" aria-hidden="true"></span>官方先修 <span class="k-con" aria-hidden="true"></span>内容上接着讲</p>
   </div>
-  <div class="map-wrap" tabindex="0" role="region" aria-label="谱系图，可横向滚动">${buildMap(written)}</div>
+  <div class="view-sw" role="group" aria-label="换一种画法"><button type="button" data-view="lines" aria-pressed="true">线路图</button><button type="button" data-view="net" aria-pressed="false">关系图</button><span class="view-note" id="view-note">按线分行，先修在左，后续在右。</span></div>
+  <div class="map-wrap" data-view="lines" tabindex="0" role="region" aria-label="线路图，可横向滚动">${buildMap(written)}</div>
+  <div class="map-wrap" data-view="net" hidden tabindex="0" role="region" aria-label="关系图，可横向滚动">${buildGraph(written)}</div>
 </section>
 <section class="sec" id="lines"><h2>全部课程</h2><div class="ll-grid">${lineList}</div></section>
 <section class="sec" id="threads"><h2>概念线</h2><p class="sec-lead">同一个想法在不同课里换着名字出现。一条概念线把这些地方串起来。</p><ul class="links">${threadList}</ul></section>
@@ -302,7 +357,7 @@ function buildHome(built, threads) {
 <div><h3>想被提问</h3><p>课程页里“复制进度块”，贴到 Claude 对话里说 “resume from:”，那边会按你的等级接着问。</p></div>
 </div></section>
 </main>`;
-  fs.writeFileSync(path.join(OUT, 'index.html'), shell({ title: 'Socretes · 课程谱系', root: './', body, cls: 'p-home' }));
+  fs.writeFileSync(path.join(OUT, 'index.html'), shell({ title: 'Socrates · 课程谱系', root: './', body, cls: 'p-home' }));
 }
 
 // ---------- 主流程 ----------

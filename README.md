@@ -1,7 +1,7 @@
-# Socretes
+# Socrates
 
 一张课程谱系图，加上按“站”拆开的讲义。静态网站，托管在 GitHub Pages：
-<https://make-it-realll.github.io/Socretes/>
+<https://make-it-realll.github.io/Socrates/>
 
 讲义是自学笔记，按公开课、课程大纲和可查到的往年卷子写成，不是任何课程的官方材料，可能有错。往年卷子的原题不放在这里，页面里只给图书馆的链接。
 
