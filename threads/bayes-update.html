@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>看到证据之后 · 概念线 · Socretes</title>
+<link rel="stylesheet" href="../assets/katex/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="p-thread" style="--line-l:#C2334D;--line-dk:#F0718A">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="top">
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true"></span>Socretes</a>
+  <nav class="top-nav" aria-label="全站">
+    <a href="../index.html#map">谱系图</a>
+    <a href="../index.html#lines">全部课程</a>
+    <a href="../index.html#threads">概念线</a>
+    <a href="../index.html#how">怎么用</a>
+  </nav>
+</header>
+<main id="main" class="thread"><header class="c-head"><p class="c-line">概念线</p><h1><span class="c-zh">看到证据之后</span></h1><p class="c-title">有了新观测，原来的判断该怎么改。从一道条件概率题，一直通到机器人怎样知道自己在哪。</p></header>
+<div class="t-body"><p>所有这些地方做的都是同一步：后验正比于先验乘以似然。差别只在“未知的东西”是什么，以及这一步要重复多少次。</p>
+<h2>一次更新</h2>
+<p><a href="../courses/ST2131.html#bayes">ST2131 第 2 站</a>是最小的版本：未知的是有限几种可能（酒驾或没酒驾、三种硬币），证据来一次。关键的教训是后验不只取决于证据有多强，还取决于先验有多少。</p>
+<h2>更新之后做预测</h2>
+<p><a href="../courses/ST2131.html#hier">ST2131 第 5 站</a>让未知量变成连续的参数（硬币的正面概率），并且往前多走一步：用后验去预测下一批数据。预测的不确定性分成两块，试验本身的随机性，和对参数还不确定的部分。</p>
+<p>精算里的信度理论（ST3246，还没写）是它的直接应用：一个投保人的保费，应该多大程度上按他自己的记录定、多大程度上按同类人的平均定。答案是一个加权平均，权重随记录变长而移向他自己。</p>
+<h2>一步一步地更新</h2>
+<p>未知量随时间变化、观测不断到来时，更新要反复做：先按运动模型把判断往前推一步，再用新观测修正。噪声是高斯、模型是线性时，这个循环有闭式解，就是卡尔曼滤波；否则用一群带权重的样本来代表判断，就是粒子滤波（EE4308，还没写）。机器人定位做的就是这件事。</p>
+<h2>后验算不出来的时候</h2>
+<p>参数一多，后验的归一化常数就是一个算不动的高维积分。随机模拟（ST3247，还没写）里的 MCMC 绕开了它：构造一条以后验为平稳分布的 Markov 链，让它跑起来，用它走过的点当样本。</p>
+</div></main>
+<footer class="foot">
+  <p>讲义是按公开课、课程大纲和可查到的往年卷子写的自学笔记，不是任何课程的官方材料，可能有错。往年卷子的原题不在本站，页面里给的是图书馆的链接。</p>
+  <p>等级是你自己点的，只存在这台设备的浏览器里。</p>
+</footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
