@@ -24,7 +24,11 @@ npm install
 npm run build
 ```
 
-改完内容后重新构建，把 `docs/` 一起提交。
+改完内容后重新构建，把 `docs/` 一起提交，再把它发布到 `gh-pages` 分支（GitHub Pages 从这个分支取网站）：
+
+```
+git subtree push --prefix docs origin gh-pages
+```
 
 ## 写一门课
 
