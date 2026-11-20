@@ -78,6 +78,8 @@ sources:
 
 **第一次。** 一条 2R arm（两根 link 都长 1 m），base 旁边 0.6 m 处有一根细柱子。要从 $\theta=(-60^\circ,60^\circ)$ 移到 $(60^\circ,45^\circ)$。把两个 joint angle 各取 $[-180^\circ,180^\circ)$，在这个 square 上铺 2° 的 grid 做 search，结论是“没有 path”。可 arm 明明能把 link 1 往背后转 240° 绕过柱子。
 
+::fig[mr-pillar] 同一个起点和终点。左边是 grid search 能想到的唯一方向，中途必然碰柱子；右边是它想不到的那条路。第 1 站会在 C-space 里看清为什么。
+
 **第二次。** 一辆车正绕地面上的点 $(2,-1)$ 以 2 rad/s 逆时针转。它的 body twist 是 $(0,0,-2,\ 2.8,4,0)$。把这六个数原样发给一个按 space frame 理解 twist 的接口，车改成绕 $(2,-1.4)$ 顺时针转。
 
 **第三次。** Mobile manipulator 的 gripper 要沿一条 reference trajectory 把方块从 $(1,0)$ 搬到 $(0,-1)$。Controller 只用 feedforward：每一步照着 reference 的 velocity 走。Gripper 开始时偏了 40° 和 0.47 m，走完 15 秒，它停在地面以下 0.25 m。

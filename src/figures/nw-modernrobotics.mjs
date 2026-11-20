@@ -102,6 +102,49 @@ function cspace() {
   return svg(560, 340, o, '2R arm 的 workspace 与 C-space。靠近 base 的 obstacle 在 C-space 里成为一条竖直的 band，把方形切成两块，但沿 θ1 首尾相接后仍连通，path 从 180 度处绕过去');
 }
 
+
+// ---------- 开头第一次失败：2R arm 绕过柱子（只画 workspace，C-space 见 mr-cspace） ----------
+function pillar() {
+  const P = [0.6, 0, 0.15];
+  const hitP = (t1, t2) => { const [a, b, c] = armPts(t1 * D2R, t2 * D2R); return segDist(P[0], P[1], a[0], a[1], b[0], b[1]) < P[2] || segDist(P[0], P[1], b[0], b[1], c[0], c[1]) < P[2]; };
+  let o = '';
+  const panel = (x0, title, route) => {
+    const wx = lin(-2.15, 2.15, x0, x0 + 240), wy = lin(-2.15, 2.15, 278, 38), sc = 240 / 4.3;
+    let q = text(x0 + 120, 22, title, 'tb', 'middle');
+    q += circle(wx(0), wy(0), 2 * sc, 'dash') + line(wx(-2.15), wy(0), wx(2.15), wy(0), 'grid') + line(wx(0), wy(-2.15), wx(0), wy(2.15), 'grid');
+    q += circle(wx(P[0]), wy(P[1]), P[2] * sc, 'band-n') + text(wx(P[0]) + 22, wy(0) + 22, '柱子', 'ts', 'start');
+    // 中间姿态（淡）
+    for (const [t1, t2] of route) {
+      const A = armPts(t1 * D2R, t2 * D2R).map(([x, y]) => [wx(x), wy(y)]);
+      q += path(d(A), hitP(t1, t2) ? 'mute' : 'dash');
+    }
+    // link 1 末端扫过的弧
+    const t0 = route[0][0], t9 = route[route.length - 1][0], n = 60, arc = [];
+    for (let k = 0; k <= n; k++) { const t = (t0 + (t9 - t0) * k / n) * D2R; arc.push([wx(0.62 * Math.cos(t)), wy(0.62 * Math.sin(t))]); }
+    q += path(d(arc), 'ln');
+    const e = arc[arc.length - 1], e0 = arc[arc.length - 4];
+    q += arrow(e0[0], e0[1], e[0], e[1], 'ln');
+    const draw = (t1, t2, cls, lab, dx, dy, anc) => {
+      const A = armPts(t1 * D2R, t2 * D2R).map(([x, y]) => [wx(x), wy(y)]);
+      return path(d(A), cls) + circle(A[1][0], A[1][1], 3.5, 'ink-f') + circle(A[2][0], A[2][1], 3.5, cls === 'ln' ? 'ln-f' : 'ink-f') + text(A[2][0] + dx, A[2][1] + dy, lab, cls === 'ln' ? 'tl' : 'tb', anc);
+    };
+    q += draw(-60, 60, 'ink-b', 'start (−60°, 60°)', 4, 20, 'end') + draw(60, 45, 'ln', 'goal (60°, 45°)', 8, -6, 'start') + circle(wx(0), wy(0), 4, 'ink-f');
+    return q;
+  };
+  // 左：θ₁ 从 −60° 直接增到 60°，中途 link 1 扫过柱子
+  const direct = [], back = [];
+  for (let k = 1; k < 6; k++) direct.push([-60 + 120 * k / 6, 60 - 15 * k / 6]);
+  for (let k = 1; k < 6; k++) back.push([-60 - 240 * k / 6, 60 - 15 * k / 6]);
+  o += panel(16, '在 square 里找：θ₁ 只能从 −60° 增到 60°', [[-60, 60], ...direct, [60, 45]]);
+  o += panel(300, '实际可行：θ₁ 往回转 240°，从背后绕过去', [[-60, 60], ...back, [-300, 45]]);
+  // 左图标出碰撞的姿态
+  const wxL = lin(-2.15, 2.15, 16, 256), wyL = lin(-2.15, 2.15, 278, 38);
+  o += text(wxL(-2.05), wyL(1.75), '灰线：这个姿态', 'ts', 'start') + text(wxL(-2.05), wyL(1.75) + 15, '会碰到柱子', 'ts', 'start');
+  o += text(280, 306, '虚线是途中的姿态（灰线表示这一姿态会碰到柱子），彩色弧是 link 1 上一点走过的路。', 'ts', 'middle');
+  o += text(280, 324, '−60° 往回转 240° 是 −300°，和 60° 是同一个角；把 θ₁ 限定在 [−180°, 180°) 的 grid 看不见这条路。', 'ts', 'middle');
+  return svg(560, 334, o, '2R arm 绕过柱子：左边沿 θ1 直接增加会扫到柱子；右边 θ1 往回转 240 度从背后绕过去到达同一个 goal');
+}
+
 // ---------- Example 3.26：平面里任何一次位移都是绕一个点的转动 ----------
 function screw() {
   const sx = lin(-0.4, 4.3, 30, 30 + 4.7 * 56), sy = lin(-0.4, 4.3, 292, 292 - 4.7 * 56), u = 56;
@@ -352,6 +395,7 @@ function capxerr() {
 }
 
 export default {
+  'mr-pillar': pillar,
   'mr-cspace': cspace,
   'mr-screw': screw,
   'mr-poe': poe,

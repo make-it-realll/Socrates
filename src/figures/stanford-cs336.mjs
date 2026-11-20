@@ -1,0 +1,345 @@
+import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 第 1 站：合并 (s, t) 时只改写两个 pre-token、只改三个 pair count
+function bpeindex() {
+  const words = [
+    { b: ['l', 'o', 'w'], n: 5, hit: -1 },
+    { b: ['l', 'o', 'w', 'e', 'r'], n: 2, hit: -1 },
+    { b: ['w', 'i', 'd', 'e', 's', 't'], n: 3, hit: 4 },
+    { b: ['n', 'e', 'w', 'e', 's', 't'], n: 6, hit: 4 },
+  ];
+  let o = text(20, 22, 'Pre-token 计数表', 'tb') + text(340, 22, 'Pair count 的变化', 'tb');
+  const W = 26, H = 26, x0 = 30;
+  words.forEach((w, r) => {
+    const y = 42 + r * 40;
+    const touched = w.hit >= 0;
+    if (touched) o += rect(x0 - 8, y - 6, 6 * W + 70, H + 12, 'wash', 5);
+    w.b.forEach((c, i) => {
+      const inHit = touched && (i === w.hit || i === w.hit + 1);
+      o += rect(x0 + i * W, y, W - 3, H, inHit ? 'solid' : 'paper', 3) + text(x0 + i * W + (W - 3) / 2, y + 18, c, inHit ? 'tw' : 't', 'middle');
+    });
+    o += text(x0 + 6 * W + 10, y + 18, '× ' + w.n, 'ts');
+  });
+  o += text(x0 - 8, 220, '浅底的两行含有 s t，只有它们需要改写', 'ts');
+  const rows = [
+    ['(e, s)', '9 → 0', 'tl'],
+    ['(s, t)', '9 → 0', 'tl'],
+    ['(e, st)', '新增 9', 'tl'],
+    ['(w, e) (d, e) (l, o) …', '不变', 'ts'],
+  ];
+  rows.forEach(([p, ch, cls], i) => {
+    const y = 62 + i * 34;
+    o += text(340, y, p, i < 3 ? 't' : 'ts') + text(545, y, ch, cls, 'end');
+    o += line(340, y + 10, 545, y + 10, 'grid');
+  });
+  o += arrow(250, 125, 325, 125, 'mute');
+  o += text(340, 210, '11 个旧 count 只动了 2 个', 'ts');
+  return svg(560, 232, o, 'Sennrich 例子里合并 s 和 t：四个 pre-token 中只有 widest 和 newest 含有这个 pair，pair count 只有 e s、s t 减少，e st 新增');
+}
+
+// 第 2 站：A1 model 的数据流与 parameter 分布（TinyStories config）
+function lm() {
+  let o = '';
+  const bx = 40, bw = 190;
+  const box = (y, h, label, cls = 'paper') => rect(bx, y, bw, h, cls, 6) + text(bx + bw / 2, y + h / 2 + 5, label, 't', 'middle');
+  const rows = [
+    { y: 30, h: 30, label: 'token IDs', shape: '(B, T)', p: '' },
+    { y: 78, h: 30, label: 'Embedding', shape: '(B, T, 512)', p: '5,120,000' },
+    { y: 126, h: 80, label: '', shape: '(B, T, 512)', p: '12,455,936' },
+    { y: 224, h: 30, label: 'Final RMSNorm', shape: '(B, T, 512)', p: '512' },
+    { y: 272, h: 30, label: 'LM head', shape: '(B, T, 10000)', p: '5,120,000' },
+  ];
+  rows.forEach((r, i) => {
+    if (i !== 2) o += box(r.y, r.h, r.label);
+    o += text(258, r.y + r.h / 2 + 5, r.shape, 'ts');
+    if (r.p) o += text(545, r.y + r.h / 2 + 5, r.p, 't', 'end');
+    if (i < rows.length - 1) o += arrow(bx + bw / 2, r.y + r.h + 2, bx + bw / 2, rows[i + 1].y - 2, 'mute');
+  });
+  // block 内部
+  const b = rows[2];
+  o += rect(bx, b.y, bw, b.h, 'wash', 6) + text(bx + 10, b.y + 18, '4 × pre-norm block', 'tb');
+  o += text(bx + 10, b.y + 44, 'z = x + Attn(RMSNorm(x))', 'ts') + text(bx + 10, b.y + 64, 'y = z + SwiGLU(RMSNorm(z))', 'ts');
+  o += text(545, 18, 'parameter', 'ts', 'end') + text(258, 18, 'shape', 'ts');
+  o += text(258, 334, 'Embedding 与 LM head 合计占 45%，4 个 block 占 55%', 'ts');
+  return svg(560, 344, o, 'A1 的 Transformer LM：token ID 经 embedding、4 个 pre-norm block、final RMSNorm 和 LM head 变成 logits，右侧标出每一步的 shape 和 parameter 数');
+}
+
+// 第 3 站：GPT-2 XL 大小的 model，context 1024 与 16384 的 FLOPs 分布
+function flops() {
+  const parts = ['Q, K, V projection', 'Output projection', 'QKᵀ 与乘 V', 'SwiGLU FFN', 'LM head'];
+  const cls = ['wash', 'wash2', 'solid', 'wash-strong', 'paper'];
+  const tcls = ['t', 't', 'tw', 't', 't'];
+  const data = [
+    { T: 'T = 1024', v: [21.5, 7.2, 9.2, 57.5, 4.7], tot: '3.52 × 10¹²' },
+    { T: 'T = 16384', v: [9.0, 3.0, 61.7, 24.2, 2.0], tot: '1.34 × 10¹⁴' },
+  ];
+  const x0 = 100, W = 330;
+  let o = '';
+  data.forEach((row, r) => {
+    const y = 32 + r * 64;
+    let x = x0;
+    o += text(x0 - 10, y + 24, row.T, 'tb', 'end');
+    row.v.forEach((p, i) => {
+      const w = (W * p) / 100;
+      o += rect(x, y, w, 36, cls[i]);
+      if (p >= 10) o += text(x + w / 2, y + 23, p.toFixed(1) + '%', tcls[i], 'middle');
+      else if (i === 2) o += text(x + w / 2, y - 6, p.toFixed(1) + '%', 'tl', 'middle');
+      x += w;
+    });
+    o += rect(x0, y, W, 36, 'frame');
+    o += text(x0 + W + 10, y + 16, '合计', 'ts') + text(x0 + W + 10, y + 32, row.tot, 't');
+  });
+  // 图例
+  parts.forEach((p, i) => {
+    const col = i % 3, rw = Math.floor(i / 3);
+    const x = 30 + col * 175, y = 172 + rw * 24;
+    o += rect(x, y - 11, 14, 14, cls[i]) + rect(x, y - 11, 14, 14, 'frame') + text(x + 20, y, p, 'ts');
+  });
+  o += text(30, 226, '与 T 成正比的项放大 16 倍，T² 项放大 256 倍，合计 38 倍', 'ts');
+  return svg(560, 236, o, 'GPT-2 XL 大小的 model 一次 forward 的 FLOPs 分布：context 1024 时 FFN 占 57.5%，attention 的 T² 项占 9.2%；context 16384 时 attention 的 T² 项升到 61.7%');
+}
+
+// 第 4 站：warmup + cosine learning rate schedule
+function lr() {
+  const f = (t) => {
+    const amax = 1e-3, amin = 1e-4, Tw = 500, Tc = 10000;
+    if (t < Tw) return (t / Tw) * amax;
+    if (t <= Tc) return amin + 0.5 * (1 + Math.cos(((t - Tw) / (Tc - Tw)) * Math.PI)) * (amax - amin);
+    return amin;
+  };
+  const sx = lin(0, 11000, 70, 530), sy = lin(0, 1.12e-3, 210, 24);
+  let o = axes({ sx, sy, x0: 0, x1: 11000, y0: 0, y1: 1.12e-3, xt: [[0, '0'], [2500, '2500'], [5000, '5000'], [7500, '7500'], [10000, '10000']], yt: [[2e-4, '2e-4'], [5e-4, '5e-4'], [1e-3, '1e-3']], grid: true });
+  o += line(sx(0), sy(1e-4), sx(11000), sy(1e-4), 'dash') + text(sx(1200), sy(1e-4) - 6, 'α_min = 1e-4', 'ts');
+  o += path(curve(f, 0, 11000, sx, sy, 600), 'ln');
+  const pts = [[250, '(250, 5e-4)', 8, 4, 'start'], [500, '(500, 1e-3)', 8, -6, 'start'], [5250, '(5250, 5.5e-4)', 8, -6, 'start'], [10000, 'T_c = 10000', 0, -12, 'middle']];
+  for (const [t, s, dx, dy, a] of pts) o += circle(sx(t), sy(f(t)), 4, 'ln-f') + text(sx(t) + dx, sy(f(t)) + dy, s, 'ts', a);
+  o += text(sx(900), sy(3e-4), '前 500 步是 warmup', 'ts');
+  o += text(530, 254, 'step t', 'ts', 'end') + text(70, 14, 'learning rate', 'ts');
+  return svg(560, 262, o, 'Learning rate 在前 500 步从 0 linear 地升到 1e-3，之后沿 cosine curve在第 10000 步降到 1e-4，此后保持不变');
+}
+
+// 第 5 站：H100 roofline
+function roofline() {
+  const peak = 989.5e12, bw = 3.35e12;
+  const sx = logx(0.1, 3000, 80, 530), sy = logx(1e11, 3e15, 230, 24);
+  const r = (I) => Math.min(peak, bw * I);
+  let o = '';
+  for (const v of [0.1, 1, 10, 100, 1000]) o += line(sx(v), sy(1e11), sx(v), sy(3e15), 'grid') + text(sx(v), 247, String(v), 'ts', 'middle');
+  for (const [v, s] of [[1e11, '10¹¹'], [1e12, '10¹²'], [1e13, '10¹³'], [1e14, '10¹⁴'], [1e15, '10¹⁵']]) o += line(sx(0.1), sy(v), sx(3000), sy(v), 'grid') + text(74, sy(v) + 4, s, 'ts', 'end');
+  o += line(sx(0.1), sy(1e11), sx(3000), sy(1e11), 'axis') + line(sx(0.1), sy(1e11), sx(0.1), sy(3e15), 'axis');
+  const pts = [];
+  for (let i = 0; i <= 200; i++) { const I = 0.1 * Math.pow(30000, i / 200); pts.push([sx(I), sy(r(I))]); }
+  o += path(d(pts), 'ln');
+  o += line(sx(295), sy(peak), sx(295), sy(1e11), 'dash') + text(sx(295) + 5, 222, '295', 'tl');
+  const ops = [
+    [0.25, 'ReLU', 'end', -8, -6],
+    [1, 'XW, B = 1', 'start', 8, 14],
+    [62, 'XW, B = 64', 'end', -8, -2],
+    [341, 'n × n matmul', 'end', -8, -10],
+    [683, 'B = 1024', 'start', 6, -10],
+  ];
+  for (const [I, s, a, dx, dy] of ops) o += circle(sx(I), sy(r(I)), 4.5, 'ink-f') + text(sx(I) + dx, sy(r(I)) + dy, s, 'ts', a);
+  o += text(sx(1.2), sy(2e14), 'memory-bound', 'tb') + text(sx(1.2), sy(2e14) + 16, 'slope = 3.35 TB/s', 'ts');
+  o += text(526, sy(peak) + 26, 'compute-bound', 'tb', 'end') + text(526, sy(peak) + 44, '989.5 TFLOP/s', 'ts', 'end');
+  o += text(530, 266, 'arithmetic intensity（FLOP / byte，log scale）', 'ts', 'end') + text(80, 14, '能达到的 FLOP/s（log scale）', 'ts');
+  return svg(560, 274, o, 'H100 的 roofline：arithmetic intensity 低于 295 时 FLOP/s 与 intensity 成正比，高于 295 时停在 989.5 TFLOP/s；ReLU 和 batch 为 1 的 matrix-vector 乘法远在左侧');
+}
+
+// 第 5 站：FlashAttention-2 forward 的 tiling
+function flash() {
+  const n = 4, s = 42, gx = 150, gy = 62;
+  let o = '';
+  // K^T 横条
+  for (let j = 0; j < n; j++) o += rect(gx + j * s + 2, 24, s - 4, 26, j === 2 ? 'solid' : 'wash2', 3) + text(gx + j * s + s / 2, 42, 'K' + '₁₂₃₄'[j], j === 2 ? 'tw' : 'ts', 'middle');
+  o += text(gx - 8, 42, 'Kᵀ', 'ts', 'end');
+  // Q 竖条
+  for (let i = 0; i < n; i++) o += rect(96, gy + i * s + 2, 40, s - 4, i === 1 ? 'wash-strong' : 'wash2', 3) + text(116, gy + i * s + s / 2 + 5, 'Q' + '₁₂₃₄'[i], 't', 'middle');
+  // S 网格
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const cls = i === 1 && j === 2 ? 'solid' : i === 1 ? 'wash' : 'paper';
+    o += rect(gx + j * s + 1, gy + i * s + 1, s - 2, s - 2, cls, 2);
+  }
+  o += text(gx + 2 * s + s / 2, gy + s + s / 2 + 5, 'S', 'tw', 'middle');
+  o += arrow(gx + 4, gy + s + 36, gx + n * s - 4, gy + s + 36, 'ln');
+  o += text(gx + (n * s) / 2, gy + n * s + 20, '对 Q₂ 这一行，j = 1 … 4 依次处理', 'ts', 'middle');
+  // SRAM 与 HBM
+  o += rect(350, 24, 196, 136, 'wash', 6) + text(360, 44, 'SRAM', 'tb') + text(360, 62, '每个 program instance 一份', 'ts');
+  o += text(360, 84, 'Q₂、当前的 Kⱼ 与 Vⱼ', 't') + text(360, 104, 'S 的一小块', 't') + text(360, 124, 'm、l、O₂ 的累加量（fp32）', 't') + text(360, 146, '用完即丢，不写回 HBM', 'ts');
+  o += rect(350, 176, 196, 70, 'paper', 6) + text(360, 196, 'HBM', 'tb') + text(360, 216, '读 Q、K、V', 't') + text(360, 236, '只写 O 和每行一个 L', 't');
+  return svg(560, 262, o, 'FlashAttention-2 forward：每个 program instance 负责一块 query，沿 key 方向依次读入每块 K 和 V，在 SRAM 里算出 S 的一小块并更新累加量，T 乘 T 的 matrix 从不写入 HBM');
+}
+
+// 第 6 站：ZeRO 各级在 8 块卡上每个 parameter 每块卡占的 byte
+function zero() {
+  const parts = ['bf16 parameter', 'bf16 gradient', 'fp32 master', 'Adam m', 'Adam v'];
+  const cls = ['solid', 'wash-strong', 'wash', 'wash2', 'paper'];
+  const rows = [
+    ['DDP', [2, 2, 4, 2, 2], '12', '6.7B'],
+    ['ZeRO-1', [2, 2, 0.5, 0.25, 0.25], '5', '16B'],
+    ['ZeRO-2', [2, 0.25, 0.5, 0.25, 0.25], '3.25', '24.6B'],
+    ['ZeRO-3', [0.25, 0.25, 0.5, 0.25, 0.25], '1.5', '53.3B'],
+  ];
+  const x0 = 90, k = 28;
+  let o = text(x0, 16, 'byte / parameter / GPU', 'ts') + text(545, 16, '80 GB 能放下', 'ts', 'end');
+  rows.forEach(([name, v, tot, cap], r) => {
+    const y = 28 + r * 38;
+    let x = x0;
+    o += text(x0 - 10, y + 19, name, 'tb', 'end');
+    v.forEach((b, i) => { o += rect(x, y, b * k, 26, cls[i]) + rect(x, y, b * k, 26, 'frame'); x += b * k; });
+    o += text(x + 8, y + 18, tot, 't') + text(545, y + 18, cap, 't', 'end');
+  });
+  parts.forEach((p, i) => {
+    const x = 30 + i * 106, y = 196;
+    o += rect(x, y - 11, 14, 14, cls[i]) + rect(x, y - 11, 14, 14, 'frame') + text(x + 19, y, p, 'ts');
+  });
+  return svg(560, 210, o, '8 块卡上，DDP 每块卡每个 parameter 存 12 byte；ZeRO-1 切开 optimizer state 后是 5 byte，ZeRO-2 再切 gradient 是 3.25 byte，ZeRO-3 全部切开是 1.5 byte');
+}
+
+// 第 6 站：4 个 stage、4 个 microbatch 的 pipeline schedule
+function pipe() {
+  const p = 4, m = 4, slots = 2 * (m + p - 1), x0 = 70, w = 33, h = 30, y0 = 34;
+  let o = '';
+  for (let s = 1; s <= p; s++) {
+    const y = y0 + (s - 1) * (h + 6);
+    o += text(x0 - 8, y + 20, 'GPU ' + s, 'ts', 'end');
+    for (let t = 0; t < slots; t++) o += rect(x0 + t * w + 1, y, w - 2, h, 'wash2', 2);
+    for (let k = 1; k <= m; k++) {
+      const tf = s - 1 + k - 1, tb = m + p - 1 + (p - s) + (m - k);
+      o += rect(x0 + tf * w + 1, y, w - 2, h, 'wash-strong', 2) + text(x0 + tf * w + w / 2, y + 20, 'F' + k, 't', 'middle');
+      o += rect(x0 + tb * w + 1, y, w - 2, h, 'solid', 2) + text(x0 + tb * w + w / 2, y + 20, 'B' + k, 'tw', 'middle');
+    }
+  }
+  const yb = y0 + p * (h + 6) + 6;
+  o += arrow(x0, yb, x0 + slots * w, yb, 'mute') + text(x0 + slots * w, yb + 16, 'time', 'ts', 'end');
+  o += text(x0, 20, 'F：forward；B：backward；灰色：bubble（这里设 forward 与 backward 一样长）', 'ts');
+  o += text(x0, yb + 34, '每块卡 14 格里有 8 格在算：m / (m + p − 1) = 4 / 7', 'ts');
+  return svg(560, 228, o, '4 个 stage 和 4 个 microbatch 的 pipeline schedule：forward 依次流过 4 块卡，backward 反向流回，每块卡在 14 个时间格里只有 8 格在计算，其余是 bubble');
+}
+
+// 第 7 站：A3 的 IsoFLOP 数据与拟合
+const ISO = {
+  6e18: [[49999999, 7.1928], [78730505, 6.7502], [123969849, 6.4066], [195204177, 6.1544], [307370470, 5.9878], [483988649, 5.9034], [762093419, 5.8999], [1200000000, 5.9779]],
+  1e19: [[83333333, 6.5751], [131217508, 6.2208], [206616415, 5.953], [325340296, 5.7656], [512284118, 5.6546], [806647749, 5.6179], [1270155698, 5.6553], [2000000000, 5.7683]],
+  3e19: [[249999999, 5.56], [393652526, 5.3509], [619849246, 5.2075], [976020888, 5.1268], [1536852354, 5.1072], [2419943249, 5.1488], [3810467096, 5.2532], [6000000000, 5.4237]],
+  6e19: [[499999999, 5.0893], [787305053, 4.9476], [1239698493, 4.8619], [1952041776, 4.8306], [3073704708, 4.8534], [4839886498, 4.9313], [7620934193, 5.0668], [12000000000, 5.264]],
+  1e20: [[833333333, 4.807], [1312175088, 4.7056], [2066164155, 4.6545], [3253402960, 4.6529], [5122841181, 4.7011], [8066477497, 4.8008], [12701556988, 4.955], [20000000000, 5.1681]],
+  3e20: [[249999999, 5.2059], [423453495, 4.8955], [717251449, 4.6574], [1214890532, 4.4841], [2057798568, 4.3706], [3485527984, 4.3134], [5903836027, 4.3112], [10000000000, 4.3646]],
+  6e20: [[499999999, 4.7352], [846906990, 4.502], [1434502899, 4.3285], [2429781065, 4.2092], [4115597137, 4.1407], [6971055968, 4.1212], [11807672055, 4.1506], [20000000000, 4.2303]],
+  1e21: [[833333333, 4.4529], [1411511650, 4.266], [2390838165, 4.1311], [4049635109, 4.0442], [6859328563, 4.0028], [11618426614, 4.006], [19679453425, 4.0542], [33333333333, 4.1498]],
+  3e21: [[2499999999, 3.9889], [4234534950, 3.8781], [7172514497, 3.8069], [12148905329, 3.7732], [20577985689, 3.7762], [34855279842, 3.8165], [59038360277, 3.8959], [100000000000, 4.0174]],
+};
+function isoflop() {
+  let o = '';
+  // 左：loss vs N
+  const sx = lin(7.6, 11.1, 50, 270), sy = lin(3.6, 7.3, 220, 30);
+  o += axes({ sx, sy, x0: 7.6, x1: 11.1, y0: 3.6, y1: 7.3, xt: [[8, '10⁸'], [9, '10⁹'], [10, '10¹⁰'], [11, '10¹¹']], yt: [[4, '4'], [5, '5'], [6, '6'], [7, '7']], grid: true });
+  const best = [];
+  for (const [C, runs] of Object.entries(ISO)) {
+    o += path(d(runs.map(([n, l]) => [sx(Math.log10(n)), sy(l)])), 'mute');
+    const b = runs.reduce((a, r) => (r[1] < a[1] ? r : a));
+    best.push([+C, b[0]]);
+    o += circle(sx(Math.log10(b[0])), sy(b[1]), 3.5, 'ln-f');
+  }
+  o += text(sx(7.8) + 6, sy(7.25), 'C = 6 × 10¹⁸', 'ts');
+  o += text(sx(7.7), sy(3.86), 'C = 3 × 10²¹', 'ts') + line(sx(7.7) + 84, sy(3.9), sx(9.38), sy(3.98), 'mute');
+  o += text(160, 262, 'parameter N（log scale）', 'ts', 'middle') + text(50, 18, 'final loss', 'ts');
+  // 右：N_opt vs C
+  const rx = lin(18.6, 22.2, 340, 540), ry = lin(8.6, 10.6, 220, 30);
+  o += axes({ sx: rx, sy: ry, x0: 18.6, x1: 22.2, y0: 8.6, y1: 10.6, xt: [[19, '10¹⁹'], [20, '10²⁰'], [21, '10²¹'], [22, '10²²']], yt: [[9, '10⁹'], [10, '10¹⁰']], grid: true });
+  const a = 0.4687, b = 0.0657;
+  o += line(rx(18.6), ry(a * 18.6 + b), rx(21.48), ry(a * 21.48 + b), 'ln') + line(rx(21.48), ry(a * 21.48 + b), rx(22), ry(a * 22 + b), 'ln-dash');
+  for (const [C, N] of best) o += circle(rx(Math.log10(C)), ry(Math.log10(N)), 3.5, 'ink-f');
+  o += circle(rx(22), ry(a * 22 + b), 4.5, 'ln paper-f') + text(rx(22) - 6, ry(a * 22 + b) - 10, 'extrapolate：2.38 × 10¹⁰', 'tl', 'end');
+  o += text(rx(18.75), ry(10.15), 'N = 1.16 × C⁰·⁴⁶⁹', 'tb');
+  o += text(440, 262, 'compute C（FLOP，log scale）', 'ts', 'middle') + text(340, 18, '最优 N', 'ts');
+  return svg(560, 272, o, '左图是 A3 数据里九条 IsoFLOP curve，每条的最低点标为彩色；右图把最低点的 N 对 compute 画在 log-log 的 axis 上，fit 出的 line 是 N 等于 1.16 乘 C 的 0.469 power，虚线 extrapolate 到 10 的 22 power');
+}
+
+// 第 8 站：Llama 2 13B 在 H100 上的 decode throughput，MHA 与 GQA
+function kv() {
+  const V = 32000, D = 5120, F = 13824, N = 40, H = 128, L = 40, S = 1024, bw = 3.35e12;
+  const stat = (B, K) => {
+    const P = 2 * V * D + D * F * 3 * L + (2 * D * N * H + 2 * D * K * H) * L;
+    const mem = B * S * K * H * L * 2 * 2 + 2 * P;
+    return { mem, thr: B / (mem / bw) };
+  };
+  const Bs = [1, 2, 4, 8, 16, 32, 64, 128, 256];
+  const sx = lin(0, 8, 80, 500), sy = lin(0, 14000, 220, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 8, y0: 0, y1: 14000, xt: Bs.map((b, i) => [i, String(b)]), yt: [[4000, '4000'], [8000, '8000'], [12000, '12000']], grid: true });
+  for (const [K, cls, fcls, lab] of [[40, 'ink', 'ink-f', 'MHA（40 组 KV head）'], [8, 'ln', 'ln-f', 'GQA（8 组 KV head）']]) {
+    const pts = Bs.map((B, i) => [sx(i), sy(stat(B, K).thr)]);
+    o += path(d(pts), cls);
+    Bs.forEach((B, i) => {
+      const s = stat(B, K);
+      o += circle(sx(i), sy(s.thr), 4, s.mem > 80e9 ? cls + ' paper-f' : fcls);
+    });
+    const last = stat(256, K);
+    o += text(sx(8) + 6, sy(last.thr) + 4, K === 40 ? 'MHA' : 'GQA', K === 40 ? 'tb' : 'tl');
+  }
+  o += text(sx(0.2), sy(12500), '空心点：memory 超过 80 GB', 'ts');
+  o += text(sx(0.2), sy(11300), 'MHA 每 token KV cache 0.78 MiB，GQA 0.16 MiB', 'ts');
+  o += text(500, 256, 'batch size B（log scale）', 'ts', 'end') + text(80, 18, 'throughput（token/s）', 'ts');
+  return svg(560, 266, o, 'Llama 2 13B 在 H100 上 decode 的理论 throughput 随 batch size 增长；GQA 的 KV cache 小 5 倍，同样的 batch 下 throughput 更高，并且 batch 256 仍放得进 80 GB，MHA 从 batch 128 起就放不下');
+}
+
+// 第 9 站：LSH 的候选概率曲线
+function lsh() {
+  const sx = lin(0, 1, 70, 400), sy = lin(0, 1, 220, 24);
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 1, xt: [[0, '0'], [0.2, '0.2'], [0.4, '0.4'], [0.6, '0.6'], [0.8, '0.8'], [1, '1']], yt: [[0.5, '0.5'], [1, '1']], grid: true });
+  o += path(curve((s) => s, 0, 1, sx, sy), 'dash');
+  const P = (b, r) => (s) => 1 - Math.pow(1 - Math.pow(s, r), b);
+  const cs = [[10, 10, 'ink', 'ink-f'], [20, 20, 'ln', 'ln-f'], [10, 20, 'ink-b', 'ink-f']];
+  for (const [b, r, cls] of cs) o += path(curve(P(b, r), 0, 1, sx, sy, 400), cls);
+  // 标注放在右侧，引线指向各自的阈值点
+  const lab = [[10, 10, '(10, 10)：0.794', 70], [20, 20, '(20, 20)：0.861', 110], [10, 20, '(10, 20)：0.891', 150]];
+  o += text(416, 44, '(b, r)：threshold', 'tb');
+  for (const [b, r, s, y] of lab) {
+    const t = Math.pow(1 / b, 1 / r), px = sx(t), py = sy(P(b, r)(t));
+    o += circle(px, py, 3.5, 'ink-f') + line(px + 4, py, 412, y - 4, 'mute') + text(416, y, s, 'ts');
+  }
+  o += text(sx(0.06), sy(0.55), '单个 MinHash：P = s', 'ts');
+  o += text(400, 256, 'Jaccard similarity s', 'ts', 'end') + text(70, 16, '成为候选的 probability', 'ts');
+  return svg(560, 266, o, '三组 band 设置下两个文档成为候选的 probability 随 Jaccard similarity 变化的 S 形 curve；r 越大 curve 越靠右越陡，b 越大越靠左；虚线是单个 MinHash 的 collision probability');
+}
+
+// 第 10 站：PPO 式 clipping 的 objective
+function clip() {
+  const eps = 0.2;
+  let o = '';
+  const panel = (x0, A, title) => {
+    const sx = lin(0, 2, x0, x0 + 210), sy = lin(-2, 2, 210, 40);
+    o += line(sx(0), sy(0), sx(2), sy(0), 'axis') + line(sx(0), sy(-2), sx(0), sy(2), 'axis');
+    for (const v of [0.8, 1.2]) o += line(sx(v), sy(-2), sx(v), sy(2), 'grid');
+    o += text(sx(0.8), 226, '0.8', 'ts', 'middle') + text(sx(1.2), 226, '1.2', 'ts', 'middle') + text(sx(2), 226, '2', 'ts', 'middle');
+    o += text(sx(0) - 5, sy(1) + 4, '1', 'ts', 'end') + text(sx(0) - 5, sy(-1) + 4, '−1', 'ts', 'end') + text(sx(0) - 5, sy(0) + 4, '0', 'ts', 'end');
+    const f = (w) => Math.min(w * A, Math.max(Math.min(w, 1 + eps), 1 - eps) * A);
+    if (A > 0) {
+      o += path(curve(f, 0, 1.2, sx, sy, 60), 'ln') + path(curve(f, 1.2, 2, sx, sy, 60), 'ln-dash');
+      o += text(sx(2), sy(1.2) - 12, '超过 1 + ε：无 gradient', 'ts', 'end');
+    } else {
+      o += path(curve(f, 0, 0.8, sx, sy, 60), 'ln-dash') + path(curve(f, 0.8, 2, sx, sy, 60), 'ln');
+      o += text(sx(0.05), sy(-0.8) - 10, '低于 1 − ε：无 gradient', 'ts');
+      o += text(sx(0.05), sy(-1.92), '右侧实线：坏 token 照常受罚', 'ts');
+    }
+    o += text(x0 + 105, 22, title, 'tb', 'middle');
+  };
+  panel(50, 1, 'A = +1');
+  panel(320, -1, 'A = −1');
+  o += text(280, 250, '横轴是 importance ratio w = π_θ / π_old，纵轴是 min(wA, clip(w, 0.8, 1.2) A)', 'ts', 'middle');
+  return svg(560, 260, o, 'PPO 式 clipping：advantage 为正时 ratio 超过 1.2 后 objective 变平、gradient 为零；advantage 为负时 ratio 低于 0.8 时变平，ratio 增大的一侧不截断');
+}
+
+export default {
+  'cs336-bpeindex': bpeindex,
+  'cs336-lm': lm,
+  'cs336-flops': flops,
+  'cs336-lr': lr,
+  'cs336-roofline': roofline,
+  'cs336-flash': flash,
+  'cs336-zero': zero,
+  'cs336-pipe': pipe,
+  'cs336-isoflop': isoflop,
+  'cs336-kv': kv,
+  'cs336-lsh': lsh,
+  'cs336-clip': clip,
+};
