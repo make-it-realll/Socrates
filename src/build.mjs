@@ -192,7 +192,7 @@ ${renderMd(bodySrc, where + '#' + sk.id)}
   const body = `<main id="main" class="course" data-course="${c.code}" data-title="${esc(c.title)}" data-zh="${esc(c.zh)}">
 <header class="c-head">
   <p class="c-line">${lineOf[c.line].name}线</p>
-  <h1><span class="c-code">${c.code}</span><span class="c-zh">${c.zh}</span></h1>
+  <h1><span class="c-code${c.code.length > 9 ? ' c-code-long' : ''}">${c.code}</span><span class="c-zh">${c.zh}</span></h1>
   <p class="c-title">${esc(c.title)}</p>
   <dl class="c-meta">
     <div><dt>依据</dt><dd><strong>${ev[0]}</strong>${inl(fm.evidenceNote || ev[1])}</dd></div>
