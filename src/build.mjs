@@ -30,6 +30,13 @@ const problems = [];
 const labsFile = path.join(ROOT, 'content/labs.json');
 let LABS = { courses: {} };
 if (fs.existsSync(labsFile)) { try { LABS = JSON.parse(fs.readFileSync(labsFile, 'utf8')); } catch (e) { problems.push('content/labs.json 不是合法的 JSON：' + e.message); } }
+// content/frontier-*.json：前沿公开课（各校），重点是快速路线和作业 tips。
+const FRONTIER = fs.readdirSync(path.join(ROOT, 'content')).filter((f) => /^frontier-.*\.json$/.test(f)).sort().map((f) => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8')); } catch (e) { problems.push(`content/${f} 不是合法的 JSON：` + e.message); return null; }
+}).filter(Boolean);
+const GROUP_NAME = { robotics: '机器人、具身智能与强化学习', generative: '生成模型、LLM 与 agent', systems: '高效深度学习、系统与感知' };
+const PRIO = { must: '先做', good: '值得做', optional: '有余力再做' };
+const frontierFor = (code) => FRONTIER.flatMap((g) => g.courses.filter((c) => (c.related || []).includes(code)));
 const labItem = (o) => `<li><a href="${esc(o.url)}" rel="noopener">${esc(o.title)}</a><span class="lab-from">${esc(o.from || '')}${o.lang ? ' · ' + esc(o.lang) : ''}</span><span>${inl(o.note || '')}</span>${o.public || o.needs ? `<span class="lab-meta">${esc([o.public, o.needs].filter(Boolean).join('；'))}</span>` : ''}</li>`;
 let EDGES_R = [];
 
@@ -119,6 +126,7 @@ function shell({ title, root, body, line, cls = '' }) {
     <a href="${root}index.html#lines">全部课程</a>
     <a href="${root}index.html#threads">概念线</a>
     <a href="${root}labs.html">动手做</a>
+    <a href="${root}frontier.html">前沿公开课</a>
     <a href="${root}index.html#how">怎么用</a>
   </nav>
 </header>
@@ -180,6 +188,7 @@ ${renderMd(bodySrc, where + '#' + sk.id)}
   const railHtml = rail.map((r) => `<li class="${r.skill ? 'rs' : 'rp'}"><a href="#${r.id}"${r.skill ? ` data-skill="${r.id}"` : ''}><span class="dot" aria-hidden="true"></span><span class="rl">${md.renderInline(r.label)}</span></a></li>`).join('');
   const openHtml = (fm.open || []).map((o) => `<li><a href="${o.url}" rel="noopener">${esc(o.label)}</a><span>${inl(o.note || '')}</span></li>`).join('');
   const labsHtml = (LABS.courses?.[c.code] || []).map(labItem).join('');
+  const frHtml = frontierFor(c.code).map((f) => `<li><a href="../frontier.html#${esc(f.id)}">${esc(f.school)} ${esc(f.code)} ${esc(f.title)}</a><span>${inl(f.why || '')}</span></li>`).join('');
   const srcHtml = (fm.sources || []).map((o) => `<li><a href="${o.url}" rel="noopener">${esc(o.label)}</a>${o.note ? `<span>${inl(o.note)}</span>` : ''}</li>`).join('');
   const body = `<main id="main" class="course" data-course="${c.code}" data-title="${esc(c.title)}" data-zh="${esc(c.zh)}">
 <header class="c-head">
@@ -204,6 +213,7 @@ ${renderMd(bodySrc, where + '#' + sk.id)}
 ${intro ? `<section class="plain lead">${renderMd(intro, where)}</section>` : ''}
 ${secs.join('\n')}
 ${openHtml ? `<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links">${openHtml}</ul></section>` : ''}
+${frHtml ? `<section class="plain" id="frontier"><h2>往前走</h2><p>接着这门课往前沿走的公开课，每门都有快速路线和作业提示。</p><ul class="links">${frHtml}</ul></section>` : ''}
 ${labsHtml ? `<section class="plain" id="labs"><h2>动手做</h2><p>各校公开课里和这门课内容对得上的编程作业，链接都核实过能打开。讲义读懂了不等于会做，挑一个从头写完。</p><ul class="links labs">${labsHtml}</ul></section>` : ''}
 ${srcHtml ? `<section class="plain" id="src"><h2>来源</h2><ul class="links">${srcHtml}</ul></section>` : ''}
 </div></div></main>`;
@@ -394,6 +404,36 @@ const cdir = path.join(ROOT, 'content/courses'), tdir = path.join(ROOT, 'content
 const built = fs.readdirSync(cdir).filter((f) => f.endsWith('.md') && (!ONLY || ONLY.includes(f.replace(/\.md$/, '').toUpperCase()))).sort().map((f) => buildCourse(path.join(cdir, f)));
 const threads = fs.readdirSync(tdir).filter((f) => f.endsWith('.md')).sort().map((f) => buildThread(path.join(tdir, f)));
 buildHome(built, threads);
+{
+  const builtCodes = new Set(built.map((x) => x.code));
+  const cref = (code) => courseOf[code] ? (builtCodes.has(code) ? `<a href="courses/${code}.html">${code}</a>` : code) : esc(code);
+  const card = (f) => {
+    const quick = (f.quick || []).map((q) => `<tr><td>${esc(q.part)}</td><td>${q.hours != null ? esc(String(q.hours)) + ' h' : ''}</td><td>${inl(q.why || '')}</td></tr>`).join('');
+    const asg = (f.assignments || []).map((a) => `<li class="asg p-${esc(a.priority || 'good')}"><div class="asg-h"><span class="prio">${PRIO[a.priority] || ''}</span><a href="${esc(a.url || f.url)}" rel="noopener">${esc(a.title)}</a></div>
+<p>${inl(a.build || '')}</p>
+<dl class="asg-meta">${a.time ? `<dt>时间</dt><dd>${inl(a.time)}</dd>` : ''}${a.needs ? `<dt>环境</dt><dd>${inl(a.needs)}</dd>` : ''}</dl>
+${(a.tips || []).length ? `<ul class="tips">${a.tips.map((t) => `<li>${inl(t)}</li>`).join('')}</ul>` : ''}
+${a.tipsSource ? `<p class="tip-src">提示来源：${inl(a.tipsSource)}</p>` : ''}</li>`).join('');
+    const rel = (f.related || []).filter((x) => courseOf[x]);
+    return `<article class="fc" id="${esc(f.id)}"><header><p class="fc-src">${esc(f.school)} ${esc(f.code || '')}${f.term ? ' · ' + esc(f.term) : ''}${f.instructors ? ' · ' + esc(f.instructors) : ''}</p>
+<h3><a href="${esc(f.url)}" rel="noopener">${esc(f.title)}</a></h3>${f.zh ? `<p class="fc-zh">${esc(f.zh)}</p>` : ''}</header>
+<p>${inl(f.why || '')}</p>
+${f.materials ? `<p class="fc-mat"><b>公开的材料</b>${inl(f.materials)}</p>` : ''}
+${f.prereq ? `<p class="fc-mat"><b>前置</b>${inl(f.prereq)}${rel.length ? '（本站：' + rel.map(cref).join('、') + '）' : ''}</p>` : ''}
+${quick ? `<h4>只有十几个小时的话</h4><div class="tbl"><table><thead><tr><th>看什么</th><th>时间</th><th>为什么</th></tr></thead><tbody>${quick}</tbody></table></div>` : ''}
+${f.skip ? `<p class="fc-mat"><b>可以跳过</b>${inl(f.skip)}</p>` : ''}
+${asg ? `<h4>作业</h4><ul class="asgs">${asg}</ul>` : ''}
+</article>`;
+  };
+  const groups = FRONTIER.map((g) => `<section class="plain fr-group" id="g-${esc(g.group)}"><h2>${esc(GROUP_NAME[g.group] || g.group)}</h2>${g.courses.map(card).join('\n')}</section>`).join('\n');
+  const toc = FRONTIER.map((g) => `<li><a href="#g-${esc(g.group)}">${esc(GROUP_NAME[g.group] || g.group)}</a><span>${g.courses.map((c) => esc(c.school + ' ' + (c.code || c.title))).join('、')}</span></li>`).join('');
+  const body = `<main id="main" class="wrap frontier-page"><section class="hero"><h1>前沿公开课</h1>
+<p class="hero-lead">领域走得比课快。这里收的是各校最近几期、材料公开的前沿课程。每门写清楚三件事：时间只有十几个小时时先看哪几讲，哪几个作业最值得做，做的时候会卡在哪里。提示都注明了出处，是材料里写的还是经验之谈。</p></section>
+${toc ? `<section class="plain"><ul class="links">${toc}</ul></section>` : ''}
+${groups || '<section class="plain"><p>还在整理。</p></section>'}
+</main>`;
+  fs.writeFileSync(path.join(OUT, 'frontier.html'), shell({ title: '前沿公开课 · Socrates', root: './', body, cls: 'p-frontier' }));
+}
 {
   const builtCodes = new Set(built.map((x) => x.code));
   const secs = courses.filter((c) => (LABS.courses?.[c.code] || []).length).map((c) => {

@@ -1,0 +1,310 @@
+{
+  "updated": "2026-11-20",
+  "open": [
+    {
+      "code": "YALE-ASTR160",
+      "school": "Yale",
+      "title": "Frontiers and Controversies in Astrophysics",
+      "zh": "天体物理前沿",
+      "discipline": "astronomy",
+      "instructor": "Charles Bailyn",
+      "term": "Spring 2007",
+      "url": "https://oyc.yale.edu/astronomy/astr-160",
+      "materials": "全部 26 讲 lecture（video + 逐讲页面），另有 3 个 update、problem sets、两次 midterm 和 final exam",
+      "outline": "围绕天文学里三个正在快速推进的问题展开：系外行星（exoplanets）、黑洞（black holes）和暗能量（dark energy）。依次讲 planetary orbits 与 Pluto 问题、transit / microlensing / direct imaging 等找行星的方法；再讲 special 与 general relativity、stellar-mass 与 supermassive black holes、pulsars；最后是 Hubble's law 与 Big Bang、dark matter、dark energy、cosmic microwave background，以及 gravitational waves 和 LIGO。重点不只是结论，而是天文学家如何用观测去回答还没定论的问题。"
+    },
+    {
+      "code": "YALE-EEB122",
+      "school": "Yale",
+      "title": "Principles of Evolution, Ecology and Behavior",
+      "zh": "演化生态与行为",
+      "discipline": "evolution and ecology",
+      "instructor": "Stephen C. Stearns",
+      "term": "Spring 2009",
+      "url": "https://oyc.yale.edu/ecology-and-evolutionary-biology/eeb-122",
+      "materials": "全部 36 讲 lecture（逐讲页面）、两次 midterm exam、syllabus 和 Galapagos 配套网站",
+      "outline": "问的是：生物为什么是现在这个样子？前半部分讲 evolution：natural selection、genetic drift、genetic variation、the evolution of sex、life history、sexual selection、speciation 与 phylogeny，并延伸到 coevolution 和 evolutionary medicine。后半部分转向 ecology 与 behavior：气候与生物分布、population growth、interspecific competition、community、island biogeography、ecosystem 的能量与物质流、biodiversity，最后是 foraging、evolutionary game theory、mating systems 和 altruism。"
+    },
+    {
+      "code": "MIT-7.016",
+      "school": "MIT",
+      "title": "Introductory Biology",
+      "zh": "分子生物学导论",
+      "discipline": "biology",
+      "instructor": "Barbara Imperiali, Adam Martin, Diviya Ray",
+      "term": "Fall 2018",
+      "url": "https://ocw.mit.edu/courses/7-016-introductory-biology-fall-2018/video_galleries/lecture-videos/",
+      "materials": "35 讲 lecture video（第 36 讲无录像），另有 problem sets 与 solutions、exams 与 solutions、recitation 材料",
+      "outline": "从化学出发理解生命：先讲 chemical bonding、lipids 与 membranes、proteins、enzymes 与 metabolism、carbohydrates、nucleic acids；再讲 central dogma（replication、transcription、splicing、translation）和 genetics（cell division、inheritance、linkage、model organisms）。之后是 recombinant DNA 与 genome editing、genome sequencing、cell signaling、neurons 与 optogenetics、cell cycle、stem cells 与 cancer，最后是 imaging、immunology、infectious disease 与 antibiotic / antiviral resistance。"
+    },
+    {
+      "code": "STANFORD-BIO150",
+      "school": "Stanford",
+      "title": "Human Behavioral Biology",
+      "zh": "人类行为生物学",
+      "discipline": "behavioral biology",
+      "instructor": "Robert Sapolsky",
+      "term": "Spring 2010",
+      "url": "https://classcentral.com/course/youtube-lecture-collection-human-behavioral-biology-53023",
+      "materials": "全部 25 讲 lecture video（Stanford 官方 YouTube 合集）",
+      "outline": "问的是：人的行为在多大程度上能用生物学解释？先从 behavioral evolution、molecular genetics、behavioral genetics、kin recognition 和 ethology 讲起，再进入 neuroscience、endocrinology 与 limbic system。中段用 human sexual behavior 和 aggression 作为案例，把前面各个层次的解释串起来；最后讲 chaos 与 reductionism、emergence 与 complexity，再到 language、schizophrenia 和 individual differences。全课反复强调不要用 categorical thinking 看行为。"
+    },
+    {
+      "code": "MIT-5.111SC",
+      "school": "MIT",
+      "title": "Principles of Chemical Science",
+      "zh": "化学原理",
+      "discipline": "chemistry",
+      "instructor": "Catherine Drennan",
+      "term": "Fall 2014",
+      "url": "https://ocw.mit.edu/courses/5-111sc-principles-of-chemical-science-fall-2014/video_galleries/lecture-videos",
+      "materials": "全部 35 讲 lecture video、lecture notes、problem sets 与 solutions、exams 与 solutions",
+      "outline": "从原子结构讲到化学反应：先是 atomic structure、wave-particle duality、Schrödinger equation、hydrogen atom 与 multielectron atoms、periodic trends；再讲 chemical bonding（ionic / covalent、Lewis structures、VSEPR、molecular orbital theory、hybridization）。之后是 thermodynamics（enthalpy、entropy、Gibbs free energy）、chemical equilibrium、acid-base 与 titration、oxidation-reduction 与 electrochemistry、transition metals 与 crystal field theory，最后是 kinetics 和 catalysis。课上常配有生物学里的应用例子。"
+    },
+    {
+      "code": "MIT-12.001",
+      "school": "MIT",
+      "title": "Introduction to Geology",
+      "zh": "地质学导论",
+      "discipline": "geology",
+      "instructor": "Taylor Perron, Oliver Jagoutz",
+      "term": "Fall 2013",
+      "url": "https://ocw.mit.edu/courses/12-001-introduction-to-geology-fall-2013/pages/lecture-notes-and-slides",
+      "materials": "大部分 session 有 lecture notes 和 slides（少数 session 缺），另有 labs、problem sets 和 field trip 材料；没有 video",
+      "outline": "问的是：地球是怎样形成并一直在变化的？依次讲 origin and age of the Earth、minerals、igneous / metamorphic / sedimentary rocks、rock deformation、geologic time 与 dating、volcanoes、plate tectonics、continental 与 oceanic crust formation、earthquakes。后半部分转向地表过程：topography、field techniques 与 geologic mapping、rivers、landslides、glaciers、climate through geologic history、geobiology，最后是 Earth science and society 和 comparative planetology。"
+    },
+    {
+      "code": "MIT-24.900",
+      "school": "MIT",
+      "title": "Introduction to Linguistics",
+      "zh": "语言学导论",
+      "discipline": "linguistics",
+      "instructor": "Norvin Richards",
+      "term": "Spring 2022",
+      "url": "https://ocw.mit.edu/courses/24-900-introduction-to-linguistics-spring-2022/pages/lecture-videos/",
+      "materials": "26 讲中有 24 讲 video（第 1、7 讲因录制问题缺失），另有 lecture notes、problem sets 和 written assignments",
+      "outline": "把人类语言当作一个复杂但有规律可循（law-governed）的心智系统来研究。依次讲 morphology（词的内部结构）、phonetics 与 phonology（语音和音系规则）、syntax（句子结构，占篇幅最多）、semantics（意义）。最后几讲转向语言的社会与历史面向：dialects、historical linguistics、endangered languages、language acquisition 和 signed languages。"
+    },
+    {
+      "code": "YALE-ENGL300",
+      "school": "Yale",
+      "title": "Introduction to Theory of Literature",
+      "zh": "文学理论导论",
+      "discipline": "literary theory",
+      "instructor": "Paul H. Fry",
+      "term": "Spring 2009",
+      "url": "https://oyc.yale.edu/node/670",
+      "materials": "全部 26 讲 lecture（逐讲页面）、syllabus 和 paper topics",
+      "outline": "问的是：什么是文学，它如何产生，如何被理解，它的用处是什么？从 hermeneutics 讲起，依次是 New Criticism、Russian Formalism、semiotics 与 structuralism、deconstruction、psychoanalysis（Freud、Lacan）、reader response，再到 Frankfurt School、political unconscious、New Historicism。后段讲 feminist、African-American、post-colonial criticism 和 queer theory，最后讨论 literary study 的 institution 与 \"the end of theory\"。"
+    },
+    {
+      "code": "MIT-21L.011",
+      "school": "MIT",
+      "title": "The Film Experience",
+      "zh": "电影体验",
+      "discipline": "film studies",
+      "instructor": "David Thorburn",
+      "term": "Fall 2013（部分录像为 2007）",
+      "url": "https://ocw.mit.edu/courses/21l-011-the-film-experience-fall-2013/video_galleries/lecture-videos-notes",
+      "materials": "完整的 23 讲 lecture video（其中多讲为 2007 年录像），另有 2013 lecture outlines 和 2006 学生笔记（笔记不完整）",
+      "outline": "把电影同时当作艺术和文化产物（art and artifact）来研究。先从 silent film 的 Keaton、Chaplin 和 montage、mise en scène 讲起，再到 German film（Murnau）和 Hollywood studio era（Capra、Hawks、Hitchcock）。之后讲类型片 musical 与 western、1970 年代美国电影，最后转向欧洲与亚洲：Renoir 与 poetic realism、Italian neorealism、Truffaut 与 Nouvelle Vague、Kurosawa 的 Rashomon。"
+    },
+    {
+      "code": "YALE-MUSI112",
+      "school": "Yale",
+      "title": "Listening to Music",
+      "zh": "聆听音乐",
+      "discipline": "music",
+      "instructor": "Craig Wright",
+      "term": "Fall 2008",
+      "url": "https://online.yale.edu/courses/listening-music",
+      "materials": "全部 lecture video（YouTube 播放列表，约 22 小时），OYC 逐讲页面有 transcript、audio 和指定阅读",
+      "outline": "面向没有音乐基础的人，训练理解西方音乐的 aural skills：音乐是怎样组织起来的，以及怎样去听。从 instruments 与 musical genres 入门，再逐一讲 rhythm、melody 等音乐要素（用 jazz、pop、Mozart、Wagner 等作例子），并把这些听力技能用到从 Gregorian chant、Bach、Mozart 到 blues 的多种风格上。"
+    },
+    {
+      "code": "YALE-HSAR252",
+      "school": "Yale",
+      "title": "Roman Architecture",
+      "zh": "罗马建筑",
+      "discipline": "architecture",
+      "instructor": "Diana E. E. Kleiner",
+      "term": "Spring 2009",
+      "url": "https://oyc.yale.edu/history-of-art/hsar-252",
+      "materials": "逐讲 lecture video（YouTube 嵌入）和完整 transcript，另有 paper topics；课程页列出的讲次有缺号，未逐一核实是否全部讲次都在",
+      "outline": "介绍罗马及其帝国的主要建筑和工程成就，重点是 urban planning、单体建筑及其装饰（包括 mural painting）。从 Rome 的建城与早期 urbanism、罗马建筑中的技术革命讲起，经 Pompeii 和 Herculaneum 的住宅与壁画，到 Augustus 的 Rome、Colosseum、Palatine 宫殿、Trajan's Forum 和 Baths of Caracalla，最后巡视 North Africa、Jordan、Lebanon 等行省的建筑。"
+    },
+    {
+      "code": "YALE-EVST255",
+      "school": "Yale",
+      "title": "Environmental Politics and Law",
+      "zh": "环境政治与法律",
+      "discipline": "environmental law",
+      "instructor": "John Wargo",
+      "term": "Spring 2010",
+      "url": "https://oyc.yale.edu/environmental-studies/evst-255",
+      "materials": "全部 24 讲 lecture（逐讲页面）和指定读物列表",
+      "outline": "问的是：法律能否改变人的行为、减少环境伤害？以案例史（case histories）为线索：nuclear testing 与 NEPA、mercury 与 marine food chains、site restoration、pesticides 与 risk law、drinking water、air quality 与 vehicle emissions、plastics、tobacco law。后半部分讲 land use 与 property rights、public lands、coastal management 与 climate change、green building certification、nuclear power 和 renewable energy policy；每个案例都分析相关法律的结构和得失。"
+    },
+    {
+      "code": "YALE-SOCY151",
+      "school": "Yale",
+      "title": "Foundations of Modern Social Theory",
+      "zh": "现代社会理论基础",
+      "discipline": "sociology",
+      "instructor": "Iván Szelényi",
+      "term": "Fall 2009",
+      "url": "https://oyc.yale.edu/node/704",
+      "materials": "全部 25 讲 lecture（逐讲页面）、syllabus 和 reading list",
+      "outline": "梳理从现代早期到 1920 年代的社会思想经典，看每位作者的时代背景、概念框架和对今天社会分析的贡献。依次讲 Hobbes、Locke、Montesquieu、Rousseau、Mill、Adam Smith，然后用较大篇幅讲 Marx（alienation、historical materialism、class 与 exploitation），再到 Nietzsche、Freud，以及 Weber（Protestant ethic、三种 authority、class）和 Durkheim（social solidarity、anomie、suicide、social facts）。"
+    },
+    {
+      "code": "YALE-MCDB150",
+      "school": "Yale",
+      "title": "Global Problems of Population Growth",
+      "zh": "全球人口问题",
+      "discipline": "demography and public health",
+      "instructor": "Robert Wyman",
+      "term": "Spring 2009",
+      "url": "https://oyc.yale.edu/node/710",
+      "materials": "全部 24 讲 lecture（逐讲页面），附书目和文章阅读清单",
+      "outline": "从生物学和历史两头看人口：先讲 reproductive strategies 的演化、从猿到人、人口稀少的时代和 Malthusian times；再讲欧洲的 demographic transition（mortality decline 与 fertility decline）及其定量方面。之后转向当代：低生育率、human and environmental impacts、发展中国家的 demographic transition、female disadvantage、传统与现代中国的人口、人口增长的经济影响、teen pregnancy 和 abortion，最后讨论 population and the environment。"
+    }
+  ],
+  "nus": [
+    {
+      "code": "LSM1301",
+      "title": "General Biology",
+      "zh": "普通生物学",
+      "discipline": "biology",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/LSM1301.json",
+      "prereq": "无（修过 A-level / H2 Biology 的本科生不能修）",
+      "outline": "面向没有生物背景的学生，问的是：什么是生命体，生命的基本构成和背后的科学是什么。依次讲 chemistry of life、inheritance、biotechnology 及其伦理问题、diversity 与 classification of life，最后讲生物体如何通过各 organ systems 维持内部平衡（homeostasis）。有 lab。"
+    },
+    {
+      "code": "CM1102",
+      "title": "Chemistry - The Central Science",
+      "zh": "化学：中心科学",
+      "discipline": "chemistry",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CM1102.json",
+      "prereq": "A-level / H2 Chemistry 至少 E，或 CM1417 至少 D",
+      "outline": "以\"原子如何成键形成分子\"作为化学的核心问题。由此讲 molecular shape 与分子性质、chemical reactions，再落到应用：enzymes、greenhouse gases 和 origin of life 等。"
+    },
+    {
+      "code": "PC1101",
+      "title": "Frontiers of Physics",
+      "zh": "物理学前沿",
+      "discipline": "physics",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/PC1101.json",
+      "prereq": "H2 Mathematics / Further Mathematics 至少 E，或 MA1301 至少 D",
+      "outline": "以 light 为主线做物理前沿的主题式概览：从光的 classical wave description，到 speed of light 与 special relativity，再到光在 quantum theory 形成中的作用。也介绍基于光的现代技术，以及这些发展的历史和哲学背景。"
+    },
+    {
+      "code": "GE1101E",
+      "title": "Geographical Journeys: Exploring World Environments",
+      "zh": "地理之旅",
+      "discipline": "geography",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/GE1101E.json",
+      "prereq": "无",
+      "outline": "探讨塑造当今世界的社会经济与环境议题和过程，培养 geographical imagination，把 human environment 和 physical environment 放在一起整体理解。只在 Semester 1 开。"
+    },
+    {
+      "code": "EL1101E",
+      "title": "The Nature of Language",
+      "zh": "语言的本质",
+      "discipline": "linguistics",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/EL1101E.json",
+      "prereq": "English Language Proficiency Test 至少 N（一般已满足）",
+      "outline": "为口语语言的科学（science of spoken language）打基础：它研究什么、用什么方法、目标是什么。从 word、sentence 到 text 各层面考察 sound、form 和 meaning，把语言既看作 rule-governed system，又看作一个有机整体；适合对 language 与 mind、society、culture 关系感兴趣的人。"
+    },
+    {
+      "code": "EN1101E",
+      "title": "An Introduction to Literary Studies",
+      "zh": "文学研究导论",
+      "discipline": "literature",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/EN1101E.json",
+      "prereq": "English Language Proficiency Test 至少 N（一般已满足）",
+      "outline": "从\"人是讲故事的动物\"出发，研究人们如何讲故事、讲什么样的故事、故事产生什么意义，尤其关注\"讲述\"（the telling）本身，也就是 narrative 的形式问题。文本包括一部 novel、一部 play、films、short stories、poems 和 oral tales。"
+    },
+    {
+      "code": "TS1101E",
+      "title": "Introduction to Theatre and Performance",
+      "zh": "戏剧与表演导论",
+      "discipline": "theatre",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/TS1101E.json",
+      "prereq": "English Language Proficiency Test 至少 N（一般已满足）",
+      "outline": "介绍研究和实践 theatre and performance 的基本面向、方法和话语语境。讲古典与当代的 performance practices，以及结合 play analysis、theatre history 和 theory 的分析方式；内容型 lecture 配一个 practice laboratory，边学边做。"
+    },
+    {
+      "code": "GEC1017",
+      "title": "Film Art and Human Concerns",
+      "zh": "电影艺术与人",
+      "discipline": "film studies",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/GEC1017.json",
+      "prereq": "无",
+      "outline": "问的是：电影能否严肃地处理社会、文化和存在层面的问题？通过细读 Stanley Kubrick、Orson Welles、Wong Kar-Wai、Zhang Yimou 等导演的作品，学习把 film 当作艺术形式来分析，看导演如何用 aesthetic elements 探讨 human condition、family、urban condition、love and society 和 nation。只在 Semester 1 开。"
+    },
+    {
+      "code": "GEC1014",
+      "title": "Social and Cultural Studies through Music",
+      "zh": "音乐中的社会文化",
+      "discipline": "music",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/GEC1014.json",
+      "prereq": "无",
+      "outline": "把音乐主要看作人类和社会文化现象，而不只是声音。依次问：音乐如何运作（how music works）、人为什么听和做音乐、音乐在社会中扮演什么角色，以及这些答案在不同文化间有何不同；涉及 folk、art 和 popular music 等多种风格。形式包括 lecture、阅读与聆听作业和互动式的 music-making；班级很小（每学期 25 到 30 人）。"
+    },
+    {
+      "code": "AR1329",
+      "title": "Climate, Ecology & Architecture",
+      "zh": "气候生态与建筑",
+      "discipline": "architecture",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/AR1329.json",
+      "prereq": "NUSMods 未列明",
+      "outline": "讲 tropical climate 如何影响建筑，以及由此产生的 building envelope 与布局策略，用于降低能耗、提升 occupant comfort；建筑类型、功能和使用模式如何影响舒适度。再讲 passive environmental design 与 ecological systems 的互动、从被动策略到引入动植物的各种技术，最后讲材料（bio-based materials、operational 与 embodied carbon、circularity）和 prefabrication 等制造方式。只在 Semester 2 开；可能主要面向建筑系学生。"
+    },
+    {
+      "code": "NM1101E",
+      "title": "Communications, New Media and Society",
+      "zh": "传播与新媒体",
+      "discipline": "media studies",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/NM1101E.json",
+      "prereq": "无",
+      "outline": "介绍 communications 和 new media 的基础：人们如何创造并使用 networked、mobile、social media 渠道在全球化世界中传达意义。放在 games、health、politics、business、public relations、design 和 activism 等组织与社会情境中看，并深入讨论 cyberspace 中的关系与社交、activism、performance art、online deviant behaviour、community、新的商业与组织模式，以及 human-computer interaction 的问题。"
+    },
+    {
+      "code": "AN1101E",
+      "title": "Anthropology & Human Condition",
+      "zh": "人类学与人的处境",
+      "discipline": "anthropology",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/AN1101E.json",
+      "prereq": "无",
+      "outline": "用人类学特有的方法看人类行为、制度和实践的社会文化基础，关注 human diversity 和\"何以为人\"。讨论 language、culture 和 environment 如何塑造人，人类学家如何理解与我们非常不同的社会，以及这种 grounded、human-centred 的方法如何用于 education、health、media、urban planning、policy 和 business 中的当代问题。"
+    },
+    {
+      "code": "SE1101E",
+      "title": "The Lands Below the Winds: Southeast Asia in the World",
+      "zh": "东南亚与世界",
+      "discipline": "area studies",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/SE1101E.json",
+      "prereq": "无",
+      "outline": "把 Southeast Asia 当作一个有深厚过去、未来仍在形成的区域来介绍：从 prehistoric life、古代王国到战争，再到无边界的数字空间。考察这一区域在历史、文化、经济、美学、政治、宗教、gender、环境等方面的多样性，重点是人们的 lived experiences 以及东南亚人如何回应全球力量。"
+    },
+    {
+      "code": "MIH1101",
+      "title": "What Impacts Health?",
+      "zh": "什么影响健康",
+      "discipline": "public health",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/MIH1101.json",
+      "prereq": "NUSMods 未列明",
+      "outline": "从 WHO 对健康的定义（physical、mental、social well-being，而不只是没有疾病）出发，用基于证据的方法评估 determinants of health。考察 physiological、environmental、lifestyle、socioeconomic 和 cultural 等相互作用的因素如何影响个人健康，或影响一个人获得这些健康条件的机会。只在 Semester 1 开。"
+    },
+    {
+      "code": "LC1002A",
+      "title": "Introduction To Legal Theory (A)",
+      "zh": "法理学导论",
+      "discipline": "law",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/LC1002A.json",
+      "prereq": "NUSMods 未列明（LC 课程通常只对法学院学生开放）",
+      "outline": "介绍 legal theory 的核心概念、问题和争论。视开课情况讲以下部分或全部主题：utilitarian 与 deontological 道德理论、morality 与 law 的关系、natural law 与 legal positivism、Critical Legal Studies、gender and the law、Asian values 与 jurisprudence、law and economics。每种理论既就其本身研究，也作为批判性评估实在法（positive law）的视角。只在 Semester 2 开。"
+    }
+  ]
+}
