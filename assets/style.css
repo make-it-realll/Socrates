@@ -276,3 +276,6 @@ pre code { background: none; padding: 0; }
 .tip-src { font-size: .8rem; color: var(--mute); }
 .labs-page > .plain, .frontier-page > .plain { padding: 0 clamp(1rem, 4vw, 3rem); }
 .labs-page, .frontier-page { padding-bottom: 3rem; }
+
+/* 外校课程的代码很长（如 NW-MODERNROBOTICS），标题字号按长度缩小，避免手机上撑破版面 */
+.c-code.c-code-long { font-size: clamp(1.6rem, 6.2vw, 3.6rem); overflow-wrap: anywhere; }
