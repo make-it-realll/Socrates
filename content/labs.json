@@ -1,33 +1,6 @@
 {
   "updated": "2026-11-20",
   "courses": {
-    "CS1010S": [
-      {
-        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
-        "title": "Project 1: The Game of Hog",
-        "url": "https://cs61a.org/fa26/projects/hog/",
-        "lang": "Python",
-        "note": "实现骰子游戏 Hog 的 simulator：先写游戏规则和 play loop，再写 strategy 函数并用实验比较它们。做完能把一个中等规模的程序拆成一组互相调用的小函数。",
-        "public": "spec、starter zip、本地 pytest tests 都公开"
-      },
-      {
-        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
-        "title": "Project 2: Cats (Computer Aided Typing Software)",
-        "url": "https://cs61a.org/fa26/projects/cats/",
-        "lang": "Python",
-        "note": "实现一个打字测速程序：计算 words per minute 和 accuracy，再实现 autocorrect。练的是对 string 和 list 的处理，以及按 spec 逐题通过 tests 的工作方式。",
-        "public": "spec、starter zip、本地 pytest tests 都公开",
-        "needs": "multiplayer 部分要连课程 server"
-      },
-      {
-        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
-        "title": "Project 3: Ants Vs. SomeBees",
-        "url": "https://cs61a.org/fa26/projects/ants/",
-        "lang": "Python",
-        "note": "用 object-oriented programming 实现一个 tower defense 游戏，自己写 HarvesterAnt、ThrowerAnt、FireAnt、QueenAnt 等 class。做完对 class、inheritance 和在已有代码框架里加功能会比较熟。",
-        "public": "spec、starter zip、本地 pytest tests 都公开"
-      }
-    ],
     "CS2030": [
       {
         "from": "MIT 6.031 Software Construction (Spring 2021, Java 版)",
