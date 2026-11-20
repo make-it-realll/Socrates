@@ -15,8 +15,8 @@ function fp() {
   gap(2, 2.5, '间隔 ½');
   gap(4, 5, '间隔 1');
   o += text(sx(0.25), 28, '0 和 ½ 之间', 'ts', 'middle') + text(sx(0.25), 44, '一个数都没有', 'ts', 'middle');
-  o += text(30, 152, '每跨过一个 2 的幂（粗线），间隔翻倍：绝对间隔不均匀，相对间隔大致恒定。', 't');
-  return svg(560, 165, o, '一个玩具浮点数系统在数轴上的分布：越靠近零越密，每过一个二的幂间隔翻倍');
+  o += text(30, 152, '每跨过一个 2 的 power（粗线），间隔翻倍：绝对间隔不均匀，相对间隔大致恒定。', 't');
+  return svg(560, 165, o, '一个玩具 floating-point 系统在 number line 上的分布：越靠近零越密，每过一个 2 的 power 间隔翻倍');
 }
 
 // 条件数：两条线的交点对扰动有多敏感
@@ -34,10 +34,10 @@ function cond() {
     o += circle(sx(P[0]), sy(P[1]), 4.5, 'ink-f') + circle(sx(Q[0]), sy(Q[1]), 4.5, 'ln paper-f');
     o += text(x0 + 100, 20, title, 'tb', 'middle') + text(x0 + 100, 250, note, 'ts', 'middle');
   };
-  panel(40, '良态：两条线接近垂直', (x) => x, (x) => x + 0.15, [1, 1], [0.925, 1.075], '第二条线平移一点，交点只挪一点');
-  panel(320, 'ill-conditioned：两条线几乎平行', (x) => (2.05 - x) / 1.05, (x) => (2.08 - x) / 1.05, [1, 1], [0.4, 1.6], '同样小的平移，交点从 (1, 1) 跑到 (0.4, 1.6)');
-  o += text(280, 272, '实线是原方程，虚线是右端项被扰动后的第二条方程；空心点是新的解', 'ts', 'middle');
-  return svg(560, 282, o, '左图两条线接近垂直，扰动后交点几乎不动；右图两条线几乎平行，同样的扰动让交点移动很远');
+  panel(40, 'well-conditioned：接近 perpendicular', (x) => x, (x) => x + 0.15, [1, 1], [0.925, 1.075], '第二条 line 平移一点，intersection 只挪一点');
+  panel(320, 'ill-conditioned：几乎 parallel', (x) => (2.05 - x) / 1.05, (x) => (2.08 - x) / 1.05, [1, 1], [0.4, 1.6], '同样小的平移，intersection 从 (1, 1) 跑到 (0.4, 1.6)');
+  o += text(280, 272, '实线是原来的 equation，虚线是 right-hand side 改动后的第二个 equation；空心点是新的 solution', 'ts', 'middle');
+  return svg(560, 282, o, '左图两条 line 接近 perpendicular，perturbation 之后 intersection 几乎不动；右图两条 line 几乎 parallel，同样的 perturbation 让 intersection 移动很远');
 }
 
 // LU 分解：一次分解，多次代入
@@ -49,15 +49,15 @@ function lu() {
   o += poly([[170, y], [170, y + S], [170 + S, y + S]], 'wash') + sq(170, y, S) + text(170 + 26, y + S - 20, 'L', 'tb', 'middle') + text(170 + S - 22, y + 26, '0', 'ts', 'middle');
   for (let i = 0; i < 4; i++) o += text(170 + 11 + i * 21.5, y + 16 + i * 21.5, '1', 'ts', 'middle');
   o += poly([[280, y], [280 + S, y], [280 + S, y + S]], 'wash') + sq(280, y, S) + text(280 + S - 26, y + 30, 'U', 'tb', 'middle') + text(280 + 22, y + S - 16, '0', 'ts', 'middle');
-  o += text(400, y + 22, '分解只做一次', 'tb') + text(400, y + 42, '约 ⅔ n³ 次运算', 'ts');
-  o += text(400, y + 68, '之后每换一个 b', 'tb') + text(400, y + 88, '只要约 2n² 次运算', 'ts');
+  o += text(400, y + 22, 'Factorization 只做一次', 'tb') + text(400, y + 42, '约 ⅔ n³ 次 operation', 'ts');
+  o += text(400, y + 68, '之后每换一个 b', 'tb') + text(400, y + 88, '只要约 2n² 次 operation', 'ts');
   const yy = 160;
   o += rect(40, yy, 130, 44, 'paper', 6) + text(105, yy + 27, 'Ax = b', 't', 'middle');
   o += arrow(172, yy + 22, 208, yy + 22, 'ink');
   o += rect(210, yy, 150, 44, 'paper', 6) + text(285, yy + 19, 'Ly = b', 't', 'middle') + text(285, yy + 36, 'forward substitution', 'ts', 'middle');
   o += arrow(362, yy + 22, 398, yy + 22, 'ink');
   o += rect(400, yy, 130, 44, 'paper', 6) + text(465, yy + 19, 'Ux = y', 't', 'middle') + text(465, yy + 36, 'back substitution', 'ts', 'middle');
-  return svg(560, 220, o, 'A 分解成下三角 L 和上三角 U；解方程变成先用 forward substitution 解 Ly 等于 b，再用 back substitution 解 Ux 等于 y');
+  return svg(560, 220, o, 'A 分解成 lower triangular 的 L 和 upper triangular 的 U；解 system 变成先用 forward substitution 解 Ly 等于 b，再用 back substitution 解 Ux 等于 y');
 }
 
 // 最小二乘的几何：b 向 col(A) 投影，残差垂直于 col(A)
@@ -67,11 +67,11 @@ function proj() {
   o += arrow(O[0], O[1], P[0], P[1], 'ink') + line(P[0], P[1], B[0], B[1], 'dash') + arrow(O[0], O[1], B[0], B[1], 'ln');
   o += path(d([[P[0] - 13, P[1] + 1.5], [P[0] - 13, P[1] - 11.5], [P[0], P[1] - 13]]), 'ink');
   o += circle(O[0], O[1], 3, 'ink-f');
-  o += text(B[0] + 8, B[1] + 4, 'b', 'tl') + text(250, 234, 'p = Ax̂（垂足）', 't', 'middle');
-  o += text(P[0] + 10, 124, 'e = b − Ax̂', 't') + text(P[0] + 10, 142, '与平面垂直', 'ts');
+  o += text(B[0] + 8, B[1] + 4, 'b', 'tl') + text(250, 234, 'p = Ax̂（projection）', 't', 'middle');
+  o += text(P[0] + 10, 124, 'e = b − Ax̂', 't') + text(P[0] + 10, 142, '与 plane perpendicular', 'ts');
   o += text(400, 178, 'col(A)', 'tb');
-  o += text(280, 280, '平面上离 b 最近的点就是垂足：垂直条件 Aᵀe = 0 正是 normal equations', 'ts', 'middle');
-  return svg(560, 290, o, '向量 b 不在 A 的 column space 这个平面上；最小二乘解对应 b 在平面上的垂直投影，误差向量与平面垂直');
+  o += text(280, 280, 'Plane 上离 b 最近的点是 projection p：Aᵀe = 0 正是 normal equations', 'ts', 'middle');
+  return svg(560, 290, o, 'Vector b 不在 A 的 column space 这个 plane 上；least squares 的 solution 对应 b 在 plane 上的 projection，error vector 与 plane perpendicular');
 }
 
 // Householder 反射：把 x 镜像到第一坐标轴上
@@ -84,11 +84,11 @@ function householder() {
   o += line(O[0] - 0.5 * s * Math.cos(half), O[1] + 0.5 * s * Math.sin(half), M[0], M[1], 'dash');
   o += arrow(O[0], O[1], X[0], X[1], 'ln') + arrow(O[0], O[1], T[0], T[1], 'ink') + arrow(T[0], T[1], X[0], X[1], 'mute');
   o += text(X[0] - 8, X[1] - 8, 'x', 'tl', 'end') + text(T[0] - 6, T[1] + 20, '‖x‖ e₁', 't', 'end');
-  o += text(M[0] + 6, M[1] + 4, '镜面', 'ts') + text(T[0] + 10, (T[1] + X[1]) / 2 + 4, 'v = x − ‖x‖e₁', 't');
-  o += text(T[0] + 10, (T[1] + X[1]) / 2 + 22, '垂直于镜面', 'ts');
+  o += text(M[0] + 6, M[1] + 4, 'mirror', 'ts') + text(T[0] + 10, (T[1] + X[1]) / 2 + 4, 'v = x − ‖x‖e₁', 't');
+  o += text(T[0] + 10, (T[1] + X[1]) / 2 + 22, 'perpendicular to mirror', 'ts');
   o += text(O[0] + 4.6 * s, O[1] + 18, 'e₁ 方向', 'ts', 'end');
-  o += text(280, 262, 'H = I − 2vvᵀ / vᵀv 把 x 沿 v 方向翻过去：长度不变，其余分量全部变成 0', 'ts', 'middle');
-  return svg(560, 272, o, 'Householder 反射把向量 x 关于一个镜面翻转到第一坐标轴上，长度保持不变');
+  o += text(280, 262, 'H = I − 2vvᵀ / vᵀv 把 x 沿 v 方向翻过去：length 不变，其余 component 全部变成 0', 'ts', 'middle');
+  return svg(560, 272, o, 'Householder reflection 把 vector x 关于一个 mirror 翻转到第一个 coordinate axis 上，length 保持不变');
 }
 
 // Runge 现象：等距节点 vs Chebyshev 节点（10 次多项式）
@@ -115,10 +115,10 @@ function runge() {
     o += text(x0 + 110, 20, title, 'tb', 'middle');
     o += text(x0, 232, '−1', 'ts', 'middle') + text(x0 + 220, 232, '1', 'ts', 'middle') + text(x0 - 6, sy(0) + 4, '0', 'ts', 'end') + text(x0 - 6, sy(1) + 4, '1', 'ts', 'end');
   };
-  panel(40, equi, '11 个等距节点：两端剧烈振荡');
-  panel(310, cheb, '11 个 Chebyshev 节点：贴合');
-  o += text(280, 254, '虚线是 f(x) = 1 / (1 + 25x²)，彩线是过这些点的 10 次插值多项式', 'ts', 'middle');
-  return svg(560, 264, o, '同样是 10 次插值多项式：等距节点在区间两端剧烈振荡，Chebyshev 节点则贴合原函数');
+  panel(40, equi, '11 个 equispaced node：两端剧烈振荡');
+  panel(310, cheb, '11 个 Chebyshev node：贴合');
+  o += text(280, 254, '虚线是 f(x) = 1 / (1 + 25x²)，彩线是过这些点的 degree-10 interpolating polynomial', 'ts', 'middle');
+  return svg(560, 264, o, '同样是 degree-10 interpolating polynomial：equispaced node 在 interval 两端剧烈振荡，Chebyshev node 则贴合原来的 function');
 }
 
 // 数值积分：梯形 vs Simpson
@@ -130,14 +130,14 @@ function quad() {
     o += path(area(approx, 0, 2, sx, sy), 'wash') + path(curve(approx, 0, 2, sx, sy), 'ln') + path(curve(f, 0, 2, sx, sy), 'ink');
     o += line(x0 - 6, sy(0), x0 + 216, sy(0), 'axis');
     for (const x of [0, 1, 2]) o += line(sx(x), sy(0), sx(x), sy(approx(x)), 'mute') + circle(sx(x), sy(f(x)), 3.5, 'ink-f');
-    o += text(sx(0), 217, 'a', 'ts', 'middle') + text(sx(1), 217, '中点', 'ts', 'middle') + text(sx(2), 217, 'b', 'ts', 'middle');
+    o += text(sx(0), 217, 'a', 'ts', 'middle') + text(sx(1), 217, 'midpoint', 'ts', 'middle') + text(sx(2), 217, 'b', 'ts', 'middle');
     o += text(x0 + 105, 20, title, 'tb', 'middle') + text(x0 + 105, 238, note, 'ts', 'middle');
   };
   const trap = (x) => (x <= 1 ? f(0) + (f(1) - f(0)) * x : f(1) + (f(2) - f(1)) * (x - 1));
   const simp = (x) => (f(0) * (x - 1) * (x - 2)) / 2 - f(1) * x * (x - 2) + (f(2) * x * (x - 1)) / 2;
-  panel(45, 'Trapezoidal：用直线代替曲线', trap, '误差 ∝ h²');
-  panel(315, 'Simpson：用抛物线代替曲线', simp, '误差 ∝ h⁴');
-  return svg(560, 250, o, 'trapezoidal rule 用直线下的面积近似积分，Simpson’s rule 用过三点的抛物线下的面积近似积分');
+  panel(45, 'Trapezoidal：用 line 代替 curve', trap, 'error ∝ h²');
+  panel(315, 'Simpson：用 parabola 代替 curve', simp, 'error ∝ h⁴');
+  return svg(560, 250, o, 'Trapezoidal rule 用 line 下的 area 近似 integral，Simpson’s rule 用过三点的 parabola 下的 area 近似 integral');
 }
 
 // 幂迭代：反复乘 A = [[2,1],[1,2]]，方向转向主特征向量
@@ -159,8 +159,8 @@ function power() {
     o += text(q[0] + (k === 0 ? 0 : 4), q[1] + (k === 0 ? 18 : 4 + (3 - k) * 5), 'k = ' + k, k === 3 ? 'tl' : 'ts', k === 0 ? 'middle' : 'start');
     v = [2 * v[0] + v[1], v[0] + 2 * v[1]];
   }
-  o += text(330, 150, '与 45° 方向的夹角：', 't') + text(330, 170, '45° → 18.4° → 6.3° → 2.1°', 'tb') + text(330, 190, '偏离的分量每次乘 λ₂ / λ₁ = ⅓', 'ts');
-  return svg(560, 262, o, '从水平方向出发做 power iteration，向量一步步转向 45 度方向的 eigenvector，偏离每次缩小到三分之一');
+  o += text(330, 150, '与 45° 方向的 angle：', 't') + text(330, 170, '45° → 18.4° → 6.3° → 2.1°', 'tb') + text(330, 190, '偏离的 component 每次乘 λ₂ / λ₁ = ⅓', 'ts');
+  return svg(560, 262, o, '从水平方向出发做 power iteration，vector 一步步转向 45 度方向的 eigenvector，偏离每次缩小到三分之一');
 }
 
 
@@ -186,9 +186,9 @@ function ellipse() {
   o += text(p1[0] + 6, p1[1] - 4, 'v₁', 'tl') + text(p2[0] - 6, p2[1] - 6, 'v₂', 'tb', 'end');
   o += text(q1[0] + 8, q1[1] + 4, 'σ₁u₁', 'tl') + text(q2[0] - 4, q2[1] - 8, 'σ₂u₂', 'tb', 'end');
   o += arrow(238, 150, 282, 150, 'ink') + text(260, 140, '乘 A', 'ts', 'middle');
-  o += text(L[0], 296, '所有长度为 1 的 x', 't', 'middle') + text(R[0], 296, '它们的像 Ax', 't', 'middle');
-  o += text(280, 318, `这个例子里 σ₁ ≈ ${s1.toFixed(2)}，σ₂ ≈ ${s2.toFixed(2)}：最多拉长 ${s1.toFixed(2)} 倍，最少也有 ${s2.toFixed(2)} 倍，κ = σ₁ / σ₂ ≈ ${(s1 / s2).toFixed(1)}`, 'ts', 'middle');
-  return svg(560, 328, o, '矩阵把单位圆变成椭圆；椭圆的长半轴是最大的 singular value，短半轴是最小的 singular value，两者之比是 condition number');
+  o += text(L[0], 296, '所有 length 为 1 的 x', 't', 'middle') + text(R[0], 296, '它们的 image Ax', 't', 'middle');
+  o += text(280, 318, `这个例子里 σ₁ ≈ ${s1.toFixed(2)}，σ₂ ≈ ${s2.toFixed(2)}：最多 stretch ${s1.toFixed(2)} 倍，最少也有 ${s2.toFixed(2)} 倍，κ = σ₁ / σ₂ ≈ ${(s1 / s2).toFixed(1)}`, 'ts', 'middle');
+  return svg(560, 328, o, 'Matrix 把 unit circle 变成 ellipse；ellipse 的 semi-major axis 是最大的 singular value，semi-minor axis 是最小的 singular value，两者之比是 condition number');
 }
 
 // 三个点拟合一条直线（18.06 第 16 讲的例子）
@@ -203,9 +203,9 @@ function fit3() {
     o += i === 1 ? text(sx(t) - 9, (sy(b) + sy(f(t))) / 2 + 4, lab[i], 'ts', 'end') : text(sx(t) + 9, Math.max(sy(b), sy(f(t))) + 14, lab[i], 'ts');
   });
   o += text(sx(0.12), sy(1.42), 'b = 2/3 + t/2', 'tl');
-  o += text(330, 70, '三个方程，两个未知数：', 'tb') + text(330, 94, 'C + D = 1', 't') + text(330, 114, 'C + 2D = 2', 't') + text(330, 134, 'C + 3D = 2', 't');
-  o += text(330, 168, '没有一条直线同时过三个点。', 't') + text(330, 188, '粗线段是每个点到直线的竖直', 't') + text(330, 208, '差距，要让它们的平方和最小。', 't');
-  return svg(560, 262, o, '三个数据点和最小二乘直线 b 等于三分之二加二分之 t，以及每个点的竖直误差');
+  o += text(330, 70, '三个 equation，两个 unknown：', 'tb') + text(330, 94, 'C + D = 1', 't') + text(330, 114, 'C + 2D = 2', 't') + text(330, 134, 'C + 3D = 2', 't');
+  o += text(330, 168, '没有一条 line 同时过三个点。', 't') + text(330, 188, '粗线段是每个点到 line 的', 't') + text(330, 208, 'vertical distance，要让它们的', 't') + text(330, 228, 'sum of squares 最小。', 't');
+  return svg(560, 262, o, '三个 data point 和 least squares 的 line b 等于三分之二加二分之 t，以及每个点的 vertical error');
 }
 
 // 节点多项式 |ω(x)|：等距节点把误差堆在两端，Chebyshev 节点把它摊平
@@ -219,10 +219,10 @@ function nodepoly() {
   o += path(curve(w(equi), -1, 1, sx, sy, 900), 'ln') + path(curve(w(cheb), -1, 1, sx, sy, 900), 'ink');
   for (const x of equi) o += circle(sx(x), sy(0), 3, 'ln-f');
   for (const x of cheb) o += line(sx(x), sy(0) - 7, sx(x), sy(0), 'ink-b');
-  o += text(sx(-0.72), sy(0.0079), '等距节点：两端高出中间近百倍', 'tl');
-  o += text(sx(0), sy(0.0022), 'Chebyshev 节点：处处一样高，约 0.001', 't', 'middle');
-  o += text(295, 268, '曲线是 |(x − x₀)(x − x₁)⋯(x − x₁₀)|。圆点是等距节点，短竖线是 Chebyshev 节点。', 'ts', 'middle');
-  return svg(560, 278, o, '节点多项式的绝对值：等距节点时在区间两端很大而中间很小，Chebyshev 节点时在整个区间上一样高');
+  o += text(sx(-0.72), sy(0.0079), 'equispaced node：两端高出中间近百倍', 'tl');
+  o += text(sx(0), sy(0.0022), 'Chebyshev node：处处一样高，约 0.001', 't', 'middle');
+  o += text(295, 268, 'Curve 是 |(x − x₀)(x − x₁)⋯(x − x₁₀)|。圆点是 equispaced node，短竖线是 Chebyshev node。', 'ts', 'middle');
+  return svg(560, 278, o, 'Node polynomial 的 absolute value：equispaced node 时在 interval 两端很大而中间很小，Chebyshev node 时在整个 interval 上一样高');
 }
 
 // 数值微分的误差随步长 h 的变化：真实的双精度计算结果
@@ -239,11 +239,11 @@ function hcurve() {
     return path(d(pts), cls);
   };
   o += series(fwd, 'ln') + series(cen, 'ink');
-  o += text(sx(-14.7), sy(-8.4), '左半边：舍入误差 ≈ ε / h', 't') + text(sx(-14.7), sy(-9.6), 'h 越小越大，两条线重合', 'ts');
-  o += text(sx(-4.6), sy(-1.0), 'forward difference：公式误差 ∝ h', 'tl', 'end') + text(526, sy(-10.5), 'central difference', 'tb', 'end') + text(526, sy(-11.6), '公式误差 ∝ h²', 't', 'end');
+  o += text(sx(-14.7), sy(-8.4), '左半边：rounding error ≈ ε / h', 't') + text(sx(-14.7), sy(-9.6), 'h 越小越大，两条 curve 重合', 'ts');
+  o += text(sx(-4.6), sy(-1.0), 'forward difference：formula error ∝ h', 'tl', 'end') + text(526, sy(-10.5), 'central difference', 'tb', 'end') + text(526, sy(-11.6), 'formula error ∝ h²', 't', 'end');
   o += line(sx(-8), sy(-12.5), sx(-8), sy(-8.4), 'ln-dash') + text(sx(-8) + 6, sy(-11.7), 'h ≈ 10⁻⁸', 'tl');
-  o += text(530, 264, '步长 h（对数刻度）', 'ts', 'end') + text(70, 18, '误差（对数刻度）：对 eˣ 在 x = 1 处求导，双精度实算', 'tb');
-  return svg(560, 272, o, '数值微分的误差随步长变化：步长从大变小时误差先下降，过了某个最佳步长后因舍入误差反而上升');
+  o += text(530, 264, 'step size h（log scale）', 'ts', 'end') + text(70, 18, 'error（log scale）：eˣ 在 x = 1 处的 derivative，double precision 实算', 'tb');
+  return svg(560, 272, o, 'Numerical differentiation 的 error 随 step size 变化：step size 从大变小时 error 先下降，过了某个最佳 step size 后因 rounding error 反而上升');
 }
 
 export default {
