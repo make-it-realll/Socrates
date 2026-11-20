@@ -26,6 +26,11 @@ const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
 const lineOf = Object.fromEntries(lines.map((l) => [l.id, l]));
 const courseOf = Object.fromEntries(courses.map((c) => [c.code, c]));
 const problems = [];
+// content/labs.json：各校公开课里核实过的编程作业，按本站课程代码归类。没有这个文件就不显示。
+const labsFile = path.join(ROOT, 'content/labs.json');
+let LABS = { courses: {} };
+if (fs.existsSync(labsFile)) { try { LABS = JSON.parse(fs.readFileSync(labsFile, 'utf8')); } catch (e) { problems.push('content/labs.json 不是合法的 JSON：' + e.message); } }
+const labItem = (o) => `<li><a href="${esc(o.url)}" rel="noopener">${esc(o.title)}</a><span class="lab-from">${esc(o.from || '')}${o.lang ? ' · ' + esc(o.lang) : ''}</span><span>${inl(o.note || '')}</span>${o.public || o.needs ? `<span class="lab-meta">${esc([o.public, o.needs].filter(Boolean).join('；'))}</span>` : ''}</li>`;
 let EDGES_R = [];
 
 // ---------- Markdown + 公式 + 自定义块 ----------
@@ -113,6 +118,7 @@ function shell({ title, root, body, line, cls = '' }) {
     <a href="${root}index.html#map">谱系图</a>
     <a href="${root}index.html#lines">全部课程</a>
     <a href="${root}index.html#threads">概念线</a>
+    <a href="${root}labs.html">动手做</a>
     <a href="${root}index.html#how">怎么用</a>
   </nav>
 </header>
@@ -173,6 +179,7 @@ ${renderMd(bodySrc, where + '#' + sk.id)}
   const ev = EVID[fm.evidence] || EVID.syllabus;
   const railHtml = rail.map((r) => `<li class="${r.skill ? 'rs' : 'rp'}"><a href="#${r.id}"${r.skill ? ` data-skill="${r.id}"` : ''}><span class="dot" aria-hidden="true"></span><span class="rl">${md.renderInline(r.label)}</span></a></li>`).join('');
   const openHtml = (fm.open || []).map((o) => `<li><a href="${o.url}" rel="noopener">${esc(o.label)}</a><span>${inl(o.note || '')}</span></li>`).join('');
+  const labsHtml = (LABS.courses?.[c.code] || []).map(labItem).join('');
   const srcHtml = (fm.sources || []).map((o) => `<li><a href="${o.url}" rel="noopener">${esc(o.label)}</a>${o.note ? `<span>${inl(o.note)}</span>` : ''}</li>`).join('');
   const body = `<main id="main" class="course" data-course="${c.code}" data-title="${esc(c.title)}" data-zh="${esc(c.zh)}">
 <header class="c-head">
@@ -197,6 +204,7 @@ ${renderMd(bodySrc, where + '#' + sk.id)}
 ${intro ? `<section class="plain lead">${renderMd(intro, where)}</section>` : ''}
 ${secs.join('\n')}
 ${openHtml ? `<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links">${openHtml}</ul></section>` : ''}
+${labsHtml ? `<section class="plain" id="labs"><h2>动手做</h2><p>各校公开课里和这门课内容对得上的编程作业，链接都核实过能打开。讲义读懂了不等于会做，挑一个从头写完。</p><ul class="links labs">${labsHtml}</ul></section>` : ''}
 ${srcHtml ? `<section class="plain" id="src"><h2>来源</h2><ul class="links">${srcHtml}</ul></section>` : ''}
 </div></div></main>`;
   fs.writeFileSync(path.join(OUT, 'courses', c.code + '.html'), shell({ title: `${c.code} ${c.zh} · Socrates`, root: '../', body, line: c.line, cls: 'p-course' }));
@@ -386,6 +394,19 @@ const cdir = path.join(ROOT, 'content/courses'), tdir = path.join(ROOT, 'content
 const built = fs.readdirSync(cdir).filter((f) => f.endsWith('.md') && (!ONLY || ONLY.includes(f.replace(/\.md$/, '').toUpperCase()))).sort().map((f) => buildCourse(path.join(cdir, f)));
 const threads = fs.readdirSync(tdir).filter((f) => f.endsWith('.md')).sort().map((f) => buildThread(path.join(tdir, f)));
 buildHome(built, threads);
+{
+  const builtCodes = new Set(built.map((x) => x.code));
+  const secs = courses.filter((c) => (LABS.courses?.[c.code] || []).length).map((c) => {
+    const l = lineOf[c.line];
+    const head = builtCodes.has(c.code) ? `<a href="courses/${c.code}.html">${c.code}</a>` : c.code;
+    return `<section class="plain lab-sec" style="--line-l:${l.color};--line-dk:${l.dark}"><h2><span class="ll-code">${head}</span> ${esc(c.title)}</h2><ul class="links labs">${LABS.courses[c.code].map(labItem).join('')}</ul></section>`;
+  }).join('\n');
+  const body = `<main id="main" class="wrap labs-page"><section class="hero"><h1>动手做</h1>
+<p class="hero-lead">各校公开课里值得从头写完的编程作业，按本站的课程归类。每一条都打开核实过：作业要求是什么、公开到什么程度（只有 handout，还是连 starter code 和 tests 都有）。${LABS.updated ? '最近一次核实：' + esc(LABS.updated) + '。' : ''}</p></section>
+${secs || '<section class="plain"><p>还在整理。</p></section>'}
+</main>`;
+  fs.writeFileSync(path.join(OUT, 'labs.html'), shell({ title: '动手做 · Socrates', root: './', body, cls: 'p-labs' }));
+}
 
 console.log(`built ${built.length} courses, ${threads.length} threads → ${path.relative(ROOT, OUT) || OUT}/`);
 if (problems.length) { console.error('问题：\n' + problems.join('\n')); process.exit(1); }

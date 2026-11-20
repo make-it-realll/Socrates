@@ -240,3 +240,12 @@ pre code { background: none; padding: 0; }
 /* 概念线页 */
 .t-body { max-width: 47rem; padding: 2.2rem clamp(1rem, 4vw, 3rem) 0; }
 .t-body h2 { font-size: 1.4rem; margin: 2.4rem 0 .6rem; padding-top: 1rem; border-top: 5px solid var(--line); }
+
+/* 动手做：公开课的编程作业 */
+.links.labs li a { font-weight: 600; }
+.links.labs .lab-from { font-size: .82rem; color: var(--mute); font-family: var(--sign); letter-spacing: .01em; }
+.links.labs .lab-meta { font-size: .82rem; }
+.labs-page .lab-sec { margin-top: 2.2rem; }
+.labs-page .lab-sec h2 { font-size: 1.15rem; border-top: 3px solid var(--line); padding-top: .6rem; max-width: 44rem; }
+.labs-page .lab-sec h2 .ll-code { font-family: var(--sign); margin-right: .4rem; }
+.labs-page .lab-sec h2 a { color: inherit; }
