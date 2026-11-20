@@ -205,7 +205,7 @@ function fit3() {
   o += text(sx(0.12), sy(1.42), 'b = 2/3 + t/2', 'tl');
   o += text(330, 70, '三个 equation，两个 unknown：', 'tb') + text(330, 94, 'C + D = 1', 't') + text(330, 114, 'C + 2D = 2', 't') + text(330, 134, 'C + 3D = 2', 't');
   o += text(330, 168, '没有一条 line 同时过三个点。', 't') + text(330, 188, '粗线段是每个点到 line 的', 't') + text(330, 208, 'vertical distance，要让它们的', 't') + text(330, 228, 'sum of squares 最小。', 't');
-  return svg(560, 262, o, '三个 data point 和 least squares 的 line b 等于三分之二加二分之 t，以及每个点的 vertical error');
+  return svg(560, 274, o, '三个 data point 和 least squares 的 line b 等于三分之二加二分之 t，以及每个点的 vertical error');
 }
 
 // 节点多项式 |ω(x)|：等距节点把误差堆在两端，Chebyshev 节点把它摊平

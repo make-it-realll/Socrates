@@ -6,9 +6,6 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { lines, courses, edges } from './catalog.mjs';
 import { esc } from './lib/svg.mjs';
-import figST from './figures/st2131.mjs';
-import figEE from './figures/ee2023.mjs';
-import figDSA from './figures/dsa2102.mjs';
 
 const require = createRequire(import.meta.url);
 const MarkdownIt = require('markdown-it');
@@ -16,8 +13,15 @@ const katex = require('katex');
 const matter = require('gray-matter');
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = path.join(ROOT, 'docs');
-const figures = { ...figST, ...figEE, ...figDSA };
+// 预览用的两个环境变量：SOCRATES_OUT 换输出目录，ONLY=CS2040,CS2100 只构建这几门课。
+const OUT = process.env.SOCRATES_OUT ? path.resolve(process.env.SOCRATES_OUT) : path.join(ROOT, 'docs');
+const ONLY = process.env.ONLY ? process.env.ONLY.split(',').map((x) => x.trim().toUpperCase()).filter(Boolean) : null;
+// src/figures/ 里每个 .mjs 默认导出 { '图的名字': () => svg 字符串 }，这里全部自动载入。
+const figures = {};
+for (const f of fs.readdirSync(path.join(ROOT, 'src/figures')).filter((x) => x.endsWith('.mjs')).sort()) {
+  if (ONLY && !ONLY.includes(f.replace(/\.mjs$/, '').toUpperCase())) continue;
+  Object.assign(figures, (await import('./figures/' + f)).default);
+}
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
 const lineOf = Object.fromEntries(lines.map((l) => [l.id, l]));
 const courseOf = Object.fromEntries(courses.map((c) => [c.code, c]));
@@ -379,9 +383,9 @@ copyDir(path.join(ROOT, 'src/assets'), path.join(OUT, 'assets'));
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 
 const cdir = path.join(ROOT, 'content/courses'), tdir = path.join(ROOT, 'content/threads');
-const built = fs.readdirSync(cdir).filter((f) => f.endsWith('.md')).sort().map((f) => buildCourse(path.join(cdir, f)));
+const built = fs.readdirSync(cdir).filter((f) => f.endsWith('.md') && (!ONLY || ONLY.includes(f.replace(/\.md$/, '').toUpperCase()))).sort().map((f) => buildCourse(path.join(cdir, f)));
 const threads = fs.readdirSync(tdir).filter((f) => f.endsWith('.md')).sort().map((f) => buildThread(path.join(tdir, f)));
 buildHome(built, threads);
 
-console.log(`built ${built.length} courses, ${threads.length} threads → docs/`);
+console.log(`built ${built.length} courses, ${threads.length} threads → ${path.relative(ROOT, OUT) || OUT}/`);
 if (problems.length) { console.error('问题：\n' + problems.join('\n')); process.exit(1); }
