@@ -104,11 +104,8 @@ const C = [
   ['QF3101', '投资工具与风险管理', 'Investment Instruments and Risk Management', 'fin'],
   ['QF3103', '金融高等数学', 'Advanced Mathematics in Quantitative Finance', 'fin'],
   // ---- 2026-11 扩充：代码和课名取自 NUSMods AY2026/27 的 moduleList ----
-  ['MA2001', '线性代数 I', 'Linear Algebra I', 'num'],
   ['MA3252', '线性与网络优化', 'Linear and Network Optimisation', 'num'],
   ['MA3236', '非线性规划', 'Non-Linear Programming', 'num'],
-  ['MA2002', '微积分', 'Calculus', 'ana'],
-  ['MA2104', '多元微积分', 'Multivariable Calculus', 'ana'],
   ['MA3210', '数学分析 II', 'Mathematical Analysis II', 'ana'],
   ['MA4262', '测度与积分', 'Measure and Integration', 'ana'],
   ['ST4234', 'Bayesian 统计', 'Bayesian Statistics', 'prob'],
@@ -204,8 +201,8 @@ const K = {
   CCS5201: ['PC4441', 'PC3441'], PC4262: ['PC2135'], MA4233: ['MA3220'], EE4314: ['EE3331C'],
   EE3305: [], MA4198: ['MA3264'], ST3248: ['ST3131'], DSA4212: ['DSA3102'],
   // 2026-11 扩充的课：下面这些边是按内容衔接画的，还没有逐门对照 NUSMods 的 prerequisite 字段。
-  MA2101: ['MA2001'], MA2108: ['MA2002'], MA2104: ['MA2002'], MA3210: ['MA2108'], MA4262: ['MA3210'],
-  MA3252: ['MA2001'], MA3236: ['MA2104', 'MA2001'], ST2131: ['MA2002'],
+  MA3210: ['MA2108'], MA4262: ['MA3210'],
+  MA3236: ['MA3252'],
   ST4234: ['ST2132'], ST4238: ['ST3236'], ST4250: ['ST3131'], ST4253: ['ST3131'], ST4248: ['ST3248'],
   CS3230: ['CS2040'], CS3236: ['ST2131'],
   CS3263: ['CS2109S'], CS3264: ['CS2109S', 'ST2131'], CS4243: ['CS3264'], CS4246: ['CS3263'],
