@@ -12,6 +12,7 @@ export const lines = [
   { id: 'sig', name: '信号·控制·机器人', color: '#0B8474', dark: '#3CC4B1' },
   { id: 'geo', name: '大气·海洋·流体', color: '#0A8DB0', dark: '#4CC3E3' },
   { id: 'fin', name: '金融数学', color: '#6F7F1E', dark: '#B4C653' },
+  { id: 'alg', name: '代数与组合', color: '#B0436E', dark: '#E88AB0' },
   { id: 'phil', name: '哲学', color: '#8B5E34', dark: '#D2A679' },
   { id: 'psy', name: '心理学', color: '#3E9E4F', dark: '#7FD08D' },
   { id: 'hist', name: '历史', color: '#A8870A', dark: '#E3C348' },
@@ -174,6 +175,25 @@ const C = [
   ['SC1101E', '社会学导论', 'Making Sense of Society', 'econ'],
   ['SC3101', '社会思想与社会理论', 'Social Thought & Social Theory', 'econ'],
   ['PE2101P', 'PPE 导论', 'Introduction to Philosophy, Politics, and Economics', 'econ'],
+  // ---- 2026-11 第二批：用户确认的技术方向，代码和课名取自 NUSMods AY2026/27 ----
+  ['CS3231', '计算理论', 'Theory of Computation', 'sys'],
+  ['CS3234', '证明与程序的逻辑', 'Logic for Proofs and Programs', 'sys'],
+  ['CS4212', '编译器设计', 'Compiler Design', 'sys'],
+  ['CS3211', '并发编程', 'Concurrent Programming', 'sys'],
+  ['CS3235', '计算机安全', 'Computer Security', 'sys'],
+  ['CS4230', '现代密码学基础', 'Foundations of Modern Cryptography', 'sys'],
+  ['CS4268', '量子计算', 'Quantum Computing', 'sys'],
+  ['CS4261', '算法机制设计', 'Algorithmic Mechanism Design', 'sys'],
+  ['CS4262', '机器学习系统', 'Machine Learning Systems', 'ml'],
+  ['CS3227', 'Agentic 软件工程', 'Agentic Software Engineering', 'ml'],
+  ['MA2202', '代数 I', 'Algebra I', 'alg'],
+  ['MA2214', '组合与图论 I', 'Combinatorics and Graphs I', 'alg'],
+  ['MA3233', '组合与图论 II', 'Combinatorics and Graphs II', 'alg'],
+  ['MA3270', 'AI 的数学', 'Mathematics for Artificial Intelligence', 'num'],
+  ['MA4275', '强化学习的数学', 'Mathematics of Reinforcement Learning', 'prob'],
+  ['MA4261', '信息论与编码', 'Information and Coding Theory', 'prob'],
+  ['MA4264', '博弈论', 'Game Theory', 'num'],
+  ['MA4254', '离散优化', 'Discrete Optimization', 'num'],
 ];
 
 export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, line }));
@@ -216,6 +236,12 @@ const K = {
   PS3232: ['PS2258'], PS3238: ['PS2237', 'EC1101E'],
   EC2101: ['EC1101E'], EC2102: ['EC1101E'], EC3303: ['EC2101', 'ST2131'], EC3312: ['EC2101'], EC3394: ['EC1101E', 'PL1101E'],
   SC3101: ['SC1101E'], PE2101P: ['GEX1015', 'PS1101E', 'EC1101E'],
+  // 第二批：先修取自 NUSMods 的 prerequisite 字段（只保留本目录内的课），其余为内容衔接
+  CS3231: ['CS2040'], CS4212: ['CS3231'], CS3211: ['CS2106'], CS3235: ['CS2105', 'CS2106'],
+  CS4230: ['CS3230', 'ST2131'], CS4268: ['CS3230', 'ST2131'], CS4261: ['CS2040', 'ST2131'],
+  CS4262: ['CS2106', 'CS3244'], CS3227: ['CS2103'], CS3234: ['CS3231'],
+  MA3233: ['MA2214', 'MA2202'], MA3270: ['ST2131'], MA4275: ['MA3238', 'MA3270'],
+  MA4261: ['MA2101', 'ST2131'], MA4264: ['MA3252', 'ST2131'], MA4254: ['MA3252'],
 };
 
 export const edges = [];
