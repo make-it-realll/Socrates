@@ -4,7 +4,7 @@
 set -e
 cd "$(dirname "$0")/.."
 for c in "$@"; do grep -qx "$c" tools/published.txt || echo "$c" >> tools/published.txt; done
-ONLY=$(paste -sd, tools/published.txt) NODE_PATH=${NODE_PATH:-/opt/npm-tools/node_modules} node src/build.mjs | tail -1
+ONLY=$(paste -sd, tools/published.txt) NODE_PATH=/opt/npm-tools/node_modules node src/build.mjs > /tmp/publish-build.log 2>&1 || { cat /tmp/publish-build.log; exit 1; }; tail -1 /tmp/publish-build.log
 files="tools/published.txt docs"
 for c in "$@"; do l=$(echo "$c" | tr A-Z a-z); files="$files content/courses/$c.md src/figures/$l.mjs"; done
 git add $files
