@@ -54,7 +54,7 @@ node tools/preview.mjs <CODE>
 - Stanford（CS229、CS231n、CS224n、EE263、CS161、CS107、Stats 110 在 Harvard）、Berkeley（CS61A/B/C、CS70、CS162、CS188、EECS16A/B、Data 100、Stat 134）、CMU（15-213、15-445、15-451、10-301/601、21-241）、Harvard Stat 110、Princeton COS226。
 - 3Blue1Brown 的 lessons（`https://www.3blue1brown.com/lessons/<slug>`）、Gilbert Strang 的书、公开的教材讲义。
 
-URL 不要凭记忆编，用 WebSearch 搜到再抓。抓不到（被拒、超时）就换一个来源，不要绕过去。
+**URL 不要凭记忆编，也不要自己拼**：WebFetch 只抓 WebSearch 结果里返回的地址、已抓页面里出现的链接，或本文件写明的地址。自己拼出来的地址会触发权限提示，整个 session 会停下来等人点。抓不到（被拒、超时）就换一个来源，不要绕过去。
 
 每一站末尾的 `:::from` 如实写明：这一站的讲法跟的是哪门课的哪一讲（带链接）、用了它的什么（例子、图、论证顺序）、哪些部分是你另加的或自己算的。**只读了摘要就写“只读了摘要”，凭自己的知识写的就写明**，不要把没读过的课列成来源。frontmatter 的 `open` 列表只列真正读过的。
 

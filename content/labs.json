@@ -1,0 +1,833 @@
+{
+  "updated": "2026-11-20",
+  "courses": {
+    "CS1010S": [
+      {
+        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
+        "title": "Project 1: The Game of Hog",
+        "url": "https://cs61a.org/fa26/projects/hog/",
+        "lang": "Python",
+        "note": "实现骰子游戏 Hog 的 simulator：先写游戏规则和 play loop，再写 strategy 函数并用实验比较它们。做完能把一个中等规模的程序拆成一组互相调用的小函数。",
+        "public": "spec、starter zip、本地 pytest tests 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
+        "title": "Project 2: Cats (Computer Aided Typing Software)",
+        "url": "https://cs61a.org/fa26/projects/cats/",
+        "lang": "Python",
+        "note": "实现一个打字测速程序：计算 words per minute 和 accuracy，再实现 autocorrect。练的是对 string 和 list 的处理，以及按 spec 逐题通过 tests 的工作方式。",
+        "public": "spec、starter zip、本地 pytest tests 都公开",
+        "needs": "multiplayer 部分要连课程 server"
+      },
+      {
+        "from": "UC Berkeley CS 61A Structure and Interpretation of Computer Programs (Fall 2026)",
+        "title": "Project 3: Ants Vs. SomeBees",
+        "url": "https://cs61a.org/fa26/projects/ants/",
+        "lang": "Python",
+        "note": "用 object-oriented programming 实现一个 tower defense 游戏，自己写 HarvesterAnt、ThrowerAnt、FireAnt、QueenAnt 等 class。做完对 class、inheritance 和在已有代码框架里加功能会比较熟。",
+        "public": "spec、starter zip、本地 pytest tests 都公开"
+      }
+    ],
+    "CS2030": [
+      {
+        "from": "MIT 6.031 Software Construction (Spring 2021, Java 版)",
+        "title": "Problem Set 2: Multi-Startup Set",
+        "url": "https://web.mit.edu/6.031/www/sp21/psets/ps2/",
+        "lang": "Java",
+        "note": "先写 tests 再实现 IntervalSet 这个 abstract data type 的两种 representation，然后把它改成 generic 的 IntervalSet<L>，再在上面搭 MultiIntervalSet。练的是 specification、rep invariant、abstraction function 和防止 rep exposure。",
+        "public": "只有 handout 公开，starter code 通过 MIT 的 Didit 发放"
+      },
+      {
+        "from": "MIT 6.031 Software Construction (Spring 2021, Java 版)",
+        "title": "Problem Set 4: Memory Scramble",
+        "url": "https://web.mit.edu/6.031/www/sp21/psets/ps4/",
+        "lang": "Java",
+        "note": "实现一个多人同时翻牌的联网 Memory 游戏：thread-safe 的 Board ADT 加一个 HTTP game server。要自己处理 threads、synchronized、wait()/notifyAll()，并写出 thread-safety argument。",
+        "public": "只有 handout 公开，starter code 通过 MIT 的 Didit 发放"
+      },
+      {
+        "from": "UC Berkeley CS 61BL Data Structures (Summer 2025)",
+        "title": "Project 1A: LinkedListDeque61B",
+        "url": "https://cs61bl.github.io/su25/projects/proj1a",
+        "lang": "Java",
+        "note": "用带 sentinel node 的 circular doubly-linked list 实现一个 generic 的 deque，要实现给定的 Deque61B<T> interface 并自己写 unit tests。练的是 Java generics、interface 和 nested class。",
+        "public": "spec 公开；skeleton 按课程 workflow 获取，是否对校外开放没有确认"
+      }
+    ],
+    "CS2040": [
+      {
+        "from": "Princeton COS 226 Algorithms and Data Structures (Spring 2023)",
+        "title": "Assignment 1: Percolation",
+        "url": "https://www.cs.princeton.edu/courses/archive/spring23/cos226/assignments/percolation/specification.php",
+        "lang": "Java",
+        "note": "用 union-find 给 n×n 网格建 Percolation 模型，再用 Monte Carlo simulation 估计 percolation threshold，并比较 quick-find 和 weighted quick-union 能跑到多大的 n。做完会明白 data structure 的选择怎样直接决定程序能处理的规模。",
+        "public": "specification、project zip（test client 和数据）公开；autograder 只对 Princeton 学生开放"
+      },
+      {
+        "from": "Princeton COS 226 Algorithms and Data Structures (Spring 2023)",
+        "title": "Assignment 4: K-d Trees",
+        "url": "https://www.cs.princeton.edu/courses/archive/spring23/cos226/assignments/kdtree/specification.php",
+        "lang": "Java",
+        "note": "先用 red-black BST 写一个 brute-force 的二维点 symbol table，再实现 2d-tree，支持 range search 和 nearest-neighbor search。附带的 visualizer 能直接看到两种实现的速度差别。",
+        "public": "specification、project zip（含 visualizer）公开；autograder 只对 Princeton 学生开放"
+      },
+      {
+        "from": "Princeton COS 226 Algorithms and Data Structures (Spring 2023)",
+        "title": "Assignment 5: WordNet",
+        "url": "https://www.cs.princeton.edu/courses/archive/spring23/cos226/assignments/wordnet/specification.php",
+        "lang": "Java",
+        "note": "把 WordNet 的 synsets 和 hypernyms 建成 digraph，在 rooted DAG 上实现 shortest common ancestor，再用它找出一组名词里最不相关的那个。练的是 graph 的建模和 BFS。",
+        "public": "specification、project zip 公开；autograder 只对 Princeton 学生开放"
+      },
+      {
+        "from": "Princeton COS 226 Algorithms and Data Structures (Spring 2023)",
+        "title": "Assignment 7: Burrows–Wheeler",
+        "url": "https://www.cs.princeton.edu/courses/archive/spring23/cos226/assignments/burrows/specification.php",
+        "lang": "Java",
+        "note": "实现 data compression 流程里的 CircularSuffixArray、Burrows–Wheeler transform 和 move-to-front encoding，Huffman 部分由课程提供。做完能看懂一个真实压缩算法由哪几步组成。",
+        "public": "specification、project zip 公开；autograder 只对 Princeton 学生开放"
+      }
+    ],
+    "CS2100": [
+      {
+        "from": "UC Berkeley CS 61C Great Ideas in Computer Architecture (Fall 2025)",
+        "title": "Project 1: snek",
+        "url": "https://fa25-web.pages.dev/fa25/projects/proj1/",
+        "lang": "C",
+        "note": "用 C 写一个能玩的 Snake 游戏：读入和打印 board、推进一个 time step、管理动态分配的内存。练的是 pointer、string 和 malloc/free，Valgrind 检查 memory leak 也是要求的一部分。",
+        "public": "spec 公开，starter 在 61c-teach 的 GitHub repo，带 unit tests 和 integration tests"
+      },
+      {
+        "from": "UC Berkeley CS 61C Great Ideas in Computer Architecture (Spring 2026)",
+        "title": "Project 2: CS61Classify",
+        "url": "https://sp26-web.pages.dev/sp26/projects/proj2",
+        "lang": "RISC-V assembly",
+        "note": "用 RISC-V assembly 写一个识别手写数字的 classifier，在 Venus simulator 里运行并自己写 tests。做完对 calling convention 和手写 assembly 的调试会有实际经验。",
+        "public": "spec 公开，starter 在 61c-teach 的 GitHub repo"
+      },
+      {
+        "from": "UC Berkeley CS 61C Great Ideas in Computer Architecture (Spring 2026)",
+        "title": "Project 3: CS61CPU",
+        "url": "https://sp26-web.pages.dev/sp26/projects/proj3",
+        "lang": "Logisim",
+        "note": "在 Logisim 里搭一个能执行真实 RISC-V instructions 的 CPU。datapath 和 control 都要自己连出来，做完再看 datapath 图就不是背出来的了。",
+        "public": "spec 公开，starter 在 61c-teach 的 GitHub repo"
+      }
+    ],
+    "CS2102": [
+      {
+        "from": "CMU 15-445/645 Database Systems (Spring 2026)",
+        "title": "Project #1: Buffer Pool Manager",
+        "url": "https://15445.courses.cs.cmu.edu/spring2026/project1/",
+        "lang": "C++",
+        "note": "在教学用的 BusTub DBMS 里实现 ARC replacement policy、带后台线程的 disk scheduler 和 buffer pool manager。做完知道 database 怎样在 memory 和 disk 之间搬 page。",
+        "public": "spec 和 BusTub 源码公开；校外可用公开的 Gradescope autograder（在 CMU 截止日期之后开放）；Fall 2025 的 lecture 在 YouTube"
+      },
+      {
+        "from": "CMU 15-445/645 Database Systems (Spring 2026)",
+        "title": "Project #2: Database Index (B+Tree)",
+        "url": "https://15445.courses.cs.cmu.edu/spring2026/project2/",
+        "lang": "C++",
+        "note": "实现 B+Tree index：internal page 和 leaf page、insert、delete（含 split 和 merge）、iterator，最后用 latch crabbing 让它支持并发访问。",
+        "public": "spec 和 BusTub 源码公开；校外可用公开的 Gradescope autograder"
+      },
+      {
+        "from": "CMU 15-445/645 Database Systems (Spring 2026)",
+        "title": "Project #3: Query Execution",
+        "url": "https://15445.courses.cs.cmu.edu/spring2026/project3/",
+        "lang": "C++",
+        "note": "实现一组 query executor：sequential scan、index scan、insert/update/delete、aggregation、nested-loop join、hash join、external merge sort 和 window function，再写几条 optimizer rule。做完能说清一条 SQL 在引擎里是怎样被执行的。",
+        "public": "spec 和 BusTub 源码公开；校外可用公开的 Gradescope autograder"
+      },
+      {
+        "from": "CMU 15-445/645 Database Systems (Spring 2026)",
+        "title": "Project #4: Concurrency Control",
+        "url": "https://15445.courses.cs.cmu.edu/spring2026/project4/",
+        "lang": "C++",
+        "note": "给 BusTub 加 transaction 支持，实现 optimistic multi-version concurrency control：timestamp、undo log、MVCC 版本的 executor、commit/abort、garbage collection 和 serializable 验证。",
+        "public": "spec 和 BusTub 源码公开；校外可用公开的 Gradescope autograder"
+      },
+      {
+        "from": "UC Berkeley CS 186 Introduction to Database Systems (Fall 2026)",
+        "title": "Project 5: Recovery",
+        "url": "https://cs186berkeley.net/projects/5/your-tasks/",
+        "lang": "Java",
+        "note": "在 RookieDB 里实现 ARIES 风格的 recovery manager：logging、savepoint、checkpoint，以及重启时的 analysis、redo、undo 三个阶段。",
+        "public": "spec 公开，skeleton 和 tests 在 berkeley-cs186 的 RookieDB GitHub repo；lecture 视频只在 bCourses"
+      }
+    ],
+    "CS2103": [
+      {
+        "from": "MIT 6.031 Software Construction (Spring 2022, TypeScript 版)",
+        "title": "Problem Set 4: Memory Scramble",
+        "url": "https://web.mit.edu/6.031/www/sp22/psets/ps4/",
+        "lang": "TypeScript",
+        "note": "实现一个多人同时翻牌的联网 Memory 游戏：带 specification、rep invariant 和 Mocha tests 的 Board ADT，加一个处理并发玩家的 web server。把 spec、testing、ADT 设计和 concurrency 放在同一个项目里练。",
+        "public": "只有 handout 公开，starter code 通过 MIT 的 Didit 发放"
+      },
+      {
+        "from": "Stanford CS146S The Modern Software Developer (assignments repo，Fall 2025 起)",
+        "title": "Week 1: 分析一次 Claude Code session 的 trace",
+        "url": "https://github.com/mihail911/modern-software-dev-assignments/blob/master/week1/assignment.md",
+        "lang": "不限（分析报告）",
+        "note": "用本地 proxy 抓一次真实 coding agent session 的 HTTP 请求，标注其中的 system prompt、tool 定义，并分析它怎样做 planning 和 error recovery。做完对 coding agent 的内部结构有第一手的了解。",
+        "public": "assignment 说明公开在 GitHub repo",
+        "needs": "需要 Claude Code 使用权限和 mitmproxy"
+      },
+      {
+        "from": "Stanford CS146S The Modern Software Developer (assignments repo，Fall 2025 起)",
+        "title": "Week 3: Build a Custom MCP Server",
+        "url": "https://github.com/mihail911/modern-software-dev-assignments/blob/master/week3/assignment.md",
+        "lang": "Python",
+        "note": "把一个真实的外部 API 包成 Model Context Protocol server，至少提供两个带 typed parameters 和 error handling 的 tool，并写清 setup 和 client 配置文档。",
+        "public": "assignment 说明公开在 GitHub repo"
+      },
+      {
+        "from": "Stanford CS146S The Modern Software Developer (assignments repo，Fall 2025 起)",
+        "title": "Week 4: Make a Messy Repo Agent-Ready",
+        "url": "https://github.com/mihail911/modern-software-dev-assignments/blob/master/week4/assignment.md",
+        "lang": "不限",
+        "note": "挑一个不熟悉的 open-source repo，读懂它的 architecture、build/test 命令和 conventions，写成 AGENTS.md 或 CLAUDE.md，再让 agent 按这份文件做两个小任务来检验。练的其实是读陌生代码库并把隐性知识写成文档。",
+        "public": "assignment 说明公开在 GitHub repo"
+      }
+    ],
+    "CS2105": [
+      {
+        "from": "Stanford CS144 Introduction to Computer Networking (Fall 2026)",
+        "title": "Checkpoint 2: the TCP receiver",
+        "url": "https://cs144.github.io/assignments/check2.pdf",
+        "lang": "C++",
+        "note": "实现 TCPReceiver：32-bit seqno 和 64-bit absolute seqno 之间的 wrap/unwrap，把收到的 segment 交给前一个 checkpoint 写的 Reassembler，并算出 ackno 和 window size。",
+        "public": "handout 公开；starter code 和 tests 在课程的 Minnow repo"
+      },
+      {
+        "from": "Stanford CS144 Introduction to Computer Networking (Fall 2026)",
+        "title": "Checkpoint 3: the TCP sender",
+        "url": "https://cs144.github.io/assignments/check3.pdf",
+        "lang": "C++",
+        "note": "实现 TCPSender：按 receiver 的 window 切 segment、处理 ack、用 retransmission timer 重传并在超时后把 RTO 加倍。做完后自己写的 TCP 能和 Linux 的 TCP 互通。",
+        "public": "handout 公开；starter code 和 tests 在课程的 Minnow repo"
+      },
+      {
+        "from": "Stanford CS144 Introduction to Computer Networking (Fall 2026)",
+        "title": "Checkpoint 7: putting it all together",
+        "url": "https://cs144.github.io/assignments/check7.pdf",
+        "lang": "C++",
+        "note": "把前面写的 TCP、network interface 和 router 接起来，先在自己的 VM 上搭一个小型 Internet，再和同学的 router、host 互联。它是前面各 checkpoint 的收尾，前面没做完就做不了。",
+        "public": "handout 公开",
+        "needs": "和同学联网的部分校外做不了"
+      }
+    ],
+    "CS2106": [
+      {
+        "from": "MIT 6.1810 Operating System Engineering (Fall 2026)",
+        "title": "Lab util: Unix utilities",
+        "url": "https://pdos.csail.mit.edu/6.828/2026/labs/util.html",
+        "lang": "C (xv6, RISC-V)",
+        "note": "在 xv6 里用 system call 写 sleep、find 等几个 user-level 小程序。它是后面所有 lab 的环境准备，做完能在 QEMU 里编译、运行、调试 xv6。",
+        "public": "lab 说明、xv6 源码、make grade tests 都公开；主页只有 lecture notes，没有视频"
+      },
+      {
+        "from": "MIT 6.1810 Operating System Engineering (Fall 2026)",
+        "title": "Lab pgtbl: Page tables",
+        "url": "https://pdos.csail.mit.edu/6.828/2026/labs/pgtbl.html",
+        "lang": "C (xv6, RISC-V)",
+        "note": "读懂并修改 xv6 的 page table：实现 vmprint() 打印 page table、用 PTE_A 实现 pgaccess()、给每个 process 映射一个只读 page 来加速 getpid，再加上 superpage。",
+        "public": "lab 说明、xv6 源码、make grade tests 都公开"
+      },
+      {
+        "from": "MIT 6.1810 Operating System Engineering (Fall 2026)",
+        "title": "Lab cow: Copy-on-write fork",
+        "url": "https://pdos.csail.mit.edu/6.828/2026/labs/cow.html",
+        "lang": "C (xv6, RISC-V)",
+        "note": "在 xv6 kernel 里实现 copy-on-write fork()：fork 时共享 physical page，写的时候在 page fault handler 里再复制，并给每个 physical page 维护 reference count。",
+        "public": "lab 说明、xv6 源码、make grade tests 都公开"
+      },
+      {
+        "from": "MIT 6.1810 Operating System Engineering (Fall 2026)",
+        "title": "Lab fs: File system",
+        "url": "https://pdos.csail.mit.edu/6.828/2026/labs/fs.html",
+        "lang": "C (xv6, RISC-V)",
+        "note": "给 xv6 file system 加两个功能：用 doubly-indirect block 支持大文件，以及实现 symlink system call。做完对 inode 的结构有具体的印象。",
+        "public": "lab 说明、xv6 源码、make grade tests 都公开"
+      },
+      {
+        "from": "UW–Madison OSTEP projects (Remzi Arpaci-Dusseau)",
+        "title": "ostep-projects: Shell、Memory Allocator、Parallel Zip 等",
+        "url": "https://github.com/remzi-arpacidusseau/ostep-projects",
+        "lang": "C",
+        "note": "配合 OSTEP 教材的一组 project：在 Linux 上写 Unix utilities、shell、memory allocator、parallel zip、web server，另有几个修改 xv6 kernel 的题目（lottery scheduling、kernel threads）。可以挑和课程进度对应的那几个做。",
+        "public": "project 说明和 tests 公开在 GitHub（README 说明并非每个 project 都已有 tests）"
+      }
+    ],
+    "CS3210": [
+      {
+        "from": "Stanford CS149 Parallel Computing (Fall 2025)",
+        "title": "Assignment 1: Analyzing Parallel Program Performance on a Quad-Core CPU",
+        "url": "https://github.com/stanford-cs149/asst1",
+        "lang": "C++ / ISPC",
+        "note": "用 std::thread、SIMD intrinsics 和 ISPC 分别并行化 Mandelbrot、sqrt、saxpy、k-means 等几个小程序，测 speedup 并解释为什么达不到线性。重点是分析，写的代码不多。",
+        "public": "handout 和 starter code 公开在 GitHub；2023 年的 lecture 在 YouTube",
+        "needs": "按课程的 4 核 8 线程、支持 AVX2 的机器设计，其他机器上数字会不同"
+      },
+      {
+        "from": "Stanford CS149 Parallel Computing (Fall 2025)",
+        "title": "Assignment 2: Scheduling Task Graphs on a Multi-Core CPU",
+        "url": "https://github.com/stanford-cs149/asst2",
+        "lang": "C++",
+        "note": "从零实现一个 task execution library：先写 spawn 线程版、spinning thread pool 和 sleeping thread pool，再支持带 dependency 的 asynchronous task graph。做完对 thread pool、mutex 和 condition variable 有实际经验。",
+        "public": "handout、starter code、tests 和 performance harness 公开在 GitHub"
+      },
+      {
+        "from": "Stanford CS149 Parallel Computing (Fall 2025)",
+        "title": "Assignment 3: A Circle Renderer in CUDA",
+        "url": "https://github.com/stanford-cs149/asst3",
+        "lang": "CUDA C++",
+        "note": "先写 CUDA 版的 saxpy 和 parallel prefix sum，再把一个画圆的 renderer 改成既正确（保持 blending 顺序）又快的 GPU 版本。主要难点是在 data-parallel 的模型下保持顺序约束。",
+        "public": "handout、starter code、reference renderer 和 checker 公开在 GitHub",
+        "needs": "需要 NVIDIA GPU（课程用 AWS 上的 T4）"
+      },
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 2: Systems",
+        "url": "https://github.com/stanford-cs336/assignment2-systems",
+        "lang": "Python / PyTorch / Triton",
+        "note": "对 Assignment 1 写的 Transformer 做 profiling 和 benchmarking，用 Triton 自己实现 FlashAttention2，再把 training 代码改成 memory-efficient 的 distributed 版本。适合想看并行与分布式技术怎样用在 model training 上的人。",
+        "public": "handout PDF、starter code、tests 公开在 GitHub；lecture 在 YouTube",
+        "needs": "需要 GPU；要先做完 Assignment 1"
+      }
+    ],
+    "CS3230": [
+      {
+        "from": "MIT 6.006 Introduction to Algorithms (Fall 2011, OCW)",
+        "title": "Problem Sets 1–7",
+        "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/pages/assignments/",
+        "lang": "Python",
+        "note": "七份 problem set，证明题之外配有 code 包，题目包括 peak finding、用 hashing 匹配 DNA 序列、Rubik's Cube 与 Dijkstra、seam carving 与 knapsack。适合把 asymptotic analysis 和实际跑出来的时间对照着看。",
+        "public": "problem set PDF、code、solutions 都在 OCW 公开（2011 年的版本）"
+      },
+      {
+        "from": "Princeton COS 226 Algorithms and Data Structures (Spring 2023)",
+        "title": "Assignment 6: Seam Carving",
+        "url": "https://www.cs.princeton.edu/courses/archive/spring23/cos226/assignments/seam/specification.php",
+        "lang": "Java",
+        "note": "实现 content-aware image resizing：计算每个 pixel 的 energy，找出 energy 最小的 seam 并删除。找 seam 这一步就是一个 dynamic programming 问题。",
+        "public": "specification、project zip 公开；autograder 只对 Princeton 学生开放"
+      }
+    ],
+    "CS3241": [
+      {
+        "from": "UC Berkeley CS 184/284A Computer Graphics and Imaging (Spring 2026)",
+        "title": "Homework 1: Rasterizer",
+        "url": "https://cs184.eecs.berkeley.edu/sp26/hw/hw1/",
+        "lang": "C++",
+        "note": "实现一个 rasterizer：画单色三角形、用 supersampling 做 antialiasing、transforms、barycentric coordinates，以及 texture mapping 的 pixel sampling 和 mipmap level sampling。",
+        "public": "spec 公开；starter code 通过 GitHub Classroom 邀请链接获取，校外能否使用没有确认"
+      },
+      {
+        "from": "UC Berkeley CS 184/284A Computer Graphics and Imaging (Spring 2026)",
+        "title": "Homework 2: Bezier Curves and Mesh Editing",
+        "url": "https://cs184.eecs.berkeley.edu/sp26/hw/hw2/",
+        "lang": "C++",
+        "note": "用 de Casteljau algorithm 构造 Bezier curve 和 surface，再在 half-edge data structure 上操作 triangle mesh 并实现 Loop subdivision。",
+        "public": "spec 公开；starter code 通过 GitHub Classroom 邀请链接获取，校外能否使用没有确认"
+      },
+      {
+        "from": "UC Berkeley CS 184/284A Computer Graphics and Imaging (Spring 2026)",
+        "title": "Homework 3: Path Tracer",
+        "url": "https://cs184.eecs.berkeley.edu/sp26/hw/hw3/",
+        "lang": "C++",
+        "note": "写一个 path tracer：ray generation 和 scene intersection、bounding volume hierarchy、direct illumination、global illumination、adaptive sampling。",
+        "public": "spec 公开；starter code 通过 GitHub Classroom 邀请链接获取，校外能否使用没有确认"
+      }
+    ],
+    "CS4225": [
+      {
+        "from": "MIT 6.5840 Distributed Systems (Spring 2026)",
+        "title": "Lab 1: MapReduce",
+        "url": "https://pdos.csail.mit.edu/6.824/labs/lab-mr.html",
+        "lang": "Go",
+        "note": "自己实现一个 MapReduce 系统：coordinator 分发 task 并处理挂掉的 worker，worker 执行 Map 和 Reduce 并读写中间文件。做完再用 Hadoop 或 Spark 时知道底下在做什么。",
+        "public": "lab 说明、starter code、tests 都公开"
+      },
+      {
+        "from": "MIT 6.5840 Distributed Systems (Spring 2026)",
+        "title": "Lab 3: Raft",
+        "url": "https://pdos.csail.mit.edu/6.824/labs/lab-raft1.html",
+        "lang": "Go",
+        "note": "分四步实现 Raft consensus：leader election、log replication、persistence、log compaction。这是 big data 系统做 fault tolerance 的基础部件，比 CS4225 的课内要求深不少。",
+        "public": "lab 说明、starter code、tests 都公开"
+      },
+      {
+        "from": "MIT 6.5840 Distributed Systems (Spring 2026)",
+        "title": "Lab 4: Fault-tolerant Key/Value Service",
+        "url": "https://pdos.csail.mit.edu/6.824/labs/lab-kvraft1.html",
+        "lang": "Go",
+        "note": "在自己写的 Raft 上搭一个 replicated key/value server，支持 Put/Get 和 snapshot，tests 会检查 linearizability。要先做完 Raft lab。",
+        "public": "lab 说明、starter code、tests 都公开"
+      }
+    ],
+    "CS2109S": [
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 1: Search",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj1/",
+        "lang": "Python",
+        "note": "让 Pacman 找路：实现 depth-first search、breadth-first search、uniform-cost search 和 A*，再为 corners 和 food 问题设计 consistent heuristic。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 2: Multiagent Search",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj2/",
+        "lang": "Python",
+        "note": "给 Pacman 写对抗 ghost 的 agent：reflex agent、minimax、alpha-beta pruning、expectimax，再自己设计 evaluation function。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 5: Machine Learning",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj5/",
+        "lang": "Python / PyTorch",
+        "note": "用 PyTorch 依次实现 perceptron、拟合 sin(x) 的 regression、MNIST digit classification、用 RNN 做 language identification、convolution 和 attention block。每一题都有要达到的 accuracy。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "Andrej Karpathy, Neural Networks: Zero to Hero",
+        "title": "micrograd",
+        "url": "https://github.com/karpathy/micrograd",
+        "lang": "Python",
+        "note": "跟着第一讲从零写一个 scalar-valued 的 autograd engine（约 100 行）和上面的小型 neural net library，然后训练一个 2-layer MLP。做完 backpropagation 就不再是黑箱。",
+        "public": "代码、demo notebook 公开；配套讲解视频在 YouTube"
+      }
+    ],
+    "CS3244": [
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 1",
+        "url": "https://cs231n.github.io/assignments2026/assignment1",
+        "lang": "Python / NumPy",
+        "note": "依次实现 k-Nearest Neighbor classifier、Softmax classifier、two-layer neural network 和任意层数的 fully connected network，并比较 raw pixel 和手工 image features 的效果。forward 和 backward pass 都要自己写。",
+        "public": "spec 和 starter zip（Colab notebooks）公开；Spring 2025 的 lecture 在 YouTube"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 5: Machine Learning",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj5/",
+        "lang": "Python / PyTorch",
+        "note": "用 PyTorch 依次实现 perceptron、拟合 sin(x) 的 regression、MNIST digit classification、用 RNN 做 language identification、convolution 和 attention block。每一题都有要达到的 accuracy。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "An Introduction to Statistical Learning with Applications in Python (ISLP)",
+        "title": "ISLP Labs (v2.2.2)",
+        "url": "https://github.com/intro-stat-learning/ISLP_labs",
+        "lang": "Python / Jupyter",
+        "note": "教材每章配一个 lab notebook，覆盖 linear regression、classification、resampling、regularization、tree-based methods、support vector machines 等。它是照着做的 lab，没有要自己设计的部分，适合用来把经典方法各跑一遍。",
+        "public": "全部 notebook 公开在 GitHub"
+      }
+    ],
+    "CS3263": [
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 1: Search",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj1/",
+        "lang": "Python",
+        "note": "让 Pacman 找路：实现 depth-first search、breadth-first search、uniform-cost search 和 A*，再为 corners 和 food 问题设计 consistent heuristic。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 2: Multiagent Search",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj2/",
+        "lang": "Python",
+        "note": "给 Pacman 写对抗 ghost 的 agent：reflex agent、minimax、alpha-beta pruning、expectimax，再自己设计 evaluation function。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 3: Reinforcement Learning",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj3/",
+        "lang": "Python",
+        "note": "在 Gridworld 和 Pacman 上实现 value iteration、Q-learning、epsilon-greedy 和 approximate Q-learning。做完能把 MDP 的公式和代码一一对上。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 4: Bayes Nets and HMMs",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj4/",
+        "lang": "Python",
+        "note": "先实现 Bayes net 的 join、eliminate 和 variable elimination，再用 HMM 的 exact inference 和 particle filter，根据带噪声的距离读数追踪看不见的 ghost。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      }
+    ],
+    "CS3264": [
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 1",
+        "url": "https://cs231n.github.io/assignments2026/assignment1",
+        "lang": "Python / NumPy",
+        "note": "依次实现 k-Nearest Neighbor classifier、Softmax classifier、two-layer neural network 和任意层数的 fully connected network，并比较 raw pixel 和手工 image features 的效果。forward 和 backward pass 都要自己写。",
+        "public": "spec 和 starter zip（Colab notebooks）公开；Spring 2025 的 lecture 在 YouTube"
+      },
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 2",
+        "url": "https://cs231n.github.io/assignments2026/assignment2",
+        "lang": "Python / NumPy / PyTorch",
+        "note": "自己实现 batch normalization、dropout 和 convolutional network 的各个 layer，然后改用 PyTorch 在 CIFAR-10 上训练自己设计的网络，最后用 vanilla RNN 做 image captioning。",
+        "public": "spec 和 starter zip（Colab notebooks）公开"
+      },
+      {
+        "from": "Andrej Karpathy, Neural Networks: Zero to Hero",
+        "title": "micrograd",
+        "url": "https://github.com/karpathy/micrograd",
+        "lang": "Python",
+        "note": "跟着第一讲从零写一个 scalar-valued 的 autograd engine（约 100 行）和上面的小型 neural net library，然后训练一个 2-layer MLP。做完 backpropagation 就不再是黑箱。",
+        "public": "代码、demo notebook 公开；配套讲解视频在 YouTube"
+      }
+    ],
+    "CS4243": [
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 1",
+        "url": "https://cs231n.github.io/assignments2026/assignment1",
+        "lang": "Python / NumPy",
+        "note": "依次实现 k-Nearest Neighbor classifier、Softmax classifier、two-layer neural network 和任意层数的 fully connected network，并比较 raw pixel 和手工 image features 的效果。forward 和 backward pass 都要自己写。",
+        "public": "spec 和 starter zip（Colab notebooks）公开；Spring 2025 的 lecture 在 YouTube"
+      },
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 2",
+        "url": "https://cs231n.github.io/assignments2026/assignment2",
+        "lang": "Python / NumPy / PyTorch",
+        "note": "自己实现 batch normalization、dropout 和 convolutional network 的各个 layer，然后改用 PyTorch 在 CIFAR-10 上训练自己设计的网络，最后用 vanilla RNN 做 image captioning。",
+        "public": "spec 和 starter zip（Colab notebooks）公开"
+      },
+      {
+        "from": "Stanford CS231n Deep Learning for Computer Vision (Spring 2026)",
+        "title": "Assignment 3",
+        "url": "https://cs231n.github.io/assignments2026/assignment3",
+        "lang": "Python / PyTorch",
+        "note": "实现 Transformer 做 image captioning、用 self-supervised pretraining 改进 image classification、实现 DDPM 生成图像，并动手用 CLIP 和 DINO 的 visual representation。",
+        "public": "spec 和 starter zip（Colab notebooks）公开",
+        "needs": "部分 notebook 需要 GPU（Colab 可以）"
+      }
+    ],
+    "CS4246": [
+      {
+        "from": "UC Berkeley CS 188 Introduction to Artificial Intelligence (Spring 2026)",
+        "title": "Project 3: Reinforcement Learning",
+        "url": "https://inst.eecs.berkeley.edu/~cs188/sp26/projects/proj3/",
+        "lang": "Python",
+        "note": "在 Gridworld 和 Pacman 上实现 value iteration、Q-learning、epsilon-greedy 和 approximate Q-learning。属于 tabular 的入门，适合在做 deep RL 作业之前先过一遍。",
+        "public": "spec、code zip、本地 autograder 都公开"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 2: Policy Gradients",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw2.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 policy gradient 和它的 variance reduction 手段：reward-to-go、discounting、value baseline、Generalized Advantage Estimation，在 CartPole、HalfCheetah、LunarLander 上训练并比较。",
+        "public": "handout PDF 和 starter code（GitHub）公开；Fall 2023 的 lecture 在 YouTube",
+        "needs": "laptop CPU 就够"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 3: Q-Learning and Actor-Critic",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw3.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 discrete action 的 DQN（含 double Q-learning）和 continuous action 的 SAC（target network、entropy bonus、reparameterized actor update、自动调 temperature、clipped double-Q）。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "MsPacman 和 HalfCheetah 两个实验在 GPU 上也要约 3 小时"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 4: LLM RL",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw4.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现用 RL 做 LLM post-training 的关键部件：per-token log-probability、completion masking、KL 项、group-based advantage normalization，以及 GR-REINFORCE 和 GRPO 两种 update。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "需要 H100 级别的 GPU，handout 估计约 8 个 H100 小时"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 5: Offline RL",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf",
+        "lang": "Python / PyTorch",
+        "note": "在 OGBench 的 continuous control 任务上实现三种 offline RL 算法：SAC+BC、IQL 和 Flow Q-learning，并各自调一个关键的 hyperparameter。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "需要 GPU，每组实验在 T4 上要几个小时"
+      }
+    ],
+    "CS4248": [
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 1: Basics",
+        "url": "https://github.com/stanford-cs336/assignment1-basics",
+        "lang": "Python / PyTorch",
+        "note": "从零实现训练一个标准 Transformer language model 所需的全部部件：tokenizer、model architecture、optimizer，再用它们训练一个小的 language model。后面四个 assignment 都建立在这份代码上。",
+        "public": "handout PDF、starter code、tests 公开在 GitHub；lecture 在 YouTube",
+        "needs": "debug 用 CPU 即可，正式的 training run 需要 GPU"
+      },
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 3: Scaling",
+        "url": "https://github.com/stanford-cs336/assignment3-scaling",
+        "lang": "Python",
+        "note": "弄清 Transformer 每个 component 的作用，再通过查询课程提供的 training API 拟合 scaling law，用它预测更大的模型会怎样。",
+        "public": "handout PDF 和 starter code 公开在 GitHub",
+        "needs": "training API 用 Stanford student ID 当 key，校外大概用不了"
+      },
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 5: Alignment and Reasoning RL",
+        "url": "https://github.com/stanford-cs336/assignment5-alignment",
+        "lang": "Python / PyTorch",
+        "note": "用 supervised finetuning 和 reinforcement learning（GRPO）训练 language model 解数学题时做 reasoning。另有一份可选的补充作业，做 safety alignment 和 DPO。",
+        "public": "handout PDF、starter code、tests 公开在 GitHub",
+        "needs": "需要 GPU"
+      },
+      {
+        "from": "Stanford CS329Z Engineering AI Agents (Fall 2026)",
+        "title": "Assignment 1: Building an Agentic Harness",
+        "url": "https://github.com/cs329z/assignment1-harness",
+        "lang": "Python",
+        "note": "先写 classification 和 retrieval pipeline（邮件 priority labeling、BM25 search、email Q&A），再写一个能在 terminal sandbox 里调用 tool 的 agent。starter 里只有 stub，agent loop 要自己写。",
+        "public": "handout PDF、starter code、tests、数据公开在 GitHub；slides 和多数 lecture 视频在课程主页",
+        "needs": "需要 OpenRouter API key（课程只给选课学生发），live tests 会产生费用"
+      },
+      {
+        "from": "Stanford CS329Z Engineering AI Agents (Fall 2026)",
+        "title": "Assignment 2: Building an Evaluation Task",
+        "url": "https://github.com/cs329z/assignment2-harness",
+        "lang": "Python / Docker",
+        "note": "为 coding agent 设计并实现一个 evaluation task，repo 里给了一个 HumanEval 的 example task 和固定版本的 mini-SWE-agent。练的是怎样判断一个 agent 到底做没做对。",
+        "public": "handout PDF、starter code、example task 公开在 GitHub",
+        "needs": "需要 Docker 和 LLM API key"
+      }
+    ],
+    "CS4277": [
+      {
+        "from": "Stanford CS231A Computer Vision: From 3D Perception to 3D Reconstruction and Beyond (Spring 2025)",
+        "title": "Problem Set 1: Camera Calibration and Single-View Geometry",
+        "url": "https://web.stanford.edu/class/cs231a/hw_2025_spring/ps1.pdf",
+        "lang": "Python / NumPy",
+        "note": "用 least squares 从 checkerboard 的对应点估计 affine camera matrix，再从 vanishing point 恢复 camera intrinsic matrix 和两个视角之间的 rotation。另有 projective geometry 的证明题。",
+        "public": "PDF 和 code zip 公开；autograder 在 Stanford 的 Gradescope"
+      },
+      {
+        "from": "Stanford CS231A Computer Vision: From 3D Perception to 3D Reconstruction and Beyond (Spring 2025)",
+        "title": "Problem Set 2: Fundamental Matrix, Rectification, Structure from Motion",
+        "url": "https://web.stanford.edu/class/cs231a/hw_2025_spring/ps2.pdf",
+        "lang": "Python / NumPy",
+        "note": "实现 eight-point algorithm（含 normalized 版本）估计 fundamental matrix、image rectification、Tomasi-Kanade factorization，以及从 essential matrix 恢复 (R, T)、triangulation 再用 Gauss-Newton 优化的 structure from motion。",
+        "public": "PDF 和 code zip 公开；autograder 在 Stanford 的 Gradescope"
+      },
+      {
+        "from": "Stanford CS231A Computer Vision: From 3D Perception to 3D Reconstruction and Beyond (Spring 2025)",
+        "title": "Problem Set 3: Space Carving and Monocular Depth",
+        "url": "https://web.stanford.edu/class/cs231a/hw_2025_spring/ps3.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 space carving（从多个视角的 silhouette 雕出 voxel 形状），再做 representation learning、supervised 和 unsupervised monocular depth estimation 三个 notebook。",
+        "public": "PDF 和 code zip 公开；autograder 在 Stanford 的 Gradescope"
+      },
+      {
+        "from": "CMU 16-822 Geometry-based Methods in Vision (assignment repo，2024 年秋更新)",
+        "title": "HW1: Projective Geometry and Homography",
+        "url": "https://github.com/geometric3d/assignment1",
+        "lang": "Python / NumPy",
+        "note": "自己标注 parallel line 和 perpendicular line，对透视图像做 affine rectification 和 metric rectification，再从四组 point correspondence 估计 planar homography。",
+        "public": "README 里的题目说明和数据公开在 GitHub"
+      }
+    ],
+    "DSA4213": [
+      {
+        "from": "Stanford CS224N Natural Language Processing with Deep Learning (Winter 2026)",
+        "title": "Assignment 3: Attention and Transformers",
+        "url": "https://web.stanford.edu/class/cs224n/assignments_w26/a3.pdf",
+        "lang": "Python / PyTorch",
+        "note": "written 部分分析 attention 和 position embedding，coding 部分实现一个 GPT-2 风格的 decoder-only Transformer（MLP、CausalAttention、DecoderBlock、greedy generate），并训练 100 个 batch。",
+        "public": "handout 公开，code 链接在课程主页",
+        "needs": "laptop 就够"
+      },
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 1: Basics",
+        "url": "https://github.com/stanford-cs336/assignment1-basics",
+        "lang": "Python / PyTorch",
+        "note": "从零实现训练一个标准 Transformer language model 所需的全部部件：tokenizer、model architecture、optimizer，再用它们训练一个小的 language model。比 CS224N 的 Assignment 3 工作量大得多。",
+        "public": "handout PDF、starter code、tests 公开在 GitHub；lecture 在 YouTube",
+        "needs": "debug 用 CPU 即可，正式的 training run 需要 GPU"
+      },
+      {
+        "from": "Stanford CS336 Language Modeling from Scratch (Spring 2026)",
+        "title": "Assignment 4: Data",
+        "url": "https://github.com/stanford-cs336/assignment4-data",
+        "lang": "Python",
+        "note": "把原始的 Common Crawl dump 处理成能用的 pretraining data，自己写 filtering 和 deduplication，再看这些处理对 model 表现的影响。是这门课里最接近 data science 的一个 assignment。",
+        "public": "handout PDF、starter code、tests 公开在 GitHub",
+        "needs": "training run 需要 GPU"
+      },
+      {
+        "from": "Andrej Karpathy, Neural Networks: Zero to Hero",
+        "title": "makemore、Let's build GPT、GPT Tokenizer",
+        "url": "https://github.com/karpathy/nn-zero-to-hero",
+        "lang": "Python / PyTorch",
+        "note": "跟着视频依次写 bigram 和 MLP 的 character-level language model、手推 backprop、搭一个 GPT，再写 Byte Pair Encoding tokenizer。每讲的 exercises 写在视频描述里，没有 tests，要自己检查对错。",
+        "public": "lecture notebooks 公开在 GitHub，视频在 YouTube"
+      }
+    ],
+    "CS4278": [
+      {
+        "from": "Stanford AA 274A Principles of Robot Autonomy I (Fall 2025)",
+        "title": "Homework 1: A*、RRT、Trajectory Optimization",
+        "url": "https://github.com/PrinciplesofRobotAutonomy/AA274a-HW1-F25",
+        "lang": "Python",
+        "note": "从 repo 的文件看是三道题：A* motion planning、RRT、trajectory optimization，前两题各配一个 simulation notebook。题目的文字说明不在 repo 里，要对照 starter code 的注释做。",
+        "public": "starter code 公开在 GitHub；handout PDF 不在 repo 里"
+      },
+      {
+        "from": "Stanford AA 274A Principles of Robot Autonomy I (Fall 2025)",
+        "title": "Homework 2: Dynamics、Trajectory Tracking、Gain-scheduled LQR",
+        "url": "https://github.com/PrinciplesofRobotAutonomy/AA274a-HW2-F25",
+        "lang": "Python",
+        "note": "从 repo 的文件看包含 trajectory optimization、dynamics、trajectory tracking 和 gain-scheduled LQR 四部分。同样只有代码框架，没有题目说明。",
+        "public": "starter code 公开在 GitHub；handout PDF 不在 repo 里"
+      },
+      {
+        "from": "F1TENTH Autonomous Racing course",
+        "title": "F1TENTH Labs 1–10",
+        "url": "https://github.com/f1tenth/f1tenth_labs_openrepo",
+        "lang": "ROS",
+        "note": "十个 lab 目录，依次是 ROS 入门、automatic emergency braking、wall following、follow the gap、pure pursuit、RRT、MPC、MPPI、RL 和 vision，每个 lab 的具体要求在各自目录里。",
+        "public": "lab 说明和 template 公开在 GitHub",
+        "needs": "是否需要实车没有确认"
+      },
+      {
+        "from": "MIT 16.485 Visual Navigation for Autonomous Vehicles (Fall 2020, OCW)",
+        "title": "VNAV Labs 1–9",
+        "url": "https://ocw.mit.edu/courses/16-485-visual-navigation-for-autonomous-vehicles-vnav-fall-2020/pages/lab-exercises/",
+        "lang": "C++ / ROS",
+        "note": "九个 lab 从 ROS 入门开始，依次做 drone 的 3D trajectory following、trajectory optimization、feature detection、object localization、GTSAM、place recognition，最后是 SLAM。",
+        "public": "lab 列表在 OCW，代码在 MIT-SPARK/VNAV-labs（GitHub），lecture notes 公开",
+        "needs": "需要 ROS 环境和课程的 drone simulator"
+      }
+    ],
+    "RB4301": [
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 1: Imitation Learning",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf",
+        "lang": "Python / PyTorch",
+        "note": "在 Push-T 环境上训练 action chunking policy：先写一次预测一整段 action 的 MSE policy 和 training loop，再实现 flow matching policy 并比较两者。flow matching 这一半和现在 robot policy 的常见做法是同一类方法。",
+        "public": "handout PDF 和 starter code（GitHub）公开；Fall 2023 的 lecture 在 YouTube",
+        "needs": "laptop CPU 几分钟能训完"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 2: Policy Gradients",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw2.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 policy gradient 和它的 variance reduction 手段：reward-to-go、discounting、value baseline、Generalized Advantage Estimation，在 CartPole、HalfCheetah、LunarLander 上训练并比较。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "laptop CPU 就够"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 3: Q-Learning and Actor-Critic",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw3.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 discrete action 的 DQN（含 double Q-learning）和 continuous action 的 SAC（target network、entropy bonus、reparameterized actor update、自动调 temperature、clipped double-Q）。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "MsPacman 和 HalfCheetah 两个实验在 GPU 上也要约 3 小时"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 5: Offline RL",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf",
+        "lang": "Python / PyTorch",
+        "note": "在 OGBench 的 continuous control 任务上实现三种 offline RL 算法：SAC+BC、IQL 和 Flow Q-learning，并各自调一个关键的 hyperparameter。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "需要 GPU，每组实验在 T4 上要几个小时"
+      }
+    ],
+    "EE4706": [
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 1: Imitation Learning",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf",
+        "lang": "Python / PyTorch",
+        "note": "在 Push-T 环境上训练 action chunking policy：先写一次预测一整段 action 的 MSE policy 和 training loop，再实现 flow matching policy 并比较两者。flow matching 这一半和现在 robot policy 的常见做法是同一类方法。",
+        "public": "handout PDF 和 starter code（GitHub）公开；Fall 2023 的 lecture 在 YouTube",
+        "needs": "laptop CPU 几分钟能训完"
+      },
+      {
+        "from": "UC Berkeley CS 185/285 Deep Reinforcement Learning (Spring 2026)",
+        "title": "Homework 5: Offline RL",
+        "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf",
+        "lang": "Python / PyTorch",
+        "note": "在 OGBench 的 continuous control 任务（cube-single、antsoccer-arena）上实现 SAC+BC、IQL 和 Flow Q-learning，全程只用离线数据。这是一门 RL 课的作业，和 embodied AI 只在 policy learning 这一块重合。",
+        "public": "handout PDF 和 starter code（GitHub）公开",
+        "needs": "需要 GPU，每组实验在 T4 上要几个小时"
+      }
+    ],
+    "EE4309": [
+      {
+        "from": "MIT 16.485 Visual Navigation for Autonomous Vehicles (Fall 2020, OCW)",
+        "title": "VNAV Labs 1–9",
+        "url": "https://ocw.mit.edu/courses/16-485-visual-navigation-for-autonomous-vehicles-vnav-fall-2020/pages/lab-exercises/",
+        "lang": "C++ / ROS",
+        "note": "九个 lab 里和 perception 直接相关的是后五个：feature detection、object localization、GTSAM、place recognition 和 SLAM，前面几个是 ROS 入门和 drone 的 trajectory。",
+        "public": "lab 列表在 OCW，代码在 MIT-SPARK/VNAV-labs（GitHub），lecture notes 公开",
+        "needs": "需要 ROS 环境和课程的 drone simulator"
+      },
+      {
+        "from": "Stanford CS231A Computer Vision: From 3D Perception to 3D Reconstruction and Beyond (Spring 2025)",
+        "title": "Problem Set 2: Fundamental Matrix, Rectification, Structure from Motion",
+        "url": "https://web.stanford.edu/class/cs231a/hw_2025_spring/ps2.pdf",
+        "lang": "Python / NumPy",
+        "note": "实现 eight-point algorithm（含 normalized 版本）估计 fundamental matrix、image rectification、Tomasi-Kanade factorization，以及从 essential matrix 恢复 (R, T)、triangulation 再用 Gauss-Newton 优化的 structure from motion。",
+        "public": "PDF 和 code zip 公开；autograder 在 Stanford 的 Gradescope"
+      },
+      {
+        "from": "Stanford CS231A Computer Vision: From 3D Perception to 3D Reconstruction and Beyond (Spring 2025)",
+        "title": "Problem Set 3: Space Carving and Monocular Depth",
+        "url": "https://web.stanford.edu/class/cs231a/hw_2025_spring/ps3.pdf",
+        "lang": "Python / PyTorch",
+        "note": "实现 space carving（从多个视角的 silhouette 雕出 voxel 形状），再做 representation learning、supervised 和 unsupervised monocular depth estimation 三个 notebook。",
+        "public": "PDF 和 code zip 公开；autograder 在 Stanford 的 Gradescope"
+      }
+    ],
+    "DSA2102": [
+      {
+        "from": "MIT 18.335J Introduction to Numerical Methods (Fall 2025)",
+        "title": "Problem Sets 1–3",
+        "url": "https://github.com/mitmath/18335",
+        "lang": "Julia",
+        "note": "三份 problem set，计算部分用 Julia notebook 完成。课程内容是 floating point 与 stability、QR 和 least squares、LU 和 Cholesky、iterative methods、eigenvalue algorithms，比 DSA2102 深。题目本身是 PDF，我没能读到具体内容。",
+        "public": "problem set PDF 和 lecture 摘要公开在 GitHub，没有 solutions"
+      }
+    ],
+    "DSA3102": [
+      {
+        "from": "Stanford EE364a Convex Optimization (Boyd)",
+        "title": "Additional Exercises for Convex Optimization",
+        "url": "https://github.com/cvxgrp/cvxbook_additional_exercises",
+        "lang": "Python (CVXPY)",
+        "note": "EE364a 用的补充习题集，教材里没有这些题，其中的计算题配有数据文件，要把实际问题写成 convex problem 再用 solver 求解。2022 年之后的数据文件只提供 Python 版。",
+        "public": "习题 PDF 和数据文件公开在 GitHub，没有 solutions"
+      }
+    ],
+    "ST3248": [
+      {
+        "from": "An Introduction to Statistical Learning with Applications in Python (ISLP)",
+        "title": "ISLP Labs (v2.2.2)",
+        "url": "https://github.com/intro-stat-learning/ISLP_labs",
+        "lang": "Python / Jupyter",
+        "note": "教材每章配一个 lab notebook：linear regression、classification、resampling、model selection 和 regularization、nonlinear models、tree-based methods、support vector machines、unsupervised learning 等。它是照着做的 lab，没有要自己设计的部分，章节和 ST3248 的内容大体对应。",
+        "public": "全部 notebook 公开在 GitHub"
+      }
+    ]
+  }
+}
