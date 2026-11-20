@@ -229,6 +229,16 @@ const C = [
   ['YALE-SOCY151', '现代社会理论基础', 'Foundations of Modern Social Theory (Yale)', 'econ'],
   ['YALE-EVST255', '环境政治与法律', 'Environmental Politics and Law (Yale)', 'pol'],
   ['LC1002A', '法理学导论', 'Introduction To Legal Theory (A)', 'pol'],
+  // ---- 2026-11 物理海洋：NUS 没有本科物理海洋课，最接近的是 CEE 的研究生海岸工程课；配外校公开课对照 ----
+  ['GE2103', '地球系统科学', 'Our Planet: An Earth System Science Perspective', 'geo'],
+  ['GE3255', '水域与海岸系统', 'Aquatic, Riparian and Coastal Systems', 'geo'],
+  ['CE5312', '明渠与海岸水力学', 'Open Channel and Coastal Hydraulics', 'geo'],
+  ['CE5721A', '海岸波浪与风', 'Coastal Waves and Wind', 'geo'],
+  ['CE5308A', '海岸过程与防护', 'Coastal Processes and Protection', 'geo'],
+  ['MIT-12.003', '海气与气候动力学', 'Atmosphere, Ocean and Climate Dynamics (MIT)', 'geo'],
+  ['SIO-210', '物理海洋学导论', 'Introduction to Physical Oceanography (Scripps)', 'geo'],
+  ['MIT-12.800', '海气流体力学', 'Fluid Dynamics of the Atmosphere and Ocean (MIT)', 'geo'],
+  ['MIT-12.802', '海气波动', 'Wave Motion in the Ocean and the Atmosphere (MIT)', 'geo'],
 ];
 
 export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, line }));
@@ -252,7 +262,7 @@ const P = {
 // 内容延续（非官方先修）
 const K = {
   DSA2102: ['MA2101'], DSA3102: ['MA2101'], DSA426x: ['DSA3101'], DSA2112: ['DSA2111'],
-  PC3442: ['PC2135', 'GE2208'], PC3441: ['PC3442', 'PC3238'], ME4233: ['PC3238'], CE3132: ['PC3238'],
+  PC3442: ['PC2135', 'GE2208', 'MIT-12.003', 'SIO-210'], PC3441: ['PC3442', 'PC3238'], ME4233: ['PC3238'], CE3132: ['PC3238'],
   CCS5201: ['PC4441', 'PC3441'], PC4262: ['PC2135'], MA4233: ['MA3220'], EE4314: ['EE3331C'],
   EE3305: [], MA4198: ['MA3264'], ST3248: ['ST3131'], DSA4212: ['DSA3102'],
   // 2026-11 扩充的课：下面这些边是按内容衔接画的，还没有逐门对照 NUSMods 的 prerequisite 字段。
@@ -284,6 +294,9 @@ const K = {
   EL1101E: ['MIT-24.900'], EN1101E: ['YALE-ENGL300'], GEC1017: ['MIT-21L.011'], GEC1014: ['YALE-MUSI112'],
   AR1329: ['YALE-HSAR252'], SC3101: ['SC1101E', 'YALE-SOCY151'], SE1101E: ['HY1101E'],
   LC1002A: ['GEX1015', 'PH2203'],
+  // 物理海洋：CE3132 → CE5312 是官方先修，其余为内容衔接；公开课连向它对照的 NUS 课
+  CE5312: ['CE3132'], CE5721A: ['PC3238', 'MIT-12.802'], CE5308A: ['CE5721A', 'CE5312'],
+  GE3255: ['GE2103'], 'MIT-12.802': ['MIT-12.800'], 'MIT-12.800': ['PC3238'],
 };
 
 export const edges = [];

@@ -1,0 +1,164 @@
+{
+  "updated": "2026-11-21",
+  "nus": [
+    {
+      "code": "CE5721A",
+      "title": "Coastal Waves and Wind",
+      "zh": "海岸波浪与风",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CE5721A.json",
+      "prereq": "NUSMods 未列先修；与 CE5721QA、OT5201、CE5307 互斥。2 学分，AY2026/27 第 2 学期开。",
+      "outline": "讲海岸防护所需的波浪与风的基础，对 Singapore 这样的低地国家尤其重要。内容包括 regular wave theory 与 random wave theory、wind characteristics，以及由风应力造成水位抬升的 storm surge。",
+      "fit": "物理海洋学里 surface gravity waves 与风暴潮的工程入口，是 NUS 本学年唯一系统讲波浪理论的课。数学上直接承接 PC3238 的 potential flow 与 Bernoulli；与 PC3442 的大气部分在“风”这一侧相接。"
+    },
+    {
+      "code": "CE5721B",
+      "title": "Coastal Environmental Loads",
+      "zh": "海岸环境荷载",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CE5721B.json",
+      "prereq": "NUSMods 未列先修；与 CE5721QB、OT5201、CE5307 互斥。2 学分，AY2026/27 第 2 学期开。",
+      "outline": "讲波浪与风对海岸结构物的作用力，是设计海岸防线的基础。内容包括 potential theory 与 diffraction theory 的波浪荷载、大小结构物上的 wave loading、random wave forces 的 spectral analysis，以及 gust wind forces 的预测。",
+      "fit": "CE5721A 的续篇，从波浪运动学走到受力；spectral analysis 一段与随机过程、信号处理相通。偏工程，物理海洋本身的比重低于 CE5721A。"
+    },
+    {
+      "code": "CE5308A",
+      "title": "Coastal Processes and Protection",
+      "zh": "海岸过程与防护",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CE5308A.json",
+      "prereq": "NUSMods 未列先修；研究生授课型学位学生不得已修 CE5308QA。2 学分，AY2026/27 第 2 学期开。",
+      "outline": "讲 nearshore hydrodynamics 的基础：wave shoaling、wave refraction，以及 surf zone 里的 wave breaking、wave setup 与 longshore currents。还介绍驱动泥沙输运的 coastal boundary layer flows（以 bottom friction 为例），以及水生植被减缓海岸侵蚀的作用。",
+      "fit": "近岸物理海洋（波浪变形、破碎、沿岸流、底边界层）的核心内容，承接 CE5721A 的波浪理论和 PC3238 的边界层概念。"
+    },
+    {
+      "code": "CE5308B",
+      "title": "Sediment Transport and Coastal Protection",
+      "zh": "泥沙输运与护岸",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CE5308B.json",
+      "prereq": "NUSMods 未列先修与互斥。2 学分，AY2026/27 第 2 学期开。",
+      "outline": "讲波浪、海流与 sea-level rise 如何搬运泥沙、侵蚀海岸，以及如何防护。先讲 sediment transport 基本概念，再讲 cross-shore 与 longshore sediment transport、海平面上升造成的岸线后退、护岸结构对 beach morphology 的改变，以及 beach nourishment 等措施，最后介绍 seawall 与 breakwater 周围的 scour。",
+      "fit": "CE5308A 的续篇，把近岸流体力学接到地貌演变；sea-level rise 一段与 PC4441、CCS5201 的气候内容呼应。"
+    },
+    {
+      "code": "CE5312",
+      "title": "Open Channel and Coastal Hydraulics",
+      "zh": "明渠与海岸水力学",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/CE5312.json",
+      "prereq": "本科生须修过 CE3132（成绩至少 D）。4 学分，AY2026/27 第 1 学期开。",
+      "outline": "讲明渠与海岸环境中水流的原理和分析。前半是 steady open-channel flow（守恒定律、hydraulic jump、uniform 与 gradually varied flow）；后半是 unsteady flow，包括河道洪水与 tides、tsunamis、storm surges 等 coastal long waves，以及 flood routing。还会用到 XBeach 海岸数值模型。",
+      "fit": "目录中 CE3132 的直接后续，也是 NUS 本学年唯一讲潮汐与 long waves（shallow water equations）的课；与 PC3441 的数值方法、CCS5201 的建模思路相接。"
+    },
+    {
+      "code": "GE3255",
+      "title": "Aquatic, Riparian and Coastal Systems",
+      "zh": "水域与海岸系统",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/GE3255.json",
+      "prereq": "NUSMods 未列先修；本科生不得已修 GE2229。4 学分，AY2026/27 第 1 学期开。",
+      "outline": "研究河流、湖泊、estuaries、湿地及相邻的河岸与海岸陆地，视野是全球的，重点放在热带和 Singapore。内容包括 hydrologic cycle、水陆相互作用、aquatic ecosystems、人类影响与 ecohydrology。",
+      "fit": "地理学视角的河口与海岸系统课，描述性多于动力学；可作为 CE5312、CE5308A 的背景，并与 UW 的河口物理讲义互补。"
+    },
+    {
+      "code": "LSM4261",
+      "title": "Marine Biology",
+      "zh": "海洋生物学",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/LSM4261.json",
+      "prereq": "本科生须修过 LSM3254 Ecology of Aquatic Environments（成绩至少 D），而 LSM3254 又要求 LSM2251。4 学分，AY2026/27 第 2 学期开。",
+      "outline": "研究海洋动物及其环境，目标是理解海洋以及人与海洋的持续互动。内容包括作为学科的 marine biology、fundamentals of oceanography、各类 marine environments 及其生物、海洋资源对人类的益处，以及开发和人类活动对海洋的影响。",
+      "fit": "NUS 目前唯一在大纲里明写 oceanography 基础的本科课，但它是生物课，物理海洋只是背景；先修链（LSM2251→LSM3254）对非生物专业学生门槛高。"
+    },
+    {
+      "code": "GE2103",
+      "title": "Our Planet: An Earth System Science Perspective",
+      "zh": "地球系统科学",
+      "url": "https://api.nusmods.com/v2/2026-2027/modules/GE2103.json",
+      "prereq": "NUSMods 未列先修。4 学分，AY2026/27 第 1 学期开。",
+      "outline": "Earth System Science 入门，讲 lithosphere、atmosphere、hydrosphere、biosphere 与 anthroposphere 之间的关键相互作用，培养对地球系统及其子系统互联关系的整体思考。重点概念包括 sustainability、planetary boundaries 与 safe operating spaces。",
+      "fit": "把海洋放回地球系统的入门课，难度与 GE2208 相当，不涉及流体动力学方程；适合作 PC4441、CCS5201 之前的概念铺垫。"
+    }
+  ],
+  "open": [
+    {
+      "code": "MIT-12.003",
+      "school": "MIT",
+      "title": "Atmosphere, Ocean and Climate Dynamics",
+      "zh": "海气与气候动力学",
+      "instructor": "Raffaele Ferrari（课程最初由 John Marshall 设计并讲授）",
+      "term": "Fall 2008（本科）",
+      "url": "https://ocw.mit.edu/courses/12-003-atmosphere-ocean-and-climate-dynamics-fall-2008",
+      "materials": "MIT OpenCourseWare：syllabus、calendar、readings、labs、problem sets、exams、study materials，以及 demonstration videos。没有发布讲义；配套教材是 Marshall & Plumb《Atmosphere, Ocean, and Climate Dynamics: An Introductory Text》（2007，需自购）。",
+      "outline": "介绍控制海洋与大气环流的物理，重点是决定地球气候的过程。先修为 multivariable calculus（18.02）与 classical mechanics（8.01）。OCW 页面没有逐周大纲，具体内容以 Marshall & Plumb 教材为纲。",
+      "pair": "PC3442"
+    },
+    {
+      "code": "SIO-210",
+      "school": "Scripps Institution of Oceanography, UC San Diego",
+      "title": "SIOC 210: Introduction to Physical Oceanography",
+      "zh": "物理海洋学导论",
+      "instructor": "Lynne Talley",
+      "term": "Fall 2019（研究生）",
+      "url": "https://talleylab.ucsd.edu/ltalley/sio210/",
+      "materials": "每讲的 PowerPoint 课件、notes and figures、4 份 problem sets（Sets 1–3 有答案）、期中期末答案及往年试卷、Java Ocean Atlas 数据项目与水槽实验指南、math tutorials 与数学概念清单、TEOS-10 海水性质工具链接、经典论文合集。教材为 Talley 等《Descriptive Physical Oceanography》第 6 版（Elsevier，非免费）。",
+      "outline": "从运动尺度和 seawater 物理性质讲起，经观测工具与 water masses，进入动力学：equations of motion、rotation、geostrophy、Ekman layers、potential vorticity、Rossby waves、Sverdrup balance。然后按大洋讲 Pacific、Atlantic、Indian、Southern Ocean 环流与 western boundary currents，最后讲 waves and tides、equatorial circulation 与 ENSO、thermohaline circulation，以及海洋与气候。",
+      "pair": "PC3442"
+    },
+    {
+      "code": "TAMU-Stewart",
+      "school": "Texas A&M University",
+      "title": "Introduction to Physical Oceanography (open textbook)",
+      "zh": "物理海洋开放教材",
+      "instructor": "Robert H. Stewart",
+      "term": "2008 版（Open Textbook Library 收录）",
+      "url": "https://open.umn.edu/opentextbooks/textbooks/introduction-to-physical-oceanography",
+      "materials": "整本教材免费，CC BY-NC-SA 许可；INCOIS 镜像页说明有可打印 PDF。这是教材，不是带作业和考试的完整课程。",
+      "outline": "面向高年级本科生与研究生，数学要求只到 differential equations 和普通物理。共 17 章：physical setting、atmospheric influences、oceanic heat budget、temperature/salinity/density、equations of motion（含 viscosity）、upper ocean 对风的响应（Ekman）、geostrophic currents、wind-driven circulation、vorticity、deep circulation、equatorial processes（El Niño）、numerical models、ocean waves、coastal processes and tides。",
+      "pair": "PC3238"
+    },
+    {
+      "code": "MIT-12.800",
+      "school": "MIT",
+      "title": "Fluid Dynamics of the Atmosphere and Ocean",
+      "zh": "海气流体力学",
+      "instructor": "James Hansen（部分讲义由 Jim Price 撰写）",
+      "term": "Fall 2004（研究生一年级）",
+      "url": "https://ocw.mit.edu/courses/12-800-fluid-dynamics-of-the-atmosphere-and-ocean-fall-2004/",
+      "materials": "MIT OpenCourseWare：24 讲 lecture notes、problem sets、syllabus、readings。推荐教材 Kundu & Cohen《Fluid Mechanics》与 Cushman-Roisin《Introduction to Geophysical Fluid Dynamics》（需自购）。",
+      "outline": "为大气科学、物理海洋与海洋工程打流体力学基础，不要求先修流体力学，但要求 classical mechanics、微分方程和 Matlab。前半讲 kinematics、Reynolds transport theorem、Boussinesq approximation、Navier–Stokes、vorticity 与 Kelvin circulation theorem；后半讲 rotating frames 与 Coriolis、geostrophy、thermal wind、Ekman pumping、Sverdrup transport、Rossby waves、shallow water potential vorticity，以及 Kelvin waves 与 ENSO 的 delayed oscillator。",
+      "pair": "PC3238"
+    },
+    {
+      "code": "MIT-12.802",
+      "school": "MIT",
+      "title": "Wave Motion in the Ocean and the Atmosphere",
+      "zh": "海气波动",
+      "instructor": "Paola Rizzoli",
+      "term": "Spring 2008（研究生）",
+      "url": "https://ocw.mit.edu/courses/earth-atmospheric-and-planetary-sciences/12-802-wave-motion-in-the-ocean-and-the-atmosphere-spring-2008/lecture-notes/",
+      "materials": "MIT OpenCourseWare：13 讲 lecture notes（PDF）、assignments/problem sets、syllabus、calendar，可整课下载。",
+      "outline": "系统讲地球流体中的波动：ray theory（slowly varying media）、surface gravity waves 与能量方程、internal waves（WKB、受 rotation 影响的情形）、stratified rotating fluid 的 normal modes。最后讲球面上的 Laplace tidal equations、带旋转的 shallow water equations 中的 Poincaré waves 与 Kelvin wave。",
+      "pair": "CE5721A"
+    },
+    {
+      "code": "UW-FHL-Estuarine",
+      "school": "University of Washington（Friday Harbor Laboratories）",
+      "title": "Estuarine and Coastal Fluid Dynamics: Essential Lectures in Estuarine Physics",
+      "zh": "河口海岸流体力学",
+      "instructor": "Parker MacCready, W. Rockwell Geyer",
+      "term": "Summer 2019（5 周暑期课）",
+      "url": "https://faculty.washington.edu/pmacc/Classes/FHL_2019/syllabus.html",
+      "materials": "每讲扫描的手写 lecture notes（PDF），文件名以 RG 开头的是 MacCready 听 Geyer 讲课时记的，可能较粗糙；讲内穿插的 in-class problems；另有潮汐物理网站链接。没有幻灯片、视频和代码；客座讲座不在其中。",
+      "outline": "第一部分讲 frictional shallow water equations、turbulent log layer 与 quadratic drag、channel 中的 shallow water waves 与 tides（quarter-wave oscillator）。第二部分讲 two-layer stratification、internal waves 与 stratified turbulence；第三、四部分讲 estuarine circulation、salinity structure、Knudsen relations 与 salt flux decomposition；最后讲 Simpson number 与能量概念。",
+      "pair": "CE5312"
+    }
+  ],
+  "edges": [
+    { "from": "CE3132", "to": "CE5312", "why": "先修：CE5312 要求本科生修过 CE3132" },
+    { "from": "CE5721A", "to": "CE5721B", "why": "内容延续：先学波浪与风的运动学，再算它们对结构物的荷载" },
+    { "from": "CE5721A", "to": "CE5308A", "why": "内容延续：regular/random wave theory 是近岸 shoaling、refraction、breaking 的基础" },
+    { "from": "CE5308A", "to": "CE5308B", "why": "内容延续：近岸水动力与 boundary layer 驱动泥沙输运" },
+    { "from": "CE5312", "to": "CE5308A", "why": "内容延续：tides、storm surge 等 long waves 与近岸过程相接" },
+    { "from": "PC3238", "to": "CE5721A", "why": "内容延续：potential flow 与 Bernoulli 是线性波浪理论的数学基础（非正式先修）" },
+    { "from": "GE2103", "to": "GE3255", "why": "内容延续：从地球系统总览到水域与海岸系统" },
+    { "from": "GE2103", "to": "PC4441", "why": "内容延续：地球系统概念为气候科学铺垫" },
+    { "from": "PC3238", "to": "MIT-12.800", "why": "内容延续：从一般流体力学到 rotating、stratified 的地球流体动力学" },
+    { "from": "MIT-12.800", "to": "MIT-12.802", "why": "内容延续：12.800 末尾的 shallow water、Kelvin waves 在 12.802 展开" },
+    { "from": "MIT-12.003", "to": "SIO-210", "why": "内容延续：本科层次的大气-海洋-气候动力学之后，进入研究生层次的物理海洋学" }
+  ]
+}

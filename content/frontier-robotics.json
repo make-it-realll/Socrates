@@ -1,0 +1,558 @@
+{
+  "updated": "2026-11-21",
+  "group": "robotics",
+  "courses": [
+    {
+      "id": "northwestern-modern-robotics",
+      "school": "Northwestern",
+      "code": "ME 449 / Coursera Modern Robotics",
+      "title": "Modern Robotics: Mechanics, Planning, and Control",
+      "zh": "现代机器人学：机构、规划与控制",
+      "term": "教材 preprint 2019 年 12 月版 + 配套视频（长期开放）；Coursera 六门课的 Specialization；Northwestern ME 449 Fall 2026",
+      "instructors": "Kevin Lynch (Northwestern), Frank Park (Seoul National University)",
+      "url": "https://hades.mech.northwestern.edu/index.php/Modern_Robotics",
+      "materials": "教材 PDF 免费（普通版、平板版、大字版、2-up 版）；每章都有 video lecture（YouTube 和嵌入式播放器）；MR code library 有 Python、MATLAB、Mathematica 三个版本，开源在 GitHub；CoppeliaSim scenes（UR5、KUKA youBot）公开；practice exercises 带解答，另有首尔大学 2017–2020 年考卷带解答；ME 449 Fall 2026 的 Assignment 1–5 handout 公开；Coursera capstone（Mobile Manipulation）的完整 handout 在 wiki 上公开，含测试数值。Coursera 的 quiz 要注册；instructor solution manual 不公开。",
+      "why": "这门课把 rigid-body motion、forward/inverse kinematics、Jacobian、dynamics、trajectory generation、task-space control 统一在 screw theory 和 product of exponentials 下讲。读 VLA 论文时 action space 是 joint position 还是 end-effector delta pose、为什么会遇到 singularity，这些都要靠它。学完能自己写一个 mobile manipulator 的 kinematic controller，并在 simulator 里跑通 pick-and-place。",
+      "prereq": "线性代数要熟：matrix exponential、rank、pseudoinverse、SVD 的直觉；一点 ODE（会写 first-order Euler step）；会用 numpy。不需要机器学习。本站对应 MA2101，以及 RB2202（kinematics/dynamics）、RB2203（robot control）、CS4278。",
+      "related": ["MA2101", "RB2202", "RB2203", "CS4278"],
+      "quick": [
+        { "part": "Chapter 2–3 videos：configuration space、rigid-body motions（so(3)、se(3)、exponential coordinates、twist、wrench）", "hours": 4, "why": "全书的记号和 screw theory 都在这里建立；不懂 SE(3) 和 matrix log，后面 FK、Jacobian、capstone 的 error twist 都看不懂。ME 449 Assignment 1 Part 3 用的 MatrixLog3 也来自这里。" },
+        { "part": "Chapter 4–5 videos：product of exponentials forward kinematics、space/body Jacobian、singularity", "hours": 3, "why": "capstone 的 FeedbackControl 要用 body Jacobian 的 pseudoinverse 算 wheel 和 joint speed；singularity 那几段解释了为什么 capstone 要求给 pinv 设 tolerance。" },
+        { "part": "Chapter 6 numerical inverse kinematics、Chapter 9 trajectory generation（ScrewTrajectory / CartesianTrajectory）", "hours": 2, "why": "capstone 的 TrajectoryGenerator 直接调用 Chapter 9 的函数；Chapter 6 的 Newton-Raphson IK 是理解 differential IK 的基础。" },
+        { "part": "Chapter 11 task-space motion control（kinematic feedforward + PI）、Chapter 13 wheeled mobile robots 与 mobile manipulation", "hours": 3, "why": "capstone 第二、三个 milestone 的控制律和 youBot 的 mecanum odometry 全在这两章。看完就可以开始写 capstone。" }
+      ],
+      "skip": "时间少可以跳过 Chapter 8 dynamics 的 Newton-Euler 推导细节、Chapter 10 motion planning（MIT Robotic Manipulation 讲得更现代）、Chapter 12 grasping。代价是不会推 torque-level 的 computed torque control 或 impedance control，做力控相关的工作时要回来补 Chapter 8 和 11.4–11.6。",
+      "assignments": [
+        {
+          "title": "Capstone: Mobile Manipulation（youBot pick-and-place）",
+          "url": "https://hades.mech.northwestern.edu/index.php/Mobile_Manipulation_Capstone",
+          "build": "从零写三个模块：NextState（arm + mecanum chassis 的 Euler step 和 odometry）、TrajectoryGenerator（八段 end-effector reference trajectory）、FeedbackControl（feedforward + PI 的 task-space 控制，用 Jacobian pseudoinverse 求速度），最后输出 CSV 在 CoppeliaSim 里让 youBot 把方块搬到目标位置，并交 best、overshoot、newTask 三组结果。",
+          "time": "handout 写约 20 小时（三个 milestone 加最终提交）。",
+          "needs": "笔记本 CPU 即可，不需要 GPU。需要装 CoppeliaSim edu 版和 MR code library（Python 版免费）；用 Scene 6（CSV Mobile Manipulation youBot），检查轨迹用 Scene 8，检查 odometry 用 Scene 4。",
+          "priority": "must",
+          "tips": [
+            "先用 handout 给的数值自测再往下走：NextState 里 u=(10,10,10,10) 跑 1 秒 chassis 应前进 0.475 m，速度上限设 5 时距离减半；Kp 取 identity 时 commanded twist 约为 (0, 0.171, 0, 21.488, 0, 6.562)，对不上先修代码再调参。",
+            "调参顺序按 handout：先 Kp=Ki=0 只用 feedforward，确认能大致跟住 reference，再加小的 diagonal Kp，最后才加 Ki。算 feedforward twist 时别漏了 1/Δt。",
+            "pseudoinverse 在 singularity 附近会给出巨大的关节速度，用带 tolerance 的 pinv（handout 建议试 1e-3、1e-2），同时给 wheel 和 joint speed 设上限。",
+            "gripper 开合最多要 0.625 s，CSV 里要连续保持同一 gripper 状态 63 行，并且这期间 {e} 保持不动；standoff 放在方块上方几厘米。",
+            "Scene 6 用 ODE 引擎（不要切 Bullet）；第一次跑 CSV 时手指可能怪异地复位，再跑一次就正常。方块在抓取中滑落是 physics 近似问题，handout 说没有修复办法，只能把抓取对齐做好。",
+            "enhancement 部分：joint 3 和 4 限制在约 −0.2 rad 以下避开零角度 singularity，写 testJointLimits，若下一步越限就把 Je 对应列置零后重算。",
+            "macOS 上 CoppeliaSim 启动就崩时在 app 目录运行 sudo xattr -r -d com.apple.quarantine *；Linux 下若系统地区用逗号作小数点，CSV 会读错，用 LC_NUMERIC=en_US.UTF-8 ./coppeliaSim.sh 启动。"
+          ],
+          "tipsSource": "前六条来自 capstone handout（Mobile_Manipulation_Capstone wiki 页）；最后一条来自 Getting Started with the CoppeliaSim Simulator 页面。"
+        },
+        {
+          "title": "ME 449 Fall 2026 Assignment 1（Grübler 公式 + CoppeliaSim + UR5 joint angles）",
+          "url": "http://hades.mech.northwestern.edu/index.php/ME_449_Assignment_1",
+          "build": "用 Grübler's formula 算机构自由度；在 CoppeliaSim 里搭 Pioneer 移动机器人场景并改 UR5 的 UI 脚本；用给定的旋转矩阵和 MatrixLog3 求出 UR5 六个 joint angle，并在场景里核对 R_sb。",
+          "time": "handout 未给出；估计 4–6 小时，大部分时间花在第一次装好 CoppeliaSim 和熟悉界面上（估计）。",
+          "needs": "笔记本 CPU；CoppeliaSim edu 版 + MR library。",
+          "priority": "good",
+          "tips": [
+            "Part 3 是这份作业里最值得做的部分：它逼你把 so(3)/SO(3) 的 log/exp 和关节轴对应起来，正好是 capstone 之前的热身。只想练 CoppeliaSim 的话，做完 Part 3 就够了。",
+            "打开 child script 之前要 stop 仿真，不能只 pause。",
+            "交的视频要短、低分辨率（handout 说几 MB，不超过 20 MB）；Part 3 要写出方法和代码，不能只给数字。",
+            "录屏报 “The video compressor failed initializing” 时，把输出格式从默认 H.263+ 改成 AVI/MPEG-4 part 2。"
+          ],
+          "tipsSource": "第一条是自己的判断（基于 handout 内容）；第二、三条来自 Assignment 1 页面；第四条来自 Getting Started with the CoppeliaSim Simulator 页面。"
+        }
+      ]
+    },
+    {
+      "id": "berkeley-cs285",
+      "school": "UC Berkeley",
+      "code": "CS 185/285",
+      "title": "Deep Reinforcement Learning, Decision Making, and Control",
+      "zh": "深度强化学习、决策与控制",
+      "term": "Spring 2026（作业和 slides）；录像用 Fall 2023",
+      "instructors": "Sergey Levine",
+      "url": "https://rail.eecs.berkeley.edu/deeprlcourse",
+      "materials": "Spring 2026 每讲 slides 公开；五份 homework PDF 公开，starter code 在 GitHub berkeleydeeprlcourse/homework_spring2026；Spring 2026 没有公开录像，主页链接的是 Fall 2023 的 YouTube playlist（https://www.youtube.com/playlist?list=PL_iWQOsE6TfVYGEGiAOMaOzzv41Jfm_Ps）。autograder 在 Gradescope，只对注册学生开放；Modal 的算力额度也只给注册学生。",
+      "why": "RL 理论和实践最完整的一门课。Spring 2026 的作业明显往 robot foundation model 方向改了：HW1 是 action chunking + flow matching policy，HW4 是 LLM 上的 GR-REINFORCE 和 GRPO，HW5 是 OGBench 上的 offline RL（SAC+BC、IQL、flow Q-learning）。做完 HW1、HW3、HW5 基本覆盖了 VLA post-training 里用到的 imitation、actor-critic、offline RL 工具。",
+      "prereq": "会写 PyTorch training loop；概率里的 expectation、KL divergence、Gaussian log-likelihood；能看懂 policy gradient 推导里的 log-derivative trick。本站对应 ST2131、CS3264、CS4246、RB4301。",
+      "related": ["ST2131", "CS3264", "CS4246", "RB4301", "EE4706"],
+      "quick": [
+        { "part": "Lec 2–3 Behavioral Cloning（看 Fall 2023 对应的 imitation learning 录像 + Spring 2026 slides）", "hours": 2, "why": "HW1 直接依赖：distribution shift、multimodal action 为什么让 MSE policy 失败、为什么要用 action chunking 和 flow/diffusion policy。" },
+        { "part": "Lec 4–6 RL basics、Policy Gradients、Actor-Critic", "hours": 4, "why": "全课的骨架；HW2 的 reward-to-go、baseline、GAE 都在这三讲推导。" },
+        { "part": "Lec 7–8 Value-based RL、Q-learning in practice", "hours": 2.5, "why": "HW3 的 DQN、target network、double Q 和 SAC 的 critic 都从这里来；“Q-learning in practice” 讲的 overestimation 正是 HW3 clipped double-Q 那一问。" },
+        { "part": "Lec 17–18 Offline RL", "hours": 2.5, "why": "HW5 依赖；也是用固定 demonstration 数据做 post-training 的理论基础。" },
+        { "part": "Lec 14 LLM RL（读 Spring 2026 slides）", "hours": 1, "why": "Fall 2023 录像里按题目找不到对应一讲时就直接读 slides；HW4 的 GRPO 和 KL estimator 都在这一讲。" }
+      ],
+      "skip": "可以跳过 Lec 11–13（variational inference、control as inference）、Lec 19–20 和 23（exploration、RL theory）、Lec 24 multi-task。代价是读 MaxEnt RL 和 SAC 的理论来源时会吃力，exploration 相关论文看不懂动机。Lec 15–16 model-based RL 如果研究方向是 world model 就不要跳。",
+      "assignments": [
+        {
+          "title": "HW1: Imitation Learning（MSE action chunking 与 flow matching policy，Push-T）",
+          "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf",
+          "build": "在 Push-T（5 维 state、2 维 action）上实现一次输出 K 步 action chunk 的 MSE policy，再实现 flow matching policy：学习把 Gaussian noise 运到 action chunk 的 velocity field，推理时用 Euler step 积分 ODE。",
+          "time": "handout 未给出总时间；handout 说小 MLP 在笔记本 CPU 上几分钟就能训完。",
+          "needs": "笔记本 CPU 足够；用 uv 管环境，要 WandB 账号（日志和视频是评分依据）。",
+          "priority": "must",
+          "tips": [
+            "flow matching 网络必须把 flow timestep τ 作为输入，handout 把漏掉 τ 列为常见错误。",
+            "训练中要周期性调用 evaluate_policy（不要改它），结束时调用 logger.dump_for_grading()；评分看这些日志。目标是 MSE policy reward ≥ 0.5、flow policy ≥ 0.7。",
+            "handout 建议对 train step 用 torch.compile，速度提升明显；optimizer 用 PyTorch 自带的 Adam。",
+            "报告里要对比两种 policy 的视频：MSE policy 在 T 两侧都可以推的状态下会把两种动作平均掉，这是 HW1 想让你亲眼看到的现象，写报告时从这里入手。"
+          ],
+          "tipsSource": "前三条来自 HW1 handout；第四条是自己的理解（handout 要求做 qualitative comparison，没有给出结论）。"
+        },
+        {
+          "title": "HW2: Policy Gradients（reward-to-go、baseline、GAE）",
+          "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw2.pdf",
+          "build": "实现 vanilla policy gradient、reward-to-go、neural network baseline、advantage normalization 和 GAE，在 CartPole、HalfCheetah、LunarLander、InvertedPendulum 上做对比实验。",
+          "time": "handout 未给出总时间；每个 run 在笔记本 CPU 上几秒到约十分钟。",
+          "needs": "handout 明确建议用笔记本 CPU 而不是云 GPU。MuJoCo 环境（HalfCheetah-v4、InvertedPendulum-v4）通过 pip 的 mujoco 包安装，不需要 license。",
+          "priority": "good",
+          "tips": [
+            "seed 之间方差很大，正确实现也可能出现一次坏 run；handout 说 2–3 次之内应该能拿到达标的 run，否则回头查实现。",
+            "LunarLander 扫 λ ∈ {0, 0.95, 0.98, 0.99, 1} 时不要动 batch size、learning rate 等其他超参。",
+            "画图横轴用 Train_EnvstepsSoFar，不是 iteration；exp 目录名要用规定的前缀（例如 InvertedPendulum 的 exp_name 以 pendulum 开头）。",
+            "目标值可用来自检：CartPole 最好配置到 200，HalfCheetah 带 baseline 最终 > 300，LunarLander 最好的 λ 至少一次 > 150，InvertedPendulum 100K 步内到 1000。"
+          ],
+          "tipsSource": "全部来自 HW2 handout。"
+        },
+        {
+          "title": "HW3: Q-Learning and Actor-Critic（DQN、Double DQN、SAC）",
+          "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw3.pdf",
+          "build": "实现 DQN 和 Double DQN（CartPole、LunarLander、MsPacman），再实现完整的 SAC：soft/hard target update、entropy bonus、reparameterized actor loss、自动 temperature 调节、clipped double-Q（HalfCheetah、Hopper）。",
+          "time": "handout 未给出总时间；MsPacman 和 HalfCheetah 在 GPU 上约 3 小时一个 run，其余环境本地即可。",
+          "needs": "CartPole、LunarLander、InvertedPendulum、Hopper 用 CPU 可以跑；MsPacman、HalfCheetah 建议 GPU（handout 推荐 Modal）。自学者没有课程额度，可用实验室 GPU。",
+          "priority": "must",
+          "tips": [
+            "Q 值发散到无穷大或一直是 0，基本就是 bug；1 维 tanh-squashed action 下 entropy 应趋近 log 2 ≈ 0.69，差很远说明实现有问题。这两个检查是发现 RL “不报错但不学” 的最快手段。",
+            "actor loss 里采样要用 .rsample()，用 .sample() 梯度传不回去，SAC 会安静地不学。",
+            "MsPacman 用默认 config 应该能到约 1500；到不了时 handout 说原因多半在实现，不在超参。",
+            "长 run 用 Modal 时加 --detach，结果用 uv run modal volume get hw3-ql-volume exp/ 下载。",
+            "在没有显示器的服务器上录 MuJoCo 视频，需要设 MUJOCO_GL=egl（有 NVIDIA 驱动时）或 osmesa，否则渲染会报 OpenGL 相关错误。"
+          ],
+          "tipsSource": "前四条来自 HW3 handout；最后一条是自己的工程经验。"
+        },
+        {
+          "title": "HW4: LLM RL（GR-REINFORCE 与 GRPO）",
+          "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw4.pdf",
+          "build": "实现 token logprob 与 mask、approximate KL、minibatch 迭代、group-relative advantage，然后实现 REINFORCE 和 GRPO 的 update，在 format copy 和 MATH level-5 子集上做 outcome-reward post-training，并做 GRPO 超参 ablation。",
+          "time": "handout 未给出人工时间；算力上 format copy 约 5 分钟，math GR-REINFORCE 约 2 小时，math GRPO 约 5 小时，handout 说整份作业约 8 个 H100 小时能完成。",
+          "needs": "默认在 Modal 的 H100 上跑；没有课程额度要自付 GPU 费用。Colab 免费版不够。",
+          "priority": "good",
+          "tips": [
+            "先跑 format copy 调通再跑 math；format copy 结束时 reward 应接近 1.3、eval exact match 接近 1.0，eval 低于约 0.8 就要 debug。",
+            "math GRPO 最终 eval 应 > 0.37，低于约 0.35 要查；GR-REINFORCE 应约 0.31，低于约 0.27 要查。rollout reward 曲线本来就很噪，比较算法看 eval 曲线。",
+            "只对 completion token 算 loss，prompt 和 padding 要 mask 掉；group normalization 前把 reward reshape 成 [groups, group size]；GRPO 的 PPO ratio 要用缓存的 rollout logprob。",
+            "四条必跑命令不能改动任何参数，autograder 依赖它们。"
+          ],
+          "tipsSource": "全部来自 HW4 handout。"
+        },
+        {
+          "title": "HW5: Offline RL（SAC+BC、IQL、Flow Q-Learning，OGBench）",
+          "url": "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf",
+          "build": "在 OGBench 的 cube-single 和 antsoccer-arena 上实现 SAC+BC、IQL（expectile regression + advantage-weighted regression）和 FQL（behavioral flow policy + one-step policy 蒸馏）。",
+          "time": "handout 未给出人工时间；单个 run 最长约 6 小时，handout 建议一张 GPU 并行 4 个 agent（T4 上 3–7 小时，A10 上 2–6 小时，视算法而定）。",
+          "needs": "需要 GPU，T4 级别即可。Colab 免费版的 T4 会话会断，6 小时的 run 要能断点续训，最好用实验室 GPU。",
+          "priority": "must",
+          "tips": [
+            "BC 项是对 action 维度取 mean 还是 sum，会让好的 α 范围差一个 action dim 的倍数；handout 给的 α grid 假设是 mean。",
+            "Q 值 sanity check：antmaze-medium 和 antsoccer-arena 上 q_max 应趋近 0、q_min 趋近 −100；cube-single 上 q_min 可能停在 −50 到 −70。Bellman backup 里要带 done。",
+            "FQL：送进 Q 函数前把 flow policy 的 action clip 到 [−1, 1]，但 distillation loss 里不要 clip one-step policy 的 action；评估和 backup 都用 one-step policy。",
+            "antsoccer-arena 想要高分，target 用两个 Q 的平均而不是 min；成功率低是正常的，但不应该是 0。debug 时可以关掉 @torch.compile。",
+            "Colab 断线问题：每隔固定步数把 agent、optimizer 和 replay 状态存到 Google Drive，重连后从最近的 checkpoint 继续。"
+          ],
+          "tipsSource": "前四条来自 HW5 handout；最后一条是自己的经验。"
+        }
+      ]
+    },
+    {
+      "id": "stanford-cs224r",
+      "school": "Stanford",
+      "code": "CS224R",
+      "title": "Deep Reinforcement Learning",
+      "zh": "深度强化学习（Stanford 版）",
+      "term": "Spring 2026（作业和 slides）；公开录像用 Spring 2025",
+      "instructors": "Chelsea Finn",
+      "url": "https://cs224r.stanford.edu",
+      "materials": "Spring 2026 每讲 slides 公开；三份 homework PDF、starter code zip、LaTeX 模板公开；compute guide 公开；default project（LLM RL）guidelines 和 starter code 公开；往年 project 报告公开。Spring 2026 录像只在 Canvas；Spring 2025 录像在 YouTube（https://www.youtube.com/playlist?list=PLoROMvodv4rPwxE0ONYRa_itZFdaKCylL）。Gradescope autograder 不对外。",
+      "why": "比 CS285 短、更偏机器人：有 sim-to-real（Guanya Shi 客座）和 RL for VLAs 两讲，HW2 用 Sawyer 锤钉子这种稀疏 reward 的操作任务对比 PPO 和高 UTD 的 off-policy actor-critic。适合只想抓住 “RL 怎么用在机器人和 VLA 上” 的人。",
+      "prereq": "会 PyTorch；概率基础；看过一次 policy gradient 推导会轻松很多。本站对应 ST2131、CS3264、CS4246、RB4301。",
+      "related": ["ST2131", "CS3264", "CS4246", "RB4301"],
+      "quick": [
+        { "part": "Imitation Learning（2026 slides 第 2 讲 + 2025 对应录像）", "hours": 1.5, "why": "HW1 的 BC、flow matching、DAgger 都在这一讲。" },
+        { "part": "Policy Gradients、Actor-Critic、Off-Policy Actor Critic（第 3–5 讲）", "hours": 4, "why": "HW2 的 PPO、GAE 和 off-policy actor-critic（多 critic、UTD）都依赖这三讲。" },
+        { "part": "Offline RL（第 7 讲）", "hours": 1.5, "why": "HW3 的 AWAC 和 IQL。" },
+        { "part": "RL for Robots: Sim-to-Real Transfer、RL for VLAs（第 16–17 讲，读 2026 slides）", "hours": 3, "why": "和 robot foundation model post-training 最直接相关的两讲；如果 2025 录像里没有对应一讲，就只读 slides。" }
+      ],
+      "skip": "Meta-RL、Hierarchical RL、Reward Learning 可以先跳，代价不大；RL for LLMs 两讲如果已经做了 CS285 HW4 也可以跳。如果已经认真做过 CS285，这门课只看第 16–17 讲和 HW2 即可。",
+      "assignments": [
+        {
+          "title": "Homework 1: Imitation Learning（Flappy Bird 上的 BC、flow matching、DAgger）",
+          "url": "https://cs224r.stanford.edu/material/hw1/CS224R_2026_Homework_1.pdf",
+          "build": "在一个带 PD controller 的 Flappy Bird 环境里实现输出 action chunk 的 MSE BC policy、flow matching policy 和 DAgger，比较三者在有两条可行通道的 hard mode 下的表现。",
+          "time": "handout 未给出；估计 6–10 小时（估计）。",
+          "needs": "handout 给了本地安装和 Colab 两种说明，没有提 GPU 需求；网络很小，CPU 应该够（估计）。",
+          "priority": "good",
+          "tips": [
+            "hard mode 交替出现单通道和双通道，regression policy 会在两个通道之间取平均撞墙；这正是 flow matching 要解决的 multimodality。",
+            "DAgger 需要 expert 在两个通道之间有确定的选择规则，否则 relabel 出来的数据本身还是多峰的。",
+            "Problem 3 用默认的 5 轮 DAgger，并把原 regression 结果画成水平线做对照；提交的文件名和 zip 结构要严格按 handout。"
+          ],
+          "tipsSource": "全部来自 Homework 1 handout。"
+        },
+        {
+          "title": "Homework 2: Online RL（gridworld Q-learning、PPO、off-policy actor-critic，Sawyer 锤钉子）",
+          "url": "https://cs224r.stanford.edu/material/hw2/CS224R_2026_Homework_2.pdf",
+          "build": "先写 tabular Q-learning；再实现 PPO（GAE、clipped surrogate、对冻结 reference actor 的 reverse-KL）；最后实现带 BC 项、多 critic、soft target update 的 off-policy actor-critic，在 sparse reward 的 Sawyer hammer 任务上对比 sample efficiency。",
+          "time": "handout 未给出总时间；部分 run 超过 1 小时，10 个 critic、UTD=5 的 run 50k 步约 2 小时。",
+          "needs": "handout 只支持 Modal；本地 Linux + NVIDIA GPU 有 conda 环境但助教不支持。自学者需要自备 GPU 或自付 Modal。",
+          "priority": "good",
+          "tips": [
+            "PPO 的 ratio 在 log 空间算再取 exp，避免 underflow/overflow。",
+            "critic loss 完全平坦说明 critic 没在更新；critic loss 极大多半是维度或 broadcasting 错误。所有 critic 都要更新，不只是抽来算 Bellman target 的那两个。",
+            "达标线：PPO 到 1M 步 eval success ≥ 25%；off-policy（2 critic、UTD=1）100k 步内 ≥ 90%；（10 critic、UTD=5）40k 步内 ≥ 90%。",
+            "Modal 上找不到 WandB key 时运行 modal secret create wandb-secret WANDB_API_KEY=<key> --force；跑飞的任务到 workspace 的 live apps 里点 Stop app。"
+          ],
+          "tipsSource": "全部来自 Homework 2 handout。"
+        },
+        {
+          "title": "Homework 3: Offline RL（AWAC、IQL、filtered BC，AntMaze 与 PointMass stitching）",
+          "url": "https://cs224r.stanford.edu/material/hw3/CS224R_2026_Homework_3.pdf",
+          "build": "实现 AWAC（clipped double-Q critic + advantage-weighted actor）和 IQL（expectile value learning），在 D4RL AntMaze 上比较，并在 PointMass 数据集上研究 trajectory stitching，与 filtered BC 对照。",
+          "time": "handout 未给出人工时间；AWAC/IQL 在 umaze 约 1 小时、medium-diverse 约 1.5 小时，PointMass 10–15 分钟。",
+          "needs": "handout 推荐只用 Modal；Python 3.10 的 conda 环境。",
+          "priority": "optional",
+          "tips": [
+            "先用 modal_train.py --seed 1 调通一个 seed，再并行跑三个 seed。",
+            "return 是负数（每步 −1），越负越差；看 /data 里的 rollout 视频判断 agent 的真实行为。",
+            "D4RL 的 AntMaze 依赖老的 mujoco-py，本地自己装很容易卡在编译上；跟着 handout 用 Modal image，别在本地折腾。和 CS285 HW5 内容重叠较多，二选一即可。"
+          ],
+          "tipsSource": "前两条来自 Homework 3 handout；第三条是自己的经验。"
+        }
+      ]
+    },
+    {
+      "id": "mit-6.4210",
+      "school": "MIT",
+      "code": "6.4210/6.4212",
+      "title": "Robotic Manipulation: Perception, Planning, and Control",
+      "zh": "机器人操作：感知、规划与控制",
+      "term": "Fall 2026（problem sets）；公开录像用 Fall 2023",
+      "instructors": "Tomás Lozano-Pérez, Leslie Kaelbling, Russ Tedrake",
+      "url": "https://manipulation.csail.mit.edu/Fall2026/index.html",
+      "materials": "在线教材 manipulation.mit.edu（HTML + 可在 Colab 或本地运行的 notebook，每章末有 exercises）；Fall 2026 的 ps1–ps6 PDF 已在 schedule 页公开（题目和解答在同一份 PDF 里）；handout 代码在 GitHub tlpmit/6.4210-2-fall26-handouts；midterm practice 及解答公开。Fall 2026 录像只对注册学生开放（Canvas）；Fall 2023 录像在 YouTube（https://www.youtube.com/playlist?list=PLkx8KyIQkMfWr191lqbN8WfV08j-ui8WX，schedule 页给出的链接）。Gradescope 评分不对外。",
+      "why": "用 Drake 把一个 manipulation 系统从头到尾搭起来：spatial algebra、differential IK（写成 QP）、grasp、point cloud、motion planning，再到 diffusion policy 和 RL。Fall 2026 的 ps5 专门讲 action chunking、diffusion/flow matching、旋转表示、跨 embodiment 数据加权，基本就是 VLA 论文的工程词汇表。",
+      "prereq": "线性代数（rank、SVD）；Python；会写小的 QP 更好；一点机器学习。本站对应 MA2101、DSA3102、CS3264、RB2202、CS4278。",
+      "related": ["MA2101", "DSA3102", "CS3264", "RB2202", "CS4278"],
+      "quick": [
+        { "part": "教材 Chapter 2–3：Let's get you a robot、Basic Pick and Place（spatial algebra、differential IK）", "hours": 4, "why": "ps1、ps2 的基础；Drake 的 Diagram/System 写法也在这里第一次出现，不先过这两章后面所有 problem set 都会卡在框架上。" },
+        { "part": "教材 Chapter 6 Motion Planning（IK as optimization、RRT）", "hours": 2.5, "why": "ps3 的 QP differential IK、door opening IK 和 RRT-Connect 都出自这一章。" },
+        { "part": "Imitation learning / diffusion policy 相关讲次（Fall 2023 录像按主题找，配合 ps5 的 bookwork 题）", "hours": 3, "why": "ps5 的 13 道题本身就是一份很紧凑的讲义：为什么 regression 平均两条好轨迹会变坏、DAgger、相对坐标还是绝对坐标、flow matching 的 velocity field。" },
+        { "part": "教材 Chapter 11 Reinforcement Learning", "hours": 2, "why": "ps6 的 REINFORCE 和 residual PPO 依赖这一章。" }
+      ],
+      "skip": "Chapter 4 geometric pose estimation（ICP）、Chapter 9–10 的 perception 可以先跳，代价是做真机时 perception pipeline 要另外补；Chapter 7 mobile manipulation 和 Chapter 12 tactile 是选读。如果只为 VLA，ps4 grasping 的 wrench/force closure 可以只读不做。",
+      "assignments": [
+        {
+          "title": "Problem Set 2（Fall 2026）：FK/IK/Jacobian 与 Pick and Place",
+          "url": "https://manipulation.csail.mit.edu/Fall2026/ps2.pdf",
+          "build": "给平面二连杆写 forward kinematics、解析 IK 和 2×2 Jacobian；然后在 Drake 里写 overhead grasp pose、Jacobian pseudoinverse 的 differential IK controller，最后规划把三个方块叠起来并交视频。",
+          "time": "handout 未给出；估计 8–12 小时，第一次接触 Drake 的 Diagram 会花不少时间（估计）。",
+          "needs": "笔记本 CPU 或 Colab，不需要 GPU；Python 3.13 + uv + pip 装 drake；macOS 或 Ubuntu，Windows 要用 WSL。",
+          "priority": "must",
+          "tips": [
+            "JointVelocity 里用 local plant 的 geometric Jacobian，只保留手臂对应的列；integrator 的初值按代码里给的 workaround 处理。",
+            "叠方块要在抓和放前后都加 pregrasp/post-place 位姿；用每个 waypoint 0.5 s 的速度再测一次，确认计划在更快的时间缩放下仍然可靠。",
+            "环境：路径里有空格或特殊字符时，Drake 拉模型会报 returncode == 512，把 venv 建在 home 目录下；不要 fork 公开的 handout 仓库（fork 不能设为 private），新建一个 private 仓库。",
+            "Colab：在 Drive 里的副本上工作，每次会话先跑 setup cell；改了 .py 之后要先运行 colab_bootstrap.refresh() 再重跑 cell。",
+            "Drake 的 Python 文档大多是从 C++ 文档自动生成的，查 API 时 C++ 文档写得更仔细；用 plot_system_graphviz 画 block diagram 排查连线（需要系统装 graphviz 程序，不是 Python 包）。"
+          ],
+          "tipsSource": "前两条来自 ps2 handout；第三、四条来自 GitHub handout 仓库 README；第五条来自 ps1 handout 和 README。"
+        },
+        {
+          "title": "Problem Set 3（Fall 2026）：QP、IK as optimization、RRT",
+          "url": "https://manipulation.csail.mit.edu/Fall2026/ps3.pdf",
+          "build": "用 Drake MathematicalProgram 写 QP；把 differential IK 写成带关节速度限制和 Cartesian “虚拟墙” 约束的 QP；做开门轨迹的优化 IK、PR2 移动底座的 IK 可达性分析；实现 RRT 和 RRT-Connect。",
+          "time": "handout 未给出；估计 10–15 小时（估计）。",
+          "needs": "笔记本 CPU 或 Colab；Meshcat 在浏览器里看。",
+          "priority": "good",
+          "tips": [
+            "绝对值约束可以拆成两条线性约束，或用 AddBoundingBoxConstraint。",
+            "virtual wall 用的预测步长 h = 0.004 s 和 controller 的采样周期是两回事，不要混用。",
+            "IK 精度要求：开门题位置 1 mm、姿态 0.01π rad；PR2 题 1 mm、1°。不要改 IK_SEED，random restart 偶尔失败不一定是 bug。",
+            "RRT 有时会失败，调 max_iterations 和 prob_sample_q_goal 试试；动手前先读 handout 标出的 “code for students to study” 部分。"
+          ],
+          "tipsSource": "全部来自 ps3 handout。"
+        },
+        {
+          "title": "Problem Set 5（Fall 2026）：Imitation Learning 与 Diffusion Policy on Push-T",
+          "url": "https://manipulation.csail.mit.edu/Fall2026/ps5.pdf",
+          "build": "11 道概念题覆盖离散与连续 action 表示、示教中的停顿与 action chunking、多峰示教的平均问题、DAgger、position target 还是 velocity command、坐标系选择、跨机器人数据加权、何时请求更多示教、两个数据点之间的 flow matching、评估所需样本量、3D 旋转表示；计算题在预训练的 Diffusion Policy 上可视化 Push-T 的 action 分布。",
+          "time": "handout 未给出；估计 6–8 小时，以读题和推导为主（估计）。",
+          "needs": "notebook 会下载预训练 policy，handout 说不需要 GPU；Colab 或本地 Jupyter 均可。",
+          "priority": "must",
+          "tips": [
+            "计算题用 diffusion_policy_pusht_state.ipynb，setup cell 按顺序跑；用 show_action_samples 看 action 分布的多峰结构。",
+            "Problem 10 用自然对数，结果保留三位有效数字；“Going further” 部分不用交。",
+            "这份 problem set 的题目和解答在同一份 PDF 里，自学时先遮住解答自己做，再对照。"
+          ],
+          "tipsSource": "前两条来自 ps5 handout；第三条是自己的建议。"
+        },
+        {
+          "title": "Problem Set 6（Fall 2026）：REINFORCE 与 residual PPO",
+          "url": "https://manipulation.csail.mit.edu/Fall2026/ps6.pdf",
+          "build": "在 cart-pole 上补全 reward_to_go 和 policy_loss，用 bootstrap 和 t-test 分析 30 对训练结果；在推物体任务上补全 BC loss、GAE、PPO actor/critic loss，在一个保守的 BC policy 上做 residual PPO，并分析提供好的长 run 数据。",
+          "time": "handout 未给出人工时间；handout 说算力约 1 小时笔记本 CPU 或 Colab，长 PPO run（每个约 3 小时）已提供结果，不用重跑。",
+          "needs": "笔记本 CPU 或 Colab，不需要 GPU；老的 venv 要补装 torch、gymnasium、pandas、ipykernel。",
+          "priority": "good",
+          "tips": [
+            "loss 里要用 torch 的操作（torch.clamp 而不是 np.clip），否则梯度断掉；reward_to_go 和 gae_advantages 用纯 NumPy。",
+            "policy_loss 除以 episode 数 B，不是 transition 数 N。",
+            "遇到截断（computational cutoff）要保留最后一步的 value estimate，只有真正的 terminal state 才置 0。",
+            "BC 数据按整条 episode 划分 train/validation，按 transition 划分会让近似重复的状态泄漏到 validation。",
+            "不要 Run All，训练和回放 cell 会立刻开跑；改代码不生效时重启 kernel 再跑 setup cell。"
+          ],
+          "tipsSource": "全部来自 ps6 handout。"
+        }
+      ]
+    },
+    {
+      "id": "mit-6.8210",
+      "school": "MIT",
+      "code": "6.8210",
+      "title": "Underactuated Robotics",
+      "zh": "欠驱动机器人",
+      "term": "Spring 2024（课程站上最新一期）",
+      "instructors": "Russ Tedrake",
+      "url": "https://underactuated.csail.mit.edu/Spring2024/index.html",
+      "materials": "在线教材 underactuated.mit.edu（HTML + Colab/本地 notebook，章末 exercises 放在仓库的 exercises 目录）；Spring 2024 全部录像在 YouTube（https://www.youtube.com/playlist?list=PLkx8KyIQkMfU5szP43GlE_S1QGSPQfL9s）。Spring 2024 schedule 页上没有列出 problem set，课程用 Gradescope（部分 autograded）评分，不对外；自学只能做教材章末 exercises。",
+      "why": "讲 model-based 控制这一侧：pendulum、acrobot、cart-pole、LQR、Lyapunov、trajectory optimization、contact、system identification，最后接到 policy search 和 imitation learning。做 legged 或 sim-to-real 时，知道 RL 学出来的东西和 LQR/MPC 的关系，比只会调 PPO 更能判断问题出在哪；在边缘平台上，很多高频控制仍然是这类 model-based controller。",
+      "prereq": "ODE 和线性化；线性代数；凸优化基础（QP、SOS 部分需要更多）。本站对应 MA2101、DSA3102、EE2023、RB2203。",
+      "related": ["MA2101", "DSA3102", "EE2023", "RB2203"],
+      "quick": [
+        { "part": "Chapter 2–3：Simple Pendulum；Acrobots, Cart-Poles, and Quadrotors（含对应录像）", "hours": 3.5, "why": "phase portrait、energy shaping、partial feedback linearization 的直觉都在这里；后面每一章都拿这几个系统当例子。" },
+        { "part": "Chapter 8 Linear Quadratic Regulators", "hours": 2, "why": "章末 exercise “LQR on a Drake Diagram” 依赖它；LQR 也是 iLQR 和 MPC 的出发点。" },
+        { "part": "Chapter 10 Trajectory Optimization", "hours": 3.5, "why": "direct transcription、direct shooting、iLQR 是机器人里最常用的规划控制工具；章末有三个编程 exercise。" },
+        { "part": "Chapter 20 Model-Free Policy Search 或 Chapter 17 Planning and Control through Contact（二选一）", "hours": 2, "why": "做 RL 的选 Chapter 20，看它怎么把 policy gradient 放进控制的框架里；做 manipulation/legged 的选 Chapter 17。" }
+      ],
+      "skip": "Chapter 9 Lyapunov（SOS verification）、Chapter 13 robust control、Chapter 14 feedback motion planning、Chapter 16 limit cycles 可以跳；代价是读 safety verification 和 funnel library 一类论文时缺背景。",
+      "assignments": [
+        {
+          "title": "教材 Exercise：LQR on a Drake Diagram（Chapter 8）",
+          "url": "https://underactuated.csail.mit.edu/lqr.html",
+          "build": "一步步搭一个 Drake Diagram，并为它设计 LQR controller。",
+          "time": "教材未给出；估计 2–3 小时（估计）。",
+          "needs": "CPU；Colab 可用（第一个 code cell 会装依赖），本地用 pip install \"underactuated[all]\"。Drake 只支持最近两个版本的 macOS 和 Ubuntu。",
+          "priority": "must",
+          "tips": [
+            "在 Colab 里看 Meshcat：运行 StartMeshcat() 后点 “Open Meshcat in a separate window”，notebook 要保持打开；想嵌在 cell 旁边用 DisplayMeshcat(meshcat)。",
+            "notebook 跑不起来先查 underactuated 仓库的 GitHub issues 有没有已知问题，Drake 本身的问题按 drake.mit.edu 的 getting help 页面处理。",
+            "Windows 没有 Drake 的原生构建，要用 WSL 里的 Ubuntu。"
+          ],
+          "tipsSource": "前两条来自教材 Appendix A（drake.html）；第三条来自 MIT 6.4210 Fall 2026 handout 仓库的 README（同一个 Drake）。"
+        },
+        {
+          "title": "教材 Exercises：Direct Shooting vs Direct Transcription；iLQR Implementation（Chapter 10）",
+          "url": "https://underactuated.csail.mit.edu/trajopt.html",
+          "build": "实现 direct transcription 并分析 shooting 与 transcription 的数值条件，实现 Riccati recursion；另一题从零实现 iLQR，在自动驾驶车辆的轨迹上测试。",
+          "time": "教材未给出；估计两题合计 6–10 小时（估计）。",
+          "needs": "CPU；Colab 或本地 notebook。",
+          "priority": "good",
+          "tips": [
+            "先在一个线性系统 + 二次 cost 上测 iLQR：这时 backward pass 就是 LQR，算法应该一次迭代收敛；不收敛说明 backward pass 或 line search 有 bug。",
+            "iLQR 发散时先加 Quu 的 regularization（对角加 μI，失败就增大 μ）再看 line search，比直接调 cost 权重更快找到原因。",
+            "同章还有 “Iterative Linear Quadratic Regulator: Theory” 一题，要求读 Nganga21 的前两节回答概念题，适合在写代码前做。"
+          ],
+          "tipsSource": "前两条是自己的工程经验；第三条来自教材 Chapter 10 的 exercise 列表。"
+        }
+      ]
+    },
+    {
+      "id": "stanford-cs237b",
+      "school": "Stanford",
+      "code": "CS237B / AA274B",
+      "title": "Principles of Robot Autonomy II",
+      "zh": "机器人自主性原理 II",
+      "term": "Winter 2025",
+      "instructors": "Jeannette Bohg, Marco Pavone, Dorsa Sadigh",
+      "url": "https://web.stanford.edu/class/cs237b/",
+      "materials": "HW1–HW3 的 PDF 和 starter code（GitHub PrinciplesofRobotAutonomy/CS237B_Win25_HW1、HW2、HW3）公开，HW4 只有 PDF；project 指南公开。录像只在 Canvas，不公开；Gradescope 评分不对外。",
+      "why": "把 learning-based autonomy 的几块拼在一起：learning-based perception、form/force closure 与 grasp force optimization、imitation learning（含 mixture density network、conditional imitation learning）、intent inference 和 shared autonomy。研究方向是 “提高机器人自主性” 的话，HW3 的 shared autonomy 和 intent inference 是其他课很少覆盖的部分。",
+      "prereq": "PyTorch；概率（Bayes rule、Gaussian）；会用 cvxpy 写 LP/SOCP 更好。本站对应 ST2131、DSA3102、CS3264、RB4301。",
+      "related": ["ST2131", "DSA3102", "CS3264", "RB4301"],
+      "quick": [
+        { "part": "HW2 handout 的 Problem 1–2 背景部分（form/force closure、grasp map、SOCP 形式）", "hours": 3, "why": "没有公开录像，handout 本身的推导就是最快的讲义；这部分是理解 grasp quality 和接触力优化的最短路径。" },
+        { "part": "HW3 handout 全文（BC、MDN、CoIL、intent inference、shared autonomy）", "hours": 3, "why": "这门课独有的内容集中在 HW3；读完再决定是否动手。" },
+        { "part": "动手做 HW3", "hours": 8, "why": "所有模型都很小，CPU 上几分钟到十几分钟就能训完，是性价比最高的一份作业。" }
+      ],
+      "skip": "HW1 的 value iteration 和 Inception-v3 迁移学习与其他课重复，可以跳；HW4（system architecture、verification）没有代码，时间少可不做。没有录像是这门课的硬伤，想听讲解只能靠其他课补。",
+      "assignments": [
+        {
+          "title": "HW3: Imitation Learning 与 Human-Robot Interaction",
+          "url": "https://web.stanford.edu/class/cs237b/pdfs/homework/cs237b_w25_hw3.pdf",
+          "build": "在 2D 驾驶模拟器 CARLO 里实现按 goal 训练的 BC、输出 Gaussian 的 mixture density network、带分支输出头的 conditional imitation learning，再用 MDN 做 goal 的 intent inference，最后实现把机器人动作和用户转向混合的 shared autonomy。",
+          "time": "handout 未给出总时间；BC 训练约 5 分钟，每个 MDN 约 15 分钟（调参会更久）。",
+          "needs": "CPU 即可；PyTorch，代码仓库 https://github.com/PrinciplesofRobotAutonomy/CS237B_Win25_HW3。",
+          "priority": "must",
+          "tips": [
+            "要用课程仓库里改过的 CARLO，不要用公开版本。",
+            "covariance 写成 A·Aᵀ 来保证 PSD；MDN 用非常窄、非常浅的网络，handout 原话就是 “use really small networks”。",
+            "trained weights 用 Xavier initialization；MDN loss 一开始不单调下降就停掉重跑或降 learning rate；可以先用较高 lr 训，再用 --restore 逐步降 lr。",
+            "转向效果差时在 loss 里加大 steering 项的权重；shared autonomy 的阈值很关键，机器人帮得太多反而会损害控制。"
+          ],
+          "tipsSource": "全部来自 HW3 handout。"
+        },
+        {
+          "title": "HW2: Grasping and Manipulation（form/force closure、grasp force SOCP、intuitive physics）",
+          "url": "https://web.stanford.edu/class/cs237b/pdfs/homework/cs237b_w25_hw2.pdf",
+          "build": "用 LP 判断 form closure 和 force closure（含 friction pyramid 近似）；用 cvxpy 写最小化最大接触力的 SOCP 并做预计算加速；在 Physics 101 视频数据上训练把摩擦系数作为可解释中间量的 CNN。",
+          "time": "handout 未给出；估计 10–12 小时（估计）。",
+          "needs": "CPU；cvxpy + PyTorch，conda 环境 cs237b；Problem 3 要下载 phys101 数据和预处理的 frames。代码仓库 https://github.com/PrinciplesofRobotAutonomy/CS237B_Win25_HW2。",
+          "priority": "good",
+          "tips": [
+            "M1 Mac 上 cvxpy 可能需要先 brew install cmake 并装 ecos==2.0.14。",
+            "frictionless contact 只给 F 矩阵贡献一列（有摩擦的是两列），矩阵维度会变；form closure 要求 F 满秩且 LP 可行。",
+            "test.py 不完整，autograder 也不跑它，自己补测试；可以用 is_in_force_closure() 验证你推出的最小 µ。",
+            "参考值：简单 CNN 在 batch 32 上 validation loss 应低于 5；普通 linear layer 会输出负的摩擦系数，part (v) 就是问怎么约束它。"
+          ],
+          "tipsSource": "全部来自 HW2 handout。"
+        }
+      ]
+    },
+    {
+      "id": "hf-deep-rl-course",
+      "school": "Hugging Face",
+      "code": "Deep RL Course",
+      "title": "Hugging Face Deep Reinforcement Learning Course",
+      "zh": "Hugging Face 深度强化学习实践课",
+      "term": "长期开放，目前处于 low-maintenance 状态",
+      "instructors": "Thomas Simonini 等（Hugging Face）",
+      "url": "https://huggingface.co/learn/deep-rl-course/unit0/introduction",
+      "materials": "每个 unit 有文字讲解和 Colab notebook；免费证书（完成 80% 作业得 completion，100% 得 honors）。README 说课程已进入 low-maintenance：Unit 7（AI vs AI）不能正常使用，leaderboard 已停止运作；notebook 出问题时到 GitHub issues 找社区修复。没有视频讲课。",
+      "why": "最快的上手路线：几个小时内就能在 Colab 上训出 DQN、REINFORCE、A2C、PPO 并看到视频。Unit 4 要求在 PyTorch 里从零写 REINFORCE，Unit 8 照着 CleanRL 从零写 PPO，Unit 6 用 Panda-Gym 机械臂环境。适合在啃 CS285 之前先建立手感。",
+      "prereq": "Python；会一点 PyTorch。本站对应 CS2109S、CS4246。",
+      "related": ["CS2109S", "CS4246"],
+      "quick": [
+        { "part": "Unit 1 Introduction to Deep RL + hands-on", "hours": 2, "why": "建立 agent/environment/reward 的基本接口，顺便把 Colab、Hub 登录、视频录制的环境问题一次解决。" },
+        { "part": "Unit 2–3 Q-Learning、Deep Q-Learning with Atari", "hours": 3, "why": "value-based 方法的直觉；后面读 SAC、IQL 时用得上。" },
+        { "part": "Unit 4 Policy Gradient with PyTorch", "hours": 2.5, "why": "从零写 REINFORCE，是第一份真正要自己写 loss 的作业。" },
+        { "part": "Unit 6 Actor-Critic with Robotics environments（Panda-Gym）", "hours": 2, "why": "第一次在机械臂环境里训练 policy。" },
+        { "part": "Unit 8 Part 1 PPO + CleanRL hands-on", "hours": 3, "why": "PPO 是机器人 RL 和 sim-to-real 的默认算法，CleanRL 的单文件实现是读其他代码库的好参照。" }
+      ],
+      "skip": "Unit 5 Unity ML-Agents、Unit 7 AI vs AI（已不可用）、Unit 8 Part 2 Doom、Bonus units 都可以跳，对机器人方向影响很小。",
+      "assignments": [
+        {
+          "title": "Unit 4 hands-on: REINFORCE from scratch（CartPole-v1、Pixelcopter）",
+          "url": "https://huggingface.co/learn/deep-rl-course/unit4/hands-on",
+          "build": "在 PyTorch 里从零写 REINFORCE：两层 MLP + softmax policy、discounted return、return 标准化、policy loss，在 CartPole 和更难的 Pixelcopter 上训练并上传到 Hub。",
+          "time": "页面未给出；估计 3–4 小时，Pixelcopter 训练 50,000 episode 会占大头（估计）。",
+          "needs": "Colab（页面建议用 Colab 而不是本地），可开 GPU；需要 Hugging Face 账号。",
+          "priority": "must",
+          "tips": [
+            "act() 里不要用 np.argmax 选动作，要用 m.sample() 采样，否则 policy 不探索，log_prob 也会出错；这是页面特别指出的 bug。",
+            "这个 notebook 用的是老的 gym 而不是 gymnasium（gym-games 没更新），step() 返回 4 个值、用 done 而不是 terminated/truncated。",
+            "虚拟显示要装 xvfb、ffmpeg、pyvirtualdisplay，并固定 pyglet==1.5.1；把 notebook 存一份到 Drive，防止会话超时丢失。",
+            "认证门槛：CartPole 的 mean_reward − std ≥ 350，Pixelcopter ≥ 5。"
+          ],
+          "tipsSource": "全部来自 Unit 4 hands-on 页面。"
+        },
+        {
+          "title": "Unit 8 hands-on: PPO from scratch with CleanRL（LunarLander-v2）",
+          "url": "https://huggingface.co/learn/deep-rl-course/unit8/hands-on-cleanrl",
+          "build": "参照 CleanRL 实现，从零写一个单文件 PPO（ppo.py），在 LunarLander-v2 上训练、评估、录视频并推到 Hub。",
+          "time": "页面未给出；估计 4–6 小时（估计）。",
+          "needs": "Colab GPU runtime；gym 0.22；Hugging Face write token。",
+          "priority": "good",
+          "tips": [
+            "默认超参不一定稳定，页面建议多调几组；repo-id 要换一个新的，不要复用 Unit 1 的。",
+            "Colab 外运行用 huggingface-cli login 登录，而不是 notebook 里的登录方式。",
+            "对照页面链接的 PPO implementation details 清单逐项检查（advantage normalization、value clipping、学习率退火等），PPO 学不动时多半是漏了其中某一项。"
+          ],
+          "tipsSource": "前两条来自 Unit 8 hands-on 页面；第三条是自己的经验（页面只给出了清单链接）。"
+        }
+      ]
+    },
+    {
+      "id": "openai-spinning-up",
+      "school": "OpenAI",
+      "code": "Spinning Up",
+      "title": "Spinning Up in Deep RL",
+      "zh": "Spinning Up 深度强化学习入门",
+      "term": "2018 发布，之后基本没有更新",
+      "instructors": "Joshua Achiam（OpenAI）",
+      "url": "https://spinningup.openai.com/en/latest/index.html",
+      "materials": "Intro to RL Part 1–3、VPG/TRPO/PPO/DDPG/TD3/SAC 的算法页与参考实现（PyTorch 和 TensorFlow 两版）、benchmark、“Spinning Up as a Deep RL Researcher” 一文、两组 exercises 和解答。没有视频。安装依赖 Python 3.6 时代的 gym、mujoco-py 和 OpenMPI，只支持 Linux 和 macOS。",
+      "why": "Part 3 是篇幅最短、推导最干净的 policy gradient 入门；Exercise 2.2 “Silent Bug in DDPG” 专门训练你找出 “代码能跑、曲线变差但不报错” 的 RL bug，这正是做 RL 时最耗时间的问题。",
+      "prereq": "Python、PyTorch；概率里的期望和 log-likelihood。本站对应 ST2131、CS4246。",
+      "related": ["ST2131", "CS4246"],
+      "quick": [
+        { "part": "Intro to RL Part 1–3", "hours": 3, "why": "Part 3 从零推 policy gradient 和 reward-to-go，读完再看 CS285 Lec 5 会很快。" },
+        { "part": "Spinning Up as a Deep RL Researcher", "hours": 1, "why": "讲怎么复现算法、怎么做实验对比、为什么要多 seed，是给初学者的研究方法建议。" },
+        { "part": "PPO 和 SAC 两个算法页", "hours": 2, "why": "机器人 RL 最常用的 on-policy 和 off-policy 算法，页面有伪代码和关键实现细节。" },
+        { "part": "Exercises 1.1、1.2、2.2", "hours": 4, "why": "1.1 有自动检查，1.2 几分钟就能验证，2.2 是 debug 训练。" }
+      ],
+      "skip": "TRPO 页和 Exercise 2.1 可以跳（TRPO 已基本被 PPO 取代）；“Requests for Research” 是 2018 年的开放问题，已过时。",
+      "assignments": [
+        {
+          "title": "Exercise 2.2: Silent Bug in DDPG（以及 Problem Set 1）",
+          "url": "https://spinningup.openai.com/en/latest/spinningup/exercises.html",
+          "build": "2.2：分别用正确和有 bug 的网络构造方式训练 DDPG（各 3 个 seed），画出性能差异，在不看 core.py 正确实现的前提下找出 bug 并解释它怎么破坏学习。Problem Set 1：写 diagonal Gaussian 的 log-likelihood（自动对照检查）、PPO 的 MLP Gaussian policy、TD3 的 loss 计算。",
+          "time": "页面给的是运行时间：2.2 每个 run 约 10 分钟（共 6 个）；1.2 约 3–5 分钟；1.3 约 10 分钟。人工时间未给出。",
+          "needs": "CPU 即可；需要 MuJoCo 环境（HalfCheetah-v2、InvertedPendulum-v2、Hopper-v2）。",
+          "priority": "optional",
+          "tips": [
+            "页面提示 2.2 的 bug 和 Bellman backup 以及 policy/Q loss 的计算有关；bonus 问哪些超参会掩盖 bug 的影响。",
+            "1.2 的达标标准：InvertedPendulum-v2 最后 5 个 epoch 平均 > 500 或到 1000 满分；1.3 用 --use_soln 跑参考实现做对照。",
+            "文档里的安装说明（mujoco-py + MuJoCo license）已过时：MuJoCo 现在免费开源，不再需要 license，但 mujoco-py 仍要求 MuJoCo 2.1 的二进制和较老的 gym。最省事的做法是用一个单独的老 conda 环境或 Docker；或者只把练习的思路移植到 gymnasium 的 -v4/-v5 环境上做。",
+            "这类 bug 的通用检查：打印 Q target 和 Q prediction 的 shape，(batch,) 和 (batch, 1) 相减会 broadcasting 成 (batch, batch)，loss 照样能算，但学不动。"
+          ],
+          "tipsSource": "前两条来自 Exercises 页面；后两条是自己的经验（第三条里 “只支持 Linux/macOS、需要 mujoco-py” 来自 Installation 页面）。"
+        }
+      ]
+    },
+    {
+      "id": "hf-robotics-course-lerobot",
+      "school": "Hugging Face",
+      "code": "Robotics Course + LeRobot",
+      "title": "Hugging Face Robotics Course / Robot Learning: A Tutorial（LeRobot）",
+      "zh": "Hugging Face 机器人学习课程与 LeRobot 实操",
+      "term": "2025 年 10 月起（tutorial 论文 arXiv 2510.12403）；课程目前只发布到 Unit 2",
+      "instructors": "Francesco Capuano, Caroline Pascal, Adil Zouitine, Thomas Wolf, Michel Aractingi（Hugging Face）",
+      "url": "https://huggingface.co/learn/robotics-course",
+      "materials": "课程页面已发布 Unit 0–2（LeRobot 库、LeRobotDataset、streaming dataset batching 代码示例、classical robotics），Unit 5–7（RL、imitation learning、foundation models）标为 coming soon；对应的长篇 tutorial 论文 “Robot Learning: A Tutorial” 已完整公开，附 lerobot 代码示例。LeRobot 文档有 ACT 和 SmolVLA 的 Colab 训练 notebook。没有评分作业，只有 quiz，没有证书。",
+      "why": "这是这一组里唯一直接动手做 robot foundation model fine-tuning 的材料：LeRobotDataset 格式、ACT、450M 参数的 SmolVLA、在 SO-100/SO-101 上部署、慢推理下的 RTC（real-time chunking）。SmolVLA 足够小，适合研究能在边缘平台上跑的 VLA。没有找到 2025–2026 年有公开、可自学作业的 VLA 专题大学课程（见汇报），这里用它补位。",
+      "prereq": "PyTorch；做过一次 BC 或 flow matching policy（CS285 HW1 或 CS224R HW1 的水平）；有 GPU 访问。本站对应 RB4301、CS3264。",
+      "related": ["RB4301", "CS3264"],
+      "quick": [
+        { "part": "Robotics Course Unit 1：LeRobot、LeRobotDataset、Batching a (Streaming) Dataset", "hours": 1.5, "why": "所有 LeRobot policy 的训练都从 LeRobotDataset 读数据；先弄懂 observation/action 的字段命名，后面 rename_map 报错才知道怎么改。" },
+        { "part": "“Robot Learning: A Tutorial” 中 behavioral cloning 和 generalist / language-conditioned policy 部分", "hours": 4, "why": "从 BC 讲到 VLA 的一条完整线，配有 lerobot 示例代码，相当于还没发布的 Unit 6–7 的内容。" },
+        { "part": "LeRobot 文档 SmolVLA 页 + 训练 notebook", "hours": 2, "why": "看清数据量、训练步数、相机命名和部署命令，再决定要不要真的跑。" }
+      ],
+      "skip": "Unit 2 classical robotics 如果学过 Modern Robotics 可以跳。没有真机时可以只训练不部署，代价是看不到 inference latency 和 action chunk 执行策略的真实影响。",
+      "assignments": [
+        {
+          "title": "Fine-tune SmolVLA（LeRobot 文档 + Colab notebook）",
+          "url": "https://huggingface.co/docs/lerobot/smolvla",
+          "build": "从 lerobot/smolvla_base 出发，在一个 LeRobotDataset（自己采集的约 50 条示教，或官方的 svla_so100_pickplace）上 fine-tune，得到一个 pick-and-place policy，可选在 SO-101 真机上用 lerobot-rollout 部署。",
+          "time": "文档给的是算力时间：单张 A100 上 20k steps 约 4 小时（notebook 页写约 5 小时）；人工时间未给出。",
+          "needs": "需要 GPU：A100 级别约 4–5 小时；没有 GPU 可用文档给的 Colab notebook，免费 T4 会慢很多，需要缩短步数或用付费 runtime（估计）。真机部署需要 SO-100/SO-101 和两路相机。",
+          "priority": "must",
+          "tips": [
+            "smolvla_base 期望的相机名是 camera1、camera2、camera3，必须用 --rename_map 把你数据集里的相机名映射过去，否则训练报 feature mismatch。",
+            "数据量从约 50 条 episode 起步：SmolVLA 论文用 5 个方块位置各 10 条，25 条的版本效果差；每种变化（位置等）都要有多次重复示教。",
+            "部署时相机名称、分辨率、--rename_map 和 --task 文本都要和录数据时一致。",
+            "推理慢导致动作卡顿时可以开 RTC：--inference.type=rtc --inference.rtc.execution_horizon=10 --inference.rtc.max_guidance_weight=10.0。",
+            "batch size 从小开始，GPU 放得下再加，同时注意数据加载不要成为瓶颈。"
+          ],
+          "tipsSource": "全部来自 LeRobot SmolVLA 文档和 notebooks 页。"
+        },
+        {
+          "title": "Train ACT with LeRobot（Colab notebook）",
+          "url": "https://colab.research.google.com/github/huggingface/notebooks/blob/main/lerobot/training-act.ipynb",
+          "build": "在 Hub 上的数据集上训练 Action Chunking Transformer，作为 SmolVLA 的非语言条件 baseline。",
+          "time": "notebooks 页给的算力时间：A100、batch size 64 时 100k steps 约 1.5 小时；人工时间未给出。",
+          "needs": "GPU；开始前确认 Colab runtime 类型已设为 GPU。",
+          "priority": "good",
+          "tips": [
+            "同一个数据集上先训 ACT 再训 SmolVLA，对比两者成功率和推理延迟，这样才能判断语言条件和预训练到底带来了什么。",
+            "训练日志可以选择接 Weights & Biases，便于和 SmolVLA 的 run 对齐比较。"
+          ],
+          "tipsSource": "第一条是自己的建议；第二条来自 LeRobot notebooks 页。"
+        }
+      ]
+    }
+  ]
+}
