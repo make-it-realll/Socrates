@@ -256,6 +256,13 @@ const C = [
   ['STANFORD-CS224R', '深度强化学习（Stanford）', 'Deep Reinforcement Learning (Stanford CS224R)', 'front'],
   ['STANFORD-CS237B', '机器人自主性 II', 'Principles of Robot Autonomy II (Stanford CS237B)', 'front'],
   ['HF-LEROBOT', 'LeRobot 与 VLA', 'Robotics Course and LeRobot (Hugging Face)', 'front'],
+  ['MIT-6.5940', '高效深度学习', 'TinyML and Efficient Deep Learning Computing (MIT 6.5940)', 'front'],
+  ['CMU-10714', '深度学习系统', 'Deep Learning Systems: Algorithms and Implementation (CMU 10-414/714)', 'front'],
+  ['STANFORD-CS149', '并行计算', 'Parallel Computing (Stanford CS149)', 'front'],
+  ['CMU-15442', '机器学习系统', 'Machine Learning Systems (CMU 15-442/642)', 'front'],
+  ['STANFORD-CS231N', '视觉深度学习', 'Deep Learning for Computer Vision (Stanford CS231n)', 'front'],
+  ['CMU-16825', '3D 视觉学习', 'Learning for 3D Vision (CMU 16-825)', 'front'],
+  ['HARVARD-CS249R', '边缘端机器学习系统', 'Machine Learning Systems with TinyTorch and Hardware Kits (Harvard CS249r)', 'front'],
 ];
 
 export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, line }));
@@ -320,6 +327,8 @@ const K = {
   'NW-MODERNROBOTICS': ['RB2202'], 'MIT-6.4210': ['NW-MODERNROBOTICS'], 'MIT-6.8210': ['RB2203', 'MIT-6.4210'],
   'BERKELEY-CS285': ['CS4246'], 'STANFORD-CS224R': ['CS4246'], 'STANFORD-CS237B': ['RB4301'],
   'HF-LEROBOT': ['RB4301', 'MIT-6.S184'],
+  'MIT-6.5940': ['CS3244', 'CS4262'], 'CMU-10714': ['CS3244'], 'STANFORD-CS149': ['CS3210'], 'CMU-15442': ['CS4262'],
+  'STANFORD-CS231N': ['CS4243'], 'CMU-16825': ['CS4277'], 'HARVARD-CS249R': ['MIT-6.5940'],
   GE3255: ['GE2103'], 'MIT-12.802': ['MIT-12.800'], 'MIT-12.800': ['PC3238'],
 };
 
