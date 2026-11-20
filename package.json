@@ -1,0 +1,15 @@
+{
+  "name": "socretes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "课程谱系与分站讲义的静态网站",
+  "scripts": {
+    "build": "node src/build.mjs"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "katex": "^0.16.0",
+    "markdown-it": "^14.0.0"
+  }
+}
