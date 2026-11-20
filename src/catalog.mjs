@@ -16,8 +16,11 @@ export const lines = [
   { id: 'phil', name: '哲学', color: '#8B5E34', dark: '#D2A679' },
   { id: 'psy', name: '心理学', color: '#3E9E4F', dark: '#7FD08D' },
   { id: 'hist', name: '历史', color: '#A8870A', dark: '#E3C348' },
-  { id: 'pol', name: '政治', color: '#4D5FC4', dark: '#93A2F2' },
+  { id: 'pol', name: '政治与法律', color: '#4D5FC4', dark: '#93A2F2' },
   { id: 'econ', name: '经济与社会', color: '#D1603D', dark: '#F2977B' },
+  { id: 'life', name: '生命科学', color: '#2E8B57', dark: '#6FD39A' },
+  { id: 'phys', name: '物理与地球', color: '#3B6E8F', dark: '#82B4D6' },
+  { id: 'arts', name: '语言、文学与艺术', color: '#9A4C9E', dark: '#D493D8' },
 ];
 
 // [code, 简称, official title, line]
@@ -194,6 +197,38 @@ const C = [
   ['MA4261', '信息论与编码', 'Information and Coding Theory', 'prob'],
   ['MA4264', '博弈论', 'Game Theory', 'num'],
   ['MA4254', '离散优化', 'Discrete Optimization', 'num'],
+  // ---- 2026-11 第三批：其他学科的入门课。NUS 课取自 NUSMods AY2026/27；
+  //      其他学校的公开课以 SCHOOL-编号 作代码，和对应的 NUS 课对照着学 ----
+  ['LSM2105', '分子遗传学', 'Molecular Genetics', 'life'],
+  ['LSM2107', '演化生物学', 'Evolutionary Biology', 'life'],
+  ['LSM2213', '神经科学基础', 'Foundations of Neuroscience', 'life'],
+  ['LSM2234', '定量生物学导论', 'Introduction to Quantitative Biology', 'life'],
+  ['MIH1101', '什么影响健康', 'What Impacts Health?', 'life'],
+  ['MIT-7.016', '分子生物学导论', 'Introductory Biology (MIT)', 'life'],
+  ['YALE-EEB122', '演化生态与行为', 'Principles of Evolution, Ecology and Behavior (Yale)', 'life'],
+  ['STANFORD-BIO150', '人类行为生物学', 'Human Behavioral Biology (Stanford)', 'life'],
+  ['YALE-MCDB150', '全球人口问题', 'Global Problems of Population Growth (Yale)', 'life'],
+  ['PC1101', '物理学前沿', 'Frontiers of Physics', 'phys'],
+  ['GE1101E', '地理之旅', 'Geographical Journeys: Exploring World Environments', 'phys'],
+  ['YALE-ASTR160', '天体物理前沿', 'Frontiers and Controversies in Astrophysics (Yale)', 'phys'],
+  ['MIT-12.001', '地质学导论', 'Introduction to Geology (MIT)', 'phys'],
+  ['EL1101E', '语言的本质', 'The Nature of Language', 'arts'],
+  ['MIT-24.900', '语言学导论', 'Introduction to Linguistics (MIT)', 'arts'],
+  ['EN1101E', '文学研究导论', 'An Introduction to Literary Studies', 'arts'],
+  ['YALE-ENGL300', '文学理论导论', 'Introduction to Theory of Literature (Yale)', 'arts'],
+  ['GEC1017', '电影艺术与人', 'Film Art and Human Concerns', 'arts'],
+  ['MIT-21L.011', '电影体验', 'The Film Experience (MIT)', 'arts'],
+  ['GEC1014', '音乐中的社会文化', 'Social and Cultural Studies through Music', 'arts'],
+  ['YALE-MUSI112', '聆听音乐', 'Listening to Music (Yale)', 'arts'],
+  ['TS1101E', '戏剧与表演导论', 'Introduction to Theatre and Performance', 'arts'],
+  ['AR1329', '气候生态与建筑', 'Climate, Ecology & Architecture', 'arts'],
+  ['YALE-HSAR252', '罗马建筑', 'Roman Architecture (Yale)', 'arts'],
+  ['NM1101E', '传播与新媒体', 'Communications, New Media and Society', 'arts'],
+  ['AN1101E', '人类学与人的处境', 'Anthropology & Human Condition', 'econ'],
+  ['SE1101E', '东南亚与世界', 'The Lands Below the Winds: Southeast Asia in the World', 'hist'],
+  ['YALE-SOCY151', '现代社会理论基础', 'Foundations of Modern Social Theory (Yale)', 'econ'],
+  ['YALE-EVST255', '环境政治与法律', 'Environmental Politics and Law (Yale)', 'pol'],
+  ['LC1002A', '法理学导论', 'Introduction To Legal Theory (A)', 'pol'],
 ];
 
 export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, line }));
@@ -235,13 +270,20 @@ const K = {
   PS2258: ['PS1101E'], PS2204: ['PS2258'], PS2234: ['PS1101E'], PS2237: ['PS1101E'], PS2249: ['PS2234'], PS2248: ['PS2234'],
   PS3232: ['PS2258'], PS3238: ['PS2237', 'EC1101E'],
   EC2101: ['EC1101E'], EC2102: ['EC1101E'], EC3303: ['EC2101', 'ST2131'], EC3312: ['EC2101'], EC3394: ['EC1101E', 'PL1101E'],
-  SC3101: ['SC1101E'], PE2101P: ['GEX1015', 'PS1101E', 'EC1101E'],
+  PE2101P: ['GEX1015', 'PS1101E', 'EC1101E'],
   // 第二批：先修取自 NUSMods 的 prerequisite 字段（只保留本目录内的课），其余为内容衔接
   CS3231: ['CS2040'], CS4212: ['CS3231'], CS3211: ['CS2106'], CS3235: ['CS2105', 'CS2106'],
   CS4230: ['CS3230', 'ST2131'], CS4268: ['CS3230', 'ST2131'], CS4261: ['CS2040', 'ST2131'],
   CS4262: ['CS2106', 'CS3244'], CS3227: ['CS2103'], CS3234: ['CS3231'],
   MA3233: ['MA2214', 'MA2202'], MA3270: ['ST2131'], MA4275: ['MA3238', 'MA3270'],
   MA4261: ['MA2101', 'ST2131'], MA4264: ['MA3252', 'ST2131'], MA4254: ['MA3252'],
+  // 第三批：NUS 课与对应公开课“对照着学”（从公开课连向 NUS 课），以及少量内容衔接
+  LSM2105: ['MIT-7.016'], LSM2107: ['YALE-EEB122'], LSM2213: ['STANFORD-BIO150'], MIH1101: ['YALE-MCDB150'],
+  LSM2234: ['ST2131'], 'STANFORD-BIO150': ['PL1101E'],
+  PC1101: ['YALE-ASTR160'], GE1101E: ['MIT-12.001', 'YALE-EVST255'],
+  EL1101E: ['MIT-24.900'], EN1101E: ['YALE-ENGL300'], GEC1017: ['MIT-21L.011'], GEC1014: ['YALE-MUSI112'],
+  AR1329: ['YALE-HSAR252'], SC3101: ['SC1101E', 'YALE-SOCY151'], SE1101E: ['HY1101E'],
+  LC1002A: ['GEX1015', 'PH2203'],
 };
 
 export const edges = [];

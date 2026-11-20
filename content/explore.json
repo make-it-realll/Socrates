@@ -50,18 +50,6 @@
       "outline": "问的是：人的行为在多大程度上能用生物学解释？先从 behavioral evolution、molecular genetics、behavioral genetics、kin recognition 和 ethology 讲起，再进入 neuroscience、endocrinology 与 limbic system。中段用 human sexual behavior 和 aggression 作为案例，把前面各个层次的解释串起来；最后讲 chaos 与 reductionism、emergence 与 complexity，再到 language、schizophrenia 和 individual differences。全课反复强调不要用 categorical thinking 看行为。"
     },
     {
-      "code": "MIT-5.111SC",
-      "school": "MIT",
-      "title": "Principles of Chemical Science",
-      "zh": "化学原理",
-      "discipline": "chemistry",
-      "instructor": "Catherine Drennan",
-      "term": "Fall 2014",
-      "url": "https://ocw.mit.edu/courses/5-111sc-principles-of-chemical-science-fall-2014/video_galleries/lecture-videos",
-      "materials": "全部 35 讲 lecture video、lecture notes、problem sets 与 solutions、exams 与 solutions",
-      "outline": "从原子结构讲到化学反应：先是 atomic structure、wave-particle duality、Schrödinger equation、hydrogen atom 与 multielectron atoms、periodic trends；再讲 chemical bonding（ionic / covalent、Lewis structures、VSEPR、molecular orbital theory、hybridization）。之后是 thermodynamics（enthalpy、entropy、Gibbs free energy）、chemical equilibrium、acid-base 与 titration、oxidation-reduction 与 electrochemistry、transition metals 与 crystal field theory，最后是 kinetics 和 catalysis。课上常配有生物学里的应用例子。"
-    },
-    {
       "code": "MIT-12.001",
       "school": "MIT",
       "title": "Introduction to Geology",
@@ -171,24 +159,6 @@
     }
   ],
   "nus": [
-    {
-      "code": "LSM1301",
-      "title": "General Biology",
-      "zh": "普通生物学",
-      "discipline": "biology",
-      "url": "https://api.nusmods.com/v2/2026-2027/modules/LSM1301.json",
-      "prereq": "无（修过 A-level / H2 Biology 的本科生不能修）",
-      "outline": "面向没有生物背景的学生，问的是：什么是生命体，生命的基本构成和背后的科学是什么。依次讲 chemistry of life、inheritance、biotechnology 及其伦理问题、diversity 与 classification of life，最后讲生物体如何通过各 organ systems 维持内部平衡（homeostasis）。有 lab。"
-    },
-    {
-      "code": "CM1102",
-      "title": "Chemistry - The Central Science",
-      "zh": "化学：中心科学",
-      "discipline": "chemistry",
-      "url": "https://api.nusmods.com/v2/2026-2027/modules/CM1102.json",
-      "prereq": "A-level / H2 Chemistry 至少 E，或 CM1417 至少 D",
-      "outline": "以\"原子如何成键形成分子\"作为化学的核心问题。由此讲 molecular shape 与分子性质、chemical reactions，再落到应用：enzymes、greenhouse gases 和 origin of life 等。"
-    },
     {
       "code": "PC1101",
       "title": "Frontiers of Physics",

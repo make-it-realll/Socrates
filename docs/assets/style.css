@@ -249,3 +249,30 @@ pre code { background: none; padding: 0; }
 .labs-page .lab-sec h2 { font-size: 1.15rem; border-top: 3px solid var(--line); padding-top: .6rem; max-width: 44rem; }
 .labs-page .lab-sec h2 .ll-code { font-family: var(--sign); margin-right: .4rem; }
 .labs-page .lab-sec h2 a { color: inherit; }
+
+/* 前沿公开课 */
+.frontier-page .fr-group { margin-top: 2.6rem; }
+.frontier-page .fr-group > h2 { max-width: 44rem; }
+.fc { max-width: 44rem; border-top: 1px solid var(--rule); padding: 1.4rem 0 1.2rem; }
+.fc header h3 { margin: .15rem 0 0; font-size: 1.2rem; }
+.fc header h3 a { color: inherit; }
+.fc-src { margin: 0; font-size: .82rem; color: var(--mute); font-family: var(--sign); }
+.fc-zh { margin: .1rem 0 0; color: var(--mute); }
+.fc-mat b { font-weight: 650; margin-right: .5rem; }
+.fc h4 { margin: 1.2rem 0 .4rem; font-size: 1rem; }
+.asgs { list-style: none; padding: 0; margin: 0; }
+.asg { border-left: 3px solid var(--rule); padding: .4rem 0 .5rem .9rem; margin: .7rem 0; }
+.asg.p-must { border-left-color: var(--ink); }
+.asg-h { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; }
+.asg-h a { font-weight: 600; }
+.asg .prio { font-size: .75rem; padding: .05rem .45rem; border: 1px solid var(--rule); border-radius: 3px; color: var(--mute); white-space: nowrap; }
+.asg.p-must .prio { border-color: var(--ink); color: var(--ink); }
+.asg p { margin: .35rem 0; }
+.asg-meta { display: grid; grid-template-columns: auto 1fr; gap: .15rem .7rem; margin: .3rem 0; font-size: .9rem; }
+.asg-meta dt { color: var(--mute); }
+.asg-meta dd { margin: 0; }
+.tips { margin: .4rem 0; padding-left: 1.1rem; font-size: .93rem; }
+.tips li { margin: .25rem 0; }
+.tip-src { font-size: .8rem; color: var(--mute); }
+.labs-page > .plain, .frontier-page > .plain { padding: 0 clamp(1rem, 4vw, 3rem); }
+.labs-page, .frontier-page { padding-bottom: 3rem; }
