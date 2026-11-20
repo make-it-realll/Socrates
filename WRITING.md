@@ -179,6 +179,19 @@ export default {
 - **参考来源**：Yale Open Courses（PHIL 176、PHIL 181、PLSC 114、PSYC 110、HIST 系列，有完整逐字稿）、MIT OCW（24.xx 哲学、9.00SC 心理学导论、17.xx 政治、14.01 微观经济学）、Harvard 的 Justice（Sandel）、Stanford Encyclopedia of Philosophy（plato.stanford.edu）、Internet Encyclopedia of Philosophy、OpenStax 和 Noba 的心理学开放教材、CORE Econ，以及公版的原著（Project Gutenberg、Perseus）。同样要真的读过才能列。
 - **图**：argument 的结构图、时间线、实验 design 的示意、用已发表数字画的数据图（注明出处）、概念之间的关系图。数量可以比数学课少（4 到 8 张），但每张都要有用。
 
+## 对照着学的课
+
+有些 NUS 课在目录里连着一门其他学校的公开课（代码形如 `MIT-24.900`、`YALE-EEB122`，在 `src/catalog.mjs` 的 K 表里，从公开课连向 NUS 课）。用户要的是两门课对照着学：
+
+- 公开课不单独成页，它的内容并进这门 NUS 课的页面。写之前把那门公开课的 lecture 页面或 transcript 真的读一遍，作为主要的讲法来源。
+- NUS 的大纲决定分哪几站；公开课讲得更好的地方，就按它的讲法讲，并在 `:::from` 里注明。
+- 两边讲法或范围明显不同的地方，用一个 `:::note` 块写清楚差别在哪（例如“MIT 24.900 把 syntax 讲得很深，NUS EL1101E 更重视 meaning 和 language in society”），读者据此决定看哪边。
+- frontmatter 的 `open` 列表第一项放这门对照的公开课。
+
+## 赶时间时可以跳过的部分
+
+用户说过时间少的时候只能“快快略一遍”，但不希望讲义因此写得简单。所以讲义照常写完整，再用 `:::skip` 标出：每站开头已有一个（什么情况可以跳过整站）；站内某个小节如果只是加深、证明细节或旁支，也可以在小节开头放一个一两句的 `:::skip`，说清楚跳过它会少掉什么。
+
 ## 交付前自查
 
 - `node tools/preview.mjs <CODE>` 两种宽度都“没有发现版面问题”。
