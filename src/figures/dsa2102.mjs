@@ -35,7 +35,7 @@ function cond() {
     o += text(x0 + 100, 20, title, 'tb', 'middle') + text(x0 + 100, 250, note, 'ts', 'middle');
   };
   panel(40, '良态：两条线接近垂直', (x) => x, (x) => x + 0.15, [1, 1], [0.925, 1.075], '第二条线平移一点，交点只挪一点');
-  panel(320, '病态：两条线几乎平行', (x) => (2.05 - x) / 1.05, (x) => (2.08 - x) / 1.05, [1, 1], [0.4, 1.6], '同样小的平移，交点从 (1, 1) 跑到 (0.4, 1.6)');
+  panel(320, 'ill-conditioned：两条线几乎平行', (x) => (2.05 - x) / 1.05, (x) => (2.08 - x) / 1.05, [1, 1], [0.4, 1.6], '同样小的平移，交点从 (1, 1) 跑到 (0.4, 1.6)');
   o += text(280, 272, '实线是原方程，虚线是右端项被扰动后的第二条方程；空心点是新的解', 'ts', 'middle');
   return svg(560, 282, o, '左图两条线接近垂直，扰动后交点几乎不动；右图两条线几乎平行，同样的扰动让交点移动很远');
 }
@@ -54,10 +54,10 @@ function lu() {
   const yy = 160;
   o += rect(40, yy, 130, 44, 'paper', 6) + text(105, yy + 27, 'Ax = b', 't', 'middle');
   o += arrow(172, yy + 22, 208, yy + 22, 'ink');
-  o += rect(210, yy, 150, 44, 'paper', 6) + text(285, yy + 19, 'Ly = b', 't', 'middle') + text(285, yy + 36, '前代：从上往下', 'ts', 'middle');
+  o += rect(210, yy, 150, 44, 'paper', 6) + text(285, yy + 19, 'Ly = b', 't', 'middle') + text(285, yy + 36, 'forward substitution', 'ts', 'middle');
   o += arrow(362, yy + 22, 398, yy + 22, 'ink');
-  o += rect(400, yy, 130, 44, 'paper', 6) + text(465, yy + 19, 'Ux = y', 't', 'middle') + text(465, yy + 36, '回代：从下往上', 'ts', 'middle');
-  return svg(560, 220, o, 'A 分解成下三角 L 和上三角 U；解方程变成先前代解 Ly 等于 b，再回代解 Ux 等于 y');
+  o += rect(400, yy, 130, 44, 'paper', 6) + text(465, yy + 19, 'Ux = y', 't', 'middle') + text(465, yy + 36, 'back substitution', 'ts', 'middle');
+  return svg(560, 220, o, 'A 分解成下三角 L 和上三角 U；解方程变成先用 forward substitution 解 Ly 等于 b，再用 back substitution 解 Ux 等于 y');
 }
 
 // 最小二乘的几何：b 向 col(A) 投影，残差垂直于 col(A)
@@ -67,11 +67,11 @@ function proj() {
   o += arrow(O[0], O[1], P[0], P[1], 'ink') + line(P[0], P[1], B[0], B[1], 'dash') + arrow(O[0], O[1], B[0], B[1], 'ln');
   o += path(d([[P[0] - 13, P[1] + 1.5], [P[0] - 13, P[1] - 11.5], [P[0], P[1] - 13]]), 'ink');
   o += circle(O[0], O[1], 3, 'ink-f');
-  o += text(B[0] + 8, B[1] + 4, 'b', 'tl') + text(250, 234, 'Ax̂（b 在平面上的影子）', 't', 'middle');
-  o += text(P[0] + 10, 124, 'r = b − Ax̂', 't') + text(P[0] + 10, 142, '与平面垂直', 'ts');
+  o += text(B[0] + 8, B[1] + 4, 'b', 'tl') + text(250, 234, 'p = Ax̂（垂足）', 't', 'middle');
+  o += text(P[0] + 10, 124, 'e = b − Ax̂', 't') + text(P[0] + 10, 142, '与平面垂直', 'ts');
   o += text(400, 178, 'col(A)', 'tb');
-  o += text(280, 280, '平面上离 b 最近的点就是垂足：垂直条件 Aᵀr = 0 正是法方程', 'ts', 'middle');
-  return svg(560, 290, o, '向量 b 不在 A 的列空间这个平面上；最小二乘解对应 b 在平面上的垂直投影，残差与平面垂直');
+  o += text(280, 280, '平面上离 b 最近的点就是垂足：垂直条件 Aᵀe = 0 正是 normal equations', 'ts', 'middle');
+  return svg(560, 290, o, '向量 b 不在 A 的 column space 这个平面上；最小二乘解对应 b 在平面上的垂直投影，误差向量与平面垂直');
 }
 
 // Householder 反射：把 x 镜像到第一坐标轴上
@@ -135,9 +135,9 @@ function quad() {
   };
   const trap = (x) => (x <= 1 ? f(0) + (f(1) - f(0)) * x : f(1) + (f(2) - f(1)) * (x - 1));
   const simp = (x) => (f(0) * (x - 1) * (x - 2)) / 2 - f(1) * x * (x - 2) + (f(2) * x * (x - 1)) / 2;
-  panel(45, '梯形：用折线代替曲线', trap, '误差 ∝ h²');
+  panel(45, 'Trapezoidal：用直线代替曲线', trap, '误差 ∝ h²');
   panel(315, 'Simpson：用抛物线代替曲线', simp, '误差 ∝ h⁴');
-  return svg(560, 250, o, '梯形公式用折线下的面积近似积分，Simpson 公式用过三点的抛物线下的面积近似积分');
+  return svg(560, 250, o, 'trapezoidal rule 用直线下的面积近似积分，Simpson’s rule 用过三点的抛物线下的面积近似积分');
 }
 
 // 幂迭代：反复乘 A = [[2,1],[1,2]]，方向转向主特征向量
@@ -149,7 +149,7 @@ function power() {
   for (let i = 0; i <= 40; i++) arc.push(P((Math.PI / 2) * (i / 40)));
   o += path(d(arc), 'grid');
   const e = P(Math.PI / 4, R + 34);
-  o += line(O[0], O[1], e[0], e[1], 'dash') + text(e[0] + 6, e[1] + 2, '主特征向量 (1, 1)，λ = 3', 't');
+  o += line(O[0], O[1], e[0], e[1], 'dash') + text(e[0] + 6, e[1] + 2, 'eigenvector (1, 1)，λ = 3', 't');
   let v = [1, 0];
   const cls = ['mute', 'ink', 'ink', 'ln'];
   for (let k = 0; k <= 3; k++) {
@@ -160,7 +160,7 @@ function power() {
     v = [2 * v[0] + v[1], v[0] + 2 * v[1]];
   }
   o += text(330, 150, '与 45° 方向的夹角：', 't') + text(330, 170, '45° → 18.4° → 6.3° → 2.1°', 'tb') + text(330, 190, '偏离的分量每次乘 λ₂ / λ₁ = ⅓', 'ts');
-  return svg(560, 262, o, '从水平方向出发做幂迭代，向量一步步转向 45 度方向的主特征向量，偏离每次缩小到三分之一');
+  return svg(560, 262, o, '从水平方向出发做 power iteration，向量一步步转向 45 度方向的 eigenvector，偏离每次缩小到三分之一');
 }
 
 
@@ -188,7 +188,7 @@ function ellipse() {
   o += arrow(238, 150, 282, 150, 'ink') + text(260, 140, '乘 A', 'ts', 'middle');
   o += text(L[0], 296, '所有长度为 1 的 x', 't', 'middle') + text(R[0], 296, '它们的像 Ax', 't', 'middle');
   o += text(280, 318, `这个例子里 σ₁ ≈ ${s1.toFixed(2)}，σ₂ ≈ ${s2.toFixed(2)}：最多拉长 ${s1.toFixed(2)} 倍，最少也有 ${s2.toFixed(2)} 倍，κ = σ₁ / σ₂ ≈ ${(s1 / s2).toFixed(1)}`, 'ts', 'middle');
-  return svg(560, 328, o, '矩阵把单位圆变成椭圆；椭圆的长半轴是最大奇异值，短半轴是最小奇异值，两者之比是条件数');
+  return svg(560, 328, o, '矩阵把单位圆变成椭圆；椭圆的长半轴是最大的 singular value，短半轴是最小的 singular value，两者之比是 condition number');
 }
 
 // 三个点拟合一条直线（18.06 第 16 讲的例子）
@@ -240,7 +240,7 @@ function hcurve() {
   };
   o += series(fwd, 'ln') + series(cen, 'ink');
   o += text(sx(-14.7), sy(-8.4), '左半边：舍入误差 ≈ ε / h', 't') + text(sx(-14.7), sy(-9.6), 'h 越小越大，两条线重合', 'ts');
-  o += text(sx(-7.6), sy(-1.5), '向前差分：截断误差 ∝ h', 'tl') + text(526, sy(-9.2), '中心差分', 'tb', 'end') + text(526, sy(-10.4), '截断误差 ∝ h²', 't', 'end');
+  o += text(sx(-4.6), sy(-1.0), 'forward difference：公式误差 ∝ h', 'tl', 'end') + text(526, sy(-10.5), 'central difference', 'tb', 'end') + text(526, sy(-11.6), '公式误差 ∝ h²', 't', 'end');
   o += line(sx(-8), sy(-12.5), sx(-8), sy(-8.4), 'ln-dash') + text(sx(-8) + 6, sy(-11.7), 'h ≈ 10⁻⁸', 'tl');
   o += text(530, 264, '步长 h（对数刻度）', 'ts', 'end') + text(70, 18, '误差（对数刻度）：对 eˣ 在 x = 1 处求导，双精度实算', 'tb');
   return svg(560, 272, o, '数值微分的误差随步长变化：步长从大变小时误差先下降，过了某个最佳步长后因舍入误差反而上升');
