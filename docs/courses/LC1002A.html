@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LC1002A 法理学导论 · Socrates</title>
+<link rel="stylesheet" href="../assets/katex/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="p-course" style="--line-l:#4D5FC4;--line-dk:#93A2F2">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="top">
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true"></span>Socrates</a>
+  <nav class="top-nav" aria-label="全站">
+    <a href="../index.html#map">谱系图</a>
+    <a href="../index.html#lines">全部课程</a>
+    <a href="../index.html#threads">概念线</a>
+    <a href="../labs.html">动手做</a>
+    <a href="../index.html#how">怎么用</a>
+  </nav>
+</header>
+<main id="main" class="course" data-course="LC1002A" data-title="Introduction To Legal Theory (A)" data-zh="法理学导论">
+<header class="c-head">
+  <p class="c-line">政治与法律线</p>
+  <h1><span class="c-code">LC1002A</span><span class="c-zh">法理学导论</span></h1>
+  <p class="c-title">Introduction To Legal Theory (A)</p>
+  <dl class="c-meta">
+    <div><dt>依据</dt><dd><strong>只有大纲</strong>课程范围取自 NUSMods 上 AY26/27 的课程描述（core concepts、utilitarian 与 deontological moral theory、law 与 morality 的关系、natural law 与 legal positivism、Critical Legal Studies、gender and the law、Asian values and jurisprudence、culture and law、law and economics，各年份取其中一部分）。NUSMods 的 Disqus 评价没有加载出来，法学院网站上只找到 AY20/21 的分组名单，没有找到阅读书目。本页八站覆盖描述里列出的各项，“culture and law”只在第 8 站顺带讲到。讲法跟着 MIT 24.235J Philosophy of Law 的 reading notes、Stanford Encyclopedia of Philosophy 的几个条目和几份原始文本（judgment、Hart 与 Fuller 1958 年的两篇文章、Coase、Holmes、Bentham、Kant、Sen），每一站末尾注明读了什么、读到什么程度。还没有对着往年卷子核过。</dd></div>
+    <div><dt>考试</dt><dd>NUSMods 显示 AY26/27 只在 Semester 2 开，seminar-style，每周四 15:00 至 18:00，期末考试 2027 年 5 月 3 日，120 分钟。各部分的比重没有查到，以当学期 Canvas 为准。</dd></div>
+  </dl>
+</header>
+<div class="c-grid">
+<nav class="rail" aria-label="本课各站"><ol><li class="rs"><a href="#moral" data-skill="moral"><span class="dot" aria-hidden="true"></span><span class="rl">Utilitarianism、Kant 与 punishment</span></a></li><li class="rs"><a href="#positivism" data-skill="positivism"><span class="dot" aria-hidden="true"></span><span class="rl">Legal positivism：Austin、Holmes 与 Hart</span></a></li><li class="rs"><a href="#natlaw" data-skill="natlaw"><span class="dot" aria-hidden="true"></span><span class="rl">Natural law、Fuller 与 Radbruch：evil law 还是不是 law</span></a></li><li class="rs"><a href="#dworkin" data-skill="dworkin"><span class="dot" aria-hidden="true"></span><span class="rl">Dworkin：rules、principles 与 hard cases</span></a></li><li class="rs"><a href="#enforce" data-skill="enforce"><span class="dot" aria-hidden="true"></span><span class="rl">Law 该不该 enforce morality：Mill、Devlin 与 Hart</span></a></li><li class="rs"><a href="#econ" data-skill="econ"><span class="dot" aria-hidden="true"></span><span class="rl">Law and economics：Coase、Hand formula 与 efficiency</span></a></li><li class="rs"><a href="#critical" data-skill="critical"><span class="dot" aria-hidden="true"></span><span class="rl">Critical Legal Studies 与 feminist jurisprudence</span></a></li><li class="rs"><a href="#asian" data-skill="asian"><span class="dot" aria-hidden="true"></span><span class="rl">Asian values 与 jurisprudence</span></a></li><li class="rp"><a href="#sec-9"><span class="dot" aria-hidden="true"></span><span class="rl">真题走读：待补</span></a></li></ol></nav>
+<div class="c-body">
+<section class="mine" aria-label="我的进度">
+  <h2>我的进度</h2>
+  <div class="map-rows" id="skill-map"></div>
+  <p class="mine-note">等级自己点，标准写在每一站开头。想被真正提问，把进度块贴回 Claude 对话里说 “resume from:”。</p>
+  <div class="mine-act"><button type="button" id="btn-copy">复制进度块</button><span id="copy-ok" aria-live="polite"></span>
+  <details><summary>从进度块恢复</summary><textarea id="imp" rows="5" aria-label="粘贴进度块"></textarea><button type="button" id="btn-imp">恢复</button><span id="imp-ok" aria-live="polite"></span></details></div>
+</section>
+<section class="plain lead"><p>先看三个案子。每一个里面，法律文本说的是一回事，几乎所有人的直觉说的是另一回事。</p>
+<p><strong>1884 年，海上。</strong> 一艘英国 yacht 沉没，四个人坐上一条小救生艇，在离 Cape of Good Hope 约 1,600 英里的海上漂流。到第 20 天，他们已经八天没有吃的。两个成年水手杀了最虚弱的那个十七八岁的少年，靠他的身体活了下来。Jury 认定，不这样做他们“would probably not have survived”。英国 court 判他们 murder。</p>
+<p><strong>1889 年，New York。</strong> 16 岁的 Elmer Palmer 知道祖父的 will 把大部分财产留给他，又怕祖父改 will，就把祖父毒死了。按 New York 关于 will 的 statute 的字面意思，财产应当归 Elmer。</p>
+<p><strong>1949 年，West Germany。</strong> 一个妻子在 1944 年向当局告发丈夫私下说了 Hitler 的坏话，为的是摆脱他。丈夫按当时的 statute 被判 death sentence。战后她被 prosecute。她的 defence 是：她做的事，在当时是合法的。</p>
+<p>三个案子逼出三个问题，也是这门课的三条主线。第一个案子问：law 应当按什么原则对待人，按 consequence 还是按 desert？第二、三个案子问：law 到底是什么，一条 statute 的字面意思、它背后的 principle、它在道德上的好坏，哪些算 law 的一部分？在这两条线之后，第三条线问：被当作 neutral 的 law，是不是其实替某些人、某种 culture 说话？</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>站</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Law 应当按什么原则惩罚人</td>
+<td>第 1 站：utilitarianism 与 Kant</td>
+</tr>
+<tr>
+<td>Law 是什么，evil law 算不算 law</td>
+<td>第 2 站：legal positivism；第 3 站：natural law；第 4 站：Dworkin</td>
+</tr>
+<tr>
+<td>Law 应当管什么</td>
+<td>第 5 站：law 与 morality；第 6 站：law and economics</td>
+</tr>
+<tr>
+<td>Law 替谁说话</td>
+<td>第 7 站：CLS 与 feminist jurisprudence；第 8 站：Asian values</td>
+</tr>
+</tbody>
+</table></div>
+<p>读这一页不需要法律背景，但要先认识几个反复出现的词。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>词</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>statute</td>
+<td>Legislature 通过的成文法律，例如 Singapore 的 Penal Code</td>
+</tr>
+<tr>
+<td>case、judgment、holding</td>
+<td>Court 对一个 dispute 的 judgment；holding 是 judgment 里对后来的案子有约束力的那条结论</td>
+</tr>
+<tr>
+<td>precedent、common law</td>
+<td>先前 judgment 对后来同类案件的约束；由 judgment 积累起来的法律叫 common law，英国、Singapore、美国都属于这个传统</td>
+</tr>
+<tr>
+<td>majority、dissent</td>
+<td>合议庭里多数 judge 的意见和少数 judge 的反对意见</td>
+</tr>
+<tr>
+<td>criminal law、tort</td>
+<td>前者是国家 prosecute、施加 punishment；后者是一个人因另一个人的过错受损而要求 damages</td>
+</tr>
+<tr>
+<td>positive law</td>
+<td>由人制定（posited）的、实际生效的法律；与“它应当是什么样”相对</td>
+</tr>
+</tbody>
+</table></div>
+<p>还有一条读法上的约定。每个 theory 都写成编号的 premise 和 conclusion，因为只有这样才能问“你否认的是哪一条”。这些问题在法理学里都没有定论，本页把各方最强的版本摆出来，不替你选边。</p>
+</section>
+<section class="stop" id="moral" data-skill="moral" data-name="Utilitarianism、Kant 与 punishment">
+<header class="stop-h"><span class="stop-n">第 1 站</span><h2>Utilitarianism、Kant 与 punishment</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 Dudley and Stephens 的事实和 judgment，说出 Bentham 的 principle of utility 和 Kant 的 retributivism 各自怎样回答“为什么 punish”。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立用 Bentham 的四种“不该 punish”的情形和 retributivism 的三条主张分别分析一个 case，并把 punishing the innocent 写成 inconsistent triad。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能讲清 Rawls 把“为一个 practice 辩护”和“为 practice 里的一个 act 辩护”分开之后，utilitarian 和 retributivist 各自让出了什么。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-moral">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-moral"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能用 Bentham 的 principle of utility 和 Kant 的 retributivism 各自分析 Dudley and Stephens，说出 utilitarian 理论最大的麻烦（punishing the innocent）和 Rawls 的回应，就可以去第 2 站。一般伦理学里的 trolley case 和 utilitarianism 的组成部分，在 <a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>讲过，这里只讲它们落到 law 上的样子。</p>
+</aside>
+<h3>一条船上的事实</h3>
+<p>The Queen v. Dudley and Stephens（1884，Queen's Bench Division）的事实，judgment 写得很清楚。1884 年 7 月 5 日，一艘英国 yacht 在风暴里沉没，Dudley、Stephens、Brooks 三个成年水手和 17 到 18 岁之间的少年 Richard Parker 上了救生艇。他们只有两罐 turnip，后来抓到一只小海龟，第 12 天吃完。到第 20 天，已经八天没有食物，淡水也很少。Parker 喝了海水，极度虚弱，judgment 说他已“unable to make any resistance”。</p>
+<p>7 月 24 日 Dudley 提议抽签，Brooks 拒绝，没有抽。7 月 25 日 Dudley 在 Stephens 同意下杀了 Parker，Brooks 不同意。三人靠 Parker 的身体活了四天，被路过的船救起。Parker 从未同意被杀。</p>
+<p>Jury 做了一份 special verdict：只陈述事实，把“这算不算 murder”交给 court 决定。事实里有一条对 defendant 最有利：不吃 Parker，他们“would probably not have survived”，而 Parker 很可能会最先死。</p>
+<p>Defence 的理由叫 <strong>necessity</strong>：在别无选择时为保全自己而做的事，不构成 crime。Court 驳回，判 murder，按当时的法律判处 death sentence，随后由 Crown commute 为六个月 imprisonment。</p>
+<p>这个结果至少有两种辩护方式，它们就是这一站的两种 moral theory。</p>
+<h3>Bentham：law 的唯一目标是 happiness 的总量</h3>
+<p>Bentham 在 <em>An Introduction to the Principles of Morals and Legislation</em>（1780 年印成，1789 年出版）开头说，人类受“two sovereign masters, pain and pleasure”支配。Principle of utility 是：按一个 action 增加还是减少相关者 happiness 的 tendency，来赞成或反对它。他特别说明，community 是一个“fictitious body”，它的 interest 就是各成员 interest 的总和。</p>
+<p>先替 Dudley 写出最直接的 utilitarian argument：</p>
+<ul>
+<li><strong>P1.</strong> 正确的 action 是使相关者的 happiness 总量最大的那个。</li>
+<li><strong>P2.</strong> 不杀任何人，四个人很可能都死；杀了 Parker，三个人很可能活。</li>
+<li><strong>P3.</strong> Parker 是四人中最可能先死的那个，杀他使他损失的 expected life 最少。</li>
+<li><strong>C.</strong> 杀 Parker 是正确的 action。</li>
+</ul>
+<p>这个 argument 是 valid 的。Lord Coleridge 的 judgment 里有三条理由，正好分别对着它的三个地方。</p>
+<p>第一条对着 P2：他们“might possibly not have been picked up at all”，也可能不用杀人就获救，所以事后看，这是“an unnecessary and profitless act”。P2 只是 probability，事后才知道的结果不能拿来证明当时的选择。</p>
+<p>第二条对着 P3：“Who is to be the judge of this sort of necessity? By what measure is the comparative value of lives to be measured?” 谁有资格判断谁的命更不值钱？做判断的恰好是从判断中获益的人。</p>
+<p>第三条换了一个层次。他说，如果承认这样的 necessity，这个 principle 可能成为“legal cloak for unbridled passion and atrocious crime”。这条理由不讨论这一次杀人好不好，它讨论的是：把“necessity 可以为杀人辩护”写进 law，会有什么后果。</p>
+<p>注意第三条本身是一个 consequentialist 的理由。下面会看到，Bentham 对 law 的要求，本来就是在这个层次上算账的。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Utilitarianism 一定会判 Dudley 和 Stephens not guilty</span></p><p>这把“评价一个 act”和“评价一条 rule”混在一起了。在救生艇上，act 的账可能是三条命对一条命。但 court 决定的是一条以后所有人都会援引的 rule：“饥饿到一定程度，杀掉最弱的人不算 murder。”这条 rule 的后果要把所有将来会被它保护或被它威胁的人算进去，包括那些拿它当借口的人。Coleridge 的第三条理由正是 utilitarian 的 legislator 会问的问题。Utilitarianism 落在 law 上，结论取决于 rule 层面的账，不能从救生艇上的人数直接读出来。</p>
+</aside>
+<h3>Bentham 设计 punishment：四种“不该罚”</h3>
+<p>Bentham 把 principle of utility 用到 punishment 上，推论非常直接。Law 的目标是 happiness，而“all punishment is mischief”：它本身就是施加给一个人的 pain。所以 punishment 只有在能防止一个更大的 mischief 时才可以接受。</p>
+<p>由此他列出四种 punishment “unmeet”（不该施加）的情形：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>情形</th>
+<th>意思</th>
+<th>Bentham 的例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>groundless</td>
+<td>根本没有 mischief 需要防止</td>
+<td>当事人自愿同意的 act</td>
+</tr>
+<tr>
+<td>inefficacious</td>
+<td>punishment 无法防止 mischief</td>
+<td>ex post facto law：行为之后才规定的 penalty，不可能事先阻止行为</td>
+</tr>
+<tr>
+<td>unprofitable</td>
+<td>punishment 造成的 mischief 大于它防止的</td>
+<td>某个时刻 offender 人数极多，全部惩罚的代价超过 offence 本身</td>
+</tr>
+<tr>
+<td>needless</td>
+<td>同样的目的可以用更便宜的办法达到</td>
+<td>散布有害的观念，用“pen”而不用“sword”去对付</td>
+</tr>
+</tbody>
+</table></div>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 330" role="img" aria-label="Bentham 的四种不该惩罚的情形画成四道依次检查的问题：有没有 mischief，能不能防止，值不值得，有没有更便宜的办法；四道都通过才有惩罚的理由"><rect x="30" y="18" width="300" height="40" rx="6" class="paper"/><text x="180" y="43" class="t" text-anchor="middle">这个 act 造成了 mischief 吗？</text><line x1="332" y1="38" x2="386" y2="38" class="mute"/><polygon points="388,38 381.6,35.1 381.6,40.9" class="mute-f"/><text x="360" y="32" class="ts" text-anchor="middle">否</text><rect x="390" y="18" width="150" height="40" rx="6" class="wash2"/><text x="465" y="35" class="tb" text-anchor="middle">groundless</text><text x="465" y="51" class="ts" text-anchor="middle">没有 mischief 需要防止</text><line x1="180" y1="60" x2="180" y2="80" class="ink"/><polygon points="180,82 182.9,75.6 177.1,75.6" class="ink-f"/><text x="188" y="75" class="ts" text-anchor="start">是</text><rect x="30" y="84" width="300" height="40" rx="6" class="paper"/><text x="180" y="109" class="t" text-anchor="middle">Punishment 能防止这种 mischief 吗？</text><line x1="332" y1="104" x2="386" y2="104" class="mute"/><polygon points="388,104 381.6,101.1 381.6,106.9" class="mute-f"/><text x="360" y="98" class="ts" text-anchor="middle">否</text><rect x="390" y="84" width="150" height="40" rx="6" class="wash2"/><text x="465" y="101" class="tb" text-anchor="middle">inefficacious</text><text x="465" y="117" class="ts" text-anchor="middle">例如 ex post facto law</text><line x1="180" y1="126" x2="180" y2="146" class="ink"/><polygon points="180,148 182.9,141.6 177.1,141.6" class="ink-f"/><text x="188" y="141" class="ts" text-anchor="start">是</text><rect x="30" y="150" width="300" height="40" rx="6" class="paper"/><text x="180" y="175" class="t" text-anchor="middle">它防止的 mischief 大于它自己造成的吗？</text><line x1="332" y1="170" x2="386" y2="170" class="mute"/><polygon points="388,170 381.6,167.1 381.6,172.9" class="mute-f"/><text x="360" y="164" class="ts" text-anchor="middle">否</text><rect x="390" y="150" width="150" height="40" rx="6" class="wash2"/><text x="465" y="167" class="tb" text-anchor="middle">unprofitable</text><text x="465" y="183" class="ts" text-anchor="middle">罚的代价超过 offence</text><line x1="180" y1="192" x2="180" y2="212" class="ink"/><polygon points="180,214 182.9,207.6 177.1,207.6" class="ink-f"/><text x="188" y="207" class="ts" text-anchor="start">是</text><rect x="30" y="216" width="300" height="40" rx="6" class="paper"/><text x="180" y="241" class="t" text-anchor="middle">只有 punishment 能达到这个目的吗？</text><line x1="332" y1="236" x2="386" y2="236" class="mute"/><polygon points="388,236 381.6,233.1 381.6,238.9" class="mute-f"/><text x="360" y="230" class="ts" text-anchor="middle">否</text><rect x="390" y="216" width="150" height="40" rx="6" class="wash2"/><text x="465" y="233" class="tb" text-anchor="middle">needless</text><text x="465" y="249" class="ts" text-anchor="middle">有更便宜的办法</text><line x1="180" y1="258" x2="180" y2="278" class="ink"/><polygon points="180,280 182.9,273.6 177.1,273.6" class="ink-f"/><text x="188" y="273" class="ts" text-anchor="start">是</text><rect x="30" y="282" width="300" height="40" rx="6" class="solid"/><text x="180" y="307" class="tw" text-anchor="middle">Punishment 有 utilitarian 的理由</text><text x="465" y="299" class="ts" text-anchor="middle">右边任何一格成立：</text><text x="465" y="315" class="ts" text-anchor="middle">不该 punish</text></svg><figcaption>四种情形其实是四道依次检查的问题。只有四道都通过，punishment 才有 utilitarian 的理由。</figcaption></figure>
+<p>拿 Dudley and Stephens 走一遍这四道检查。下面是按 Bentham 的分类推出来的，judgment 和 Bentham 都没有直接讨论这个 case。</p>
+<ul>
+<li><strong>Groundless？</strong> 不是。Parker 没有同意，他的死是实实在在的 mischief。</li>
+<li><strong>Inefficacious？</strong> 要看 deterrence 对谁起作用。对将来漂在海上、面临必死的人，“上岸后可能被绞死”的威胁大概拦不住他们。但 punishment 的 deterrence 不只针对那种极端处境，它还维持“不得以 necessity 为由杀人”这条 rule 的可信度，阻止的是那些伪称 necessity 的人。</li>
+<li><strong>Unprofitable？</strong> 处死两个已经饱受折磨、社会同情的水手，pain 很大，而额外的 deterrence 效果很小。</li>
+<li><strong>Needless？</strong> 一个 conviction 本身已经宣告了 rule；更重的 penalty 未必增加多少。</li>
+</ul>
+<p>按这个思路，“判 murder 但大幅 commute”正是 Bentham 式的答案：Judgment 维持 rule，commutation 避免 unprofitable 的那部分 pain。英国法里 commutation 由 Crown 以 prerogative of mercy 决定，Coleridge 在 judgment 里明确把这件事留给了 Sovereign。</p>
+<h3>Kant：punishment 只问 desert</h3>
+<p>Kant 在 <em>Metaphysics of Morals</em> 的 Rechtslehre（英译常作 <em>Philosophy of Law</em>）里对 punishment 的立场，几乎和 Bentham 逐条相反。按 Hastie 的英译：</p>
+<ul>
+<li>Punishment “can never be administered merely as a means for promoting another Good”，只能因为这个人 has committed a crime 而施加。</li>
+<li>“The Penal Law is a Categorical Imperative”：为了某种好处而让 criminal 免于应得的 punishment，是错的。</li>
+<li>尺度是 equality（jus talionis）：“If you steal from another, you steal from yourself”，伤害别人就是伤害自己。</li>
+</ul>
+<p>他的 island 例子最能说明这种立场有多彻底：即使一个 civil society 决定解散，岛上居民要各奔东西，“the last Murderer lying in the prison”也应当在解散之前被处决，免得 bloodguiltiness 留在人民身上。解散之后已经没有社会需要保护，处决不会 deter 任何人，Kant 仍然要求执行。这个例子的作用就是把 consequence 全部拿掉，看 punishment 还剩下什么理由。</p>
+<p>当代的说法叫 <strong>retributivism</strong>。按 SEP 的整理，它有三条主张：</p>
+<ul>
+<li><strong>R1.</strong> 做了错事的人，尤其是严重的错事，morally deserve 一个 proportionate 的 punishment。</li>
+<li><strong>R2.</strong> 由正当的 punisher 施加这个应得的 punishment，本身就是 good，不依赖其他好处。</li>
+<li><strong>R3.</strong> 故意惩罚 innocent，或者施加 disproportionate 的 punishment，是不允许的。</li>
+</ul>
+<p>用它分析 Dudley and Stephens：两人故意杀了一个没有威胁、没有同意的 innocent，满足 R1 的前提；但他们处在极端的 duress 之下，desert 的大小因此打折扣。Retributivist 可以和 Bentham 得出相近的结论（guilty，但 sentence 轻），理由却完全不同：减轻 sentence 是因为他们应得的少，不是因为多罚没有用。</p>
+<h3>两边最强的 objection</h3>
+<p><strong>对 utilitarian punishment：punishing the innocent。</strong> 设想一个小镇，一桩命案激起骚乱，几天之内会有更多人死。警长手里有一个无亲无故的流浪汉，可以栽赃给他，迅速“破案”平息骚乱，而且不会有人发现。MIT 24.235J 的 notes 把这个难题写成三句话：</p>
+<ul>
+<li><strong>T1.</strong> 国家应当 maximize welfare。</li>
+<li><strong>T2.</strong> 国家永远不应当惩罚它明知 innocent 的人。</li>
+<li><strong>T3.</strong> 有时 maximize welfare 要求惩罚明知 innocent 的人。</li>
+</ul>
+<p>三句不能同时为真，任意两句都推出第三句为假。Retributivist 保留 T2，否认 T1。Utilitarian 要么接受栽赃，要么去否认 T3。</p>
+<p><strong>Rawls 的回应</strong>（Two Concepts of Rules，1955）是去否认 T3，办法是区分两个问题。“为什么把 J 关进监狱？因为他抢了银行。”这是 judge 的问题，向后看，问的是 desert。“为什么要把抢银行的人关进监狱？因为这能减少抢劫。”这是 legislator 的问题，向前看，问的是 consequence。Utilitarianism 回答第二个问题，为整个 practice 辩护；而一个经过 utilitarian 设计的 practice，它的 rule 本身就是 retributive 的：只罚 guilty 的人，罚得相称。</p>
+<p>对栽赃的情形，Rawls 式的回答是：要评价的是这样一个 practice：官员只要认为对社会有利，就可以 convict 一个 innocent。一旦这个 practice 存在而且大家知道它存在，每个人都可能被选中，任何一次 conviction 都不再证明 guilt，punishment 的 deterrence 和人们对 court 的信任一起垮掉。所以 utilitarian 不会设立这样的 practice，T3 在 practice 的层面上是假的。MIT 的 notes 把这一步留作问题：utilitarian 的考虑是否“一定”会拒绝它？如果栽赃真能永远保密，practice 层面的这笔账就不那么确定了。这是 Rawls 的回应仍然开放的地方。</p>
+<p><strong>对 retributivism：desert 为什么能证明 hard treatment 是对的。</strong> 说一个人做了错事、应当受谴责，大家都接受；说因此让他受苦本身是 good（R2），就需要理由。Hart 讽刺这是一种“mysterious piece of moral alchemy”：罪恶加上痛苦，竟然变成了 good。另一种怀疑是，retributive 的直觉只是 revenge 的体面说法。Retributivist 的回应之一来自 Nozick：revenge 包含从对方的痛苦里得到 pleasure，可以针对任何冒犯、没有 proportionality 的上限；retribution 针对的是 wrong，有上限，而且不需要任何人从中得到快感。SEP 的结论是，为 hard treatment 辩护仍是 retributivism 的核心难题。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Retributivism 就是“以牙还牙”的 revenge</span></p><p>Kant 确实用 jus talionis 当尺度，但 retributivism 的三条里有一条是限制：R3 禁止 disproportionate 的 punishment。它对 punishment 的约束，比 utilitarian 的“只要 deterrence 需要就可以加重”更严。Revenge 没有这样的上限，也不区分 wrong 和私人的冒犯。两者可以有相同的 outcome，但 retributivism 是一套关于 punishment 何时正当的 principle，revenge 是一种情绪。</p>
+</aside>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>第 6 站的 Hand formula 是 utilitarian 的成本收益计算在 tort 里的样子；第 8 站分析 Michael Fay 案时，会看到各方的理由分别落在 deterrence 和 proportionality 上。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>案件事实和 Coleridge 的三条理由取自 <a href="https://justiceharvard.org/class1/">Harvard Justice Class 1 页面</a>上的 judgment 全文，Bentham 的“two sovereign masters”“fictitious body”取自同页的节选；页面上没有 Sandel 的逐字稿，课堂讲法没有读到。四种 unmeet case 读的是 <a href="https://www.econlib.org/book-chapters/chapter-chapter-xiii-cases-unmeet-for-punishment/">Bentham 第 13 章</a>。Kant 的引文取自 <a href="https://historyofeconomicthought.mcmaster.ca/kant/sciencelaw.pdf">Hastie 1887 年英译本</a>论 right of punishing 的一节。Retributivism 的三条主张、Hart 的“moral alchemy”、Nozick 区分 revenge 与 retribution，取自 SEP 的 <a href="https://plato.stanford.edu/entries/justice-retributive/">Retributive Justice</a>。Inconsistent triad 和 Rawls 的两个问题来自 <a href="https://ocw.mit.edu/courses/24-235j-philosophy-of-law-spring-2012/resources/mit24_235js12_session18/">MIT 24.235J Session 18 的 notes</a>；那份 notes 只把 telishment 作为一个问题提出，“Rawls 式的回答”一段是我按 Rawls 对 promising 的同一论证结构写的。警长栽赃的设想是哲学里常用的 hypothetical，具体的版本是我写的。用 Bentham 的四道检查分析 Dudley and Stephens，是我自己的应用。</p>
+</aside>
+
+</section>
+<section class="stop" id="positivism" data-skill="positivism" data-name="Legal positivism：Austin、Holmes 与 Hart">
+<header class="stop-h"><span class="stop-n">第 2 站</span><h2>Legal positivism：Austin、Holmes 与 Hart</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 Austin 的 command theory 和 Hart 的 gunman 反驳，分清 primary rule 与 secondary rule。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立列出 command theory 的四个 objection，说明 rule of recognition、rules of change、rules of adjudication 各补救哪个 defect，并用它们判断一条规定是不是 valid law。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能把 legal positivism 精确地表述为关于 law 的 existence 依赖什么的 thesis，并解释为什么它不推出“law 必须服从”。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-positivism">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-positivism"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说出 Austin 怎样定义 law、Hart 对它的几条 objection，能用 rule of recognition 解释为什么税单是 law 而劫匪的要求不是，并且知道 legal positivism 不等于“law 都该服从”，就可以去第 3 站。</p>
+</aside>
+<h3>两张纸条</h3>
+<p>同一天你收到两样东西。一张是 IRAS 的通知：限期缴纳 income tax 1,000 元，否则处以 fine。另一张是一个持枪劫匪塞给你的：交出 1,000 元，否则开枪。两者都是“交钱，不然有坏事”。直觉上第一张是 law，第二张不是。区别在哪？</p>
+<p>回答这个问题，就是在回答“law 是什么”。这里的“是什么”不问 law 好不好，只问一样东西凭什么算 law。这一站的三位作者都主张：这个问题的答案只取决于社会事实，不取决于 law 的内容在道德上好坏。这个主张叫 <strong>legal positivism</strong>。</p>
+<h3>Austin：law 是 sovereign 的 command</h3>
+<p>Austin（<em>The Province of Jurisprudence Determined</em>，1832）给出的第一个完整答案由几个定义组成：</p>
+<ul>
+<li><strong>D1.</strong> 一个 <strong>command</strong> 是一个表达出来的愿望，要求别人做或不做某事，背后有一个 <strong>sanction</strong>：不照做就会遭受的 evil。</li>
+<li><strong>D2.</strong> <strong>Sovereign</strong> 是一个确定的人或团体，社会中的 bulk（大多数人）habitually obey 它，而它不 habitually obey 任何别人。</li>
+<li><strong>D3.</strong> <strong>Positive law</strong> 是 sovereign 对 subjects 发出的 general command。</li>
+</ul>
+<p>“Command, duty, and sanction are inseparably connected terms”：有 duty，就是有一个附带 sanction 的 command 指向你。</p>
+<p>拿两张纸条检验。税单背后是 Parliament 通过的 statute，Parliament 是 sovereign，statute 对所有纳税人都适用（general），有 fine 作 sanction：是 law。劫匪不是社会大多数人习惯服从的对象，他的要求只针对你一个人：不是 law。Austin 的定义确实能分开这两张纸条。</p>
+<p>它还有一个好处。这个定义里没有一个字涉及 law 的内容好坏，所以它允许 bad law 存在：一条残酷的 statute，只要是 sovereign 的 general command，就是 law。Austin 的名句（SEP 引用）是：“The existence of law is one thing; its merit and demerit another.”</p>
+<h3>对 command theory 的四个 objection</h3>
+<p>Hart 在 <em>The Concept of Law</em>（1961）开头逐条拆了这个理论。按 MIT 24.235J 的 notes 整理，主要是四条。</p>
+<p><strong>第一，很多 law 不命令任何事。</strong> 立 will 需要 witness 签字，结婚需要登记，这些 law 不要求你立 will 或结婚，它们给你一种 power：照这个方式做，就能产生法律效果。不照做的后果是 will 无效、婚姻不成立。把“will 无效”说成 sanction 是牵强的：一个人决定不结婚，并没有因此受罚。</p>
+<p><strong>第二，legislator 自己也受 law 约束。</strong> 议员违反 criminal law 同样要坐牢。按 Austin 的定义，sovereign 是在命令别人，很难说它在命令和威胁自己。</p>
+<p><strong>第三，law 的 continuity。</strong> 每次大选之后，新一届 Parliament 开会，此前所有 statute 照样有效，人们也立即把新 Parliament 的 statute 当作 law，并不需要等对它形成 habit of obedience。Austin 的 sovereign 由“被习惯性服从”定义，解释不了权力交接时 law 的连续。</p>
+<p><strong>第四，being obliged 不等于 being obligated。</strong> 劫匪让你“被迫”（obliged）交钱，你没有交钱的 obligation。反过来，一个人确知自己不会被抓，他仍然有守法的 obligation。所以 sanction 的威胁既不是 obligation 的 necessary condition，也不是 sufficient condition。Hart 的说法是，law 不是“the gunman situation writ large”。</p>
+<h3>Holmes：law 是对 court 的预测</h3>
+<p>还有一种办法保住“law 就是 sanction”的思路：干脆把 duty 改写成预测。Holmes 在 <em>The Path of the Law</em>（1897）里说，如果你只想知道 law，就要像一个“bad man”那样看它，这个人“cares only for the material consequences”。由此：</p>
+<blockquote>
+<p>“The prophecies of what the courts will do in fact, and nothing more pretentious, are what I mean by the law.”</p>
+</blockquote>
+<p>他的例子很尖锐。“The duty to keep a contract at common law means a prediction that you must pay damages if you do not keep it.” 对 bad man 来说，履约和违约的差别就是一笔 damages。他还问：“what is the difference between being fined and taxed a certain sum for doing a certain thing?” 对只看后果的人，fine 和 tax 一样，都是一笔付出去的钱。</p>
+<p>这个理论对律师很有用：客户问的就是“court 会怎么判”。但 MIT 的 notes 指出它的一个内在问题：Judge 不能把自己的 judgment 当作预测。Judge 问“law 要求我怎么判”时，如果 law 就是“对我会怎么判的预测”，这个问题就成了“我预测我会怎么判”，什么也没有回答。Judge 显然是把 law 当作 judgment 的理由，而不是 judgment 的预报。</p>
+<h3>Hart：rule 与 internal point of view</h3>
+<p>Hart 的出发点是 rule 和 habit 的区别。红灯可以从三个角度描述：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>角度</th>
+<th>红灯是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>extreme external</td>
+<td>一个 sign：人们大概会停下（Holmes 式的预测）</td>
+</tr>
+<tr>
+<td>moderate external</td>
+<td>一个 signal：这里的人把它当作“要停下”</td>
+</tr>
+<tr>
+<td>internal</td>
+<td>一个 reason：我应当停下，没停的人应当受批评</td>
+</tr>
+</tbody>
+</table></div>
+<p>Habit 只是可观察的规律，比如很多人周六去喝咖啡；没去的人不会被批评，也没有人说“你应当去”。Rule 不同：接受它的人用它来指导自己、批评偏离的人，说“应当”“必须”“这是违规”。这种接受 rule、把它当作理由的态度叫 <strong>internal point of view</strong>。Command theory 和 Holmes 的预测理论都只从外面看，所以都看不到 obligation。</p>
+<h3>Primary rules、三个 defect、三种 secondary rule</h3>
+<p>设想一个只有 <strong>primary rules</strong> 的社会：不许杀人，不许偷，要遵守承诺。这些 rule 直接规定行为，靠成员的普遍接受维持。Hart 指出它有三个 defect：</p>
+<ul>
+<li><strong>Uncertainty</strong>：对“我们的 rule 到底是哪些”有争议时，没有公认的办法确定。</li>
+<li><strong>Static</strong>：rule 只能慢慢自发演变，没有办法有意识地快速修改。</li>
+<li><strong>Inefficiency</strong>：对“某人到底违没违反 rule”有争议时，没有权威的办法裁决。</li>
+</ul>
+<p>每个 defect 的补救都是一种 <strong>secondary rule</strong>，也就是关于 rule 的 rule：</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 290" role="img" aria-label="只有 primary rules 的社会有三个缺陷：不确定、僵化、低效；分别由 rule of recognition、rules of change、rules of adjudication 补救"><text x="120" y="22" class="tb" text-anchor="middle">只有 primary rules 的社会</text><text x="430" y="22" class="tb" text-anchor="middle">Secondary rules（关于 rule 的 rule）</text><rect x="30" y="40" width="180" height="46" rx="6" class="wash2"/><text x="120" y="60" class="tb" text-anchor="middle">Uncertainty</text><text x="120" y="77" class="ts" text-anchor="middle">不知道 rule 有哪些</text><line x1="214" y1="63" x2="324" y2="63" class="ink"/><polygon points="326,63 319.6,60.1 319.6,65.9" class="ink-f"/><text x="270" y="56" class="ts" text-anchor="middle">补救</text><rect x="330" y="40" width="200" height="46" rx="6" class="wash"/><text x="430" y="60" class="tl" text-anchor="middle">Rule of recognition</text><text x="430" y="77" class="ts" text-anchor="middle">什么算本体系的 rule</text><rect x="30" y="102" width="180" height="46" rx="6" class="wash2"/><text x="120" y="122" class="tb" text-anchor="middle">Static</text><text x="120" y="139" class="ts" text-anchor="middle">Rule 改不快</text><line x1="214" y1="125" x2="324" y2="125" class="ink"/><polygon points="326,125 319.6,122.1 319.6,127.9" class="ink-f"/><text x="270" y="118" class="ts" text-anchor="middle">补救</text><rect x="330" y="102" width="200" height="46" rx="6" class="wash"/><text x="430" y="122" class="tl" text-anchor="middle">Rules of change</text><text x="430" y="139" class="ts" text-anchor="middle">谁可以立、改、废</text><rect x="30" y="164" width="180" height="46" rx="6" class="wash2"/><text x="120" y="184" class="tb" text-anchor="middle">Inefficiency</text><text x="120" y="201" class="ts" text-anchor="middle">违规与否无人裁决</text><line x1="214" y1="187" x2="324" y2="187" class="ink"/><polygon points="326,187 319.6,184.1 319.6,189.9" class="ink-f"/><text x="270" y="180" class="ts" text-anchor="middle">补救</text><rect x="330" y="164" width="200" height="46" rx="6" class="wash"/><text x="430" y="184" class="tl" text-anchor="middle">Rules of adjudication</text><text x="430" y="201" class="ts" text-anchor="middle">谁可以权威地裁决</text><line x1="30" y1="236" x2="530" y2="236" class="grid"/><text x="280" y="258" class="t" text-anchor="middle">Legal system 存在：valid 的 primary rules 大体被遵守，</text><text x="280" y="278" class="t" text-anchor="middle">并且 officials 对 secondary rules 持 internal point of view。</text></svg><figcaption>三个 defect 各由一种 secondary rule 补救。Primary rule 加上 secondary rule，Hart 认为就是 law 的结构。</figcaption></figure>
+<ul>
+<li><strong>Rule of recognition</strong> 补救 uncertainty：它规定什么样的特征是一条 rule 属于本体系的决定性标志，比如“由 Parliament 按规定程序通过”。它可以承认多个 source（constitution、statute、precedent），并给它们排序，冲突时高的优先。</li>
+<li><strong>Rules of change</strong> 补救 static：授权某些人增加、废除、修改 primary rule。第一个 objection 里的 legislator，以这种 rule 授予的身份行事时是在立法，以普通公民身份行事时同样受 law 约束，这就回答了 Austin 的难题。</li>
+<li><strong>Rules of adjudication</strong> 补救 inefficiency：授权某些人（court）对违规与否作出权威判断。</li>
+</ul>
+<p>一个 legal system 存在的条件是两条：按 rule of recognition 为 valid 的 primary rules 大体上被遵守（普通人不必持 internal point of view）；officials 对 secondary rules 持 internal point of view，把它们当作共同的公共标准。</p>
+<p>Rule of recognition 本身不是由更高的 rule 规定为 valid 的。它存在，是因为 officials 实际上这样认定 law。它是否存在是一个可以从外部观察的 empirical 问题。</p>
+<h3>用 rule of recognition 读一个 Singapore 的 case</h3>
+<p>2014 年，Court of Appeal 在 Lim Meng Suang v Attorney-General 里审查 Penal Code 的 s 377A 是否违反 Constitution 的 Article 9 和 Article 12，结论是不违反（第 5 站会细讲这条 statute）。不管结论如何，这次审查本身显示了 Singapore 的 rule of recognition 的一部分：一条 Parliament 通过的 statute，要接受 Constitution 的检验，冲突时 Constitution 优先。Court、律师、政府都按这个顺序论证，这是一个关于 officials 实际做法的事实。</p>
+<p>回到两张纸条。税单是 law，因为它的依据（income tax 的 statute）是按 rules of change 规定的程序由 Parliament 制定的，符合 rule of recognition；劫匪的要求不符合任何 official 承认的 validity 标准。这个答案没有用到 sanction，也没有用到税单内容的道德好坏。</p>
+<h3>Legal positivism 精确地说是什么</h3>
+<p>按 SEP 的表述：一个 legal system 是否存在、它包含哪些 law，取决于社会事实（立了什么、判了什么、officials 实际承认什么），不取决于 law 的 merit。一项政策公正、明智、有效率，都不足以使它成为 law；它不公正，也不足以使它不是 law。</p>
+<p>SEP 特别指出这个 thesis 常被误读成“law 和 morality 没有任何 necessary connection”。它只讲 law 的 existence 依赖什么；它允许 law 在事实上常常体现道德，也允许 law 必然处理道德问题。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Legal positivism 主张“恶法亦法”，所以 positivist 认为恶法也必须服从</span></p><p>Positivism 回答的是“这是不是 law”，不回答“该不该服从”。按 SEP 的整理：Bentham 和 Austin 作为 utilitarian，认为不服从有时完全正当；Hart 认为 law 至多产生一个 prima facie 的服从义务，它以 fairness 为基础，也以 fairness 为界限，对不公平或无意义的 law 没有服从义务；Raz 认为即使在正义的国家，也没有一般的 prima facie 服从义务。Hart 甚至认为把这两个问题分开正是 positivism 的好处：说“这是 law，但太邪恶，不应服从”，比说“这不是 law”更能让人看清自己面对的是一个道德选择。下一站就是这个争论。</p>
+</aside>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Constitution 里写了道德标准</span></p><p>美国 Constitution 禁止“cruel and unusual punishment”，判断什么算 cruel 需要道德推理。这时 law 的内容是否依赖道德？<strong>Inclusive positivism</strong> 说可以：社会事实（constitution 的文本）指示 court 去用道德标准，道德标准因此成为 law，但它成为 law 的原因仍是社会事实。<strong>Exclusive positivism</strong>（Raz）说道德标准只是被 law 引用，像 court 也用 modus ponens 和算术一样，它们被应用却不因此成为 law。第 4 站 Dworkin 的攻击，逼出的正是这个区分。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Austin 的定义和 command theory 的 objection 按 <a href="https://ocw.mit.edu/courses/24-235j-philosophy-of-law-spring-2012/resources/mit24_235js12_session2/">MIT 24.235J Session 2</a> 的 notes 整理；Hart 的五条 objection、Austin 可能的回应、红灯的三种 viewpoint、三个 defect 与三种 secondary rule、legal system 存在的两个条件，按 <a href="https://ocw.mit.edu/courses/24-235j-philosophy-of-law-spring-2012/resources/mit24_235js12_session3/">Session 3</a> 的 notes。Notes 里没有 Rex I 与 Rex II 的例子，continuity 那一条我换成了大选后新一届 Parliament。“the gunman situation writ large”出自 <a href="https://www.law.nyu.edu/sites/default/files/Hart%2C%20H.%20L.%20A.%20%281958%29%20%27Positivism%20and%20the%20Separation%20of%20Law%20and%20Morals%27%20Harvard%20Law%20Review%20Vol.%2071%2C%20No.%204%20%281958%29%20pp.%20593-629.pdf">Hart 1958 年的文章</a>。Holmes 的引文取自 <a href="https://www.gutenberg.org/files/2373/2373.txt">Project Gutenberg 的全文</a>。Positivism 的精确表述、对 separability 的澄清、各家对服从义务的看法和 inclusive 与 exclusive 之分，取自 SEP <a href="https://plato.stanford.edu/ENTRIES/legal-positivism/">Legal Positivism</a>。两张纸条的设想和用 Lim Meng Suang 说明 rule of recognition 是我加的；该案审查的是 Article 9 和 Article 12，取自第 5 站引用的 MHA 发言。</p>
+</aside>
+
+</section>
+<section class="stop" id="natlaw" data-skill="natlaw" data-name="Natural law、Fuller 与 Radbruch：evil law 还是不是 law">
+<header class="stop-h"><span class="stop-n">第 3 站</span><h2>Natural law、Fuller 与 Radbruch：evil law 还是不是 law</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 grudge informer case 的事实，说出 lex iniusta non est lex 和 Fuller 的八条 principle of legality。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立把 Hart、Fuller、Radbruch 对 1949 年那个案子的处理写成 argument，并说出四条出路各自牺牲了什么。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 Border Guard cases 说明 German Federal Constitutional Court 与 European Court of Human Rights 走的两条路有什么不同，以及这对 natural law 与 positivism 之争意味着什么。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-natlaw">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-natlaw"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说出 1949 年那个案子的四条出路（放过她、retroactive legislation、宣布 statute 不是 law、按当时的 law 本身 convict），以及 Hart、Fuller、Radbruch 各选哪一条、为什么，就可以去第 4 站。</p>
+</aside>
+<h3>1949 年的案子，和它在教科书里的样子</h3>
+<p>Hart 在 1958 年的文章里讲了这个案子，从此它被叫作 <strong>grudge informer case</strong>。Hart 依据的是一份英文报道，他讲的事实是：1944 年，一个德国士兵休假在家，私下对妻子说了 Hitler 的坏话。妻子因为有了外遇，想摆脱丈夫，就去告发。丈夫按 Nazi 时期的 statute 被判 death sentence，后来似乎没有执行，被送上了前线。1949 年，妻子在 West Germany 被 prosecute，charge 是 1871 年德国 Criminal Code 里的非法剥夺他人自由；这部法典在 Nazi 时期一直有效。她的 defence 是：丈夫的话按当时的 statute 是违法的，她只是让 law 得到执行。</p>
+<p>按 Hart 读到的报道，appellate court 认定她 guilty，理由是那些 statute “contrary to the sound conscience and sense of justice of all decent human beings”。也就是说，court 宣布当时的 statute 没有法律效力，所以她不能拿它当 defence。</p>
+<p>问题就在这里。如果 statute 是 valid law，她的行为合法，怎么能 convict 她？如果要 convict，就得说一条当时实际施行的 statute 不是 law，凭什么？</p>
+<p>后来的研究改变了这个故事。Pappe 在 1960 年查了原始 judgment，按 Dyzenhaus 的转述：那个 court 在理论上承认违反 natural law 的 statute 可以无效，但认定本案的 Nazi statute <strong>并没有</strong>违反 natural law；它 convict 的理由是，妻子没有告发的 legal duty，她出于私人动机，必然知道自己的行为违背正派人的道德感。1952 年 Federal Supreme Court（Bundesgerichtshof，BGH）在一个极相似的案子里，理由是当年的 court-martial judgment 本身就不合法，也没有援引任何高于 statute 的 law。</p>
+<p>所以 Hart 依据的报道在细节上不准确。但它提出的问题是真的，下面的讨论都假定报道里的那种 judgment 理由。</p>
+<h3>四条出路</h3>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 298" role="img" aria-label="上方是 1934 年到 1960 年的时间线，下方是处理告发者的四条出路：放过她、retroactive legislation、宣布 statute 不是 law、按当时的 law 本身 convict，以及各自的代价和支持者"><line x1="40" y1="78" x2="530" y2="78" class="axis"/><circle cx="81.3" cy="78" r="4" class="ink-f"/><text x="81.3" y="48" class="tb" text-anchor="middle">1934</text><text x="81.3" y="64" class="ts" text-anchor="middle">statute</text><circle cx="144" cy="78" r="4" class="ink-f"/><text x="144" y="100" class="tb" text-anchor="middle">1938</text><text x="144" y="116" class="ts" text-anchor="middle">wartime statute</text><circle cx="238" cy="78" r="4" class="ink-f"/><text x="238" y="48" class="tb" text-anchor="middle">1944</text><text x="238" y="64" class="ts" text-anchor="middle">告发丈夫</text><circle cx="316.3" cy="78" r="4" class="ln-f"/><text x="316.3" y="100" class="tb" text-anchor="middle">1949</text><text x="316.3" y="116" class="ts" text-anchor="middle">妻子被 convict</text><circle cx="363.3" cy="78" r="4" class="ink-f"/><text x="363.3" y="48" class="tb" text-anchor="middle">1952</text><text x="363.3" y="64" class="ts" text-anchor="middle">BGH 同类案件</text><circle cx="457.3" cy="78" r="4" class="ink-f"/><text x="457.3" y="100" class="tb" text-anchor="middle">1958</text><text x="457.3" y="116" class="ts" text-anchor="middle">Hart–Fuller</text><circle cx="488.7" cy="78" r="4" class="ink-f"/><text x="488.7" y="48" class="tb" text-anchor="middle">1960</text><text x="488.7" y="64" class="ts" text-anchor="middle">Pappe 更正</text><rect x="20" y="140" width="124" height="146" rx="6" class="wash2"/><text x="82" y="162" class="tb" text-anchor="middle">① 放过她</text><text x="82" y="184" class="ts" text-anchor="middle">承认她当时合法</text><text x="82" y="232" class="ts" text-anchor="middle">代价：告发者不受罚</text><line x1="30" y1="244" x2="134" y2="244" class="grid"/><text x="82" y="262" class="ts" text-anchor="middle">Hart 认为诚实</text><text x="82" y="278" class="ts" text-anchor="middle">的选项之一</text><rect x="152" y="140" width="124" height="146" rx="6" class="wash2"/><text x="214" y="162" class="tb" text-anchor="middle">② 新立法</text><text x="214" y="184" class="ts" text-anchor="middle">新 statute 对过去</text><text x="214" y="200" class="ts" text-anchor="middle">生效（retroactive）</text><text x="214" y="232" class="ts" text-anchor="middle">代价：retroactivity</text><line x1="162" y1="244" x2="266" y2="244" class="grid"/><text x="214" y="262" class="ts" text-anchor="middle">Hart、Fuller</text><text x="214" y="278" class="ts" text-anchor="middle">都倾向于此</text><rect x="284" y="140" width="124" height="146" rx="6" class="wash"/><text x="346" y="162" class="tl" text-anchor="middle">③ 宣布不是 law</text><text x="346" y="184" class="ts" text-anchor="middle">Statute 违反</text><text x="346" y="200" class="ts" text-anchor="middle">justice 而无效</text><text x="346" y="232" class="ts" text-anchor="middle">代价：court 自定标准</text><line x1="294" y1="244" x2="398" y2="244" class="grid"/><text x="346" y="262" class="ts" text-anchor="middle">Radbruch；</text><text x="346" y="278" class="ts" text-anchor="middle">1996 BVerfG</text><rect x="416" y="140" width="124" height="146" rx="6" class="wash2"/><text x="478" y="162" class="tb" text-anchor="middle">④ 按当时的 law 读</text><text x="478" y="184" class="ts" text-anchor="middle">当时的 law 本身</text><text x="478" y="200" class="ts" text-anchor="middle">就不保护她</text><text x="478" y="232" class="ts" text-anchor="middle">代价：解释可能牵强</text><line x1="426" y1="244" x2="530" y2="244" class="grid"/><text x="478" y="262" class="ts" text-anchor="middle">Pappe 所述；</text><text x="478" y="278" class="ts" text-anchor="middle">2001 ECtHR</text></svg><figcaption>上面是时间线，下面是四条出路。Hart 认为只有前两条是诚实的；Radbruch 的公式走第三条；Pappe 描述的实际 judgment 和 2001 年的 European Court of Human Rights 走第四条。</figcaption></figure>
+<p>面对这样的案子，court 和 legislature 有四条出路：</p>
+<ol>
+<li><strong>放过她。</strong> 承认她的行为在当时合法。</li>
+<li><strong>Retroactive legislation。</strong> 由 legislature 通过一部新的 statute，明确宣布惩罚这类行为，并且对过去生效。</li>
+<li><strong>宣布那条 statute 自始不是 law。</strong> 理由是它违反了高于 statute 的 justice。</li>
+<li><strong>按当时的 law 本身来读。</strong> 证明即使按 Nazi 时期的法律体系，她的行为也不受保护。</li>
+</ol>
+<p>每一条都有代价。第 1 条让一个恶意告发者逍遥。第 2 条违反 nulla poena sine lege：没有事先的 law，就不能惩罚，这是 rule of law 的基本要求之一。第 3 条要求 court 自己决定哪些 statute 太邪恶，不算 law。第 4 条依赖对当时 law 的解释，可能牵强。</p>
+<h3>Natural law：lex iniusta non est lex</h3>
+<p>Natural law 传统的口号是 lex iniusta non est lex：unjust law is not law。按 Finnis 在 SEP 里的解释，这句话常被误读。Aquinas 的意思是，unjust law 不是“straightforwardly or unqualifiedly”的 law，它是 law 的一种扭曲，只在“a distorted and secondary, non-central sense”上是 law。Finnis 说它和“an invalid argument is no argument”是同一种逻辑：一个 invalid argument 当然在某种意义上是 argument，说它“不是 argument”，是说它没有做到 argument 应当做到的事。</p>
+<p>所以 natural law 并没有看不见恶法。它的主张关于 law 对人有什么约束力：</p>
+<ul>
+<li><strong>N1.</strong> Law 的权威在于它给人提供行动的理由；这种 obligation 是 presumptive 的，可以被推翻。</li>
+<li><strong>N2.</strong> 一条 posited rule 如果足够清楚地严重违反基本的 good 和 norm，它对服从的要求就被推翻。</li>
+<li><strong>N3.</strong> 惩罚私下批评元首的人直到 death sentence 的 statute，属于 N2 说的情形。</li>
+<li><strong>C.</strong> 这条 statute 不能为告发者的行为提供 legal justification。</li>
+</ul>
+<p>按这个 argument，第 3 条出路是对的。</p>
+<h3>Radbruch 的公式</h3>
+<p>把 N2 变成 court 可以操作的标准的，是德国法学家 Radbruch。他 1946 年的文章 <em>Gesetzliches Unrecht und übergesetzliches Recht</em>（Statutory Lawlessness and Supra-Statutory Law）提出后来所谓的 <strong>Radbruch formula</strong>：</p>
+<ul>
+<li>一般情况下，即使 statute 的内容不公正，positive law 也优先，因为 legal certainty 本身是一种价值。</li>
+<li>只有当 statute 与 justice 的冲突达到“intolerable”（难以忍受）的程度时，statute 才必须让位于 justice。</li>
+<li>如果制定 statute 时有意否定人与人之间的 equality，这样的 statute 根本就不具有 law 的性质。</li>
+</ul>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 256" role="img" aria-label="Radbruch formula：statute 不公正的程度在 intolerable 门槛以下时 positive law 优先，越过门槛则让位于 justice；另有一个独立条件是有意否定 equality"><rect x="40" y="60" width="340" height="56" rx="0" class="wash2"/><rect x="380" y="60" width="140" height="56" rx="0" class="wash"/><text x="210" y="84" class="tb" text-anchor="middle">Positive law 优先</text><text x="210" y="102" class="ts" text-anchor="middle">即使内容不公正：legal certainty 本身是价值</text><text x="450" y="84" class="tl" text-anchor="middle">让位于 justice</text><text x="450" y="102" class="ts" text-anchor="middle">“flawed law”</text><line x1="380" y1="42" x2="380" y2="126" class="ln-dash"/><text x="380" y="36" class="tl" text-anchor="middle">intolerable 的门槛</text><line x1="40" y1="142" x2="526" y2="142" class="axis"/><polygon points="528,142 521.6,139.1 521.6,144.9" class="axis-f"/><text x="40" y="160" class="ts" text-anchor="start">Statute 与 justice 冲突的程度</text><text x="528" y="160" class="ts" text-anchor="end">更严重 →</text><circle cx="200" cy="142" r="4.5" class="ink-f"/><text x="200" y="180" class="ts" text-anchor="middle">大多数不公正的 statute</text><circle cx="460" cy="142" r="4.5" class="ln-f"/><text x="460" y="180" class="ts" text-anchor="middle">东德边境射杀（1996 BVerfG）</text><rect x="40" y="210" width="480" height="34" rx="6" class="paper"/><text x="280" y="232" class="ts" text-anchor="middle">另一个独立条件：制定时有意否定人与人的 equality，这样的 statute 根本不具有 law 的性质</text></svg><figcaption>横轴是 statute 的不公正程度。门槛以下，不公正的 statute 仍然是 law 并且优先；越过“intolerable”的门槛，它让位于 justice。另一个独立的条件是有意否定 equality。</figcaption></figure>
+<p>这个公式的要害是门槛很高。它不让 court 因为“不太公正”就推翻 statute，只在极端情形起作用。</p>
+<p>它不只是历史。东德有一套边境制度，士兵向越境者开枪。按 European Court of Human Rights judgment 里引用的数字，西德检方统计的死亡人数是 264，民间组织“13 August Working Party”统计的是 938，court 说确切人数因东德保密而很难确定。统一之后，德国 court 审判了开枪的士兵和下令的领导人。Defendant 的 defence 和 1949 年的妻子一样：按东德当时的 law 和实际做法，他们的行为是被允许的。</p>
+<p>1996 年 10 月 24 日，Federal Constitutional Court 维持了对 Streletz、Kessler、Krenz 等东德领导人的 conviction。德国 Basic Law 的 Article 103(2) 禁止 retroactive punishment，defendant 据此抗辩。Court 认为这一条没有被违反，理由正是 Radbruch 的公式：在极端情形下，positive law 必须让位于 justice；这是一种“wholly exceptional situation”，对 legal certainty 的绝对保护必须让步。</p>
+<h3>第二条路：按当时的 law 本身来读</h3>
+<p>三名 defendant appeal 到 European Court of Human Rights。2001 年 3 月 22 日 Grand Chamber 的 judgment（Streletz, Kessler and Krenz v. Germany）维持了 conviction，没有发现违反 European Convention on Human Rights 的 Article 7（同样是禁止 retroactive punishment），但走的是另一条路。</p>
+<p>Court 说，它要审查的是这些行为在<strong>当时的东德 law</strong> 下是否构成 offence。它的论证分三步：</p>
+<ul>
+<li>东德的成文 law 本身，State Borders Act 的 section 27 连同东德 Constitution，明确包含 proportionality 原则和保护生命的义务；向手无寸铁、不构成威胁的越境者开枪，不符合这些规定。</li>
+<li>地雷、自动射击装置这类做法“flagrantly”违反东德自己的 constitution；一种做法即使成了 state practice，也不能为违法行为辩护。</li>
+<li>Defendant 身居高位，不可能不知道这些 law；东德不 prosecute 他们，不等于这些行为不是 offence。</li>
+</ul>
+<p>于是 court 认定，这些行为在当时“constituted offences defined with sufficient accessibility and foreseeability in GDR law”。Miller 的评论把这个 judgment 称作对 Radbruch 公式“a clear rejection”：同样的结论，不需要宣布任何 law 无效。这条路和 Pappe 描述的 1949 年 judgment 是同一类：不说 statute 不是 law，只说按 law 本身，defendant 的行为不受保护。</p>
+<h3>Hart：诚实地选择</h3>
+<p>Hart 对 1949 年那个 judgment（按他读到的版本）的批评可以写成：</p>
+<ul>
+<li><strong>H1.</strong> 那条 statute 按当时德国法律体系的 rule of recognition 是 valid law。</li>
+<li><strong>H2.</strong> 要惩罚妻子，只有两条诚实的路：放过她，或者通过一部公开的 retroactive statute。</li>
+<li><strong>H3.</strong> 宣布一条 valid law“不是 law”，是把一个强有力的道德批评伪装成关于 legal validity 的命题，把真正的道德两难藏了起来。</li>
+<li><strong>C.</strong> 应当公开地在两个 evil 之间选择（Hart 写的是“a choice had to be made between two evils”），而不是让 court 宣称 statute 无效。</li>
+</ul>
+<p>Hart 认为，诚实的说法是：这些 law 是 law，但太邪恶，不应服从。他对 Radbruch 的批评是，Radbruch 过于看重“一条 rule 是 valid law”这个光秃秃的事实，好像一旦承认它是 law，就必须服从它。Hart 的口号是“Law is not morality; do not let it supplant morality.”</p>
+<p>最强的 objection 来自 natural law 一方：Hart 的 H3 指责 lex iniusta 的说法会削弱道德批评，Finnis 回应说这“historically and logically indefensible”，因为这句口号本身就是道德批评的表达和号召。双方的分歧其实落在 H3 上：把“不应服从”放进“是不是 law”的判断里，是让道德批评更有力，还是把它藏了起来。</p>
+<h3>Fuller：law 有一种 internal morality</h3>
+<p>Fuller 在同期的回应里攻击的是 H1。他的出发点是：制定 law 是一项可能失败的事业。后来在 <em>The Morality of Law</em>（1964）里，他借一位想立法却屡屡失败的国王 Rex 的故事，列出 law 失败的八种方式：</p>
+<ol>
+<li>根本没有 rule，每件事都 ad hoc 决定；</li>
+<li>不公布 rule；</li>
+<li>滥用 retroactive legislation；</li>
+<li>rule 让人看不懂；</li>
+<li>rule 互相矛盾；</li>
+<li>rule 要求做不到的事；</li>
+<li>rule 变得太频繁，人无法据此安排生活；</li>
+<li>公布的 rule 和实际执行之间不一致（failure of congruence）。</li>
+</ol>
+<p>反过来就是八条 principle of legality。Fuller 称之为 law 的 internal morality：一个体系在这八方面失败得足够彻底，就不再是 legal system。</p>
+<p>他对 Nazi 时期的描述正是对着这八条：1934 年 Röhm 清洗之后，内阁通过一部 retroactive statute，宣布那几天采取的措施合法，连被杀者的名字都没提；集中营里的杀戮据报道由一项 secret enactment 宣布“合法”；行政指令可以扭曲公布的 law，使每条 law 的真实含义都成了“secret”；court 在方便时连 Nazi 自己的 statute 也不顾；政权还通过“the party in the streets”行事，不受任何法律约束。他的结论是，这样的体系偏离 internal morality 太远，“ceases to be a legal system”。</p>
+<p>对 1949 年的案子，Fuller 还有一个更具体的论证：1938 年的那条 statute 只针对“publicly”煽动的人，Nazi court 却把它扩张到私下的谈话；1934 年的 statute 也以公开言论为主，prosecution 还需要部长的命令。所以即使按那些 statute 的文本，丈夫的 death sentence 也站不住。这和第 4 条出路相近。</p>
+<p>Fuller 最终也倾向于一部 retroactive statute，理由是它能“symbolizing a sharp break with the past”，把清理旧账和日常审判分开。他同时为 court 宣布 statute 无效辩护：说“这是 law，但我们拒绝适用”，比宣布它无效更糟。</p>
+<p>对 Fuller 最强的 objection 来自 Hart，后来由 Raz 和 Kramer 发展：八条 principle 是 law 有效运作的条件，不是道德条件。一个邪恶的政权完全可以公开、清楚、一致、不 retroactive 地施行邪恶的 law，就像一把锋利的刀可以用来切面包也可以用来杀人。SEP 用的比喻正是“like a sharp knife”。Finnis 与 Simmonds 的回应是：tyrant 恰恰不需要 rule of law，也往往做不到它；遵守这八条意味着把 subjects 当作能自己安排生活的 free person 来对待，其中第八条（统治者也受自己的 rule 约束）尤其妨碍 tyranny。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Hart 和 Fuller 争的是 Nazi law 是不是邪恶</span></p><p>两人都认为它邪恶，也都认为应当用某种方式让告发者负责，甚至最后都倾向于 retroactive legislation。他们的分歧在于怎样描述这个处境：Hart 认为应当说“它是 law，但太邪恶”，让道德问题保持在明处；Fuller 认为一个系统地违反 legality 的体系根本不配叫 law，说它是 law 就是对“fidelity to law”这个理想的误用。分歧在概念上，后果在于 court 可以怎样说理。</p>
+</aside>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Retroactive punishment 为什么特别敏感</span></p><p>四条出路里有两条（retroactive legislation、宣布当时的 law 无效）都在事实上让一个人为当时不违法的行为受罚。Fuller 的第 3 条 principle、德国 Basic Law 的 Article 103(2)、ECHR 的 Article 7 都禁止这样做。Border Guard cases 里德国 court 和 European Court of Human Rights 结论相同，分歧就在怎样对待这条禁令：一个说在极端情形下它要让步，一个说这里根本没有 retroactivity，因为行为在当时的 law 下就是 offence。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Hart 讲的事实、court 理由和他的两条出路、“two evils”、对 Radbruch 的批评，取自 <a href="https://www.law.nyu.edu/sites/default/files/Hart%2C%20H.%20L.%20A.%20%281958%29%20%27Positivism%20and%20the%20Separation%20of%20Law%20and%20Morals%27%20Harvard%20Law%20Review%20Vol.%2071%2C%20No.%204%20%281958%29%20pp.%20593-629.pdf">Hart 1958 年的文章</a>。Pappe 的更正、1952 年的 Federal Supreme Court、Hart 的“method of candour”和 Radbruch 的立场，按 <a href="https://www.law.nyu.edu/sites/default/files/upload_documents/The_Grudge_Informer_Case_Revisited.pdf">Dyzenhaus, The Grudge Informer Case Revisited（2008）</a>的转述，Pappe 的原文没有读到。Fuller 对 Nazi law 的描述、对两条 statute 的解读、对 retroactive legislation 的看法，取自 <a href="https://www.law.nyu.edu/sites/default/files/Fuller%2C%20Lon%20L.%20%281958%29%20%27Positivism%20and%20Fidelity%20to%20Law%20%E2%80%94%20A%20Reply%20to%20Professor%20Hart%27%20Harvard%20Law%20Review%20Vol.%2071%2C%20No.%204%20%281958%29%20pp.%20630-672.pdf">Fuller 1958 年的回应</a>。八种失败的清单按 <a href="https://law.duke.edu/boylesite/fuller.htm">Boyle 1992 年的文章</a>的列举，<em>The Morality of Law</em> 原书没有读到，Rex 每次具体做了什么也因此没有写。Lex iniusta 的解释、“like a sharp knife”、Finnis 对 Hart 的回应，取自 SEP <a href="https://plato.stanford.edu/ENTRIES/natural-law-theories/">Natural Law Theories</a>（Finnis 撰写，所以是 natural law 一方的表述）。Radbruch 公式的内容按 <a href="https://en.wikipedia.org/wiki/Radbruch_formula">Wikipedia</a> 的英译转述，德文原文没有读。Border Guard cases 的事实和两级德国 court、European Court of Human Rights 的理由，取自 <a href="https://melaproject.org/sites/default/files/2019-01/ECtHR%2C%20Streletz%2C%20Kessler%20and%20Krenz%20v.%20Germany%20%28Appl.%20No.%2034044%3A96%29%2C%20Judgment%20%28Grand%20Chamber%29%2C%2022%20March%202001.pdf">Streletz, Kessler and Krenz v. Germany judgment</a>前 10 万字符（到第 95 段），Miller 的评论只读到摘要。“四条出路”的整理和 N1 至 N3、H1 至 H3 的写法是我做的。</p>
+</aside>
+
+</section>
+<section class="stop" id="dworkin" data-skill="dworkin" data-name="Dworkin：rules、principles 与 hard cases">
+<header class="stop-h"><span class="stop-n">第 4 站</span><h2>Dworkin：rules、principles 与 hard cases</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 Riggs v Palmer 的事实、多数意见和 dissent，并区分 rule 与 principle。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立写出 Dworkin 反驳 Hart 的六步 argument，分清 discretion 的三种 sense，并说出 inclusive 与 exclusive positivism 各怎样回应。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 law as integrity 的 fit 与 justification 两个维度重新分析 Riggs，并说明这和“judge 按自己的道德判案”的区别。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-dworkin">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-dworkin"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说出 Riggs v Palmer 为什么让 Hart 的理论为难、rule 与 principle 的区别、Dworkin 六步 argument 的结论，以及 positivist 的两种回应，就可以去第 5 站。</p>
+</aside>
+<h3>Riggs v Palmer</h3>
+<p>1880 年 8 月 13 日，Francis Palmer 立 will，给两个女儿（Mrs. Riggs 和 Mrs. Preston）少量遗赠，其余财产留给孙子 Elmer。1882 年 3 月他再婚。16 岁的 Elmer 和祖父同住，知道 will 的内容，怕祖父改 will，就毒死了他，后来被定了 second-degree murder。两个女儿 sue，要求不让 Elmer inherit。</p>
+<p>New York 关于 will 的 statute 规定了 will 怎样成立、怎样撤销，没有一条说杀害 testator 的人不能 inherit。这份 will 依法成立，没有被撤销。</p>
+<p>1889 年，New York Court of Appeals 判两个女儿胜诉。Judge Earl 写的多数意见有两步：</p>
+<ul>
+<li>Legislator 制定这些 statute 时，从未打算让杀人者因此获益。Statute 应按立法目的作“rational interpretation”，不能只读字面。</li>
+<li>Common law 有一条 maxim：任何人不得“profit by his own fraud, or to take advantage of his own wrong”。此前一个案子里，杀害被保险人的受益人就不能领取保险金。</li>
+</ul>
+<p>Judge Gray 写了 dissent。他承认结果令人难受，但 court 受“rigid rules of law”约束，那是 legislature 定的，不是 conscience 定的；statute 已经完整规定了 will 何时可以改变或撤销，单纯有撤销的意图不够；Elmer 的罪已经由 criminal law 处罚，court 无权“enhance the pains, penalties and forfeitures provided by law”。</p>
+<h3>这个案子为什么让 Hart 为难</h3>
+<p>Hart 的理论对疑难案件有一个解释。他用的例子是一条 rule：不许把 vehicle 开进公园。汽车显然是 vehicle，这是 rule 的“core of settled meaning”；bicycle、roller skates、toy automobile、airplane 算不算，就落在“penumbra of debatable cases”里。在 penumbra 里，law 没有给出答案，judge 必须作出逻辑本身不能决定的选择，等于在造新 law。这叫 judicial <strong>discretion</strong>。</p>
+<p>Fuller 当时就质疑：一辆二战时的卡车被装在底座上作纪念碑，算 core 还是 penumbra？“vehicle”的标准含义说是 vehicle，但这条 rule 的目的（安静、安全）显然不针对它。他的意思是，决定答案的是 rule 的 purpose，而不是词的标准含义。</p>
+<p>Riggs 对 Hart 更尴尬。Statute 的文字一点也不模糊：will 成立，没有撤销，拿到财产的是 Elmer。这是 core，不是 penumbra。Court 却没有按 core 判。按 Hart 的框架，只能说 court 在这里离开了 law，凭 discretion 造了一条新 rule。可是 court 自己不这么认为：Judge Earl 是在说 law 本来就是这样。</p>
+<h3>Rules 与 principles</h3>
+<p>Dworkin 在 <em>The Model of Rules</em>（1967，后收入 <em>Taking Rights Seriously</em>）里提出，judge 用的标准有两类，逻辑性质不同。</p>
+<p><strong>Rule 是 all-or-nothing 的。</strong> “Valid 的 will 要有三个 witness”：条件满足，结论就成立；条件不满足，rule 就不起作用。像棒球的三击出局，裁判接受这条 rule，就不能判第四击。Rule 的例外原则上可以写进 rule 本身。两条完整写出的 rule 互相冲突，至少有一条不是 valid 的。</p>
+<p><strong>Principle 有 weight。</strong> “No man may profit by his own wrong”：它适用于一个案子，并不自动决定结果，因为可能有别的 principle 指向另一边。几条 principle 冲突时，要掂量轻重，输掉的那条仍然是 valid 的，在下一个案子里可能赢。Riggs 之前，有人通过 adverse possession（长期公开占有）取得原本属于别人的土地，这在某种意义上也是“从自己的 wrong 里获益”，法律却承认他的权利。这条 principle 在那里输了，在 Riggs 里赢了，它始终是 law 的一部分。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 258" role="img" aria-label="左边：rule 像开关，条件满足就决定结果。右边：principle 像天平上的砝码，Riggs v Palmer 中“不得从自己的错误获益”与“按 statute 文字”两边都适用，多数意见认为前者更重"><text x="135" y="22" class="tb" text-anchor="middle">Rule：all-or-nothing</text><text x="420" y="22" class="tb" text-anchor="middle">Principle：有 weight</text><line x1="275" y1="10" x2="275" y2="250" class="grid"/><rect x="25" y="44" width="220" height="44" rx="6" class="paper"/><text x="135" y="64" class="t" text-anchor="middle">Will 有三个 witness 吗？</text><text x="135" y="80" class="ts" text-anchor="middle">（条件）</text><line x1="85" y1="90" x2="70.6" y2="134.1" class="ink"/><polygon points="70,136 74.7,130.8 69.3,129" class="ink-f"/><line x1="185" y1="90" x2="199.4" y2="134.1" class="ink"/><polygon points="200,136 200.7,129 195.3,130.8" class="ink-f"/><text x="64" y="116" class="ts" text-anchor="end">是</text><text x="206" y="116" class="ts" text-anchor="start">否</text><rect x="18" y="140" width="104" height="40" rx="6" class="wash"/><text x="70" y="165" class="tl" text-anchor="middle">Will valid</text><rect x="148" y="140" width="104" height="40" rx="6" class="wash2"/><text x="200" y="158" class="t" text-anchor="middle">Rule 不适用</text><text x="200" y="173" class="ts" text-anchor="middle">不起作用</text><text x="135" y="212" class="ts" text-anchor="middle">适用就决定结果；</text><text x="135" y="228" class="ts" text-anchor="middle">两条 rule 冲突，必有一条不 valid</text><polygon points="420,122 404,198 436,198" class="wash2"/><line x1="380" y1="198" x2="460" y2="198" class="ink"/><line x1="328.9" y1="132.8" x2="511.1" y2="107.2" class="ink-b"/><circle cx="420" cy="120" r="3.5" class="ink-f"/><line x1="302.9" y1="160.8" x2="328.9" y2="132.8" class="mute"/><line x1="354.9" y1="160.8" x2="328.9" y2="132.8" class="mute"/><path d="M294.9 160.8L362.9 160.8L352.9 170.8L304.9 170.8Z" class="solid"/><line x1="485.1" y1="135.2" x2="511.1" y2="107.2" class="mute"/><line x1="537.1" y1="135.2" x2="511.1" y2="107.2" class="mute"/><path d="M477.1 135.2L545.1 135.2L535.1 145.2L487.1 145.2Z" class="solid2"/><text x="328.9" y="190.8" class="tl" text-anchor="middle">No profit from</text><text x="328.9" y="206.8" class="tl" text-anchor="middle">own wrong</text><text x="511.1" y="165.2" class="tb" text-anchor="middle">Statute 文字；</text><text x="511.1" y="181.2" class="tb" text-anchor="middle">legislative</text><text x="511.1" y="197.2" class="tb" text-anchor="middle">supremacy</text><text x="420" y="246" class="ts" text-anchor="middle">Riggs：Earl 认为左边重，Gray 认为右边重</text></svg><figcaption>左边是 rule：条件满足就决定结果。右边是 principle：在 Riggs 里，两边的 principle 都适用，多数意见认为左边更重，Gray 认为右边更重。</figcaption></figure>
+<p>Dworkin 还区分了 principle 的两种：狭义的 principle 关于 justice、fairness 和 rights；<strong>policy</strong> 关于集体目标，比如经济效率、减少事故。这个区分在他后来的理论里很重要：Court 应当根据 principle 判案，policy 主要是 legislature 的事。</p>
+<h3>Dworkin 的 argument</h3>
+<p>MIT 24.235J 的 notes 先把 Dworkin 眼中的 Hart 写成三条 tenet：</p>
+<ul>
+<li><strong>Pedigree</strong>：law 是一组 rule，靠来源（怎样被制定）而不是内容识别。</li>
+<li><strong>Exhaustiveness</strong>：这些 rule 穷尽了 law；rule 不覆盖的案子，judge 凭 discretion 超出 law 去判。</li>
+<li><strong>No rights in hard cases</strong>：Judge 行使 discretion 时，并不是在执行一项事先存在的 legal right。</li>
+</ul>
+<p>然后把 Dworkin 的反驳重构成六步：</p>
+<ol>
+<li>Judge 很多时候会推翻已经确立的 rule，即使 rule 的意思很清楚（例如 Riggs）。Positivist 必须承认这是一个社会事实。</li>
+<li>Secondary rule 以被普遍接受为前提，所以 rule of recognition 不可能禁止推翻 precedent，它必须允许偶尔这样做。</li>
+<li>如果 judge 可以推翻 judgment，就必须有内部标准规定何时可以；否则 judge 可以推翻任何东西，也就不会认为自己受 law 约束。这些标准看起来是 principle，不是 rule。</li>
+<li>这些标准必须和支持遵循 precedent 的反向标准相权衡，比如 legislative supremacy、retroactive 造法的不公平。</li>
+<li>这些反向标准本身也是 principle，适用它们就是在权衡。</li>
+<li>所以，至少有些 principle 是 law 内部的。</li>
+</ol>
+<p>结论是 exhaustiveness 错了：hard case 里 judge 仍受 law 约束，因为 principle 也是 law。</p>
+<h3>Discretion 的三种 sense</h3>
+<p>Hart 说 hard case 里 judge 有 discretion，Dworkin 说这个词有三种意思：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Sense</th>
+<th>意思</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 judgment（weak）</td>
+<td>适用标准需要判断，不能机械进行</td>
+<td>军士被命令“挑五个最有经验的人”</td>
+</tr>
+<tr>
+<td>2 finality（weak）</td>
+<td>决定不能被推翻</td>
+<td>二垒裁判对出局的判定</td>
+</tr>
+<tr>
+<td>3 不受标准约束（strong）</td>
+<td>权威设定的标准对这件事什么也没说</td>
+<td>军士被命令“随便挑五个人”</td>
+</tr>
+</tbody>
+</table></div>
+<p>Dworkin 的诊断是：Judge 在 hard case 里当然要 judgment（sense 1），但 sense 1 恰恰意味着有内部标准可依，所以它排除了 sense 3。Hart 把 sense 1 滑到了 sense 3。Legal realist 则把 sense 2 滑到了 sense 3：Court 的 judgment 是终局的，不等于它不会错。</p>
+<h3>Positivist 的两种回应</h3>
+<p><strong>Inclusive positivism</strong>（Hart 在 <em>The Concept of Law</em> 第二版的 Postscript 里接受了这个方向）：rule of recognition 可以把某些 principle 纳入 law。Riggs 里那条 maxim 已经在先前的 judgment 中被援引过，官员们承认它是 law 的来源之一，所以它是 law，靠的仍是社会事实。这样可以承认 principle 是 law，同时保住“law 由社会事实决定”这一核心。</p>
+<p><strong>Exclusive positivism</strong>（Raz）：principle 和逻辑、算术一样被 court 使用，但它们的权威不来自 law。说 Riggs 的 court 用了一条道德 principle，不等于这条 principle 是 law；court 在这个案子里确实是在用道德推理去发展 law。</p>
+<p>Positivist 对 Dworkin 的另一条回应针对他的“controversy”观察：Judges 在 hard case 里争得厉害，说明 law 不可能建立在官员共识上。回应是：争议是程度问题，集中在 law 的边缘；对“Parliament 的 statute 是不是 law”这样的来源问题，几乎没有争议。</p>
+<h3>Law as integrity</h3>
+<p>Dworkin 后来在 <em>Law's Empire</em>（1986）里给出正面理论。Judge 像在接力写一部 chain novel：前面的章节（statute、precedent）已经写好，他要写下一章，既要和前文 <strong>fit</strong>，又要让整部作品成为最好的一部（<strong>justification</strong>）。按 MIT notes 引的表述，一个 proposition of law 为真，当它属于或者能推出“the best constructive interpretation of the community's legal practice”。</p>
+<p>拿 Riggs 试一下。对 New York 的 inheritance law 有两种解读：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>解读</th>
+<th>Fit</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inheritance law 只看 will 的形式，谁杀了 testator 无关</td>
+<td>符合 statute 的文字</td>
+<td>让杀人者从谋杀中获益，和整个 law 体系的其他部分（保险金案、common law 的 maxim）冲突</td>
+</tr>
+<tr>
+<td>Inheritance law 在“不得从自己的 wrong 获益”的 principle 之下运作</td>
+<td>符合先前的保险金 judgment 和 common law 传统；和 statute 文字有张力</td>
+<td>把法律体系解释成一个前后一致的道德整体</td>
+</tr>
+</tbody>
+</table></div>
+<p>Earl 选第二种，Gray 选第一种。按 integrity 的理论，两人的分歧是关于哪种解读更好，而这个问题有对错，judge 不是在两个同样合法的选项里随便挑。这也是 Dworkin 争议最大的一点：hard case 也有 right answer。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Dworkin 的意思是 judge 可以按自己的道德观判案</span></p><p>Integrity 有两个维度，fit 是硬约束：一种解读如果和大量既有的 statute、precedent 对不上，无论道德上多吸引人都不能成立。Riggs 里多数意见用的 principle 不是 Earl 自己的发明，它有先前的 judgment 和 common law 的来源。Dworkin 反对的恰恰是 Hart 的图景：在 hard case 里 law 用完了，judge 只能凭个人判断造法。在 Dworkin 那里，judge 始终在找已经存在于 legal practice 中的东西。</p>
+</aside>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Principle 只是写得更笼统的 rule</span></p><p>区别在逻辑形式，不在笼统程度。一条非常具体的 principle 仍然可以在某个案子里适用却输掉；一条非常笼统的 rule（“不许把 vehicle 开进公园”）一旦适用就决定结果。判断的方法是问：它在一个案子里被压倒之后，还算不算 valid 的？Principle 算，rule 不算（或者要写进一个例外）。</p>
+</aside>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>Rule of recognition、core 与 penumbra，见<a href="#positivism">第 2 站</a>；inclusive 与 exclusive positivism 第一次出现在那一站的边界情况里。第 7 站的 CLS 会把 Riggs 里“两种解读都站得住”读成另一种结论。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Riggs 的事实、两份意见的理由和引文，取自 <a href="https://nycourts.gov/reporter/archives/riggs_palmer.htm">New York Court of Appeals judgment</a>。Dworkin 眼中 Hart 的三条 tenet、rule 与 principle、六步 argument、discretion 的三种 sense、chain novel 和 <em>Law's Empire</em> 的表述，按 <a href="https://ocw.mit.edu/courses/24-235j-philosophy-of-law-spring-2012/d40d97fd33f0a6749dd40cc62e188f4d_MIT24_235JS12_Session4.pdf">MIT 24.235J Session 4 的 notes</a>；Dworkin 原书没有读。Adverse possession 的例子是 Dworkin 在 <em>The Model of Rules</em> 里用过的，我凭记忆写的，没有核对原文。Vehicle in the park 取自 Hart 1958 年的文章，truck memorial 取自 Fuller 的回应。Inclusive 与 exclusive positivism、controversy 的回应取自 SEP <a href="https://plato.stanford.edu/ENTRIES/legal-positivism/">Legal Positivism</a>；Hart 在 Postscript 里接受 inclusive 的方向是我凭自己的知识写的。“两种解读”的表是为这一页做的。</p>
+</aside>
+
+</section>
+<section class="stop" id="enforce" data-skill="enforce" data-name="Law 该不该 enforce morality：Mill、Devlin 与 Hart">
+<header class="stop-h"><span class="stop-n">第 5 站</span><h2>Law 该不该 enforce morality：Mill、Devlin 与 Hart</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 Wolfenden Report 的建议、Mill 的 harm principle 和 Devlin 的结论。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立把 Devlin 的 argument 写成 premise，指出 Hart 攻击的是哪几条，并用 positive morality 与 critical morality 的区分分析一个 case。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 Singapore s 377A 从 1938 到 2022 年的经过，说明各方理由分别落在 harm principle、legal moralism 和“谁来决定”的哪一边。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-enforce">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-enforce"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能把 Devlin 的 argument 写成 premise，说出 Hart 攻击的是哪几条、positive morality 与 critical morality 的区别，并能用这些工具说明 Singapore s 377A 的几次决定各自依据什么，就可以去第 6 站。</p>
+</aside>
+<h3>一份 1957 年的报告</h3>
+<p>1950 年代的英国，男性之间的同性性行为是 crime。政府成立的 Wolfenden Committee 在 1957 年以 12 比 1 的多数建议：“homosexual behaviour between consenting adults in private should no longer be a crime”。理由是，有一个“realm of private morality or immorality”，那不是 law 该管的。</p>
+<p>这就把问题摆得很清楚。设想一种行为，大多数人认为它不道德，但它发生在成年人之间、私下、双方同意，没有伤害任何第三方。Law 可不可以仅仅因为它不道德而惩罚它？</p>
+<h3>Mill 的 harm principle</h3>
+<p>Mill 在 <em>On Liberty</em>（1859）里给出的答案是否定的：社会对个人行使 power，唯一正当的目的是防止对“others”的 harm。按 SEP 的整理，这条 principle 排除了三类常见的理由：</p>
+<ul>
+<li><strong>Legal moralism</strong>：因为行为不道德而禁止它。</li>
+<li><strong>Offence</strong>：因为行为让别人不快而禁止它。</li>
+<li><strong>Paternalism</strong>：为了行为人自己好而禁止它。</li>
+</ul>
+<p>例如，国家可以阻止 A 打 B，但不能阻止 A 做只伤害 A 自己的事。Wolfenden 的建议和 harm principle 一致。</p>
+<h3>Devlin 的 argument</h3>
+<p>1959 年，英国 judge Patrick Devlin 在 Maccabaean Lecture（后收入 <em>The Enforcement of Morals</em>，1965）里反驳 Wolfenden。他的 argument 可以写成：</p>
+<ul>
+<li><strong>D1.</strong> 一个社会由一套 shared morality 构成；没有某种 shared morality，就“no social cohesion”。</li>
+<li><strong>D2.</strong> 偏离 shared morality 的行为会削弱这种 cohesion，最终可能让社会 disintegrate（<strong>disintegration thesis</strong>）。</li>
+<li><strong>D3.</strong> 社会有权保护自己免于 disintegration，也就有权用 law 维护它的 shared morality。</li>
+<li><strong>D4.</strong> 社会的 shared morality 是什么，用 reasonable person 的标准判断：随机选出的十二个 juror 会不会一致认为这是不道德的。</li>
+<li><strong>D5.</strong> 一种行为引起普遍的 intolerance、indignation 和 disgust，就是越过了可容忍的界限（他的说法是“No society can do without intolerance, indignation and disgust”）。</li>
+<li><strong>C.</strong> 社会原则上可以用 law 惩罚不道德的行为，即使它发生在私下、没有伤害第三方。</li>
+</ul>
+<p>Devlin 并不主张惩罚一切不道德的行为。他回答了三个问题：社会有没有权判断道德问题（有），能不能用 law 执行这种判断（能），是否在所有情形都应当这样做（不，要按“grounds of practical expediency”划界）。他也承认要权衡 privacy 和 toleration。按 SEP 的介绍，Devlin 自己认为在成年人私下同意的同性性行为这件事上，liberty 有可能压过 criminalize 的理由，而虐待动物则不行。</p>
+<p>所以 Devlin 和 Mill 的分歧在原则上：Mill 说“不道德”根本不是 law 干预的理由，Devlin 说它是一个理由，只是可以被别的考虑压倒。</p>
+<h3>Hart 的回应</h3>
+<p>Hart 在 <em>Law, Liberty and Morality</em>（1963）里攻击了 D1 和 D2。</p>
+<p><strong>对 D1 的攻击：一个 equivocation。</strong> “某种 shared morality 对任何社会都必不可少”可以接受；禁止暴力、要求诚实、守约、保护财产的那一点最低限度的 morality，确实是社会生活的条件，而且 harm principle 本身就能解释它。但 Devlin 需要的是一个强得多的命题：社会和它在某一时刻的 morality 是同一个东西。按这个命题，一个社会的道德观念只要改变，那个社会就被“毁灭”了。这显然不对：社会的道德观念一直在变，社会照样存在。</p>
+<p><strong>对 D2 的攻击：没有 evidence。</strong> 作为经验命题，Devlin 没有给出任何证据表明历史上哪个社会是因为没有用 law 维护私人道德而瓦解的。作为概念命题，它依赖上面那个站不住的同一性。</p>
+<p><strong>对 D4 和 D5 的攻击：positive morality 与 critical morality。</strong> 一个社会实际上持有的道德观念叫 positive morality；用来评价包括 positive morality 在内的一切社会制度的原则，叫 critical morality。Juror 的 disgust 是关于 positive morality 的一个事实。“大多数人感到 disgust”并不能回答“这种 disgust 有没有道理”，后者是 critical morality 的问题。</p>
+<p>Hart 没有说 law 与 morality 无关。他接受那一点最低限度的 morality 应当由 law 维护，他反对的只是把“多数人认为不道德”本身当作惩罚的充分理由。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Hart 认为 law 不应当和 morality 有关系</span></p><p>Hart 是 legal positivist，主张 law 的 existence 不依赖于它的道德好坏（第 2 站）。这是关于“law 是什么”的命题。在“law 应当管什么”的问题上，他的立场完全是道德的：harm principle 就是一个道德 principle，禁止杀人、偷盗正是 law 对 morality 的执行。他和 Devlin 争的是哪一部分 morality 可以 enforce，以及“社会认为不道德”这一事实本身有没有分量。</p>
+</aside>
+<h3>Singapore 的 s 377A</h3>
+<p>Singapore Penal Code 的 s 377A 把男性之间的“gross indecency”定为 crime。这条 statute 的经过，几乎可以逐条对上 Hart–Devlin 的争论。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 246" role="img" aria-label="两条时间线：英国 1885 年的条文、1957 年 Wolfenden、1959 年 Devlin、1963 年 Hart；Singapore 1938 年照抄加入 s 377A、2007 年保留不执法、2014 年 Lim Meng Suang、2022 年 Tan Seng Kee、2022 年 11 月废除并新增 Article 156"><line x1="100" y1="78" x2="530" y2="78" class="axis"/><line x1="100" y1="190" x2="530" y2="190" class="axis"/><text x="16" y="82" class="tb" text-anchor="start">UK</text><text x="16" y="194" class="tb" text-anchor="start">Singapore</text><circle cx="120" cy="78" r="4.5" class="ink-f"/><text x="120" y="48" class="tb" text-anchor="middle">1885</text><text x="120" y="64" class="ts" text-anchor="middle">UK s 11</text><circle cx="167.5" cy="190" r="4.5" class="ink-f"/><text x="167.5" y="212" class="tb" text-anchor="middle">1938</text><text x="167.5" y="228" class="ts" text-anchor="middle">s 377A 加入</text><circle cx="215" cy="78" r="4.5" class="ink-f"/><text x="215" y="100" class="tb" text-anchor="middle">1957</text><text x="215" y="116" class="ts" text-anchor="middle">Wolfenden</text><circle cx="262.5" cy="78" r="4.5" class="ink-f"/><text x="262.5" y="48" class="tb" text-anchor="middle">1959</text><text x="262.5" y="64" class="ts" text-anchor="middle">Devlin 讲演</text><circle cx="310" cy="78" r="4.5" class="ink-f"/><text x="310" y="100" class="tb" text-anchor="middle">1963</text><text x="310" y="116" class="ts" text-anchor="middle">Hart 回应</text><circle cx="357.5" cy="190" r="4.5" class="ink-f"/><text x="357.5" y="160" class="tb" text-anchor="middle">2007</text><text x="357.5" y="176" class="ts" text-anchor="middle">保留，不主动执法</text><circle cx="405" cy="190" r="4.5" class="ink-f"/><text x="405" y="212" class="tb" text-anchor="middle">2014</text><text x="405" y="228" class="ts" text-anchor="middle">Lim Meng Suang</text><circle cx="452.5" cy="190" r="4.5" class="ink-f"/><text x="452.5" y="160" class="tb" text-anchor="middle">2022</text><text x="452.5" y="176" class="ts" text-anchor="middle">Tan Seng Kee</text><circle cx="500" cy="190" r="4.5" class="ln-f"/><text x="500" y="212" class="tb" text-anchor="middle">2022.11</text><text x="500" y="228" class="ts" text-anchor="middle">废除；Art 156</text><line x1="123" y1="83" x2="164.7" y2="182.2" class="ln-dash"/><polygon points="165.5,184 165.7,177 160.4,179.2" class="ln-dash-f"/><text x="131.8" y="138" class="ts" text-anchor="end">几乎逐字照抄</text></svg><figcaption>上面一条是英国的争论，下面一条是 s 377A 在 Singapore 的经过。横向只按先后排列，间距不代表时间长短。</figcaption></figure>
+<p>以下事实都按 Minister for Home Affairs and Law K Shanmugam 2022 年 11 月 28 日在 Parliament 的发言：</p>
+<ul>
+<li><strong>1938 年</strong>，Singapore 还是英国殖民地，s 377A 被加入 Penal Code。当时的 Attorney-General 说目的是与英国 criminal law 一致。它几乎逐字照抄英国 1885 年 Criminal Law Amendment Act 的 s 11，后者是在立法最后时刻加入的 amendment，辩论不到四分钟，动机至今不清楚。</li>
+<li><strong>2007 年</strong>，Parliament 用两天辩论 s 377A，16 位议员发言。Prime Minister 宣布政府将“continue to retain s 377A but not pro-actively enforce it”。</li>
+<li><strong>2014 年</strong>，Court of Appeal 在 Lim Meng Suang v AG 中认定 s 377A 不违反 Constitution 的 Article 9 和 Article 12。</li>
+<li><strong>2022 年</strong>，Court of Appeal 在 Tan Seng Kee v AG 中认定申请人没有 standing，因为按 Attorney-General 的立场，对私下同意的成年人一般不会 prosecute；在 AG 明确通知将会执法之前，s 377A 实际上不可执行。Court 还在非约束性的意见里说，按新近的方法，s 377A“might fall afoul”Article 12 的 reasonable classification 检验。</li>
+<li><strong>2022 年 11 月 29 日</strong>，Parliament 以 93 票对 3 票废除 s 377A；同时以 85 票通过 Constitution amendment，新增 Article 156，用以保护婚姻现有的定义不受司法挑战。</li>
+</ul>
+<p>把各阶段的理由放到这一站的框架里看。下面的对应是本页的分析，不是政府或 court 的表述。</p>
+<p><strong>2007 年的妥协</strong>：保留 statute、不主动执法。站在 Devlin 一边的人可以说，一条 law 即使不执行，也表达了社会的 shared morality；站在 Hart 一边的人会说，一条只用来表达多数人道德观念、对无害行为不执行的 criminal law，让一群人在法律上处于随时可被 prosecute 的地位，却得不到 harm principle 的任何辩护。</p>
+<p><strong>2022 年废除的理由</strong>，按发言是两条。一条是“Such conduct does not raise law-and-order concerns”：这是 harm principle 式的理由，行为没有对他人造成需要 criminal law 处理的伤害。另一条是 legal risk：Minister 说他和 AG 的意见是，将来的 litigation 中“there is a significant risk of s 377A being struck down”。</p>
+<p><strong>“谁来决定”</strong>。发言里的另一条主线是：这样的社会问题应当由 Parliament 而不是 court 决定，因为 court 只能给出“binary, win-lose outcomes”，Parliament 可以咨询、协商、给出配套安排。Article 156 也是在这个意义上把婚姻定义留给 Parliament。这是第 4 站争论的另一面：Dworkin 认为涉及 rights 的问题应由 court 按 principle 判断；另一种观点认为，在合理的人会有分歧的道德问题上，民选机构的决定更有 legitimacy。两种立场在法理学里都有有力的辩护者。</p>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Disgust 能不能当证据</span></p><p>Devlin 的 D5 把 disgust 当作“越界”的标志。支持者可以说：道德直觉本来就常常先以情绪出现，很多我们确信的道德判断（例如对虐待儿童的反感）也是这样。反对者的回答是 Hart 的区分：情绪是 positive morality 的事实，它是否值得尊重要接受 critical morality 的检验；历史上很多曾经引起普遍 disgust 的对象（跨种族婚姻在一些地方就是例子），后来被认为不该受 law 干预。这个分歧落在一个问题上：一个社会的道德情绪本身，有没有任何独立的证据分量。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Wolfenden 的票数和引文、Devlin 的“intolerance, indignation and disgust”与“no social cohesion”，取自 <a href="https://daily.jstor.org/does-law-exist-to-provide-moral-order/">JSTOR Daily 的文章</a>。Mill 的 harm principle 排除的三类理由、Devlin 的 disintegration thesis 与十二个 juror 的标准、Hart 的 equivocation 和 no-evidence 两条批评、positive 与 critical morality、Devlin 自己对 liberty 的权衡，取自 SEP <a href="https://plato.stanford.edu/Entries/law-limits/">The Limits of Law</a> 的前 10 万字符。Devlin 的三个问题和“practical expediency”取自 <a href="https://www.austlii.edu.au/au/journals/MULR/1967/10.pdf">Derham 1967 年的书评</a>，Hart《Law, Liberty and Morality》的年份也取自这里；Devlin 和 Hart 的原书都没有读。s 377A 的经过取自 <a href="https://www.mha.gov.sg/media-room/newsroom/second-reading-of-penal-code-amendment-bill/">MHA 发布的 Minister 发言</a>（它是政府一方对 judgment 的概括，不是 judgment 原文），表决票数和 Article 156 取自 <a href="https://www.thestar.com.my/aseanplus/aseanplus-news/2022/11/29/singapore-parliament-repeals-old-law-criminalising-gay-sex">The Star 2022 年 11 月 29 日的报道</a>。Article 9 是 personal liberty、Article 12 是 equal protection，s 377A 的 offence 是“gross indecency”，这两点是我凭自己的知识写的。各阶段与 Hart–Devlin 的对应、disgust 一节和跨种族婚姻的例子是我写的。</p>
+</aside>
+
+</section>
+<section class="stop" id="econ" data-skill="econ" data-name="Law and economics：Coase、Hand formula 与 efficiency">
+<header class="stop-h"><span class="stop-n">第 6 站</span><h2>Law and economics：Coase、Hand formula 与 efficiency</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 Coase 的 rancher 与 farmer 例子和 Hand formula。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立在两种 liability rule 下算出 herd size 和双方的得失，说明 transaction cost 怎样让 rule 的选择重新变得要紧，并用 B &lt; PL 判断一个 negligence case。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能分清 positive 与 normative 的 economic analysis，说出 Pareto 与 Kaldor–Hicks 的区别，并讲清用 willingness to pay 衡量 value 的主要 objection。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-econ">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-econ"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能在 Coase 的例子里分别按“rancher 负责”和“rancher 不负责”算出 herd size 和双方的得失，说清 transaction cost 为什么让 rule 的选择重新变得要紧，能用 B &lt; PL 判断一个 negligence case，并说出 wealth maximization 的主要 objection，就可以去第 7 站。</p>
+</aside>
+<h3>一个 rancher，一个 farmer</h3>
+<p>Coase 在 <em>The Problem of Social Cost</em>（1960）里用了一个例子。一个 rancher 养牛，牛会跑进相邻 farmer 的地里吃庄稼。牛越多，损失越大，而且每多一头牛，新增的损失也越大。按他的表，庄稼每吨 1 元：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>牛的数量</th>
+<th>每年庄稼损失（吨）</th>
+<th>新增一头牛带来的损失（吨）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>10</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></div>
+<p>另外，在两块地之间修一道围栏，每年的成本是 9 元。</p>
+<p>法律上通常的直觉是：牛是 rancher 的，损害是 rancher 造成的，所以 rancher 应当赔。Coase 认为这个问题“of a reciprocal nature”：限制牛群是让 rancher 受损，不限制是让 farmer 受损。所以要问的是：允许哪一方伤害另一方，总的损失最小。</p>
+<h3>两种 rule 下各算一遍</h3>
+<p>Coase 的表只有损失一边。为了算出结果，还需要 rancher 每多养一头牛多赚多少。下面的数字是为这一页设的：牛越多，草场越拥挤，每头牛的边际利润递减。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>第几头牛</th>
+<th>Rancher 的边际利润</th>
+<th>Farmer 的边际损失</th>
+<th>这头牛净增的总价值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>5</td>
+<td>1</td>
+<td>+4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td>+2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.5</td>
+<td>3</td>
+<td>+0.5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1.5</td>
+<td>4</td>
+<td>−2.5</td>
+</tr>
+</tbody>
+</table></div>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 262" role="img" aria-label="四头牛各自给 rancher 的边际利润 5、4、3.5、1.5 和给 farmer 的边际损失 1、2、3、4；前三头利润大于损失，第四头相反，所以 efficient 的牛群是三头"><line x1="66" y1="198.5" x2="400" y2="198.5" class="grid"/><text x="62" y="202.5" class="ts" text-anchor="end">1</text><line x1="66" y1="161.1" x2="400" y2="161.1" class="grid"/><text x="62" y="165.1" class="ts" text-anchor="end">2</text><line x1="66" y1="123.6" x2="400" y2="123.6" class="grid"/><text x="62" y="127.6" class="ts" text-anchor="end">3</text><line x1="66" y1="86.2" x2="400" y2="86.2" class="grid"/><text x="62" y="90.2" class="ts" text-anchor="end">4</text><line x1="66" y1="48.7" x2="400" y2="48.7" class="grid"/><text x="62" y="52.7" class="ts" text-anchor="end">5</text><line x1="70" y1="236" x2="400" y2="236" class="axis"/><line x1="70" y1="236" x2="70" y2="30" class="axis"/><text x="64" y="18" class="ts" text-anchor="end">元</text><rect x="82" y="48.7" width="26" height="187.3" rx="0" class="solid2"/><text x="95" y="43.7" class="ts" text-anchor="middle">5</text><rect x="112" y="198.5" width="26" height="37.5" rx="0" class="solid"/><text x="125" y="193.5" class="ts" text-anchor="middle">1</text><text x="110" y="254" class="ts" text-anchor="middle">第 1 头</text><rect x="162" y="86.2" width="26" height="149.8" rx="0" class="solid2"/><text x="175" y="81.2" class="ts" text-anchor="middle">4</text><rect x="192" y="161.1" width="26" height="74.9" rx="0" class="solid"/><text x="205" y="156.1" class="ts" text-anchor="middle">2</text><text x="190" y="254" class="ts" text-anchor="middle">第 2 头</text><rect x="242" y="104.9" width="26" height="131.1" rx="0" class="solid2"/><text x="255" y="99.9" class="ts" text-anchor="middle">3.5</text><rect x="272" y="123.6" width="26" height="112.4" rx="0" class="solid"/><text x="285" y="118.6" class="ts" text-anchor="middle">3</text><text x="270" y="254" class="ts" text-anchor="middle">第 3 头</text><rect x="322" y="179.8" width="26" height="56.2" rx="0" class="solid2"/><text x="335" y="174.8" class="ts" text-anchor="middle">1.5</text><rect x="352" y="86.2" width="26" height="149.8" rx="0" class="solid"/><text x="365" y="81.2" class="ts" text-anchor="middle">4</text><text x="350" y="254" class="ts" text-anchor="middle">第 4 头</text><rect x="420" y="40" width="14" height="14" rx="0" class="solid2"/><text x="440" y="52" class="t" text-anchor="start">Rancher 边际利润</text><rect x="420" y="64" width="14" height="14" rx="0" class="solid"/><text x="440" y="76" class="t" text-anchor="start">Farmer 边际损失</text><text x="420" y="120" class="t" text-anchor="start">前三头：利润 > 损失</text><text x="420" y="140" class="t" text-anchor="start">第四头：利润 < 损失</text><text x="420" y="172" class="tl" text-anchor="start">Efficient 的牛群：3 头</text><text x="420" y="200" class="ts" text-anchor="start">两种 liability rule</text><text x="420" y="216" class="ts" text-anchor="start">下都停在这里</text></svg><figcaption>每头牛给 rancher 的边际利润（深色）和给 farmer 的边际损失（彩色）。前三头牛利润大于损失，第四头反过来。</figcaption></figure>
+<p>先找出对两人合起来最好的安排。把双方的得失加总（以“没有牛”为 0）：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>安排</th>
+<th>Rancher 的利润</th>
+<th>Farmer 的损失</th>
+<th>合计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 头</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1 头</td>
+<td>5</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>2 头</td>
+<td>9</td>
+<td>3</td>
+<td>6</td>
+</tr>
+<tr>
+<td>3 头</td>
+<td>12.5</td>
+<td>6</td>
+<td><strong>6.5</strong></td>
+</tr>
+<tr>
+<td>4 头，不修围栏</td>
+<td>14</td>
+<td>10</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4 头，修围栏</td>
+<td>14</td>
+<td>9（围栏）</td>
+<td>5</td>
+</tr>
+</tbody>
+</table></div>
+<p>合计最大的是 3 头、不修围栏，6.5。这叫 <strong>efficient</strong> 的安排。</p>
+<p><strong>Rule A：rancher 要 compensate 全部损失。</strong> Rancher 决定养几头时，会把 compensation 算进成本。第 3 头牛多赚 3.5、多赔 3，划算；第 4 头多赚 1.5、多赔 4，不划算。修围栏让他能养 4 头而不用赔，但净得 14 − 9 = 5，不如 3 头时的 12.5 − 6 = 6.5。所以他养 3 头，赔 6 元。Rancher 净得 6.5，farmer 得到全额 compensation，净损失 0。</p>
+<p><strong>Rule B：rancher 不用赔。</strong> Rancher 只看自己的利润，四头牛的边际利润都是正的，他会养 4 头。Farmer 每年损失 10。但这不是故事的结尾，farmer 可以出钱让 rancher 少养一头。</p>
+<ul>
+<li>从 4 头减到 3 头：farmer 少损失 4，rancher 少赚 1.5。Farmer 付给 rancher 任何介于 1.5 和 4 之间的数，两人都比原来好。</li>
+<li>从 3 头减到 2 头：farmer 少损失 3，rancher 少赚 3.5。没有一个价钱能让两人都同意。</li>
+<li>Farmer 也可以自己修围栏，花 9。在 3 头的安排下他承受 6 的损失加上付给 rancher 的钱 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>，只要 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>+</mo><mi>p</mi><mo>&lt;</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">6+p&lt;9</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">9</span></span></span></span>，即 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">p&lt;3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span></span></span></span>，就比修围栏好。</li>
+</ul>
+<p>所以理性的讨价还价停在 3 头，价钱 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span> 在 1.5 和 3 之间。Rancher 净得 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>12.5</mn><mo>+</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">12.5+p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">12.5</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>，farmer 净损失 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>+</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">6+p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>，两人合计仍是 6.5。</p>
+<p>两种 rule 下牛的数量相同，都是 efficient 的 3 头。不同的只是钱从谁流向谁：Rule A 下 rancher 净得 6.5，Rule B 下 rancher 净得 14 到 15.5 之间。</p>
+<p>这就是后来所谓的 <strong>Coase theorem</strong>：如果 transaction cost 为零，无论 law 把权利分配给哪一方，双方都会通过交易达到 efficient 的安排；law 的分配只影响财富在双方之间怎样分。Coase 的另一个例子是 Sturges v Bridgman（1879）：伦敦一位糖果商的研钵用了几十年，后来一位医生在隔壁建了诊室，被噪音和震动干扰。Court 支持医生，下令停机。Coase 的论点是，如果糖果商的机器对他更值钱，他可以向医生买下继续运转的权利；judgment 的方向不决定资源最终怎样使用。</p>
+<h3>Transaction cost 让 rule 重新变得要紧</h3>
+<p>Coase 本人强调的其实是反面：现实中交易有成本，而且常常很高。</p>
+<p>把例子改一下。邻接牧场的换成 20 个小农户，每户承受 1/20 的损失。在 Rule B 下，从 4 头减到 3 头，农户们合起来少损失 4，rancher 少赚 1.5，交易的 surplus 是 4 − 1.5 = 2.5。但 20 户要凑钱、谈判、互相监督谁出了多少，假设每户为此花掉相当于 0.25 元的时间和精力，组织成本合计 5，超过 2.5 的 surplus。交易不会发生，牛群停在 4 头，两边合计是 4 而不是 6.5。</p>
+<p>在 Rule A 下不需要任何交易：rancher 自己就会把损失算进成本，停在 3 头。</p>
+<p>所以一旦 transaction cost 不为零，law 选哪条 rule 就会影响资源配置。Economic analysis 由此得出一个规范性的建议：在交易困难的地方，law 应当把责任分配给能以最低成本避免损失的一方，或者选择能直接导向 efficient 结果的 rule。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Coase theorem 说法律怎么规定都无所谓</span></p><p>它只在 transaction cost 为零时成立，而 Coase 写这篇文章的主要目的，恰恰是提醒经济学家：现实中 transaction cost 不为零，所以 law 的选择很要紧。即使在零交易成本的世界里，rule 也决定了财富的分配：上面的例子里，rancher 在两种 rule 下的净得相差 7.5 到 9。对当事人来说，这一点也不是“无所谓”。</p>
+</aside>
+<h3>Negligence：Hand formula</h3>
+<p>Economic analysis 不只是学者的事后解读，它在一些 judgment 里是明说的。</p>
+<p>1944 年 1 月 4 日，驳船 Anna C 在 Manhattan 的码头附近沉没，船上装着面粉。前一天下午五点左右，船上的 bargee（看船人）离开，一直到第二天下午两点左右船队漂走，共离开约 21 个小时。拖船 Carroll 的船员挪动缆绳时没有调好，船队漂开，Anna C 撞破后漏水；因为船上没人，漏水没有被发现，最终沉没。</p>
+<p>United States v. Carroll Towing Co.（1947）里，Judge Learned Hand 要判断：驳船主人让 bargee 离船，算不算 negligence？他写道：“if the probability be called P; the injury, L; and the burden, B; liability depends upon whether B is less than L multiplied by P”。也就是说，当预防的成本 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span></span></span></span> 小于事故的 expected loss <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>L</mi></mrow><annotation encoding="application/x-tex">PL</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mord mathnormal">L</span></span></span></span> 时，不采取预防就是 negligent。</p>
+<p>Hand 没有给出具体数字，他讲的是情境：战时港口繁忙，驳船不断被挪进挪出，一月白天很短，在这样的白天工作时间里出事的风险是可以预见的。他认定要求 bargee 白天在船，是合理的；夜里是否也要在船，court 明确说不作决定。</p>
+<p>为了看清这个 formula 怎么用，设一组假想的数字（不是 judgment 里的）：bargee 一个白班的工钱 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">B=20</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">20</span></span></span></span>；损失 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mn>10,000</mn></mrow><annotation encoding="application/x-tex">L=10{,}000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">10</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span></span></span></span>（船和面粉）；繁忙的白天里，无人看守的驳船出事沉没的 probability <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>0.5</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">P=0.5\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">0.5%</span></span></span></span>，夜间港口安静时 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>0.1</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">P=0.1\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">0.1%</span></span></span></span>。</p>
+<div class="math-d"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>白天：</mtext><mi>P</mi><mi>L</mi><mo>=</mo><mn>0.005</mn><mo>×</mo><mn>10,000</mn><mo>=</mo><mn>50</mn><mo>&gt;</mo><mn>20</mn><mo>=</mo><mi>B</mi><mspace width="2em"/><mtext>夜间：</mtext><mi>P</mi><mi>L</mi><mo>=</mo><mn>0.001</mn><mo>×</mo><mn>10,000</mn><mo>=</mo><mn>10</mn><mo>&lt;</mo><mn>20</mn><mo>=</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">\text{白天：}PL=0.005\times10{,}000=50&gt;20=B\qquad\text{夜间：}PL=0.001\times10{,}000=10&lt;20=B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord cjk_fallback">白天：</span></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.005</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">10</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6835em;vertical-align:-0.0391em;"></span><span class="mord">50</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">20</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:2em;"></span><span class="mord text"><span class="mord cjk_fallback">夜间：</span></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.001</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">10</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6835em;vertical-align:-0.0391em;"></span><span class="mord">10</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">20</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span></span></span></span></span></div>
+<p>白天不派人是 negligent，夜里不派人不是。这和 Hand 区分白天与夜间的思路一致：同样的预防措施，值不值得取决于风险的大小。</p>
+<p>最终的结果：拖船公司和另一个责任方对撞船的损失负全责；对沉船的损失，驳船主人因为 bargee 不在，自己承担三分之一。</p>
+<p>Hand formula 是第 1 站 utilitarian 计算在 tort 里的形式：一个人应当采取的预防，就是成本小于它所避免的 expected harm 的那些。</p>
+<h3>从描述到规范：efficiency 应当是 law 的目标吗</h3>
+<p>Economic analysis 有两种主张，必须分开。按 SEP 的整理，Posner 的 <strong>positive</strong> 主张是：common law 的 rule 事实上是 efficient 的（Hand formula 就是一例）；<strong>normative</strong> 主张是：law 应当是 efficient 的，efficiency 指使社会的 willingness to pay 总和最大。</p>
+<p>Efficiency 本身有两种定义。<strong>Pareto improvement</strong>：至少一人变好，没有人变差。<strong>Kaldor–Hicks improvement</strong>：赢家的所得足以补偿输家的所失，不论是否真的补偿。在 Rule B 下，如果 law 直接命令 rancher 减到 3 头而不给补偿，farmer 少损失 4，rancher 少赚 1.5：这是一个 Kaldor–Hicks improvement，但不是 Pareto improvement，因为 rancher 变差了。Wealth maximization 用的是 Kaldor–Hicks 标准。</p>
+<p><strong>最强的 objection：willingness to pay 取决于 ability to pay。</strong> 一个人愿意为一样东西付多少，受他有多少钱限制。设想同样一块地，富人愿意为它的景观付 1,000 元，穷人一家靠它种菜，但全部积蓄只有 300 元。按 willingness to pay，这块地给富人是 efficient 的，尽管它对穷人一家的生活意义大得多。SEP 的表述是：用 willingness to pay 做人与人之间的比较，会反映既有的财富分配。Calabresi 在给 Dworkin 的信里也指出，wealth maximization 背后的假设是“$1 is as likely to be worth as much to the rich person as to the poor person”，而这个假设本身就有问题。</p>
+<p><strong>回应</strong>：一种回应是分工。按 Calabresi 的转述，Posner 认为 court 只擅长推进 wealth maximization。由此常见的立场是：分配问题留给 legislature 通过税收和转移支付处理，court 在个案里做再分配既缺乏信息，又会扭曲 rule 的激励。反对者的追问是：如果 legislature 实际上没有做补偿，那么在每个案子里只看 efficiency 的 court，就是在一次次地把损失压到无力支付的人身上。这个分歧至今没有定论。</p>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>牛群的表、9 元的围栏、“reciprocal nature”、Rule B 下 farmer 出钱让 rancher 减少牛群的推理、Sturges v Bridgman 的事实，取自 <a href="https://www.shastriinstitute.org/sites/default/files/Coase.pdf">Coase 原文</a>前 10 万字符（共约 13 万）。Rancher 的边际利润是我设的，两种 rule 下的全部数字、合计表和 20 户农户的例子是我算的。Anna C 的事实、Hand 的原句、白天与夜间的区分和三分之一的结果，取自 <a href="https://law.justia.com/cases/federal/appellate-courts/F2/159/169/1565896">Carroll Towing judgment</a>；B、P、L 的数字是假想的。Posner 的 positive 与 normative 两种主张、Kaldor–Hicks 的定义、interpersonal comparison 的批评，取自 SEP <a href="https://plato.stanford.edu/archives/spr2006/entries/legal-econanalysis/">Economic Analysis of Law</a>（2006 年存档版）。Calabresi 的两句话取自<a href="https://openyls.law.yale.edu/server/api/core/bitstreams/9c82d2ff-075e-41fb-906e-c0edb7581788/content">他给 Dworkin 的信</a>；Dworkin 的《Is Wealth a Value?》和 Posner 的回应原文都没有读到；“分配交给税收和转移支付”的分工立场是我按常见说法写的，没有核对 Posner 原文。“把责任分给能以最低成本避免损失的一方”是 Calabresi 的 cheapest cost avoider 思路，这里凭自己的知识写，没有核对原文。</p>
+</aside>
+
+</section>
+<section class="stop" id="critical" data-skill="critical" data-name="Critical Legal Studies 与 feminist jurisprudence">
+<header class="stop-h"><span class="stop-n">第 7 站</span><h2>Critical Legal Studies 与 feminist jurisprudence</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 CLS 的 indeterminacy thesis、Kennedy 对 rule 与 standard 的分析，以及 feminist 对 reasonable man 标准的批评。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立用 Solum 的三个定义判断一个 case 是 determinate、underdeterminate 还是 indeterminate，并用 provocation defence 的演变说明一个形式中立的 rule 怎样产生不对称的结果。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能讲清 strong indeterminacy thesis 为什么站不住、哪些弱一些的版本仍有分量，以及 sameness 与 difference 两种 equality 观各自的代价。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-critical">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-critical"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能用 Solum 的定义说明 Riggs 是 underdeterminate 而不是 indeterminate，说出 Kennedy 为什么认为 rule 与 standard 之间的选择不能 neutral 地决定，并能用 provocation defence 的演变说明 feminist 对“neutral”标准的批评，就可以去第 8 站。</p>
+</aside>
+<h3>一条 rule 和一个 standard</h3>
+<p>法律要规定一个人什么时候有完全的 legal capacity（订合同、立 will）。有两种写法：</p>
+<ul>
+<li><strong>Rule</strong>：年满 21 岁。</li>
+<li><strong>Standard</strong>：具有足够的 maturity。</li>
+</ul>
+<p>Duncan Kennedy 在 <em>Form and Substance in Private Law Adjudication</em>（1976）里分析了这个选择。Rule 有两个好处：“the restraint of official arbitrariness and certainty”，官员不能随意决定，人们事先就知道结果。代价是不精确：“Every rule involves a measure of imprecision vis-à-vis its purpose.” 年满 21 岁的 rule 会把一些不成熟的 25 岁的人算进来，把一些成熟的 20 岁的人排除在外。社会接受这些错误，是为了避免逐案判断时更大的任意性。Standard（good faith、due care、unconscionability）正好相反：贴近目的，但把判断交给了适用它的人。</p>
+<p>到这里还是常识。Kennedy 的下一步是：选 rule 还是 standard，不是一个技术问题。他把偏好 rule 与 <strong>individualism</strong>（自立、各管各的）联系起来，把偏好 standard 与 <strong>altruism</strong>（不应过分偏向自己的利益）联系起来，并认为在“应当怎样”的问题上两者之间没有 neutral 的裁判者，律师们被分裂在“irreconcilable visions of humanity and society”之间。</p>
+<h3>CLS 的两个 thesis</h3>
+<p>1970 年代后期在美国法学院兴起的 <strong>Critical Legal Studies</strong>（CLS）把这种分析推广到整个 law。按 Solum 的概括，它有两个核心 thesis：</p>
+<ul>
+<li><strong>Indeterminacy thesis</strong>：现有的法律材料能让 judge 为“any result she desires”提供论证。</li>
+<li><strong>Mystification thesis</strong>：法律话语掩盖并强化支配关系，让本来是政治选择的东西看起来是中立、必然的。</li>
+</ul>
+<p>Kairys 的口号“Law Is Politics”概括了这一立场。</p>
+<p>把 indeterminacy 的论证写出来：</p>
+<ul>
+<li><strong>I1.</strong> 法律材料里，每一条 rule 或 principle 都有一条指向相反方向的 rule 或 principle（文字对目的，individualism 对 altruism，遵循 precedent 对推翻 precedent）。</li>
+<li><strong>I2.</strong> 法律材料本身不决定在一个案子里用哪一条、给它多少 weight。</li>
+<li><strong>I3.</strong> 所以决定是由法律材料之外的东西做出的：Judge 的价值观、政治立场。</li>
+<li><strong>C.</strong> Law 是 indeterminate 的，法律推理是政治。</li>
+</ul>
+<p>Riggs 看起来是一个完美的例子：Earl 和 Gray 都用了正当的法律论证，一个靠立法目的和 common law maxim，一个靠 statute 文字和 legislative supremacy，得出相反的结论。</p>
+<h3>Solum：indeterminate 和 underdeterminate 不是一回事</h3>
+<p>Solum（<em>On the Indeterminacy Crisis</em>，1987）的反驳从三个定义开始。对一个案子，考虑所有可以想象的结果，再考虑其中法律上站得住的那些：</p>
+<ul>
+<li><strong>Determinate</strong>：法律上站得住的结果只有一个。</li>
+<li><strong>Indeterminate</strong>：法律上站得住的结果等于所有可以想象的结果。</li>
+<li><strong>Underdeterminate</strong>：法律上站得住的结果是所有可想象结果的一个真子集。</li>
+</ul>
+
+<figure class="fig"><svg class="fig-svg" viewBox="0 0 560 186" role="img" aria-label="三个方框表示所有可以想象的判决结果。Determinate 时站得住的只有一个；underdeterminate 时是一个真子集，例如 Riggs 案只有两个；indeterminate 时所有结果都站得住"><text x="100" y="30" class="tb" text-anchor="middle">Determinate</text><rect x="25" y="44" width="150" height="110" rx="0" class="frame"/><circle cx="100" cy="99" r="5" class="ln-f"/><text x="100" y="176" class="ts" text-anchor="middle">站得住的结果只有一个</text><text x="280" y="30" class="tb" text-anchor="middle">Underdeterminate</text><rect x="205" y="44" width="150" height="110" rx="0" class="frame"/><path d="M234 96L250 74L290 70L320 88L314 122L274 132L240 120Z" class="wash ink-s"/><circle cx="262" cy="100" r="4" class="ln-f"/><circle cx="296" cy="100" r="4" class="ln-f"/><text x="262" y="118" class="ts" text-anchor="middle">Elmer</text><text x="296" y="118" class="ts" text-anchor="middle">女儿</text><text x="280" y="176" class="ts" text-anchor="middle">站得住的是一个真子集</text><text x="460" y="30" class="tb" text-anchor="middle">Indeterminate</text><rect x="385" y="44" width="150" height="110" rx="0" class="wash"/><rect x="385" y="44" width="150" height="110" rx="0" class="frame"/><text x="460" y="176" class="ts" text-anchor="middle">什么结果都站得住</text></svg><figcaption>外框是所有可以想象的结果，彩色区域是法律上站得住的结果。CLS 的 strong thesis 说的是右边那种情形；Solum 说 hard case 通常是中间那种，中间一格画的就是 Riggs v Palmer。</figcaption></figure>
+<p>用这三个定义检验 Riggs。可以想象的结果很多：财产归 Elmer、归两个女儿、归 court 书记员、归州政府、平分给全体 New York 居民……法律上站得住的只有两个：归 Elmer 或者不归 Elmer（归其他 heir）。两个，不是一个，所以 Riggs 不是 determinate 的；但这两个是一个极小的真子集，所以它是 underdeterminate，不是 indeterminate。</p>
+<p>Solum 的主要论证是 <strong>easy case</strong>。大量的案子结果毫无争议，例如 Constitution 规定总统必须年满 35 岁。有人可以争辩“35 岁”指的是成熟程度而不是日历年龄，但即使接受这种解释，一个“very immature eleven-year-old”也当不了总统。法律材料排除了绝大多数结果，这就足以否定 strong thesis。一个案子 hard，只说明法律上站得住的结果不止一个，不说明它们是全部。</p>
+<p>CLS 一方有较弱的版本：重要的案子才是 indeterminate 的（important-case thesis）；或者，法律总是“可能”被政治压力改写（modally weakened thesis）。Solum 的回应是，第一种如果不独立定义“重要”，就成了“indeterminate 的案子是 indeterminate 的”这样的同义反复；第二种要么是平凡的，要么不能说明大部分 law 是 indeterminate 的。他的结论是，strong thesis 是一种“dogma”，在实际案件里“will seldom, if ever, make a practical difference”。</p>
+<p>Binder 的总结更谨慎：critical scholar 实际提出的是两个较窄的论点，一是 liberal 的 rights 理论无法单靠形式定义划清自由的边界，二是需要计算政策效果的 standard 必然包含规范性的裁量。两者合起来使大量 doctrine 不确定，但不说明所有 rule 都必然不确定。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">CLS 的意思是 judge 想怎么判就怎么判，law 毫无约束力</span></p><p>这是 strong thesis 的字面意思，也是 Solum 攻击的靶子，但多数 CLS 学者实际主张的更窄。Kennedy 关于 rule 与 standard 的分析承认 rule 能限制官员；他说的是，选择 rule 还是 standard、以及在两者之间来回调整，本身没有 neutral 的依据。按 Binder 的概括，比较站得住的 CLS 论点是：某些类型的 doctrine 系统性地依赖裁量，而这些裁量被说成了技术判断。这比“law 毫无约束力”弱得多，也难反驳得多。</p>
+</aside>
+<h3>Feminist jurisprudence：“neutral”的标准替谁说话</h3>
+<p>Feminist jurisprudence 和 CLS 共享一个怀疑：形式上中立的 law 可能系统地偏向一方。按 SEP 的表述，feminist 学者认为 law 可以使“systemic bias invisible, normal, entrenched”，把特定的 norm 表现得“universal, natural, and objective”。</p>
+<p>最直接的例子是 reasonable person 标准。旧的说法是“the average reasonable man”。今天用的是“reasonable person”，但 SEP 指出它“continues to reflect male norms”：衡量一个人的反应是否合理，参照的往往是一种特定处境中的人会怎样反应。</p>
+<p>一条 criminal law 的 defence 的演变把这个批评变得可以检验。</p>
+<p>英国法里，被 provoke 而杀人，可以从 murder 降为 manslaughter。1949 年 R v Duffy 的定义（下定义的 Devlin J 正是第 5 站那位 Devlin）是：provocation 要使一个 reasonable person、并实际上使 defendant，陷入“sudden and temporary loss of self-control”。</p>
+<p>R v Ahluwalia（1992）的 defendant 多年遭丈夫虐待。一个暴力的夜晚之后，她上床却无法入睡，后来下楼，把汽油倒进桶里，点燃丈夫的卧室，丈夫被烧死。她被定 murder。Court of Appeal 说 Duffy 的定义仍然是好法律，但在受虐妻子的案件里，反应常常是一种“slow burn”；只是间隔越长、事先考虑的证据越多，defence 越难成立。Court 因另一个理由（审判时被忽略的抑郁症医学证据）下令重审，她最终以 diminished responsibility 被定 manslaughter。</p>
+<p>Feminist 批评的 argument 可以写成：</p>
+<ul>
+<li><strong>F1.</strong> 一条 rule 的文字不提性别，仍可能系统地适合某一群人的典型处境，而不适合另一群人的。</li>
+<li><strong>F2.</strong> “Sudden”这个要求适合的是当场被激怒、当场动手的模式。一个体力上处于劣势、长期受虐的人，当场反击往往就是自杀，她的反应更可能是延迟的。</li>
+<li><strong>F3.</strong> 所以 sudden 的要求让 provocation 更容易被前一种人援引；有批评者进一步认为，这个 defence 在实际上为男性对伴侣的暴力提供了减轻罪责的通道。</li>
+<li><strong>C.</strong> 一个形式上中立的 defence 产生了不对称的结果，这种不对称应当在 law 的设计里处理。</li>
+</ul>
+<p>英国的立法后来部分接受了这个 argument。Coroners and Justice Act 2009 废除了 provocation（2010 年 10 月 4 日生效），代之以 <strong>loss of control</strong> defence：去掉了“sudden”的要求；qualifying trigger 包括“fear of serious violence”；并明确排除以性不忠为由的报复。</p>
+<p><strong>最强的 objection</strong>：去掉“sudden”，就可能把有预谋的报复也纳入 defence，而 provocation 之所以减轻罪责，正是因为失控意味着没有冷静地选择杀人。有了时间考虑而仍然杀人，凭什么减轻？<strong>回应</strong>：2009 年的立法仍然要求 loss of control，并以“fear of serious violence”作 trigger，要承认的是“恐惧下的延迟失控”，不是冷静的报复。Wikipedia 引用的评论认为这次改革大概达不到保护受虐者的目的；它在实践中效果如何，仍有争论。</p>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Sameness 还是 difference</span></p><p>Feminist 内部对 equality 的理解有分歧。按 SEP：liberal feminism 要求 like cases treated alike，但没说清什么使两个 case 相关地相似；difference feminism（如 Minow）认为平等要求承认差异。Minow 称之为“dilemma of difference”：给怀孕的员工特殊的 leave，看起来是区别对待；不给，又等于用一个默认不会怀孕的员工当标准。Provocation 的改革也落在这个两难上：为受虐者调整 defence 是承认处境差异，但它也可能强化“女性是被动受害者”的 stereotype。Dominance feminism（MacKinnon）则认为问题不在 sameness 或 difference，而在权力：差异本身就是支配的产物。</p>
+</aside>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>Riggs 的两份意见见<a href="#dworkin">第 4 站</a>。Dworkin 会说 Riggs 有 right answer，CLS 会说两个答案都站得住正说明 law 是 politics，Solum 的回答是：两个，也只有两个。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Rule 与 standard、Kennedy 的引文和 individualism 与 altruism 的对应，取自 <a href="https://duncankennedy.net/wp-content/uploads/2024/01/form-and-substance-in-private-law-adjudication.pdf">Kennedy 1976 年的文章</a>前 10 万字符（全文约 28 万）；他关于 altruism 和“fundamental contradiction”的完整论述在后面，没有读到。CLS 的两个 thesis、Kairys 的口号、三个定义、easy case、两种弱版本和 Solum 的结论，取自 <a href="https://core.ac.uk/download/80501556.pdf">Solum 1987 年的文章</a>前 10 万字符（共约 11.7 万）。Binder 的两个 thesis 只读了<a href="https://digitalcommons.law.buffalo.edu/book_sections/64">摘要</a>。Feminist 的引文、reasonable person 的批评、Minow 的 dilemma、dominance feminism，取自 SEP <a href="https://plato.stanford.edu/Entries/feminism-law/">Feminist Philosophy of Law</a>（2025）前 10 万字符。Duffy 的定义、Ahluwalia 的重审结果和 2009 年的改革，取自 Wikipedia 的 <a href="https://en.wikipedia.org/wiki/Provocation_in_English_law">Provocation in English law</a>；Ahluwalia 的事实和 Court of Appeal 的说法，取自 <a href="https://www.lawteacher.net/cases/r-v-ahluwalia.php">LawTeacher 的案例摘要</a>；judgment 原文没有读。F1 至 F3 是我按这些材料重构的；F2 里关于体力和处境的说法是 feminist 批评者的论点，本页没有核对相关的实证研究。用 Solum 的定义分析 Riggs 是我做的。</p>
+</aside>
+
+</section>
+<section class="stop" id="asian" data-skill="asian" data-name="Asian values 与 jurisprudence">
+<header class="stop-h"><span class="stop-n">第 8 站</span><h2>Asian values 与 jurisprudence</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 Shared Values White Paper 的五条 value、Bangkok Declaration 第 8 条的意思和 Michael Fay 案的经过。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立把 Asian values thesis 的最强版本写成 premise，指出 Sen 攻击的是哪几条。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能说明这场争论和 Hart–Devlin 之争在结构上的对应，并用前面几站的工具分析各方在 Fay 案里实际依据的理由。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-asian">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-asian"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说出 Asian values thesis 的最强版本是什么、Bangkok Declaration 实际上说了什么、Sen 攻击的是哪几条 premise，并能指出这场争论和 Hart–Devlin 之争的对应，就读完这门课了。</p>
+</aside>
+<h3>1994 年的一次 caning</h3>
+<p>Michael Fay 是一个在 Singapore 的美国青年，当时 18 岁。他因在车上喷漆、扔鸡蛋等被控多项 charge，1994 年 2 月 28 日对两项 vandalism、两项 mischief、一项持有赃物 plead guilty。3 月 3 日，他因两项 vandalism 被判四个月 imprisonment 和六下 caning，其余三项 fine 3,500 新元。High Court 驳回了他的 appeal。</p>
+<p>美国的反应很激烈。President Clinton 在 3 月 7 日称这一 punishment“extreme”，4 月 5 日写信给 President Ong Teng Cheong 要求免除 caning，24 位美国参议员要求宽大处理。Singapore 政府为 judgment 辩护，坚持国家有权执行自己的 law，Ministry of Home Affairs 说严厉的 law 让 Singapore 有秩序、少犯罪。最终政府考虑到与美国的关系，把 caning 从六下减为四下，5 月 5 日执行。Lee Kuan Yew 对美国的做法说：“that is not the path we choose”。</p>
+<p>双方各自依据什么理由？用第 1 站的工具看：“extreme”是一个 proportionality 的判断，属于 retributivism 的 R3；“严厉的 law 带来秩序”是一个 deterrence 的判断，属于 Bentham 式的计算。还有第三个理由，在前几站里没有出现过：一个社会是否有权按自己的价值观决定什么样的 punishment 是恰当的。这就是 Asian values 争论的核心。</p>
+<h3>Asian values thesis</h3>
+<p>1990 年代初，Singapore 政府和其他一些东亚政府提出了一套说法，后来被称作 <strong>Asian values</strong>。</p>
+<p>1988 年 10 月 28 日，First Deputy Prime Minister Goh Chok Tong 提议制定一套官方的 national ideology，担心 Singapore 人在“Western values”的影响下从 communitarianism 转向 individualism。1991 年 1 月 2 日，White Paper on Shared Values 提交 Parliament，经过两天辩论，1 月 15 日通过。五条 Shared Values 是：</p>
+<ol>
+<li>Nation before community and society above self</li>
+<li>Family as the basic unit of society</li>
+<li>Community support and respect for the individual</li>
+<li>Consensus not conflict</li>
+<li>Racial and religious harmony</li>
+</ol>
+<p>辩论中改了两处。第三条原来是“Regard and community support for the individual”，议员认为它过分强调国家而忽视个人，改成了加上“respect”的版本；第四条原来是“Consensus instead of contention”，议员担心“contention”暗示压制辩论和异议，改成了“Consensus not conflict”。</p>
+<p>1993 年 3 月 29 日至 4 月 2 日，亚洲国家在 Bangkok 召开 World Conference on Human Rights 的亚洲区域会议，通过 Bangkok Declaration。它的第 8 条说，human rights “universal in nature”，但必须放在“a dynamic and evolving process of international norm-setting”中理解，考虑到“the significance of national and regional particularities and various historical, cultural and religious backgrounds”。宣言还强调不干涉内政，反对把 human rights 作为发展援助的条件。</p>
+<p>1994 年，Lee Kuan Yew 在接受 Fareed Zakaria 的访谈（发表于 <em>Foreign Affairs</em>，题为 <em>Culture Is Destiny</em>）中把东亚的成功归于对家庭的依赖、节俭、勤劳、重视教育，批评美国社会的枪支、毒品和“the breakdown of civil society”，并说亚洲可以现代化而不必西化，“we do not want all of the West”。</p>
+<p>把这一立场最强的版本写成关于 law 的 argument：</p>
+<ul>
+<li><strong>A1.</strong> 一套 legal order 的 legitimacy，部分取决于它是否符合它所治理的 community 的道德理解。</li>
+<li><strong>A2.</strong> 东亚社会的道德理解，相对地更重视家庭、社群、秩序与共识，对个人权利的排序与西方 liberal 社会不同。</li>
+<li><strong>A3.</strong> 国际 human rights 的主流表述，产生于西方 liberal 社会，体现的是那里的排序。</li>
+<li><strong>C.</strong> 所以 human rights 应当结合“national and regional particularities”来解释和排序，外国以统一的标准批评一个社会的 law，缺乏正当性。</li>
+</ul>
+<p>Sen 指出这一立场常有第二个支柱：一个经济上的主张，即 authoritarian 的治理更有利于经济发展。它和 A1 至 A3 是独立的，要分开评价。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Asian values 论者否认 human rights 是 universal 的</span></p><p>官方文本并不这样说。Bangkok Declaration 第 7 段强调“the universality, objectivity and non-selectivity of all human rights”，第 8 条开头就说 human rights “universal in nature”，第 10 段说各类权利“interdependent and indivisible”。争论的焦点在于：普遍的权利由谁来解释、按什么次序排列、外国能不能以此干预。这比“否认 universality”精细得多，也难反驳得多：上面的 C 是关于解释与排序的。</p>
+</aside>
+<h3>Sen 的反驳</h3>
+<p>Amartya Sen 在 1997 年的 Morgenthau Memorial Lecture <em>Human Rights and Asian Values</em> 里系统地反驳了这一立场。他的攻击集中在 A2 和那个经济主张上。</p>
+<p><strong>对 A2：不存在“quintessential”的 Asian values。</strong> Asia 有世界大约 60% 的人口，内部的宗教、文化、政治传统差异极大。他举了日本：1.24 亿人口里，有 1.12 亿 Shintoist 和 0.93 亿 Buddhist，两者大量重叠。把 Asia 当作一个单位，本身就是“Eurocentric perspective”。</p>
+<p><strong>对 A2：亚洲传统里有 freedom 和 tolerance。</strong> Confucius 被问到怎样侍奉君主时，说要“Tell him the truth even if it offends him”，Sen 认为 Confucius 并不比 Plato 或 St. Augustine 更 authoritarian。Buddhism 重视自由与选择。公元前三世纪的 Ashoka 提倡宗教宽容；Mughal 皇帝 Akbar（1556 至 1605 年在位）确立了宗教自由。</p>
+<p><strong>对 A3 背后的对比：西方传统也并非一直 liberal。</strong> 古代世界并没有清晰的个人自由观念（Sen 引 Isaiah Berlin）；Aristotle 把女人和奴隶排除在外。Liberal 的观念在亚洲和西方都有先例，也都是近代才成形的。</p>
+<p><strong>对经济主张：“Lee hypothesis”只靠选择性的证据。</strong> 有 authoritarian 国家增长很快，也有 democracy（Botswana）增长很快；系统研究找不到政治权利和经济增长之间的明确冲突。东亚成功的政策（对竞争开放、普及教育、土地改革、出口激励）与 democracy“nothing whatsoever”不相容。</p>
+<p><strong>一个额外的论点：famine。</strong> Sen 指出，“no substantial famine has ever occurred in any independent and democratic country with a relatively free press”。政治权利的价值，在事情出错时最明显。</p>
+<p>他的结论是，被援引来为 authoritarianism 辩护的那些价值“are not especially Asian in any significant sense”，liberty 与 political rights 的理由在亚洲和在别处一样强。</p>
+<h3>Asian values 一方能怎样回应</h3>
+<p>Sen 的论证主要否认 A2 的经验内容：亚洲传统是多元的，其中有自由的成分。Asian values 一方可以接受这一点，而重新表述 A2：要紧的是一个具体社会今天经过自己的政治程序选择了什么样的排序，亚洲历史上有没有 tolerance 的思想是另一个问题。Singapore 的 Shared Values 不是从古代经典里抄来的，它由 Parliament 辩论、修改、通过，修改的方向恰恰是加上了“respect for the individual”。一个社会通过民主程序选择更重视秩序与共识，外人凭什么说它的选择不正当？</p>
+<p>普遍主义一方的回答是：一个社会的多数可以为自己选择很多东西，但 human rights 正是那些不应由多数决定拿走的东西；而且“社会的选择”往往是由掌权者表述的，受影响最深的人（被批评的少数、异议者）未必同意。</p>
+<h3>和 Hart–Devlin 之争的对应</h3>
+<p>这一段是本页的分析，不是任何一方的说法。把 A1 至 A3 和第 5 站的 D1 至 D5 放在一起，结构几乎相同：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>Devlin 与 Hart</th>
+<th>Asian values 争论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单位</td>
+<td>一个国家内部</td>
+<td>不同国家之间</td>
+</tr>
+<tr>
+<td>共同体主张</td>
+<td>社会由 shared morality 构成，可以用 law 维护它</td>
+<td>Legal order 应符合 community 的道德理解，按它来解释 rights</td>
+</tr>
+<tr>
+<td>经验 premise</td>
+<td>Disintegration thesis</td>
+<td>东亚的道德理解有一种统一的排序；authoritarianism 促进增长</td>
+</tr>
+<tr>
+<td>对经验 premise 的攻击</td>
+<td>Hart：没有 evidence</td>
+<td>Sen：Asia 内部多元；增长与政治权利无明确冲突</td>
+</tr>
+<tr>
+<td>概念上的区分</td>
+<td>Positive morality 与 critical morality</td>
+<td>一个社会实际的价值排序，与评价这种排序的 standard</td>
+</tr>
+</tbody>
+</table></div>
+<p>对应关系说明了两件事。第一，“Asian values”争论里的大部分理论问题，在一个国家内部就已经出现过，不必假定东西方有不可通约的差异。第二，它也说明了 Asian values 一方的最强版本在哪里：如果 Hart 对 Devlin 的批评成立，它就同样适用于用“我们社会的价值观”为 law 辩护；如果有人认为 Devlin 至少在“社会有权维护它的核心价值”这一点上是对的，同样的理由也支持 A1。</p>
+<p>回到 Fay 案。美国的批评诉诸 proportionality，Singapore 的辩护诉诸 deterrence 和一个社会决定自己 law 的权利。三条理由分别对应 retributivism、Bentham 式的计算，以及共同体主义的 legitimacy 主张。这门课前面的每一站，都可以拿来检验其中的某一条。</p>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Culture and law</span></p><p>NUSMods 的课程描述里还有“culture and law”。这一站只讨论了它最政治化的一面。更一般的问题是：一个社会的习俗、宗教规范在什么条件下算作 law（Hart 的 rule of recognition 可以承认 custom 作为 source），以及国家 law 与宗教、族群的规范并存时怎样排序。这一部分本页没有展开。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Fay 案的全部事实、Clinton 的信和参议员人数、commutation 的理由与 Lee Kuan Yew 的话，取自 <a href="https://eresources.nlb.gov.sg/infopedia/articles/SIP_1554_2009-08-06.html">NLB Infopedia 的 Michael Fay 条目</a>。Shared Values 的日期、五条原文和两处修改，取自 <a href="https://eresources.nlb.gov.sg/infopedia/articles/SIP_542_2004-12-18.html">NLB Infopedia 的 Shared Values 条目</a>。Bangkok Declaration 的会期和第 4、5、7、8、10 段，取自 <a href="https://www.hurights.or.jp/archives/other_documents/section1/1993/04/final-declaration-of-the-regional-meeting-for-asia-of-the-world-conference-on-human-rights.html">HURIGHTS OSAKA 存档的全文</a>。访谈发表在 <em>Foreign Affairs</em> 这一点取自 <a href="https://web.mit.edu/17.577/www/week4.html">MIT 17.577 的课程页</a>的书目；访谈内容只读到 <a href="https://seasia.yale.edu/node/1147">Yale 一门东南亚课程网站上的学生回应文章</a>的转述，<em>Foreign Affairs</em> 原文没有读到，刊出的期号也没有核实；Kim Dae-jung 同年的回应文章没有抓到，所以没有写。Sen 的论证、数字和引文取自 <a href="https://media-1.carnegiecouncil.org/cceia/254_sen.pdf">讲稿全文</a>。A1 至 A3 的重构、Asian values 一方的回应、和 Hart–Devlin 的对应表，是我写的。</p>
+</aside>
+
+</section>
+<section class="plain" id="sec-9"><h2>真题走读：待补</h2><p>这一页还没有对着往年卷子核过，所以没有真题走读，各站的等级标准也是按“能做什么”而不是“能做对哪道题”写的。图书馆的卷子需要 NUSNET 登录才能读。补上之后这一节会换成一道跨站的真题，从头走到尾。</p>
+<p>在那之前，复习以课程自己的 reading list、seminar 讨论和讲义为准，这一页只负责把每一站的道理讲通。</p>
+</section>
+<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links"><li><a href="https://ocw.mit.edu/courses/24-235j-philosophy-of-law-spring-2012/pages/reading-notes/" rel="noopener">MIT 24.235J Philosophy of Law（Spring 2012）reading notes：Session 2（Austin）、Session 3（Hart）、Session 4（Dworkin）、Session 18（Rawls, Two Concepts of Rules）</a><span>第 1、2、4 站的论证顺序：Rawls 的 practice 与 act、punishing the innocent 的 triad；command theory 的 objection、红灯的三种 viewpoint、三个 defect 与三种 secondary rule；Dworkin 的六步 argument 与 discretion 的三种 sense。四份 PDF 都读完了。</span></li><li><a href="https://justiceharvard.org/class1/" rel="noopener">Harvard Justice（Sandel）Class 1 页面：The Queen v. Dudley and Stephens judgment 与 Bentham 节选</a><span>第 1 站的 case 事实和 Coleridge 的推理。页面上没有逐字稿，读的是 judgment 和 Bentham 节选。</span></li><li><a href="https://www.law.nyu.edu/sites/default/files/Hart%2C%20H.%20L.%20A.%20%281958%29%20%27Positivism%20and%20the%20Separation%20of%20Law%20and%20Morals%27%20Harvard%20Law%20Review%20Vol.%2071%2C%20No.%204%20%281958%29%20pp.%20593-629.pdf" rel="noopener">H. L. A. Hart, Positivism and the Separation of Law and Morals（1958）；Lon Fuller, Positivism and Fidelity to Law（1958）</a><span>第 3、4 站：grudge informer、vehicle in the park、Fuller 对 Nazi law 的描述和 truck memorial。两篇都只读了前 10 万字符（Hart 一文几乎全文，Fuller 一文缺最后一部分）。</span></li><li><a href="https://plato.stanford.edu/ENTRIES/legal-positivism/" rel="noopener">Stanford Encyclopedia of Philosophy：Legal Positivism（Green 与 Adams，2025 修订）、Natural Law Theories（Finnis，2025 修订）、Retributive Justice（Walen）、The Limits of Law（Stanton-Ife）、Feminist Philosophy of Law（Francis，2025）、Economic Analysis of Law（Kornhauser，2006 存档版）</a><span>各站的定义和各方立场的表述以这些条目为准。The Limits of Law 与 Feminist Philosophy of Law 只读了前 10 万字符。</span></li><li><a href="https://core.ac.uk/download/80501556.pdf" rel="noopener">Lawrence Solum, On the Indeterminacy Crisis（1987）；Duncan Kennedy, Form and Substance in Private Law Adjudication（1976）</a><span>第 7 站。两篇都只读了前 10 万字符（Kennedy 一文共约 28 万字符）。</span></li><li><a href="https://media-1.carnegiecouncil.org/cceia/254_sen.pdf" rel="noopener">Amartya Sen, Human Rights and Asian Values（Morgenthau Memorial Lecture，1997）</a><span>第 8 站对 Asian values thesis 的主要反驳。全文读过。</span></li></ul></section>
+
+
+<section class="plain" id="src"><h2>来源</h2><ul class="links"><li><a href="https://nusmods.com/courses/LC1002A" rel="noopener">NUSMods：LC1002A 课程描述（AY26/27）</a></li><li><a href="https://nycourts.gov/reporter/archives/riggs_palmer.htm" rel="noopener">Riggs v. Palmer, 115 N.Y. 506（1889），New York Court of Appeals judgment </a></li><li><a href="https://melaproject.org/sites/default/files/2019-01/ECtHR%2C%20Streletz%2C%20Kessler%20and%20Krenz%20v.%20Germany%20%28Appl.%20No.%2034044%3A96%29%2C%20Judgment%20%28Grand%20Chamber%29%2C%2022%20March%202001.pdf" rel="noopener">Streletz, Kessler and Krenz v. Germany（ECtHR Grand Chamber，2001 年 3 月 22 日）</a></li><li><a href="https://www.shastriinstitute.org/sites/default/files/Coase.pdf" rel="noopener">Ronald Coase, The Problem of Social Cost（1960）</a></li><li><a href="https://law.justia.com/cases/federal/appellate-courts/F2/159/169/1565896" rel="noopener">United States v. Carroll Towing Co., 159 F.2d 169（2d Cir. 1947）</a></li><li><a href="https://www.mha.gov.sg/media-room/newsroom/second-reading-of-penal-code-amendment-bill/" rel="noopener">MHA：Second Reading of Penal Code (Amendment) Bill，Minister K Shanmugam 的发言（2022 年 11 月 28 日）</a></li><li><a href="https://eresources.nlb.gov.sg/infopedia/articles/SIP_542_2004-12-18.html" rel="noopener">NLB Infopedia：Shared Values；Michael Fay</a></li></ul></section>
+</div></div></main>
+<footer class="foot">
+  <p>讲义是按公开课、课程大纲和可查到的往年卷子写的自学笔记，不是任何课程的官方材料，可能有错。往年卷子的原题不在本站，页面里给的是图书馆的链接。</p>
+  <p>等级是你自己点的，只存在这台设备的浏览器里。</p>
+</footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
