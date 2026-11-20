@@ -126,7 +126,6 @@ function shell({ title, root, body, line, cls = '' }) {
     <a href="${root}index.html#lines">全部课程</a>
     <a href="${root}index.html#threads">概念线</a>
     <a href="${root}labs.html">动手做</a>
-    <a href="${root}frontier.html">前沿公开课</a>
     <a href="${root}index.html#how">怎么用</a>
   </nav>
 </header>

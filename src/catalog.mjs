@@ -18,6 +18,7 @@ export const lines = [
   { id: 'hist', name: '历史', color: '#A8870A', dark: '#E3C348' },
   { id: 'pol', name: '政治与法律', color: '#4D5FC4', dark: '#93A2F2' },
   { id: 'econ', name: '经济与社会', color: '#D1603D', dark: '#F2977B' },
+  { id: 'front', name: '前沿公开课', color: '#C2410C', dark: '#FB923C' },
   { id: 'life', name: '生命科学', color: '#2E8B57', dark: '#6FD39A' },
   { id: 'phys', name: '物理与地球', color: '#3B6E8F', dark: '#82B4D6' },
   { id: 'arts', name: '语言、文学与艺术', color: '#9A4C9E', dark: '#D493D8' },
@@ -239,6 +240,22 @@ const C = [
   ['SIO-210', '物理海洋学导论', 'Introduction to Physical Oceanography (Scripps)', 'geo'],
   ['MIT-12.800', '海气流体力学', 'Fluid Dynamics of the Atmosphere and Ocean (MIT)', 'geo'],
   ['MIT-12.802', '海气波动', 'Wave Motion in the Ocean and the Atmosphere (MIT)', 'geo'],
+  // ---- 前沿公开课：各校最新一期、材料公开的课，写成完整讲义（含作业提示） ----
+  ['KARPATHY-Z2H', 'Zero to Hero', 'Neural Networks: Zero to Hero (Karpathy)', 'front'],
+  ['STANFORD-CS336', '从零构建语言模型', 'Language Modeling from Scratch (Stanford CS336)', 'front'],
+  ['NYU-REASONERS', 'LLM 推理与后训练', 'Building LLM Reasoners (NYU)', 'front'],
+  ['STANFORD-CS329Z', 'AI agent 工程', 'Engineering AI Agents (Stanford CS329Z)', 'front'],
+  ['BERKELEY-AGENTIC', 'Agentic AI', 'Agentic AI (Berkeley CS294/194-196)', 'front'],
+  ['MIT-6.S184', 'Flow matching 与 diffusion', 'Introduction to Flow Matching and Diffusion Models (MIT 6.S184)', 'front'],
+  ['CORNELL-CS5788', '生成模型导论', 'Introduction to Generative Models (Cornell CS5788)', 'front'],
+  ['MIT-6.S978', '深度生成模型', 'Deep Generative Models (MIT 6.S978)', 'front'],
+  ['NW-MODERNROBOTICS', 'Modern Robotics', 'Modern Robotics: Mechanics, Planning, and Control (Northwestern)', 'front'],
+  ['MIT-6.4210', '机器人操作', 'Robotic Manipulation (MIT 6.4210)', 'front'],
+  ['MIT-6.8210', '欠驱动机器人', 'Underactuated Robotics (MIT 6.8210)', 'front'],
+  ['BERKELEY-CS285', '深度强化学习', 'Deep Reinforcement Learning (Berkeley CS285)', 'front'],
+  ['STANFORD-CS224R', '深度强化学习（Stanford）', 'Deep Reinforcement Learning (Stanford CS224R)', 'front'],
+  ['STANFORD-CS237B', '机器人自主性 II', 'Principles of Robot Autonomy II (Stanford CS237B)', 'front'],
+  ['HF-LEROBOT', 'LeRobot 与 VLA', 'Robotics Course and LeRobot (Hugging Face)', 'front'],
 ];
 
 export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, line }));
@@ -296,6 +313,13 @@ const K = {
   LC1002A: ['GEX1015', 'PH2203'],
   // 物理海洋：CE3132 → CE5312 是官方先修，其余为内容衔接；公开课连向它对照的 NUS 课
   CE5312: ['CE3132'], CE5721A: ['PC3238', 'MIT-12.802'], CE5308A: ['CE5721A', 'CE5312'],
+  // 前沿公开课的衔接（内容上，非官方）
+  'KARPATHY-Z2H': ['CS2109S'], 'STANFORD-CS336': ['KARPATHY-Z2H', 'CS4248'], 'NYU-REASONERS': ['STANFORD-CS336', 'CS4246'],
+  'STANFORD-CS329Z': ['STANFORD-CS336'], 'BERKELEY-AGENTIC': ['STANFORD-CS329Z'],
+  'MIT-6.S184': ['ST2131', 'CS3244'], 'CORNELL-CS5788': ['CS3244'], 'MIT-6.S978': ['MIT-6.S184', 'CORNELL-CS5788'],
+  'NW-MODERNROBOTICS': ['RB2202'], 'MIT-6.4210': ['NW-MODERNROBOTICS'], 'MIT-6.8210': ['RB2203', 'MIT-6.4210'],
+  'BERKELEY-CS285': ['CS4246'], 'STANFORD-CS224R': ['CS4246'], 'STANFORD-CS237B': ['RB4301'],
+  'HF-LEROBOT': ['RB4301', 'MIT-6.S184'],
   GE3255: ['GE2103'], 'MIT-12.802': ['MIT-12.800'], 'MIT-12.800': ['PC3238'],
 };
 
