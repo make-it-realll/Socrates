@@ -166,8 +166,9 @@ a.st:hover .st-code, a.st:focus-visible .st-code { text-decoration: underline; }
 .blk-edge { border-left-style: dotted; }
 .blk-exam { border-left-color: var(--line); background: color-mix(in srgb, var(--line) 8%, var(--card)); }
 .blk-exam .blk-k { color: var(--line); }
-.blk-skip, .blk-back { background: none; border-left: 0; padding: 0; font-size: .92rem; color: var(--mute); }
-.blk-back { padding-top: .7rem; border-top: 1px dashed var(--rule); border-radius: 0; }
+.blk-skip, .blk-back, .blk-from { background: none; border-left: 0; padding: 0; font-size: .92rem; color: var(--mute); }
+.blk-back, .blk-from { padding-top: .7rem; border-top: 1px dashed var(--rule); border-radius: 0; }
+.blk-back + .blk-from { border-top: 0; padding-top: 0; margin-top: -.6rem; }
 .blk-note { border-left-color: var(--line); }
 
 .fig { margin: 1.6rem 0; padding: 1rem 1rem .8rem; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; }
@@ -205,6 +206,8 @@ a.st:hover .st-code, a.st:focus-visible .st-code { text-decoration: underline; }
 .fig-svg .i { font-style: italic; font-family: KaTeX_Math, "Times New Roman", serif; font-size: 1.1em; }
 .fig-svg .sup, .fig-svg .sub { font-size: 9.5px; }
 
+blockquote { margin: 1.3rem 0; padding: .7rem 1.2rem; border-left: 5px solid var(--line); background: var(--card); border-radius: 0 10px 10px 0; font-weight: 600; }
+blockquote p { margin: 0 !important; }
 .math-d { margin: 1.1rem 0; overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
 .katex { font-size: 1.06em; }
 .tbl { overflow-x: auto; margin: 1.2rem 0; }

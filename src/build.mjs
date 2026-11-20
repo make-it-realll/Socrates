@@ -31,6 +31,7 @@ const BLOCKS = {
   exam: '真题走读',
   skip: '可以跳过吗',
   back: '回头看',
+  from: '讲法来源',
   note: '',
 };
 
