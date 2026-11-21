@@ -1,4 +1,11 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, axes } from '../lib/svg.mjs';
+import { svg, svgA, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, axes } from '../lib/svg.mjs';
+
+// 动图小工具：durs 是每一帧停留的秒数 → keyTimes；on[k] 决定第 k 帧显示不显示
+const frames = (durs) => { const T = durs.reduce((a, b) => a + b, 0); let acc = 0; const kt = durs.map((v) => { const t = acc / T; acc += v; return t; }); return { kt, T }; };
+const sText = (x, y, s, cls, anchor, on, F) => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, F.kt, F.T)}</text>`;
+const sPath = (dd, cls, on, F) => `<path d="${dd}" class="${cls}">${ashow(on, F.kt, F.T)}</path>`;
+const sRect = (x, y, w, h, cls, rx, on, F) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" class="${cls}">${ashow(on, F.kt, F.T)}</rect>`;
+const sCircle = (x, y, r, cls, on, F) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" class="${cls}">${ashow(on, F.kt, F.T)}</circle>`;
 
 // T(n) = 3T(n/2) + n，n = 8 的 recursion tree，右边是每层的 sum
 function rtree() {
@@ -230,28 +237,61 @@ function huffman() {
 
 // dynamic table：实际 cost、potential、amortized cost
 function potential() {
-  const actual = [1, 2, 3, 1, 5, 1, 1, 1, 9];
-  const phi = [1, 2, 2, 4, 2, 4, 6, 8, 2];
-  const amort = [2, 3, 3, 3, 3, 3, 3, 3, 3];
-  const sx = lin(0.4, 9.6, 70, 400), sy = lin(0, 10, 236, 30);
-  let o = axes({ sx, sy, x0: 0.4, x1: 9.6, y0: 0, y1: 10, xt: [1, 2, 3, 4, 5, 6, 7, 8, 9], yt: [2, 4, 6, 8, 10], grid: false });
+  const N = 9;
+  const caps = [], actual = [], phi = [], amort = [];
+  { let size = 0, cap = 0, ph = 0;
+    for (let i = 1; i <= N; i++) {
+      let c = 1;
+      if (size === cap) { c += size; cap = Math.max(1, 2 * cap); }
+      size++; const p = 2 * size - cap;
+      caps.push(cap); actual.push(c); amort.push(c + p - ph); phi.push(p); ph = p;
+    } }
+  const fr = [N, ...Array.from({ length: N }, (_, k) => k + 1)]; // 第几次 insert 之后
+  const F = frames(fr.map((i, j) => (j === 0 ? 3.4 : i === N ? 2 : actual[i - 1] > 1 ? 1.9 : 1.1)));
+  const upto = (i) => fr.map((m) => m >= i);
+  const at = (i) => fr.map((m, j) => j > 0 && m === i);
+  let o = '';
+  // ---- 上：array 本身 ----
+  const cw = 26, ax = 92, yOld = 34, yNew = 92;
+  o += text(ax - 10, yOld + 17, '旧 array', 'ts', 'end') + text(ax - 10, yNew + 17, 'array', 'ts', 'end');
+  fr.forEach((i, j) => {
+    const on = fr.map((_, m) => m === j), cap = caps[i - 1], prev = i > 1 ? caps[i - 2] : 0, copied = actual[i - 1] - 1;
+    let q = '';
+    if (copied > 0) {
+      for (let k = 0; k < prev; k++) q += rect(ax + k * cw, yOld, cw, 24, 'wash2') + text(ax + k * cw + cw / 2, yOld + 17, String(k + 1), 'ts', 'middle');
+      q += arrow(ax + prev * cw / 2, yOld + 28, ax + prev * cw / 2, yNew - 4, 'ln', 6);
+      q += text(ax + prev * cw / 2 + 10, yOld + 46, `满了：开 ${cap} 格的新 array，copy ${copied} 个`, 'tl');
+    } else q += text(ax, yOld + 17, i === 1 ? 'capacity 0 → 1：开 1 格' : '还有空位，不用 copy', 'ts');
+    for (let k = 0; k < cap; k++) {
+      const cls = k === i - 1 ? 'wash-strong' : k < i - 1 ? (k < copied ? 'wash' : 'paper') : 'paper';
+      q += rect(ax + k * cw, yNew, cw, 24, cls) + (k < i ? text(ax + k * cw + cw / 2, yNew + 17, String(k + 1), k === i - 1 ? 'tb' : 't', 'middle') : '');
+    }
+    q += text(ax, yNew + 42, `insert 第 ${i} 个：size ${i}，capacity ${cap}，实际 cost = ${copied ? 'copy ' + copied + ' + 写 1 = ' : ''}${actual[i - 1]}，Φ = 2·${i} − ${cap} = ${phi[i - 1]}`, 't');
+    o += `<g>${q}${ashow(on, F.kt, F.T)}</g>`;
+  });
+  // ---- 下：同步的 plot ----
+  const top = 160;
+  const sx = lin(0.4, 9.6, 70, 400), sy = lin(0, 10, top + 206, top + 0);
+  o += axes({ sx, sy, x0: 0.4, x1: 9.6, y0: 0, y1: 10, xt: [1, 2, 3, 4, 5, 6, 7, 8, 9], yt: [2, 4, 6, 8, 10], grid: false });
   for (const v of [2, 4, 6, 8, 10]) o += line(sx(0.4), sy(v), sx(9.6), sy(v), 'grid');
   actual.forEach((c, k) => {
     const x = sx(k + 1);
-    o += rect(x - 12, sy(c), 24, sy(0) - sy(c), 'wash') + rect(x - 12, sy(c), 24, sy(0) - sy(c), 'frame');
-    if (c >= 5) o += text(x, sy(c) - 5, String(c), 'ts', 'middle');
+    o += `<g>${rect(x - 12, sy(c), 24, sy(0) - sy(c), 'wash') + rect(x - 12, sy(c), 24, sy(0) - sy(c), 'frame')}${c >= 5 ? text(x, sy(c) - 5, String(c), 'ts', 'middle') : ''}${ashow(upto(k + 1), F.kt, F.T)}</g>`;
+    o += sRect(x - 12, sy(c), 24, sy(0) - sy(c), 'wash-strong', 0, at(k + 1), F);
   });
-  o += path(d(amort.map((v, k) => [sx(k + 1), sy(v)])), 'dash');
-  o += path(d(phi.map((v, k) => [sx(k + 1), sy(v)])), 'ln');
-  phi.forEach((v, k) => { o += circle(sx(k + 1), sy(v), 3.5, 'ln-f'); });
-  o += text(sx(9.6), 268, 'insert 第几次', 'ts', 'end');
-  const lx = 420;
-  o += rect(lx, 44, 18, 12, 'wash') + rect(lx, 44, 18, 12, 'frame') + text(lx + 26, 54, '实际 cost', 't');
-  o += line(lx, 80, lx + 18, 80, 'ln') + circle(lx + 9, 80, 3.5, 'ln-f') + text(lx + 26, 84, 'Φ = 2·size − cap', 't');
-  o += line(lx, 110, lx + 18, 110, 'dash') + text(lx + 26, 114, 'amortized cost', 't');
-  o += text(lx, 150, '第 5 次：copy 4 个', 'ts') + text(lx, 166, '实际 5，Φ 从 4 掉到 2', 'ts') + text(lx, 182, '5 + (2 − 4) = 3', 'tb');
-  o += text(lx, 208, '第 9 次：copy 8 个', 'ts') + text(lx, 224, '实际 9，Φ 从 8 掉到 2', 'ts') + text(lx, 240, '9 + (2 − 8) = 3', 'tb');
-  return svg(560, 276, o, '连续 9 次 insert 的实际 cost、potential 和 amortized cost：doubling 时实际 cost 跳到 3、5、9，potential 同时下降，amortized cost 一直是 3');
+  for (let k = 1; k < N; k++) {
+    o += sPath(d([[sx(k), sy(amort[k - 1])], [sx(k + 1), sy(amort[k])]]), 'dash', upto(k + 1), F);
+    o += sPath(d([[sx(k), sy(phi[k - 1])], [sx(k + 1), sy(phi[k])]]), 'ln', upto(k + 1), F);
+  }
+  phi.forEach((v, k) => { o += sCircle(sx(k + 1), sy(v), 3.5, 'ln-f', upto(k + 1), F); });
+  o += text(sx(9.6), top + 238, 'insert 第几次', 'ts', 'end');
+  const lx = 420, ly = top + 14;
+  o += rect(lx, ly, 18, 12, 'wash') + rect(lx, ly, 18, 12, 'frame') + text(lx + 26, ly + 10, '实际 cost', 't');
+  o += line(lx, ly + 36, lx + 18, ly + 36, 'ln') + circle(lx + 9, ly + 36, 3.5, 'ln-f') + text(lx + 26, ly + 40, 'Φ = 2·size − cap', 't');
+  o += line(lx, ly + 66, lx + 18, ly + 66, 'dash') + text(lx + 26, ly + 70, 'amortized cost', 't');
+  o += text(lx, ly + 106, '第 5 次：copy 4 个', 'ts') + text(lx, ly + 122, '实际 5，Φ 从 4 掉到 2', 'ts') + text(lx, ly + 138, '5 + (2 − 4) = 3', 'tb');
+  o += text(lx, ly + 164, '第 9 次：copy 8 个', 'ts') + text(lx, ly + 180, '实际 9，Φ 从 8 掉到 2', 'ts') + text(lx, ly + 196, '9 + (2 − 8) = 3', 'tb');
+  return svgA(560, top + 246, o, '动图：连续 9 次 insert。上面是 array 本身：满了就开两倍大的新 array 并 copy；下面同步画出实际 cost、potential Φ 和 amortized cost。Doubling 时实际 cost 跳到 2、3、5、9，Φ 同时下降，amortized cost 一直是 3');
 }
 
 // 3-SAT → Independent Set 的 gadget
@@ -313,29 +353,42 @@ function split() {
 function knap0() {
   let o = '';
   const items = [[6, 30], [3, 14], [4, 16], [2, 9]];
-  const sx = lin(0, 10, 150, 520);
+  const sx = lin(0, 13, 150, 522);
   o += text(20, 22, '容量 10。四件物品（weight, value）与每单位 weight 的 value：', 'ts');
   items.forEach(([w, v], i) => { o += text(20 + i * 134, 44, `${i + 1}：(${w}, ${v})，${+(v / w).toFixed(2)}`, 't'); });
-  const row = (y, title, pick, note) => {
-    o += text(140, y + 17, title, 'tb', 'end') + text(140, y + 33, note, 'ts', 'end');
-    let x = 0, val = 0;
-    for (const i of pick) {
-      const [w, v] = items[i];
-      o += rect(sx(x) + 1, y + 2, sx(x + w) - sx(x) - 2, 24, 'wash', 3) + text((sx(x) + sx(x + w)) / 2, y + 19, `${i + 1}：w ${w}，v ${v}`, 't', 'middle');
-      x += w; val += v;
-    }
-    if (x < 10) o += rect(sx(x) + 1, y + 2, sx(10) - sx(x) - 2, 24, 'dash', 3);
-    o += rect(sx(0), y, sx(10) - sx(0), 28, 'frame');
-    o += text(sx(10) + 8, y + 19, String(val), 'tl');
-    return x;
-  };
-  row(74, '按比值从高到低', [0, 1], '再装哪件都超重');
-  row(134, '第 1 件 + 第 3 件', [0, 2], 'weight 正好 10');
-  o += line(sx(0), 182, sx(10), 182, 'axis');
-  for (let t = 0; t <= 10; t++) o += line(sx(t), 182, sx(t), 186, 'axis') + text(sx(t), 199, String(t), 'ts', 'middle');
-  o += text(sx(10), 214, 'weight', 'ts', 'end');
-  o += text(20, 236, '上面一行剩下 1 个单位的容量（虚线框）用不上：44 < 46。', 'ts');
-  return svg(560, 248, o, '容量为 10 的 knapsack：按比值装得到第 1、2 件，value 44，剩 1 个单位；装第 1、3 件正好装满，value 46');
+  // 第一行：按比值逐件试
+  const order = [0, 1, 3, 2];
+  const tries = []; { let x = 0, val = 0; for (const i of order) { const [w, v] = items[i], ok = x + w <= 10; tries.push({ i, x, ok, val: ok ? val + v : val }); if (ok) { x += w; val += v; } } }
+  const fr = [tries.length, 0, 1, 2, 3, tries.length]; // 看到第几次尝试（tries.length = 全部做完）
+  const F = frames([3.2, 1.4, 1.4, 1.6, 1.6, 1.6]);
+  const y = 74, y2 = 134, box = (x0, w, i, cls) => rect(sx(x0) + 1, y + 2, sx(x0 + w) - sx(x0) - 2, 24, cls, 3) + text((sx(x0) + sx(x0 + w)) / 2, y + 19, `${i + 1}：w ${w}，v ${items[i][1]}`, 't', 'middle');
+  o += text(140, y + 17, '按比值从高到低', 'tb', 'end');
+  tries.forEach((t, k) => {
+    const [w] = items[t.i];
+    if (t.ok) o += `<g>${box(t.x, w, t.i, 'wash')}${ashow(fr.map((m) => m > k), F.kt, F.T)}</g>`;
+    else o += `<g>${rect(sx(t.x) + 1, y + 2, sx(t.x + w) - sx(t.x) - 2, 24, 'dash', 3)}${text(sx(10) + 6, y + 44, `第 ${t.i + 1} 件（w ${w}）伸出容量`, 'ts', 'start')}${ashow(fr.map((m, j) => j > 0 && m === k), F.kt, F.T)}</g>`;
+  });
+  o += sRect(sx(9) + 1, y + 2, sx(10) - sx(9) - 2, 24, 'dash', 3, fr.map((m) => m === tries.length), F);
+  o += rect(sx(0), y, sx(10) - sx(0), 28, 'frame');
+  const msgs = tries.map((t) => { const [w, v] = items[t.i], r = +(v / w).toFixed(2); return t.ok ? `第 ${t.i + 1} 件（比值 ${r}）：${t.x} + ${w} = ${t.x + w} ≤ 10，装进去` : `第 ${t.i + 1} 件（比值 ${r}）：${t.x} + ${w} = ${t.x + w} > 10，装不下`; });
+  fr.forEach((m, j) => {
+    const on = fr.map((_, q) => q === j);
+    o += sText(140, y + 33, m === tries.length ? '再装哪件都超重' : `已装 ${tries[m].x}`, 'ts', 'end', on, F);
+    const val = m === tries.length ? tries[tries.length - 1].val : (m > 0 ? tries[m - 1].val : 0);
+    o += sText(552, y + 19, String(val), 'tl', 'end', on, F);
+    o += sText(20, 236, m === tries.length ? '上面一行剩下 1 个单位的容量（虚线框）用不上：44 < 46。' : msgs[m], m === tries.length ? 'ts' : 't', 'start', on, F);
+  });
+  // 第二行
+  o += text(140, y2 + 17, '第 1 件 + 第 3 件', 'tb', 'end') + text(140, y2 + 33, 'weight 正好 10', 'ts', 'end');
+  o += rect(sx(0) + 1, y2 + 2, sx(6) - sx(0) - 2, 24, 'wash', 3) + text((sx(0) + sx(6)) / 2, y2 + 19, '1：w 6，v 30', 't', 'middle');
+  o += rect(sx(6) + 1, y2 + 2, sx(10) - sx(6) - 2, 24, 'wash', 3) + text((sx(6) + sx(10)) / 2, y2 + 19, '3：w 4，v 16', 't', 'middle');
+  o += rect(sx(0), y2, sx(10) - sx(0), 28, 'frame') + text(552, y2 + 19, '46', 'tl', 'end');
+  // 容量线和尺子
+  o += line(sx(10), y - 8, sx(10), y, 'ln') + line(sx(10), y + 28, sx(10), y2, 'ln') + line(sx(10), y2 + 28, sx(10), 182, 'ln') + text(sx(10) + 4, y - 10, '容量 10', 'tl', 'start') + text(552, y - 10, 'value', 'ts', 'end');
+  o += line(sx(0), 182, sx(13), 182, 'axis');
+  for (let t = 0; t <= 13; t++) o += line(sx(t), 182, sx(t), 186, 'axis') + text(sx(t), 199, String(t), 'ts', 'middle');
+  o += text(sx(13), 214, 'weight', 'ts', 'end');
+  return svgA(560, 248, o, '动图：容量为 10 的 knapsack，按每单位 weight 的 value 从高到低逐件试：第 1、2 件装得下，第 4、3 件都超重，最后 value 44 且剩 1 个单位；下面装第 1、3 件正好装满，value 46');
 }
 
 // ---------- lower_bound 的逐步执行，以及 lo = mid 的死循环 ----------
@@ -492,22 +545,37 @@ function eft() {
   let o = '';
   const iv = { p: [0, 4], q: [1, 3], r: [4, 7], s: [3, 6], t: [7, 9], u: [6, 10], v: [9, 12], w: [10, 13], x: [2, 8] };
   const order = Object.keys(iv).sort((a, b) => iv[a][1] - iv[b][1]);
-  const sx = lin(0, 13, 110, 500), rh = 22, y0 = 30;
-  let last = -Infinity; const chosen = [];
-  order.forEach((k, r) => {
-    const [s, f] = iv[k], take = s >= last, y = y0 + r * rh;
-    if (take) { chosen.push(k); last = f; }
+  const sx = lin(0, 13, 110, 500), rh = 22, y0 = 30, n = order.length;
+  let last = -Infinity; const chosen = [], st = [];
+  order.forEach((k) => { const [s, f] = iv[k], take = s >= last; st.push({ k, s, f, take, last }); if (take) { chosen.push(k); last = f; } });
+  const fr = [n, ...Array.from({ length: n }, (_, r) => r)]; // 正在看第 r 行（n = 全部看完）
+  const F = frames(fr.map((m, j) => (j === 0 ? 3.2 : 1.3)));
+  const seen = (r) => fr.map((m) => m >= r), cur = (r) => fr.map((m, j) => j > 0 && m === r);
+  st.forEach(({ k, s, f, take }, r) => {
+    const y = y0 + r * rh;
+    o += sRect(14, y, 490, rh, 'wash', 3, cur(r), F);
     o += text(20, y + 14, k, 'tb') + text(36, y + 14, `[${s}, ${f})`, 'ts');
-    o += rect(sx(s) + 1, y + 2, sx(f) - sx(s) - 2, 16, take ? 'solid' : 'wash2', 3);
-    o += text(sx(f) + 6, y + 14, take ? '选' : '', 'tl');
+    o += rect(sx(s) + 1, y + 2, sx(f) - sx(s) - 2, 16, 'paper', 3);
+    o += sRect(sx(s) + 1, y + 2, sx(f) - sx(s) - 2, 16, take ? 'solid' : 'wash-strong', 3, fr.map((m) => m >= r), F);
+    o += sText(sx(f) + 6, y + 14, take ? '选' : '', 'tl', 'start', fr.map((m) => m >= r), F);
   });
-  for (const k of chosen) o += line(sx(iv[k][1]), y0, sx(iv[k][1]), y0 + 9 * rh, 'dash');
-  const ya = y0 + 9 * rh + 6;
+  // 选中之后留下的虚线
+  st.forEach(({ f, take }, r) => { if (take) o += sPath(d([[sx(f), y0], [sx(f), y0 + n * rh]]), 'dash', fr.map((m) => m > r), F); });
+  const ya = y0 + n * rh + 6;
   o += line(sx(0), ya, sx(13), ya, 'axis');
   for (let t = 0; t <= 13; t++) o += line(sx(t), ya, sx(t), ya + 4, 'axis') + text(sx(t), ya + 17, String(t), 'ts', 'middle');
-  o += text(20, ya + 40, '从上往下按 finish time 扫；虚线是每个选中的 interval 的结束时刻，', 'ts');
-  o += text(20, ya + 58, `之后的 interval 要从它之后开始才能选。选出 ${chosen.join(', ')}。`, 'ts');
-  return svg(560, ya + 70, o, '9 个 interval 按 finish time 排好，earliest finish time 依次选出 q、s、t、v');
+  fr.forEach((m, j) => {
+    const on = fr.map((_, q) => q === j);
+    if (m === n) {
+      o += sText(20, ya + 40, '从上往下按 finish time 扫；虚线是每个选中的 interval 的结束时刻，', 'ts', 'start', on, F);
+      o += sText(20, ya + 58, `之后的 interval 要从它之后开始才能选。选出 ${chosen.join(', ')}。`, 'ts', 'start', on, F);
+      return;
+    }
+    const { k, s, take, last: L } = st[m];
+    o += sText(20, ya + 40, `看 ${k} = [${s}, ${st[m].f})：上一个选中的 finish time 是 ${L === -Infinity ? '无' : L}`, 't', 'start', on, F);
+    o += sText(20, ya + 58, take ? (L === -Infinity ? '还没选过，选' : `${s} ≥ ${L}，不冲突，选`) : `${s} < ${L}，和已选的重叠，不选`, take ? 'tl' : 't', 'start', on, F);
+  });
+  return svgA(560, ya + 70, o, '动图：9 个 interval 按 finish time 排好，从上往下逐个看，start 不早于上一个选中的 finish time 就选，依次选出 q、s、t、v');
 }
 
 // ---------- 5-cycle 上的 independent set 与 vertex cover ----------

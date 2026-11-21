@@ -1,4 +1,10 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, esc, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 动图小工具：durs 是每一帧停留的秒数 → keyTimes；on[k] 决定第 k 帧显示不显示
+const frames = (durs) => { const T = durs.reduce((a, b) => a + b, 0); let acc = 0; const kt = durs.map((v) => { const t = acc / T; acc += v; return t; }); return { kt, T }; };
+const sText = (x, y, s, cls, anchor, on, F) => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, F.kt, F.T)}</text>`;
+const sPath = (dd, cls, on, F) => `<path d="${dd}" class="${cls}">${ashow(on, F.kt, F.T)}</path>`;
+const sRect = (x, y, w, h, cls, rx, on, F) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" class="${cls}">${ashow(on, F.kt, F.T)}</rect>`;
 
 const dot = (x, y) => circle(x, y, 2.6, 'ink-f');
 const wire = (pts, cls = 'ink') => path(d(pts), cls);
@@ -221,26 +227,52 @@ function kmap() {
 // 4-bit ripple-carry adder：carry 一级一级传，delay 随位数线性增长
 function ripple() {
   let o = '';
-  const W = 78, H = 56, y = 86, xs = [430, 310, 190, 70];
+  const W = 70, H = 56, y = 96, xs = [440, 320, 200, 80];
   const sub = (s, k) => `${s}<tspan class="sub" dy="3">${k}</tspan><tspan dy="-3">​</tspan>`;
+  // 例子：X = 0111，Y = 0001，C0 = 0 → carry 一路是 1
+  const X = [1, 1, 1, 0], Y = [1, 0, 0, 0], C = [0];
+  const S = [];
+  for (let i = 0; i < 4; i++) { const t = X[i] + Y[i] + C[i]; S.push(t & 1); C.push(t >> 1); }
+  // 帧：第 0 帧 = 全部稳定（t = 9），然后从 t = 0 一格一格走到 9
+  const ts = [9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const F = frames([2.6, 0.9, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 1.6]);
+  const ready = (t0) => ts.map((t) => t >= t0);
+  const notReady = (t0) => ts.map((t) => t < t0);
   xs.forEach((x, i) => {
-    o += rect(x, y, W, H, 'paper', 6) + text(x + W / 2, y + 24, 'Full adder', 'ts tb', 'middle') + text(x + W / 2, y + 42, 'bit ' + i, 'ts', 'middle');
-    o += arrow(x + 24, y - 30, x + 24, y - 2, 'ink') + arrow(x + 54, y - 30, x + 54, y - 2, 'ink');
-    o += text(x + 24, y - 36, sub('X', i), 't', 'middle') + text(x + 54, y - 36, sub('Y', i), 't', 'middle');
-    o += arrow(x + W / 2, y + H, x + W / 2, y + H + 30, 'ink') + text(x + W / 2, y + H + 46, sub('S', i), 'tb', 'middle');
-    o += text(x + W / 2, y + H + 64, `${2 * i + 2}t`, 'tl', 'middle');
+    const sReady = 2 * i + 2, cReady = 2 * i + 3;
+    // 正在算：sum 还没稳定时 box 涂浅底
+    o += rect(x, y, W, H, 'paper', 6) + sRect(x, y, W, H, 'wash', 6, ts.map((t) => t < sReady), F) + rect(x, y, W, H, 'frame', 6);
+    o += text(x + W / 2, y + 24, 'Full adder', 'ts tb', 'middle') + text(x + W / 2, y + 42, 'bit ' + i, 'ts', 'middle');
+    o += arrow(x + 20, y - 30, x + 20, y - 2, 'ink') + arrow(x + 50, y - 30, x + 50, y - 2, 'ink');
+    o += text(x + 20, y - 36, sub('X', i), 't', 'middle') + text(x + 50, y - 36, sub('Y', i), 't', 'middle');
+    o += text(x + 14, y - 12, String(X[i]), 'tl', 'end') + text(x + 56, y - 12, String(Y[i]), 'tl', 'start');
+    // sum
+    o += sPath(d([[x + W / 2, y + H], [x + W / 2, y + H + 28]]), 'dash', notReady(sReady), F);
+    o += `<g>${arrow(x + W / 2, y + H, x + W / 2, y + H + 30, 'ink-b')}${ashow(ready(sReady), F.kt, F.T)}</g>`;
+    o += sText(x + W / 2, y + H + 46, sub('S', i) + ' = ?', 'ts', 'middle', notReady(sReady), F);
+    o += sText(x + W / 2, y + H + 46, sub('S', i) + ' = ' + S[i], 'tb', 'middle', ready(sReady), F);
+    o += sText(x + W / 2, y + H + 64, `${sReady}t`, 'tl', 'middle', ready(sReady), F);
     // carry out 往左
     const xl = i < 3 ? xs[i + 1] + W : x - 46;
-    o += arrow(x, y + H / 2, xl + 2, y + H / 2, 'ln');
-    o += text((x + xl) / 2, y + H / 2 - 9, sub('C', i + 1), 't', 'middle') + text((x + xl) / 2, y + H / 2 + 20, `${2 * i + 3}t`, 'tl', 'middle');
+    o += sPath(d([[x, y + H / 2], [xl + 2, y + H / 2]]), 'dash', notReady(cReady), F);
+    o += `<g>${arrow(x, y + H / 2, xl + 2, y + H / 2, 'ln')}${ashow(ready(cReady), F.kt, F.T)}</g>`;
+    o += sText((x + xl) / 2, y + H / 2 - 9, sub('C', i + 1) + ' = ?', 'ts', 'middle', notReady(cReady), F);
+    o += sText((x + xl) / 2, y + H / 2 - 9, sub('C', i + 1) + ' = ' + C[i + 1], 't', 'middle', ready(cReady), F);
+    o += sText((x + xl) / 2, y + H / 2 + 20, `${cReady}t`, 'tl', 'middle', ready(cReady), F);
   });
-  o += arrow(xs[0] + W + 40, y + H / 2, xs[0] + W + 2, y + H / 2, 'ln') + text(xs[0] + W + 24, y + H / 2 - 9, sub('C', 0), 't', 'middle') + text(xs[0] + W + 24, y + H / 2 + 20, '0', 'tl', 'middle');
-  o += text(280, 24, '所有 X、Y 和 C₀ 在时刻 0 同时到达；粗体数字是每个 output 稳定下来的时刻（t = 一个 gate 的 delay）', 'ts', 'middle');
-  o += text(280, 232, 'Bit 3 的 full adder 要等 C₃，C₃ 要等 C₂，C₂ 要等 C₁：最后一个 sum 在 8t，最后一个 carry 在 9t', 'ts', 'middle');
-  return svg(560, 246, o, '四个 full adder 串成 ripple-carry adder，carry 从 bit 0 逐级传到 bit 3，各级 sum 依次在 2t、4t、6t、8t 稳定');
+  o += arrow(xs[0] + W + 40, y + H / 2, xs[0] + W + 2, y + H / 2, 'ln') + text(xs[0] + W + 24, y + H / 2 - 9, sub('C', 0) + ' = 0', 't', 'middle') + text(xs[0] + W + 24, y + H / 2 + 20, '0', 'tl', 'middle');
+  o += text(20, 22, '0111 + 0001：所有 X、Y 和 C₀ 在时刻 0 同时到达（t = 一个 gate 的 delay）', 'ts');
+  ts.forEach((t, k) => {
+    const on = ts.map((_, j) => j === k);
+    if (k === 0 || k === ts.length - 1) return;
+    o += sText(540, 44, `时刻 ${t}t`, 'tb', 'end', on, F);
+  });
+  o += sText(540, 44, '全部稳定：1000', 'tb', 'end', ts.map((_, j) => j === 0 || j === ts.length - 1), F);
+  o += text(280, 250, '浅底的 full adder 正在等右边的 carry；虚线和 ? 表示这个 output 还没稳定。', 'ts', 'middle');
+  o += text(280, 268, 'Sum 依次在 2t、4t、6t、8t 定下来，最后一个 carry 在 9t。', 'ts', 'middle');
+  return svgA(560, 278, o, '动图：0111 加 0001 的 ripple-carry adder，时刻从 0 走到 9 个 gate delay，carry 一级一级往左传，S0 到 S3 依次在 2t、4t、6t、8t 稳定，C4 在 9t 稳定');
 }
 
-// Mod-3 counter 的 state diagram，包括 unused state
 function fsm() {
   let o = '';
   const R = 28;
@@ -331,24 +363,78 @@ function trace() {
   let o = '';
   const x0 = 176, cw = 23, y0 = 54, rh = 44;
   const names = [];
-  for (let i = 0; i < 8; i++) names.push('A' + i, 'B' + i);
-  names.forEach((s, i) => { o += text(x0 + i * cw + cw / 2, 40, s, 'ts', 'middle'); });
-  o += text(x0 - 10, 40, 'access', 'ts', 'end');
-  const rowsD = [['Direct-mapped', '4 blocks × 8 bytes', 'MMMMMMMMMMMMMMMM', '0 / 16 hit'], ['2-way set-associative', '2 sets × 2 ways × 8 bytes', 'MMHHMMHHMMHHMMHH', '8 / 16 hit']];
-  rowsD.forEach(([a, b, s, res], r) => {
+  for (let i = 0; i < 8; i++) names.push(['A', i], ['B', i]);
+  // 模拟两个 cache：block = 2 words；A[i] 在 block i>>1，B[i] 在 block 4 + (i>>1)
+  const lab = (arr, blk) => `${arr}[${2 * blk}..${2 * blk + 1}]`;
+  const dm = [null, null, null, null], sa = [[null, null], [null, null]], lru = [0, 0];
+  const st = []; // 每次 access 之后的状态
+  names.forEach(([arr, i]) => {
+    const blk = (arr === 'A' ? 0 : 4) + (i >> 1), tagLab = lab(arr, i >> 1);
+    const di = blk % 4, dHit = dm[di] === tagLab; if (!dHit) dm[di] = tagLab;
+    const si = blk % 2; let w = sa[si].indexOf(tagLab); const sHit = w >= 0;
+    if (!sHit) { w = sa[si].indexOf(null); if (w < 0) w = lru[si]; sa[si][w] = tagLab; }
+    lru[si] = 1 - w;
+    st.push({ dm: [...dm], sa: sa.map((s) => [...s]), dHit, sHit, di, si, w, arr, i });
+  });
+  // 帧：0 = 全部做完；然后逐次 access
+  const idx = [15, ...names.map((_, k) => k)];
+  const F = frames(idx.map((k, j) => (j === 0 ? 3 : k === 15 ? 1.6 : 0.85)));
+  const upto = (k) => idx.map((j, f) => (f === 0 ? true : j >= k));
+  const now = (k) => idx.map((j, f) => f > 0 && j === k);
+  names.forEach(([a, i], k) => {
+    const x = x0 + k * cw;
+    o += sRect(x + 1, 30, cw - 2, 112, 'wash2', 3, now(k), F);
+    o += text(x + cw / 2, 46, a + i, 'ts', 'middle');
+  });
+  o += text(x0 - 10, 46, 'access', 'ts', 'end');
+  const rowsD = [['Direct-mapped', '4 blocks × 8 bytes', 'dHit'], ['2-way set-associative', '2 sets × 2 ways × 8 bytes', 'sHit']];
+  rowsD.forEach(([a, b, key], r) => {
     const y = y0 + r * rh;
     o += text(x0 - 10, y + 13, a, 'tb', 'end') + text(x0 - 10, y + 29, b, 'ts', 'end');
-    [...s].forEach((ch, i) => {
-      o += rect(x0 + i * cw + 2, y + 4, cw - 4, 26, ch === 'H' ? 'solid' : 'wash2', 4) + text(x0 + i * cw + cw / 2, y + 22, ch, ch === 'H' ? 'tw' : 'ts', 'middle');
+    st.forEach((s, i) => {
+      const h = s[key], on = upto(i);
+      o += sRect(x0 + i * cw + 2, y + 4, cw - 4, 26, h ? 'solid' : 'paper', 4, on, F) + sText(x0 + i * cw + cw / 2, y + 22, h ? 'H' : 'M', h ? 'tw' : 'ts', 'middle', on, F);
     });
   });
-  o += text(20, y0 + 2 * rh + 16, '上：A[i] 和 B[i] 抢同一个位置，互相把对方的 block 赶出去，16 次全部 miss。', 'ts');
-  o += text(20, y0 + 2 * rh + 34, '下：一个 set 里有两个位置，A 和 B 的 block 可以并存，每个 block 的第二个 word 都 hit。', 'ts');
+  // 两个 cache 本身：每一格里是哪个 block
+  const cy = 170, sh = 26;
+  const slot = (x, y, w, contents, hitAt, touchAt) => {
+    let q = rect(x, y, w, sh, 'paper', 3);
+    q += sRect(x, y, w, sh, 'wash-strong', 3, touchAt, F);
+    const seen = [...new Set(contents.filter(Boolean))];
+    for (const c of seen) q += sText(x + w / 2, y + 18, c, 't', 'middle', contents.map((v) => v === c), F);
+    q += sText(x + w / 2, y + 18, '空', 'ts', 'middle', contents.map((v) => !v), F);
+    return q;
+  };
+  o += text(20, cy - 8, 'Direct-mapped：index = block mod 4', 'tb');
+  for (let r = 0; r < 4; r++) {
+    o += text(36, cy + r * (sh + 4) + 18, String(r), 'ts', 'middle');
+    o += slot(52, cy + r * (sh + 4), 150, idx.map((k) => st[k].dm[r]), null, idx.map((k, f) => f > 0 && st[k].di === r));
+  }
+  o += text(300, cy - 8, '2-way：set = block mod 2', 'tb');
+  o += text(370, cy + 6, 'way 0', 'ts', 'middle') + text(480, cy + 6, 'way 1', 'ts', 'middle');
+  for (let r = 0; r < 2; r++) {
+    const yy = cy + 14 + r * (sh + 4);
+    o += text(314, yy + 18, 'set ' + r, 'ts', 'end');
+    for (let w = 0; w < 2; w++) o += slot(320 + w * 110, yy, 104, idx.map((k) => st[k].sa[r][w]), null, idx.map((k, f) => f > 0 && st[k].si === r && st[k].w === w));
+  }
+  // 状态说明
+  const msgY = 310;
+  idx.forEach((k, f) => {
+    const s = st[k], on = idx.map((_, g) => g === f);
+    if (f === 0) {
+      o += sText(20, msgY, '上：A[i] 和 B[i] 抢同一个 index，互相把对方的 block 赶出去，16 次全部 miss。', 'ts', 'start', on, F);
+      o += sText(20, msgY + 18, '下：一个 set 里有两个 way，A 和 B 的 block 可以并存，每个 block 的第二个 word 都 hit。', 'ts', 'start', on, F);
+      return;
+    }
+    const nm = `${s.arr}[${s.i}]`;
+    o += sText(20, msgY, `${nm}：direct-mapped 看 index ${s.di}，` + (s.dHit ? 'hit' : 'miss，换成 ' + s.dm[s.di]), 't', 'start', on, F);
+    o += sText(20, msgY + 18, `${nm}：2-way 看 set ${s.si}，` + (s.sHit ? 'hit' : 'miss，放进 way ' + s.w), 't', 'start', on, F);
+  });
   o += text(20, 18, 'sum += A[i] * B[i]，B 的 address 比 A 大 32；两个 cache 的总 capacity 都是 32 bytes', 'ts');
-  return svg(560, 186, o, '同一串 16 次 access：direct-mapped cache 全部 miss，capacity 相同的 2-way set-associative cache 有一半 hit');
+  return svgA(560, 332, o, '动图：同一串 16 次 access，A0 B0 A1 B1 一直到 A7 B7，下面画出两个 cache 每一格里放着哪个 block。Direct-mapped cache 里 A 和 B 的 block 落在同一个 index，互相赶出，全部 miss；capacity 相同的 2-way set-associative cache 里两者并存，一半 hit');
 }
 
-// ---------- 开头第三件事：64 × 64 的 int array，按 row 与按 column 走 ----------
 function rowcol() {
   let o = '';
   const cs = 14, R = 8, C = 16;
@@ -554,29 +640,54 @@ function latch() {
     const w = 52, h = 44;
     return path(`M${x} ${y - h / 2}Q${x + 14} ${y} ${x} ${y + h / 2}Q${x + w * 0.62} ${y + h / 2} ${x + w} ${y}Q${x + w * 0.62} ${y - h / 2} ${x} ${y - h / 2}Z`, 'paper') + circle(x + w + 5, y, 5, 'paper');
   };
-  const gx = 190, y1 = 80, y2 = 200, out = gx + 62;
+  const gx = 190, y1 = 80, y2 = 200, out = gx + 62, fx = 300, bx = 150;
+  // 逐个 gate delay 推出来的 (S, R, Q, Q′)
+  const seq = [];
+  let S = 0, R = 0, Q = 0, Qn = 1;
+  const push = (msg, dur) => seq.push({ S, R, Q, Qn, msg, dur });
+  const settle = (msgs) => { // 每个 gate delay 两个 NOR 同时按旧值更新一次
+    for (let k = 0; k < 3; k++) {
+      const q = 1 - (R | Qn), qn = 1 - (S | Q);
+      if (q === Q && qn === Qn) break;
+      Q = q; Qn = qn; push(msgs[k] || msgs[msgs.length - 1], 0.9);
+    }
+  };
+  // 第 0 帧：S 已经松开，Q 还是 1 —— 这张图要讲的就是这一刻
+  S = 0; R = 0; Q = 1; Qn = 0; push('S 已经松开，Q 还是 1：两个 output 互相撑住，记住了这个 bit', 3.0);
+  R = 1; push('R = 1', 0.9); settle(['一个 gate delay 后 Q = 0', '再一个 delay，Q′ = 1']);
+  R = 0; push('R 松开：Q 留在 0', 1.8);
+  S = 1; push('S = 1', 0.9); settle(['一个 gate delay 后 Q′ = 0', '再一个 delay，Q = 1']);
+  S = 0; push('S 松开：Q 留在 1', 1.0);
+  const F = frames(seq.map((f) => f.dur));
+  const on = (fn) => seq.map(fn);
   o += nor(gx, y1) + nor(gx, y2);
-  // 外部 input
-  o += line(90, y1 - 12, gx + 4, y1 - 12) + text(80, y1 - 8, it('R'), 't', 'end');
-  o += line(90, y2 + 12, gx + 4, y2 + 12) + text(80, y2 + 16, it('S'), 't', 'end');
-  // output
-  o += line(out, y1, 380, y1) + text(388, y1 + 5, it('Q'), 'tb');
-  o += line(out, y2, 380, y2) + text(388, y2 + 5, it('Q') + '′', 'tb');
-  // feedback：Q → 下面那个 NOR 的上 input；Q′ → 上面那个 NOR 的下 input
-  const fx = 300, bx = 150;
-  o += circle(fx, y1, 3, 'ink-f') + path(d([[fx, y1], [fx, y1 + 32], [bx, y2 - 40], [bx, y2 - 12], [gx + 4, y2 - 12]]), 'ln');
-  o += circle(fx, y2, 3, 'ink-f') + path(d([[fx, y2], [fx, y2 - 32], [bx, y1 + 40], [bx, y1 + 12], [gx + 4, y1 + 12]]), 'ink-b');
-  o += text(420, 120, 'Q = (R + Q′)′', 't') + text(420, 144, 'Q′ = (S + Q)′', 't');
-  o += text(420, 176, 'S = R = 0：', 'ts') + text(420, 192, '两个 output 互相撑住，', 'ts') + text(420, 208, '记住原来的 bit', 'ts');
-  o += text(20, 252, '两根交叉的线：Q 接回下面那个 NOR 的 input，Q′ 接回上面那个 NOR 的 input。', 'ts') + text(20, 268, 'output 又成了 input，这就是 feedback。', 'ts');
-  return svg(560, 280, o, 'SR latch：两个 NOR gate，各自的 output 接到对方的一个 input 上');
+  const wires = {
+    R: d([[90, y1 - 12], [gx + 4, y1 - 12]]),
+    S: d([[90, y2 + 12], [gx + 4, y2 + 12]]),
+    Q: d([[out, y1], [380, y1]]) + d([[fx, y1], [fx, y1 + 32], [bx, y2 - 40], [bx, y2 - 12], [gx + 4, y2 - 12]]),
+    Qn: d([[out, y2], [380, y2]]) + d([[fx, y2], [fx, y2 - 32], [bx, y1 + 40], [bx, y1 + 12], [gx + 4, y1 + 12]]),
+  };
+  for (const k of ['R', 'S', 'Q', 'Qn']) {
+    o += path(wires[k], 'mute') + sPath(wires[k], 'ln', on((f) => f[k] === 1), F);
+  }
+  o += circle(fx, y1, 3, 'ink-f') + circle(fx, y2, 3, 'ink-f');
+  o += text(80, y1 - 8, it('R'), 't', 'end') + text(80, y2 + 16, it('S'), 't', 'end');
+  o += text(388, y1 + 5, it('Q'), 'tb') + text(388, y2 + 5, it('Q') + '′', 'tb');
+  // 每根线上的 value
+  const val = (x, y, k, anchor) => [0, 1].map((v) => sText(x, y, String(v), v ? 'tl' : 'ts', anchor, on((f) => f[k] === v), F)).join('');
+  o += val(104, y1 - 18, 'R', 'middle') + val(104, y2 + 6, 'S', 'middle') + val(360, y1 - 6, 'Q', 'middle') + val(360, y2 - 6, 'Qn', 'middle');
+  o += text(420, 100, 'Q = (R + Q′)′', 't') + text(420, 124, 'Q′ = (S + Q)′', 't');
+  o += text(420, 160, '主题色粗线 = 1', 'ts') + text(420, 178, '细灰线 = 0', 'ts');
+  seq.forEach((f, k) => { o += sText(20, 256, f.msg, k === 0 ? 'tb' : 't', 'start', seq.map((_, j) => j === k), F); });
+  o += text(20, 276, 'S、R 只是短暂地给一下 1；松开以后（S = R = 0），交叉接回的两根线让 Q 保持住。', 'ts');
+  return svgA(560, 284, o, '动图：SR latch。先在 Q = 1 时 S = R = 0，output 保持；给 R 一个 1，Q 经过一个 gate delay 变成 0，再一个 delay Q′ 变成 1；松开 R 后 Q 留在 0；给 S 一个 1 再松开，Q 回到 1 并保持');
 }
 
-// ---------- Single-cycle 与 pipeline：同样三条 instruction ----------
 function overlap() {
   let o = '';
   const sx = lin(0, 24, 120, 540), bh = 22;
   const st = [['IF', 2], ['ID', 1], ['EX', 2], ['MEM', 2], ['WB', 1]];
+  const hw = ['Instr mem', 'Reg file', 'ALU', 'Data mem', 'Reg write'];
   const ins = [['lw', [1, 1, 1, 1, 1]], ['add', [1, 1, 1, 0, 1]], ['beq', [1, 1, 1, 0, 0]]];
   o += text(20, 24, '每个 stage 的 delay 用第 4 站的数字：memory 2 ns、ALU 2 ns、register file 1 ns', 'ts');
   // single-cycle：一行，三段各 8 ns
@@ -586,7 +697,7 @@ function overlap() {
     const t0 = 8 * k, used = st.reduce((s, [, dt], j) => s + (use[j] ? dt : 0), 0);
     o += rect(sx(t0), y, sx(t0 + used) - sx(t0), bh, 'wash') + rect(sx(t0), y, sx(t0 + used) - sx(t0), bh, 'frame');
     if (used < 8) o += rect(sx(t0 + used) + 2, y + 2, sx(t0 + 8) - sx(t0 + used) - 4, bh - 4, 'dash', 3);
-    o += '' + text((sx(t0) + sx(t0 + used)) / 2, y + 15, n + '：' + used + ' ns', 't', 'middle');
+    o += text((sx(t0) + sx(t0 + used)) / 2, y + 15, n + '：' + used + ' ns', 't', 'middle');
   });
   o += text(sx(24), y + 40, '24 ns', 'tl', 'end');
   // pipeline：三行，每个 stage 2 ns
@@ -605,11 +716,41 @@ function overlap() {
   o += line(sx(0), ay, sx(24), ay, 'axis');
   for (let t = 0; t <= 24; t += 2) o += line(sx(t), ay, sx(t), ay + 4, 'axis') + text(sx(t), ay + 17, String(t), 'ts', 'middle');
   o += text(sx(24), ay + 32, 'ns', 'ts', 'end');
-  o += text(20, 276, '上：每条都等满 8 ns，虚线框是用不上的时间。下：五组 hardware 同时在忙，每 2 ns 完成一条。', 'ts');
-  return svg(560, 288, o, '同样三条 instruction：single-cycle 每条 8 ns 共 24 ns；pipeline 每个 stage 2 ns，三条重叠，共 14 ns');
+  // 动画：时间指针每 1 ns 一格；第 0 帧停在 6–7 ns（pipeline 里三条同时在走）
+  const times = []; for (let t = 6; t < 24; t++) times.push(t); for (let t = 0; t <= 6; t++) times.push(t);
+  const durs = times.map((t, k) => (k === 0 ? 2.6 : t === 23 ? 1.4 : 0.55));
+  const F = frames(durs);
+  // 指针：1 ns 宽的灰带，画在最底层；轴上用实心块标出这 1 ns
+  const band = (y0, h, cls) => `<rect x="${f1(sx(times[0]))}" y="${y0}" width="${f1(sx(1) - sx(0))}" height="${h}" class="${cls}">${anim('x', times.map((t) => f1(sx(t))), F.kt, F.T, true)}</rect>`;
+  o = band(50, ay - 50, 'wash2') + o + band(ay - 3, 6, 'solid');
+  // 这一刻各块 hardware 在做哪条
+  const scAt = (t) => { // single-cycle：返回 [stage, instr] 或 null
+    const k = Math.floor(t / 8), tau = t - 8 * k; let acc = 0;
+    for (let j = 0; j < 5; j++) { if (tau < acc + st[j][1]) return ins[k][1][j] ? [j, k] : null; acc += st[j][1]; }
+    return null;
+  };
+  const plAt = (t, j) => { const k = Math.floor(t / 2) - j; return k >= 0 && k < 3 ? k : -1; };
+  const bx0 = 116, bw = 82, gap = 4, rows = [[306, 'single-cycle'], [348, 'pipeline']];
+  o += text(20, 276, '灰带所在的这 1 ns 里，五块 hardware 各在做哪条 instruction：', 'ts');
+  rows.forEach(([yy, name], r) => {
+    o += text(20, yy + 22, name, 'tb');
+    if (r === 0) hw.forEach((h, j) => { o += text(bx0 + j * (bw + gap) + bw / 2, yy - 6, st[j][0], 'ts tb', 'middle'); });
+    hw.forEach((h, j) => {
+      const x = bx0 + j * (bw + gap);
+      const busy = times.map((t) => (r === 0 ? (scAt(t)?.[0] === j) : plAt(t, j) >= 0));
+      o += rect(x, yy, bw, 36, 'paper', 4) + sRect(x, yy, bw, 36, 'wash-strong', 4, busy, F);
+      o += text(x + bw / 2, yy + 14, h, 'ts', 'middle');
+      ins.forEach(([n], k) => {
+        const onK = times.map((t) => (r === 0 ? (scAt(t)?.[0] === j && scAt(t)[1] === k) : plAt(t, j) === k));
+        o += sText(x + bw / 2, yy + 30, n, 'tb', 'middle', onK, F);
+      });
+      o += sText(x + bw / 2, yy + 30, '空闲', 'ts', 'middle', busy.map((b) => !b), F);
+    });
+  });
+  o += text(20, 408, '上：每条都等满 8 ns，任何时刻只有一块 hardware 在用。下：五块同时在忙，每 2 ns 完成一条。', 'ts');
+  return svgA(560, 416, o, '动图：同样三条 instruction，时间指针从 0 走到 24 ns。Single-cycle 每条 8 ns 共 24 ns，同一时刻只有一块 hardware 在工作；pipeline 每个 stage 2 ns，三条重叠，共 14 ns，同一时刻最多三块 hardware 同时在工作');
 }
 
-// ---------- 设定 C 下 loop 的一遍：按规则逐条排出来 ----------
 function loopC() {
   let o = '';
   // dep：[producer 下标, 'alu' | 'load']；branch 在 ID 比较

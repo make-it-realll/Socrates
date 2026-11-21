@@ -1,4 +1,11 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 动图小工具：durs 是每一帧停留的秒数 → keyTimes；on[k] 决定第 k 帧显示不显示
+const frames = (durs) => { const T = durs.reduce((a, b) => a + b, 0); let acc = 0; const kt = durs.map((v) => { const t = acc / T; acc += v; return t; }); return { kt, T }; };
+const sText = (x, y, s, cls, anchor, on, F) => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, F.kt, F.T)}</text>`;
+const sPath = (dd, cls, on, F) => `<path d="${dd}" class="${cls}">${ashow(on, F.kt, F.T)}</path>`;
+const sRect = (x, y, w, h, cls, rx, on, F) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" class="${cls}">${ashow(on, F.kt, F.T)}</rect>`;
+const sCircle = (x, y, r, cls, on, F) => `<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" class="${cls}">${ashow(on, F.kt, F.T)}</circle>`;
 
 // 共用的小零件：圆形 vertex、裁到圆边的 edge、array 的一格
 const R = 14;
@@ -188,26 +195,71 @@ function bfsdfs() {
   let o = '';
   const P = { b: [34, 30], a: [96, 30], s: [96, 100], c: [158, 100], d: [204, 46], e: [204, 154], f: [250, 100], g: [34, 154] };
   const E = [['a', 'b'], ['a', 's'], ['s', 'c'], ['c', 'd'], ['c', 'e'], ['d', 'e'], ['d', 'f'], ['e', 'f']];
-  const panel = (x0, title, tree, lab, sub) => {
+  const adj = {}; for (const k in P) adj[k] = [];
+  for (const [u, v] of E) { adj[u].push(v); adj[v].push(u); }
+  for (const k in adj) adj[k].sort();
+  // BFS：每一帧 = dequeue 一个 vertex 之后
+  const bfs = [];
+  { const D = { s: 0 }, par = {}, done = new Set(); let Q = ['s'];
+    bfs.push({ D: { ...D }, par: { ...par }, done: new Set(done), ds: [...Q], msg: '开始：s 进 queue，D = 0' });
+    while (Q.length) {
+      const u = Q.shift(), add = [];
+      for (const v of adj[u]) if (!(v in D)) { D[v] = D[u] + 1; par[v] = u; Q.push(v); add.push(v); }
+      done.add(u);
+      bfs.push({ D: { ...D }, par: { ...par }, done: new Set(done), ds: [...Q], msg: `dequeue ${u}：` + (add.length ? `放进 ${add.join('、')}，D = ${D[u] + 1}` : '没有新的 neighbor') });
+    } }
+  // DFS：每一帧 = recursion stack 变一次
+  const dfs = [];
+  { const ord = {}, par = {}, done = new Set(), stk = [], popped = []; let n = 0;
+    const snap = (msg) => { dfs.push({ D: { ...ord }, par: { ...par }, done: new Set(done), ds: [...stk], msg }); popped.length = 0; };
+    const go = (u) => {
+      ord[u] = ++n; stk.push(u); snap((popped.length ? popped.join('、') + ' return，' : '') + `visit ${u}（第 ${n} 个）`);
+      for (const v of adj[u]) if (!(v in ord)) { par[v] = u; go(v); }
+      stk.pop(); done.add(u); popped.push(u);
+    };
+    go('s'); snap(popped.join('、') + ' 全部 return，stack 空了'); }
+  const N = Math.max(bfs.length, dfs.length);
+  const pad = (arr) => [...arr, ...Array(N - arr.length).fill(arr[arr.length - 1])];
+  const Bs = pad(bfs), Ds = pad(dfs);
+  const fr = [N - 1, ...Array.from({ length: N }, (_, k) => k)];
+  const F = frames(fr.map((k, j) => (j === 0 ? 3.2 : k === N - 1 ? 1.6 : 1.1)));
+  const panel = (x0, seq, title, sub, labOf, dsName, final, inf) => {
     const Q = Object.fromEntries(Object.entries(P).map(([k, [x, y]]) => [k, [x0 + x, 48 + y]]));
+    const st = fr.map((k) => seq[k]);
     for (const [u, v] of E) {
-      const t = tree.some(([p, q]) => (p === u && q === v) || (p === v && q === u));
-      o += edge(Q[u], Q[v], t ? 'ln' : 'dash');
+      o += edge(Q[u], Q[v], 'dash');
+      o += `<g>${edge(Q[u], Q[v], 'ln')}${ashow(st.map((S) => S.par[v] === u || S.par[u] === v), F.kt, F.T)}</g>`;
     }
-    for (const k in Q) o += node(Q[k][0], Q[k][1], k, k === 's' ? 'wash ink-s' : 'paper');
-    for (const k in lab) { const [s, dx, dy, an] = lab[k]; o += text(Q[k][0] + dx, Q[k][1] + dy, s, 'tl', an); }
+    for (const k in Q) {
+      const [x, y] = Q[k];
+      o += circle(x, y, R, 'paper');
+      o += sCircle(x, y, R, 'wash-strong', st.map((S) => k in S.D && !S.done.has(k)), F);
+      o += sCircle(x, y, R, 'solid', st.map((S) => S.done.has(k)), F);
+      o += sText(x, y + 4.5, k, 't', 'middle', st.map((S) => !S.done.has(k)), F) + sText(x, y + 4.5, k, 'tw', 'middle', st.map((S) => S.done.has(k)), F);
+      const [dx, dy, an] = labOf[k];
+      const vals = [...new Set(st.map((S) => S.D[k]).filter((v) => v !== undefined))];
+      for (const v of vals) o += sText(x + dx, y + dy, String(v), 'tl', an, st.map((S) => S.D[k] === v), F);
+      if (inf) o += sText(x + dx, y + dy, '∞', 'ts', an, st.map((S) => !(k in S.D)), F);
+    }
     o += text(x0 + 140, 20, title, 'tb', 'middle') + text(x0 + 140, 38, sub, 'ts', 'middle');
+    // queue / stack 的内容
+    const yq = 238;
+    o += text(x0 + 10, yq + 15, dsName, 'ts');
+    st.forEach((S, j) => {
+      const on = st.map((_, m) => m === j);
+      let q = '';
+      S.ds.forEach((v, i) => { q += rect(x0 + 60 + i * 24, yq, 22, 22, 'wash-strong', 3) + text(x0 + 71 + i * 24, yq + 15, v, 't', 'middle'); });
+      if (!S.ds.length) q += text(x0 + 60, yq + 15, '空', 'ts');
+      o += `<g>${q}${ashow(on, F.kt, F.T)}</g>`;
+      o += sText(x0 + 10, yq + 42, j === 0 ? final : S.msg, j === 0 ? 'ts' : 't', 'start', on, F);
+    });
   };
-  panel(4, 'BFS(s)', [['s', 'a'], ['s', 'c'], ['a', 'b'], ['c', 'd'], ['c', 'e'], ['d', 'f']],
-    { s: ['D = 0', 0, 30, 'middle'], a: ['1', 20, -8, 'start'], c: ['1', 0, -20, 'middle'], b: ['2', -20, -8, 'end'], d: ['2', 0, -20, 'middle'], e: ['2', 0, 30, 'middle'], f: ['3', 0, -20, 'middle'], g: ['∞', 20, 5, 'start'] },
-    '数字是 D：从 s 出发最少要走几条 edge');
-  panel(284, 'DFS(s)', [['s', 'a'], ['a', 'b'], ['s', 'c'], ['c', 'd'], ['d', 'e'], ['e', 'f']],
-    { s: ['1', 0, 30, 'middle'], a: ['2', 20, -8, 'start'], b: ['3', -20, -8, 'end'], c: ['4', 0, -20, 'middle'], d: ['5', 0, -20, 'middle'], e: ['6', 0, 30, 'middle'], f: ['7', 0, -20, 'middle'] },
-    '数字是 visit 的先后次序');
-  o += text(280, 250, '粗线是第一次到达某个 vertex 时走的 edge，合起来是一棵 spanning tree；虚线是没用上的 edge。', 'ts', 'middle');
-  o += text(280, 267, 'Neighbor 都按字母顺序试。BFS tree 里 s 到 f 是 3 条 edge；DFS tree 里是 s → c → d → e → f，4 条。', 'ts', 'middle');
-  o += text(280, 284, '两边都到不了 g。', 'ts', 'middle');
-  return svg(560, 294, o, '同一个 undirected graph 上从 s 出发的 BFS tree 和 DFS tree：BFS 按 distance 分层，s 到 f 是 3 条 edge；DFS 一路走到底，tree 里 s 到 f 是 4 条 edge');
+  const lab = { s: [0, 30, 'middle'], a: [20, -8, 'start'], c: [0, -20, 'middle'], b: [-20, -8, 'end'], d: [0, -20, 'middle'], e: [0, 30, 'middle'], f: [0, -20, 'middle'], g: [20, 5, 'start'] };
+  panel(4, Bs, 'BFS(s)', '数字是 D：从 s 出发最少要走几条 edge', lab, 'queue', 'BFS tree 里 s 到 f 是 3 条 edge', true);
+  panel(284, Ds, 'DFS(s)', '数字是 visit 的先后次序', lab, 'stack', 'DFS tree 里是 s → c → d → e → f，4 条', false);
+  o += text(280, 306, '灰底：在 queue / recursion stack 里；深色：处理完。粗线是第一次到达某个 vertex 时走的 edge。', 'ts', 'middle');
+  o += text(280, 323, 'Neighbor 都按字母顺序试。两边都到不了 g（BFS 里它的 D 一直是 ∞）。', 'ts', 'middle');
+  return svgA(560, 332, o, '动图：同一个 undirected graph 上从 s 出发，左边 BFS 用 queue 一层一层往外，右边 DFS 用 recursion stack 一条路走到底；BFS tree 里 s 到 f 是 3 条 edge，DFS tree 里是 4 条');
 }
 
 // 一个 DAG 和它的两个 topological order
@@ -382,14 +434,43 @@ const height = (n) => (n ? 1 + Math.max(height(n.l), height(n.r)) : -1);
 // ---------- 开头第三件事：按顺序 insert 得到一条链，同样的 key 可以很矮 ----------
 function chain() {
   let o = '';
-  const A = bstFrom([1, 2, 3, 4, 5, 6, 7]), B = bstFrom([4, 2, 6, 1, 3, 5, 7]);
-  o += text(120, 22, '依次 insert 1, 2, …, 7', 'tb', 'middle') + text(120, 40, `height ${height(A)}：每个新 key 都挂在最右下角`, 'ts', 'middle');
-  o += drawTree(A, 40, 66, 27, 27);
-  o += text(410, 22, '同样 7 个 key，换一种挂法', 'tb', 'middle') + text(410, 40, `height ${height(B)}`, 'ts', 'middle');
-  o += drawTree(B, 314, 92, 32, 56);
+  const KA = [1, 2, 3, 4, 5, 6, 7], KB = [4, 2, 6, 1, 3, 5, 7];
+  const A = bstFrom(KA), B = bstFrom(KB);
+  // 帧：0 = 全部 insert 完；然后两边同步、一次 insert 一个 key
+  const steps = [7, 1, 2, 3, 4, 5, 6, 7];
+  const F = frames(steps.map((s, j) => (j === 0 ? 3 : s === 7 ? 1.8 : 1.0)));
+  const has = (pos) => steps.map((s) => s > pos); // 第 pos 个 insert 的 key 在不在
+  const isNew = (pos) => steps.map((s, j) => j > 0 && s === pos + 1);
+  const depth = (root, k) => { let c = root, dd = 0; while (c.k !== k) { c = k < c.k ? c.l : c.r; dd++; } return dd; };
+  const grow = (root, keys, ox, oy, dx, dy) => {
+    const pos = new Map(); let i = 0;
+    const walk = (n, dep) => { if (!n) return; walk(n.l, dep + 1); pos.set(n.k, [ox + i * dx, oy + dep * dy]); i++; walk(n.r, dep + 1); };
+    walk(root, 0);
+    const parent = new Map();
+    const pw = (n) => { for (const c of [n.l, n.r]) if (c) { parent.set(c.k, n.k); pw(c); } }; pw(root);
+    let q = '';
+    keys.forEach((k, j) => { if (parent.has(k)) q += `<g>${edge(pos.get(parent.get(k)), pos.get(k), 'ink', 13)}${ashow(has(j), F.kt, F.T)}</g>`; });
+    keys.forEach((k, j) => {
+      const [x, y] = pos.get(k);
+      q += `<g>${circle(x, y, 13, 'paper')}${ashow(has(j), F.kt, F.T)}</g>` + sCircle(x, y, 13, 'wash', isNew(j), F);
+      q += sText(x, y + 4.5, String(k), 't', 'middle', has(j), F);
+    });
+    // height 和这一次比较了几次
+    steps.forEach((s, j) => {
+      const on = steps.map((_, m) => m === j);
+      const h = Math.max(...keys.slice(0, s).map((k) => depth(root, k)));
+      const cmp = depth(root, keys[s - 1]);
+      q += sText(ox + 3 * dx, 40, j === 0 ? `height ${h}` : `height ${h}　insert ${keys[s - 1]}：比较了 ${cmp} 次`, 'ts', 'middle', on, F);
+    });
+    return q;
+  };
+  o += text(120, 22, '依次 insert 1, 2, …, 7', 'tb', 'middle');
+  o += grow(A, KA, 40, 66, 27, 27);
+  o += text(410, 22, '同样 7 个 key，按 4, 2, 6, 1, 3, 5, 7 insert', 'tb', 'middle');
+  o += grow(B, KB, 314, 92, 32, 56);
   o += text(280, 262, 'Search 7：左边要比 7 次，右边 3 次。', 'ts', 'middle');
   o += text(280, 280, '10⁶ 个 key 时，左边那种 height 是 999999，右边那种可以只有 19。', 'ts', 'middle');
-  return svg(560, 292, o, '依次 insert 1 到 7 得到 height 为 6 的一条链；同样 7 个 key 可以摆成 height 为 2 的满 tree');
+  return svgA(560, 292, o, '动图：两边同步一次 insert 一个 key。依次 insert 1 到 7，每个新 key 都挂在最右下角，height 一路涨到 6；按 4, 2, 6, 1, 3, 5, 7 insert，height 只有 2');
 }
 
 // ---------- Insertion sort 排 3 个 element 的 decision tree ----------
@@ -521,20 +602,72 @@ function heapTree(A, x0, y0, w, dy, hl = [], pathI = [], r = 13) {
 function shiftPanels(up) {
   let o = '';
   const base = [null, 90, 70, 80, 30, 60, 50, 20, 10, 25, 40];
-  let B, Aft, path1, h1, h2, t1, t2, note;
-  if (up) {
-    B = [...base, 85]; Aft = [null, 90, 85, 80, 30, 70, 50, 20, 10, 25, 40, 60];
-    path1 = [11, 5, 2, 1]; h1 = [11]; h2 = [2]; t1 = '放在 index 11'; t2 = 'shiftUp 之后';
-    note = '85 沿 11 → 5 → 2 往上换了两次；到 index 2 时 parent 90 不小于它，停。';
-  } else {
-    B = [null, 60, 85, 80, 30, 70, 50, 20, 10, 25, 40]; Aft = [null, 85, 70, 80, 30, 60, 50, 20, 10, 25, 40];
-    path1 = [1, 2, 5, 10]; h1 = [1]; h2 = [5]; t1 = '取走 90，60 补到 root'; t2 = 'shiftDown 之后';
-    note = '60 沿 1 → 2 → 5 往下，每次和较大的 child 换；到 index 5 时唯一的 child 40 比它小，停。';
+  const A0 = up ? [...base, 85] : [null, 60, 85, 80, 30, 70, 50, 20, 10, 25, 40];
+  const n = A0.length - 1;
+  // 逐步推出来：每一步先“比较”一帧，再“swap”一帧
+  const st = [];
+  let A = [...A0], i = up ? n : 1;
+  st.push({ A: [...A], at: i, cmp: [], swap: null, msg: up ? `85 放在最后一格 index ${n}` : '取走 90，把最后一格的 60 放到 root' });
+  for (;;) {
+    if (up) {
+      if (i === 1) break;
+      const p = i >> 1;
+      const go = A[p] < A[i];
+      st.push({ A: [...A], at: i, cmp: [p], swap: null, msg: `parent 是 index ${i} / 2 = ${p} 的 ${A[p]}：` + (go ? `${A[p]} < ${A[i]}，swap` : `${A[p]} ≥ ${A[i]}，停`) });
+      if (!go) break;
+      [A[p], A[i]] = [A[i], A[p]]; st.push({ A: [...A], at: p, cmp: [], swap: [i, p], msg: `swap 之后 ${A[p]} 在 index ${p}` }); i = p;
+    } else {
+      const ch = [2 * i, 2 * i + 1].filter((c) => c <= n);
+      if (!ch.length) break;
+      const c = ch.reduce((a, b) => (A[b] > A[a] ? b : a));
+      const go = A[c] > A[i];
+      st.push({ A: [...A], at: i, cmp: ch, swap: null, msg: (ch.length === 2 ? `child 是 index ${ch.join('、')} 的 ${ch.map((k) => A[k]).join('、')}，较大的 ${A[c]}` : `child 只有 index ${c} 的 ${A[c]}`) + (go ? ` > ${A[i]}，swap` : `，不比 ${A[i]} 大，停`) });
+      if (!go) break;
+      [A[c], A[i]] = [A[i], A[c]]; st.push({ A: [...A], at: c, cmp: [], swap: [i, c], msg: `swap 之后 ${A[c]} 在 index ${c}` }); i = c;
+    }
   }
-  o += text(140, 22, t1, 'tb', 'middle') + text(420, 22, t2, 'tb', 'middle');
-  o += heapTree(B, 10, 48, 260, 46, h1, path1, 12) + heapTree(Aft, 290, 48, 260, 46, h2, path1, 12);
-  o += text(280, 220, note, 'ts', 'middle') + text(280, 238, '粗线是它走过的 path，其余的 node 一个都没碰。', 'ts', 'middle');
-  return svg(560, 250, o, up ? 'Insert 85：放在 index 11，沿 path 往上换到 index 2' : 'ExtractMax：60 补到 root，沿 path 往下换到 index 5');
+  const pathI = up ? [11, 5, 2, 1] : [1, 2, 5, 10];
+  const fr = [st.length - 1, ...st.map((_, k) => k)];
+  const F = frames(fr.map((k, j) => (j === 0 ? 3.2 : k === st.length - 1 ? 1.8 : 1.3)));
+  const S = fr.map((k) => st[k]);
+  // tree
+  const x0 = 120, w = 320, y0 = 30, dy = 42;
+  const P = (k) => { const lv = Math.floor(Math.log2(k)), m = k - (1 << lv); return [x0 + (m + 0.5) * w / (1 << lv), y0 + lv * dy]; };
+  for (let k = 2; k <= n; k++) o += edge(P(k >> 1), P(k), pathI.includes(k) && pathI.includes(k >> 1) ? 'ln' : 'ink', 13);
+  // array
+  const cw = 38, ax = (560 - n * cw) / 2, ay = 214;
+  for (let k = 1; k <= n; k++) {
+    o += text(ax + (k - 0.5) * cw, ay - 6, String(k), 'ts', 'middle');
+    o += rect(ax + (k - 1) * cw, ay, cw, 26, 'paper');
+  }
+  o += text(ax - 8, ay + 18, 'array', 'ts', 'end') + text(ax - 8, ay - 6, 'index', 'ts', 'end');
+  const mover = up ? 85 : 60;
+  for (let k = 1; k <= n; k++) {
+    const [x, y] = P(k);
+    o += circle(x, y, 13, 'paper');
+    o += sCircle(x, y, 13, 'wash-strong', S.map((s) => s.A[k] === mover), F);
+    o += sCircle(x, y, 13, 'wash', S.map((s, j) => j > 0 && s.cmp.includes(k)), F);
+    o += sRect(ax + (k - 1) * cw, ay, cw, 26, 'wash-strong', 0, S.map((s) => s.A[k] === mover), F);
+    o += sRect(ax + (k - 1) * cw, ay, cw, 26, 'wash', 0, S.map((s, j) => j > 0 && s.cmp.includes(k)), F);
+    const vals = [...new Set(S.map((s) => s.A[k]))];
+    for (const v of vals) {
+      const on = S.map((s) => s.A[k] === v), cls = v === mover ? 'tb' : 't';
+      o += sText(x, y + 4.5, String(v), cls, 'middle', on, F) + sText(ax + (k - 0.5) * cw, ay + 18, String(v), cls, 'middle', on, F);
+    }
+  }
+  // swap：array 上方画一条弧
+  S.forEach((s, j) => {
+    if (!s.swap || j === 0) return;
+    const [a, b] = s.swap.map((k) => ax + (k - 0.5) * cw), on = S.map((_, m) => m === j);
+    o += sPath(`M${f1(a)} ${ay + 28}Q${f1((a + b) / 2)} ${ay + 50} ${f1(b)} ${ay + 28}`, 'ln', on, F);
+  });
+  const note = up ? '85 沿 11 → 5 → 2 往上换了两次；到 index 2 时 parent 90 不小于它，停。' : '60 沿 1 → 2 → 5 往下，每次和较大的 child 换；到 index 5 时唯一的 child 40 比它小，停。';
+  S.forEach((s, j) => {
+    const on = S.map((_, m) => m === j);
+    o += sText(280, 272, j === 0 ? note : s.msg, j === 0 ? 'ts' : 't', 'middle', on, F);
+  });
+  o += text(280, 290, '粗线是它走过的 path，其余的 node 一个都没碰。Tree 里 index k 的 parent 是 k / 2，children 是 2k、2k + 1。', 'ts', 'middle');
+  return svgA(560, 300, o, up ? '动图：insert 85，先放在 index 11，和 parent 比较后两次 swap 换到 index 2，上面的 tree 和下面的 array 同步变化' : '动图：extractMax，60 补到 root，每次和较大的 child 比较并 swap，两次后停在 index 5，上面的 tree 和下面的 array 同步变化');
 }
 const shiftup = () => shiftPanels(true);
 const shiftdown = () => shiftPanels(false);

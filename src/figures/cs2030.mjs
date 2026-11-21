@@ -1,4 +1,9 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, arrow, esc } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, d, path, line, rect, circle, poly, text, arrow, esc } from '../lib/svg.mjs';
+
+// 动图小工具：durs 是每一帧停留的秒数 → keyTimes；on[k] 决定第 k 帧显示不显示
+const frames = (durs) => { const T = durs.reduce((a, b) => a + b, 0); let acc = 0; const kt = durs.map((v) => { const t = acc / T; acc += v; return t; }); return { kt, T }; };
+const sText = (x, y, s, cls, anchor, on, F) => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, F.kt, F.T)}</text>`;
+const sRect = (x, y, w, h, cls, rx, on, F) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" class="${cls}">${ashow(on, F.kt, F.T)}</rect>`;
 
 // 一个 heap object：标题栏加若干行 field
 function obj(x, y, w, title, rows, cls = 'paper') {
@@ -150,28 +155,41 @@ function lazylist() {
   const names = ['alt', 'odds', 'evens'];
   const heads = ['head: () -> g(odds.head())', 'head: () -> f(evens.head())', 'head: () -> 0'];
   const tails = ['tail: () -> …', 'tail: () -> …', 'tail: () -> …'];
+  // 帧：0 = 六步都画出来；然后第 1 步到第 6 步依次出现
+  const fr = [6, 1, 2, 3, 4, 5, 6];
+  const F = frames([3.4, 1.2, 1.2, 1.4, 1.2, 1.2, 1.8]);
+  const upto = (k) => fr.map((m) => m >= k);
+  const active = [0, 1, 2, 2, 1, 0]; // 第 k 步时在算的是哪个 list 的 head
   for (let i = 0; i < 3; i++) {
     o += rect(X[i], Y, W, 76, 'paper', 6) + line(X[i], Y + 24, X[i] + W, Y + 24, 'mute');
     o += text(X[i] + W / 2, Y + 16.5, names[i], 'tb', 'middle');
-    o += rect(X[i] + 4, Y + 28, W - 8, 20, 'wash', 3) + text(X[i] + 9, Y + 42.5, esc(heads[i]), 'ts');
+    o += rect(X[i] + 4, Y + 28, W - 8, 20, 'wash', 3);
+    o += sRect(X[i] + 3, Y + 27, W - 6, 22, 'ln', 3, fr.map((m, j) => j > 0 && active[m - 1] === i), F);
+    o += text(X[i] + 9, Y + 42.5, esc(heads[i]), 'ts');
     o += text(X[i] + 9, Y + 64, esc(tails[i]), 'ts') + text(X[i] + W - 9, Y + 64, '没有运行', 'ts', 'end');
   }
+  const g = (k, body) => `<g>${body}${ashow(upto(k), F.kt, F.T)}</g>`;
   // 请求：从左到右（上方）
-  o += arrow(4, 44, 50, 62, 'dash') + text(6, 34, '① alt.head()', 't');
-  o += path(`M${X[0] + 120} 62 Q${(X[0] + 120 + X[1] + 40) / 2} 30 ${X[1] + 40} 60`, 'dash') + poly([[X[1] + 40, 61], [X[1] + 31, 57.5], [X[1] + 36, 52.5]], 'ink-f');
-  o += text((X[0] + 120 + X[1] + 40) / 2, 32, '② odds.head()', 't', 'middle');
-  o += path(`M${X[1] + 120} 62 Q${(X[1] + 120 + X[2] + 40) / 2} 30 ${X[2] + 40} 60`, 'dash') + poly([[X[2] + 40, 61], [X[2] + 31, 57.5], [X[2] + 36, 52.5]], 'ink-f');
-  o += text((X[1] + 120 + X[2] + 40) / 2, 32, '③ evens.head()', 't', 'middle');
+  o += g(1, arrow(4, 44, 50, 62, 'dash') + text(6, 34, '① alt.head()', 't'));
+  o += g(2, path(`M${X[0] + 120} 62 Q${(X[0] + 120 + X[1] + 40) / 2} 30 ${X[1] + 40} 60`, 'dash') + poly([[X[1] + 40, 61], [X[1] + 31, 57.5], [X[1] + 36, 52.5]], 'ink-f') + text((X[0] + 120 + X[1] + 40) / 2, 32, '② odds.head()', 't', 'middle'));
+  o += g(3, path(`M${X[1] + 120} 62 Q${(X[1] + 120 + X[2] + 40) / 2} 30 ${X[2] + 40} 60`, 'dash') + poly([[X[2] + 40, 61], [X[2] + 31, 57.5], [X[2] + 36, 52.5]], 'ink-f') + text((X[1] + 120 + X[2] + 40) / 2, 32, '③ evens.head()', 't', 'middle'));
   // 返回值：从右到左（下方）
   const yb = Y + 78;
-  o += path(`M${X[2] + 40} ${yb} Q${(X[1] + 120 + X[2] + 40) / 2} ${yb + 34} ${X[1] + 120} ${yb + 2}`, 'ln') + poly([[X[1] + 120, yb + 1], [X[1] + 129, yb + 4.5], [X[1] + 124, yb + 9.5]], 'ln-f');
-  o += text((X[1] + 120 + X[2] + 40) / 2, yb + 36, '④ 返回 0', 'tl', 'middle');
-  o += path(`M${X[1] + 40} ${yb} Q${(X[0] + 120 + X[1] + 40) / 2} ${yb + 34} ${X[0] + 120} ${yb + 2}`, 'ln') + poly([[X[0] + 120, yb + 1], [X[0] + 129, yb + 4.5], [X[0] + 124, yb + 9.5]], 'ln-f');
-  o += text((X[0] + 120 + X[1] + 40) / 2, yb + 36, '⑤ f(0) = 1', 'tl', 'middle');
-  o += arrow(50, yb + 2, 6, yb + 22, 'ln') + text(6, yb + 40, '⑥ g(1) = 2', 'tl');
-  o += text(280, 214, 'f 是 x -> x + 1，g 是 x -> x * 2。虚线是向 source 方向的请求，实线是算好的值往回传。', 'ts', 'middle');
-  o += text(280, 231, '三个 tail 的 Producer 都没有被调用，第二个 element 根本没有生成。', 'ts', 'middle');
-  return svg(560, 242, o, 'alt.head() 的求值：请求从 alt 传到 odds 再传到 evens，evens 的 head 返回 0，odds 对它应用 f 得到 1，alt 对它应用 g 得到 2；三个 list 的 tail 都没有被求值');
+  o += g(4, path(`M${X[2] + 40} ${yb} Q${(X[1] + 120 + X[2] + 40) / 2} ${yb + 34} ${X[1] + 120} ${yb + 2}`, 'ln') + poly([[X[1] + 120, yb + 1], [X[1] + 129, yb + 4.5], [X[1] + 124, yb + 9.5]], 'ln-f') + text((X[1] + 120 + X[2] + 40) / 2, yb + 36, '④ 返回 0', 'tl', 'middle'));
+  o += g(5, path(`M${X[1] + 40} ${yb} Q${(X[0] + 120 + X[1] + 40) / 2} ${yb + 34} ${X[0] + 120} ${yb + 2}`, 'ln') + poly([[X[0] + 120, yb + 1], [X[0] + 129, yb + 4.5], [X[0] + 124, yb + 9.5]], 'ln-f') + text((X[0] + 120 + X[1] + 40) / 2, yb + 36, '⑤ f(0) = 1', 'tl', 'middle'));
+  o += g(6, arrow(50, yb + 2, 6, yb + 22, 'ln') + text(6, yb + 40, '⑥ g(1) = 2', 'tl'));
+  const msg = ['调用 alt.head()：它要算 g(odds.head())，先得问 odds', 'odds.head() 要算 f(evens.head())，再往右问 evens', 'evens 是 source，它的 head 不依赖别人', 'evens 的 head 直接返回 0', 'odds 拿到 0，算 f(0) = 1 交回', 'alt 拿到 1，算 g(1) = 2，结束'];
+  fr.forEach((m, j) => {
+    const on = fr.map((_, q) => q === j);
+    if (j === 0) {
+      o += sText(280, 214, 'f 是 x -> x + 1，g 是 x -> x * 2。虚线是向 source 方向的请求，实线是算好的值往回传。', 'ts', 'middle', on, F);
+      o += sText(280, 231, '三个 tail 的 Producer 都没有被调用，第二个 element 根本没有生成。', 'ts', 'middle', on, F);
+    } else {
+      o += sText(280, 214, `第 ${m} 步：${msg[m - 1]}`, 't', 'middle', on, F);
+      o += sText(280, 231, '粗框是此刻正在执行的 head Producer；三个 tail 一直没有运行。', 'ts', 'middle', on, F);
+    }
+  });
+  return svgA(560, 242, o, '动图：alt.head() 的六步依次出现。请求从 alt 传到 odds 再传到 evens，evens 的 head 返回 0，odds 对它应用 f 得到 1，alt 对它应用 g 得到 2；三个 list 的 tail 都没有被求值');
 }
 
 // 第 6 站：stream 的 element 一个一个被拉过整条 pipeline
@@ -189,20 +207,45 @@ function stream() {
     { y: 164, vals: ['3'], stop: 1, note: '被 filter 丢掉' },
     { y: 204, vals: ['4', '4', '16', '16'], stop: 4, note: '打印 16，limit 已满，停' },
   ];
+  // 时间轴：先停在全部走完的样子，然后 element 一跳一跳地走
+  const hops = [];
+  rows.forEach((r, k) => { for (let i = 0; i < r.stop; i++) hops.push({ k, i, last: i === r.stop - 1 }); });
+  const hold0 = 3.2, move = 0.55, H = hops.length;
+  let t = hold0; const arr = [];
+  hops.forEach((h) => { h.s = t; h.a = t + move; arr.push(h.a); t = h.a + (h.last ? 1.1 : 0.3); });
+  const T = t + 0.6;
+  // 离散的状态：完成了几跳
+  const kt = [0, hold0 / T, ...arr.map((a) => a / T)], state = [H, 0, ...hops.map((_, j) => j + 1)];
+  const F = { kt, T };
+  const done = (j) => state.map((m) => m > j);
+  hops.forEach((h, j) => {
+    const r = rows[h.k], hot = r.stop === 4;
+    o += `<g>${arrow(cx(h.i) + 13, r.y, cx(h.i + 1) - 13, r.y, hot ? 'ln' : 'ink')}${text((cx(h.i) + cx(h.i + 1)) / 2, r.y - 6, r.vals[h.i], hot ? 'tl' : 't', 'middle')}${ashow(done(j), kt, T)}</g>`;
+    if (h.last) {
+      const end = r.stop === 1 ? path(`M${cx(1) - 5} ${r.y - 5}L${cx(1) + 5} ${r.y + 5}M${cx(1) - 5} ${r.y + 5}L${cx(1) + 5} ${r.y - 5}`, 'ink-b') + text(cx(1) + 14, r.y + 4.5, r.note, 'ts') : circle(cx(4), r.y, 4, 'ln-f');
+      o += `<g>${end}${ashow(done(j), kt, T)}</g>`;
+    }
+  });
   rows.forEach((r, k) => {
     o += text(26, r.y + 4.5, '第 ' + (k + 1) + ' 次', 'ts', 'middle');
-    for (let i = 0; i < r.stop; i++) {
-      o += arrow(cx(i) + 13, r.y, cx(i + 1) - 13, r.y, r.stop === 4 ? 'ln' : 'ink');
-      o += text((cx(i) + cx(i + 1)) / 2, r.y - 6, r.vals[i], r.stop === 4 ? 'tl' : 't', 'middle');
-    }
-    o += circle(cx(0), r.y, 4, r.stop === 4 ? 'ln-f' : 'ink-f');
-    if (r.stop === 1) o += path(`M${cx(1) - 5} ${r.y - 5}L${cx(1) + 5} ${r.y + 5}M${cx(1) - 5} ${r.y + 5}L${cx(1) + 5} ${r.y - 5}`, 'ink-b') + text(cx(1) + 14, r.y + 4.5, r.note, 'ts');
-    else o += circle(cx(4), r.y, 4, 'ln-f');
+    const first = hops.findIndex((h) => h.k === k);
+    o += `<circle cx="${cx(0)}" cy="${r.y}" r="4" class="${r.stop === 4 ? 'ln-f' : 'ink-f'}">${ashow(state.map((m) => m >= first), kt, T)}</circle>`;
   });
-  o += text(cx(0), 240, '5 没有被生成', 'ts', 'middle');
+  o += `<text x="${cx(0)}" y="240" class="ts" text-anchor="middle">5 没有被生成${ashow(state.map((m) => m === H), kt, T)}</text>`;
+  // 正在走的 element：一个点从上游滑到下游
+  const P = [], Tk = [];
+  const push = (tt, x, y) => { Tk.push(tt / T); P.push([x, y]); };
+  const st = (h) => [cx(h.i) + 6, rows[h.k].y], en = (h) => [cx(h.i + 1) - 6, rows[h.k].y];
+  push(0, ...st(hops[0]));
+  hops.forEach((h, j) => {
+    if (j > 0) { push(h.s - 0.001, ...en(hops[j - 1])); }
+    push(h.s, ...st(h)); push(h.a, ...en(h));
+  });
+  push(T, ...en(hops[H - 1]));
+  o += `<circle cx="${f1(P[0][0])}" cy="${f1(P[0][1])}" r="7" class="ln-f">${anim('cx', P.map((p) => f1(p[0])), Tk, T)}${anim('cy', P.map((p) => f1(p[1])), Tk, T)}${anim('opacity', [0, 1, 0], [0, hold0 / T, (hops[H - 1].a + 0.4) / T], T, true)}</circle>`;
   o += text(280, 268, '每一行是 forEach 向上游要一个 element 的全过程。', 'ts', 'middle');
   o += text(280, 285, '一个 element 走完整条 pipeline，下一个才从 iterate 出来。', 'ts', 'middle');
-  return svg(560, 296, o, 'Stream pipeline 的求值顺序：element 1 被 filter 丢掉；element 2 通过 filter，map 成 4，被打印；element 3 被丢掉；element 4 map 成 16 被打印，limit 满了，pipeline 结束，5 没有被生成');
+  return svgA(560, 296, o, '动图：stream pipeline 的求值顺序，一个点代表正在走的 element。Element 1 被 filter 丢掉；element 2 通过 filter，map 成 4，被打印；element 3 被丢掉；element 4 map 成 16 被打印，limit 满了，pipeline 结束，5 没有被生成');
 }
 
 // 第 8 站：CompletableFuture 的 dependency graph，画在 time axis 上
@@ -260,20 +303,28 @@ function eager() {
   let o = '';
   o += text(130, 22, 'stack（往上长）', 'tb', 'middle') + text(410, 22, 'heap', 'tb', 'middle');
   const fx = 20, fw = 220, fh = 30, base = 290;
-  const frames = ['main：nat = EagerList.iterate(0, …)', 'iterate(0, …)', 'iterate(1, …)', 'iterate(2, …)', 'iterate(3, …)'];
-  frames.forEach((s, k) => {
+  const fl = ['main：nat = EagerList.iterate(0, …)', 'iterate(0, …)', 'iterate(1, …)', 'iterate(2, …)', 'iterate(3, …)'];
+  // 帧：0 = 最后 overflow 的样子；然后一层一层压上去
+  const fr = [6, 1, 2, 3, 4, 5, 6];
+  const F = frames([3.2, 1, 1, 1, 1, 1, 1.6]);
+  const upto = (k) => fr.map((m) => m >= k), top = (k) => fr.map((m, j) => j > 0 && m === k);
+  fl.forEach((s, k) => {
     const y = base - (k + 1) * (fh + 6);
-    o += rect(fx, y, fw, fh, k ? 'paper' : 'wash2', 5) + text(fx + 10, y + 19, s, k ? 't' : 'ts');
-    if (k) o += text(fx + fw - 8, y + 19, `等 iterate(${k}, …)`, 'ts', 'end');
+    o += `<g>${rect(fx, y, fw, fh, k ? 'paper' : 'wash2', 5)}${ashow(upto(k + 1), F.kt, F.T)}</g>`;
+    if (k) o += sRect(fx, y, fw, fh, 'wash-strong', 5, top(k + 1), F);
+    o += sText(fx + 10, y + 19, s, k ? 't' : 'ts', 'start', upto(k + 1), F);
+    if (k) {
+      o += sText(fx + fw - 8, y + 19, `等 iterate(${k}, …)`, 'ts', 'end', upto(k + 2), F);
+      o += sText(fx + fw - 8, y + 19, `先算 iterate(${k}, …)`, 'tl', 'end', top(k + 1), F);
+    }
   });
   const ytop = base - 6 * (fh + 6);
-  o += text(fx + fw / 2, ytop + 22, '⋮', 'tb', 'middle');
-  o += rect(fx, ytop - 24, fw, 26, 'solid', 5) + text(fx + fw / 2, ytop - 6, 'StackOverflowError', 'tw', 'middle');
+  o += `<g>${text(fx + fw / 2, ytop + 22, '⋮', 'tb', 'middle')}${rect(fx, ytop - 24, fw, 26, 'solid', 5)}${text(fx + fw / 2, ytop - 6, 'StackOverflowError', 'tw', 'middle')}${ashow(upto(6), F.kt, F.T)}</g>`;
   o += line(280, 30, 280, base, 'grid');
   o += rect(320, 100, 180, 120, 'frame', 8) + text(410, 152, '一个 EagerList 都没有', 'ts', 'middle') + text(410, 170, '（new 从没执行到）', 'ts', 'middle');
   o += text(20, base + 26, '每个 iterate(k, …) 在 call constructor 之前，要先算出第二个 argument iterate(k + 1, …)：', 'ts');
   o += text(20, base + 44, '它自己的 frame 留在 stack 上等着，永远等不到。', 'ts');
-  return svg(560, base + 56, o, 'EagerList.iterate 每一层都要先算出下一层才能 new，stack 上的 frame 越压越多，heap 上一个 object 都没有');
+  return svgA(560, base + 56, o, '动图：EagerList.iterate 每一层都要先算出下一层才能 new，stack 上的 frame 一层一层压上去直到 StackOverflowError，heap 上一个 object 都没有');
 }
 
 // ---------- reset 与 shift：parameter 得到的是 reference 的 copy ----------
