@@ -88,7 +88,7 @@ function renderMd(src, where) {
       const head = (k ? `<span class="blk-k">${k}</span>` : '') + (blk.title ? `<span class="blk-t">${md.renderInline(blk.title)}</span>` : '');
       out.push(`<aside class="blk blk-${blk.kind}">${head ? `<p class="blk-h">${head}</p>` : ''}${inner}</aside>`);
       blk = null;
-    } else if (!blk && (m = ln.match(/^::fig\[([\w-]+)\]\s*(.*)$/))) {
+    } else if (!blk && (m = ln.match(/^::fig\[([\w.-]+)\]\s*(.*)$/))) {
       flush();
       const fn = figures[m[1]];
       if (!fn) problems.push(`${where}: 找不到图 ${m[1]}`);
