@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, acircle, ashow } from '../lib/svg.mjs';
 
 // ---- 小工具 ----
 
@@ -449,16 +449,122 @@ function svm() {
   return svg(560, 290, o, '8 个点的 hard-margin SVM：分界线 x1+x2=3，两条 margin x1+x2=2 和 4；只有 (2,2) 与 (1,1) 落在 margin 上，是 support vector');
 }
 
+// ---------- 动图 ----------
+// 一串 iterate（屏幕坐标）一步一步走：trail 逐段长出来，当前点移动；返回 svg 片段和每个 keyframe 对应的步数
+function walk(P, { t0 = 1.2, mv = 0.35, hold = 0.35, tail = 1.6, cls = 'ln', dot = 'ln-f', r = 4.5 } = {}) {
+  const K = P.length - 1, times = [0, t0], ks = [0, 0];
+  for (let k = 1; k <= K; k++) { const s = t0 + (k - 1) * (mv + hold); times.push(s + mv); ks.push(k); if (hold > 0 && k < K) { times.push(s + mv + hold); ks.push(k); } }
+  const T = times[times.length - 1] + tail; times.push(T); ks.push(K);
+  const kt = times.map((x) => x / T);
+  // keyframe i 在 times[i]；在 move 中段的 trail：前 k 个点 + 当前点
+  const trail = ks.map((k) => d(P.map((p, j) => P[Math.min(j, k)])));
+  let o = apath(trail, kt, T, cls);
+  o += acircle(ks.map((k) => P[k][0]), ks.map((k) => P[k][1]), kt, T, r, dot);
+  return { o, kt, T, ks };
+}
+const shown = (on, kt, T, body) => `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+
+// 第 1 站（开头第一次也用）：两个起点各自滚到一个 f′ = 0 的点
+function quarticA() {
+  const f = (x) => x ** 4 - 50 * x * x + 100 * x, df = (x) => 4 * x ** 3 - 100 * x + 100;
+  const sx = lin(-7, 6.2, 70, 540), sy = lin(-1300, 300, 236, 22);
+  let o = axes({ sx, sy, x0: -7, x1: 6.2, y0: -1300, y1: 300, xt: [[-6, '−6'], [-4, '−4'], [-2, '−2'], [0, '0'], [2, '2'], [4, '4'], [6, '6']], yt: [[-1000, '−1000'], [-500, '−500'], [0, '0']], grid: true });
+  o += path(clipped(f, -7, 6.2, sx, sy, -1300, 300), 'ink');
+  const K = 40;
+  const run = (x0) => { const xs = [x0]; for (let k = 0; k < K; k++) xs.push(xs[k] - 0.001 * df(xs[k])); return xs; };
+  const XA = run(3), XB = run(-3);
+  for (const xs of [XA, XB]) for (const x of xs) o += circle(sx(x), sy(f(x)), 2, 'mute-f');
+  o += circle(sx(4.394), sy(-153.2), 5, 'ink-f') + circle(sx(-5.440), sy(-1147.9), 5, 'ink-f');
+  o += text(sx(4.394) + 4, sy(-153.2) + 30, 'local minimum', 'tb', 'middle') + text(sx(4.394) + 4, sy(-153.2) + 46, 'f′ = 0，f = −153.2', 'ts', 'middle');
+  o += text(sx(-5.44) + 12, sy(-1147.9) + 4, 'global minimum：f = −1147.9', 'tb');
+  o += text(sx(1.046), sy(51) - 12, 'local maximum', 'ts', 'middle');
+  o += text(sx(3) - 8, sy(f(3)) + 22, '从 x = 3 出发', 'ts', 'end') + text(sx(-3) + 10, sy(f(-3)) + 4, '从 x = −3 出发', 'ts');
+  const opt = { t0: 1.2, mv: 0.12, hold: 0, tail: 2.2, cls: 'ln', dot: 'ln-f', r: 5.5 };
+  const A = walk(XA.map((x) => [sx(x), sy(f(x))]), opt), B = walk(XB.map((x) => [sx(x), sy(f(x))]), opt);
+  o += A.o + B.o;
+  // 读数：每 5 步一档
+  const lab = A.ks.map((k) => Math.min(K, Math.floor(k / 5) * 5));
+  for (const v of [...new Set(lab)]) {
+    const on = lab.map((x) => x === v);
+    o += shown(on, A.kt, A.T, text(540, 270, `k = ${v}：从 −3 出发 x = ${XB[v].toFixed(3).replace('-', '−')}（f′ = ${df(XB[v]).toFixed(1).replace('-', '−')}）；从 3 出发 x = ${XA[v].toFixed(3)}（f′ = ${df(XA[v]).toFixed(1).replace('-', '−')}）`, 'ts', 'end'));
+  }
+  return svgA(560, 276, o, '动图：x⁴ − 50x² + 100x 上，step size 0.001 的 gradient descent 从 x = 3 和 x = −3 同时出发，前者停在 local minimum 4.394，后者到达 global minimum −5.440');
+}
+
+// 开头第二次：step size 0.17 与 0.19 在 contour 上走
+function twostepsA() {
+  let o = '';
+  const panel = (x0, t, id, title, note) => {
+    const W = 250, H = 214, sx = lin(-1.6, 5.6, x0, x0 + W), sy = lin(-2.2, 4.2, 40 + H, 40);
+    o += `<clipPath id="${id}"><rect x="${x0}" y="40" width="${W}" height="${H}"/></clipPath>`;
+    o += rect(x0, 40, W, H, 'frame') + text(x0 + W / 2, 28, title, 'tb', 'middle');
+    const e1 = [Math.SQRT1_2, Math.SQRT1_2], e2 = [Math.SQRT1_2, -Math.SQRT1_2];
+    for (const lv of [0.05, 0.25, 1, 4, 16]) {
+      const a = Math.sqrt((2 * lv) / 11), b = Math.sqrt(2 * lv), pts = [];
+      for (let i = 0; i <= 160; i++) { const th = (2 * Math.PI * i) / 160; pts.push([sx(2 + a * Math.cos(th) * e1[0] + b * Math.sin(th) * e2[0]), sy(1 + a * Math.cos(th) * e1[1] + b * Math.sin(th) * e2[1])]); }
+      o += `<g clip-path="url(#${id})">${path(d(pts) + 'Z', 'grid')}</g>`;
+    }
+    const B = [[0, 0]]; for (let k = 0; k < 16; k++) { const g = lsGrad(B[k]); B.push([B[k][0] - t * g[0], B[k][1] - t * g[1]]); }
+    o += `<g clip-path="url(#${id})">${B.map(([u, v]) => circle(sx(u), sy(v), 2, 'mute-f')).join('')}</g>`;
+    const W2 = walk(B.map(([u, v]) => [sx(u), sy(v)]), { t0: 1.4, mv: 0.3, hold: 0.25, tail: 1.8 });
+    o += `<g clip-path="url(#${id})">${W2.o}</g>`;
+    o += circle(sx(0), sy(0), 4, 'ln paper-f') + text(sx(0) + 8, sy(0) + 16, 'β₀', 'ts');
+    o += circle(sx(2), sy(1), 3.5, 'ink-f') + text(sx(2) + 8, sy(1) + 18, 'β* = (2, 1)', 'ts');
+    for (let k = 0; k <= 16; k++) {
+      const on = W2.ks.map((x) => x === k), e = lsF(B[k]) - 5.5;
+      const es = e < 1e-3 || e > 1e4 ? e.toExponential(1).replace(/e([+-])(\d+)/, (_, s, n) => '×10' + (s === '-' ? '⁻' : '') + n.split('').map((c) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[c]).join('')) : e.toPrecision(3);
+      o += shown(on, W2.kt, W2.T, text(x0 + W / 2, 274, `k = ${k}：f(βₖ) − f* = ${es}`, k === 16 ? 'tl' : 't', 'middle'));
+    }
+    o += text(x0 + W / 2, 294, note, 'ts', 'middle');
+  };
+  panel(20, 0.17, 'dsa3102-ts-a', 't = 0.17：converge', '沿 (1, 1) 每步乘 1 − 11t = −0.87');
+  panel(290, 0.19, 'dsa3102-ts-b', 't = 0.19：diverge', '沿 (1, 1) 每步乘 1 − 11t = −1.09，冲出画面');
+  o += text(280, 318, 'Contour 是 f(β) = ‖Xβ − y‖² / 2 的等高线；valley 沿 (1, −1) 方向，两壁沿 (1, 1) 方向最陡。', 'ts', 'middle');
+  return svgA(560, 326, o, '动图：同一个 least squares 的 contour 上，从 (0,0) 出发做 gradient descent。step size 0.17 时在 valley 两壁之间来回跳、越跳越小，走到 β*；0.19 时每跳一次幅度乘 1.09，越跳越大，冲出画面');
+}
+
+// 第 3 站：valley 里一步一步走
+function gdpathA() {
+  const H = [[6, 5], [5, 6]], c = [17, 16], bs = [2, 1];
+  let o = '';
+  const panel = (x0, t, title, note) => {
+    const sx = lin(0.2, 3.8, x0, x0 + 240), sy = lin(-0.7, 2.7, 262, 35);
+    o += rect(x0, 35, 240, 227, 'frame');
+    const e1 = [Math.SQRT1_2, Math.SQRT1_2], e2 = [Math.SQRT1_2, -Math.SQRT1_2];
+    for (const lv of [0.05, 0.25, 0.75, 2.25]) {
+      const a = Math.sqrt((2 * lv) / 11), b = Math.sqrt(2 * lv), pts = [];
+      for (let i = 0; i <= 160; i++) { const th = (2 * Math.PI * i) / 160; pts.push([sx(bs[0] + a * Math.cos(th) * e1[0] + b * Math.sin(th) * e2[0]), sy(bs[1] + a * Math.cos(th) * e1[1] + b * Math.sin(th) * e2[1])]); }
+      o += path(d(pts) + 'Z', 'grid');
+    }
+    let b = [0.5, 2];
+    const P = [b];
+    for (let k = 0; k < 12; k++) { const g = [H[0][0] * b[0] + H[0][1] * b[1] - c[0], H[1][0] * b[0] + H[1][1] * b[1] - c[1]]; b = [b[0] - t * g[0], b[1] - t * g[1]]; P.push(b); }
+    for (const [u, v] of P) o += circle(sx(u), sy(v), 2, 'mute-f');
+    const Wk = walk(P.map(([u, v]) => [sx(u), sy(v)]), { t0: 1.2, mv: 0.35, hold: 0.3, tail: 1.6 });
+    o += Wk.o;
+    o += circle(sx(0.5), sy(2), 4.5, 'ln paper-f') + circle(sx(2), sy(1), 4, 'ink-f');
+    o += text(sx(2) + 8, sy(1) + 16, 'β*', 'tb');
+    for (let k = 0; k <= 12; k++) {
+      const on = Wk.ks.map((x) => x === k), dist = Math.hypot(P[k][0] - 2, P[k][1] - 1);
+      o += shown(on, Wk.kt, Wk.T, text(x0 + 230, 54, `k = ${k}，‖βₖ − β*‖ = ${dist.toFixed(3)}`, 'ts', 'end'));
+    }
+    o += text(x0 + 120, 24, title, 'tb', 'middle') + text(x0 + 120, 282, note, 'ts', 'middle');
+  };
+  panel(30, 1 / 11, 't = 1/11', '先落到 valley 底，再每步乘 10/11');
+  panel(300, 0.17, 't = 0.17', '沿 (1, 1) 每步乘 −0.87，来回跳');
+  return svgA(560, 292, o, '动图：least squares 的 contour 上两条 gradient descent 的 path 一步一步走：step size 1/11 时第一步落到 valley 底再沿 valley 前进，0.17 时在 valley 两壁之间来回跳');
+}
+
 export default {
-  'dsa3102-twosteps': twosteps,
+  'dsa3102-twosteps': twostepsA,
   'dsa3102-twomethods': twomethods,
   'dsa3102-kink': kink,
   'dsa3102-badsubgrad': badsubgrad,
   'dsa3102-svm': svm,
-  'dsa3102-quartic': quartic,
+  'dsa3102-quartic': quarticA,
   'dsa3102-tangent': tangent,
   'dsa3102-subgrad': subgrad,
-  'dsa3102-gdpath': gdpath,
+  'dsa3102-gdpath': gdpathA,
   'dsa3102-ista': ista,
   'dsa3102-accel': accel,
   'dsa3102-sgd': sgd,

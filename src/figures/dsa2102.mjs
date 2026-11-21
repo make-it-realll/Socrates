@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, acircle, ashow, f1 } from '../lib/svg.mjs';
 
 // 玩具浮点系统：β = 2，3 位有效数字，指数 −1..2
 function fp() {
@@ -370,19 +370,147 @@ function lagrange() {
   return svg(560, 268, o, '左边是三个 node 1、2、3 上的 Lagrange basis function；右边是它们以 1、2、2 为 coefficient 组成的 interpolating parabola，以及第 4 站的 least squares line');
 }
 
+// ---------- 动图 ----------
+const grp = (body, on, kt, T) => `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+const num = (v) => (v < 0 ? '−' : '') + Math.abs(v);
+
+// 第 2 站：elimination 一步一步走，multiplier 落进 L
+function luA() {
+  const A = [[1, 2, 1, 2], [3, 8, 1, 12], [0, 4, 1, 2]];
+  const sub = (M, i, j, l) => M.map((r, k) => (k === i ? r.map((v, c) => v - l * M[j][c]) : r.slice()));
+  const M1 = sub(A, 1, 0, 3), M3 = sub(M1, 2, 1, 2);
+  const frames = [
+    { M: A, Ls: [], piv: [0, 0], tgt: [1, 0], chg: -1, op: ['step 1：ℓ₂₁ = 3 / 1 = 3', 'row 2 − 3 × row 1，消掉 row 2 的 3'] },
+    { M: M1, Ls: [[1, 0, 3]], piv: [0, 0], tgt: [2, 0], chg: 1, op: ['step 2：ℓ₃₁ = 0 / 1 = 0', 'row 3 第一个 entry 本来就是 0，减 0 倍 row 1'] },
+    { M: M1, Ls: [[1, 0, 3], [2, 0, 0]], piv: [1, 1], tgt: [2, 1], chg: -1, op: ['step 3：ℓ₃₂ = 4 / 2 = 2', 'row 3 − 2 × row 2，消掉 row 3 的 4'] },
+    { M: M3, Ls: [[1, 0, 3], [2, 0, 0], [2, 1, 2]], piv: null, tgt: null, chg: 2, op: ['完成：左边三列是 U（pivot 1, 2, 5），最后一列是 y', 'L 里正好是用过的三个 multiplier，A = LU'] },
+  ];
+  const n = frames.length, step = 2.6, T = n * step, kt = frames.map((_, i) => i / n);
+  const cw = 46, ch = 34, X0 = 30, Y0 = 50, LX = 340;
+  let o = text(X0 + 2 * cw + 8, 30, '[ A | b ]，每一步在 diagonal 下面造一个 0', 'tb', 'middle');
+  o += text(LX + 1.5 * cw, 30, 'L：multiplier 落在被消掉的位置', 'tb', 'middle');
+  frames.forEach((F, f) => {
+    let g = '';
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 4; j++) {
+      const x = X0 + j * cw + (j === 3 ? 16 : 0), y = Y0 + i * ch;
+      const isP = F.piv && F.piv[0] === i && F.piv[1] === j, isT = F.tgt && F.tgt[0] === i && F.tgt[1] === j;
+      g += rect(x, y, cw, ch, isP ? 'solid' : isT ? 'wash-strong' : i === F.chg ? 'wash' : 'paper');
+      g += text(x + cw / 2, y + ch / 2 + 5, num(F.M[i][j]), isP ? 'tw' : isT ? 'tl' : 't', 'middle');
+    }
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      const x = LX + j * cw, y = Y0 + i * ch;
+      const got = F.Ls.find((e) => e[0] === i && e[1] === j), last = got && F.Ls[F.Ls.length - 1] === got;
+      g += rect(x, y, cw, ch, last ? 'wash-strong' : 'paper');
+      const s = i === j ? '1' : i < j ? '0' : got ? String(got[2]) : '';
+      g += text(x + cw / 2, y + ch / 2 + 5, s, last ? 'tl' : i <= j ? 'ts' : 't', 'middle');
+    }
+    if (F.tgt) {
+      const [ti, tj] = F.tgt, tx = LX + tj * cw + cw / 2;
+      g += text(tx, Y0 + 3 * ch + 18, '↑ ℓ' + '₁₂₃'[ti] + '₁₂₃'[tj] + ' 写到这里', 'ts', 'middle');
+    }
+    g += text(X0, 196, F.op[0], 'tl') + text(X0, 216, F.op[1], 'ts');
+    o += grp(g, frames.map((_, k) => k === f), kt, T);
+  });
+  o += line(X0 + 3 * cw + 8, Y0 - 4, X0 + 3 * cw + 8, Y0 + 3 * ch + 4, 'ink');
+  o += text(X0 + 1.5 * cw, Y0 + 3 * ch + 18, 'A → U', 'ts', 'middle') + text(X0 + 3 * cw + 16 + cw / 2, Y0 + 3 * ch + 18, 'b → y', 'ts', 'middle');
+  o += text(X0, 242, '深色格 = 这一步的 pivot，浅色格 = 要消掉的 entry 和刚改过的 row', 'ts');
+  return svgA(560, 248, o, '动图：对 x+2y+z=2、3x+8y+z=12、4y+z=2 做 elimination，三步分别用 multiplier 3、0、2，最后左边成为 U，multiplier 依次填进 L 的下三角');
+}
+
+// 第 3 站：Jacobi 与 Gauss–Seidel 同步走，点沿着真实的更新方向移动
+function jacobiA() {
+  const xs = [1 / 11, 7 / 11];
+  const runJ = () => { const P = [[0, 0]]; let [a, b] = [0, 0]; for (let k = 0; k < 4; k++) { [a, b] = [(1 - b) / 4, (2 - a) / 3]; P.push([a, b]); } return P; };
+  const runG = () => { const P = [[0, 0]], H = [null]; let [a, b] = [0, 0]; for (let k = 0; k < 4; k++) { a = (1 - b) / 4; H.push([a, b]); b = (2 - a) / 3; P.push([a, b]); } return [P, H]; };
+  const PJ = runJ(), [PG, HG] = runG();
+  const t0 = 1.4, mv = 0.8, per = 2.0, T = t0 + 4 * per + 0.8;
+  const times = [0], idx = [0];
+  for (let k = 0; k < 4; k++) { const s = t0 + k * per; times.push(s, s + mv / 2, s + mv); idx.push(k, k + 0.5, k + 1); }
+  times.push(T); idx.push(4);
+  const kt = times.map((t) => t / T);
+  // 每个时刻的位置（Jacobi 中点 = 斜线中点；GS 中点 = 横着到 ①）
+  const posJ = (q) => Number.isInteger(q) ? PJ[q] : [(PJ[q - 0.5][0] + PJ[q + 0.5][0]) / 2, (PJ[q - 0.5][1] + PJ[q + 0.5][1]) / 2];
+  const posG = (q) => Number.isInteger(q) ? PG[q] : HG[q + 0.5];
+  let o = '';
+  const panel = (x0, title, pos, P, gs) => {
+    const E = gs ? ['0.159', '0.0133', '0.0011', '0.00009'] : ['0.159', '0.053', '0.0133', '0.0044'];
+    const sx = lin(-0.02, 0.3, x0, x0 + 230), sy = lin(-0.03, 0.75, 250, 40), S = ([a, b]) => [sx(a), sy(b)];
+    o += rect(x0, 40, 230, 210, 'frame') + text(x0 + 115, 26, title, 'tb', 'middle');
+    o += line(sx(0), sy(-0.03), sx(0), sy(0.75), 'grid') + line(sx(-0.02), sy(0), sx(0.3), sy(0), 'grid');
+    o += line(sx(0.25 - 0.75 / 4), sy(0.75), sx(0.2575), sy(-0.03), 'ink') + line(sx(-0.02), sy(2.02 / 3), sx(0.3), sy(1.7 / 3), 'ink');
+    o += text(sx(0.2), sy(0.06), '①', 'ts', 'middle') + text(sx(0.285), sy(0.57) + 18, '②', 'ts', 'middle');
+    o += circle(...S(xs), 4, 'ink-f');
+    // trail：固定 9 个顶点，还没走到的顶点叠在当前位置
+    const verts = (q) => { const v = []; for (let h = 0; h <= 8; h++) { const qq = Math.min(h / 2, q); v.push(S(pos(qq))); } return d(v); };
+    o += apath(idx.map(verts), kt, T, 'ln');
+    const cur = idx.map((q) => S(pos(q)));
+    o += acircle(cur.map((p) => p[0]), cur.map((p) => p[1]), kt, T, 5, 'ln-f');
+    o += circle(...S([0, 0]), 3, 'ink-f') + text(sx(0) + 6, sy(0) - 6, '(0, 0)', 'ts');
+    for (let k = 0; k <= 4; k++) {
+      const on = idx.map((q) => Math.floor(q) === k);
+      const s = k === 0 ? 'k = 0：(0, 0)' : `k = ${k}：(${P[k][0].toFixed(4)}, ${P[k][1].toFixed(4)})，error ${E[k - 1]}`;
+      o += `<text x="${x0 + 115}" y="272" class="${k === 4 ? 'tl' : 't'}" text-anchor="middle" opacity="${on[0] ? 1 : 0}">${s}${ashow(on, kt, T)}</text>`;
+    }
+    o += text(x0 + 115, 292, gs ? '先横着到 ①（新 x₁），再竖着到 ②' : '两个 component 都用旧值，斜着跳', 'ts', 'middle');
+  };
+  panel(30, 'Jacobi', posJ, PJ, false);
+  panel(300, 'Gauss–Seidel', posG, PG, true);
+  o += text(280, 316, '① 4x₁ + x₂ = 1，② x₁ + 3x₂ = 2；黑点是 exact solution (1/11, 7/11)。', 'ts', 'middle');
+  return svgA(560, 324, o, '动图：Jacobi 与 Gauss–Seidel 同时从原点出发各走 4 轮；Gauss–Seidel 每轮先横走到第一条 line 再竖走到第二条，Jacobi 每轮斜着跳，下方读数显示每轮的 iterate 和 error');
+}
+
+// 第 5 站：power iteration，vector 拆成 eigenvector 方向和偏离的部分
+function powerA() {
+  const O = [80, 236], R = 196;
+  const P = ([a, b], r = R) => [O[0] + r * a, O[1] - r * b];
+  const vs = [[1, 0]]; for (let k = 0; k < 4; k++) { const [a, b] = vs[k]; vs.push([2 * a + b, a + 2 * b]); }
+  const un = vs.map(([a, b]) => { const n = Math.hypot(a, b); return [a / n, b / n]; });
+  const hold = 1.6, mv = 0.5, T = 5 * hold + 4 * mv;
+  const times = [0], fr = [0];
+  for (let k = 0; k < 5; k++) { const s = k * (hold + mv); if (k) { times.push(s); fr.push(k); } times.push(s + hold); fr.push(k); }
+  times[times.length - 1] = T;
+  const kt = times.map((t) => t / T);
+  let o = line(O[0] - 10, O[1], O[0] + R + 30, O[1], 'axis') + line(O[0], O[1] + 10, O[0], O[1] - R - 16, 'axis');
+  const arc = []; for (let i = 0; i <= 40; i++) arc.push(P([Math.cos(Math.PI / 2 * i / 40), Math.sin(Math.PI / 2 * i / 40)]));
+  o += path(d(arc), 'grid');
+  const e = P([Math.SQRT1_2, Math.SQRT1_2], R + 24);
+  o += line(O[0], O[1], e[0], e[1], 'dash') + text(e[0] + 4, e[1] - 4, 'v₁ = (1, 1)，λ₁ = 3', 'ts', 'start');
+  // 之前的 iterate 留下浅色的线
+  for (let k = 0; k < 4; k++) { const p = P(un[k]); o += `<line x1="${O[0]}" y1="${O[1]}" x2="${f1(p[0])}" y2="${f1(p[1])}" class="mute" opacity="0">${ashow(fr.map((f) => f > k), kt, T)}</line>`; }
+  const c1 = un.map(([a, b]) => [(a + b) / 2, (a + b) / 2]);
+  const at = (arr) => fr.map((f) => arr[f]);
+  o += apath(at(c1).map((c) => d([O, P(c)])), kt, T, 'ink-b');
+  o += apath(fr.map((f) => d([P(c1[f]), P(un[f])])), kt, T, 'ln-dash');
+  o += apath(at(un).map((u) => d([O, P(u)])), kt, T, 'ln');
+  const tip = at(un).map((u) => P(u)); o += acircle(tip.map((p) => p[0]), tip.map((p) => p[1]), kt, T, 5, 'ln-f');
+  o += text(P([1, 0])[0], O[1] + 20, '(1, 0)', 'ts', 'middle');
+  const X = 330;
+  o += text(X, 40, 'x 反复乘 A = [2 1; 1 2]，再 scale 到 length 1', 'tb');
+  o += text(X, 64, '蓝实线：当前方向；粗黑线：沿 v₁ 的部分', 'ts') + text(X, 82, '蓝虚线：沿 (1, −1) 偏离的部分', 'ts');
+  const ray = ([a, b]) => (2 * a * a + 2 * a * b + 2 * b * b) / (a * a + b * b);
+  for (let k = 0; k <= 4; k++) {
+    const [a, b] = vs[k], ang = Math.atan2(b, a) * 180 / Math.PI;
+    const on = fr.map((f) => f === k);
+    const L = [`k = ${k}：Aᵏx = (${a}, ${b})`, `与 v₁ 的 angle ${Math.abs(45 - ang).toFixed(1)}°`, `偏离部分 / v₁ 部分 = ${((a - b) / (a + b)).toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`, `Rayleigh quotient ${String(+ray(vs[k]).toFixed(4))}`];
+    o += `<g opacity="${on[0] ? 1 : 0}">${L.map((s, i) => text(X, 120 + i * 22, s, i === 0 ? 'tl' : 't')).join('')}${ashow(on, kt, T)}</g>`;
+  }
+  o += text(X, 222, '每乘一次 A：v₁ 部分 × 3，偏离部分 × 1，', 'ts') + text(X, 240, '比值缩小到 ⅓，方向转向 v₁。', 'ts');
+  return svgA(560, 256, o, '动图：从 (1,0) 出发做 power iteration，每一帧把 vector 拆成沿 (1,1) 的部分和沿 (1,-1) 的偏离部分，偏离部分的相对大小每步缩小到三分之一，vector 转向 eigenvector');
+}
+
 export default {
   'dsa2102-cancel': cancel,
-  'dsa2102-jacobi': jacobi,
+  'dsa2102-jacobi': jacobiA,
   'dsa2102-gs': gramschmidt,
   'dsa2102-lagrange': lagrange,
   'dsa2102-ellipse': ellipse,
   'dsa2102-fit3': fit3,
   'dsa2102-nodepoly': nodepoly,
   'dsa2102-hcurve': hcurve,
-  'dsa2102-power': power,
+  'dsa2102-power': powerA,
   'dsa2102-fp': fp,
   'dsa2102-cond': cond,
-  'dsa2102-lu': lu,
+  'dsa2102-lu': luA,
   'dsa2102-proj': proj,
   'dsa2102-householder': householder,
   'dsa2102-runge': runge,

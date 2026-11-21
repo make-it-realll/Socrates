@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, acircle, ashow, anim, f1 } from '../lib/svg.mjs';
 
 const sinc = (x) => (Math.abs(x) < 1e-9 ? 1 : Math.sin(Math.PI * x) / (Math.PI * x));
 const minus = (v) => String(v).replace('-', '−');
@@ -423,8 +423,162 @@ function vectors() {
   return svg(560, 285, o, '左：H1 的两个 pole 到 imaginary axis 上 j34.6 的 vector，长 20.7 和 77.3；右：|H1(jω)| 在 ω=34.6 附近鼓到 0.025，比 DC 的 0.02 高 25%');
 }
 
+// ---------- 动图 ----------
+const kts = (ts) => ts.map((t) => t / ts[ts.length - 1]);
+// 第 1 站：flip and slide，t 从 −1 走到 4，阴影 area 就是下面的 y(t)
+function convA() {
+  const yv = (t) => (t < 0 ? 0 : t <= 1 ? 1 - Math.exp(-t) : Math.exp(-(t - 1)) - Math.exp(-t));
+  // 时间表：t = 0.5 停 → 走到 2 停 → 走到 4 → 退回 −1 → 走回 0.5
+  const segs = [[0.5, 1.6], [2, 0], [2, 1.4], [4, 0], [4, 0.8]];
+  const ks = [], tv = [];
+  let now = 0;
+  const go = (a, b, speed) => { const n = Math.max(1, Math.round(Math.abs(b - a) / 0.05)); for (let i = 1; i <= n; i++) { now += Math.abs(b - a) / n / speed; ks.push(now); tv.push(a + (b - a) * i / n); } };
+  ks.push(0); tv.push(0.5); now = 1.6; ks.push(now); tv.push(0.5);
+  go(0.5, 2, 0.9); now += 1.4; ks.push(now); tv.push(2);
+  go(2, 4, 0.9); now += 0.8; ks.push(now); tv.push(4);
+  go(4, -1, 12); now += 0.5; ks.push(now); tv.push(-1);
+  go(-1, 0.5, 0.9);
+  void segs;
+  const T = now, kt = ks.map((x) => x / T);
+  const sx = lin(-2.5, 4.5, 40, 530), sy = lin(0, 1.3, 118, 34);
+  let o = '';
+  o += line(sx(-2.5), sy(0), sx(4.5), sy(0), 'axis');
+  for (const v of [0, 1]) o += line(sx(v), sy(0), sx(v), sy(0) + 4, 'axis') + text(sx(v), sy(0) + 16, String(v), 'ts', 'middle');
+  o += text(sx(4.5), sy(0) + 16, it('τ'), 'ts', 'end');
+  const N = 60;
+  const shade = (t) => { const hi = Math.max(0, Math.min(t, 1)); const pts = [[sx(0), sy(0)]]; for (let i = 0; i <= N; i++) { const u = hi * i / N; pts.push([sx(u), sy(hi > 0 ? Math.exp(-(t - u)) : 0)]); } pts.push([sx(hi), sy(0)]); return d(pts) + 'Z'; };
+  o += apath(tv.map(shade), kt, T, 'wash-strong');
+  o += path(d([[sx(-2.5), sy(0)], [sx(0), sy(0)], [sx(0), sy(1)], [sx(1), sy(1)], [sx(1), sy(0)], [sx(4.5), sy(0)]]), 'ink');
+  const hcur = (t) => { const pts = []; for (let i = 0; i <= 120; i++) { const u = -2.5 + (t + 2.5) * i / 120; pts.push([sx(u), sy(Math.exp(-(t - u)))]); } pts.push([sx(t), sy(0)]); return d(pts); };
+  o += apath(tv.map(hcur), kt, T, 'ln');
+  o += text(sx(1) + 6, sy(1) - 6, `${it('x')}(${it('τ')})`, 't');
+  o += `<text x="${f1(sx(0.5) + 4)}" y="${f1(sy(0) + 30)}" class="tl" text-anchor="middle">${it('h')}(${it('t')} − ${it('τ')}) 的 edge 在 τ = ${it('t')}${anim('x', tv.map((t) => f1(sx(t) + 4)), kt, T)}</text>`;
+  // 读数：每 0.25 一档
+  const lab = tv.map((t) => Math.round(t * 4) / 4);
+  for (const v of [...new Set(lab)].sort((a, b) => a - b)) {
+    const on = lab.map((x) => x === v);
+    o += `<text x="280" y="20" class="tb" text-anchor="middle" opacity="${on[0] ? 1 : 0}">t = ${minus(v.toFixed(2))}：阴影 area = y(t) = ${yv(v).toFixed(3)}${ashow(on, kt, T)}</text>`;
+  }
+  // 下面：y(t)
+  const bx = lin(-1, 5, 60, 520), by = lin(0, 0.75, 268, 186);
+  o += axes({ sx: bx, sy: by, x0: -1, x1: 5, y0: 0, y1: 0.75, xt: [[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4']], yt: [[0.632, '0.632']], xl: 't', yAt: 0 });
+  o += line(bx(0), by(0.632), bx(1), by(0.632), 'grid') + path(curve(yv, -1, 5, bx, by, 400), 'grid');
+  const trace = (t) => { const pts = []; for (let i = 0; i <= 100; i++) { const u = -1 + (t + 1) * i / 100; pts.push([bx(u), by(yv(u))]); } return d(pts); };
+  o += apath(tv.map(trace), kt, T, 'ln');
+  o += acircle(tv.map(bx), tv.map((t) => by(yv(t))), kt, T, 5, 'ln-f');
+  o += text(520, by(0.66), `${it('y')}(${it('t')}) = (${it('x')} ∗ ${it('h')})(${it('t')})：每个 ${it('t')} 是上面的一块 area`, 'ts', 'end');
+  return svgA(560, 306, o, '动图：把 h 翻转后从左往右滑，t 从 −1 走到 4；与 x 重叠部分的阴影 area 随之变化，下面的点同步画出 y(t)，在 t=0.5 时是 0.393，t=1 时最高 0.632，t=2 时是 0.233');
+}
+
+// 开头第二件：RC circuit 在 t = 0 接上 cos t
+function switchonA() {
+  const ss = (t) => Math.SQRT1_2 * Math.cos(t - Math.PI / 4), tr = (t) => -0.5 * Math.exp(-t), yv = (t) => ss(t) + tr(t);
+  const ks = [0, 1.4], tv = [1, 1];
+  let now = 1.4;
+  const go = (a, b, dur) => { const n = Math.round(Math.abs(b - a) / 0.1); for (let i = 1; i <= n; i++) { now += dur / n; ks.push(now); tv.push(a + (b - a) * i / n); } };
+  go(1, 12, 7); now += 1.2; ks.push(now); tv.push(12);
+  go(12, 0, 0.4); now += 0.4; ks.push(now); tv.push(0);
+  go(0, 1, 0.8);
+  const T = now, kt = ks.map((x) => x / T);
+  // 左：circuit
+  let o = '';
+  const yT = 112, yB = 222, xs = 34, xc = 158;
+  o += line(xs, yT, 56, yT, 'ink') + line(xs, yB, xc, yB, 'ink');
+  o += line(xs, yT, xs, 151, 'ink') + line(xs, 183, xs, yB, 'ink') + circle(xs, 167, 16, 'paper');
+  o += path(`M${xs - 9} 167 Q ${xs - 4.5} 157 ${xs} 167 T ${xs + 9} 167`, 'ink');
+  // switch：已经闭合
+  o += circle(56, yT, 2.5, 'ink-f') + circle(80, yT, 2.5, 'ink-f') + line(56, yT, 79, yT - 2, 'ink-b');
+  o += text(68, yT - 12, 't = 0 闭合', 'ts', 'middle');
+  // resistor
+  const zz = [[80, yT]]; for (let i = 0; i < 6; i++) zz.push([88 + i * 7, yT + (i % 2 ? 6 : -6)]); zz.push([130, yT]);
+  o += path(d(zz), 'ink') + line(130, yT, xc, yT, 'ink') + text(108, yT + 22, 'R = 1 Ω', 'ts', 'middle');
+  // capacitor
+  o += line(xc, yT, xc, 160, 'ink') + line(xc, 174, xc, yB, 'ink') + line(xc - 14, 160, xc + 14, 160, 'ink-b') + line(xc - 14, 174, xc + 14, 174, 'ink-b');
+  o += text(xc - 18, 171, 'C = 1 F', 'ts', 'end');
+  o += text(xs - 16, yB + 20, 'x(t) = cos t', 'ts', 'start');
+  // y 的 voltage 计：capacitor 旁边一根柱子，高度 = y(t)
+  const mx = 186, my = 167, ms = 40;
+  o += line(mx - 8, my, mx + 8, my, 'axis') + line(mx, my - 44, mx, my + 44, 'grid');
+  o += apath(tv.map((t) => d([[mx - 6, my], [mx + 6, my], [mx + 6, my - ms * yv(t)], [mx - 6, my - ms * yv(t)]]) + 'Z'), kt, T, 'solid');
+  o += text(mx, my - 52, 'y(t)', 'tl', 'middle') + text(mx, my + 60, 'capacitor', 'ts', 'middle') + text(mx, my + 74, '上的 voltage', 'ts', 'middle');
+  // 右：plot
+  const sx = lin(0, 12, 252, 540), sy = lin(-1.1, 1.1, 250, 90);
+  o += axes({ sx, sy, x0: 0, x1: 12, y0: -1.1, y1: 1.1, xt: [2, 4, 6, 8, 10, 12], yt: [[-0.5, '−0.5'], [0.707, '0.707'], [1, '1']], xAt: 0 }) + text(540, 268, 't（s）', 'ts', 'end');
+  o += path(curve(Math.cos, 0, 12, sx, sy, 300), 'grid') + path(curve(ss, 0, 12, sx, sy, 300), 'dash');
+  const trace = (t) => { const pts = []; for (let i = 0; i <= 120; i++) { const u = t * i / 120; pts.push([sx(u), sy(yv(u))]); } return d(pts); };
+  o += apath(tv.map(trace), kt, T, 'ln');
+  o += apath(tv.map((t) => d([[sx(t), sy(ss(t))], [sx(t), sy(yv(t))]])), kt, T, 'ink-b');
+  o += acircle(tv.map(sx), tv.map((t) => sy(ss(t))), kt, T, 3.5, 'ink-f');
+  o += acircle(tv.map(sx), tv.map((t) => sy(yv(t))), kt, T, 4.5, 'ln-f');
+  o += line(34, 18, 64, 18, 'ln') + text(70, 22, 'output y = 0.707 cos(t − 45°) − 0.5e⁻ᵗ，从 y(0) = 0 出发', 'tl');
+  o += line(34, 38, 64, 38, 'dash') + text(70, 42, '0.707 cos(t − 45°)：只谈 frequency 时得到的那一项', 't');
+  o += line(34, 58, 64, 58, 'ink-b') + text(70, 62, '两者之差 = −0.5e⁻ᵗ（黑色竖线），几秒后缩到看不见；浅灰线是 input cos t', 'ts');
+  return svgA(560, 278, o, '动图：RC circuit 在 t=0 接上 cos t。右边随时间画出 output，黑色竖线是 output 和 0.707cos(t−45°) 的差 −0.5e^−t，几秒后消失；左边 capacitor 旁的柱子显示 y(t)');
+}
+
+// 第 2 站：partial sum 一项项加上去
+function partialA() {
+  const SN = (N) => (t) => { let s = 0.5; for (let k = 1; k <= N; k += 2) s += (2 * Math.sin((Math.PI * k) / 2)) / (Math.PI * k) * Math.cos(2 * Math.PI * k * t); return s; };
+  const Ns = [49, 1, 3, 5, 7, 9, 15, 25, 49];
+  const dur = [2.6, 1.2, 1.2, 1.2, 1.2, 1.6, 1.2, 1.2];
+  const ts = [0]; dur.forEach((x) => ts.push(ts[ts.length - 1] + x));
+  const T = ts[ts.length - 1] + 0.01, kt = ts.map((t) => t / T);
+  const sx = lin(-0.6, 0.6, 50, 530), sy = lin(-0.3, 1.3, 250, 50);
+  let o = line(sx(-0.6), sy(0), sx(0.6), sy(0), 'axis') + line(sx(-0.6), sy(1), sx(0.6), sy(1), 'grid') + line(sx(-0.6), sy(1.09), sx(0.6), sy(1.09), 'grid');
+  o += path(d([[sx(-0.6), sy(0)], [sx(-0.25), sy(0)], [sx(-0.25), sy(1)], [sx(0.25), sy(1)], [sx(0.25), sy(0)], [sx(0.6), sy(0)]]), 'dash');
+  for (const [v, s] of [[-0.5, '−½'], [-0.25, '−¼'], [0, '0'], [0.25, '¼'], [0.5, '½']]) o += line(sx(v), sy(0), sx(v), sy(0) + 4, 'axis') + text(sx(v), sy(0) + 18, s, 'ts', 'middle');
+  o += text(sx(0.6), sy(0) + 34, 't（s）', 'ts', 'end');
+  o += text(sx(-0.6) - 5, sy(1) + 4, '1', 'ts', 'end') + text(sx(-0.6) - 5, sy(0) + 4, '0', 'ts', 'end') + text(sx(-0.6) - 5, sy(1.09) - 2, '1.09', 'ts', 'end');
+  const peaks = Ns.map((N) => { let best = [0, -1]; for (let i = 0; i <= 4000; i++) { const t = -0.25 + 0.25 * i / 4000; const v = SN(N)(t); if (v > best[1]) best = [t, v]; } return best; });
+  o += apath(Ns.map((N) => curve(SN(N), -0.6, 0.6, sx, sy, 1400)), kt, T, 'ln', true);
+  o += `<circle cx="${f1(sx(peaks[0][0]))}" cy="${f1(sy(peaks[0][1]))}" r="4" class="ink-f">${anim('cx', peaks.map((p) => f1(sx(p[0]))), kt, T, true)}${anim('cy', peaks.map((p) => f1(sy(p[1]))), kt, T, true)}</circle>`;
+  const desc = (N) => N === 1 ? '只有 DC 和 1 Hz' : N === 3 ? '加上 3 Hz' : `加到 ${N} Hz`;
+  Ns.forEach((N, i) => {
+    if (i === Ns.length - 1) return;
+    const on = Ns.map((_, j) => j === i || (i === 0 && j === Ns.length - 1));
+    o += `<text x="50" y="22" class="tl" opacity="${on[0] ? 1 : 0}">N = ${N}：${desc(N)}，peak ${peaks[i][1].toFixed(3)}${ashow(on, kt, T)}</text>`;
+  });
+  o += text(530, 22, '虚线：square wave；彩线：只留 |k| ≤ N 的 partial sum', 'ts', 'end');
+  o += text(280, 300, '黑点是最高点。项数越多，平的部分越平、jump 越陡，可 jump 旁的 overshoot 不再变小，停在约 1.09。', 'ts', 'middle');
+  return svgA(560, 306, o, '动图：square wave 的 Fourier series partial sum，N 依次取 1、3、5、7、9、15、25、49；曲线越来越贴近 square wave，但 jump 旁的 peak 一直约 1.09');
+}
+
+// 开头第三件：每 0.1 ms 看一眼，6 kHz 的 spoke 每次转 216°，4 kHz 的转 144°
+function samplesA() {
+  const sx = lin(0, 1, 190, 540), sy = lin(-1.3, 1.3, 196, 50);
+  const hi = (t) => Math.cos(2 * Math.PI * 6 * t), lo = (t) => Math.cos(2 * Math.PI * 4 * t);
+  const order = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0];
+  const step = 1.1, T = order.length * step, kt = order.map((_, i) => i * step / T);
+  let o = line(sx(0), sy(0), sx(1), sy(0), 'axis');
+  for (let n = 0; n <= 10; n++) o += line(sx(n / 10), sy(-1.3), sx(n / 10), sy(1.3), 'grid') + text(sx(n / 10), 212, (n / 10).toFixed(1), 'ts', 'middle');
+  o += path(curve(hi, 0, 1, sx, sy, 600), 'mute') + path(curve(lo, 0, 1, sx, sy, 600), 'ln');
+  for (let n = 0; n <= 10; n++) o += circle(sx(n / 10), sy(lo(n / 10)), 4.5, 'ink-f');
+  // 当前 sample 的竖线
+  o += apath(order.map((n) => d([[sx(n / 10), sy(-1.3)], [sx(n / 10), sy(1.3)]])), kt, T, 'ink', true);
+  // 轮子：spoke 的高度 = cos
+  const C = [84, sy(0)], r = sy(0) - sy(1);
+  o += circle(C[0], C[1], r, 'paper') + line(C[0], C[1] - r - 6, C[0], C[1] + r + 6, 'grid');
+  const tip = (deg) => [C[0] + r * Math.sin(deg * Math.PI / 180), C[1] - r * Math.cos(deg * Math.PI / 180)];
+  const t6 = order.map((n) => tip(216 * n)), t4 = order.map((n) => tip(144 * n));
+  o += apath(t6.map((p) => d([C, p])), kt, T, 'mute', true) + apath(t4.map((p) => d([C, p])), kt, T, 'ln', true);
+  o += apath(order.map((n, i) => d([t6[i], [sx(n / 10), t6[i][1]]])), kt, T, 'dash', true);
+  const dot = (pts, cls, rr) => `<circle cx="${f1(pts[0][0])}" cy="${f1(pts[0][1])}" r="${rr}" class="${cls}">${anim('cx', pts.map((p) => f1(p[0])), kt, T, true)}${anim('cy', pts.map((p) => f1(p[1])), kt, T, true)}</circle>`;
+  o += dot(t6, 'mute-f', 5) + dot(t4, 'ln-f', 4);
+  o += circle(...C, 2.5, 'ink-f');
+  o += text(C[0], 24, '每 0.1 ms 看一眼', 'tb', 'middle');
+  o += text(C[0], sy(-1.3) + 12, '灰 spoke：6 kHz，每次转 216°', 'ts', 'middle') + text(C[0], sy(-1.3) + 28, '彩 spoke：4 kHz，每次转 144°', 'tl', 'middle');
+  o += text(C[0], sy(-1.3) + 46, '216° = −144°：两根左右对称，', 'ts', 'middle') + text(C[0], sy(-1.3) + 62, '高度（= cos 的值）永远一样', 'ts', 'middle');
+  for (const n of order) {
+    const on = order.map((m) => m === n);
+    o += `<text x="540" y="24" class="t" text-anchor="end" opacity="${on[0] ? 1 : 0}">sample ${n}：t = ${(n / 10).toFixed(1)} ms，两者都是 ${minus(lo(n / 10).toFixed(3)).replace('−0.000', '0.000')}${ashow(on, kt, T)}</text>`;
+  }
+  o += line(190, 40, 214, 40, 'mute') + text(218, 44, 'cos(2π · 6000t)', 'ts') + line(330, 40, 354, 40, 'ln') + text(358, 44, 'cos(2π · 4000t)', 'tl');
+  o += text(540, 232, 't（ms）', 'ts', 'end');
+  return svgA(560, 274, o, '动图：每 0.1 毫秒取一个 sample。左边轮子上，6 kHz 的 spoke 每次转 216 度，4 kHz 的每次转 144 度，两根 spoke 左右对称、高度相同；右边两条 cos 在每个 sample 上取同一个值');
+}
+
 export default {
-  'ee2023-switchon': switchon,
+  'ee2023-switchon': switchonA,
   'ee2023-strips': strips,
   'ee2023-q2power': q2power,
   'ee2023-sqrc': sqrc,
@@ -432,15 +586,15 @@ export default {
   'ee2023-rhpzero': rhpzero,
   'ee2023-vectors': vectors,
   'ee2023-eigen': eigen,
-  'ee2023-conv': conv,
-  'ee2023-partial': partial,
+  'ee2023-conv': convA,
+  'ee2023-partial': partialA,
   'ee2023-ftlimit': ftlimit,
   'ee2023-rectsinc': rectsinc,
   'ee2023-sss': sss,
   'ee2023-pz': pz,
   'ee2023-zeta': zeta,
   'ee2023-bode': bode,
-  'ee2023-samples': samples,
+  'ee2023-samples': samplesA,
   'ee2023-alias': alias,
   'ee2023-modulation': modulation,
   'ee2023-sampling': sampling,

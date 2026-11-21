@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, area, axes, apath, acircle, ashow, anim, f1 } from '../lib/svg.mjs';
 
 // 直和：两条 line 时分解唯一；三条 line 两两只交于 0，分解却不唯一
 function directsum() {
@@ -342,10 +342,110 @@ function spectral() {
   return svg(560, 262, o, 'G 的 eigenspace：E4 是过 (1,1,1) 的 line，E1 是与它垂直的 plane x+y+z=0；plane 里 (1,-1,0) 与 (1,0,-1) 夹 60 度，Gram–Schmidt 后得到与 (1,-1,0) 垂直的 (1/2,1/2,-1)');
 }
 
+// ---------- 动图 ----------
+// 开头第二件：v 转一圈，看 Av 什么时候和 v 在同一条 line 上
+function introA() {
+  const R = Math.PI / 180, rate = 40, hold = 1.1;
+  const EA = [[Math.atan2(1, 1) / R, 2, '(1, 1)'], [Math.atan2(1, 2) / R, 3, '(2, 1)']];
+  const ES = [[0, 1, '(1, 0)']];
+  const eigAll = [];
+  for (const [a] of [...EA, ...ES]) eigAll.push(a, a + 180);
+  const ths = [];
+  for (let a = 0; a < 360; a += 3) ths.push(a);
+  for (const a of eigAll) if (!ths.some((t) => Math.abs(t - a) < 1e-9)) ths.push(a);
+  ths.push(360); ths.sort((x, y) => x - y);
+  const isE = (a) => eigAll.some((e) => Math.abs(((a % 360) - e)) < 1e-9);
+  const times = [], th = [];
+  let t = 0;
+  ths.forEach((a, i) => {
+    if (i) t += (a - ths[i - 1]) / rate;
+    times.push(t); th.push(a);
+    if (isE(a) && a < 360) { t += hold; times.push(t); th.push(a); }
+  });
+  const T = t, kt = times.map((x) => x / T);
+  let o = '';
+  const panel = (cx, cy, u, M, eigs, title, Ln) => {
+    const P = ([x, y]) => [cx + u * x, cy - u * y];
+    const mv = ([x, y]) => [M[0][0] * x + M[0][1] * y, M[1][0] * x + M[1][1] * y];
+    o += text(cx, 22, title, 'tb', 'middle');
+    o += line(cx - 128, cy, cx + 128, cy, 'grid') + line(cx, cy - 130, cx, cy + 130, 'grid');
+    const circ = [], ell = [];
+    for (let k = 0; k <= 72; k++) { const a = k * 5 * R; circ.push(P([Math.cos(a), Math.sin(a)])); ell.push(P(mv([Math.cos(a), Math.sin(a)]))); }
+    o += path(d(circ), 'grid') + path(d(ell), 'grid');
+    for (const [a] of eigs) { const c = Math.cos(a * R), s = Math.sin(a * R), L = 128 / u / Math.max(Math.abs(c), Math.abs(s) * 128 / 130); o += line(...P([-L * c, -L * s]), ...P([L * c, L * s]), 'dash'); }
+    const dir = th.map((a) => [Math.cos(a * R), Math.sin(a * R)]);
+    const Ls = 120 / u;
+    o += apath(dir.map(([c, s]) => d([P([-Ls * c, -Ls * s]), P([Ls * c, Ls * s])])), kt, T, 'mute');
+    o += apath(dir.map((v) => d([P([0, 0]), P(v)])), kt, T, 'ink-b');
+    o += apath(dir.map((v) => d([P([0, 0]), P(mv(v))])), kt, T, 'ln');
+    const tv = dir.map(P), ta = dir.map((v) => P(mv(v)));
+    o += acircle(ta.map((p) => p[0]), ta.map((p) => p[1]), kt, T, 4.5, 'ln-f');
+    o += acircle(tv.map((p) => p[0]), tv.map((p) => p[1]), kt, T, 3.5, 'ink-f');
+    // 读数
+    const hit = (a, e) => Math.abs((a % 180) - (e % 180)) < 1e-9;
+    const none = th.map((a) => !eigs.some(([e]) => hit(a, e)));
+    o += `<text x="${cx}" y="${cy + 150}" class="ts" text-anchor="middle" opacity="${none[0] ? 1 : 0}">${Ln}v 不在 v 的 line 上：方向被转走了${ashow(none, kt, T)}</text>`;
+    for (const [e, lam, nm] of eigs) {
+      const on = th.map((a) => hit(a, e));
+      o += `<text x="${cx}" y="${cy + 150}" class="tl" text-anchor="middle" opacity="${on[0] ? 1 : 0}">v 在 ${nm} 的 line 上：${Ln}v = ${lam === 1 ? '' : lam}v${ashow(on, kt, T)}</text>`;
+    }
+  };
+  panel(140, 168, 28, [[4, -2], [1, 1]], EA, 'A = [4 −2; 1 1]', 'A');
+  panel(420, 168, 70, [[1, 1], [0, 1]], ES, 'S = [1 1; 0 1]', 'S');
+  o += text(280, 346, '黑：unit vector v 转一圈；蓝：它的 image；灰线：v 的 line；虚线：被送回自己的 line。', 'ts', 'middle');
+  o += text(280, 364, 'A 有两条这样的 line（停顿四次），S 只有 x-axis 一条（停顿两次）。', 'ts', 'middle');
+  return svgA(560, 372, o, '动图：unit vector v 绕原点转一圈，同时画出 Av 和 Sv。A 在 (1,1) 和 (2,1) 两个方向上 image 与 v 同线，分别是 2v 和 3v；S 只在 x 轴方向上 Sv 等于 v');
+}
+
+// 第 5 站：shear 把每个 tip 水平推 y 这么远
+function shearA() {
+  const s = 62, O = [130, 150];
+  const P = (x, y) => [O[0] + s * x, O[1] - s * y];
+  const T = 6, kt = [0, 0.3, 0.37, 0.45, 0.85, 1], tt = [1, 1, 0, 0, 1, 1];
+  let o = line(O[0] - 1.6 * s, O[1], O[0] + 2.7 * s, O[1], 'axis') + line(O[0], O[1] + 14, O[0], O[1] - 1.55 * s, 'axis');
+  o += line(...P(-1.5, 1), ...P(2.6, 1), 'grid');
+  // unit square → parallelogram
+  o += apath(tt.map((t) => d([P(0, 0), P(1, 0), P(1 + t, 1), P(t, 1)]) + 'Z'), kt, T, 'wash');
+  const vs = [[1, 1], [0, 1], [-1, 1], [0.5, 0.5]];
+  for (const [x, y] of vs) o += arrow(...P(0, 0), ...P(x, y), 'mute');
+  for (const [x, y] of vs) {
+    o += apath(tt.map((t) => d([P(0, 0), P(x + t * y, y)])), kt, T, 'ink');
+    const q = tt.map((t) => P(x + t * y, y));
+    o += acircle(q.map((p) => p[0]), q.map((p) => p[1]), kt, T, 3.5, 'ink-f');
+  }
+  o += arrow(...P(0, 0), ...P(1, 0), 'ln');
+  o += text(P(1, 0)[0], P(1, 0)[1] + 18, 'e₁ = Se₁', 'tl', 'middle');
+  o += text(P(0, 1)[0] - 8, P(0, 1)[1] - 12, 'e₂', 'ts', 'end') + text(P(1, 1)[0] + 6, P(1, 1)[1] - 12, 'Se₂', 'ts', 'start');
+  o += text(318, 52, 'S(x, y) = (x + y, y)', 'tb');
+  o += text(318, 78, '灰色：原来的 vector；黑色：image。', 't');
+  o += text(318, 98, '每个 tip 水平滑动 y 这么远，', 't');
+  o += text(318, 118, '只要 y ≠ 0，方向就变了。', 't');
+  o += text(318, 146, '留在自己 span 上的只有 x-axis：', 't');
+  o += text(318, 166, 'E(1) = span(e₁)，dim = 1 &lt; 2', 'tl');
+  return svgA(560, 190, o, '动图：shear S 作用时每个 vector 的端点水平滑动 y 那么远，unit square 斜成平行四边形；只有水平方向的 vector 留在自己的 span 上');
+}
+
+// 第 7 站：沿 chain 走：e₁ → (1,1,0) → 0
+function chainA() {
+  const base = chain().replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  const P = P3([170, 172], 80);
+  const pts = [[1, 0, 0], [1, 1, 0], [0, 0, 0]].map(P);
+  const T = 6.6, tk = [0, 1 / 3, 2 / 3];
+  const seq = [0, 1, 2];
+  let o = base.replace(/<text x="392"[^>]*>e₁ 不在 plane 上，<\/text><text[^>]*>N 把它送进 plane，<\/text><text[^>]*>N² 把它送到 0。<\/text>/, '');
+  o += `<circle cx="${f1(pts[0][0])}" cy="${f1(pts[0][1])}" r="6" class="ln-f">${anim('cx', seq.map((i) => f1(pts[i][0])), tk, T, true)}${anim('cy', seq.map((i) => f1(pts[i][1])), tk, T, true)}</circle>`;
+  const lines = [['v = e₁：不在 plane 上', '所以不是 eigenvector'], ['Nv = (1, 1, 0)：进了 plane', '是 eigenvector，但不是 0'], ['N²v = 0', 'e₁ 走两步才到 0']];
+  lines.forEach(([a, b], k) => {
+    const on = seq.map((i) => i === k);
+    o += `<g opacity="${on[0] ? 1 : 0}">${text(392, 196, a, 'tl')}${text(392, 216, b, 'ts')}${ashow(on, tk, T)}</g>`;
+  });
+  return svgA(560, 262, o, '动图：A3 减 2I 的 kernel 是 plane x-y+z=0；一个点从 e1 出发，被 N 送到 plane 里的 (1,1,0)，再被送到 0');
+}
+
 export default {
-  'ma2101-intro': intro,
+  'ma2101-intro': introA,
   'ma2101-exchange': exchange,
-  'ma2101-chain': chain,
+  'ma2101-chain': chainA,
   'ma2101-spectral': spectral,
   'ma2101-directsum': directsum,
   'ma2101-dimsum': dimsum,
@@ -353,7 +453,7 @@ export default {
   'ma2101-ranknullity': ranknullity,
   'ma2101-square': square,
   'ma2101-twobases': twobases,
-  'ma2101-shear': shear,
+  'ma2101-shear': shearA,
   'ma2101-dots': dots,
   'ma2101-proj': proj,
   'ma2101-approx': approx,
