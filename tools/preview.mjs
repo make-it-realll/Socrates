@@ -45,6 +45,8 @@ for (const w of [1180, 390]) {
   bad += issues.length;
   if (w === 1180) {
     const figs = await p.$$('.fig');
+    // 动图停在第一帧再截，这样截到的是 reduced-motion 和静态时看到的样子
+    await p.evaluate(() => document.querySelectorAll('svg.fig-anim').forEach((sv) => { sv.pauseAnimations(); sv.setCurrentTime(0); }));
     for (let i = 0; i < figs.length; i++) { await figs[i].scrollIntoViewIfNeeded(); await figs[i].screenshot({ path: path.join(shots, `fig-${String(i + 1).padStart(2, '0')}.png`) }); }
     const H = await p.evaluate(() => document.documentElement.scrollHeight);
     let n = 0;

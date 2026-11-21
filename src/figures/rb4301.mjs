@@ -1,4 +1,12 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, apath, acircle, ashow, anim, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 随帧切换的状态说明：ph = [[开始的 keyTime(0..1), 文字, class], ...]
+const phases = (ph, T, x, y, anchor = 'middle') => ph.map(([t0, s0, cls = 't'], k) => {
+  const t1 = k < ph.length - 1 ? ph[k + 1][0] : 1;
+  const kk = [0, t0, t1].filter((v, i, a) => i === 0 || v > a[i - 1]);
+  const on = kk.map((v) => (v >= t0 && (v < t1 || t1 === 1) ? 1 : 0));
+  return `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s0}${ashow(on, kk, T)}</text>`;
+}).join('');
 
 // 可复现的随机数：mulberry32 加 Box–Muller
 function rng(seed) {
@@ -191,8 +199,8 @@ function denoise() {
   const R = rng(11);
   const Y = 3.2;
   const sx = lin(50, 0, 60, 440), sy = lin(-Y, Y, 250, 26);
-  let o = rect(sx(0) + 30, sy(0.5), 34, sy(-0.5) - sy(0.5), 'wash2');
-  o += text(sx(0) + 47, sy(0.5) - 8, 'obstacle', 'ts', 'middle');
+  let o = rect(sx(0) + 12, sy(0.5), 24, sy(-0.5) - sy(0.5), 'wash2');
+  o += text(sx(0) + 42, sy(0) + 4, 'obstacle', 'ts', 'start') + text(sx(0) + 24, 18, '此刻的 30 个点', 'ts', 'middle');
   o += axes({ sx, sy, x0: 50, x1: 0, y0: -Y, y1: Y, xt: [50, 40, 30, 20, 10, 0], yt: [[-3, '−3'], [-2, '−2'], [-1, '−1'], [0, '0'], [1, '1'], [2, '2'], [3, '3']], xAt: -Y, yAt: 50 });
   const chains = [];
   for (let c = 0; c < 30; c++) {
@@ -216,7 +224,22 @@ function denoise() {
   if (Rr) o += draw(Rr, 'ln');
   o += text(440, 284, 'denoising step k（从左往右，noise 越来越小）', 'ts', 'end');
   o += text(64, 18, 'action', 'ts');
-  return svg(560, 294, o, '30 条 diffusion reverse chain 从 k 等于 50 的标准 Gaussian 出发，前半段散在中间，中段分叉，最后落在左右两个 mode 上，没有停在中间的 obstacle 里');
+  // 动画：每 0.1 s 走一个 denoising step。竖线是当前的 k；右边一列是“现在停下来”会得到的 30 个 action
+  const pre = 0.8, dt = 0.1, post = 2.4, T = pre + K * dt + post;
+  const kt = [0, ...Array.from({ length: K + 1 }, (_, i) => (pre + i * dt) / T), 1], ks = [K, ...Array.from({ length: K + 1 }, (_, i) => K - i), 0];
+  const clampY = (x) => sy(Math.max(-Y, Math.min(Y, x)));
+  o += apath(ks.map((k) => d([[sx(k), sy(Y)], [sx(k), sy(-Y)]])), kt, T, 'grid');
+  const colX = sx(0) + 24;
+  for (const ch of chains) {
+    const at = (k) => ch[K - k][0];
+    const cls = ch === L ? 'ink-f' : ch === Rr ? 'ln-f' : 'mute-f';
+    o += acircle(ks.map((k) => sx(k)), ks.map((k) => clampY(at(k))), kt, T, 3, cls);
+    o += acircle(ks.map(() => colX), ks.map((k) => clampY(at(k))), kt, T, 3, cls);
+  }
+  const inObs = chains.filter((ch) => Math.abs(ch[K][0]) < 0.5).length;
+  o += phases([[0, 'k = 50：30 个起点从 N(0, 1) 里抽出来，很多正落在 obstacle 的高度上'], [(pre + dt) / T, '每一步按 model 去掉一点 noise，再加一点新的 noise'],
+    [(pre + 30 * dt) / T, '中段：点开始分成上下两群'], [(pre + K * dt) / T, 'k = 0：' + (30 - inObs) + ' 个点全落在两个 mode 上，obstacle 的高度上一个也没有', 'tl']], T, 280, 312);
+  return svgA(560, 322, o, '动图：30 条 diffusion reverse chain 从 k 等于 50 的标准 Gaussian 出发，前半段散在中间，中段分叉，最后落在左右两个 mode 上，没有停在中间的 obstacle 里');
 }
 
 // 第 7 站：action chunk 与 temporal ensembling
@@ -266,16 +289,39 @@ function vla() {
 
 // ---------- 开头三次失败 ----------
 function offdist() {
-  const eps = 0.01, T = 200, sx = lin(0, T, 60, 470), sy = lin(0, 1, 220, 40);
-  let o = axes({ sx, sy, x0: 0, x1: T, y0: 0, y1: 1, xt: [0, 50, 100, 150, 200], yt: [0, 0.25, 0.5, 0.75, 1].map((v) => [v, String(v)]), grid: true, xl: 'step t', yl: 'P(第 t 步已离开 demonstration 覆盖的 state)' });
+  const eps = 0.01, N = 200, sx = lin(0, N, 60, 470), sy = lin(0, 1, 396, 236);
   const f = (t) => 1 - (1 - eps) ** t;
-  o += `<path d="${area(f, 0, T, sx, sy)}" class="wash"/>` + path(curve(f, 0, T, sx, sy), 'ln');
-  let J = 0; for (let t = 1; t <= T; t++) J += f(t);
-  o += text(sx(130), sy(0.35), '面积 = ' + J.toFixed(1) + ' 步', 'tl', 'middle');
-  o += text(sx(130), sy(0.35) + 16, '（200 步里的期望值）', 'ts', 'middle');
-  o += circle(sx(T), sy(f(T)), 3.5, 'ln-f') + text(sx(T) + 8, sy(f(T)) + 4, f(T).toFixed(2), 'tl', 'start');
-  o += text(280, 284, '每步只有 ε = 1% 的 probability 出错，但错一次之后就回不到 demonstration 里。', 'ts', 'middle');
-  return svg(560, 296, o, '每步出错 1% 时，第 t 步已经离开 demonstration 分布的概率 1-0.99^t；200 步里平均有 114 步处在没见过的 state');
+  // 上：10 次 rollout 的俯视图。每步以 ε 的 probability 出错，出错后离开 demonstration 覆盖的带子，再也回不来
+  const R = rng(32), nR = 10, top = 70, bot = 134, lanes = [], te = [];
+  for (let i = 0; i < nR; i++) { lanes.push(top + 5 + i * (bot - top - 10) / (nR - 1)); let e = null; for (let t = 1; t <= N; t++) if (e === null && R.u() < eps) e = t; te.push(e); }
+  const yAt = (i, t) => { const e = te[i]; if (e === null || t <= e) return lanes[i]; const dir = lanes[i] < (top + bot) / 2 ? -1 : 1, edge = dir < 0 ? lanes[i] - top : bot - lanes[i];
+    return lanes[i] + dir * (Math.min(1, (t - e) / 6) * (edge + 7) + 0.08 * (t - e)); };
+  const pre = 0.6, play = N * 0.02, post = 2.2, T = pre + play + post; // 50 Hz：每步 0.02 s，真实速度
+  const steps = []; for (let t = 0; t <= N; t += 2) steps.push(t);
+  const kt = [0, ...steps.map((t) => (pre + 0.02 * t) / T), 1], ST = [0, ...steps, N];
+  let o = text(60, 22, '俯视：10 次 rollout，每次 200 步（50 Hz 下 4 秒，按真实速度播放）', 'tb', 'start');
+  o += rect(sx(0), top, sx(N) - sx(0), bot - top, 'wash') + text(478, top + 12, '浅色带子：', 'ts', 'start') + text(478, top + 28, 'demonstration', 'ts', 'start') + text(478, top + 44, '覆盖的 state', 'ts', 'start');
+  o += text(sx(0) - 8, (top + bot) / 2 + 4, 'start', 'ts', 'end');
+  for (let i = 0; i < nR; i++) {
+    const inD = ST.map((t) => d(Array.from({ length: Math.floor(Math.min(t, te[i] ?? N) / 2) + 1 }, (_, k) => [sx(2 * k), lanes[i]]).concat([[sx(Math.min(t, te[i] ?? N)), lanes[i]]])));
+    const offD = ST.map((t) => { if (te[i] === null || t <= te[i]) return `M${f1(sx(0))} ${f1(lanes[i])}`; const pts = []; for (let u = te[i]; u <= t; u += 2) pts.push([sx(u), yAt(i, u)]); pts.push([sx(t), yAt(i, t)]); return d(pts); });
+    o += apath(inD, kt, T, 'mute') + apath(offD, kt, T, 'ln');
+    o += acircle(ST.map((t) => sx(t)), ST.map((t) => yAt(i, t)), kt, T, 3, 'ink-f');
+  }
+  // 已离开的条数
+  const nOff = (t) => te.filter((e) => e !== null && e <= t).length;
+  const chg = [0]; for (let t = 1; t <= N; t++) if (nOff(t) !== nOff(t - 1)) chg.push(t);
+  o += phases(chg.map((t) => [t === 0 ? 0 : (pre + 0.02 * t) / T, '已离开 ' + nOff(t) + ' / 10', nOff(t) ? 'tl' : 'ts']), T, 478, top + 72, 'start');
+  // 下：概率曲线，竖线和上面同一个 step 对齐
+  o += axes({ sx, sy, x0: 0, x1: N, y0: 0, y1: 1, xt: [0, 50, 100, 150, 200], yt: [0, 0.5, 1].map((v) => [v, String(v)]), grid: true, xl: 'step t', yl: 'P(第 t 步已离开 demonstration 覆盖的 state)' });
+  o += `<path d="${area(f, 0, N, sx, sy)}" class="wash"/>` + path(curve(f, 0, N, sx, sy), 'ln');
+  let J = 0; for (let t = 1; t <= N; t++) J += f(t);
+  o += text(sx(130), sy(0.3), '面积 = ' + J.toFixed(1) + ' 步', 'tl', 'middle') + text(sx(130), sy(0.3) + 16, '（200 步里的期望值）', 'ts', 'middle');
+  o += circle(sx(N), sy(f(N)), 3.5, 'ln-f') + text(sx(N) + 8, sy(f(N)) + 4, f(N).toFixed(2), 'tl', 'start');
+  o += apath(ST.map((t) => d([[sx(t), 40], [sx(t), sy(0)]])), kt, T, 'grid');
+  o += acircle(ST.map((t) => sx(t)), ST.map((t) => sy(f(t))), kt, T, 4.5, 'ln-f');
+  o += text(280, 446, '每步只有 ε = 1% 的 probability 出错，但错一次之后就回不到 demonstration 里。', 'ts', 'middle');
+  return svgA(560, 456, o, '动图：10 次 rollout 按真实速度走 200 步，每步有 1% 的 probability 出错，出错的那一条离开 demonstration 覆盖的带子不再回来；下面的曲线 1-0.99^t 是第 t 步已经离开的概率，200 步里平均有 114 步处在没见过的 state');
 }
 function mseavoid() {
   const cnt = [0, 1, 2, 5, 21, 24, 12, 15, 6, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 11, 16, 31, 26, 17, 5, 1, 1, 0];
@@ -297,7 +343,15 @@ function mseavoid() {
   o += text(X(-1.7), Y(0.5) + 4, nL + ' 条从左绕', 'tb', 'end') + text(X(1.7), Y(0.5) + 4, nR + ' 条从右绕', 'tb', 'start');
   o += text(X(0) + 24, Y(0) + 6, '彩色：MSE policy，offset ' + mean.toFixed(3), 'tl', 'start');
   o += text(280, 282, '俯视。灰线是 200 条 demonstration 绕过 obstacle 的路线（按 lateral offset 分组）。', 'ts', 'middle');
-  return svg(560, 294, o, '200 条 demonstration 分别从 obstacle 左右两边绕过，MSE 训练出的 policy 取平均 0.094，正对 obstacle');
+  // 动画：两条最常见的 demonstration 和 MSE policy 同时从 start 出发，同样的速度；MSE 那个走到 obstacle 就停住
+  const pre = 0.6, mv = 3, post = 1.8, T = pre + mv + post, n = 60;
+  const kt = [0, ...Array.from({ length: n + 1 }, (_, k) => (pre + mv * k / n) / T), 1], sv = [0, ...Array.from({ length: n + 1 }, (_, k) => k / n), 1];
+  for (const [yi, stop, cls] of [[-1.05, 1, 'ink-f'], [0.95, 1, 'ink-f'], [mean, 0.4, 'ln-f']]) {
+    const S = sv.map((v) => Math.min(v, stop));
+    o += acircle(S.map((v) => X(yi * Math.sin(Math.PI * v))), S.map((v) => Y(v)), kt, T, 6, cls);
+  }
+  o += phases([[0, '', 't'], [(pre + mv * 0.4) / T, '撞上了', 'tl']], T, hit[0] + 14, hit[1] + 18, 'start');
+  return svgA(560, 294, o, '动图：200 条 demonstration 分别从 obstacle 左右两边绕过，MSE 训练出的 policy 取平均 0.094，正对 obstacle');
 }
 function exploit() {
   const fh = (a) => 0.999 * a - 0.031 * a * a - 0.3 * a ** 3;

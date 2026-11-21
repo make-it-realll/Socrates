@@ -1,4 +1,15 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, svgA, apath, acircle, ashow, anim, animRot, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+
+// 随帧切换的状态说明：ph = [[开始的 keyTime(0..1), 文字, class], ...]
+const phases = (ph, T, x, y, anchor = 'middle') => ph.map(([t0, s0, cls = 't'], k) => {
+  const t1 = k < ph.length - 1 ? ph[k + 1][0] : 1;
+  const kk = [0, t0, t1].filter((v, i, a) => i === 0 || v > a[i - 1]);
+  const on = kk.map((v) => (v >= t0 && (v < t1 || t1 === 1) ? 1 : 0));
+  return `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s0}${ashow(on, kk, T)}</text>`;
+}).join('');
+// motor 的 rotor（俯视）：一个圆盘加一根标记线；angs 是一串 angle（度，逆时针为正）
+const rotor = (cx, cy, r, angs, kt, T, cls = 'ink-b', fcls = 'ink-f') =>
+  `<g>${line(cx, cy, cx + r - 3, cy, cls)}${circle(cx + r - 7, cy, 3.5, fcls)}${animRot(angs.map((a) => -a), cx, cy, kt, T)}</g>`;
 
 // ---------- 小工具：polynomial 与 step response（全部实算） ----------
 const pmul = (a, b) => { const r = new Array(a.length + b.length - 1).fill(0); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] += x * y; })); return r; };
@@ -152,7 +163,18 @@ function rlocus() {
   o += text(sx(-3.4), sy(7.9), 'asymptote 60°', 'ts', 'end');
   o += text(sx(-23.5), sy(2), '第三个 pole 沿', 'ts') + text(sx(-23.5), sy(2) + 16, 'real axis 往左', 'ts');
   o += text(sx(1.5), sy(-3.2), 'K > 44：', 'ts') + text(sx(1.5), sy(-3.2) + 16, '进入 RHP', 'ts');
-  return svg(560, 345, o, 'L(s) 等于 20 除以 s(s+2)(s+20) 的 root locus：两个 branch 从 0 和 −2 出发，在 −0.97 相遇后沿 asymptote 方向弯向右上和右下，K 等于 44 时穿过 imaginary axis；第三个 branch 从 −20 沿 real axis 往左');
+  // 动画：K 从 0 加到 60，三个 closed-loop pole 沿 locus 走；K 小时走得慢一些（K = 60 u²）
+  const nF = 90, pre = 0.6, mv = 6, post = 1.8, TT = pre + mv + post;
+  const Ks = Array.from({ length: nF + 1 }, (_, k) => 60 * (k / nF) ** 2);
+  const R3 = Ks.map((K) => { if (K === 0) return [{ re: -20, im: 0 }, { re: 0, im: 0 }, { re: -2, im: 0 }];
+    const r = roots3(K).sort((a, b) => a.re - b.re), [u, v] = [r[1], r[2]];
+    return Math.abs(u.im) > 1e-6 ? [r[0], u.im > 0 ? u : v, u.im > 0 ? v : u] : [r[0], u.re > v.re ? u : v, u.re > v.re ? v : u]; });
+  const kt = [0, ...Ks.map((_, k) => (pre + mv * k / nF) / TT), 1], F = [0, ...Ks.map((_, k) => k), nF];
+  for (let b = 0; b < 3; b++) o += acircle(F.map((k) => sx(Math.max(-24, R3[k][b].re))), F.map((k) => sy(Math.max(-9, Math.min(9, R3[k][b].im)))), kt, TT, 6, 'solid');
+  const lab = F.slice(1, -1).map((k) => [(pre + mv * k / nF) / TT, 'K = ' + (Ks[k] < 10 ? Ks[k].toFixed(1) : Ks[k].toFixed(0)) + (Ks[k] > 44 ? '：两个 pole 在 RHP，unstable' : ''), Ks[k] > 44 ? 'tl' : 'tb']);
+  lab[0][0] = 0;
+  o += phases(lab, TT, sx(-23.5), sy(7.6), 'start');
+  return svgA(560, 345, o, '动图：K 从 0 加到 60 时三个 closed-loop pole 沿 root locus 移动。L(s) 等于 20 除以 s(s+2)(s+20) 的 root locus：两个 branch 从 0 和 −2 出发，在 −0.97 相遇后沿 asymptote 方向弯向右上和右下，K 等于 44 时穿过 imaginary axis；第三个 branch 从 −20 沿 real axis 往左');
 }
 
 // 7. Angle condition：在想要的 pole 位置上数 angle
@@ -319,31 +341,57 @@ function dist() {
 // ---------- 开头三件事 ----------
 const settle = (pts, tol = 0.02) => { let ts = 0; for (const [t, v] of pts) if (Math.abs(v - 1) > tol) ts = t; return ts; };
 function openloop() {
+  // 动画：3 倍速。理想 1 rad/s 转 5 圈的时间里，0.4 的 motor 只转 4 圈
+  const fast = 3, Treal = 10 * Math.PI, T = Treal / fast;
   let o = '';
-  const row = (y, g, out, cls, note) => {
-    let q = text(20, y + 5, '1 rad/s', 't', 'start') + arrow(72, y, 108, y, 'ink');
-    q += rect(108, y - 20, 96, 40, 'paper', 6) + text(156, y - 2, '÷ 0.5', 't', 'middle') + text(156, y + 13, 'model', 'ts', 'middle');
-    q += arrow(204, y, 266, y, 'ink') + text(235, y - 8, '2 V', 'tb', 'middle');
-    q += rect(266, y - 20, 110, 40, cls === 'ln' ? 'wash' : 'wash2', 6) + text(321, y - 2, 'motor', 'ts', 'middle') + text(321, y + 13, 'DC gain ' + g, cls === 'ln' ? 'tl' : 't', 'middle');
-    q += arrow(376, y, 430, y, 'ink') + text(438, y + 5, (2 * g).toFixed(1) + ' rad/s', cls === 'ln' ? 'tl' : 'tb', 'start') + text(438, y + 21, note, 'ts', 'start');
+  const row = (y, g, cls, note) => {
+    let q = text(16, y + 5, '1 rad/s', 't', 'start') + arrow(64, y, 92, y, 'ink');
+    q += rect(92, y - 20, 84, 40, 'paper', 6) + text(134, y - 2, '÷ 0.5', 't', 'middle') + text(134, y + 13, 'model', 'ts', 'middle');
+    q += arrow(176, y, 226, y, 'ink') + text(201, y - 8, '2 V', 'tb', 'middle');
+    q += rect(226, y - 20, 100, 40, cls === 'ln' ? 'wash' : 'wash2', 6) + text(276, y - 2, 'motor', 'ts', 'middle') + text(276, y + 13, 'DC gain ' + g, cls === 'ln' ? 'tl' : 't', 'middle');
+    q += line(326, y, 362, y, 'ink-b');
+    const cx = 392, r = 30;
+    q += circle(cx, y, r, 'paper');
+    if (cls === 'ln') q += `<g>${line(cx, y, cx + r - 3, y, 'dash')}${animRot([0, -360 * 5], cx, y, [0, 1], T)}</g>`;
+    q += rotor(cx, y, r, [0, 2 * g * Treal * 180 / Math.PI], [0, 1], T, cls === 'ln' ? 'ln' : 'ink-b', cls === 'ln' ? 'ln-f' : 'ink-f') + circle(cx, y, 4, 'ink-f');
+    q += text(436, y - 4, (2 * g).toFixed(1) + ' rad/s', cls === 'ln' ? 'tl' : 'tb', 'start') + text(436, y + 13, note, 'ts', 'start');
     return q;
   };
-  o += row(46, 0.5, '', 'ink', '和 model 一样') + row(126, 0.4, '', 'ln', '少了 20%');
-  o += text(321, 96, '换了 load、发热之后', 'ts', 'middle');
-  o += text(280, 178, 'Open loop：controller 只按 model 算 voltage，不量 output，plant 变了它也不知道。', 'ts', 'middle');
-  return svg(560, 190, o, 'Open loop speed control：要 1 rad/s 就按 model 加 2 V；motor 的 DC gain 从 0.5 变成 0.4 时 speed 变成 0.8 rad/s');
+  o += row(50, 0.5, 'ink', '和 model 一样') + row(150, 0.4, 'ln', '少了 20%');
+  o += text(436, 180, '虚线：应到的位置', 'ts', 'start');
+  o += text(276, 104, '换了 load、发热之后', 'ts', 'middle');
+  o += text(280, 214, 'Open loop：controller 只按 model 算 voltage，不量 output，plant 变了它也不知道。', 'ts', 'middle');
+  return svgA(560, 224, o, '动图：Open loop speed control。要 1 rad/s 就按 model 加 2 V；上面的 motor DC gain 是 0.5，转得和要求一样；下面的 DC gain 变成 0.4，只有 0.8 rad/s，越来越落后于虚线表示的 1 rad/s 位置');
 }
 function k50() {
   const K = 50, T = 6;
   const real = step([20 * K], padd(G0, [20 * K]), T, 6000), simp = step([K], [1, 2, K], T, 6000);
-  const sx = lin(0, T, 60, 420), sy = lin(-1, 3, 230, 30);
-  let o = axes({ sx, sy, x0: 0, x1: T, y0: -1, y1: 3, xt: [0, 1, 2, 3, 4, 5, 6], yt: [-1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), grid: true, xl: 't (s)', yl: 'position（step 的 response）' });
+  const sx = lin(0, T, 56, 356), sy = lin(-1, 3, 250, 40);
+  let o = axes({ sx, sy, x0: 0, x1: T, y0: -1, y1: 3, xt: [0, 1, 2, 3, 4, 5, 6], yt: [-1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), grid: true, xl: 't (s)', yl: 'shaft angle θ（rad），目标 1 rad' });
   const clip = (pts) => { const out = []; for (const p of pts) { if (p[1] > 3 || p[1] < -1) break; out.push(p); } return out; };
   o += path(plotPts(simp, sx, sy), 'ink') + path(plotPts(clip(real), sx, sy), 'ln');
-  o += text(432, 70, '真实 plant', 'tl', 'start') + text(432, 86, '20/(s(s+2)(s+20))', 'ts', 'start') + text(432, 102, 'amplitude 越来越大', 'ts', 'start');
-  o += text(432, 150, '简化 model', 'tb', 'start') + text(432, 166, '1/(s(s+2))', 'ts', 'start') + text(432, 182, '振荡但会停下', 'ts', 'start');
-  o += text(240, 270, '同一个 K = 50。', 'ts', 'middle');
-  return svg(560, 282, o, 'K=50 的 position loop：简化的 second-order model 振荡后安定，真实的 third-order plant 振荡越来越大');
+  // 动画：按真实时间播放 6 s
+  const pre = 0.6, post = 1.6, TT = pre + T + post, idx = [];
+  for (let i = 0; i <= 6000; i += 30) idx.push(i);
+  const kt = [0, ...idx.map((i) => (pre + real[i][0]) / TT), 1], I = [0, ...idx, 6000];
+  o += apath(I.map((i) => d([[sx(real[i][0]), sy(3)], [sx(real[i][0]), sy(-1)]])), kt, TT, 'grid');
+  for (const [pts, cls] of [[simp, 'ink-f'], [real, 'ln-f']]) o += acircle(I.map((i) => sx(pts[i][0])), I.map((i) => sy(Math.max(-1, Math.min(3, pts[i][1])))), kt, TT, 4.5, cls);
+  // 右：两根 motor shaft 的俯视图，angle 就是左边的 θ
+  const R2D = 180 / Math.PI;
+  const shaft = (cx, cy, pts, cls, fcls, title, sub1, sub2, tcls) => {
+    const r = 34;
+    let q = text(cx, cy - r - 40, title, tcls, 'middle') + text(cx, cy - r - 24, sub1, 'ts', 'middle');
+    q += circle(cx, cy, r, 'paper');
+    q += line(cx, cy, cx + (r + 8) * Math.cos(-1), cy + (r + 8) * Math.sin(-1), 'dash') + text(cx + (r + 12) * Math.cos(-1), cy + (r + 12) * Math.sin(-1), '目标', 'ts', 'start');
+    q += line(cx, cy, cx + r + 6, cy, 'grid');
+    q += rotor(cx, cy, r, I.map((i) => pts[i][1] * R2D), kt, TT, cls, fcls) + circle(cx, cy, 4, 'ink-f');
+    q += text(cx, cy + r + 18, sub2, 'ts', 'middle');
+    return q;
+  };
+  o += shaft(450, 92, real, 'ln', 'ln-f', '真实 plant', '20/(s(s+2)(s+20))', 'amplitude 越来越大', 'tl');
+  o += shaft(450, 246, simp, 'ink-b', 'ink-f', '简化 model', '1/(s(s+2))', '振荡但会停下', 'tb');
+  o += text(210, 300, '同一个 K = 50。横线是 θ = 0，虚线是目标 θ = 1 rad。', 'ts', 'middle');
+  return svgA(560, 310, o, '动图：K=50 的 position loop。右边两根 motor shaft 按真实时间转向 1 rad 的目标：简化的 second-order model 振荡后停在目标，真实的 third-order plant 来回甩得越来越大；左边曲线上的点同步移动');
 }
 function tsK() {
   const Ks = []; for (let i = 0; i <= 400; i++) Ks.push(10 ** (2 * i / 400));

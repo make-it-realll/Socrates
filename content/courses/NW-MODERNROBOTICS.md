@@ -78,7 +78,7 @@ sources:
 
 **第一次。** 一条 2R arm（两根 link 都长 1 m），base 旁边 0.6 m 处有一根细柱子。要从 $\theta=(-60^\circ,60^\circ)$ 移到 $(60^\circ,45^\circ)$。把两个 joint angle 各取 $[-180^\circ,180^\circ)$，在这个 square 上铺 2° 的 grid 做 search，结论是“没有 path”。可 arm 明明能把 link 1 往背后转 240° 绕过柱子。
 
-::fig[mr-pillar] 同一个起点和终点。左边是 grid search 能想到的唯一方向，中途必然碰柱子；右边是它想不到的那条路。第 1 站会在 C-space 里看清为什么。
+::fig[mr-pillar] 两边从同一个 start 出发，θ₁ 都以 60°/s 转。左边是 grid search 能想到的唯一方向：θ₁ 增到约 −14° 时 link 1 就碰上柱子，停在那里。右边往回转 240°，4 秒后到达同一个 goal。第 1 站会在 C-space 里看清为什么。
 
 **第二次。** 一辆车正绕地面上的点 $(2,-1)$ 以 2 rad/s 逆时针转。它的 body twist 是 $(0,0,-2,\ 2.8,4,0)$。把这六个数原样发给一个按 space frame 理解 twist 的接口，车改成绕 $(2,-1.4)$ 顺时针转。
 
@@ -86,7 +86,7 @@ sources:
 
 **第三次。** Mobile manipulator 的 gripper 要沿一条 reference trajectory 把方块从 $(1,0)$ 搬到 $(0,-1)$。Controller 只用 feedforward：每一步照着 reference 的 velocity 走。Gripper 开始时偏了 40° 和 0.47 m，走完 15 秒，它停在地面以下 0.25 m。
 
-::fig[mr-ffonly] Gripper 高度随时间的变化（自己写的 kinematic simulation，第 6 站会讲）。只用 feedforward 时，起点的偏差一直没被拉回来；加上 feedback 后不到 3 秒就贴上 reference。
+::fig[mr-ffonly] 左边两个 gripper 按 2 倍速重放 15 秒的 kinematic simulation（自己写的，第 6 站会讲），虚线框是 reference 此刻要它在的位置。看左边那个：起点的偏差（低了一截，还歪了 40°）没有谁去拉回来，照着 reference 的 velocity 走只会把它一路带着，最后整个钻到地面以下。右边那个加了 feedback，不到 3 秒就钻进虚线框。右边 plot 上的点与左边同步。
 
 三件事分别要用到这门课的三样东西：configuration space 的 topology（第 1 站），twist 和它所在的 frame（第 2 站），以及带 feedback 的 task-space control（第 6 站）。
 
@@ -149,7 +149,7 @@ $$6(17-1-21)+9\times1+12\times3=-30+9+36=15$$
 
 把 torus 摊平就是那个 $[-180^\circ,180^\circ)^2$ 的 square，但左右两条边是同一条，上下两条边也是同一条。开头第一次失败就出在这里。
 
-::fig[mr-cspace] 左边是 workspace 里的 arm 和两个圆形 obstacle，右边是同一个问题在 C-space 里的样子。深色区域是让 arm 碰到 obstacle 的 $(\theta_1,\theta_2)$，第 5 站会讲它怎么算。
+::fig[mr-cspace] 左边是 workspace 里的 arm 和两个圆形 obstacle，右边是同一个问题在 C-space 里的样子，深色区域是让 arm 碰到 obstacle 的 $(\theta_1,\theta_2)$（第 5 站会讲它怎么算）。Arm 沿找到的 path 走时，右边的点同步走：看它走到左边界 $-180^\circ$ 时，从右边界 $180^\circ$ 冒出来接着走，arm 本身的动作是连续的。
 
 Obstacle A 的 center 在 $(0.6,0)$，radius 0.15。Link 1 是从 origin 出发、方向为 $\theta_1$ 的长 1 的 segment，它到 A 的 center 的距离是 $0.6\,|\sin\theta_1|$（center 在 link 1 方向上的 projection $0.6\cos\theta_1$ 落在 segment 内）。小于 0.15 就碰：
 
@@ -545,7 +545,7 @@ $$x_{\mathrm{samp}}-x_{\mathrm{nearest}}=(0.8,\ 0.4),\qquad\|(0.8,0.4)\|=0.894,\
 
 然后检查从 $(-0.5,-0.5)$ 到 $(-0.411,-0.455)$ 的 segment 碰不碰 obstacle。
 
-::fig[mr-rrt] 在 $[-0.5,0.5]^2$ 里有七个圆形 obstacle 的 RRT，goal bias 10%，$d=0.1$。这次撒到第 67 个 node 时到达 goal。
+::fig[mr-rrt] 在 $[-0.5,0.5]^2$ 里有七个圆形 obstacle 的 RRT，goal bias 10%，$d=0.1$。第一帧是最终结果；之后从空 tree 开始一轮一轮重放：小圆圈是这一轮的 sample，虚线连到 tree 里最近的 node，彩色短线是加进 tree 的一步，黑色短线是碰到 obstacle 被丢掉的一步。这次撒到第 67 个 node 时到达 goal。
 
 RRT 偏爱往大片空白处长：一个 node 被选为 nearest 的 probability，正比于离它最近的那一块区域（Voronoi region）的面积，tree 的边缘 node 拥有的区域最大，所以 tree 很快向外铺开。它找到的 path 是第一条，不是最短的。书上介绍了两个改进：bidirectional RRT 从 start 和 goal 各长一棵 tree，两棵足够接近时连起来；RRT* 在加 node 时从附近的 node 里挑总 cost 最小的当 parent，并检查附近的 node 改走新 node 是否更短，sample 越多 path 越接近 optimal。
 

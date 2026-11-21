@@ -1,4 +1,15 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes, sub } from '../lib/svg.mjs';
+import { svg, svgA, apath, acircle, ashow, anim, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes, sub } from '../lib/svg.mjs';
+
+// 动图小工具：有厚度的 link（从 pivot 出发，angle 以度计、向上为正）
+const barD = (O, L, a, w = 4) => { const c = Math.cos(a * Math.PI / 180), s = -Math.sin(a * Math.PI / 180), nx = -s * w, ny = c * w;
+  return d([[O[0] + nx, O[1] + ny], [O[0] + c * L + nx, O[1] + s * L + ny], [O[0] + c * L - nx, O[1] + s * L - ny], [O[0] - nx, O[1] - ny]]) + 'Z'; };
+// 随帧切换的状态说明：ph = [[开始的 keyTime(0..1), 文字, class], ...]
+const phases = (ph, T, x, y, anchor = 'middle') => ph.map(([t0, s0, cls = 't'], k) => {
+  const t1 = k < ph.length - 1 ? ph[k + 1][0] : 1;
+  const kk = [0, t0, t1].filter((v, i, a) => i === 0 || v > a[i - 1]);
+  const on = kk.map((v) => (v >= t0 && (v < t1 || t1 === 1) ? 1 : 0));
+  return `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s0}${ashow(on, kk, T)}</text>`;
+}).join('');
 
 // ---------- 共用的 model 与 simulation ----------
 // Joint J：M θ'' + b θ' + mgr cos θ = τ
@@ -315,22 +326,31 @@ function task() {
   const P1 = [0.4 * Math.cos(q0[0]), 0.4 * Math.sin(q0[0])];
   o += line(sx(0), sy(0), sx(P1[0]), sy(P1[1]), 'mute') + line(sx(P1[0]), sy(P1[1]), sx(x0[0]), sy(x0[1]), 'mute');
   o += circle(sx(0), sy(0), 5, 'paper') + circle(sx(P1[0]), sy(P1[1]), 5, 'paper');
-  o += text(sx(0.2), sy(0) + 16, 'link 1', 'ts', 'middle') + text(sx(0.4) + 8, sy(0.2), 'link 2', 'ts');
+  o += text(sx(0.2), sy(0) - 8, 'link 1', 'ts', 'middle') + text(sx(0.4) + 8, sy(0.2), 'link 2', 'ts');
   // Lambda ellipse at start: eigen 0.333 along x, 1.333 along y
   const ell = [];
   for (let i = 0; i <= 60; i++) { const a = (2 * Math.PI * i) / 60; ell.push([sx(x0[0] + 0.333 * 0.06 * Math.cos(a)), sy(x0[1] + 1.333 * 0.06 * Math.sin(a))]); }
   o += path(d(ell) + 'Z', 'wash ink-s');
   o += text(sx(x0[0]) - 18, sy(x0[1] + 0.09), 'Λ：y 方向 1.33 kg', 'ts', 'end') + text(sx(x0[0]) - 18, sy(x0[1] + 0.065), 'x 方向 0.33 kg', 'ts', 'end');
   o += line(sx(x0[0]), sy(x0[1]), sx(xg[0]), sy(xg[1]), 'dash');
-  for (const [c, cls] of [[jt, 'ink'], [osc, 'ln']]) {
+  // 动画：两种 controller 同时从起点出发，按 1/2 速度播放 1.5 s
+  const slow = 2, pre = 0.6, post = 1.6, T = pre + slow * 1.5 + post;
+  let anims = '';
+  for (const [c, cls, fcls] of [[jt, 'ink', 'ink-f'], [osc, 'ln', 'ln-f']]) {
     const r = armSim(A, c, q0, 1.5, 5e-4, 4);
     o += path(d(r.map((z) => { const p = A.fk(z.q); return [sx(p[0]), sy(p[1])]; })), cls);
+    const fr = r.filter((_, k) => k % 6 === 0 || k === r.length - 1);
+    const kt = [0, ...fr.map((z) => (pre + slow * z.t) / T), 1], Q = [fr[0].q, ...fr.map((z) => z.q), fr[fr.length - 1].q];
+    const pts = Q.map((q) => [[0, 0], [0.4 * Math.cos(q[0]), 0.4 * Math.sin(q[0])], A.fk(q)].map(([x, y]) => [sx(x), sy(y)]));
+    anims += apath(pts.map((P) => d(P)), kt, T, cls === 'ln' ? 'ln' : 'ink-b');
+    anims += acircle(pts.map((P) => P[1][0]), pts.map((P) => P[1][1]), kt, T, 3.5, fcls) + acircle(pts.map((P) => P[2][0]), pts.map((P) => P[2][1]), kt, T, 4.5, fcls);
   }
-  o += circle(sx(x0[0]), sy(x0[1]), 4, 'ink-f') + circle(sx(xg[0]), sy(xg[1]), 5, 'paper');
+  o += circle(sx(x0[0]), sy(x0[1]), 4, 'ink-f') + circle(sx(xg[0]), sy(xg[1]), 5, 'paper') + anims + circle(sx(0), sy(0), 5, 'paper');
   o += text(sx(x0[0]) + 16, sy(x0[1]) - 14, '起点 (0.4, 0.4)', 'ts') + text(sx(xg[0]) + 9, sy(xg[1]) + 4, '目标 (0.55, 0.25)', 'ts');
   o += legend(400, 60, [['ink', 'Jacobian transpose'], ['ln', 'operational space'], ['dash', 'straight line']]);
   o += text(400, 225, 'Jacobian transpose：', 'ts') + text(400, 242, 'K = 100 N/m，x 方向轻，', 'ts') + text(400, 259, '先横着走，偏出 24 mm', 'ts');
-  return svg(560, 300, o, 'Arm A 的 end-effector 从 (0.4, 0.4) 走到 (0.55, 0.25)：Jacobian transpose control 的路线先向 x 方向偏出约 24 毫米，operational space control 走 straight line；起点处的 task-space inertia ellipse 在 y 方向长、x 方向短');
+  o += text(400, 290, '灰线：起点时的 arm。', 'ts') + text(400, 307, '两条 arm 按 1/2 速度同时出发。', 'ts');
+  return svgA(560, 340, o, '动图：Arm A 的两个副本同时从同一个 configuration 出发。end-effector 从 (0.4, 0.4) 走到 (0.55, 0.25)：Jacobian transpose control 的路线先向 x 方向偏出约 24 毫米，operational space control 走 straight line；起点处的 task-space inertia ellipse 在 y 方向长、x 方向短');
 }
 
 // ---------- 图 10：mobile robot ----------
@@ -390,31 +410,69 @@ function mobile() {
     o += text(sx2(-0.2), base + 26, lab, 't');
   }
   o += text(430, 290, '三角形指向车头，每 3 s 画一个', 'ts', 'middle');
-  return svg(560, 320, o, '左图：两种 controller 从同一个错位的起点出发，都收敛到 radius 1 米的 circle 形 reference 上。右图：offset point 取在车前时车头朝前，取在车后时 P 同样跟上 straight line 但车一路倒着开');
+  // 动画：所有车按 4 倍速同时开，左边 25 s，右边 12 s
+  const fast = 4, pre = 0.6, post = 1.8, T = pre + 25 / fast + post;
+  const car = (X, Y, th, k = 1) => { const c = Math.cos(th), s = Math.sin(th);
+    return d([[11, 0], [5, 6], [-9, 6], [-9, -6], [5, -6]].map(([bx, by]) => [X + k * (bx * c - by * s), Y - k * (bx * s + by * c)])) + 'Z'; };
+  const drive = (r, X, Y, d0, cls, fcls, every) => {
+    const fr = r.filter((_, k) => k % every === 0 || k === r.length - 1);
+    const kt = [0, ...fr.map((z) => (pre + z[0] / fast) / T), 1], Z = [fr[0], ...fr, fr[fr.length - 1]];
+    let q = apath(Z.map((z) => car(X(z[1]), Y(z[2]), z[3])), kt, T, cls);
+    const P = Z.map((z) => [X(z[1] + d0 * Math.cos(z[3])), Y(z[2] + d0 * Math.sin(z[3]))]);
+    if (d0) q += acircle(P.map((p) => p[0]), P.map((p) => p[1]), kt, T, 2.5, fcls);
+    return q;
+  };
+  o += drive(rpnt, sx, sy, 0.1, 'paper', 'ink-f', 4) + drive(rk, sx, sy, 0, 'wash-strong', 'ln-f', 4);
+  { const fr = []; for (let t = 0; t <= 25 + 1e-9; t += 0.2) fr.push(t);
+    const kt = [0, ...fr.map((t) => (pre + t / fast) / T), 1], RP = [0, ...fr, 25].map((t) => ref(t)[0]);
+    o += acircle(RP.map((p) => sx(p[0])), RP.map((p) => sy(p[1])), kt, T, 3.5, 'ln-f'); }
+  for (const [d0, base] of [[0.1, 110], [-0.1, 230]]) {
+    const sy2 = (y) => base - S2 * y, r = simPoint(d0, [0, 0.3, Math.PI / 3], 12, lineRef);
+    o += drive(r, sx2, sy2, d0, 'paper', d0 > 0 ? 'ln-f' : 'ink-f', 2);
+  }
+  return svgA(560, 320, o, '动图：左图：两种 controller 从同一个错位的起点出发，都收敛到 radius 1 米的 circle 形 reference 上。右图：offset point 取在车前时车头朝前，取在车后时 P 同样跟上 straight line 但车一路倒着开');
 }
 
 // ---------- 开头三次实验 ----------
 function three() {
   const D = (r) => r * 180 / Math.PI;
+  // 按 1/4 速度播放：sim 的 t 秒 → 动画的 pre + 4t 秒
+  const slow = 4, pre = 0.6, post = 1.8, T = pre + slow * 1.5 + post;
+  const KT = (t) => (pre + slow * t) / T;
   let o = '';
-  const panel = (x0, title, yr, yt, series, target, notes) => {
-    const sx = lin(0, series.T, x0 + 34, x0 + 170), sy = lin(yr[0], yr[1], 212, 40);
+  const panel = (x0, title, yr, yt, Tsim, xt, lines, target, notes, hi) => {
+    const sx = lin(0, Tsim, x0 + 34, x0 + 170), sy = lin(yr[0], yr[1], 330, 196);
     let q = text(x0 + 100, 22, title, 'tb', 'middle');
-    q += axes({ sx, sy, x0: 0, x1: series.T, y0: yr[0], y1: yr[1], xt: series.xt, yt: yt.map((v) => [v, String(v).replace('-', '−') + '°']), grid: true });
-    q += line(sx(0), sy(target), sx(series.T), sy(target), 'dash');
-    for (const [pts, cls] of series.lines) q += path(d(pts.filter(([t, y]) => y >= yr[0] && y <= yr[1]).map(([t, y]) => [sx(t), sy(y)])), cls);
-    for (const [t, y, s, cls, anc] of notes) q += text(sx(t), sy(y), s, cls, anc);
+    // 上：joint 本身
+    const O = [x0 + 76, 98], L = 54;
+    q += rect(O[0] - 26, O[1] - 12, 18, 24, 'wash2', 3);
+    q += line(O[0], O[1], O[0] + L + 18, O[1] - Math.tan(target * Math.PI / 180) * (L + 18), 'dash') + text(O[0] + L + 20, O[1] - Math.tan(target * Math.PI / 180) * (L + 18) + 4, 'target', 'ts', 'start');
+    for (const [pts, cls, main] of lines) {
+      const fr = pts.filter((_, k) => k % Math.max(1, Math.round(pts.length / 150)) === 0 || k === pts.length - 1);
+      const kt = [0, ...fr.map(([t]) => KT(t)), 1], ang = [fr[0][1], ...fr.map(([, a]) => a), fr[fr.length - 1][1]];
+      q += apath(ang.map((a) => barD(O, L, a, main ? 4 : 2.5)), kt, T, main ? 'solid' : 'mute');
+      if (main) { const C = ang.map((a) => [O[0] + 0.8 * L * Math.cos(a * Math.PI / 180), O[1] - 0.8 * L * Math.sin(a * Math.PI / 180)]);
+        q += acircle(C.map((c) => c[0]), C.map((c) => c[1]), kt, T, 7, 'ink-f');
+        // 下：plot 上同步的点
+        q += acircle(ang.map((_, k) => sx(k === 0 ? 0 : k === ang.length - 1 ? fr[fr.length - 1][0] : fr[k - 1][0])), ang.map((a) => sy(Math.max(yr[0], Math.min(yr[1], a)))), kt, T, 4, 'ink-f'); }
+    }
+    q += circle(O[0], O[1], 4, 'paper');
+    q += axes({ sx, sy, x0: 0, x1: Tsim, y0: yr[0], y1: yr[1], xt, yt: yt.map((v) => [v, String(v).replace('-', '−') + '°']), grid: true });
+    q += line(sx(0), sy(target), sx(Tsim), sy(target), 'dash');
+    for (const [pts, cls] of lines) q += path(d(pts.filter(([t, y]) => y >= yr[0] && y <= yr[1]).map(([t, y]) => [sx(t), sy(y)])), cls);
+    for (const [t, y, s0, cls, anc] of notes) q += text(sx(t), sy(y), s0, cls, anc);
     return q;
   };
   const pd = jointSim({ Kp: 20, Kd: 1.9, T: 1.5 }).map((z) => [z.t, D(z.th)]);
   const pid = jointSim({ Kp: 20, Kd: 1.9, Ki: 100, tmax: 3, T: 1.5 }).map((z) => [z.t, D(z.th)]);
   const peak = Math.max(...pid.map(([, y]) => y));
-  o += panel(0, '① PD', [-95, 15], [-90, -45, 0], { T: 1.5, xt: [0, 0.5, 1, 1.5], lines: [[pd, 'ln']] }, 0, [[1.45, D(-0.0976) - 14, '停在 −' + Math.abs(pd[pd.length - 1][1]).toFixed(1) + '°', 'tl', 'end']]);
-  o += panel(186, '② PID，3 N·m limit', [-95, 65], [-90, -45, 0, 45], { T: 1.5, xt: [0, 0.5, 1, 1.5], lines: [[pid, 'ln']] }, 0, [[0.62, peak + 4, '冲过 ' + peak.toFixed(0) + '°', 'tl', 'start']]);
+  o += panel(0, '① PD', [-95, 15], [-90, -45, 0], 1.5, [0, 0.5, 1, 1.5], [[pd, 'ln', true]], 0, [[1.45, D(-0.0976) - 14, '停在 −' + Math.abs(pd[pd.length - 1][1]).toFixed(1) + '°', 'tl', 'end']]);
+  o += panel(186, '② PID，3 N·m limit', [-95, 65], [-90, -45, 0, 45], 1.5, [0, 0.5, 1, 1.5], [[pid, 'ln', true]], 0, [[0.62, peak + 4, '冲过 ' + peak.toFixed(0) + '°', 'tl', 'start']]);
   const s1 = sampledSim({ f: 1000, T: 1.2 }).map((z) => [z.t, D(z.th)]), s55 = sampledSim({ f: 55, T: 1.2 }).map((z) => [z.t, D(z.th)]);
-  o += panel(372, '③ 同一组 gain，55 Hz', [-10, 30], [0, 11.5, 20], { T: 1.2, xt: [0, 0.4, 0.8, 1.2], lines: [[s1, 'mute'], [s55, 'ln']] }, 11.46, [[0.6, -8, '灰线：同一组 gain，1 kHz', 'ts', 'middle']]);
-  o += text(280, 246, '横轴是 time（s），竖轴是 link angle，虚线是目标。③ 是第 3 站用的 0.2 rad step。', 'ts', 'middle');
-  return svg(560, 258, o, '三次实验的 link angle：PD 停在差 5.6 度处；PID 加 3 N·m torque limit 冲过水平 54 度；同一组 gain 在 55 Hz 下越摆越大');
+  o += panel(372, '③ 同一组 gain，55 Hz', [-10, 30], [0, 11.5, 20], 1.2, [0, 0.4, 0.8, 1.2], [[s1, 'mute', false], [s55, 'ln', true]], 11.46, [[0.6, -8, '灰线：同一组 gain，1 kHz', 'ts', 'middle']]);
+  o += text(280, 172, '上：link 本身（1/4 速度）；下：link angle 随 time（s），虚线是目标。', 'ts', 'middle');
+  o += text(280, 370, '③ 是第 3 站用的 0.2 rad step，灰色细 link 是 1 kHz 时的样子。', 'ts', 'middle');
+  return svgA(560, 380, o, '动图：三次实验里 link 本身怎么转，下面的 link angle 曲线上的点同步走。PD 停在差 5.6 度处；PID 加 3 N·m torque limit 冲过水平 54 度；同一组 gain 在 55 Hz 下越摆越大，1 kHz 时稳稳停住');
 }
 function jointj() {
   const u = 500, O = [150, 110], P = (r, a) => [O[0] + r * u * Math.cos(a), O[1] - r * u * Math.sin(a)];
