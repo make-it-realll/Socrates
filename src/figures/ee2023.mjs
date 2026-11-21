@@ -298,7 +298,139 @@ function sampling() {
   return svg(560, 258, o, 'Bandpass signal 占据 11 到 19 Hz；sampling rate 为 19 Hz 时 replica 恰好不 overlap，18 Hz 时 replica 重叠产生 aliasing');
 }
 
+// 开头第二件事：t = 0 才接上的 cos t 通过 RC circuit
+function switchon() {
+  const sx = lin(0, 12, 56, 530), sy = lin(-1.1, 1.1, 250, 70);
+  const ss = (t) => Math.SQRT1_2 * Math.cos(t - Math.PI / 4), tr = (t) => -0.5 * Math.exp(-t);
+  let o = axes({ sx, sy, x0: 0, x1: 12, y0: -1.1, y1: 1.1, xt: [2, 4, 6, 8, 10, 12], yt: [[-0.5, '−0.5'], [0.707, '0.707'], [1, '1']], xAt: 0 }) + text(530, 268, 't（s）', 'ts', 'end');
+  o += path(curve(Math.cos, 0, 12, sx, sy, 300), 'grid');
+  o += path(curve(tr, 0, 12, sx, sy, 200), 'mute') + path(curve(ss, 0, 12, sx, sy, 300), 'dash') + path(curve((t) => ss(t) + tr(t), 0, 12, sx, sy, 400), 'ln');
+  o += circle(sx(0), sy(0), 3.5, 'ln-f');
+  o += line(56, 18, 86, 18, 'ln') + text(92, 22, 'output = 0.707 cos(t − 45°) − 0.5e⁻ᵗ，从 y(0) = 0 出发', 'tl');
+  o += line(56, 38, 86, 38, 'dash') + text(92, 42, '0.707 cos(t − 45°)：只谈 frequency 时得到的那一项', 't');
+  o += line(56, 58, 86, 58, 'mute') + text(92, 62, '−0.5e⁻ᵗ：多出来的一项（浅灰细线是 input cos t）', 'ts');
+  return svg(560, 278, o, 't 等于 0 才接上的 cos t 通过 RC circuit：output 从 0 出发，等于 0.707cos(t−45°) 减去一项逐渐消失的 0.5e^-t');
+}
+
+// 第 1 站：Δ = 0.25 时的 Riemann sum，四段各留下一条 h
+function strips() {
+  const sx = lin(-0.2, 3.2, 70, 530);
+  const sy1 = lin(0, 1.3, 86, 26), sy = lin(0, 0.7, 260, 110);
+  let o = line(sx(-0.2), sy1(0), sx(3.2), sy1(0), 'axis');
+  for (let k = 0; k < 4; k++) o += rect(sx(k * 0.25), sy1(1), sx(0.25) - sx(0), sy1(0) - sy1(1), k % 2 ? 'wash-strong' : 'wash') + text(sx(k * 0.25 + 0.125), sy1(1) + 16, 'k=' + k, 'ts', 'middle');
+  o += text(sx(-0.2), sy1(1) + 4, 'x(τ)', 'tb');
+  o += text(sx(1.15), sy1(0.55), '每段 area 0.25，在 kΔ 处留下一条 0.25·h(t − kΔ)', 'ts');
+  o += axes({ sx, sy, x0: -0.2, x1: 3.2, y0: 0, y1: 0.7, xt: [0, 1, 2, 3], yt: [[0.25, '0.25'], [0.5, '0.5']], xl: 't', yAt: 0 });
+  const h = (k) => (t) => (t < k * 0.25 ? NaN : 0.25 * Math.exp(-(t - k * 0.25)));
+  for (let k = 0; k < 4; k++) o += path(curve(h(k), k * 0.25, 3.2, sx, sy, 200), 'mute');
+  const sum = (t) => [0, 1, 2, 3].reduce((a, k) => a + (t >= k * 0.25 ? 0.25 * Math.exp(-(t - k * 0.25)) : 0), 0);
+  const exact = (t) => (t < 0 ? 0 : t <= 1 ? 1 - Math.exp(-t) : Math.exp(-(t - 1)) - Math.exp(-t));
+  o += path(curve(exact, 0, 3.2, sx, sy, 300), 'dash') + path(curve(sum, 0, 3.2, sx, sy, 600), 'ink');
+  // t = 2 处把四段叠起来
+  let acc = 0;
+  for (let k = 0; k < 4; k++) { const v = 0.25 * Math.exp(-(2 - k * 0.25)); o += rect(sx(2) - 7, sy(acc + v), 14, sy(acc) - sy(acc + v), k % 2 ? 'wash-strong' : 'wash'); acc += v; }
+  o += rect(sx(2) - 7, sy(acc), 14, sy(0) - sy(acc), 'frame');
+  o += circle(sx(2), sy(exact(2)), 3.5, 'ink-f');
+  const lx = sx(1.72);
+  o += text(lx, sy(0.67), '黑线：四条灰线之和', 'ts') + text(lx, sy(0.6), '虚线：Δ → 0 的 y(t)', 'ts');
+  o += text(lx, sy(0.5), 't = 2 处：0.0716 + 0.0558 + 0.0435', 'ts') + text(lx, sy(0.44), '+ 0.0338 = 0.2047（竖条）', 'tb') + text(lx, sy(0.37), 'exact y(2) = 0.2325（黑点）', 'ts');
+  return svg(560, 300, o, 'rect pulse 切成宽 0.25 的四段，每段留下一条缩小的 exponential；t=2 处四段之和 0.2047，接近 exact 的 0.2325');
+}
+
+// 第 2 站卷子第 2 题：power spectrum，四根 line，不 symmetric
+function q2power() {
+  const sx = lin(-12, 12, 50, 530), sy = lin(0, 20, 220, 50);
+  let o = axes({ sx, sy, x0: -12, x1: 12, y0: 0, y1: 20, xt: [[-10, '−10'], [-2, '−2'], [0, '0'], [2, '2'], [10, '10']], yt: [], xl: 'f（Hz）', yAt: -12 });
+  const L = [[0, 16, '16'], [2, 0.25, '0.25'], [-2, 0.25, '0.25'], [10, 18, '18']];
+  for (const [f, v, lab] of L) { o += line(sx(f), sy(0), sx(f), sy(v), 'ln') + circle(sx(f), sy(v), 3.5, 'ln-f') + text(sx(f), sy(v) - 9, lab, 'tl', 'middle'); }
+  o += circle(sx(-10), sy(0), 4.5, 'paper') + text(sx(-10), sy(0) - 14, '这里没有 line', 'ts', 'middle');
+  o += text(sx(-12) + 4, 34, '|cₖ|²', 'ts');
+  o += text(sx(-9.5), sy(19.5), 'total power = 16 + 0.25 + 0.25 + 18 = 34.5', 't');
+  return svg(560, 262, o, '卷子第 2 题的 power spectrum：0 Hz 处 16，正负 2 Hz 处各 0.25，+10 Hz 处 18，-10 Hz 处没有');
+}
+
+// 第 2 站：1 Hz square wave 通过 RC circuit
+function sqrc() {
+  const sx = lin(-1, 2, 60, 530), sy = lin(-0.05, 1.12, 240, 40);
+  const sq = (t) => { const u = ((t % 1) + 1.5) % 1 - 0.5; return Math.abs(u) < 0.25 ? 1 : 0; };
+  const ymax = (1 - Math.exp(-0.5)) / (1 - Math.exp(-1)), ymin = ymax * Math.exp(-0.5);
+  const y = (t) => { const u = (((t + 0.25) % 1) + 1) % 1; return u < 0.5 ? 1 - (1 - ymin) * Math.exp(-u) : ymax * Math.exp(-(u - 0.5)); };
+  let o = axes({ sx, sy, x0: -1, x1: 2, y0: -0.05, y1: 1.12, xt: [[-1, '−1'], [0, '0'], [1, '1'], [2, '2']], yt: [[ymin, ymin.toFixed(3)], [0.5, '0.5'], [ymax, ymax.toFixed(3)], [1, '1']], xl: 't（s）' });
+  o += line(sx(-1), sy(ymin), sx(2), sy(ymin), 'grid') + line(sx(-1), sy(ymax), sx(2), sy(ymax), 'grid') + line(sx(-1), sy(0.5), sx(2), sy(0.5), 'grid');
+  const pts = []; for (let i = 0; i <= 1200; i++) { const t = -1 + 3 * i / 1200; pts.push([sx(t), sy(sq(t))]); }
+  o += path(d(pts), 'mute') + path(curve(y, -1, 2, sx, sy, 600), 'ln');
+  o += text(60, 22, '灰线：input，1 Hz square wave；彩线：RC circuit 的 output（steady state）', 'ts');
+  return svg(560, 282, o, '1 Hz 的 square wave 通过 RC lowpass filter：output 在 0.378 与 0.622 之间以 0.5 为中心摆动');
+}
+
+// 第 3 站卷子第 1 题：两个 sinc，各自窄得只有 4 Hz
+function q1() {
+  const X = (f) => sinc((f - 1000) / 2) + sinc((f + 1000) / 2);
+  let o = '';
+  { // 全貌
+    const sx = lin(-1500, 1500, 40, 200), sy = lin(-0.3, 1.15, 220, 60);
+    o += axes({ sx, sy, x0: -1500, x1: 1500, y0: -0.3, y1: 1.15, xt: [[-1000, '−1000'], [1000, '1000']], yt: [[1, '1']], xAt: 0, yAt: 0 });
+    o += line(sx(-1000), sy(0), sx(-1000), sy(1), 'ln') + line(sx(1000), sy(0), sx(1000), sy(1), 'ln');
+    o += text(120, 30, '全貌（f 以 Hz 计）', 'tb', 'middle') + text(120, 46, '每个 sinc 窄得只剩一根线', 'ts', 'middle');
+  }
+  { // 放大 994 到 1006 Hz
+    const sx = lin(993, 1007, 250, 530), sy = lin(-0.3, 1.15, 220, 60);
+    o += axes({ sx, sy, x0: 993, x1: 1007, y0: -0.3, y1: 1.15, xt: [994, 996, 998, 1000, 1002, 1004, 1006], yt: [[0, '0'], [1, '1']], yAt: 993 }) + line(sx(993), sy(0), sx(1007), sy(0), 'grid');
+    o += path(curve(X, 993, 1007, sx, sy, 500), 'ln');
+    o += circle(sx(998), sy(0), 3.5, 'paper') + circle(sx(1002), sy(0), 3.5, 'paper');
+    o += text(sx(1002.2), sy(0.75), 'zero：998、1002 Hz', 'ts') + text(sx(1002.2), sy(0.62), 'bandwidth 4 Hz', 'ts');
+    o += text(390, 30, '放大 f = 1000 Hz 附近', 'tb', 'middle') + text(sx(1000) + 8, sy(1) + 4, 'X(1000) = 1', 'tl');
+  }
+  return svg(560, 250, o, '4cos(2000πt)rect(2t) 的 spectrum：两个以正负 1000 Hz 为中心的 sinc，峰高 1，在 998 和 1002 Hz 第一次到零');
+}
+
+// 第 5 站：right half-plane zero 只让 response 先反向
+function rhpzero() {
+  const sx = lin(0, 6, 60, 520), sy = lin(-0.5, 1.15, 240, 40);
+  const y1 = (t) => 1 - 2 * Math.exp(-t) + Math.exp(-2 * t), y2 = (t) => 1 - 4 * Math.exp(-t) + 3 * Math.exp(-2 * t);
+  let o = axes({ sx, sy, x0: 0, x1: 6, y0: -0.5, y1: 1.15, xt: [1, 2, 3, 4, 5, 6], yt: [[-1 / 3, '−⅓'], [1, '1']], xl: 't（s）', xAt: 0 });
+  o += line(sx(0), sy(1), sx(6), sy(1), 'grid');
+  o += path(curve(y1, 0, 6, sx, sy, 300), 'ink') + path(curve(y2, 0, 6, sx, sy, 300), 'ln');
+  const tm = Math.log(1.5);
+  o += circle(sx(tm), sy(y2(tm)), 3.5, 'ln-f') + text(sx(tm) + 8, sy(y2(tm)) + 16, 't = ln 1.5 = 0.41，y = −⅓', 'tl');
+  o += text(sx(0.35), sy(0.76), '2 / ((s+1)(s+2))', 'tb');
+  o += text(sx(2.4), sy(0.42), '2(1 − s) / ((s+1)(s+2))', 'tl');
+  return svg(560, 270, o, '两个 pole 相同的 system 的 step response：没有 zero 的单调上升到 1；在 s=1 有 zero 的先往下走到 -1/3，再回到 1');
+}
+
+// 第 5 站：从 pole 到 jω 的两根 vector，与 |H₁(jω)| 的鼓包
+function vectors() {
+  let o = '';
+  const k = 2.2, sx = (x) => 140 + k * x, sy = (y) => 145 - k * y;
+  o += line(sx(-36), sy(0), sx(14), sy(0), 'axis') + line(sx(0), sy(-55), sx(0), sy(55), 'axis');
+  o += text(sx(14), sy(0) + 16, 'Re', 'ts', 'end') + text(sx(0) + 6, sy(55) + 10, 'Im', 'ts');
+  const w = 34.6, P = [[-20, 40], [-20, -40]];
+  for (const [a, b] of P) { o += line(sx(a), sy(b), sx(0), sy(w), 'ln'); }
+  const X = (x, y) => line(sx(x) - 5, sy(y) - 5, sx(x) + 5, sy(y) + 5, 'ink-b') + line(sx(x) - 5, sy(y) + 5, sx(x) + 5, sy(y) - 5, 'ink-b');
+  o += X(-20, 40) + X(-20, -40) + circle(sx(0), sy(w), 4, 'ln-f');
+  o += text(sx(-20) - 8, sy(40) - 4, '−20 + j40', 'ts', 'end') + text(sx(-20) - 8, sy(-40) + 4, '−20 − j40', 'ts', 'end');
+  o += text(sx(0) + 8, sy(w) - 2, 'j34.6', 'tl');
+  o += text(sx(-10), sy(37.3) - 8, '20.7', 'tb', 'middle');
+  o += text(sx(-14.6) - 8, sy(-20) + 4, '77.3', 'tb', 'end');
+  // 右：|H₁(jω)|
+  const H = (wv) => 40 / Math.hypot(2000 - wv * wv, 40 * wv);
+  const rx = lin(0, 100, 260, 530), ry = lin(0, 0.028, 250, 40);
+  o += axes({ sx: rx, sy: ry, x0: 0, x1: 100, y0: 0, y1: 0.028, xt: [0, 34.6, 100].map((v) => [v, String(v)]), yt: [[0.02, '0.020'], [0.025, '0.025']], xl: 'ω（rad/s）' });
+  o += line(rx(0), ry(0.02), rx(100), ry(0.02), 'grid') + line(rx(0), ry(0.025), rx(100), ry(0.025), 'grid');
+  o += path(curve(H, 0, 100, rx, ry, 300), 'ln') + circle(rx(34.6), ry(H(34.6)), 3.5, 'ln-f');
+  o += text(rx(48), ry(0.0262), '|H₁(j34.6)| = 40 / (20.7 × 77.3)', 'ts');
+  o += text(rx(62), ry(0.0185), '|H₁(jω)|', 'tl');
+  return svg(560, 285, o, '左：H1 的两个 pole 到 imaginary axis 上 j34.6 的 vector，长 20.7 和 77.3；右：|H1(jω)| 在 ω=34.6 附近鼓到 0.025，比 DC 的 0.02 高 25%');
+}
+
 export default {
+  'ee2023-switchon': switchon,
+  'ee2023-strips': strips,
+  'ee2023-q2power': q2power,
+  'ee2023-sqrc': sqrc,
+  'ee2023-q1': q1,
+  'ee2023-rhpzero': rhpzero,
+  'ee2023-vectors': vectors,
   'ee2023-eigen': eigen,
   'ee2023-conv': conv,
   'ee2023-partial': partial,

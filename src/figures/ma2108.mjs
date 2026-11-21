@@ -292,7 +292,157 @@ function xn() {
   return svg(560, 250, o, 'x 的 n 次方在 0 到 1 上的 graph，n 取 1、2、4、8、16、32，以及 limit function 周围二分之一的 band：每条 curve 都在靠近 1 的地方穿出 band');
 }
 
+// 开头第三件事：同一批 term 换个次序，partial sum 走向另一个数
+function rearr() {
+  const N = 3000, s1 = [], s2 = [];
+  let a = 0;
+  for (let n = 1; n <= N; n++) { a += (n % 2 ? 1 : -1) / n; s1.push(a); }
+  let b = 0, p = 1, q = 2;
+  while (s2.length < N) { for (let k = 0; k < 2 && s2.length < N; k++) { b += 1 / p; p += 2; s2.push(b); } if (s2.length < N) { b -= 1 / q; q += 2; s2.push(b); } }
+  const sx = logx(1, N, 60, 470), sy = lin(0.4, 1.45, 230, 30);
+  let o = axes({ sx, sy, x0: 1, x1: N, y0: 0.4, y1: 1.45, xt: [1, 10, 100, 1000, [3000, '3000']], yt: [0.5, 1], xl: '加到第 n 个 term（log scale）' });
+  const L1 = Math.log(2), L2 = 1.5 * Math.log(2);
+  o += line(sx(1), sy(L1), sx(N), sy(L1), 'dash') + line(sx(1), sy(L2), sx(N), sy(L2), 'dash');
+  const pl = (arr) => d(arr.map((v, i) => [sx(i + 1), sy(v)]));
+  o += path(pl(s1), 'ink') + path(pl(s2), 'ln');
+  o += circle(sx(1000), sy(s1[999]), 3.5, 'ink-f') + circle(sx(N), sy(s2[N - 1]), 3.5, 'ln-f');
+  o += text(sx(1000), sy(s1[999]) + 20, '0.6926', 'tb', 'middle') + text(sx(N) - 4, sy(s2[N - 1]) - 12, '1.0395', 'tl', 'middle');
+  o += text(sx(N) + 8, sy(L1) + 4, 'ln 2', 'ts') + text(sx(N) + 8, sy(L2) + 4, '1.5 ln 2', 'ts');
+  o += text(sx(3), sy(1.36), '1 + ⅓ − ½ + ⅕ + ⅐ − ¼ + ⋯', 'tl');
+  o += text(sx(3), sy(0.47), '1 − ½ + ⅓ − ¼ + ⋯', 'tb');
+  return svg(560, 270, o, 'alternating harmonic series 的 partial sum 走向 ln 2，约 0.693；把同一批 term 改成两正一负的次序，partial sum 走向 1.5 ln 2，约 1.040');
+}
+
+// 第 2 站：两个失败的 definition
+function tries() {
+  let o = '';
+  const panel = (x0, title, xs, c, note1, note2) => {
+    const sx = lin(0.5, 12.5, x0, x0 + 220), sy = lin(-1.7, 1.2, 230, 50);
+    o += text(x0 + 110, 22, title, 'tb', 'middle');
+    o += rect(sx(0.5), sy(c + 0.5), 220, sy(c - 0.5) - sy(c + 0.5), 'wash');
+    o += line(sx(0.5), sy(c), sx(12.5), sy(c), 'dash') + line(sx(0.5), sy(0), sx(12.5), sy(0), 'axis');
+    o += text(x0 - 6, sy(c) + 4, String(c).replace('-', '−'), 'ts', 'end');
+    if (c !== 0) o += text(x0 - 6, sy(0) + 4, '0', 'ts', 'end');
+    o += text(x0 - 6, sy(1) + 4, '1', 'ts', 'end') + line(x0 - 3, sy(1), x0, sy(1), 'axis');
+    xs.forEach((v, i) => { o += circle(sx(i + 1), sy(v), 3.5, 'ink-f'); });
+    for (const n of [1, 6, 12]) o += text(sx(n), sy(-1.7) + 16, 'n=' + n, 'ts', 'middle');
+    o += text(x0 + 110, 40, note1, 'ts', 'middle');
+    o += text(sx(12.5), sy(c - 0.5) + 16, note2, 'ts', 'end');
+  };
+  panel(40, '1/n 与 −1', Array.from({ length: 12 }, (_, i) => 1 / (i + 1)), -1, 'distance 1 + 1/n 一直在变小', 'band：ε = ½，没有 term 进来');
+  panel(320, '1, ½, 1, ⅓, 1, ¼, … 与 0', Array.from({ length: 12 }, (_, i) => (i % 2 === 0 ? 1 : 1 / (i / 2 + 1.5))), 0, 'odd-index term 一直停在 1', 'even-index term 任意接近 0');
+  return svg(560, 260, o, '左：1/n 到 -1 的距离一直减小，但所有 term 都在 -1 周围宽 1/2 的 band 外；右：even-index 的 term 趋近 0，odd-index 的 term 永远是 1，不能留在 0 周围的 band 里');
+}
+
+// 第 1 站：density 的数值例子
+function density() {
+  const x = Math.SQRT2, y = 1.415, n = 1272;
+  const sx = lin(1.4131, 1.4155, 30, 530), Y = 110;
+  let o = rect(sx(x), Y - 16, sx(y) - sx(x), 32, 'wash');
+  o += line(30, Y, 530, Y, 'axis');
+  o += line(sx(x), Y - 22, sx(x), Y + 22, 'ink-b') + line(sx(y), Y - 22, sx(y), Y + 22, 'ink-b');
+  o += text(sx(x), Y + 40, 'x = √2 = 1.414214', 'tb', 'middle') + text(sx(y) + 4, Y + 40, 'y = 1.415', 'tb', 'start');
+  for (const m of [1798, 1799, 1800]) {
+    const v = m / n, cls = m === 1799 ? 'ln-f' : 'ink-f';
+    o += circle(sx(v), Y, 5, cls) + text(sx(v), Y - 30, m + '/1272', m === 1799 ? 'tl' : 'ts', 'middle');
+  }
+  o += text(sx(1799 / n), Y - 48, '= 1.414308', 'tl', 'middle');
+  const yb = Y + 72;
+  o += line(sx(1798 / n), yb, sx(1799 / n), yb, 'mute') + line(sx(1798 / n), yb - 5, sx(1798 / n), yb + 5, 'mute') + line(sx(1799 / n), yb - 5, sx(1799 / n), yb + 5, 'mute');
+  o += text((sx(1798 / n) + sx(1799 / n)) / 2, yb + 18, '间隔 1/n = 0.000786', 'ts', 'middle');
+  o += line(sx(x), yb, sx(y), yb, 'mute') + line(sx(y), yb - 5, sx(y), yb + 5, 'mute');
+  o += text((sx(x) + sx(y)) / 2 + 30, yb + 18, 'y − x = 0.000786…', 'ts', 'middle');
+  o += text(280, 26, 'denominator 为 1272 的 fraction 每隔 1/1272 一个；间隔比 y − x 小，', 'ts', 'middle');
+  o += text(280, 44, '所以 x 右边的第一个（m = 1799）一定落在 (x, y) 里。', 'ts', 'middle');
+  return svg(560, 210, o, 'number line 放大到 1.413 到 1.4155：x 等于根号 2，y 等于 1.415，相邻的 1798/1272、1799/1272、1800/1272 间隔 1/1272，1799/1272 落在 x 和 y 之间');
+}
+
+// 第 5 站：sin(1/x) 与 x sin(1/x)
+function sinx() {
+  let o = '';
+  const panel = (x0, title, f, env) => {
+    const sx = lin(0, 0.36, x0, x0 + 230), sy = lin(-1.15, 1.15, 220, 50);
+    o += text(x0 + 115, 24, title, 'tb', 'middle');
+    o += line(sx(0), sy(0), sx(0.36), sy(0), 'axis') + line(sx(0), sy(-1.15), sx(0), sy(1.15), 'axis');
+    if (env) o += line(sx(0), sy(0), sx(0.36), sy(0.36), 'dash') + line(sx(0), sy(0), sx(0.36), sy(-0.36), 'dash');
+    const pts = [];
+    for (let i = 0; i <= 6000; i++) { const x = 0.002 + (0.358 * i) / 6000; pts.push([sx(x), sy(f(x))]); }
+    o += path(d(pts), 'ln');
+    o += text(sx(0.36), sy(0) + 16, '0.36', 'ts', 'middle') + text(sx(0) - 6, sy(1) + 4, '1', 'ts', 'end') + text(sx(0) - 6, sy(-1) + 4, '−1', 'ts', 'end');
+    return sx;
+  };
+  const sx = panel(40, 'sin(1/x)', (x) => Math.sin(1 / x), false);
+  const sy = lin(-1.15, 1.15, 220, 50);
+  for (let n = 1; n <= 3; n++) { const v = 1 / (2 * n * Math.PI + Math.PI / 2); o += circle(sx(v), sy(1), 4, 'ink-f'); }
+  for (let n = 1; n <= 4; n++) { const v = 1 / (n * Math.PI); o += circle(sx(v), sy(0), 4, 'paper'); }
+  o += text(sx(1 / (2 * Math.PI + Math.PI / 2)) + 8, sy(1) - 8, 'xₙ：f = 1', 'tb');
+  o += text(sx(0.305), sy(0) - 10, 'yₙ：f = 0', 'tb', 'end');
+  panel(310, 'x sin(1/x)', (x) => x * Math.sin(1 / x), true);
+  const sx2 = lin(0, 0.36, 310, 540);
+  o += text(sx2(0.36) - 4, sy(0.36) - 8, 'y = x', 'ts', 'end') + text(sx2(0.36) - 4, sy(-0.36) + 16, 'y = −x', 'ts', 'end');
+  o += text(280, 250, '左：xₙ = 1/(2nπ + π/2) 和 yₙ = 1/(nπ) 都 converge 到 0，f 的值却一个是 1、一个是 0。', 'ts', 'middle');
+  o += text(280, 268, '右：乘上 x 之后，graph 被夹在 ±x 之间，在 0 处 continuous。', 'ts', 'middle');
+  return svg(560, 278, o, '左边 sin(1/x) 在 0 附近无限振荡，取值为 1 的点和取值为 0 的点都向 0 聚集；右边 x sin(1/x) 被夹在 y=x 与 y=-x 之间');
+}
+
+// 第 6 站：intermediate value theorem 的三个 hypothesis，各去掉一个
+function ivtfail() {
+  let o = '';
+  const W = 150, top = 52, bot = 200;
+  const frame = (x0, title, sub) => text(x0 + W / 2, 20, title, 'tb', 'middle') + text(x0 + W / 2, 38, sub, 'ts', 'middle');
+  {
+    const x0 = 24, sx = lin(-1, 1, x0, x0 + W), sy = lin(-1.4, 1.4, bot, top);
+    o += frame(x0, '去掉 continuity', '跳过了 0');
+    o += line(x0, sy(0), x0 + W, sy(0), 'axis') + line(sx(0), bot, sx(0), top, 'grid');
+    o += line(sx(-1), sy(-1), sx(0), sy(-1), 'ln') + line(sx(0), sy(1), sx(1), sy(1), 'ln');
+    o += circle(sx(0), sy(-1), 4, 'paper') + circle(sx(0), sy(1), 4, 'ln-f');
+    o += text(sx(-1), sy(0) + 16, '−1', 'ts', 'middle') + text(sx(1), sy(0) + 16, '1', 'ts', 'middle');
+  }
+  {
+    const x0 = 204, sx = lin(-1, 1, x0, x0 + W), sy = lin(-6, 6, bot, top);
+    o += frame(x0, '去掉 interval', 'domain 在 0 处断开');
+    o += line(x0, sy(0), x0 + W, sy(0), 'axis') + line(sx(0), bot, sx(0), top, 'grid');
+    o += path(curve((x) => 1 / x, -1, -1 / 6, sx, sy), 'ln') + path(curve((x) => 1 / x, 1 / 6, 1, sx, sy), 'ln');
+    o += circle(sx(-1), sy(-1), 3.5, 'ln-f') + circle(sx(1), sy(1), 3.5, 'ln-f');
+    o += text(sx(-1) + 4, sy(0) - 8, '−1', 'ts', 'middle') + text(sx(1) - 4, sy(0) + 16, '1', 'ts', 'middle');
+    o += text(sx(0.45), sy(4.5), '1/x', 'tl');
+  }
+  {
+    const x0 = 384, sx = lin(1, 2, x0, x0 + W), sy = lin(-1.4, 2.4, bot, top);
+    o += frame(x0, '去掉 completeness', '只取 rational 的 x');
+    o += line(x0, sy(0), x0 + W, sy(0), 'axis');
+    o += path(curve((x) => x * x - 2, 1, 2, sx, sy), 'ln-dash');
+    o += circle(sx(Math.SQRT2), sy(0), 4.5, 'paper');
+    o += line(sx(Math.SQRT2), sy(0), sx(Math.SQRT2), sy(0) + 26, 'mute') + text(sx(Math.SQRT2), sy(0) + 40, '√2 ∉ ℚ', 'ts', 'middle');
+    o += text(sx(1), sy(0) - 8, '1', 'ts', 'middle') + text(sx(2), sy(0) + 16, '2', 'ts', 'middle');
+    o += text(sx(1.55), sy(1.8), 'x² − 2', 'tl', 'end');
+  }
+  o += text(280, 238, '三个都满足 f(左端) &lt; 0 &lt; f(右端)，都没有 zero：每一次是 proof 里不同的一步失效。', 'ts', 'middle');
+  return svg(560, 248, o, 'intermediate value theorem 的三个 counterexample：jump 的 step function、domain 在 0 处断开的 1/x、只在有理数上取值的 x 平方减 2');
+}
+
+// 第 8 站：limit 是 continuous 的，convergence 却不 uniform
+function bump() {
+  const sx = lin(0, 1, 60, 500), sy = lin(0, 0.62, 220, 40);
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 0.62, xt: [0, 0.25, 0.5, 0.75, 1], yt: [[0.5, '½']], xl: 'x' });
+  o += line(sx(0), sy(0.5), sx(1), sy(0.5), 'dash');
+  const ns = [1, 2, 4, 8, 16, 32];
+  ns.forEach((n, i) => {
+    o += path(curve((x) => (n * x) / (1 + n * n * x * x), 0, 1, sx, sy, 600), i === ns.length - 1 ? 'ln' : 'ink');
+    o += circle(sx(1 / n), sy(0.5), 3, 'ink-f');
+    if (n <= 8) o += text(sx(1 / n), sy(0.5) - 10, 'n = ' + n, 'ts', 'middle');
+  });
+  o += text(sx(1 / 32) + 6, sy(0.5) - 24, 'n = 32', 'tl');
+  return svg(560, 262, o, 'f_n(x) = nx/(1+n²x²) 在 n = 1, 2, 4, 8, 16, 32 时的 graph：每条在 x=1/n 处达到 1/2，峰的位置向 0 移动');
+}
+
 export default {
+  'ma2108-rearr': rearr,
+  'ma2108-tries': tries,
+  'ma2108-density': density,
+  'ma2108-sin': sinx,
+  'ma2108-ivtfail': ivtfail,
+  'ma2108-bump': bump,
   'ma2108-sqrt2': sqrt2,
   'ma2108-epsband': epsband,
   'ma2108-mct': mct,

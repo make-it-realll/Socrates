@@ -346,7 +346,115 @@ function tv() {
   return svg(560, 272, o, '8 个带 noise 的读数和 total variation denoising 的结果：结果是 piecewise constant 的，只在第 4 和第 5 个点之间跳一次');
 }
 
+// ---- 开头第二、三次计算用的 data ----
+const DX = [[2, 1], [1, 2], [1, 1]], DY = [6, 5, 0];
+const lsGrad = (b) => { const r = DX.map((x, i) => x[0] * b[0] + x[1] * b[1] - DY[i]); return [0, 1].map((j) => r.reduce((a, ri, i) => a + DX[i][j] * ri, 0)); };
+const lsF = (b) => DX.reduce((a, x, i) => a + (x[0] * b[0] + x[1] * b[1] - DY[i]) ** 2, 0) / 2;
+const logAxis = (sx, sy, x0, x1, ys, xt, xl) => {
+  let o = line(sx(x0), sy(ys[0]), sx(x1), sy(ys[0]), 'axis') + line(sx(x0), sy(ys[0]), sx(x0), sy(ys[ys.length - 1]), 'axis');
+  for (const e of ys) o += line(sx(x0), sy(e), sx(x1), sy(e), 'grid') + text(sx(x0) - 7, sy(e) + 4, e === 0 ? '1' : '10' + String(e).replace('-', '⁻').replace(/\d/g, (c) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[c]), 'ts', 'end');
+  for (const [v, lab] of xt) o += line(sx(v), sy(ys[0]), sx(v), sy(ys[0]) + 4, 'axis') + text(sx(v), sy(ys[0]) + 17, lab, 'ts', 'middle');
+  return o + text(sx(x1), sy(ys[0]) + 34, xl, 'ts', 'end');
+};
+
+// 开头第二次：step size 0.17 与 0.19
+function twosteps() {
+  const sx = lin(0, 100, 70, 460), sy = lin(-12, 10, 240, 40);
+  let o = logAxis(sx, sy, 0, 100, [-10, -5, 0, 5, 10], [0, 20, 40, 60, 80, 100].map((v) => [v, String(v)]), 'k（步数）');
+  const run = (t) => { let b = [0, 0]; const pts = [[sx(0), sy(Math.log10(lsF(b) - 5.5))]]; for (let k = 1; k <= 100; k++) { const g = lsGrad(b); b = [b[0] - t * g[0], b[1] - t * g[1]]; pts.push([sx(k), sy(Math.log10(lsF(b) - 5.5))]); } return [pts, lsF(b) - 5.5]; };
+  const [p1, e1] = run(0.17), [p2, e2] = run(0.19);
+  o += path(d(p1), 'ln') + path(d(p2), 'ink');
+  o += circle(...p1[100], 3.5, 'ln-f') + circle(...p2[100], 3.5, 'ink-f');
+  o += text(p1[100][0] + 8, p1[100][1] + 4, e1.toExponential(1).replace('e-', '×10⁻').replace('11', '¹¹'), 'tl');
+  o += text(p2[100][0] + 8, p2[100][1] + 4, '7.6×10⁸', 'tb');
+  o += text(sx(30), sy(6.5), 't = 0.19：diverge', 'tb') + text(sx(30), sy(-7.2), 't = 0.17：converge', 'tl');
+  o += text(70, 24, 'f(βₖ) − f*（log scale），从 β₀ = (0, 0) 出发', 'ts');
+  return svg(560, 282, o, '同一个 least squares，step size 0.17 时 objective error 一路降到 2×10^-11，0.19 时一路涨到 7.6×10^8');
+}
+
+// 开头第三次：subgradient method 与 proximal gradient method 在同一个 lasso 上
+function twomethods() {
+  const lam = 14, Fs = 29.75, F = (b) => lsF(b) + lam * (Math.abs(b[0]) + Math.abs(b[1]));
+  const sx = lin(0, 3, 70, 500), sy = lin(-12.5, 0.5, 240, 40);
+  let o = logAxis(sx, sy, 0, 3, [-12, -9, -6, -3, 0], [[0, '1'], [1, '10'], [2, '100'], [3, '1000']], 'k（步数，log scale）');
+  let b = [0, 0], best = F(b); const ps = [];
+  for (let k = 1; k <= 1000; k++) { const g = lsGrad(b).map((v, j) => v + lam * Math.sign(b[j])), t = 0.05 / Math.sqrt(k); b = [b[0] - t * g[0], b[1] - t * g[1]]; best = Math.min(best, F(b)); ps.push([sx(Math.log10(k)), sy(Math.log10(best - Fs))]); }
+  const S = (v, a) => Math.sign(v) * Math.max(Math.abs(v) - a, 0);
+  let c = [0, 0]; const pi = [];
+  for (let k = 1; k <= 20; k++) { const g = lsGrad(c); c = c.map((v, j) => S(v - g[j] / 11, lam / 11)); pi.push([sx(Math.log10(k)), sy(Math.log10(F(c) - Fs))]); }
+  o += path(d(ps), 'ink') + path(d(pi), 'ln');
+  o += circle(...ps[999], 3.5, 'ink-f') + circle(...pi[19], 3.5, 'ln-f');
+  o += text(ps[999][0] - 6, ps[999][1] + 20, '1000 步：1.0×10⁻³', 'tb', 'end');
+  o += text(pi[19][0] + 8, pi[19][1] + 4, '20 步：3.2×10⁻¹²', 'tl');
+  o += text(sx(1.5), sy(-0.15), 'subgradient method', 'tb') + text(sx(0.55), sy(-8.5), 'proximal gradient method', 'tl');
+  o += text(70, 24, 'F(βₖ) − F*（log scale），lasso，λ = 14', 'ts');
+  return svg(560, 282, o, '同一个 lasso：subgradient method 1000 步后 error 还有 10^-3，proximal gradient method 20 步就到了 3×10^-12');
+}
+
+// 第 2 站：derivative 处处不为 0，minimum 在 kink 上
+function kink() {
+  const phi = (b) => 0.5 * (b - 0.8) ** 2 + Math.abs(b), sm = (b) => 0.5 * (b - 0.8) ** 2;
+  const sx = lin(-1.2, 1.8, 60, 520), sy = lin(-0.1, 2.6, 250, 40);
+  let o = axes({ sx, sy, x0: -1.2, x1: 1.8, y0: -0.1, y1: 2.6, xt: [[-1, '−1'], [0, '0'], [0.8, '0.8'], [1.5, '1.5']], yt: [[0.32, '0.32'], [1, '1'], [2, '2']], xl: 'β', xAt: 0, yAt: -1.2 });
+  o += path(curve(sm, -1.2, 1.8, sx, sy), 'dash') + path(curve(phi, -0.99, 1.8, sx, sy, 400), 'ln');
+  o += circle(sx(0), sy(phi(0)), 4, 'ln-f') + circle(sx(0.8), sy(0), 3.5, 'paper');
+  const stub = (m, dir) => line(sx(0), sy(0.32), sx(dir * 0.45), sy(0.32 + m * dir * 0.45), 'ink-b');
+  o += stub(-1.8, -1) + stub(0.2, 1);
+  o += text(sx(-0.45) - 4, sy(1.13) + 4, '−1.8', 'tb', 'end') + text(sx(0.45) + 4, sy(0.41) + 4, '+0.2', 'tb');
+  o += text(sx(-0.08), sy(0.32) + 16, 'minimum 在 kink 上', 'tl', 'end');
+  o += text(280, 290, '虚线：½(β − 0.8)²，minimum 在 0.8（空心点）；彩线：再加上 |β|，就是 φ(β)。', 'ts', 'middle');
+  o += text(280, 308, 'β &lt; 0 时 slope 是 β − 1.8 &lt; 0，β &gt; 0 时是 β + 0.2 &gt; 0：derivative 处处不为 0。', 'ts', 'middle');
+  return svg(560, 318, o, 'phi(β)=½(β−0.8)²+|β|：左边一直下降、右边一直上升，两侧 slope 都不为 0，minimum 落在 β=0 的 kink 上');
+}
+
+// 第 2 站的错想法：沿 negative subgradient 走，objective 反而变大
+function badsubgrad() {
+  const s = 80, sx = (x) => 230 + s * x, sy = (y) => 150 - s * y;
+  let o = line(sx(-2.5), sy(0), sx(2.6), sy(0), 'axis') + line(sx(0), sy(-1.2), sx(0), sy(1.35), 'axis');
+  o += text(sx(2.6), sy(0) + 16, 'x₁', 'ts', 'end') + text(sx(0) + 8, sy(1.35) + 6, 'x₂', 'ts');
+  for (const c of [1, 2.2]) {
+    const pts = [[c, 0], [0, c / 2], [-c, 0], [0, -c / 2]].map(([a, b]) => [sx(a), sy(b)]);
+    o += poly(pts, c === 1 ? 'ink' : 'ln-dash');
+  }
+  const Q = [0.6, -0.8];
+  o += arrow(sx(1), sy(0), sx(1.25), sy(0.5), 'mute') + arrow(sx(1), sy(0), sx(Q[0]), sy(Q[1]), 'ln');
+  o += circle(sx(1), sy(0), 4, 'ink-f');
+  o += text(sx(1) + 8, sy(0) + 18, 'x', 'tb') + text(sx(1.25) + 6, sy(0.5) + 4, 'g', 'tb') + text(sx(Q[0]) + 8, sy(Q[1]) + 16, 'x − 0.4g', 'tl');
+  o += text(sx(-0.6), sy(0.35), 'c = 1', 'ts', 'end') + text(sx(-1.4), sy(0.6), 'c = 2.2', 'tl', 'end');
+  o += text(280, 268, 'contour 是 |x₁| + 2|x₂| = c。x = (1, 0) 在 c = 1 上；g = (1, 2) 是它的一个 subgradient。', 'ts', 'middle');
+  o += text(280, 286, '沿 −g 走 t，f = 1 + 3t：走 0.4 就到了 c = 2.2，step 多小都上升。', 'ts', 'middle');
+  return svg(560, 296, o, 'f 等于 |x1|+2|x2| 的 contour 是菱形；在 (1,0) 处取 subgradient (1,2)，沿 -g 走 0.4 到达 f=2.2 的 contour');
+}
+
+// 第 6 站：hard-margin SVM 的 8 个点与 support vector
+function svm() {
+  const s = 46, sx = (x) => 70 + s * (x + 0.5), sy = (y) => 260 - s * (y + 0.5);
+  let o = line(sx(-0.5), sy(0), sx(4.6), sy(0), 'axis') + line(sx(0), sy(-0.5), sx(0), sy(4.6), 'axis');
+  for (let v = 1; v <= 4; v++) o += text(sx(v), sy(0) + 16, String(v), 'ts', 'middle') + text(sx(0) - 7, sy(v) + 4, String(v), 'ts', 'end');
+  const L = (c, cls) => { const xa = Math.max(-0.5, c - 4.6), xb = Math.min(4.6, c + 0.5); return line(sx(xa), sy(c - xa), sx(xb), sy(c - xb), cls); };
+  o += L(2, 'dash') + L(3, 'ln') + L(4, 'dash');
+  const pos = [[2, 2], [3, 2], [2, 3], [3, 4]], neg = [[1, 1], [0, 0], [1, 0], [0, 1]];
+  for (const [a, b] of pos) o += circle(sx(a), sy(b), 5, 'ink-f');
+  for (const [a, b] of neg) o += circle(sx(a), sy(b), 5, 'paper');
+  o += circle(sx(2), sy(2), 10, 'ln') + circle(sx(1), sy(1), 10, 'ln');
+  o += text(sx(2.5), sy(-0.5) + 15, '−1', 'ts', 'middle') + text(sx(3.5), sy(-0.5) + 15, '0', 'tl', 'middle') + text(sx(4.5), sy(-0.5) + 15, '1', 'ts', 'middle');
+  const tx = 340;
+  o += text(tx, 56, 'w = (1, 1)，b = −3', 'tb');
+  o += text(tx, 82, '实心：+1 类；空心：−1 类', 'ts');
+  o += text(tx, 104, '线下端的数是 w·x + b 的值；', 'ts') + text(tx, 122, '虚线上 yᵢ(w·xᵢ + b) = 1', 'ts');
+  o += text(tx, 150, '只有 (2, 2) 和 (1, 1) 落在虚线上，', 'ts');
+  o += text(tx, 170, 'complementary slackness 只允许', 'ts');
+  o += text(tx, 190, '它们的 αᵢ > 0：support vector', 'tl');
+  o += text(tx, 220, '其余 6 个点删掉，solution 不变。', 'ts');
+  return svg(560, 290, o, '8 个点的 hard-margin SVM：分界线 x1+x2=3，两条 margin x1+x2=2 和 4；只有 (2,2) 与 (1,1) 落在 margin 上，是 support vector');
+}
+
 export default {
+  'dsa3102-twosteps': twosteps,
+  'dsa3102-twomethods': twomethods,
+  'dsa3102-kink': kink,
+  'dsa3102-badsubgrad': badsubgrad,
+  'dsa3102-svm': svm,
   'dsa3102-quartic': quartic,
   'dsa3102-tangent': tangent,
   'dsa3102-subgrad': subgrad,

@@ -246,7 +246,135 @@ function hcurve() {
   return svg(560, 272, o, 'Numerical differentiation 的 error 随 step size 变化：step size 从大变小时 error 先下降，过了某个最佳 step size 后因 rounding error 反而上升');
 }
 
+// 第 1 站：√(x+1) − √x 在 x = 10¹² 的 cancellation，逐位对齐
+function cancel() {
+  // exact 值用 BigInt 求 isqrt，取 21 位 decimal
+  const isqrt = (n) => { let x = BigInt(Math.floor(Math.sqrt(Number(n)))); for (;;) { const y = (x + n / x) / 2n; if (y >= x) { while (x * x > n) x--; while ((x + 1n) * (x + 1n) <= n) x++; return x; } x = y; } };
+  const exact = isqrt((10n ** 12n + 1n) * 10n ** 42n).toString(); // 1000000 后接 21 位 decimal
+  const ND = 15;
+  const exactS = exact.slice(0, 7) + exact.slice(7, 7 + ND);
+  const storedS = Math.sqrt(1e12 + 1).toFixed(ND).replace('.', '');
+  const sqS = (1e6).toFixed(ND).replace('.', '');
+  const diffS = (Math.sqrt(1e12 + 1) - 1e6).toFixed(ND).replace('.', '').padStart(7 + ND, '0');
+  const exDiffS = '0000000' + exact.slice(7, 7 + ND);
+  const W = 16, X0 = 176, H = 26;
+  const cx = (i) => X0 + i * W + (i >= 7 ? 10 : 0);
+  let o = '';
+  const row = (y, lab, s, cls, faintLead) => {
+    o += text(X0 - 10, y + 5, lab, 'ts', 'end');
+    let lead = true;
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] !== '0') lead = false;
+      o += text(cx(i) + W / 2, y + 5, s[i], faintLead && lead ? 'ts' : cls, 'middle');
+    }
+    o += text(cx(7) - 5, y + 5, '.', cls, 'middle');
+  };
+  const y = [40, 40 + H, 40 + 2 * H, 40 + 3 * H + 22, 40 + 4 * H + 22];
+  // 13 位相同
+  o += rect(cx(0) - 2, y[1] - 12, cx(12) + W - cx(0) + 4, H * 2 - 2, 'wash', 4);
+  // error 所在的几位
+  o += rect(cx(18) - 1, y[1] - 12, cx(21) + W - cx(18) + 2, H - 4, 'wash-strong', 3);
+  o += rect(cx(18) - 1, y[3] - 12, cx(21) + W - cx(18) + 2, H - 4, 'wash-strong', 3);
+  row(y[0], '√(x+1) exact', exactS, 'ts', false);
+  row(y[1], '√(x+1) stored', storedS, 't', false);
+  row(y[2], '√x stored', sqS, 't', false);
+  o += line(X0 - 4, y[2] + 14, cx(21) + W + 2, y[2] + 14, 'ink');
+  row(y[3], 'stored − stored', diffS, 'tb', true);
+  row(y[4], 'exact difference', exDiffS, 'ts', true);
+  o += text(cx(0) - 2, 20, '前 13 位（阴影）相同，相减后全部变成 0', 'ts');
+  o += text(cx(18) + 30, 20, '10⁻¹² 这一位起', 'ts', 'middle');
+  o += line(cx(18) + 30, 26, cx(18) + 30, y[0] - 13, 'mute');
+  const yy = y[4] + 34;
+  o += text(30, yy, 'stored 的 √(x+1) 比 exact 大 3.8×10⁻¹²（深色那几位）：对 10⁶ 来说是第 18 位，无关紧要。', 'ts');
+  o += text(30, yy + 18, '相减之后它原封不动留在结果里，而结果只有 5×10⁻⁷：同样的 3.8 成了第 6 位 significant digit。', 'ts');
+  return svg(560, yy + 30, o, 'x 等于 10 的 12 次方时，根号 x+1 与根号 x 逐位对齐：前 13 位相同，相减后消失，原来第 18 位上的 rounding error 变成结果的第 6 位');
+}
+
+// 第 3 站：Jacobi 与 Gauss–Seidel 在 plane 里的路径
+function jacobi() {
+  const it = (gs) => { const P = [[0, 0]]; let [a, b] = [0, 0]; for (let k = 0; k < 4; k++) { const na = (1 - b) / 4; const nb = (2 - (gs ? na : a)) / 3; if (gs) P.push([na, b]); P.push([na, nb]); [a, b] = [na, nb]; } return P; };
+  let o = '';
+  const panel = (x0, title, gs) => {
+    const sx = lin(-0.02, 0.3, x0, x0 + 230), sy = lin(-0.03, 0.75, 250, 40);
+    o += rect(x0, 40, 230, 210, 'frame') + text(x0 + 115, 26, title, 'tb', 'middle');
+    o += line(sx(0), sy(-0.03), sx(0), sy(0.75), 'grid') + line(sx(-0.02), sy(0), sx(0.3), sy(0), 'grid');
+    // 4x1 + x2 = 1 与 x1 + 3x2 = 2
+    o += line(sx(0.25 - 0.75 / 4), sy(0.75), sx(0.2575), sy(-0.03), 'ink');
+    o += line(sx(-0.02), sy((2.02) / 3), sx(0.3), sy((2 - 0.3) / 3), 'ink');
+    o += text(sx(0.2), sy(0.06), '①', 'ts', 'middle');
+    o += text(sx(0.285), sy(0.57) + 18, '②', 'ts', 'middle');
+    const P = it(gs).map(([a, b]) => [sx(a), sy(b)]);
+    for (let i = 1; i < P.length; i++) o += arrow(P[i - 1][0], P[i - 1][1], P[i][0], P[i][1], 'ln', 6);
+    o += circle(P[0][0], P[0][1], 3.5, 'ink-f') + text(P[0][0] + 6, P[0][1] - 6, '(0, 0)', 'ts');
+    const step = gs ? 2 : 1;
+    const q = P[step]; o += circle(q[0], q[1], 3, 'ln-f') + text(q[0] + 4, q[1] - 9, 'k = 1', 'ts');
+    for (let k = 2; k <= 4; k++) o += circle(P[k * step][0], P[k * step][1], 2.5, 'ln-f');
+    o += circle(sx(1 / 11), sy(7 / 11), 4, 'ink-f');
+  };
+  panel(30, 'Jacobi：两个 component 一起更新', false);
+  panel(300, 'Gauss–Seidel：先 x₁，马上用来算 x₂', true);
+  o += text(280, 276, '① 4x₁ + x₂ = 1，② x₁ + 3x₂ = 2；黑点是 exact solution (1/11, 7/11)。', 'ts', 'middle');
+  o += text(280, 294, 'Gauss–Seidel 横着走到 ①、再竖着走到 ②；Jacobi 的一步是斜着跳，走到同样近要多一倍的步数。', 'ts', 'middle');
+  return svg(560, 304, o, 'Jacobi 与 Gauss–Seidel 从原点出发解 4x1+x2=1、x1+3x2=2：Gauss–Seidel 在两条 line 之间走阶梯，Jacobi 斜着跳');
+}
+
+// 第 4 站：Gram–Schmidt，在 a₁、a₂ span 的 plane 里看
+function gramschmidt() {
+  const r3 = Math.sqrt(3), r2 = Math.sqrt(2);
+  const S = 110, O = [70, 230];
+  const P = (u, v) => [O[0] + S * u, O[1] - S * v];
+  let o = line(O[0] - 20, O[1], O[0] + S * 4.1, O[1], 'grid');
+  const a1 = P(r3, 0), a2 = P(2 * r3, r2), pr = P(2 * r3, 0);
+  o += line(pr[0], pr[1], a2[0], a2[1], 'dash');
+  o += rect(pr[0] - 10, pr[1] - 10, 10, 10, 'mute');
+  o += arrow(O[0], O[1], pr[0], pr[1], 'mute') + arrow(O[0], O[1], a1[0], a1[1], 'ink-b') + arrow(O[0], O[1], a2[0], a2[1], 'ink-b');
+  o += arrow(O[0], O[1], P(0, r2)[0], P(0, r2)[1], 'ln');
+  o += arrow(O[0], O[1], P(1, 0)[0], P(1, 0)[1], 'ln') + arrow(O[0], O[1], P(0, 1)[0], P(0, 1)[1], 'ln');
+  o += text(a1[0] - 4, a1[1] + 20, 'a₁ = (1, 1, 1)', 'tb', 'middle');
+  o += text(a2[0] + 8, a2[1] - 2, 'a₂ = (1, 2, 3)', 'tb');
+  o += text(pr[0] + 8, pr[1] + 20, '(q₁ᵀa₂) q₁ = (2, 2, 2)', 'ts', 'middle');
+  o += text(P(0, r2)[0] + 8, P(0, r2)[1] + 4, 'a₂ − (2, 2, 2) = (−1, 0, 1)', 'tl');
+  o += text(pr[0] + 8, (pr[1] + a2[1]) / 2 + 4, '同一个 vector', 'ts');
+  o += text(P(1, 0)[0] - 8, P(1, 0)[1] - 8, 'q₁', 'tl', 'end') + text(P(0, 1)[0] - 8, P(0, 1)[1] + 4, 'q₂', 'tl', 'end');
+  o += text(30, 284, 'a₂ 减去它在 q₁ 方向上的 component，剩下的 (−1, 0, 1) 与 a₁ perpendicular；', 'ts');
+  o += text(30, 302, '再各自 scale 到 unit length：‖a₁‖ = √3，‖(−1, 0, 1)‖ = √2。', 'ts');
+  return svg(560, 312, o, 'Gram–Schmidt：在 a1 和 a2 所在的 plane 里，a2 减去它在 q1 方向上的 component 2,2,2，剩下 -1,0,1，与 a1 垂直');
+}
+
+// 第 6 站：三个点上的 Lagrange basis 与 interpolating polynomial
+function lagrange() {
+  const X = [1, 2, 3], Y = [1, 2, 2];
+  const ell = (i) => (x) => { let l = 1; for (let j = 0; j < 3; j++) if (j !== i) l *= (x - X[j]) / (X[i] - X[j]); return l; };
+  const p = (x) => Y.reduce((s, y, i) => s + y * ell(i)(x), 0);
+  let o = '';
+  // 左：三个 basis function
+  {
+    const sx = lin(0.75, 3.25, 40, 260), sy = lin(-0.7, 1.5, 240, 40);
+    o += axes({ sx, sy, x0: 0.75, x1: 3.25, y0: -0.7, y1: 1.5, xt: [1, 2, 3], yt: [0, 1], grid: false });
+    o += line(sx(0.75), sy(1), sx(3.25), sy(1), 'grid') + line(sx(0.75), sy(0), sx(3.25), sy(0), 'grid');
+    const cls = ['ink', 'ln', 'dash'];
+    for (let i = 0; i < 3; i++) { o += path(curve(ell(i), 0.75, 3.25, sx, sy), cls[i]); o += circle(sx(X[i]), sy(1), 3.5, 'ink-f'); }
+    o += text(sx(0.8), sy(0.55), 'ℓ₀', 'tb') + text(sx(2) + 8, sy(1.12), 'ℓ₁', 'tl') + text(sx(3.2), sy(0.55), 'ℓ₂', 'tb', 'end');
+    o += text(150, 22, '每个 ℓᵢ 在自己的 node 上是 1，在别的 node 上是 0', 'ts', 'middle');
+  }
+  // 右：p = 1·ℓ₀ + 2·ℓ₁ + 2·ℓ₂ 与第 4 站的 line
+  {
+    const sx = lin(0.4, 3.6, 330, 540), sy = lin(0, 3, 240, 40);
+    o += axes({ sx, sy, x0: 0.4, x1: 3.6, y0: 0, y1: 3, xt: [1, 2, 3], yt: [1, 2], grid: true });
+    o += path(curve((t) => 2 / 3 + t / 2, 0.4, 3.6, sx, sy), 'dash') + path(curve(p, 0.4, 3.6, sx, sy), 'ln');
+    X.forEach((x, i) => { o += circle(sx(x), sy(Y[i]), 4.5, 'ink-f'); });
+    o += text(sx(2), sy(2.55), 'p(x) = −x²/2 + 5x/2 − 1', 'tl', 'middle');
+    o += text(sx(1.3), sy(0.6), '虚线：第 4 站的 line', 'ts');
+    o += text(435, 22, '(1, 1)、(2, 2)、(3, 2)：parabola 恰好穿过', 'ts', 'middle');
+  }
+  return svg(560, 268, o, '左边是三个 node 1、2、3 上的 Lagrange basis function；右边是它们以 1、2、2 为 coefficient 组成的 interpolating parabola，以及第 4 站的 least squares line');
+}
+
 export default {
+  'dsa2102-cancel': cancel,
+  'dsa2102-jacobi': jacobi,
+  'dsa2102-gs': gramschmidt,
+  'dsa2102-lagrange': lagrange,
   'dsa2102-ellipse': ellipse,
   'dsa2102-fit3': fit3,
   'dsa2102-nodepoly': nodepoly,

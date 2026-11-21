@@ -234,7 +234,119 @@ function approx() {
   return svg(560, 246, o, '在 minus 1 到 1 上画出 x 的三次方和它在二次及以下 polynomial 里的最佳近似五分之三 x；两条 curve 之差的 square 的 integral 是 175 分之 8');
 }
 
+// 开头第二件事：A 有两条 line 被送回自己，S 只有一条
+function intro() {
+  let o = '';
+  const panel = (x0, title, M, lines, vs) => {
+    const sx = lin(-0.6, 2.6, x0, x0 + 230), sy = lin(-0.5, 1.5, 200, 50);
+    const P = (x, y) => [sx(x), sy(y)];
+    o += text(x0 + 115, 26, title, 'tb', 'middle');
+    o += line(sx(-0.6), sy(0), sx(2.6), sy(0), 'grid') + line(sx(0), sy(-0.5), sx(0), sy(1.5), 'grid');
+    for (const [a, b] of lines) { const t = Math.min(2.6 / a, 1.5 / b); o += line(...P(-0.5 * a / Math.max(a, b), -0.5 * b / Math.max(a, b)), ...P(t * a, t * b), 'dash'); }
+    for (const [v, cls, lab, dx, dy] of vs) {
+      const w = [M[0][0] * v[0] + M[0][1] * v[1], M[1][0] * v[0] + M[1][1] * v[1]];
+      o += arrow(...P(0, 0), ...P(...w), cls) + arrow(...P(0, 0), ...P(...v), 'mute');
+      if (lab) o += text(P(...w)[0] + dx, P(...w)[1] + dy, lab, cls === 'ln' ? 'tl' : 'ts', dx < 0 ? 'end' : 'start');
+    }
+  };
+  panel(30, 'A：两条 line 被送回自己', [[4, -2], [1, 1]], [[1, 1], [2, 1]],
+    [[[0.6, 0.6], 'ln', '×2', -6, 4], [[0.6, 0.3], 'ln', '×3', 6, 12], [[0, 0.5], 'ink', 'Ae₂ 转离了 e₂', 6, -6]]);
+  panel(300, 'S：只有一条', [[1, 1], [0, 1]], [[1, 0]],
+    [[[0.9, 0], 'ln', 'Se₁ = e₁', 0, 18], [[0, 0.9], 'ink', 'Se₂ = e₁ + e₂', 6, -6], [[-0.6, 0.6], 'ink', '', 0, 0]]);
+  o += text(280, 232, '灰色是原来的 vector，深色是 image，虚线是被送回自己的 line（第 5 站叫 eigenvector 的方向）。', 'ts', 'middle');
+  o += text(280, 250, 'A 的两条 line 拿来当 basis，matrix 就是 diagonal 的；S 凑不出第二条。', 'ts', 'middle');
+  return svg(560, 260, o, '左边 A 把 (1,1) 方向拉长 2 倍、把 (2,1) 方向拉长 3 倍，两条 line 都留在原地；右边 shear S 只有 x 轴方向留在原地');
+}
+
+// 第 2 站：用 u 逐个替换 w，list 的长度不变
+function exchange() {
+  let o = '';
+  const panel = (x0, title, sub2, keep, drop, rel) => {
+    const sx = lin(-1.4, 1.6, x0, x0 + 165), sy = lin(-1.4, 1.4, 205, 50);
+    const P = (x, y) => [sx(x), sy(y)];
+    o += text(x0 + 82, 22, title, 'tb', 'middle') + text(x0 + 82, 40, sub2, 'ts', 'middle');
+    o += line(sx(-1.4), sy(0), sx(1.6), sy(0), 'grid') + line(sx(0), sy(-1.4), sx(0), sy(1.4), 'grid');
+    if (rel) o += rel(P);
+    for (const [v, lab] of drop) o += arrow(...P(0, 0), ...P(...v), 'dash') + text(P(...v)[0] + (v[0] > 0 ? 8 : -8), P(...v)[1] + (v[1] > 0 ? -4 : 16), lab, 'ts', v[0] > 0 ? 'start' : 'end');
+    for (const [v, lab, cls] of keep) o += arrow(...P(0, 0), ...P(...v), cls) + text(P(...v)[0] + (v[0] > 0 ? 8 : -8), P(...v)[1] + (v[1] < 0 ? 16 : v[1] > 0 ? -4 : 18), lab, cls === 'ln' ? 'tl' : 'tb', v[0] > 0 ? 'start' : v[0] < 0 ? 'end' : 'middle');
+  };
+  const w1 = [1, 0], w2 = [0, 1], u1 = [1, 1], u2 = [1, -1];
+  panel(15, '开始', 'w₁, w₂', [[w1, 'w₁', 'ink-b'], [w2, 'w₂', 'ink-b']], [], null);
+  panel(198, '第 1 步：放进 u₁', '去掉 w₂ = u₁ − w₁', [[u1, 'u₁', 'ln'], [w1, 'w₁', 'ink-b']], [[w2, 'w₂']],
+    (P) => line(...P(...w1), ...P(...u1), 'mute'));
+  panel(381, '第 2 步：放进 u₂', '去掉 w₁ = ½(u₁ + u₂)', [[u1, 'u₁', 'ln'], [u2, 'u₂', 'ln']], [[w1, '']],
+    (P) => line(...P(...u1), ...P(...u2), 'mute') + circle(...P(...w1), 3, 'ink-f') + text(P(...w1)[0] + 7, P(...w1)[1] + 16, 'w₁', 'ts'));
+  o += text(280, 236, '实线是手里的 list，虚线是刚被换掉的 w。', 'ts', 'middle');
+  o += text(280, 254, '每一步换进一个 u、换出一个 w，length 始终是 2，而且一直 span ℝ²。', 'ts', 'middle');
+  return svg(560, 264, o, '在 R2 里用 u1 等于 (1,1)、u2 等于 (1,-1) 逐个替换 w1 等于 (1,0)、w2 等于 (0,1)：每步换进一个 u 换出一个 w，list 始终 span 整个平面');
+}
+
+// 3D 的斜投影：x 指向左下，y 向右，z 向上
+const P3 = (O, s) => ([x, y, z]) => [O[0] + s * (y - 0.5 * x), O[1] - s * (z - 0.32 * x)];
+
+// 第 7 站：A₃ 的 N = A₃ − 2I，chain e₁ → (1,1,0) → 0
+function chain() {
+  const P = P3([170, 172], 80);
+  const pt = (a, b) => [a, a + b, b]; // a(1,1,0) + b(0,1,1)
+  let o = poly([pt(-0.3, -0.3), pt(1.3, -0.3), pt(1.3, 1.3), pt(-0.3, 1.3)].map(P), 'wash');
+  o += arrow(...P([0, 0, 0]), ...P([1.55, 0, 0]), 'axis', 5) + arrow(...P([0, 0, 0]), ...P([0, 1.9, 0]), 'axis', 5) + arrow(...P([0, 0, 0]), ...P([0, 0, 1.45]), 'axis', 5);
+  o += text(P([1.55, 0, 0])[0] - 6, P([1.55, 0, 0])[1] + 4, 'x', 'ts', 'end') + text(P([0, 1.9, 0])[0] + 6, P([0, 1.9, 0])[1] + 4, 'y', 'ts') + text(P([0, 0, 1.45])[0] + 6, P([0, 0, 1.45])[1] + 4, 'z', 'ts');
+  o += line(...P(pt(-0.3, 0)), ...P(pt(1.3, 0)), 'ln-dash');
+  const e1 = [1, 0, 0], v1 = [1, 1, 0], v3 = [0, 1, 1];
+  o += arrow(...P([0, 0, 0]), ...P(v1), 'ln') + arrow(...P([0, 0, 0]), ...P(v3), 'ln') + arrow(...P([0, 0, 0]), ...P(e1), 'ink-b');
+  o += circle(...P([0, 0, 0]), 3.5, 'ink-f');
+  const a = P(e1), b = P(v1);
+  o += path(`M${a[0] + 4} ${a[1] + 8}Q${(a[0] + b[0]) / 2} ${a[1] + 42} ${b[0] - 6} ${b[1] + 10}`, 'dash') + arrow(b[0] - 14, b[1] + 17, b[0] - 6, b[1] + 10, 'ink', 6);
+  o += text((a[0] + b[0]) / 2, a[1] + 44, 'N', 'tb', 'middle');
+  o += text(a[0] - 8, a[1] + 4, 'e₁', 'tb', 'end');
+  o += text(b[0] + 8, b[1] + 8, '(1, 1, 0)', 'tl');
+  o += text(P(v3)[0] + 8, P(v3)[1] + 4, '(0, 1, 1)', 'tl');
+  o += text(P(pt(-0.3, 1.3))[0] - 6, P(pt(-0.3, 1.3))[1] + 4, 'E₂ = ker N', 'ts', 'end');
+  o += text(P(pt(-0.3, 0))[0] - 4, P(pt(-0.3, 0))[1] - 6, 'range N', 'ts', 'end');
+  const tx = 392;
+  o += text(tx, 64, 'N = A₃ − 2I', 'tb');
+  o += text(tx, 92, 'ker N：plane x − y + z = 0', 'ts');
+  o += text(tx, 112, 'range N：span{(1, 1, 0)}', 'ts');
+  o += text(tx, 140, 'chain：e₁ → (1, 1, 0) → 0', 't');
+  o += text(tx, 160, 'chain：(0, 1, 1) → 0', 't');
+  o += text(tx, 188, 'e₁ 不在 plane 上，', 'ts') + text(tx, 206, 'N 把它送进 plane，', 'ts') + text(tx, 224, 'N² 把它送到 0。', 'ts');
+  return svg(560, 262, o, 'A3 减 2I 的 kernel 是 plane x-y+z=0，range 是这个 plane 里过 (1,1,0) 的 line；e1 在 plane 外，被 N 送到 (1,1,0)，再被送到 0');
+}
+
+// 第 8 站：G 的两个 eigenspace，以及 E₁ 里的 Gram–Schmidt
+function spectral() {
+  const r2 = Math.SQRT2, r3 = Math.sqrt(3), r6 = Math.sqrt(6);
+  const U = [1 / r2, -1 / r2, 0], W = [1 / r6, 1 / r6, -2 / r6], Nn = [1 / r3, 1 / r3, 1 / r3];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const O = [190, 175], s = 78;
+  const P = (v) => [O[0] + s * (dot(v, U) + 0.3 * dot(v, W)), O[1] - s * (0.92 * dot(v, Nn) - 0.5 * dot(v, W))];
+  let o = '';
+  const disk = [];
+  for (let k = 0; k <= 72; k++) { const t = (2 * Math.PI * k) / 72, R = 1.75; disk.push(P([0, 1, 2].map((i) => R * (Math.cos(t) * U[i] + Math.sin(t) * W[i])))); }
+  o += path(d(disk) + 'Z', 'wash ink-s');
+  const a = [1, -1, 0], b = [1, 0, -1], c = [0.5, 0.5, -1], n = [1, 1, 1];
+  o += arrow(...P([0, 0, 0]), ...P(n), 'ink-b');
+  o += arrow(...P([0, 0, 0]), ...P(b), 'mute') + arrow(...P([0, 0, 0]), ...P(a), 'ln') + arrow(...P([0, 0, 0]), ...P(c), 'ln');
+  // 直角标记（在 3D 里算，再投影）
+  const m = 0.16, ua = a.map((x) => x / r2), uc = c.map((x) => x / Math.sqrt(1.5));
+  o += path(d([[0, 1, 2].map((i) => m * ua[i]), [0, 1, 2].map((i) => m * (ua[i] + uc[i])), [0, 1, 2].map((i) => m * uc[i])].map(P)), 'ink');
+  o += text(P(n)[0] + 8, P(n)[1] + 4, '(1, 1, 1)，λ = 4', 'tb');
+  o += text(P(a)[0] + 8, P(a)[1] + 4, '(1, −1, 0)', 'tl');
+  o += text(P(b)[0] - 2, P(b)[1] + 16, '(1, 0, −1)', 'ts', 'end');
+  o += text(P(c)[0] - 8, P(c)[1] + 10, '(½, ½, −1)', 'tl', 'end');
+  o += text(24, O[1] - 75, 'E₁：x + y + z = 0', 'ts');
+  const tx = 372;
+  o += text(tx, 60, 'E₄ ⟂ E₁：不同 eigenvalue，', 'ts') + text(tx, 78, '自动 orthogonal。', 'ts');
+  o += text(tx, 112, '同在 E₁ 里的 (1, −1, 0) 与', 'ts') + text(tx, 130, '(1, 0, −1)：dot product 是 1，', 'ts') + text(tx, 148, '夹角 60°（灰色）。', 'ts');
+  o += text(tx, 182, 'Gram–Schmidt 换成 (½, ½, −1)，', 'ts') + text(tx, 200, '与 (1, −1, 0) 成直角。', 'ts');
+  return svg(560, 262, o, 'G 的 eigenspace：E4 是过 (1,1,1) 的 line，E1 是与它垂直的 plane x+y+z=0；plane 里 (1,-1,0) 与 (1,0,-1) 夹 60 度，Gram–Schmidt 后得到与 (1,-1,0) 垂直的 (1/2,1/2,-1)');
+}
+
 export default {
+  'ma2101-intro': intro,
+  'ma2101-exchange': exchange,
+  'ma2101-chain': chain,
+  'ma2101-spectral': spectral,
   'ma2101-directsum': directsum,
   'ma2101-dimsum': dimsum,
   'ma2101-basismap': basismap,
