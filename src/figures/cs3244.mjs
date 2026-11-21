@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
 // 可复现的伪随机数（图里的散点、样本 hypothesis 都由它生成）
 function rng(seed) {
@@ -474,7 +474,174 @@ function backprop() {
   return svg(560, 280, o, '2-2-2 network 的一次 forward 和 backward：hidden unit 1 的 z 是负 0.3，被 ReLU 置 0，它的 delta 也是 0；output 的 p 是 0.2059 和 0.7941，delta 是 p 减 y');
 }
 
+
+// ---------- 动图共用：按帧切换 ----------
+function frames(durs) {
+  const T = durs.reduce((a, b) => a + b, 0), kt = [0];
+  let acc = 0;
+  for (let i = 0; i < durs.length - 1; i++) { acc += durs[i]; kt.push(acc / T); }
+  kt.push(1);
+  const show = (on) => ashow([...on, on[on.length - 1]], kt, T);
+  const vals = (v) => [...v, v[v.length - 1]];
+  return { T, kt, show, vals };
+}
+const gshow = (inner, F, on) => `<g>${inner}${F.show(on)}</g>`;
+// Legendre basis 上的 least squares（modified Gram-Schmidt），返回 x ↦ fitted value
+function polyLS(xs, ys, deg) {
+  const basis = (x) => { const P = [1, x]; for (let k = 1; k < deg; k++) P.push(((2 * k + 1) * x * P[k] - k * P[k - 1]) / (k + 1)); return P.slice(0, deg + 1); };
+  const A = xs.map(basis), m = xs.length, n = deg + 1;
+  const Q = A.map((r) => r.slice()), Rm = Array.from({ length: n }, () => Array(n).fill(0));
+  for (let j = 0; j < n; j++) {
+    for (let i = 0; i < j; i++) { let s = 0; for (let r = 0; r < m; r++) s += Q[r][i] * Q[r][j]; Rm[i][j] = s; for (let r = 0; r < m; r++) Q[r][j] -= s * Q[r][i]; }
+    let nn = 0; for (let r = 0; r < m; r++) nn += Q[r][j] ** 2; nn = Math.sqrt(nn); Rm[j][j] = nn; for (let r = 0; r < m; r++) Q[r][j] /= nn;
+  }
+  const qy = Array.from({ length: n }, (_, j) => xs.reduce((s, _, r) => s + Q[r][j] * ys[r], 0));
+  const c = Array(n).fill(0);
+  for (let j = n - 1; j >= 0; j--) { let s = qy[j]; for (let k = j + 1; k < n; k++) s -= Rm[j][k] * c[k]; c[j] = s / Rm[j][j]; }
+  return (x) => basis(x).reduce((s, b, k) => s + b * c[k], 0);
+}
+const clipPath = (fn, sx, sy, lo, hi) => {
+  let o = '', seg = [];
+  for (let i = 0; i <= 400; i++) {
+    const x = -1 + i / 200, y = fn(x);
+    if (y >= lo && y <= hi) seg.push([sx(x), sy(y)]);
+    else { if (y < lo || y > hi) { if (seg.length) { seg.push([sx(x), sy(Math.max(lo, Math.min(hi, y)))]); o += d(seg); } seg = []; } }
+  }
+  if (seg.length > 1) o += d(seg);
+  return o || 'M0 0';
+};
+
+// 开头第一次：同一个 target，每帧重抽一次 noise，degree 15 和 degree 3 各 fit 一次
+function overfitA() {
+  const f = (x) => Math.sin(Math.PI * x), N = 20, K = 6;
+  const xs = Array.from({ length: N }, (_, i) => -1 + (2 * i) / (N - 1));
+  const R = rng(31);
+  const sets = Array.from({ length: K }, () => xs.map((x) => f(x) + 0.3 * R.n()));
+  const F = frames(Array(K).fill(2.2));
+  let o = '';
+  const panel = (x0, deg, title) => {
+    const sx = lin(-1, 1, x0, x0 + 230), sy = lin(-2.2, 2.2, 236, 44);
+    o += rect(x0, 44, 230, 192, 'frame') + line(x0, sy(0), x0 + 230, sy(0), 'grid');
+    o += path(curve(f, -1, 1, sx, sy), 'dash');
+    o += text(x0 + 115, 18, title, 'tb', 'middle');
+    sets.forEach((ys, k) => {
+      const g = polyLS(xs, ys, deg);
+      const Ein = xs.reduce((s, x, i) => s + (g(x) - ys[i]) ** 2, 0) / N;
+      let Eo = 0; for (let i = 0; i <= 2000; i++) { const x = -1 + i / 1000; Eo += (g(x) - f(x)) ** 2; } Eo = Eo / 2001 + 0.09;
+      const on = sets.map((_, j) => j === k);
+      let q = path(clipPath(g, sx, sy, -2.2, 2.2), 'ln');
+      ys.forEach((y, i) => { q += circle(sx(xs[i]), sy(y), 3, 'ink-f'); });
+      q += text(x0 + 115, 36, `E_in = ${Ein.toFixed(3)}，E_out = ${Eo.toFixed(3)}`, 'ts', 'middle');
+      o += gshow(q, F, on);
+    });
+    o += text(x0, 252, '−1', 'ts', 'middle') + text(x0 + 230, 252, '1', 'ts', 'middle');
+  };
+  panel(30, 15, 'degree 15');
+  panel(300, 3, 'degree 3');
+  sets.forEach((_, k) => { o += gshow(text(280, 274, `第 ${k + 1} 组 training set（同一个 target，noise 重抽）`, 'ts', 'middle'), F, sets.map((_, j) => j === k)); });
+  o += text(280, 292, '虚线是 target sin(πx)，黑点是 20 个 training point，彩线是 fit 出的 polynomial', 'ts', 'middle');
+  return svgA(560, 300, o, '动图：20 个带 noise 的点，degree 15 的 polynomial 穿过所有点、两端甩出画面，degree 3 贴着 target；每帧重抽一次 noise，degree 15 每次都换一个样子');
+}
+
+// 开头第二次：两个点，constant 与 line，每帧抽一对新的点
+function twoptsA() {
+  const f = (x) => Math.sin(Math.PI * x), K = 10;
+  const R = rng(11);
+  const pairs = Array.from({ length: K }, () => [2 * R.u() - 1, 2 * R.u() - 1]);
+  const F = frames(Array(K).fill(1.5).map((v, i) => (i === K - 1 ? 3 : v)));
+  let o = '';
+  const panel = (x0, title, sub, fit) => {
+    const sx = lin(-1, 1, x0, x0 + 220), sy = lin(-2.6, 2.6, 240, 46);
+    o += rect(x0, 46, 220, 194, 'frame') + line(x0, sy(0), x0 + 220, sy(0), 'grid');
+    o += path(curve(f, -1, 1, sx, sy), 'dash');
+    pairs.forEach(([p, q], k) => {
+      const [a, b] = fit(p, q), lineD = clipPath((x) => a * x + b, sx, sy, -2.6, 2.6);
+      o += gshow(path(lineD, 'mute'), F, pairs.map((_, j) => j > k));
+      o += gshow(path(lineD, 'ln') + circle(sx(p), sy(f(p)), 4.5, 'ink-f') + circle(sx(q), sy(f(q)), 4.5, 'ink-f'), F, pairs.map((_, j) => j === k));
+    });
+    o += text(x0 + 110, 16, title, 'tb', 'middle') + text(x0 + 110, 34, sub, 'ts', 'middle');
+    o += text(x0, 256, '−1', 'ts', 'middle') + text(x0 + 220, 256, '1', 'ts', 'middle') + text(x0 - 5, sy(2) + 4, '2', 'ts', 'end') + text(x0 - 5, sy(-2) + 4, '−2', 'ts', 'end');
+  };
+  panel(45, 'constant：h(x) = b', '新的点上平均 error 0.75', (p, q) => [0, (f(p) + f(q)) / 2]);
+  panel(315, 'line：h(x) = ax + b', '新的点上平均 error 1.88', (p, q) => { const a = (f(q) - f(p)) / (q - p); return [a, f(p) - a * p]; });
+  pairs.forEach((_, k) => { o += gshow(text(280, 278, `第 ${k + 1} 次抽两个点（黑点），彩线是这次 fit 出的，灰线是前几次的`, 'ts', 'middle'), F, pairs.map((_, j) => j === k)); });
+  return svgA(560, 288, o, '动图：每次从 sin(πx) 上随机抽两个点，左边 fit 一个 constant，右边 fit 一条 line；line 每次都穿过两个点，但不同的两个点给出的 line 方向差别极大');
+}
+
+// 开头第三次：1000 枚 coin 各掷 10 次，重做 12 次实验
+function coinsA() {
+  const R = rng(7), runs = 12, C = 1000, cols = 50;
+  const res = Array.from({ length: runs }, () => { const hits = []; for (let i = 0; i < C; i++) { let h = 0; for (let t = 0; t < 10; t++) h += R.u() < 0.5 ? 1 : 0; if (h === 10) hits.push(i); } return hits; });
+  const F = frames(Array(runs).fill(1.6));
+  const s = 9.6, x0 = 40, y0 = 40;
+  let o = '';
+  for (let i = 0; i < C; i++) o += rect(x0 + (i % cols) * s + 1, y0 + Math.floor(i / cols) * s + 1, s - 2, s - 2, 'wash2');
+  res.forEach((hits, k) => {
+    const on = res.map((_, j) => j === k);
+    let q = '';
+    hits.forEach((i) => { const cx = x0 + (i % cols) * s + s / 2, cy = y0 + Math.floor(i / cols) * s + s / 2; q += rect(cx - s / 2, cy - s / 2, s, s, 'solid') + circle(cx, cy, 9, 'ln'); });
+    q += text(280, 254, `第 ${k + 1} 次重做：${hits.length} 枚 coin 10 次全是正面`, hits.length ? 'tl' : 't', 'middle');
+    o += gshow(q, F, on);
+  });
+  const hitRuns = res.filter((h) => h.length).length;
+  o += text(280, 24, '1000 枚公平的 coin，每格一枚，各掷 10 次；彩色格是 10 次全是正面的那枚', 'ts', 'middle');
+  o += text(280, 274, `这 12 次里有 ${hitRuns} 次至少出现一枚（理论上 1 − (1023/1024)¹⁰⁰⁰ ≈ 62%）`, 'ts', 'middle');
+  o += text(280, 292, '被挑出来的那枚，下一次掷出正面的 probability 仍是 ½', 'ts', 'middle');
+  return svgA(560, 300, o, '动图：1000 枚公平的 coin 各掷 10 次，每重做一次实验，常常有一两枚 10 次全是正面；它们只是碰巧，下一次仍是一半对一半');
+}
+
+// 第 7 站：k-means 一步步走：assignment 与 update 交替，右边 J 同步
+function kmeansA() {
+  const X = kmeansData();
+  let mu = [[0.6, 4.6], [1.2, 4.0], [5.4, 0.6]];
+  const assign = (mu) => X.map((p) => { let best = 0, bd = Infinity; mu.forEach((m, k) => { const dd = (p[0] - m[0]) ** 2 + (p[1] - m[1]) ** 2; if (dd < bd) { bd = dd; best = k; } }); return best; });
+  const J = (c, mu) => X.reduce((s, p, i) => s + (p[0] - mu[c[i]][0]) ** 2 + (p[1] - mu[c[i]][1]) ** 2, 0);
+  const meanOf = (c, mu) => mu.map((m, k) => { const pts = X.filter((_, i) => c[i] === k); return pts.length ? [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length] : m; });
+  // half-step 序列：(mu, c, 刚做完的是哪一步)
+  let c = assign(mu);
+  const st = [{ mu, c, what: '初始 μ，第一次 assignment' }];
+  for (let t = 1; t < 20; t++) {
+    mu = meanOf(c, mu); st.push({ mu, c, what: `第 ${t} 轮 update：每个 μ 移到它那组的 mean` });
+    const nc = assign(mu);
+    if (nc.every((v, i) => v === c[i])) { st.push({ mu, c: nc, what: `第 ${t} 轮 assignment：没有点换组，停` }); break; }
+    c = nc; st.push({ mu, c, what: `第 ${t} 轮 assignment：每个点换到最近的 μ` });
+  }
+  st.forEach((s) => { s.J = J(s.c, s.mu); });
+  const n = st.length;
+  const durs = st.map((_, i) => (i === 0 || i === n - 1 ? 2.6 : 1.5));
+  const F = frames(durs);
+  let o = '';
+  const sx = lin(-0.2, 6.4, 20, 260), sy = lin(-0.4, 6.2, 262, 22);
+  o += rect(20, 22, 240, 240, 'frame');
+  const cls = ['ink-f', 'ln-f', 'paper'];
+  X.forEach((p, i) => {
+    for (let k = 0; k < 3; k++) {
+      const on = st.map((s) => s.c[i] === k);
+      if (on.some((v) => v)) o += `<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="3.6" class="${cls[k]}">${F.show(on)}</circle>`;
+    }
+  });
+  for (let k = 0; k < 3; k++) {
+    const xs = F.vals(st.map((s) => sx(s.mu[k][0]).toFixed(1))), ys = F.vals(st.map((s) => sy(s.mu[k][1]).toFixed(1)));
+    const xr = xs.map((v) => (v - 6).toFixed(1)), yr = ys.map((v) => (v - 6).toFixed(1));
+    o += `<rect x="${xr[0]}" y="${yr[0]}" width="12" height="12" class="solid2">${anim('x', xr, F.kt, F.T, true)}${anim('y', yr, F.kt, F.T, true)}</rect>`;
+  }
+  // 右：J 随 half-step
+  const px = lin(0, n - 1, 330, 540), py = lin(0, 170, 230, 40);
+  o += axes({ sx: px, sy: py, x0: 0, x1: n - 1, y0: 0, y1: 170, xt: st.map((_, i) => [i, String(i)]), yt: [0, 50, 100, 150], xl: 'half-step', grid: true });
+  o += text(330, 28, 'distortion J', 'tb', 'start');
+  o += path(d(st.map((s, i) => [px(i), py(s.J)])), 'ln');
+  st.forEach((s, i) => { o += circle(px(i), py(s.J), 2.5, 'ln-f'); });
+  const cx = F.vals(st.map((_, i) => px(i).toFixed(1))), cy = F.vals(st.map((s) => py(s.J).toFixed(1)));
+  o += `<circle cx="${cx[0]}" cy="${cy[0]}" r="6" class="ln paper-f">${anim('cx', cx, F.kt, F.T, true)}${anim('cy', cy, F.kt, F.T, true)}</circle>`;
+  st.forEach((s, i) => { o += gshow(text(280, 288, s.what + `，J = ${s.J.toFixed(1)}`, i === n - 1 ? 'tl' : 't', 'middle'), F, st.map((_, j) => j === i)); });
+  o += text(140, 14, '三种标记是 assignment，方块是 center μ', 'ts', 'middle');
+  return svgA(560, 298, o, 'k-means 在三团二维 data 上一步步执行：assignment 和 update 交替，center 从很差的初始位置移到三团 data 中间，右边的 distortion J 每半步都下降');
+}
+
 export default {
+  'cs3244-overfit': overfitA,
+  'cs3244-twopts': twoptsA,
+  'cs3244-coins': coinsA,
   'cs3244-complexity': complexity,
   'cs3244-sinfit': sinfit,
   'cs3244-learncurve': learncurve,
@@ -484,7 +651,7 @@ export default {
   'cs3244-kernel': kernel,
   'cs3244-bagvar': bagvar,
   'cs3244-init': initfig,
-  'cs3244-kmeans': kmeansfig,
+  'cs3244-kmeans': kmeansA,
   'cs3244-em': emfig,
   'cs3244-pca': pcafig,
   'cs3244-break': breakpt,

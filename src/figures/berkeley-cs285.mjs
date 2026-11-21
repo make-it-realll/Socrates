@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
 // 标准正态的 pdf 与分位数（分位数用二分）
 const npdf = (x, m = 0, s = 1) => Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s);
@@ -378,7 +378,124 @@ function openloop() {
   return svg(560, 258, o, '同一个完美的 model：open-loop plan 在看到 state 之前定下第二步，expected reward 0.5；closed-loop 看到 state 再选，expected reward 1');
 }
 
+
+// ---------- 动图共用：按帧切换 ----------
+function frames(durs) {
+  const T = durs.reduce((a, b) => a + b, 0), kt = [0];
+  let acc = 0;
+  for (let i = 0; i < durs.length - 1; i++) { acc += durs[i]; kt.push(acc / T); }
+  kt.push(1);
+  const show = (on) => ashow([...on, on[on.length - 1]], kt, T);
+  const vals = (v) => [...v, v[v.length - 1]];
+  return { T, kt, show, vals };
+}
+const gshow = (inner, F, on) => `<g>${inner}${F.show(on)}</g>`;
+function rng(seed) {
+  let s = seed >>> 0;
+  const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; };
+  const n = () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u());
+  return { u, n };
+}
+const sgn = (v, k = 1) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(k);
+
+// 开头第一次：每个 batch 4 条 trajectory，full return 估 gradient
+function pgbatchA() {
+  const R = rng(14), T = 10, NB = 24;
+  const batches = Array.from({ length: NB }, () => {
+    const tr = Array.from({ length: 4 }, () => { const a = Array.from({ length: T }, () => (R.u() < 0.5 ? 1 : 0)); const X = a.reduce((s, v) => s + v - 0.5, 0); const Rt = a.reduce((s, v) => s + v + R.n(), 0); return { a, X, R: Rt }; });
+    return { tr, g: tr.reduce((s, q) => s + q.X * q.R, 0) / 4 };
+  });
+  // 第 0 帧：全部 24 个 batch 都做完的样子；之后从第 1 个 batch 重放
+  const F = frames([3.2, ...batches.map((_, i) => (i === NB - 1 ? 2.4 : 1.1))]);
+  const at = (k) => [k === NB - 1, ...batches.map((_, j) => j === k)];
+  const upto = (k) => [true, ...batches.map((_, j) => j >= k)];
+  let o = text(20, 16, '每个 batch：4 条 trajectory，每格是一步的 action（实心 a = 1）', 'ts', 'start');
+  const cs = 15, x0 = 20, y0 = 26;
+  for (let r = 0; r < 4; r++) for (let t = 0; t < T; t++) o += rect(x0 + t * cs, y0 + r * 22, cs - 3, 16, 'frame', 2);
+  batches.forEach((b, k) => {
+    const on = at(k);
+    let q = '';
+    b.tr.forEach((tr, r) => {
+      tr.a.forEach((v, t) => { if (v) q += rect(x0 + t * cs, y0 + r * 22, cs - 3, 16, 'solid', 2); });
+      q += text(x0 + T * cs + 8, y0 + r * 22 + 13, `X = ${sgn(tr.X, 0)}，R = ${sgn(tr.R)}`, 'ts', 'start');
+    });
+    q += text(x0 + T * cs + 160, y0 + 30, `batch ${k + 1}：g = ${sgn(b.g, 2)}`, b.g < 0 ? 'tl' : 'tb', 'start');
+    q += text(x0 + T * cs + 160, y0 + 52, b.g < 0 ? '方向反了' : '方向对', b.g < 0 ? 'tl' : 'ts', 'start');
+    o += gshow(q, F, on);
+  });
+  // 数轴：每个 batch 的 g 落下来堆成点
+  const sx = lin(-20, 25, 40, 540), Y = 232;
+  o += rect(sx(-20), 128, sx(0) - sx(-20), Y - 128, 'wash2');
+  o += line(sx(-20), Y, sx(25), Y, 'axis');
+  for (const v of [-20, -10, 0, 10, 20]) o += line(sx(v), Y, sx(v), Y + 5, 'axis') + text(sx(v), Y + 19, sgn(v, 0), 'ts', 'middle');
+  o += line(sx(2.5), 120, sx(2.5), Y, 'ln-dash') + text(sx(2.5) + 5, 128, 'true gradient 2.5', 'tl', 'start');
+  o += text(sx(-19), 144, 'g < 0：往反方向更新', 'ts', 'start');
+  const stack = {};
+  batches.forEach((b, k) => {
+    const bin = Math.round(b.g / 1.6); stack[bin] = (stack[bin] || 0) + 1;
+    const cx = sx(bin * 1.6), cy = Y - 7 - (stack[bin] - 1) * 11;
+    o += gshow(circle(cx, cy, 5, b.g < 0 ? 'ln-f' : 'ink-f'), F, upto(k));
+  });
+  batches.forEach((_, k) => {
+    const neg = batches.slice(0, k + 1).filter((b) => b.g < 0).length;
+    o += gshow(text(280, 270, `到第 ${k + 1} 个 batch 为止，${neg} 个方向反了（理论上约 1/3）`, k === NB - 1 ? 'tl' : 't', 'middle'), F, at(k));
+  });
+  o += text(280, 288, '每个点是一个 batch 估出的 g，按值堆起来；彩色点是方向反了的', 'ts', 'middle');
+  return svgA(560, 296, o, '动图：10 步的问题，每个 batch 用 4 条 trajectory 的 full return 估 policy gradient，估出的 g 散在负 12 到 14 之间，24 个里 8 个落在 0 的左边，方向反了');
+}
+
+// 第 8 站 + 开头第二次：fitted Q-iteration 一轮轮把 line 抬高
+function oodA() {
+  const sx = lin(0, 9, 70, 400), sy = lin(0, 95, 235, 30), g = 0.9, K = 60;
+  const W = [0], Wd = [0];
+  for (let k = 0; k < K; k++) { W.push(g * (W[k] + 9)); Wd.push(g * (Wd[k] + 1)); }
+  // W[k]：第 k+1 轮 fit 出的 w0（w1 恒为 1）；第 1 轮 = W[0] = 0
+  const its = [K - 1, ...Array.from({ length: K }, (_, i) => i)];
+  const F = frames(its.map((k, i) => (i === 0 ? 3 : i === its.length - 1 ? 2.4 : k < 10 ? 0.6 : 0.09)));
+  let o = rect(sx(0), 30, sx(1.2) - sx(0), 205, 'wash');
+  o += axes({ sx, sy, x0: 0, x1: 9, y0: 0, y1: 95, xt: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((v) => [v, String(v)]), yt: [[20, '20'], [40, '40'], [60, '60'], [80, '80']], grid: true });
+  const lineD = (w0) => `M${sx(0).toFixed(1)} ${sy(w0).toFixed(1)}L${sx(9).toFixed(1)} ${sy(w0 + 9).toFixed(1)}`;
+  o += `<path d="${lineD(W[its[0]])}" class="ln">${anim('d', F.vals(its.map((k) => lineD(W[k]))), F.kt, F.T, true)}</path>`;
+  o += `<path d="${lineD(Wd[its[0]])}" class="ink">${anim('d', F.vals(its.map((k) => lineD(Wd[k]))), F.kt, F.T, true)}</path>`;
+  const dot = (xa, ws, off, r, cls) => { const ys = F.vals(its.map((k) => sy(ws[k] + off).toFixed(1))); return `<circle cx="${sx(xa).toFixed(1)}" cy="${ys[0]}" r="${r}" class="${cls}">${anim('cy', ys, F.kt, F.T, true)}</circle>`; };
+  o += dot(0, W, 0, 4, 'ln-f') + dot(1, W, 1, 4, 'ln-f') + dot(9, W, 9, 6, 'ln') + dot(0, Wd, 0, 4, 'ink-f') + dot(1, Wd, 1, 4, 'ink-f');
+  o += text(424, 240, '黑线：max 只在 data', 'tb', 'start') + text(424, 256, '的 action 里取，', 'tb', 'start') + text(424, 272, '停在 Q(1) = 10', 'tb', 'start');
+  o += text(sx(1.35), sy(55), '← 阴影：data 只有 a = 0, 1', 'ts');
+  its.forEach((k, i) => {
+    o += gshow(text(424, 64, `第 ${k + 1} 轮`, 'tl', 'start') + text(424, 86, `max 在 a = 9：Q(9) = ${(W[k] + 9).toFixed(1)}`, 't', 'start') + text(424, 106, `Q(1) = ${(W[k] + 1).toFixed(1)}`, 't', 'start'), F, its.map((_, j) => j === i));
+  });
+  o += text(424, 146, '每轮 target：', 'ts', 'start') + text(424, 162, 'r(a) + γ · max Q(a′)，', 'ts', 'start') + text(424, 178, '在 a = 0, 1 两点上 fit。', 'ts', 'start') + text(424, 200, 'max 总落在 a = 9，', 'ts', 'start') + text(424, 216, '把整条 line 往上抬。', 'ts', 'start');
+  o += text(235, 266, 'action a', 'ts', 'middle') + text(70, 18, 'Q(a) = w₀ + w₁a，γ = 0.9', 'tb');
+  return svgA(560, 280, o, '动图：linear Q-function 只在 action 0 和 1 上有 data；fitted Q-iteration 每轮对所有 action 取 max，max 落在 a = 9，整条 line 一轮轮抬高，60 轮后 Q(9) 到 89.8；只在 data 的 action 里取 max 时停在 Q(1) = 10');
+}
+
+// 开头第三次：GRPO，8 个回答全错的 prompt 没有 gradient
+function grpoA() {
+  const R = rng(23), P = 24, G = 8, NB = 4;
+  const batches = Array.from({ length: NB }, () => Array.from({ length: P }, () => Array.from({ length: G }, () => (R.u() < 0.23 ? 1 : 0))));
+  const F = frames(Array(NB).fill(3));
+  const cw = 21, x0 = 28, y0 = 44, rh = 19;
+  let o = text(280, 16, '每一列是一个 prompt 的 8 个回答：● 答对（reward 1），○ 答错（reward 0）', 'ts', 'middle');
+  for (let a = 0; a < G; a++) o += text(x0 - 8, y0 + a * rh + 4, String(a + 1), 'ts', 'end');
+  batches.forEach((b, k) => {
+    const on = batches.map((_, j) => j === k);
+    let q = '', z = 0;
+    b.forEach((col, p) => {
+      const x = x0 + p * cw + cw / 2, dead = col.every((v) => !v);
+      if (dead) { z++; q += rect(x - cw / 2 + 1, y0 - 12, cw - 2, G * rh + 6, 'wash-strong', 3) + text(x, y0 + G * rh + 12, '0', 'tl', 'middle'); }
+      col.forEach((v, a) => { q += circle(x, y0 + a * rh, 5, v ? 'ink-f' : 'paper'); });
+    });
+    q += text(280, 230, `第 ${k + 1} 批：${P} 个 prompt 里有 ${z} 个 8 个回答全错（${Math.round((100 * z) / P)}%）`, 'tl', 'middle');
+    o += gshow(q, F, on);
+  });
+  o += text(280, 252, '涂色的列：8 个 reward 都是 0，减去 group mean 后 advantage 全是 0，这个 prompt 的 gradient 就是 0', 'ts', 'middle');
+  o += text(280, 270, '每个回答独立地以 23% 答对时，8 个全错的 probability 是 0.77⁸ ≈ 12%', 'ts', 'middle');
+  return svgA(560, 278, o, '动图：每批 24 个 prompt、每个 8 个回答，答对率 23%；大约八分之一的 prompt 8 个回答全错，group 内的 advantage 全是 0，没有 gradient');
+}
+
 export default {
+  'cs285-pgbatch': pgbatchA,
+  'cs285-grpo': grpoA,
   'cs285-ar': ar,
   'cs285-relabel': relabel,
   'cs285-gaesum': gaesum,
@@ -392,6 +509,6 @@ export default {
   'cs285-natgrad': natgrad,
   'cs285-kl': kl,
   'cs285-cem': cem,
-  'cs285-ood': ood,
+  'cs285-ood': oodA,
   'cs285-expectile': expectile,
 };

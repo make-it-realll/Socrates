@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, apath, ashow } from '../lib/svg.mjs';
 
 // 第 1、2 站共用的 state space graph
 const GN = { S: [60, 128], A: [180, 52], C: [290, 128], B: [400, 52], G: [510, 128], D: [290, 222] };
@@ -534,7 +534,208 @@ function conv() {
   return svg(560, 214, o, '3 乘 3 的 filter 在 5 乘 5 的 image 第一行的三个位置，分别得到 0、3、3');
 }
 
+
+// ---------- 动图共用：按帧切换 ----------
+// durs：每一帧停多久（秒）。返回 kt（帧的起点 + 结尾 1）和 show(on)：on[i] 表示第 i 帧是否显示
+function frames(durs) {
+  const T = durs.reduce((a, b) => a + b, 0), kt = [0];
+  let acc = 0;
+  for (let i = 0; i < durs.length - 1; i++) { acc += durs[i]; kt.push(acc / T); }
+  kt.push(1);
+  const show = (on) => ashow([...on, on[on.length - 1]], kt, T);
+  const vals = (v) => [...v, v[v.length - 1]];
+  return { T, kt, show, vals };
+}
+
+// 开头第一件：BFS、DFS、最便宜的 path 轮流亮起
+function threepathsA() {
+  const R = 17;
+  let o = '';
+  for (const [a, b, c, side] of GE) {
+    const [x1, y1] = GN[a], [x2, y2] = GN[b];
+    const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+    o += arrow(x1 + ux * R, y1 + uy * R, x2 - ux * (R + 2), y2 - uy * (R + 2), 'mute');
+    const mx = (x1 + x2) / 2 + uy * 12 * side, my = (y1 + y2) / 2 - ux * 12 * side;
+    o += text(mx, my + 4, String(c), 'tb', 'middle');
+  }
+  const P = [
+    { p: ['S', 'C', 'G'], h: 'BFS 返回 S → C → G', s: 'cost 4 + 7 = 11', n: '它找的是 action 最少的 path（2 步），不看 cost' },
+    { p: ['S', 'A', 'B', 'G'], h: 'DFS 返回 S → A → B → G', s: 'cost 1 + 5 + 3 = 9', n: '它沿第一个 child 一路往深处走，碰到 G 就停' },
+    { p: ['S', 'A', 'C', 'B', 'G'], h: '最便宜的是 S → A → C → B → G', s: 'cost 1 + 2 + 2 + 3 = 8', n: '4 步，比上面两条都长，但 cost 最小' },
+  ];
+  const F = frames([2.6, 2.6, 2.6]);
+  P.forEach((q, i) => {
+    const on = P.map((_, j) => j === i);
+    o += `<g>${path(d(q.p.map((k) => GN[k])), 'ln')}${F.show(on)}</g>`;
+    o += `<g>${text(280, 270, q.h + '，' + q.s, 'tl', 'middle')}${text(280, 290, q.n, 'ts', 'middle')}${F.show(on)}</g>`;
+  });
+  for (const k of Object.keys(GN)) {
+    const [x, y] = GN[k];
+    o += circle(x, y, R, k === 'G' ? 'solid' : 'paper') + text(x, y + 5, k, k === 'G' ? 'tw' : 'tb', 'middle');
+  }
+  o += text(280, 14, '同一张 graph，三条从 S 到 G 的 path 轮流亮起', 'tb', 'middle');
+  return svgA(560, 300, o, '动图：六个 state 的 graph 上，BFS 返回的 path cost 11，DFS 返回的 cost 9，最便宜的 path cost 8，三条 path 轮流高亮');
+}
+
+// 第 2 站：UCS 和 A* 一格一格 expand，同一个节拍
+function gridA() {
+  const S = 20, y0 = 34, dt = 0.07, hold = 2.2, gap = 0.5;
+  const u = gridSearch(false), a = gridSearch(true);
+  const n = Math.max(u.closed.size, a.closed.size);
+  // 时间线：先停在“全部做完”的样子（第一帧），然后清空，一格一格重放，最后停住
+  const T = hold + gap + n * dt + hold;
+  const t0 = (hold + gap) / T;
+  let o = '';
+  const panel = (x0, res, title) => {
+    [...res.closed].forEach((k, i) => {
+      const [c, r] = k.split(',').map(Number);
+      const ton = (hold + gap + (i + 1) * dt) / T;
+      o += `<rect x="${x0 + c * S}" y="${y0 + r * S}" width="${S}" height="${S}" class="wash">${anim('opacity', [1, 0, 1, 1], [0, hold / T, ton, 1], T, true)}</rect>`;
+    });
+    for (const k of res.wall) { const [c, r] = k.split(',').map(Number); o += rect(x0 + c * S, y0 + r * S, S, S, 'solid2'); }
+    for (let c = 0; c <= res.W; c++) o += line(x0 + c * S, y0, x0 + c * S, y0 + res.Hh * S, 'grid');
+    for (let r = 0; r <= res.Hh; r++) o += line(x0, y0 + r * S, x0 + res.W * S, y0 + r * S, 'grid');
+    const tdone = (hold + gap + (res.closed.size + 1) * dt) / T;
+    o += `<path d="${d(res.pathCells.map(([c, r]) => [x0 + c * S + S / 2, y0 + r * S + S / 2]))}" class="ln">${anim('opacity', [1, 0, 1, 1], [0, hold / T, tdone, 1], T, true)}</path>`;
+    const mark = (c, s) => { o += circle(x0 + c[0] * S + S / 2, y0 + c[1] * S + S / 2, 8.5, 'paper') + text(x0 + c[0] * S + S / 2, y0 + c[1] * S + S / 2 + 4, s, 'tb', 'middle'); };
+    mark(res.start, 'S'); mark(res.goal, 'G');
+    o += text(x0 + (res.W * S) / 2, 22, title, 'tb', 'middle');
+    const cx = x0 + (res.W * S) / 2, cy = y0 + res.Hh * S + 20;
+    o += `<text x="${cx}" y="${cy}" class="ts" text-anchor="middle">expanding…${anim('opacity', [0, 1, 0, 0], [0, hold / T, tdone, 1], T, true)}</text>`;
+    o += `<text x="${cx}" y="${cy}" class="ts" text-anchor="middle">pop 出 G：expand 了 ${res.closed.size} 个 state，path cost ${res.cost}${anim('opacity', [1, 0, 1, 1], [0, hold / T, tdone, 1], T, true)}</text>`;
+  };
+  panel(25, u, 'UCS（h = 0）');
+  panel(295, a, 'A*（h = Manhattan distance）');
+  o += text(280, 262, '两边每一拍 expand 一格：UCS 按 g 一圈圈往外扩，A* 按 g + h 朝 G 那边扩', 'ts', 'middle');
+  return svgA(560, 272, o, '动图：同一个 grid 上 UCS 和 A* 以相同节拍一格一格 expand。A* 扩到 49 格就 pop 出 G，UCS 要扩到 98 格，两者 path cost 都是 17');
+}
+
+// 第 3 站：alpha-beta 按 DFS 顺序一步步走
+function alphabetaA() {
+  let o = '';
+  const root = [280, 42], mins = [[100, 118], [280, 118], [460, 118]];
+  const leaves = [[3, 12, 8], [2, 4, 6], [14, 5, 2]];
+  const up = (x, y, cls) => poly([[x, y - 17], [x - 19, y + 13], [x + 19, y + 13]], cls);
+  const down = (x, y, cls) => poly([[x, y + 17], [x - 19, y - 13], [x + 19, y - 13]], cls);
+  // 帧：0 = 结果；1..7 = evaluate 第 k 个 leaf；8 = 剪掉之后（在 #4 后插入）
+  // 顺序：#1 #2 #3 #4 剪 #5 #6 #7 结果
+  const order = [[0, 0], [0, 1], [0, 2], [1, 0], 'cut', [2, 0], [2, 1], [2, 2]];
+  const seen = (fi, i, j) => { // 第 fi 个步骤结束时，leaf (i,j) 是否已 evaluate
+    for (let s = 0; s <= fi; s++) { const q = order[s]; if (q !== 'cut' && q[0] === i && q[1] === j) return true; } return false;
+  };
+  const steps = order.length; // 8 个步骤帧
+  const F = frames([3.2, ...Array(steps).fill(1.6)]);
+  const allF = (fn) => [fn(-1), ...order.map((_, s) => fn(s))]; // -1 表示结果帧
+  const minVal = [
+    (s) => (s < 0 || s >= 2 ? '3' : s === 0 ? '≤ 3' : s === 1 ? '≤ 3' : ''),
+    (s) => (s < 0 || s >= 3 ? '≤ 2' : ''),
+    (s) => (s < 0 || s >= 7 ? '2' : s === 5 ? '≤ 14' : s === 6 ? '≤ 5' : ''),
+  ];
+  const rootVal = (s) => (s < 0 || s >= 7 ? '3' : s >= 2 ? '≥ 3' : '');
+  const note = [
+    '看完 3、12、8：左边 MIN node 的 value 是 3，root 至少拿得到 3',
+    '', '',
+    '中间 MIN node 先看到 2：它的 value ≤ 2',
+    '≤ 2 < 3，root 不会选它：剩下的 4 和 6 剪掉，不用 evaluate',
+    '右边先看到 14：≤ 14，还可能比 3 好，继续',
+    '看到 5：≤ 5，还可能比 3 好，继续',
+    '看到 2：value 是 2。Root = max(3, ≤ 2, 2) = 3',
+  ];
+  note[0] = '看到 3：左边 MIN node 的 value ≤ 3'; note[1] = '看到 12：还是 ≤ 3'; note[2] = '看到 8：左边 MIN node = 3，root 至少拿得到 3';
+  let k = 0;
+  mins.forEach(([mx, my], i) => {
+    o += line(root[0], root[1] + 13, mx, my - 13, 'ink');
+    leaves[i].forEach((v, j) => {
+      const lx = mx + (j - 1) * 52, ly = 196, cut = i === 1 && j > 0;
+      const cutOn = allF((s) => s < 0 || s >= 4);
+      if (cut) {
+        o += `<g>${line(mx, my + 17, lx, ly - 13, 'ink')}${F.show(cutOn.map((x) => !x))}</g>`;
+        const cx = (mx + lx) / 2, cy = (my + 17 + ly - 13) / 2;
+        o += `<g>${line(mx, my + 17, lx, ly - 13, 'dash')}${line(cx - 7, cy - 5, cx + 7, cy + 5, 'ln')}${line(cx - 7, cy + 5, cx + 7, cy - 5, 'ln')}${F.show(cutOn)}</g>`;
+        o += rect(lx - 16, ly - 13, 32, 26, 'frame', 3) + text(lx, ly + 5, String(v), 'ts', 'middle');
+      } else {
+        o += line(mx, my + 17, lx, ly - 13, 'ink');
+        const cur = allF((s) => s >= 0 && order[s] !== 'cut' && order[s][0] === i && order[s][1] === j);
+        const got = allF((s) => s < 0 || seen(s, i, j));
+        o += `<g>${rect(lx - 16, ly - 13, 32, 26, 'frame', 3)}${text(lx, ly + 5, String(v), 'ts', 'middle')}${F.show(got.map((x) => !x))}</g>`;
+        o += `<g>${rect(lx - 16, ly - 13, 32, 26, 'paper', 3)}${text(lx, ly + 5, String(v), 'tb', 'middle')}${F.show(got.map((x, q) => x && !cur[q]))}</g>`;
+        o += `<g>${rect(lx - 16, ly - 13, 32, 26, 'solid', 3)}${text(lx, ly + 5, String(v), 'tw', 'middle')}${F.show(cur)}</g>`;
+        o += text(lx, ly + 30, '#' + ++k, 'ts', 'middle');
+      }
+    });
+  });
+  // root 和三个 MIN node：value 随帧变化
+  const valTexts = (x, y, fn, cls) => {
+    const vs = allF(fn), uniq = [...new Set(vs)].filter((v) => v);
+    return uniq.map((v) => `<g>${text(x, y, v, cls, 'middle')}${F.show(vs.map((w) => w === v))}</g>`).join('');
+  };
+  o += up(root[0], root[1], 'wash ink-s') + valTexts(root[0], root[1] + 8, rootVal, 'tb');
+  mins.forEach(([mx, my], i) => { o += down(mx, my, 'paper') + valTexts(mx, my + 2, minVal[i], i === 1 ? 'tl' : 'tb'); });
+  o += text(root[0] + 28, root[1] + 4, 'MAX', 'ts') + text(mins[2][0] + 26, mins[2][1] + 2, 'MIN', 'ts');
+  // 状态说明
+  o += `<g>${text(280, 252, '九个 leaf 只 evaluate 了 7 个（#1–#7），root 的 value 仍是 3', 't', 'middle')}${text(280, 272, '中间那两个 leaf 取什么值都改变不了 root 的选择', 'ts', 'middle')}${F.show(allF((s) => s < 0))}</g>`;
+  order.forEach((_, s) => {
+    o += `<g>${text(280, 252, '第 ' + (s + 1) + ' 步', 'ts', 'middle')}${text(280, 272, note[s], 't', 'middle')}${F.show(allF((q) => q === s))}</g>`;
+  });
+  return svgA(560, 284, o, '动图：alpha-beta 按 DFS 顺序 evaluate leaf，节点上显示当前已知的 bound；中间 MIN node 看到 2 之后剩下两个 leaf 被剪掉，最后 root 的 value 是 3');
+}
+
+// 第 5 站：gradient descent 一步一步走（左 α = 0.1，右 α = 0.3，同一节拍）
+function gdA() {
+  const X = [[1, 1], [1, 2], [1, 3]], y = [1, 2, 2], n = 3;
+  const grad = (w) => { const g = [0, 0]; X.forEach((r, i) => { const e = r[0] * w[0] + r[1] * w[1] - y[i]; g[0] += (e * r[0]) / n; g[1] += (e * r[1]) / n; }); return g; };
+  const J = (w) => X.reduce((s, r, i) => s + (r[0] * w[0] + r[1] * w[1] - y[i]) ** 2, 0) / (2 * n);
+  const ws = [2 / 3, 1 / 2];
+  const a = 1, b = 2, c = 14 / 3, m = (a + c) / 2, r = Math.hypot((a - c) / 2, b);
+  const l1 = m + r, l2 = m - r;
+  const v1 = [b, l1 - a], n1 = Math.hypot(v1[0], v1[1]);
+  const e1 = [v1[0] / n1, v1[1] / n1], e2 = [-e1[1], e1[0]];
+  const STEPS = 40, dt = 0.18, hold = 2.4;
+  const F = frames([hold, ...Array(STEPS + 1).fill(dt).map((v, i) => (i === STEPS ? hold : v))]);
+  let o = '';
+  const panel = (x0, alpha, title, note) => {
+    const sx = lin(-0.35, 1.35, x0, x0 + 225), sy = lin(-0.2, 1.3, 222, 32);
+    const inside = (p) => p[0] >= -0.35 && p[0] <= 1.35 && p[1] >= -0.2 && p[1] <= 1.3;
+    o += rect(x0, 32, 225, 190, 'frame');
+    for (const lv of [0.004, 0.02, 0.06, 0.15, 0.35, 0.7, 1.2, 1.9]) {
+      let seg = [];
+      for (let i = 0; i <= 240; i++) {
+        const t = (2 * Math.PI * i) / 240, u = Math.sqrt((2 * lv) / l1) * Math.cos(t), v = Math.sqrt((2 * lv) / l2) * Math.sin(t);
+        const p = [ws[0] + u * e1[0] + v * e2[0], ws[1] + u * e1[1] + v * e2[1]];
+        if (inside(p)) seg.push([sx(p[0]), sy(p[1])]);
+        else { if (seg.length > 1) o += path(d(seg), 'grid'); seg = []; }
+      }
+      if (seg.length > 1) o += path(d(seg), 'grid');
+    }
+    let w = [0, 0];
+    const W = [w];
+    for (let k = 0; k < STEPS; k++) { const g = grad(w); w = [w[0] - alpha * g[0], w[1] - alpha * g[1]]; W.push(w); }
+    const pts = W.map((p) => [sx(p[0]), sy(p[1])]);
+    // 第 0 帧：完整的 40 步；之后第 k 帧画到第 k 步
+    const ds = [d(pts), ...pts.map((_, k) => d(pts.slice(0, Math.max(k + 1, 2))))];
+    o += apath(F.vals(ds), F.kt, F.T, 'ln', true);
+    const cx = F.vals([pts[STEPS][0], ...pts.map((p) => p[0])]), cy = F.vals([pts[STEPS][1], ...pts.map((p) => p[1])]);
+    o += `<circle cx="${cx[0].toFixed(1)}" cy="${cy[0].toFixed(1)}" r="4.5" class="ln-f">${anim('cx', cx.map((v) => v.toFixed(1)), F.kt, F.T, true)}${anim('cy', cy.map((v) => v.toFixed(1)), F.kt, F.T, true)}</circle>`;
+    o += circle(sx(ws[0]), sy(ws[1]), 4.5, 'ink-f') + circle(sx(0), sy(0), 4, 'ln paper-f');
+    o += text(sx(0) + 8, sy(0) + 14, '(0, 0)', 'ts') + text(sx(ws[0]) + 8, sy(ws[1]) - 7, 'minimum (⅔, ½)', 'ts');
+    o += text(x0, 20, title, 'tb', 'start') + text(x0 + 112, 240, note, 'ts', 'middle');
+    // J 的读数：只标几个关键步
+    const marks = [0, 1, 2, 5, 10, 20, 40];
+    const lab = (k) => 'step ' + k + '：J = ' + J(W[k]).toFixed(3);
+    const which = (fk) => { let best = 0; for (const mk of marks) if (mk <= fk) best = mk; return best; };
+    for (const mk of marks) {
+      const on = [mk === STEPS, ...W.map((_, k) => which(k) === mk)];
+      o += `<g>${text(x0 + 225, 20, lab(mk), 'ts', 'end')}${F.show(on)}</g>`;
+    }
+  };
+  panel(40, 0.1, 'α = 0.1', '两步下到谷底，然后沿谷底慢慢爬');
+  panel(300, 0.3, 'α = 0.3', '在谷的两壁之间来回跳，同时沿谷底前进');
+  o += text(280, 262, '横轴 w₀，纵轴 w₁；灰线是 loss J 的 contour。两边同一节拍，每拍走一步', 'ts', 'middle');
+  return svgA(560, 272, o, '动图：同一个 quadratic loss 的 contour 上，两种 step size 的 gradient descent 一步一步走 40 步：小 step size 平滑但沿狭长的谷底走得很慢，大 step size 在谷的两侧来回振荡');
+}
+
 export default {
+  'cs2109s-threepaths': threepathsA,
   'cs2109s-thresh': thresh,
   'cs2109s-fit3': fit3,
   'cs2109s-lines': lines8,
@@ -542,11 +743,11 @@ export default {
   'cs2109s-conv': conv,
   'cs2109s-graph': graph,
   'cs2109s-tree': tree,
-  'cs2109s-grid': grid,
+  'cs2109s-grid': gridA,
   'cs2109s-queens': queens,
-  'cs2109s-alphabeta': alphabeta,
+  'cs2109s-alphabeta': alphabetaA,
   'cs2109s-entropy': entropy,
-  'cs2109s-gd': gd,
+  'cs2109s-gd': gdA,
   'cs2109s-lsclass': lsclass,
   'cs2109s-polyfit': polyfit,
   'cs2109s-svm': svm,

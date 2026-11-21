@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
 // 两个小面板共用：画一条折线
 const polyline = (xs, ys, sx, sy, cls) => path(d(xs.map((x, i) => [sx(x), sy(ys[i])])), cls);
@@ -348,11 +348,134 @@ function bcast() {
   return svg(560, 272, o, 'Shape 为 B 乘 1 的 critic 输出减去 shape 为 B 的 target，被 broadcast 成 B 乘 B 的 matrix，只有对角线是想要的差');
 }
 
+
+// ---------- 动图共用：按帧切换 ----------
+function frames(durs) {
+  const T = durs.reduce((a, b) => a + b, 0), kt = [0];
+  let acc = 0;
+  for (let i = 0; i < durs.length - 1; i++) { acc += durs[i]; kt.push(acc / T); }
+  kt.push(1);
+  const show = (on) => ashow([...on, on[on.length - 1]], kt, T);
+  const vals = (v) => [...v, v[v.length - 1]];
+  return { T, kt, show, vals };
+}
+const gshow = (inner, F, on) => `<g>${inner}${F.show(on)}</g>`;
+
+// 第 7 站 + 开头第一件：同样 10 个 seed，换一种分组，两条平均曲线就换一个样子
+function seedsA() {
+  const S = SEEDS_ALL;
+  const n = S[0].length, xs = Array.from({ length: n }, (_, i) => 2048 + i * 3072);
+  const sx = lin(0, 150000, 70, 400), sy = lin(0, 520, 230, 40);
+  let s = 12345;
+  const u = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+  const splits = [[0, 1, 2, 3, 4]];
+  while (splits.length < 8) { const idx = [...Array(10).keys()].sort(() => u() - 0.5).slice(0, 5).sort((a, b) => a - b); if (!splits.some((q) => q.join() === idx.join())) splits.push(idx); }
+  const F = frames(splits.map((_, i) => (i === 0 ? 3.4 : 2)));
+  let o = axes({ sx, sy, x0: 0, x1: 150000, y0: 0, y1: 520, xt: [[0, '0'], [50000, '50k'], [100000, '100k'], [150000, '150k']], yt: [0, 100, 200, 300, 400, 500], xl: 'environment steps', yl: 'episodic return', grid: true });
+  const mean = (ids) => xs.map((_, j) => ids.reduce((t, i) => t + S[i][j], 0) / ids.length);
+  S.forEach((c, i) => {
+    o += gshow(polyline(xs, c, sx, sy, 'ln-dash'), F, splits.map((q) => q.includes(i)));
+    o += gshow(polyline(xs, c, sx, sy, 'dash'), F, splits.map((q) => !q.includes(i)));
+  });
+  splits.forEach((A, k) => {
+    const B = [...Array(10).keys()].filter((i) => !A.includes(i));
+    const mA = mean(A), mB = mean(B);
+    let yA = sy(mA[n - 1]) + 4, yB = sy(mB[n - 1]) + 4;
+    if (Math.abs(yA - yB) < 34) { const mid = (yA + yB) / 2; if (yA < yB) { yA = mid - 17; yB = mid + 17; } else { yA = mid + 17; yB = mid - 17; } }
+    let g = polyline(xs, mA, sx, sy, 'ln') + polyline(xs, mB, sx, sy, 'ink-b');
+    g += text(410, yA, '组 A 平均 ' + Math.round(mA[n - 1]), 'tl') + text(410, yA + 15, 'seed ' + A.join(','), 'ts');
+    g += text(410, yB, '组 B 平均 ' + Math.round(mB[n - 1]), 'tb') + text(410, yB + 15, 'seed ' + B.join(','), 'ts');
+    g += text(70, 284, `第 ${k + 1} 种分法：最后一点两组差 ${Math.round(Math.abs(mA[n - 1] - mB[n - 1]))}`, k === 0 ? 'tl' : 't');
+    o += gshow(g, F, splits.map((_, j) => j === k));
+  });
+  o += text(70, 16, '同一份代码、同一组 hyperparameter，只换 seed；10 个 seed 随机分成两组', 'tb');
+  return svgA(560, 294, o, '动图：同一份 PPO 代码在 CartPole 上跑 10 个 seed，每一帧换一种分成两组的方法，两组平均的 learning curve 每次都差得像两个不同的 algorithm');
+}
+
+// 开头第三件 + 第 3 站：truncation 被当成 termination，critic 学到一半
+function truncA() {
+  const g = 0.99, T = 100, lr = 0.01, E = 600;
+  const Vb = [0], Vo = [0];
+  { let vb = 0, vo = 0; for (let e = 1; e <= E; e++) { for (let t = 0; t < T; t++) { vo += lr * (1 + g * vo - vo); vb += lr * ((t === T - 1 ? 1 : 1 + g * vb) - vb); } Vb.push(vb); Vo.push(vo); } }
+  let o = '';
+  // 上：一个 episode 的 100 步
+  const x0 = 30, x1 = 530, sxs = lin(0, T, x0, x1), Y = 54;
+  o += text(x0, 18, '一个 episode：一个 state，每步 stay 拿 +1，第 100 步时间到了被 reset', 'tb', 'start');
+  for (let t = 0; t < T; t++) o += rect(sxs(t) + 0.6, Y - 9, sxs(1) - sxs(0) - 1.2, 18, t === T - 1 ? 'solid' : 'wash', 1);
+  for (const t of [0, 25, 50, 75, 99]) o += text(sxs(t + 0.5), Y + 24, String(t + 1), 'ts', 'middle');
+  // 走动的 robot：一个 episode 4 秒
+  o += `<circle cx="${sxs(0.5).toFixed(1)}" cy="${Y - 18}" r="5" class="ink-f">${anim('cx', [sxs(0.5), sxs(99.5), sxs(99.5)].map((v) => v.toFixed(1)), [0, 0.9, 1], 4)}</circle>`;
+  o += text(sxs(48), Y + 44, '第 1–99 步：target = 1 + γV(s′)', 'ts', 'middle');
+  o += text(x1, Y + 44, '第 100 步：bug 写成 target = 1', 'tl', 'end') + text(x1, Y + 60, '正确：仍是 1 + γV(s′)', 'tb', 'end');
+  // 下：两个 critic 的 V，随 episode 学
+  const by = lin(0, 110, 262, 128), hold = 3, ep = 0.02, Tt = hold + 0.3 + E * ep + 2;
+  const samp = []; for (let e = 0; e <= E; e += 10) samp.push(e);
+  const kt = [0, hold / Tt, ...samp.map((e) => (hold + 0.3 + e * ep) / Tt), 1];
+  const vals = (V) => [V[E], V[E], ...samp.map((e) => V[e]), V[E]];
+  o += line(70, by(0), 330, by(0), 'axis');
+  for (const v of [0, 50, 100]) o += text(64, by(v) + 4, String(v), 'ts', 'end') + line(66, by(v), 70, by(v), 'axis');
+  o += line(70, by(100), 330, by(100), 'grid') + line(70, by(60), 330, by(60), 'ln-dash') + text(334, by(60) + 4, 'jump 的 reward 60', 'ts', 'start');
+  o += text(334, by(100) + 4, '真实 value 100', 'ts', 'start');
+  const bar = (x, V, cls) => { const hs = vals(V).map((v) => (by(0) - by(v)).toFixed(1)), ys = vals(V).map((v) => by(v).toFixed(1)); return `<rect x="${x}" y="${ys[0]}" width="60" height="${hs[0]}" class="${cls}">${anim('y', ys, kt, Tt)}${anim('height', hs, kt, Tt)}</rect>`; };
+  o += bar(110, Vb, 'solid') + bar(230, Vo, 'wash-strong');
+  o += text(140, by(0) + 18, '有 bug 的 critic', 'tl', 'middle') + text(260, by(0) + 18, '正确的 critic', 'tb', 'middle');
+  // 读数：每 50 个 episode 换一次
+  const marks = []; for (let e = 0; e <= E; e += 10) marks.push(e);
+  const mkt = [0, hold / Tt, ...marks.map((e) => (hold + 0.3 + e * ep) / Tt), 1];
+  marks.forEach((m, i) => {
+    const on = [m === E, false, ...marks.map((_, j) => j === i), m === E];
+    o += `<text x="500" y="${by(84)}" class="t" text-anchor="middle">episode ${m}${anim('opacity', on.map((v) => (v ? 1 : 0)), mkt, Tt, true)}</text>`;
+    o += `<text x="500" y="${by(84) + 20}" class="tl" text-anchor="middle">bug：V = ${Vb[m].toFixed(1)}${anim('opacity', on.map((v) => (v ? 1 : 0)), mkt, Tt, true)}</text>`;
+    o += `<text x="500" y="${by(84) + 38}" class="tb" text-anchor="middle">正确：V = ${Vo[m].toFixed(1)}${anim('opacity', on.map((v) => (v ? 1 : 0)), mkt, Tt, true)}</text>`;
+  });
+  o += text(280, 296, 'TD(0)，learning rate 0.01。Bug 版停在一半，低于 jump 的 60：jump 看起来比一直 stay 更好', 'ts', 'middle');
+  return svgA(560, 304, o, '动图：一个 episode 100 步，最后一步因时间到被 reset；把它当成终点的 critic 用 TD 学到的 value 停在 50 左右，正确的 critic 涨到 100，jump 的 reward 60 夹在两者之间');
+}
+
+// 第 2 站 + 开头第二件：一轮 PPO：4096 个 robot 一起走 24 步，再做 20 个 gradient step
+function batchA() {
+  const tick = 0.22, hold = 2.6;
+  // 时间线：0 停在“全部收集完 + 20 步都做完”的样子；然后清空，8 列一列一列填（每列代表 3 步），batch 亮起，20 个 gradient step 一个个亮，回到收集
+  const tFill = hold + 0.4, tBatch = tFill + 8 * tick * 1.5, tUpd = tBatch + 0.8, tBack = tUpd + 20 * tick, Tt = tBack + 1.4;
+  const on = (tOn, tOff = null) => { const kt = [0, hold / Tt, tOn / Tt], v = [1, 0, 1]; if (tOff !== null) { kt.push(tOff / Tt); v.push(0); } kt.push(1); v.push(v[v.length - 1]); return anim('opacity', v, kt, Tt, true); };
+  const only = (t0, t1) => { const kt = [0, t0 / Tt, t1 / Tt, 1]; return anim('opacity', [0, 1, 0, 0], kt, Tt, true); };
+  let o = '';
+  const gx = 62, gy = 50;
+  for (let i = 0; i < 12; i++) for (let j = 0; j < 8; j++) o += rect(gx + j * 13, gy + i * 11, 11, 9, 'frame');
+  for (let j = 0; j < 8; j++) {
+    let cells = ''; for (let i = 0; i < 12; i++) cells += rect(gx + j * 13, gy + i * 11, 11, 9, 'wash-strong');
+    o += `<g>${cells}${on(tFill + (j + 1) * tick * 1.5)}</g>`;
+  }
+  o += text(gx + 52, gy - 10, '24 步 →', 'ts', 'middle') + text(gx - 8, gy + 66, '4096', 'ts', 'end') + text(gx - 8, gy + 82, '个', 'ts', 'end');
+  o += text(gx + 52, gy + 150, '每行一个 robot', 'ts', 'middle') + text(gx + 52, gy + 166, '一轮 0.48 s 的经验', 'ts', 'middle');
+  o += arrow(172, 115, 206, 115, 'ink');
+  o += rect(210, 85, 120, 60, 'paper', 6) + `<g>${rect(210, 85, 120, 60, 'ln', 6)}${only(tBatch, tUpd)}</g>` + text(270, 110, 'batch', 'tb', 'middle') + text(270, 128, '98,304 个 sample', 'ts', 'middle');
+  o += arrow(332, 115, 358, 115, 'ink');
+  o += rect(362, 64, 175, 120, 'paper', 6) + text(450, 86, 'PPO update', 'tb', 'middle') + text(450, 106, '5 epochs × 4 minibatches', 'ts', 'middle') + text(450, 124, '= 20 个 gradient step', 'ts', 'middle') + text(450, 142, '每个 minibatch 24,576', 'ts', 'middle');
+  for (let k = 0; k < 20; k++) {
+    const x = 378 + k * 7.4 + Math.floor(k / 4) * 1.6, y = 158;
+    o += rect(x, y, 5.4, 12, 'frame', 1) + `<g>${rect(x, y, 5.4, 12, 'solid', 1)}${on(tUpd + (k + 1) * tick)}</g>`;
+  }
+  o += path(d([[450, 186], [450, 214], [270, 214], [270, 148]]), 'mute');
+  o += poly([[270, 147], [266, 155], [274, 155]], 'mute-f');
+  o += `<g>${path(d([[450, 186], [450, 214], [270, 214], [270, 150]]), 'ln')}${only(tBack, Tt)}</g>`;
+  o += text(360, 208, '新 policy 再去收集', 'ts', 'middle');
+  // 状态说明
+  const st = (s, a, b) => `<text x="280" y="20" class="tl" text-anchor="middle">${s}${only(a, b)}</text>`;
+  o += `<text x="280" y="20" class="tl" text-anchor="middle">一轮：收集 98,304 个 sample，只做 20 个 gradient step${anim('opacity', [1, 0, 0], [0, hold / Tt, 1], Tt, true)}</text>`;
+  o += st('收集：4096 个 robot 同时走一步，一共 24 步', hold, tBatch) + st('合成一个 batch', tBatch, tUpd) + st('PPO update：一个个 gradient step', tUpd, tBack) + st('用新 policy 开始下一轮', tBack, Tt);
+  o += text(20, 246, '1500 轮 × 98,304 ≈ 1.47 亿个 sample，20 分钟内跑完：约 12 万个 sample / 秒。', 't');
+  o += text(20, 266, '每个 sample 分到 20 / 98,304 ≈ 0.0002 个 gradient step；', 't');
+  o += text(20, 286, 'UTD = 1 的 off-policy 方法每个 sample 要 1 个，是它的 5000 倍。', 't');
+  return svgA(560, 296, o, '动图：大规模并行 PPO 的一轮：4096 个 robot 同时一步步走满 24 步，得到约十万个 sample，合成一个 batch，再一个个做 5 个 epoch、每个 4 个 minibatch 共 20 个 gradient step，然后回去收集');
+}
+
 export default {
+  'mrl-tdtrunc': truncA,
   'mrl-gae': gae,
   'mrl-clip': clip,
   'mrl-epochs': epochs,
-  'mrl-batch': batch,
+  'mrl-batch': batchA,
   'mrl-teacher': teacher,
   'mrl-dr': dr,
   'mrl-shaping': shaping,
@@ -360,7 +483,7 @@ export default {
   'mrl-offline': offline,
   'mrl-mixed': mixed,
   'mrl-passk': passk,
-  'mrl-seeds': seeds,
+  'mrl-seeds': seedsA,
   'mrl-walk': walk,
   'mrl-segcoef': segCoef,
   'mrl-dppo': dppo,

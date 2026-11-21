@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
 // ---------- 共用：两个 state 的 MDP（第 1、2、5 站） ----------
 // A：stay（r = 1，留在 A）或 go（r = 0，去 B）；B：r = 2，0.9 留在 B，0.1 回到 A。
@@ -61,7 +61,7 @@ const GW = (() => {
   let pol;
   for (let k = 0; k < 200; k++) { [V, pol] = backup(V); hist.push(V); }
   const err = hist.slice(0, 60).map((h) => Math.max(...cells.map((s) => Math.abs(h[key(s)] - V[key(s)]))));
-  return { V, pol, err, term, wall, hist };
+  return { V, pol, err, term, wall, hist, greedy: (V) => backup(V)[1] };
 })();
 
 function grid() {
@@ -400,10 +400,150 @@ function mcts() {
   return svg(560, 324, o, 'UCT 跑 50 次 iteration 之后的 search tree：大部分 simulation 集中在 a 然后 a2 这条 path 上');
 }
 
+
+// ---------- 动图共用：按帧切换 ----------
+function frames(durs) {
+  const T = durs.reduce((a, b) => a + b, 0), kt = [0];
+  let acc = 0;
+  for (let i = 0; i < durs.length - 1; i++) { acc += durs[i]; kt.push(acc / T); }
+  kt.push(1);
+  const show = (on) => ashow([...on, on[on.length - 1]], kt, T);
+  const vals = (v) => [...v, v[v.length - 1]];
+  return { T, kt, show, vals };
+}
+const gshow = (inner, F, on) => `<g>${inner}${F.show(on)}</g>`;
+function rng(seed) { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; }
+
+// 开头第二次：greedy 守着最差的那台 slot machine
+function greedyA() {
+  const P = [0.3, 0.5, 0.7], u = rng(5);
+  // 前四次按正文：1、2、3 都没中，第 4 次拉第一台中了；之后 greedy（平手取编号小的）
+  const pulls = [[0, 0], [1, 0], [2, 0], [0, 1]];
+  const n = [2, 1, 1], s = [1, 0, 0];
+  while (pulls.length < 20) {
+    const m = [0, 1, 2].map((k) => s[k] / n[k]); let a = 0; for (let k = 1; k < 3; k++) if (m[k] > m[a]) a = k;
+    const r = u() < P[a] ? 1 : 0; pulls.push([a, r]); n[a]++; s[a] += r;
+  }
+  const states = []; { const N = [0, 0, 0], S = [0, 0, 0]; states.push({ N: N.slice(), S: S.slice(), cur: -1 }); pulls.forEach(([a, r], t) => { N[a]++; S[a] += r; states.push({ N: N.slice(), S: S.slice(), cur: a, r, t: t + 1 }); }); }
+  const fin = states[states.length - 1];
+  const seq = [{ ...fin, cur: -1, fin: true }, ...states];
+  const F = frames(seq.map((q, i) => (i === 0 ? 3 : i === 1 ? 0.6 : i === seq.length - 1 ? 2.4 : 0.75)));
+  let o = '';
+  const X = [100, 280, 460], Y = 40;
+  X.forEach((x, k) => {
+    // slot machine：机身、窗口、拉杆
+    o += rect(x - 46, Y, 92, 92, 'paper', 8) + rect(x - 32, Y + 14, 64, 34, 'wash2', 4);
+    o += line(x + 46, Y + 54, x + 60, Y + 54, 'ink-b') + line(x + 60, Y + 54, x + 60, Y + 22, 'ink-b') + circle(x + 60, Y + 18, 5, 'solid');
+    o += rect(x - 30, Y + 64, 60, 16, 'wash2', 3) + text(x, Y + 76, 'machine ' + (k + 1), 'ts', 'middle');
+    o += text(x, Y + 112, '真实 p = ' + P[k] + '（你不知道）', 'ts', 'middle');
+    // 每一帧：窗口里的结果、被拉的高亮、计数和 sample mean
+    seq.forEach((q, i) => {
+      const on = seq.map((_, j) => j === i);
+      let g = '';
+      if (q.cur === k) g += rect(x - 50, Y - 4, 100, 100, 'ln', 10) + text(x, Y + 37, q.r ? 'WIN' : 'lose', q.r ? 'tl' : 'tb', 'middle');
+      const m = q.N[k] ? q.S[k] / q.N[k] : 0;
+      g += text(x, Y + 140, `拉了 ${q.N[k]} 次，中 ${q.S[k]} 次`, 't', 'middle');
+      g += rect(x - 40, Y + 152, 80, 12, 'frame') + (m > 0 ? rect(x - 40, Y + 152, 80 * m, 12, 'solid') : '');
+      g += text(x, Y + 182, 'sample mean ' + (q.N[k] ? m.toFixed(2) : '—'), m > 0 ? 'tl' : 'ts', 'middle');
+      o += gshow(g, F, on);
+    });
+  });
+  seq.forEach((q, i) => {
+    const on = seq.map((_, j) => j === i);
+    let msg = q.fin ? `20 次之后：machine 1 被拉了 ${fin.N[0]} 次，p = 0.7 的 machine 3 只试过 ${fin.N[2]} 次` : q.cur < 0 ? '开始：三台都没试过' : q.t <= 3 ? `第 ${q.t} 次：每台先试一次` : q.t === 4 ? '第 4 次：平手，拉第一台，中了' : `第 ${q.t} 次：machine 1 的 sample mean > 0，别的都是 0，greedy 又拉它`;
+    o += gshow(text(280, 262, msg, q.fin ? 'tl' : 't', 'middle'), F, on);
+  });
+  o += text(280, 284, 'Greedy：总拉 sample mean 最大的那台。中过一次之后，第一台的 mean 再也不会回到 0', 'ts', 'middle');
+  return svgA(560, 294, o, '动图：三台 slot machine，greedy 规则每台试一次都没中后，第一台碰巧中了一次，从此一直拉第一台（p = 0.3，最差的那台），p = 0.7 的那台再也没被拉过');
+}
+
+// 开头第三次：两个 state 共用 w，只 update 第一个，w 越追越远
+function tdblowA() {
+  const g = 0.99, al = 0.1, K = 25, f = 1 + al * (2 * g - 1);
+  const ws = [10]; for (let k = 0; k < K; k++) ws.push(ws[k] * f);
+  const seq = [K, ...ws.map((_, i) => i)]; // 第一帧显示最终
+  const F2 = frames([2.4, ...ws.map((_, i) => (i === K ? 2.4 : 0.42))]);
+  let o = '';
+  // 左：两个 state，value 画成柱子
+  const S1 = [70, 230], S2 = [190, 230], TT = [280, 230], base = 206, sc = 150 / (2 * ws[K]);
+  o += circle(S1[0], S1[1], 20, 'paper') + text(S1[0], S1[1] + 5, 's₁', 'tb', 'middle');
+  o += circle(S2[0], S2[1], 20, 'paper') + text(S2[0], S2[1] + 5, 's₂', 'tb', 'middle');
+  o += rect(TT[0] - 12, TT[1] - 12, 24, 24, 'solid2');
+  o += arrow(S1[0] + 22, S1[1], S2[0] - 24, S2[1], 'ink') + text((S1[0] + S2[0]) / 2, S1[1] + 22, 'r = 0', 'ts', 'middle');
+  o += arrow(S2[0] + 22, S2[1], TT[0] - 16, TT[1], 'ink') + text((S2[0] + TT[0]) / 2 + 2, S2[1] + 22, 'r = 0', 'ts', 'middle');
+  o += text(S1[0], S1[1] + 40, 'feature 1', 'ts', 'middle') + text(S2[0], S2[1] + 40, 'feature 2', 'ts', 'middle');
+  const bar = (x, k, cls) => { const h = seq.map((i) => (k * ws[i]) * sc); return `<rect x="${x - 14}" y="${(base - h[0]).toFixed(1)}" width="28" height="${h[0].toFixed(1)}" class="${cls}">${anim('y', F2.vals(h.map((v) => (base - v).toFixed(1))), F2.kt, F2.T, true)}${anim('height', F2.vals(h.map((v) => v.toFixed(1))), F2.kt, F2.T, true)}</rect>`; };
+  o += bar(S1[0], 1, 'solid') + bar(S2[0], 2, 'wash-strong');
+  // target 2γw：在 s1 上方的虚线
+  const ty = seq.map((i) => base - 2 * g * ws[i] * sc);
+  o += `<path d="M${S1[0] - 24} ${ty[0].toFixed(1)}H${S1[0] + 24}" class="ln-dash">${anim('d', F2.vals(ty.map((v) => `M${S1[0] - 24} ${v.toFixed(1)}H${S1[0] + 24}`)), F2.kt, F2.T, true)}</path>`;
+  o += text(S1[0] - 28, 36, 'v̂(s₁) = w', 'tl', 'start') + text(S2[0], 36, 'v̂(s₂) = 2w', 'tb', 'middle');
+  o += line(30, base, 300, base, 'axis');
+  // 右：w 随 update 次数
+  const px = lin(0, K, 350, 545), py = lin(0, 120, 206, 40);
+  o += axes({ sx: px, sy: py, x0: 0, x1: K, y0: 0, y1: 120, xt: [0, 5, 10, 15, 20, 25], yt: [0, 40, 80, 120], xl: 'update 次数', grid: true });
+  o += text(350, 28, 'w（true value 是 0）', 'tb', 'start');
+  o += path(d(ws.map((w, i) => [px(i), py(w)])), 'ln');
+  const cx = F2.vals(seq.map((i) => px(i).toFixed(1))), cy = F2.vals(seq.map((i) => py(ws[i]).toFixed(1)));
+  o += `<circle cx="${cx[0]}" cy="${cy[0]}" r="5" class="ln-f">${anim('cx', cx, F2.kt, F2.T, true)}${anim('cy', cy, F2.kt, F2.T, true)}</circle>`;
+  seq.forEach((i, j) => { o += gshow(text(448, 262, `第 ${i} 次 update 后 w = ${ws[i].toFixed(2)}`, j === 0 ? 'tl' : 't', 'middle'), F2, seq.map((_, q) => q === j)); });
+  o += text(448, 282, `每次乘 1 + α(2γ − 1) = ${f.toFixed(3)}`, 'ts', 'middle');
+  o += text(165, 288, 's₁ 上的虚线是 TD target 0 + γ · 2w：w 往上追，它涨得更快', 'ts', 'middle');
+  return svgA(560, 296, o, '动图：两个 state 共用 parameter w，value 是 w 和 2w；只在第一个 state 上做 TD update，w 去追 target 0.99 乘 2w，target 涨得更快，w 每次乘 1.098，25 次后从 10 涨到 104');
+}
+
+// 第 2 站：value iteration 一次次 sweep，value 和 greedy policy 一起变
+function viA() {
+  const S = 74, H = 56, x0 = 20, y0 = 30, K = 12;
+  const ks = [200, ...Array.from({ length: K + 1 }, (_, i) => i), 200];
+  const F = frames(ks.map((k, i) => (i === 0 ? 3 : i === ks.length - 1 ? 2.4 : 1.1)));
+  const lab = (k) => (k === 200 ? 'V*' : 'V' + '₀₁₂₃₄₅₆₇₈₉'[k % 10] + (k >= 10 ? '' : '')).replace('V₀', k >= 10 ? 'V₁₀' : 'V₀');
+  const name = (k) => (k === 200 ? 'converge 之后（V*）' : `sweep ${k} 之后（V${k}）`);
+  let o = '';
+  for (let y = 3; y >= 1; y--) for (let x = 1; x <= 4; x++) {
+    const key = `${x},${y}`, X = x0 + (x - 1) * S, Y = y0 + (3 - y) * H;
+    if (key === GW.wall) { o += rect(X, Y, S, H, 'solid2'); continue; }
+    if (key in GW.term) { o += rect(X, Y, S, H, GW.term[key] > 0 ? 'wash-strong' : 'wash2') + text(X + S / 2, Y + H / 2 + 5, GW.term[key] > 0 ? '+1' : '−1', 'tb', 'middle'); continue; }
+    // 浅色底的深浅 = value
+    const op = F.vals(ks.map((k) => Math.min(1, GW.hist[k][key] / 0.95).toFixed(3)));
+    o += `<rect x="${X}" y="${Y}" width="${S}" height="${H}" class="wash" opacity="${op[0]}">${anim('opacity', op, F.kt, F.T, true)}</rect>`;
+    // 数字和 greedy 箭头
+    const vs = ks.map((k) => GW.hist[k][key]);
+    const uniq = [...new Set(vs.map((v) => v.toFixed(3)))];
+    uniq.forEach((u) => { o += gshow(text(X + S / 2, Y + 22, +u > 1e-9 ? u : '0', +u > 1e-9 ? 'tb' : 'ts', 'middle'), F, vs.map((v) => v.toFixed(3) === u)); });
+    const pols = ks.map((k) => (GW.hist[k][key] > 1e-9 ? GW.greedy(GW.hist[k])[key] : ''));
+    for (const a of ['N', 'S', 'E', 'W']) {
+      const on = pols.map((p) => p === a);
+      if (!on.some((v) => v)) continue;
+      const dir = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[a], cx = X + S / 2, cy = Y + 40, L = 10;
+      o += gshow(arrow(cx - dir[0] * L, cy - dir[1] * L, cx + dir[0] * L, cy + dir[1] * L, 'ln'), F, on);
+    }
+  }
+  for (let i = 0; i <= 4; i++) o += line(x0 + i * S, y0, x0 + i * S, y0 + 3 * H, 'frame');
+  for (let j = 0; j <= 3; j++) o += line(x0, y0 + j * H, x0 + 4 * S, y0 + j * H, 'frame');
+  const tx = 340;
+  ks.forEach((k, i) => {
+    const on = ks.map((_, j) => j === i);
+    const prev = k === 0 || k === 200 ? null : GW.hist[k - 1];
+    const dmax = prev ? Math.max(...Object.keys(prev).map((q) => Math.abs(GW.hist[k][q] - prev[q]))) : null;
+    let g = text(tx, 44, name(k), 'tl', 'start');
+    if (dmax !== null) g += text(tx, 68, `这一 sweep 最大改动 ${dmax.toFixed(3)}`, 't', 'start');
+    if (k === 0) g += text(tx, 68, '全部从 0 开始', 't', 'start');
+    if (k === 200) g += text(tx, 68, '再 sweep 也不变了', 't', 'start');
+    o += gshow(g, F, on);
+  });
+  o += text(tx, 110, '每次 sweep：每个格子用上一轮的', 'ts', 'start') + text(tx, 127, 'value 做一次 Bellman backup。', 'ts', 'start');
+  o += text(tx, 156, '底色越深 value 越大；箭头是对', 'ts', 'start') + text(tx, 173, '当前 value 的 greedy action', 'ts', 'start') + text(tx, 190, '（value 还是 0 的格子不画）。', 'ts', 'start');
+  o += text(x0 + 2 * S, y0 + 3 * H + 22, 'γ = 0.9，(2,2) 是墙', 'ts', 'middle');
+  return svgA(560, 3 * H + y0 + 30, o, '动图：4 乘 3 gridworld 上 value iteration 一次次 sweep，非零的 value 从 +1 一圈圈往外扩，greedy policy 的箭头跟着出现和改变，最后停在 V*');
+}
+
 export default {
+  'cs4246-greedy': greedyA,
+  'cs4246-tdblow': tdblowA,
   'cs4246-twostate': twostate,
   'cs4246-grid': grid,
-  'cs4246-visweeps': visweeps,
+  'cs4246-visweeps': viA,
   'cs4246-tigerchain': tigerchain,
   'cs4246-batch': batch,
   'cs4246-flatmc': flatmc,

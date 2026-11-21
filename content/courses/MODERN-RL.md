@@ -144,9 +144,15 @@ sources:
 
 **第一件。** Henderson 等人把同一个 TRPO 在 HalfCheetah 上跑 10 次，代码和 hyperparameter 全都一样，只换 random seed，随机分成两组各 5 次取平均。两组的 learning curve 用 t-test 比较，$p=0.0016$：看上去是两个不同的 algorithm。同一篇文章里，同一个 algorithm 的三份公开实现给出的结果也差得很远。
 
+::fig[mrl-seeds] 动图，10 个 seed 是同一份代码在 CartPole 上跑的（第 7 站的实验），每一帧换一种随机分成两组的方法。看两条粗线：每换一次分法，“哪个 algorithm 更好”就可能换一次答案。
+
 **第二件。** Rudin 等人在一张 RTX A6000 上同时 simulate 4096 只 ANYmal，用 PPO 不到 20 分钟训出一个 rough terrain 的 policy：simulation 里 20 cm 以内的台阶几乎全部能上，部署到真机时 policy 不做任何修改，真机也能上下楼梯。
 
+::fig[mrl-batch] 动图，一轮 PPO：4096 个 robot 同时一步步走满 24 步，合成一个 batch，再做 20 个 gradient step。看左右两边的节拍：sample 一下来就是十万个，gradient step 只有 20 个。第 2 站细讲。
+
 **第三件。** 同一篇文章里有一个只改一行的修正：episode 因为时间到了而结束时，critic 的 target 要继续 bootstrap，而不是当成终点。改了之后，total reward 提高了大约 10% 到 20%。论文说当时的标准接口不区分这两种结束，很多实现都没有做这个区分。
+
+::fig[mrl-tdtrunc] 动图，最简单的情形：一个 state，每步 +1，每 100 步因为时间到被 reset。看下面两根柱子：只有第 100 步的 target 写错，有 bug 的 critic 就只学到一半。第 3 站细讲。
 
 **第四件。** SimpleVLA-RL 把 OpenVLA-OFT 先用每个 task 一条 demonstration 做 SFT，在 LIBERO-Long 上 success rate 是 17.3%；再在 simulation 里只用“成功 / 失败”这一个 binary reward 做 RL，提到 91.7%。
 
@@ -341,7 +347,7 @@ $$4096\times24=98{,}304\ \text{个 sample}$$
 
 这批 data 分成 4 个 minibatch（每个 24,576），过 5 个 epoch，一共 20 个 gradient step。其余设置和第 1 站一样：$\varepsilon=0.2$、$\gamma=0.99$、$\lambda=0.95$、entropy coefficient 0.01，learning rate 按 KL 自动调，目标 KL 0.01。Rough terrain 的 policy 训练 1500 轮，在一块 i9-11900K 加 RTX A6000 上不到 20 分钟。
 
-::fig[mrl-batch] 一轮 PPO 的 data flow。Sample 的数量（98,304）是 gradient step 数量（20）的约 5000 倍。
+::fig[mrl-batch] 动图，一轮 PPO 的 data flow，按顺序亮起：收集、合成 batch、20 个 gradient step（每 4 个一组是一个 epoch）、回去收集。Sample 的数量（98,304）是 gradient step 数量（20）的约 5000 倍。
 
 把数字连起来：$1500\times98{,}304\approx1.47\times10^8$ 个 sample，20 分钟是 1200 秒，平均每秒至少 12 万个 sample。这个速度只有在 physics、observation、reward、reset 全部留在 GPU 上、不经过 CPU 时才可能做到。Isaac Lab 和它推荐的 RL library rsl_rl 都是按这个前提设计的：RSL-RL 的论文说它刻意只提供很少几种 algorithm（PPO 和一个类似 DAgger 的 distillation），换取 GPU 上的 throughput 和代码的可改动性。
 
@@ -519,6 +525,8 @@ $$V=1+\gamma\cdot\frac{99}{100}\,V\qquad\Longrightarrow\qquad V=\frac{1}{1-0.99\
 用 learning rate 0.01 实际跑 3000 个 episode 的 TD(0)，得到 49.9（最后一步刚好是那个被拉低的 update）。Value 被低估了一半。
 
 这会不会改变 decision？给这个 state 加一个 action “jump”：reward 60，然后 episode 真的结束。正确时 jump 的 advantage 是 $60-100=-40$，policy 会远离它；有 bug 时是 $60-50.25=+9.75$，policy gradient 把 policy 往 jump 推。
+
+::fig[mrl-tdtrunc] 动图，和开头那张相同：上面是一个 episode 的 100 步，只有最后一格的 target 不同；下面按 episode 实际跑 TD(0)。看柱子在哪里停：有 bug 的停在 50 左右，低于 jump 的 60，正确的一路涨到 100。
 
 ::fig[mrl-trunc] 有 bug 的 critic 学到的 value 随 time limit $T$ 的变化：$V=1/\big(1-\gamma(1-1/T)\big)$。$T$ 越短，偏得越多；$T$ 小于约 148 时，它掉到 jump 的 60 以下。
 
@@ -957,7 +965,7 @@ $$\frac{\partial}{\partial q_i}\frac{1}{B^2}\sum_{i',j}(q_{i'}-y_j)^2=\frac{2}{B
 
 第 6 站的方法、第 1 站的 37 条细节，最后都要靠曲线比较。比较之前先要知道同一份代码自己会差多少。用一份 numpy 写的 PPO（4 个 environment、每轮 128 步、learning rate 1e-3、4 个 epoch × 4 个 minibatch）在 CartPole 上跑 10 个 seed，每个 15 万步。
 
-::fig[mrl-seeds] 代码完全相同。按 seed 0–4 和 5–9 分成两组，两条平均曲线看上去像是两个 algorithm。
+::fig[mrl-seeds] 动图，代码完全相同。第一帧按 seed 0–4 和 5–9 分成两组，两条平均曲线看上去像是两个 algorithm；之后每一帧换一种随机分法，看两组的差距和谁在上面怎样跟着分法变。
 
 取最后 10 轮的平均分：seed 0–4 组 313.9，seed 5–9 组 204.6。两组的 two-sample t-test 给出 $p=0.106$。把 10 个 seed 分成两组 5 个，一共 252 种分法，其中一半的两组差距超过 50 分，最大 156.9 分。Henderson 等人在 HalfCheetah 上用 TRPO 做同样的事，两组差异的 $p=0.0016$。
 

@@ -86,9 +86,15 @@ sources:
 
 **第一次。** 一个 10 步的问题，policy gradient 的 estimate 是 unbiased 的。每次用 4 条 trajectory 估一个 gradient，三次里有一次估出来的方向是反的。
 
+::fig[cs285-pgbatch] 动图，每一帧是一个新的 batch。看下面的点：每个 batch 估出的 $g$ 从 −12 散到 14，true gradient 只有 2.5，24 个点里有 8 个落在 0 的左边。上面是这个 batch 的 4 条 trajectory，$X$ 是 $\sum_t\nabla\log\pi$，$R$ 是 return。第 2 站细讲。
+
 **第二次。** 一个只有 action 0 和 action 1 的 dataset，用 linear Q-function 做 fitted Q-iteration。Q 值从 9 一路涨到 90，最被看好的是 data 里从没出现过的 action 9。真正能拿到的 Q 只有 10。
 
+::fig[cs285-ood] 动图，一轮一轮做 fitted Q-iteration。看彩色 line 右端的圆圈：max 每轮都落在 data 之外的 $a=9$，target 跟着它涨，整条 line 被一轮轮抬高；黑线是只在 data 的 action 里取 max，停在 10。第 8 站细讲。
+
 **第三次。** 用 GRPO train 一个 math 题答对率 23% 的 LLM，每个 prompt 抽 8 个回答。有 12% 的 prompt 上 8 个回答全错，这些 prompt 贡献的 gradient 恰好是 0，不管 loss 写得对不对。
+
+::fig[cs285-grpo] 动图，每一帧换一批 prompt。看涂色的列：8 个回答全错，reward 全是 0，group 里没有比较对象，advantage 全是 0。
 
 RL 里几乎每个 algorithm 都在做同一件事：用 sample 去估一个 expectation，有时是 gradient，有时是 value。出问题的方式只有两种。一种是 sample 太吵，estimate 的 variance 大到方向都不可靠（第一次、第三次）；另一种是 sample 来自一个 distribution，问题却关于另一个 distribution（第二次）。这门课的每一讲都可以读成在对付其中一种。
 
@@ -926,7 +932,7 @@ Fixed point 是 $w_0=9\gamma/(1-\gamma)=81$，$Q(9)=90$。Greedy policy 选 acti
 
 Online 时这不是问题：policy 去试 action 9，拿到 0，Q 被纠正。Offline 时没有这一步，max 不断地挑 extrapolation 最乐观的地方，bootstrapping 再把它传回所有 state。Lecture 17 引了一张 SAC 在 offline data 上的图：critic 估的 Q 值（log scale）远高于 policy 实际的 performance。
 
-::fig[cs285-ood] Linear Q-function 在两个 data point 上 fit，max 取在 data 之外的 $a=9$。Fitted Q-iteration 60 轮后整条 line 抬到 81 到 90；只在 data 的 action 上取 max，$Q(1)$ 停在真实值 10。
+::fig[cs285-ood] 动图，和开头那张相同。Linear Q-function 在两个 data point 上 fit，max 取在 data 之外的 $a=9$。看右边的读数和表对上：前几轮每轮涨 7 到 8，越往后涨得越慢，60 轮后整条 line 抬到 81 到 90；只在 data 的 action 上取 max（黑线），$Q(1)$ 停在真实值 10。
 
 :::wrong Data 够多，overestimation 自然会消失
 上面的例子里两个 data point 的 target 是 exact 的，没有任何 sampling noise，Q 照样涨到 90。再多 $a=0,1$ 的 data 也只是让这两个点 fit 得更准，丝毫不约束 $a=9$ 处的 extrapolation。Lecture 17 说 sampling error 和 function approximation error 在普通 RL 里就有，offline 时变得严重得多，因为没有新 data 来纠正。
