@@ -247,6 +247,66 @@ function partition() {
   return svg(560, 262, o, '三次 Bernoulli trial 的八个 outcome 按 1 的个数分成四格；同一格里的 outcome probability 相同，所以给定落在哪一格之后，格内每个 outcome 的 conditional probability 是 1 或三分之一，不依赖 p');
 }
 
+// 开头第二件：五个数与 method of moments 的 estimate
+function fivepts() {
+  const X = [0.9, 1.4, 2.0, 3.1, 9.6], n = X.length;
+  const m = X.reduce((a, b) => a + b, 0) / n, th = 2 * m, mx = Math.max(...X);
+  const sx = lin(0, 12, 40, 520), y = 96;
+  let o = rect(sx(th), y - 40, sx(12) - sx(th), 56, 'wash');
+  o += text(sx(th) + 8, y - 26, '按 estimate 6.8，data 不可能落在这里', 'ts');
+  o += line(sx(0), y, sx(12), y, 'axis');
+  for (let t = 0; t <= 12; t += 2) o += line(sx(t), y, sx(t), y + 4, 'axis') + text(sx(t), y + 18, String(t), 'ts', 'middle');
+  for (const x of X) o += circle(sx(x), y, 5.5, x === mx ? 'ln-f' : 'ink-f');
+  o += line(sx(m), y - 30, sx(m), y + 6, 'dash') + text(sx(m), y - 34, 'x̄ = ' + m.toFixed(1), 'ts', 'middle');
+  o += line(sx(th), y - 40, sx(th), y + 16, 'ink-b') + text(sx(th), y + 34, '2x̄ = ' + th.toFixed(1), 'tb', 'middle');
+  o += text(sx(mx), y + 34, 'max = ' + mx, 'tl', 'middle');
+  o += text(sx(m) / 2 + sx(0) / 2, y + 52, 'mean 是 θ/2，所以把 x̄ 乘 2 当成 θ', 'ts', 'start');
+  return svg(560, 160, o, '五个数 0.9、1.4、2.0、3.1、9.6 画在数轴上，mean 3.4，乘 2 得 6.8，而最大的数 9.6 落在 6.8 的右边');
+}
+
+// 第 1 站：sleep data 的 10 个 difference。Individual 的 spread 是 s，x̄ 的 spread 是 s/√n
+function sleepdots() {
+  const D = [1.2, 2.4, 1.3, 1.3, 0.0, 1.0, 1.8, 0.8, 4.6, 1.4], n = D.length;
+  const m = D.reduce((a, b) => a + b, 0) / n;
+  const sd = Math.sqrt(D.reduce((a, b) => a + (b - m) ** 2, 0) / (n - 1)), se = sd / Math.sqrt(n);
+  const sx = lin(-1, 5, 50, 520), y = 70;
+  let o = line(sx(-1), y, sx(5), y, 'axis');
+  for (let t = -1; t <= 5; t++) o += line(sx(t), y, sx(t), y + 4, 'axis') + text(sx(t), y + 18, String(t).replace('-', '−'), 'ts', 'middle');
+  const seen = {};
+  for (const v of D) { seen[v] = (seen[v] || 0) + 1; o += circle(sx(v), y - 8 - 12 * (seen[v] - 1), 5, 'ink-f'); }
+  o += text(sx(-1), 24, '10 个病人的 difference（hours）', 'tb');
+  o += line(sx(0), y + 26, sx(0), 190, 'grid') + text(sx(0) - 6, 186, 'μ = 0', 'ts', 'end');
+  const bar = (yy, h, cls, lab) => line(sx(m - h), yy, sx(m + h), yy, cls) + line(sx(m - h), yy - 6, sx(m - h), yy + 6, cls) + line(sx(m + h), yy - 6, sx(m + h), yy + 6, cls) + circle(sx(m), yy, 4, cls === 'ln' ? 'ln-f' : 'ink-f') + text(sx(m + h) + 10, yy - 2, lab[0], cls === 'ln' ? 'tl' : 't') + text(sx(m + h) + 10, yy + 14, lab[1], 'ts');
+  o += bar(124, sd, 'ink', [`x̄ ± s = ${m.toFixed(2)} ± ${sd.toFixed(2)}`, '单个病人散开的范围']);
+  o += bar(168, se, 'ln', [`x̄ ± s/√10 = ${m.toFixed(2)} ± ${se.toFixed(3)}`, 'x̄ 的 standard error']);
+  return svg(560, 200, o, 'Sleep data 的十个 difference 画成点图，mean 1.58。上面一条是 mean 加减 s=1.23，下面一条是 mean 加减 s 除以根号 10，约 0.389，离 0 有 4 个这么长');
+}
+
+// 第 6 站：n = 10、p = 0.1 时 plug-in interval 与解 quadratic 的 interval，逐个 x 看是否盖住 p
+function wald() {
+  const n = 10, p = 0.1, z = 1.96, z2 = z * z;
+  const plug = (x) => { const h = x / n, w = z * Math.sqrt(h * (1 - h) / n); return [Math.max(0, h - w), Math.min(1, h + w)]; };
+  const quad = (x) => { const h = x / n, a = 1 + z2 / n, b = -(2 * h + z2 / n), c = h * h, r = Math.sqrt(b * b - 4 * a * c); return [(-b - r) / (2 * a), (-b + r) / (2 * a)]; };
+  let cP = 0, cQ = 0;
+  for (let x = 0; x <= n; x++) { const pr = binom(x, n, p), A = plug(x), B = quad(x); if (A[0] <= p && p <= A[1]) cP += pr; if (B[0] <= p && p <= B[1]) cQ += pr; }
+  const sx = lin(0, 0.8, 150, 530);
+  let o = text(150, 20, '固定 p = 0.1：每个 x 算出的两个 interval', 'tb') + text(20, 20, 'x', 'tb') + text(60, 20, 'P(X = x)', 'tb');
+  const y0 = 52, dy = 38;
+  for (let x = 0; x <= 4; x++) {
+    const yy = y0 + x * dy, A = plug(x), B = quad(x), pr = binom(x, n, p);
+    o += text(20, yy + 6, String(x), 't') + text(60, yy + 6, pr.toFixed(3), 't');
+    const seg = (I, dy2, cls) => { const ok = I[0] <= p && p <= I[1]; const w = Math.max(sx(I[1]) - sx(I[0]), 0); return (w < 1 ? circle(sx(I[0]), yy + dy2, 3.5, cls + '-f') : line(sx(I[0]), yy + dy2, sx(I[1]), yy + dy2, cls) + line(sx(I[0]), yy + dy2 - 4, sx(I[0]), yy + dy2 + 4, cls) + line(sx(I[1]), yy + dy2 - 4, sx(I[1]), yy + dy2 + 4, cls)) + (ok ? '' : text(sx(I[1]) + 8, yy + dy2 + 4, '没盖住', 'ts')); };
+    o += seg(A, -6, 'ink') + seg(B, 8, 'ln');
+  }
+  const yb = y0 + 4 * dy + 26;
+  o += line(sx(p), 30, sx(p), yb - 8, 'dash');
+  o += line(sx(0), yb, sx(0.8), yb, 'axis');
+  for (const t of [0, 0.1, 0.2, 0.4, 0.6, 0.8]) o += line(sx(t), yb, sx(t), yb + 4, 'axis') + text(sx(t), yb + 17, String(t), 'ts', 'middle');
+  o += line(150, yb + 38, 172, yb + 38, 'ink') + text(178, yb + 42, `plug-in：实际 coverage ${(100 * cP).toFixed(1)}%`, 't');
+  o += line(150, yb + 58, 172, yb + 58, 'ln') + text(178, yb + 62, `解 quadratic：实际 coverage ${(100 * cQ).toFixed(1)}%`, 'tl');
+  return svg(560, yb + 74, o, 'n 等于 10、p 等于 0.1 时，x 从 0 到 4 各自算出的 plug-in interval 和解 quadratic 的 interval。x 等于 0 时 plug-in 缩成一个点 0，盖不住 0.1，这一种情形的 probability 是 0.349');
+}
+
 export default {
   'st2132-chi2': chi2,
   'st2132-tdist': tdist,
@@ -260,4 +320,7 @@ export default {
   'st2132-power': power,
   'st2132-wilks': wilks,
   'st2132-paired': paired,
+  'st2132-fivepts': fivepts,
+  'st2132-sleepdots': sleepdots,
+  'st2132-wald': wald,
 };

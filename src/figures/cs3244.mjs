@@ -331,6 +331,149 @@ function pcafig() {
   return svg(560, 300, o, '六个点的第一个 principal component 是过 mean、方向为一比一的直线，各点到它的垂直距离相同；least squares 直线更平');
 }
 
+// 第 2 站：2D perceptron 不能 shatter 4 个点的两种情形
+function breakpt() {
+  let o = '';
+  const pt = (x, y, pos) => (pos ? circle(x, y, 7, 'ink-f') : circle(x, y, 7, 'paper')) + text(x, y - 12, pos ? '+1' : '−1', 'ts', 'middle');
+  // 左：convex quadrilateral，两条 diagonal 各一种 label
+  const Q = [[70, 80, 1], [220, 60, 0], [240, 200, 1], [90, 210, 0]];
+  o += text(155, 24, 'convex quadrilateral', 'tb', 'middle');
+  o += line(Q[0][0], Q[0][1], Q[2][0], Q[2][1], 'ln') + line(Q[1][0], Q[1][1], Q[3][0], Q[3][1], 'dash');
+  for (const [x, y, c] of Q) o += pt(x, y, c);
+  o += text(155, 246, '+1 的 segment 与 −1 的 segment 相交，', 'ts', 'middle') + text(155, 263, '没有 line 能把它们分到两边', 'ts', 'middle');
+  // 右：一个点在 triangle 里面
+  const T = [[330, 205], [520, 205], [425, 60]], I = [425, 160];
+  o += text(425, 24, '一个点在 triangle 里', 'tb', 'middle');
+  o += poly(T, 'wash2') + poly(T, 'dash');
+  for (const [x, y] of T) o += pt(x, y, 0);
+  o += pt(I[0], I[1], 1);
+  o += text(425, 246, '−1 的 half-plane 是 convex 的，包住 triangle，', 'ts', 'middle') + text(425, 263, '也就包住里面那个 +1', 'ts', 'middle');
+  return svg(560, 276, o, '四个点不能被 2D perceptron shatter 的两种位置：convex quadrilateral 的两条 diagonal 分别标加一和减一；或者一个点在其余三点的 triangle 里，里面标加一、外面标减一');
+}
+
+// 第 3 站：orthonormal 时 ridge 与 lasso 对每个 coordinate 的作用（λ = 2）
+function shrink() {
+  const lam = 2, ridge = (z) => z / (1 + lam), lasso = (z) => Math.sign(z) * Math.max(Math.abs(z) - lam / 2, 0);
+  const sx = lin(-4, 4, 60, 380), sy = lin(-4, 4, 272, 32);
+  let o = rect(sx(-lam / 2), sy(4), sx(lam / 2) - sx(-lam / 2), sy(-4) - sy(4), 'wash2');
+  o += axes({ sx, sy, x0: -4, x1: 4, y0: -4, y1: 4, xt: [-4, -2, 0, 2, 4].map((v) => [v, String(v).replace('-', '−')]), yt: [-4, -2, 2, 4].map((v) => [v, String(v).replace('-', '−')]), xl: 'z（least squares）', yl: 'w', xAt: 0, yAt: 0 });
+  o += path(curve((z) => z, -4, 4, sx, sy), 'dash') + path(curve(ridge, -4, 4, sx, sy), 'ink-b') + path(curve(lasso, -4, 4, sx, sy, 400), 'ln');
+  for (const z of [3, 0.8]) { o += line(sx(z), sy(0), sx(z), sy(z), 'grid'); o += circle(sx(z), sy(ridge(z)), 4, 'ink-f') + circle(sx(z), sy(lasso(z)), 4, 'ln-f'); }
+  o += text(sx(3) + 8, sy(lasso(3)) + 4, 'lasso ' + lasso(3), 'tl') + text(sx(3) + 8, sy(ridge(3)) + 14, 'ridge ' + ridge(3).toFixed(0), 'tb');
+  o += text(sx(0.8), sy(-0.5) + 6, 'z = 0.8', 'ts', 'middle');
+  o += text(400, 70, 'λ = 2', 'tb') + line(400, 96, 426, 96, 'dash') + text(432, 100, 'w = z（不加 penalty）', 'ts');
+  o += line(400, 120, 426, 120, 'ink-b') + text(432, 124, 'ridge：z / (1 + λ)', 't');
+  o += line(400, 144, 426, 144, 'ln') + text(432, 148, 'lasso：往 0 平移 λ/2', 'tl');
+  o += text(400, 184, `z = 3：ridge ${ridge(3).toFixed(0)}，lasso ${lasso(3)}`, 'ts');
+  o += text(400, 204, `z = 0.8：ridge ${ridge(0.8).toFixed(3)}，`, 'ts') + text(400, 220, 'lasso ' + lasso(0.8), 'ts');
+  o += text(400, 252, '灰带 |z| ≤ λ/2：', 'ts') + text(400, 268, 'lasso 在这里一律给 0', 'ts');
+  return svg(560, 300, o, 'Orthonormal design 下每个 coordinate 的 solution 作为 z 的 function：ridge 是一条过原点、slope 三分之一的 line；lasso 在 z 的绝对值不超过 1 时为 0，之外是 z 往 0 平移 1');
+}
+
+// 第 3 站：三个点上 line 与 constant 的 leave-one-out
+function loocv() {
+  const P = [[1, 1], [2, 2], [3, 2]];
+  const lineFit = (pts) => { const n = pts.length, mx = pts.reduce((a, p) => a + p[0], 0) / n, my = pts.reduce((a, p) => a + p[1], 0) / n; let sxx = 0, sxy = 0; for (const [x, y] of pts) { sxx += (x - mx) ** 2; sxy += (x - mx) * (y - my); } const b = sxy / sxx; return (t) => my + b * (t - mx); };
+  const constFit = (pts) => { const m = pts.reduce((a, p) => a + p[1], 0) / pts.length; return () => m; };
+  let o = '';
+  const panel = (x0, title, fitter) => {
+    const sx = lin(0.5, 3.5, x0 + 30, x0 + 230), sy = lin(0, 3.2, 230, 50);
+    let q = axes({ sx, sy, x0: 0.5, x1: 3.5, y0: 0, y1: 3.2, xt: [1, 2, 3], yt: [1, 2, 3], xl: 't' });
+    let cv = 0;
+    const res = [];
+    P.forEach((pt, i) => {
+      const rest = P.filter((_, j) => j !== i), f = fitter(rest);
+      q += line(sx(0.6), sy(f(0.6)), sx(3.4), sy(f(3.4)), i === 0 ? 'ln-dash' : 'dash');
+      const e = pt[1] - f(pt[0]); cv += e * e / 3; res.push(e);
+      q += line(sx(pt[0]) + 5, sy(pt[1]), sx(pt[0]) + 5, sy(f(pt[0])), 'ln');
+    });
+    P.forEach(([x, y]) => { q += circle(sx(x), sy(y), 5, 'ink-f'); });
+    q += text(x0 + 130, 24, title, 'tb', 'middle');
+    q += text(x0 + 30, 264, 'LOO residual：' + res.map((e) => (e > 0 ? '' : '−') + Math.abs(e).toFixed(e % 1 ? 1 : 0)).join('，'), 'ts');
+    q += text(x0 + 30, 282, `E_cv = ${cv.toFixed(2)}`, 'tl');
+    return q;
+  };
+  o += panel(20, 'line', lineFit) + panel(290, 'constant', constFit);
+  return svg(560, 294, o, '三个点 (1,1)、(2,2)、(3,2)。每次去掉一个点，用其余两点 fit，虚线是 fit 出的 line 或 constant，竖线是被去掉那个点的 residual。Line 的 E_cv 是 0.75，constant 是 0.5');
+}
+
+// 第 4 站：三个点的 hard-margin SVM（手解）
+function svm3() {
+  const sx = lin(-0.8, 2.8, 60, 340), sy = lin(-0.8, 2.8, 280, 20);
+  let o = axes({ sx, sy, x0: -0.8, x1: 2.8, y0: -0.8, y1: 2.8, xl: 'x₁', yl: 'x₂', xAt: 0, yAt: 0 });
+  o += poly([[sx(-0.8), sy(0.8)], [sx(0.8), sy(-0.8)], [sx(2.8), sy(-0.8)], [sx(2.8), sy(-0.8)], [sx(-0.8), sy(2.8)]], 'wash');
+  for (const [c, cls] of [[0, 'dash'], [1, 'ink-b'], [2, 'dash']]) o += line(sx(-0.8), sy(c + 0.8), sx(c + 0.8), sy(-0.8), cls);
+  o += poly([[sx(-0.8), sy(2.8)], [sx(2.8), sy(-0.8)], [sx(2.8), sy(2.8)]], 'paper-f');
+  for (const [c, cls] of [[2, 'dash']]) o += line(sx(-0.8), sy(c + 0.8), sx(2.8), sy(c - 2.8), cls);
+  // margin：从 boundary 上的 (0.5, 0.5) 到 (1, 1)
+  o += line(sx(0.5), sy(0.5), sx(1), sy(1), 'ln') + text(sx(1) + 20, sy(1) + 2, '1/‖w‖ = 0.707', 'tl');
+  o += circle(sx(0), sy(0), 6, 'paper') + circle(sx(2), sy(0), 6, 'ink-f') + circle(sx(0), sy(2), 6, 'ink-f');
+  o += text(sx(0) - 10, sy(0) + 18, '(0, 0)，α₁ = 1', 'ts', 'end') + text(sx(2) + 12, sy(0) - 8, '(2, 0)，α₂ = ½', 'ts', 'start') + text(sx(0) - 10, sy(2) + 4, '(0, 2)，α₃ = ½', 'ts', 'end');
+  o += text(360, 60, 'w = (1, 1)，b = −1', 't') + text(360, 84, '实线 x₁ + x₂ = 1', 't') + text(360, 104, '虚线 x₁ + x₂ = 0 和 2', 't');
+  o += text(360, 140, '三个 α 都大于 0，', 'ts') + text(360, 158, '三个点都在 margin 上', 'ts');
+  o += text(360, 194, '实心 y = +1，空心 y = −1', 'ts');
+  return svg(560, 300, o, '三个点 (0,0) 标减一、(2,0) 和 (0,2) 标加一。Maximum-margin boundary 是 x1+x2=1，两条 margin 线 x1+x2=0 和 x1+x2=2 恰好穿过三个点，margin 是 0.707');
+}
+
+// 第 5 站：AdaBoost 三轮（stump 按正文的选择）
+function adaboost() {
+  const Y = [1, 1, 1, -1, -1, -1, -1, 1, 1, 1], N = 10;
+  const stumps = [[(x) => (x <= 3.5 ? 1 : -1), 'x ≤ 3.5 为 +'], [(x) => (x > 7.5 ? 1 : -1), 'x > 7.5 为 +'], [() => 1, '全部为 +']];
+  let D = Array(N).fill(1 / N);
+  const sx = (x) => 40 + (x - 1) * 36, rowH = 74, y0 = 30, hs = 150;
+  let o = '';
+  const F = Array(N).fill(0);
+  stumps.forEach(([h, lab], t) => {
+    const yb = y0 + (t + 1) * rowH;
+    const eps = Y.reduce((a, y, n) => a + (h(n + 1) !== y ? D[n] : 0), 0), al = 0.5 * Math.log((1 - eps) / eps);
+    for (let n = 0; n < N; n++) {
+      const x = sx(n + 1), pos = h(n + 1) > 0;
+      if (pos) o += rect(x - 18, yb - 56, 36, 56, 'wash2');
+      const hgt = D[n] * hs * 1.6;
+      o += rect(x - 7, yb - hgt, 14, hgt, Y[n] > 0 ? 'solid' : 'paper');
+      if (h(n + 1) !== Y[n]) o += text(x, yb - hgt - 4, '×', 'tl', 'middle');
+    }
+    o += line(sx(1) - 18, yb, sx(10) + 18, yb, 'axis');
+    o += text(406, yb - 40, `第 ${t + 1} 轮：${lab}`, 'tb') + text(406, yb - 22, `ε = ${eps.toFixed(3)}，α = ${al.toFixed(3)}`, 'ts');
+    for (let n = 0; n < N; n++) F[n] += al * h(n + 1);
+    const Z = D.reduce((a, w, n) => a + w * Math.exp(-al * Y[n] * h(n + 1)), 0);
+    D = D.map((w, n) => w * Math.exp(-al * Y[n] * h(n + 1)) / Z);
+  });
+  for (let n = 1; n <= 10; n++) o += text(sx(n), y0 + 3 * rowH + 16, String(n), 'ts', 'middle');
+  o += text(40 - 18, 22, '柱高是这一轮的 weight，深色 y = +1，白色 y = −1；灰底是 stump 判 + 的范围，× 是判错的点', 'ts');
+  const yF = y0 + 3 * rowH + 44;
+  o += text(22, yF, 'F = Σ αₜhₜ：', 'tb');
+  const seg = [[1, 3], [4, 7], [8, 10]];
+  for (const [a, b] of seg) o += text((sx(a) + sx(b)) / 2, yF + 20, (F[a - 1] >= 0 ? '+' : '−') + Math.abs(F[a - 1]).toFixed(3), F[a - 1] >= 0 ? 'tl' : 'tb', 'middle');
+  o += text(406, yF + 20, 'sign 全对', 'tl');
+  return svg(560, yF + 32, o, 'AdaBoost 在 10 个点上的三轮。第一轮 weight 全是 0.1，判错 8、9、10；第二轮这三个点变重，选 x 大于 7.5 为加；第三轮 4 到 7 最轻，选全部为加。三轮加权后三段的 F 是 0.526、负 0.321、0.978');
+}
+
+// 第 6 站：2-2-2 network 的 forward 与 backward（正文的数）
+function backprop() {
+  const x = [1, 2], W1 = [[0.5, -0.4], [0.1, 0.4]], W2 = [[1, -1], [0.5, 0.5]], y = [1, 0];
+  const z1 = W1.map((r) => r[0] * x[0] + r[1] * x[1]), a1 = z1.map((v) => Math.max(0, v));
+  const z2 = W2.map((r) => r[0] * a1[0] + r[1] * a1[1]), ez = z2.map(Math.exp), sz = ez[0] + ez[1], p = ez.map((v) => v / sz);
+  const d2 = p.map((v, i) => v - y[i]), back = [0, 1].map((j) => W2[0][j] * d2[0] + W2[1][j] * d2[1]), d1 = back.map((v, j) => (z1[j] > 0 ? v : 0));
+  const f = (v, k = 2) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(k);
+  const X = [90, 280, 470], Yn = [96, 196], r = 22;
+  let o = '';
+  for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
+    const dead = i === 0;
+    o += line(X[0] + r, Yn[j], X[1] - r, Yn[i], dead ? 'dash' : 'mute') + line(X[1] + r, Yn[j], X[2] - r, Yn[i], j === 0 ? 'dash' : 'mute');
+  }
+  for (let i = 0; i < 2; i++) {
+    o += circle(X[0], Yn[i], r, 'paper') + text(X[0], Yn[i] + 5, 'x' + (i ? '₂' : '₁') + '=' + x[i], 'ts', 'middle');
+    o += circle(X[1], Yn[i], r, i === 0 ? 'wash2' : 'paper') + text(X[1], Yn[i] - 30, `z ${f(z1[i], 1)}，a ${f(a1[i], 1)}`, 't', 'middle') + text(X[1], Yn[i] + 42, `δ ${f(d1[i], 4)}`, 'tl', 'middle');
+    o += circle(X[2], Yn[i], r, 'paper') + text(X[2], Yn[i] - 30, `z ${f(z2[i])}，p ${f(p[i], 4)}`, 't', 'middle') + text(X[2], Yn[i] + 42, `δ = p − y = ${f(d2[i], 4)}`, 'tl', 'middle');
+    o += text(X[2] + 30, Yn[i] + 5, 'y' + (i ? '₂' : '₁') + ' = ' + y[i], 'ts');
+  }
+  o += text(X[1], Yn[0] + 5, 'h₁', 'tb', 'middle') + text(X[1], Yn[1] + 5, 'h₂', 'tb', 'middle');
+  o += text(X[0], 36, 'input', 'tb', 'middle') + text(X[1], 36, 'hidden（ReLU）', 'tb', 'middle') + text(X[2], 36, 'softmax', 'tb', 'middle');
+  o += text(280, 266, `h₁ 的 z < 0：虚线上的 4 个 weight 这一次 gradient 都是 0；J = −ln ${p[0].toFixed(4)} = ${(-Math.log(p[0])).toFixed(3)}`, 'ts', 'middle');
+  return svg(560, 280, o, '2-2-2 network 的一次 forward 和 backward：hidden unit 1 的 z 是负 0.3，被 ReLU 置 0，它的 delta 也是 0；output 的 p 是 0.2059 和 0.7941，delta 是 p 减 y');
+}
+
 export default {
   'cs3244-complexity': complexity,
   'cs3244-sinfit': sinfit,
@@ -344,4 +487,10 @@ export default {
   'cs3244-kmeans': kmeansfig,
   'cs3244-em': emfig,
   'cs3244-pca': pcafig,
+  'cs3244-break': breakpt,
+  'cs3244-shrink': shrink,
+  'cs3244-loocv': loocv,
+  'cs3244-svm3': svm3,
+  'cs3244-adaboost': adaboost,
+  'cs3244-backprop': backprop,
 };

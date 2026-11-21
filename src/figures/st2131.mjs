@@ -255,6 +255,73 @@ function cltskew() {
   return svg(560, 242, o, 'n 等于 1、4、30 时，n 个 exponential 之和 standardize 后的 density 与 standard normal 的对比；n 越大越接近，但 n 等于 4 时仍明显偏斜');
 }
 
+// 第 1 站：两次 4-sided die 的 16 个 outcome；左边 B = {min = 2}，右边“至少一次 4” = 两条重叠的带
+function dice() {
+  const S = 34, y0 = 52;
+  let o = '';
+  const grid = (x0, inA, inB2, title, note) => {
+    for (let x = 1; x <= 4; x++) for (let y = 1; y <= 4; y++) {
+      const a = inA(x, y), b = inB2 ? inB2(x, y) : false;
+      const px = x0 + (x - 1) * S, py = y0 + (4 - y) * S;
+      o += rect(px, py, S, S, a && b ? 'solid' : (a || b) ? 'wash-strong' : 'frame');
+      if (!(a && b)) o += rect(px, py, S, S, 'frame');
+      o += text(px + S / 2, py + S / 2 + 4, `${x},${y}`, a && b ? 'tw' : (a || b) ? 't' : 'ts', 'middle');
+    }
+    for (let k = 1; k <= 4; k++) o += text(x0 + (k - 0.5) * S, y0 + 4 * S + 15, String(k), 'ts', 'middle') + text(x0 - 7, y0 + (4.5 - k) * S + 4, String(k), 'ts', 'end');
+    o += text(x0 + 2 * S, y0 + 4 * S + 31, 'first roll x', 'ts', 'middle') + text(x0 - 7, y0 - 8, 'second roll y', 'ts', 'start');
+    o += text(x0 + 2 * S, 22, title, 'tb', 'middle');
+    note.forEach((t, i) => { o += text(x0 + 4 * S + 14, y0 + 30 + 20 * i, t, 'ts', 'start'); });
+  };
+  let nB = 0, n4 = 0;
+  for (let x = 1; x <= 4; x++) for (let y = 1; y <= 4; y++) { if (Math.min(x, y) === 2) nB++; if (x === 4 || y === 4) n4++; }
+  grid(48, (x, y) => Math.min(x, y) === 2, null, 'B = {min(x, y) = 2}', [`${nB} 个 outcome`, `P(B) = ${nB}/16`]);
+  grid(318, (x, y) => x === 4, (x, y) => y === 4, '至少一次 4', ['x = 4：4 格', 'y = 4：4 格', '重叠 (4,4)：1 格', `4 + 4 − 1 = ${n4}`]);
+  return svg(560, 238, o, '两次掷 4-sided die 的 16 个 outcome 排成 4 乘 4 的格子。左边涂色的 5 格是 min 等于 2；右边第一次是 4 的一列和第二次是 4 的一行，交于 (4,4)，合起来 7 格');
+}
+
+// 第 5 站：Bayes' billiards（n = 5 个白球）。上：先定红球的位置 x；下：先扔 6 个球再随机挑一个涂红
+function billiards() {
+  const W = [0.08, 0.27, 0.55, 0.71, 0.9], R = 0.42, n = W.length;
+  const sx = lin(0, 1, 50, 510);
+  const K = W.filter((w) => w < R).length;
+  let o = text(30, 22, '第一种：先扔红球，落在 x；每个白球独立地以 probability x 落在它左边', 'tb');
+  const y1 = 70;
+  o += rect(sx(0), y1 - 12, sx(R) - sx(0), 24, 'wash');
+  o += line(sx(0), y1, sx(1), y1, 'axis') + text(sx(0), y1 + 30, '0', 'ts', 'middle') + text(sx(1), y1 + 30, '1', 'ts', 'middle');
+  for (const w of W) o += circle(sx(w), y1, 7, 'paper');
+  o += circle(sx(R), y1, 7, 'solid') + text(sx(R), y1 + 30, 'x = ' + R, 'tl', 'middle');
+  o += text((sx(0) + sx(R)) / 2, y1 - 18, 'length x', 'ts', 'middle');
+  o += text(sx(1), y1 - 18, `这一次 K = ${K}；given x，K ~ Bin(${n}, x)`, 'ts', 'end');
+  o += text(30, 140, `第二种：先扔 ${n + 1} 个一样的球，再随机挑一个涂红`, 'tb');
+  const all = [...W, R].sort((a, b) => a - b), y2 = 186;
+  o += line(sx(0), y2, sx(1), y2, 'axis');
+  all.forEach((v, k) => {
+    o += circle(sx(v), y2, 7, v === R ? 'solid' : 'paper');
+    o += text(sx(v), y2 + 26, 'K = ' + k, v === R ? 'tl' : 'ts', 'middle');
+  });
+  o += text(280, 238, `红球在 ${n + 1} 个名次里 equally likely，所以 K 取 0, 1, …, ${n} 各 1/${n + 1}`, 'ts', 'middle');
+  return svg(560, 250, o, 'Bayes billiards：5 个白球和 1 个红球扔在 0 到 1 上。上面先定红球在 0.42，左边有 2 个白球；下面把 6 个球排好，红球是哪一个都等可能，K 取 0 到 5 各六分之一');
+}
+
+// 第 5 站：Uniform prior → 4 次 3 head → 再 4 次 1 head 的 posterior
+function posterior() {
+  const lg = (z) => { let s = 0; for (let k = 2; k < z; k++) s += Math.log(k); return s; }; // log((z-1)!)，z 是 integer
+  const beta = (a, b) => (x) => Math.exp(lg(a + b) - lg(a) - lg(b) + (a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x));
+  const sx = lin(0, 1, 60, 520), sy = lin(0, 2.6, 232, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 2.6, xt: [0, [0.25, '0.25'], [0.5, '0.5'], [0.75, '0.75'], 1], yt: [[1, '1'], [2, '2']], xl: 'x = P(head)', yl: 'density' });
+  const cs = [[1, 1, 'mute', 'Beta(1, 1)：prior'], [4, 2, 'ln', 'Beta(4, 2)：4 次里 3 次 head'], [5, 5, 'ink', 'Beta(5, 5)：再 4 次里 1 次 head']];
+  for (const [a, b, cls] of cs) {
+    const f = beta(a, b), m = a / (a + b);
+    o += path(curve(f, 0.001, 0.999, sx, sy), cls === 'ink' ? 'ink-b' : cls);
+    if (a > 1) o += line(sx(m), sy(0), sx(m), sy(f(m)), 'dash');
+  }
+  o += text(sx(0.04), sy(1) - 8, cs[0][3], 'ts');
+  o += text(sx(0.66), sy(2.42), cs[1][3], 'tl');
+  o += text(sx(0.05), sy(2.25), 'Beta(5, 5)', 'tb') + text(sx(0.05), sy(2.25) + 17, '再 4 次里 1 次 head', 'tb');
+  o += text(sx(2 / 3) + 4, sy(0) - 6, 'mean 2/3', 'ts') + text(sx(0.5) + 4, sy(0) - 6, '1/2', 'ts');
+  return svg(560, 268, o, '三条 Beta density：Beta(1,1) 是平的；看到 4 次里 3 次 head 后是 Beta(4,2)，mean 三分之二；再看到 4 次里 1 次 head 后是 Beta(5,5)，mean 二分之一');
+}
+
 export default {
   'st2131-inclusion': inclusion,
   'st2131-cond': cond,
@@ -268,4 +335,7 @@ export default {
   'st2131-jacobian': jacobian,
   'st2131-clt': clt,
   'st2131-cltskew': cltskew,
+  'st2131-dice': dice,
+  'st2131-billiards': billiards,
+  'st2131-posterior': posterior,
 };

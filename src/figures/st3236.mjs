@@ -271,6 +271,117 @@ function cobweb() {
   return svg(560, 280, o, 'Generating function 的 cobweb 图：mu 大于 1 时迭代停在二分之一，mu 等于 1 时迭代一路爬向 1');
 }
 
+// 弯箭头加 label：label 放在弧的外侧（沿 normal 再推 off 个 px）
+function edgeL(A, B, r, bend, lab, cls = 'ink', off = 11) {
+  const e = bent(A[0], A[1], B[0], B[1], r, bend, cls);
+  const L = Math.hypot(B[0] - A[0], B[1] - A[1]), nx = -(B[1] - A[1]) / L, ny = (B[0] - A[0]) / L, sg = bend >= 0 ? 1 : -1;
+  return e.o + text(e.lx + sg * nx * off, e.ly + sg * ny * off + 4, lab, 'ts', 'middle');
+}
+const loopL = (P, r, side, lab) => { const l = loop(P[0], P[1], r, side, 'ink'); return l.o + text(l.lx, l.ly + (side === 'up' ? -8 : 16), lab, 'ts', 'middle'); };
+
+// 第 1 站：social mobility 的 transition graph
+function social() {
+  const r = 24, pos = [[110, 220], [280, 96], [450, 220]], names = ['lower', 'middle', 'upper'];
+  let o = '';
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (i !== j) o += edgeL(pos[i], pos[j], r, Math.abs(i - j) === 2 ? 34 : 22, String(SOC[i][j]));
+  o += loopL(pos[0], r, 'down', String(SOC[0][0])) + loopL(pos[1], r, 'up', String(SOC[1][1])) + loopL(pos[2], r, 'down', String(SOC[2][2]));
+  pos.forEach((P, i) => { o += node(P[0], P[1], r, String(i + 1)) + text(P[0] + (i === 1 ? 34 : 0), P[1] + (i === 1 ? 5 : -32), names[i], 'ts', i === 1 ? 'start' : 'middle'); });
+  return svg(560, 300, o, 'Social mobility 的三个 state：1 lower、2 middle、3 upper。每个 state 指向自己和另外两个，arrow 上是 transition probability，每个 state 发出的三个数加起来是 1');
+}
+
+// 第 1 站：依赖两天的天气，扩成 (昨天, 今天) 的 4-state chain
+function weather() {
+  const r = 24, P = { RR: [130, 84], RS: [430, 84], SR: [130, 214], SS: [430, 214] };
+  let o = '';
+  o += edgeL(P.RR, P.RS, r, 0, '0.3', 'ink', 10);
+  o += edgeL(P.SR, P.RR, r, 0, '0.5', 'ink', 18);
+  o += edgeL(P.RS, P.SS, r, 0, '0.6', 'ink', -18);
+  o += edgeL(P.SS, P.SR, r, 0, '0.2', 'ink', 10);
+  o += edgeL(P.SR, P.RS, r, 26, '0.5', 'ink', 14) + edgeL(P.RS, P.SR, r, 26, '0.4', 'ink', 14);
+  o += loopL(P.RR, r, 'up', '0.7') + loopL(P.SS, r, 'down', '0.8');
+  for (const [k, [x, y]] of Object.entries(P)) o += node(x, y, r, k);
+  o += text(280, 318, 'state 是（昨天, 今天），R 是雨，S 是晴；arrow 的终点的第一个字母一定等于起点的第二个字母', 'ts', 'middle');
+  return svg(560, 330, o, '天气的 4 个 state RR、SR、RS、SS 的 transition graph：每个 state 只有两条 arrow，指向以“今天”开头的两个 state');
+}
+
+// 第 3 站：Ehrenfest chain（3 个球），两组 state 交替
+function ehren() {
+  const r = 22, xs = [80, 213, 347, 480], y = 110;
+  let o = '';
+  for (let i = 0; i < 3; i++) o += edgeL([xs[i], y], [xs[i + 1], y], r, -26, ['1', '2/3', '1/3'][i]) + edgeL([xs[i + 1], y], [xs[i], y], r, -26, ['1/3', '2/3', '1'][i]);
+  xs.forEach((x, i) => { o += node(x, y, r, String(i), i % 2 ? 'paper' : 'wash-strong') + (i % 2 ? '' : circle(x, y, r, 'ink')); });
+  o += text(280, 26, 'state = 左边 urn 里的球数', 'tb', 'middle');
+  o += rect(150, 186, 16, 16, 'wash-strong') + text(172, 199, '{0, 2}', 't') + rect(270, 186, 16, 16, 'paper') + text(292, 199, '{1, 3}', 't');
+  o += text(280, 226, '每一步都从一组跳到另一组，所以从 0 出发只可能在偶数步回到 0', 'ts', 'middle');
+  return svg(560, 240, o, 'Ehrenfest chain 的 4 个 state 0 到 3 排成一行，向右的 probability 是 1、2/3、1/3，向左的是 1/3、2/3、1。0 和 2 一组，1 和 3 一组，每一步换组');
+}
+
+// 第 3 站：state 0 同时在长度 3 和长度 4 的 cycle 上
+function cycles() {
+  const r = 17, O = [200, 120];
+  const L = [[90, 62], [90, 178]], R = [[300, 50], [380, 120], [300, 190]];
+  let o = '';
+  o += edgeL(O, L[0], r, 0, '½', 'ink', 10) + edgeL(L[0], L[1], r, 0, '1', 'ink', 10) + edgeL(L[1], O, r, 0, '1', 'ink', 10);
+  o += edgeL(O, R[0], r, 0, '½', 'ink', -10) + edgeL(R[0], R[1], r, 0, '1', 'ink', -10) + edgeL(R[1], R[2], r, 0, '1', 'ink', -10) + edgeL(R[2], O, r, 0, '1', 'ink', -10);
+  o += node(O[0], O[1], r, '0', 'wash-strong') + circle(O[0], O[1], r, 'ink');
+  for (const P of [...L, ...R]) o += circle(P[0], P[1], r, 'paper');
+  o += text(70, 22, '长度 3 的 cycle', 'ts') + text(260, 22, '长度 4 的 cycle', 'ts');
+  // 可能的返回时间：若干个 3 和若干个 4 之和
+  const N = 14, ok = Array(N + 1).fill(false);
+  for (let a = 0; 3 * a <= N; a++) for (let b = 0; 3 * a + 4 * b <= N; b++) if (a + b > 0) ok[3 * a + 4 * b] = true;
+  const x0 = 60, w = 31, yb = 250;
+  o += text(x0, yb - 14, '从 0 出发，第 n 步可能回到 0 吗？', 'tb');
+  for (let n = 1; n <= N; n++) { o += rect(x0 + (n - 1) * w, yb, w - 3, 26, ok[n] ? 'solid' : 'frame', 3) + text(x0 + (n - 1) * w + (w - 3) / 2, yb + 18, String(n), ok[n] ? 'tw' : 'ts', 'middle'); }
+  o += text(x0, yb + 48, '最短的返回时间是 3，但 gcd(3, 4) = 1；从 6 起每个 n 都可以', 'ts');
+  return svg(560, 312, o, 'State 0 同时在一个长度 3 和一个长度 4 的 cycle 上。返回时间是 3、4、6、7、8 以及之后所有 integer；1、2、5 不可能');
+}
+
+// 第 4 站：Z² 的四种步，换成 U = X + Y、V = X − Y 之后
+function rotate() {
+  const u = 52;
+  const steps = [[1, 0, '(1, 0)'], [-1, 0, '(−1, 0)'], [0, 1, '(0, 1)'], [0, -1, '(0, −1)']];
+  let o = '';
+  const panel = (cx, cy, title, xl, yl, map) => {
+    let q = text(cx, 26, title, 'tb', 'middle');
+    q += line(cx - 2 * u, cy, cx + 2 * u, cy, 'axis') + line(cx, cy - 2 * u, cx, cy + 2 * u, 'axis');
+    q += text(cx + 2 * u + 6, cy + 4, xl, 't') + text(cx + 6, cy - 2 * u + 2, yl, 't');
+    for (const [a, b, lab] of steps) {
+      const [p, q2] = map(a, b), ex = cx + p * u, ey = cy - q2 * u;
+      q += arrow(cx, cy, ex, ey, 'ln') + circle(ex, ey, 3, 'ln-f');
+      const lx = ex + (p >= 0 ? 8 : -8), ly = ey + (q2 > 0 ? -8 : q2 < 0 ? 18 : -8);
+      q += text(lx, ly, map === id ? lab : `(${String(p).replace('-', '−')}, ${String(q2).replace('-', '−')})`, 'ts', p >= 0 ? 'start' : 'end');
+    }
+    return q;
+  };
+  const id = (a, b) => [a, b];
+  o += panel(150, 150, '原来的 coordinate', 'X', 'Y', id);
+  o += panel(420, 150, 'U = X + Y，V = X − Y', 'U', 'V', (a, b) => [a + b, a - b]);
+  o += arrow(262, 96, 306, 96, 'ink');
+  o += text(280, 282, '四种步变成四个 diagonal：U、V 各自 ±1，而且四种组合各 1/4', 'ts', 'middle');
+  return svg(560, 296, o, '二维 random walk 的四种步 (±1,0)、(0,±1) 在换成 U=X+Y、V=X−Y 后变成 (1,1)、(−1,−1)、(1,−1)、(−1,1)，每一步 U 和 V 都各走 ±1');
+}
+
+// 第 7 站：branching process 的 first-step analysis
+function brtree() {
+  let o = '';
+  const root = [280, 40];
+  o += circle(root[0], root[1], 11, 'solid') + text(root[0] + 18, root[1] + 5, '第 0 代：1 个个体', 'ts');
+  const cols = [[100, '0 个孩子', 'p₀', [], '1 = ρ⁰'], [280, '1 个孩子', 'p₁', [280], 'ρ'], [460, '2 个孩子', 'p₂', [425, 495], 'ρ²']];
+  for (const [x, lab, pk, kids, res] of cols) {
+    o += line(root[0], root[1] + 11, x, 104, 'mute') + text((root[0] + x) / 2 + (x < 280 ? -8 : x > 280 ? 8 : 10), 78, pk, 'tl', x < 280 ? 'end' : 'start');
+    o += text(x, 122, lab, 't', 'middle');
+    if (!kids.length) o += text(x, 160, '这一支已经灭绝', 'ts', 'middle');
+    for (const k of kids) {
+      o += line(x, 128, k, 146, 'mute') + circle(k, 154, 8, 'ink-f');
+      o += poly([[k, 166], [k - 26, 214], [k + 26, 214]], 'wash') + text(k, 206, 'ρ', 'tl', 'middle');
+    }
+    o += text(x, 244, '全部灭绝：' + res, 'tb', 'middle');
+  }
+  o += text(280, 284, 'ρ = p₀ · 1 + p₁ · ρ + p₂ · ρ² + …', 'tb', 'middle');
+  o += text(280, 304, '每个孩子各自开始一个和原问题一样的 family，彼此 independent', 'ts', 'middle');
+  return svg(560, 316, o, 'Branching process 的 first-step analysis：第一个个体有 k 个孩子的 probability 是 p_k，每个孩子的 family 独立地以 probability ρ 灭绝，所以 k 个孩子全部灭绝的 probability 是 ρ 的 k 次方');
+}
+
 export default {
   'st3236-twostate': twostate,
   'st3236-ruin': ruin,
@@ -283,4 +394,10 @@ export default {
   'st3236-period': period,
   'st3236-coupling': coupling,
   'st3236-cobweb': cobweb,
+  'st3236-social': social,
+  'st3236-weather': weather,
+  'st3236-ehren': ehren,
+  'st3236-cycles': cycles,
+  'st3236-rotate': rotate,
+  'st3236-brtree': brtree,
 };

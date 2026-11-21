@@ -320,6 +320,90 @@ function logit() {
   return svg(560, 312, o, 'Challenger 之前 23 次发射：O-ring 有没有损伤对 temperature 作图，linear probability model 的直线跑出 0 到 1 之外，logistic curve 始终在 0 和 1 之间');
 }
 
+const CH_T = [53, 57, 58, 63, 66, 67, 67, 67, 68, 69, 70, 70, 70, 70, 72, 73, 75, 75, 76, 76, 78, 79, 81];
+const CH_Y = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0];
+
+// 开头第三件：对 0/1 的 damage 做 linear regression，line 跑出 [0, 1]
+function lpm() {
+  const f = slr(CH_T, CH_Y), at = (t) => f.b0 + f.b1 * t;
+  const sx = lin(28, 84, 60, 500), sy = lin(-0.4, 1.9, 250, 28);
+  let o = axes({ sx, sy, x0: 28, x1: 84, y0: -0.4, y1: 1.9, xt: [30, 40, 50, 60, 70, 80], yt: [[0, '0'], [0.5, '0.5'], [1, '1'], [1.5, '1.5']], xl: 'temperature（°F）', yl: 'damage（0 或 1）', xAt: -0.4 });
+  o += line(sx(28), sy(0), sx(84), sy(0), 'mute') + line(sx(28), sy(1), sx(84), sy(1), 'mute');
+  o += line(sx(28), sy(at(28)), sx(84), sy(at(84)), 'ln');
+  const seen = {};
+  CH_T.forEach((t, i) => { const k = t + '-' + CH_Y[i]; seen[k] = (seen[k] || 0) + 1; o += circle(sx(t), sy(CH_Y[i]) + (CH_Y[i] ? -1 : 1) * (seen[k] - 1) * 8, 3.6, 'ink-f'); });
+  for (const t of [31, 81]) o += circle(sx(t), sy(at(t)), 4.5, 'ln-f');
+  o += text(sx(31) + 10, sy(at(31)) + 4, `31°F：${at(31).toFixed(2)}`, 'tl');
+  o += text(sx(81) - 4, sy(at(81)) + 22, `81°F：${at(81).toFixed(2).replace('-', '−')}`, 'tl', 'end');
+  o += text(sx(54), sy(1.55), `ŷ = ${f.b0.toFixed(3)} − ${(-f.b1).toFixed(4)} T`, 't');
+  return svg(560, 290, o, 'Challenger 之前 23 次发射的 O-ring 损伤（0 或 1）对 temperature 作图，least squares 的直线在 31°F 给出 1.75，在 81°F 给出负的 0.12');
+}
+
+// 第 1 站：y 对 x、x 对 y 的两条 regression line，以及 SD line
+function reverse() {
+  const f = slr(HT, WT), g = slr(WT, HT), yb = mean(WT), xb = mean(HT);
+  const sdx = Math.sqrt(f.sxx / 9), sdy = Math.sqrt(g.sxx / 9);
+  const k1 = f.b1, k2 = 1 / g.b1, k0 = sdy / sdx;
+  const sx = lin(61.5, 76.5, 60, 360), sy = lin(105, 220, 268, 24);
+  let o = axes({ sx, sy, x0: 61.5, x1: 76.5, y0: 105, y1: 220, xt: [63, 66, 69, 72, 75], yt: [120, 140, 160, 180, 200], xl: 'height（inch）', yl: 'weight（lb）', grid: true });
+  const L = (k, cls) => { const x0 = Math.max(61.8, xb + (106 - yb) / k), x1 = Math.min(76.3, xb + (218 - yb) / k); return line(sx(x0), sy(yb + k * (x0 - xb)), sx(x1), sy(yb + k * (x1 - xb)), cls); };
+  o += L(k0, 'dash') + L(k2, 'ink-b') + L(k1, 'ln');
+  HT.forEach((h, i) => { o += circle(sx(h), sy(WT[i]), 4, 'mute-f'); });
+  o += circle(sx(xb), sy(yb), 5, 'ink-f') + text(sx(xb) + 8, sy(yb) + 18, '(x̄, ȳ)', 'ts');
+  o += line(380, 60, 410, 60, 'ln') + text(416, 64, 'y 对 x：slope ' + k1.toFixed(2), 'tl') + text(416, 82, 'vertical residual 最小', 'ts');
+  o += line(380, 114, 410, 114, 'ink-b') + text(416, 118, 'x 对 y：slope ' + k2.toFixed(2), 'tb') + text(416, 136, 'horizontal residual 最小', 'ts');
+  o += line(380, 168, 410, 168, 'dash') + text(416, 172, 'SD line：slope ' + k0.toFixed(2), 't') + text(416, 190, 'sd(y) / sd(x)，夹在中间', 'ts');
+  o += text(380, 228, `6.48 × r = ${k1.toFixed(2)}`, 'ts') + text(380, 246, `6.48 ÷ r = ${k2.toFixed(2)}`, 'ts');
+  return svg(560, 306, o, 'Height 与 weight 的 scatter plot 上三条都经过 mean 点的 line：y 对 x 的 regression line slope 6.14，x 对 y 解出来的 line slope 6.84，SD line slope 6.48 在两者之间');
+}
+
+// 第 6 站：Hald data 上 forward 与 backward 走的路
+function stepwise() {
+  const X = [0, 1, 2, 3].map((j) => HALD.map((r) => r[j])), Y = HALD.map((r) => r[4]);
+  const S = (ids) => ols(ids.map((j) => X[j]), Y).sse;
+  const sst = Y.reduce((a, v) => a + (v - mean(Y)) ** 2, 0);
+  const pf = (r, f, p) => (S(r) - S(f)) / (S(f) / (13 - p - 1));
+  const nodes = [
+    { ids: [], x: 70, y: 60, lab: '∅（只有 intercept）', sse: sst },
+    { ids: [3], x: 70, y: 150, lab: '{x₄}' },
+    { ids: [0, 3], x: 70, y: 240, lab: '{x₁, x₄}' },
+    { ids: [0, 1, 3], x: 300, y: 240, lab: '{x₁, x₂, x₄}' },
+    { ids: [0, 1], x: 300, y: 150, lab: '{x₁, x₂}' },
+  ];
+  let o = '';
+  const box = (nd, cls) => { const sse = nd.sse ?? S(nd.ids); return rect(nd.x - 62, nd.y - 22, 124, 44, cls, 6) + text(nd.x, nd.y - 4, nd.lab, 'tb', 'middle') + text(nd.x, nd.y + 13, 'SSE ' + sse.toFixed(2), 'ts', 'middle'); };
+  const [n0, n1, n2, n3, n4] = nodes;
+  o += arrow(n0.x, n0.y + 22, n1.x, n1.y - 24, 'ink') + text(n0.x + 8, (n0.y + n1.y) / 2 + 4, '第 1 步：单个 predictor 里 SSE 最小', 'ts');
+  o += arrow(n1.x, n1.y + 22, n2.x, n2.y - 24, 'ink') + text(n1.x + 8, (n1.y + n2.y) / 2 + 4, `加 x₁：partial F = ${pf([3], [0, 3], 2).toFixed(1)}`, 'ts');
+  o += arrow(n2.x + 62, n2.y, n3.x - 64, n3.y, 'dash') + text((n2.x + n3.x) / 2, n2.y - 8, `加 x₂：F = ${pf([0, 3], [0, 1, 3], 3).toFixed(2)}`, 'ts', 'middle') + text((n2.x + n3.x) / 2, n2.y + 42, 'p = 0.052：门槛 0.05 时停在 {x₁, x₄}', 'ts', 'middle');
+  o += arrow(n3.x, n3.y - 22, n4.x, n4.y + 24, 'ln') + text(n3.x + 8, (n3.y + n4.y) / 2 + 4, 'backward：删 x₄（t = −1.37）', 'tl');
+  o += box(n0, 'paper') + box(n1, 'paper') + box(n2, 'paper') + box(n3, 'paper') + box(n4, 'wash');
+  o += text(n4.x + 70, n4.y - 4, '两个 predictor 里', 'ts') + text(n4.x + 70, n4.y + 12, 'SSE 最小的 model', 'ts');
+  o += text(300, 60, 'forward 从上往下，backward 从右下往上', 'tb', 'middle');
+  return svg(560, 296, o, 'Hald data 的 stepwise：forward 从空 model 依次加入 x4、x1，再加 x2 的 p-value 是 0.052；backward 从 x1、x2、x4 删去 x4 得到 x1、x2。两个方向停在不同的 model，最好的两 predictor model x1、x2 里没有 forward 第一步选的 x4');
+}
+
+// 第 7 站：2 × 2 的 two-factor 例子，cell mean 的 interaction plot
+function twoway() {
+  const cells = { A1: [[10, 12], [14, 16]], A2: [[15, 13], [25, 27]] };
+  const sx = lin(0, 1, 140, 380), sy = lin(8, 30, 250, 30);
+  let o = axes({ sx, sy, x0: -0.25, x1: 1.25, y0: 8, y1: 30, xt: [[0, 'B₁'], [1, 'B₂']], yt: [10, 15, 20, 25, 30], yl: 'y' });
+  const mu = {};
+  for (const [a, cls] of [['A1', 'ink-b'], ['A2', 'ln']]) {
+    const m = cells[a].map((c) => (c[0] + c[1]) / 2);
+    mu[a] = m;
+    o += line(sx(0), sy(m[0]), sx(1), sy(m[1]), cls);
+    cells[a].forEach((c, j) => c.forEach((v) => { o += circle(sx(j) + (a === 'A1' ? -10 : 10), sy(v), 3, 'mute-f'); }));
+    m.forEach((v, j) => { o += circle(sx(j), sy(v), 5, cls === 'ln' ? 'ln-f' : 'ink-f'); });
+    o += text(sx(1) + 16, sy(m[1]) + 4, `${a.replace('1', '₁').replace('2', '₂')}（cell mean ${m[0]}, ${m[1]}）`, cls === 'ln' ? 'tl' : 'tb');
+  }
+  const gap = (j) => mu.A2[j] - mu.A1[j];
+  o += line(sx(0) - 30, sy(mu.A1[0]), sx(0) - 30, sy(mu.A2[0]), 'ink') + text(sx(0) - 36, sy((mu.A1[0] + mu.A2[0]) / 2) + 4, 'A 的作用 ' + gap(0), 'ts', 'end');
+  o += line(sx(1) - 26, sy(mu.A1[1]), sx(1) - 26, sy(mu.A2[1]), 'ink') + text(sx(1) - 32, sy((mu.A1[1] + mu.A2[1]) / 2) + 4, 'A 的作用 ' + gap(1), 'ts', 'end');
+  o += text(sx(0.5), 22, '两条 line 不 parallel：interaction', 'tb', 'middle');
+  return svg(560, 285, o, '2 乘 2 的例子：A1 的 cell mean 从 11 到 15，A2 从 14 到 26。A 的作用在 B1 是 3，在 B2 是 11，两条 line 不平行');
+}
+
 export default {
   'st3131-fit': fit,
   'st3131-bands': bands,
@@ -333,4 +417,8 @@ export default {
   'st3131-plant': plant,
   'st3131-lines': lines,
   'st3131-logit': logit,
+  'st3131-lpm': lpm,
+  'st3131-reverse': reverse,
+  'st3131-stepwise': stepwise,
+  'st3131-twoway': twoway,
 };
