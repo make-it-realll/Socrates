@@ -167,4 +167,19 @@
       });
     });
   }
+
+  // ---------- 动图：点一下暂停/继续；系统要求减少动效时默认停住 ----------
+  var anims = $$('svg.fig-anim');
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  anims.forEach(function (sv) {
+    if (!sv.pauseAnimations) return;
+    var fig = sv.closest('.fig');
+    if (fig) fig.classList.add('has-anim');
+    var set = function (paused) {
+      if (paused) sv.pauseAnimations(); else sv.unpauseAnimations();
+      if (fig) fig.classList.toggle('is-paused', paused);
+    };
+    if (still) { sv.setCurrentTime(0); set(true); }
+    sv.addEventListener('click', function () { set(!sv.animationsPaused()); });
+  });
 })();
