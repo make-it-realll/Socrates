@@ -148,7 +148,47 @@ function trolley() {
   return svg(560, 240, o, '三种轨道的俯视示意：switch 里岔道通向一个人；footbridge 里一个人站在轨道上方的桥上；loop 里岔道绕一圈接回主轨，岔道上有一个人');
 }
 
+// 第 5 站：Williams 的 case，同一个结果，两种讲法
+function williams() {
+  let o = text(280, 22, '机器把两人 brain 里的全部信息互换', 'ts', 'middle');
+  const body = (x, y, who, info, cls) => rect(x, y, 175, 46, 'paper', 6) + text(x + 12, y + 19, who + ' 的 body', 'tb') + text(x + 12, y + 37, info + ' 的 memory、personality', cls);
+  o += text(107, 22, '之前', 'tb', 'middle') + text(452, 22, '之后', 'tb', 'middle');
+  o += body(20, 34, 'A', 'A', 'tl') + body(20, 94, 'B', 'B', 'ts');
+  o += body(365, 34, 'A', 'B', 'ts') + body(365, 94, 'B', 'A', 'tl');
+  o += arrow(197, 66, 361, 112, 'ln') + arrow(197, 112, 361, 66, 'mute');
+  const card = (x, title, lines, verdict) => {
+    let c = rect(x, 176, 250, 128, 'wash', 6) + text(x + 12, 198, title, 'tb');
+    lines.forEach((t, i) => { c += text(x + 12, 220 + i * 18, t, 'ts'); });
+    return c + text(x + 12, 292, verdict, 'tl');
+  };
+  o += path('M452 140L452 150L145 150L145 174', 'mute') + path('M415 150L415 174', 'mute');
+  o += text(280, 167, '你是 A。对这同一个结果，有两种问法', 'ts', 'middle');
+  o += card(20, '讲法一：先让你分配', ['一个拿 100,000 美元，一个受酷刑，', '你出于自私来指定。多数人：钱给', 'B 的 body，酷刑给 A 的 body。'], '跟着 memory 走：personality theory');
+  o += card(290, '讲法二：一条一条往上加', ['明天你受酷刑；先抹掉 memory，再', '改 personality……加完第 6 条，', '怕的仍是 A 的 body 受刑。'], '留在这个 body 里：body theory');
+  return svg(560, 314, o, 'Williams 的 case：机器把 A 和 B 的 brain 信息互换，A 的 body 带着 B 的 memory，B 的 body 带着 A 的；先问怎样分配奖惩时多数人站在 personality theory 一边，一条条加条件时人们又站在 body theory 一边');
+}
+
+// 第 6 站：Frankfurt 的 case，两条路都通向开枪
+function frankfurt() {
+  const card = (x, y, w, a, b, cls = 'paper') => rect(x, y, w, 46, cls, 6) + text(x + w / 2, y + 20, a, 'tb', 'middle') + text(x + w / 2, y + 37, b, 'ts', 'middle');
+  let o = card(16, 102, 132, 'Jones 已决定', '开枪打死 Smith');
+  o += card(206, 34, 150, '没有反悔', '实际发生的', 'wash');
+  o += card(206, 170, 150, '露出要反悔的迹象', '没有发生');
+  o += card(412, 102, 132, 'Jones 开枪', 'Smith 死');
+  o += arrow(148, 116, 204, 64, 'ln') + arrow(356, 56, 410, 112, 'ln');
+  o += arrow(148, 136, 204, 190, 'dash') + arrow(356, 194, 410, 138, 'dash');
+  o += text(376, 60, '出于他自己的理由', 'tl');
+  o += text(392, 180, 'Black 介入，', 'ts') + text(392, 196, '操纵他照样开枪', 'ts');
+  o += text(281, 20, 'Black 一直准备着，实际上没有介入', 'ts', 'middle');
+  o += rect(16, 250, 528, 58, 'frame', 6);
+  o += text(28, 272, 'Jones 当时能不开枪吗？不能：两条路都通向开枪。', 't');
+  o += text(28, 294, 'Jones 负 moral responsibility 吗？负：实际走的那条路上只有他自己的理由。', 't');
+  return svg(560, 318, o, 'Frankfurt case 的两条路：实际上 Jones 没有反悔，出于自己的理由开枪；假如他露出反悔的迹象，Black 会介入操纵他照样开枪。两条路都通向开枪，所以 Jones 没有 alternative，却仍然负 moral responsibility');
+}
+
 export default {
+  'gex1015-williams': williams,
+  'gex1015-frankfurt': frankfurt,
   'gex1015-argmap': argmap,
   'gex1015-evil': evil,
   'gex1015-triad': triad,

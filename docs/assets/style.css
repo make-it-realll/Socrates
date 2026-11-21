@@ -1,7 +1,10 @@
+@font-face { font-family: "Alegreya"; src: url("fonts/Alegreya.woff") format("woff"); font-weight: 400 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Alegreya"; src: url("fonts/Alegreya-Italic.woff") format("woff"); font-weight: 400 900; font-style: italic; font-display: swap; }
 /* Socrates — 线路图式的课程谱系站。颜色、字体、间距都在这里。 */
 :root {
   --paper: #F3F5F4; --card: #FFFFFF; --ink: #17212A; --mute: #5B6771; --rule: #D3D9DC; --on-line: #FFFFFF;
   --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  --fig: "Alegreya", "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   --sign: "DIN Alternate", "Bahnschrift", "Avenir Next Condensed", "Roboto Condensed", "Arial Narrow", var(--sans);
   --line: var(--ink);
   color-scheme: light dark;
@@ -172,8 +175,11 @@ a.st:hover .st-code, a.st:focus-visible .st-code { text-decoration: underline; }
 .blk-note { border-left-color: var(--line); }
 
 .fig { margin: 1.6rem 0; padding: 1rem 1rem .8rem; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; }
-.fig figcaption { margin-top: .5rem; font-size: .88rem; line-height: 1.6; color: var(--mute); }
-.fig-svg { display: block; width: 100%; height: auto; font-family: var(--sans); }
+.fig.has-anim .fig-svg { cursor: pointer; }
+.fig.has-anim figcaption::after { content: "（动图，点图暂停）"; color: var(--mute); }
+.fig.has-anim.is-paused figcaption::after { content: "（已暂停，点图继续）"; }
+.fig figcaption { margin-top: .5rem; font-family: var(--fig); font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; font-size: .95rem; line-height: 1.6; color: var(--mute); }
+.fig-svg { display: block; width: 100%; height: auto; font-family: var(--fig); font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1; }
 .fig-svg .ink { stroke: var(--ink); stroke-width: 1.5; fill: none; }
 .fig-svg .ink-b { stroke: var(--ink); stroke-width: 2.4; fill: none; stroke-linecap: round; }
 .fig-svg .ink-s { stroke: var(--ink); stroke-width: 1.4; }
@@ -197,13 +203,13 @@ a.st:hover .st-code, a.st:focus-visible .st-code { text-decoration: underline; }
 .fig-svg .paper { fill: var(--card); stroke: var(--ink); stroke-width: 1.4; }
 .fig-svg .paper-f { fill: var(--card); }
 .fig-svg .faint-f { fill: var(--rule); }
-.fig-svg text { font-size: 13px; fill: var(--ink); }
-.fig-svg .ts { font-size: 11.5px; fill: var(--mute); }
+.fig-svg text { font-size: 13.5px; fill: var(--ink); }
+.fig-svg .ts { font-size: 12px; fill: var(--mute); }
 .fig-svg .tb { font-weight: 650; }
 .fig-svg .tl { fill: var(--line); font-weight: 650; }
 .fig-svg .tw { fill: var(--on-line); font-weight: 650; }
 .fig-svg .tbig { font-size: 22px; }
-.fig-svg .i { font-style: italic; font-family: KaTeX_Math, "Times New Roman", serif; font-size: 1.1em; }
+.fig-svg .i { font-style: italic; }
 .fig-svg .sup, .fig-svg .sub { font-size: 9.5px; }
 
 blockquote { margin: 1.3rem 0; padding: .7rem 1.2rem; border-left: 5px solid var(--line); background: var(--card); border-radius: 0 10px 10px 0; font-weight: 600; }

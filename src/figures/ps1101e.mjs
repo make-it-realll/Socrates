@@ -222,6 +222,121 @@ function spiral() {
 }
 const sx0 = (x) => x - 34;
 
+// Repeated PD：一直 Cooperate 与今天 Defect 的总 payoff 随 δ 变化
+function delta() {
+  let o = '';
+  const sx = lin(0, 0.8, 60, 420), sy = lin(0, 16, 250, 30);
+  o += axes({ sx, sy, x0: 0, x1: 0.8, y0: 0, y1: 16, xt: [0, 0.2, 0.4, 0.5, 0.6, 0.8], yt: [0, 4, 8, 12, 16], grid: true, xl: 'δ', yl: '总 payoff' });
+  const C = (x) => 3 / (1 - x), D = (x) => 4 + (2 * x) / (1 - x);
+  o += path(curve(D, 0, 0.8, sx, sy), 'ink-b') + path(curve(C, 0, 0.8, sx, sy), 'ln');
+  o += text(sx(0.8) + 8, sy(C(0.8)) + 4, 'Cooperate：3/(1−δ)', 'tl') + text(sx(0.8) + 8, sy(D(0.8)) + 4, 'Defect：4 + 2δ/(1−δ)', 'tb');
+  o += line(sx(0.5), sy(0), sx(0.5), sy(6), 'dash') + circle(sx(0.5), sy(6), 4, 'ink-f');
+  o += text(sx(0.5) - 8, sy(6) - 10, 'δ = ½：两边都是 6', 'ts', 'end');
+  for (const x of [0.4, 0.6]) { o += circle(sx(x), sy(C(x)), 3.5, 'ln-f') + circle(sx(x), sy(D(x)), 3.5, 'ink-f'); }
+  o += text(sx(0.4), sy(2.6), '0.4：5 对 5.33', 'ts', 'middle') + text(sx(0.6) + 8, sy(5.5), '0.6：7.5 对 7', 'ts');
+  o += text(sx(0.2), sy(14), 'δ < ½：Defect 高', 'ts', 'middle') + text(sx(0.55), sy(14), 'δ > ½：Cooperate 高', 'ts', 'middle');
+  return svg(560, 290, o, '无限重复的 prisoner’s dilemma：一直 Cooperate 的总 payoff 3/(1−δ) 与今天 Defect 一次的总 payoff 4+2δ/(1−δ) 在 δ 等于二分之一处相交，都是 6；δ 小于一半时 Defect 高，大于一半时 Cooperate 高');
+}
+
+// Transition 与 survival：两个 rate 决定 democracy 的长期比例
+function markov() {
+  let o = '';
+  const panel = (x0, title, b, s) => {
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+    o += rect(x0 + 10, 56, 90, 40, 'wash2', 6) + text(x0 + 55, 81, 'autocracy', 't', 'middle');
+    o += rect(x0 + 160, 56, 90, 40, 'wash', 6) + text(x0 + 205, 81, 'democracy', 't', 'middle');
+    o += arrow(x0 + 102, 64, x0 + 158, 64, 'ln') + text(x0 + 130, 52, 't = 0.02', 'tl', 'middle');
+    o += arrow(x0 + 158, 88, x0 + 102, 88, 'ink') + text(x0 + 130, 112, 'b = ' + b, 'tb', 'middle');
+    const W = 240, y = 146;
+    o += rect(x0 + 10, y, W, 22, 'wash2', 3) + rect(x0 + 10 + W * (1 - s), y, W * s, 22, 'solid', 3);
+    o += text(x0 + 10 + W * (1 - s) + W * s / 2, y + 16, (s * 100).toFixed(0) + '%', 'tw', 'middle');
+    o += text(x0 + 130, y + 44, 's = 0.02 / (0.02 + ' + b + ')', 'ts', 'middle');
+  };
+  panel(10, '穷国', '0.06', 0.02 / 0.08);
+  panel(290, '富国', '0.01', 0.02 / 0.03);
+  o += line(280, 14, 280, 200, 'grid');
+  o += text(280, 226, '上：每年的转移 probability。下：长期稳定下来 democracy 所占的比例（深色）。', 'ts', 'middle');
+  o += text(280, 244, '两边的 t 一样，只有 b 不同，比例就差了一倍多。', 'ts', 'middle');
+  return svg(560, 256, o, '两状态 model：穷国和富国每年由 autocracy 转为 democracy 的 probability 都是 0.02，democracy 退回的 probability 穷国 0.06、富国 0.01，长期 democracy 比例分别是 25% 和 67%');
+}
+
+// New Zealand：1993 plurality 与 1996 MMP
+function nz() {
+  let o = '';
+  const P = [['National', 35.05, 50 / 99, 44 / 120], ['Labour', 34.68, 45 / 99, 37 / 120], ['Alliance', 18.21, 2 / 99, 13 / 120], ['NZ First', 8.4, 2 / 99, 17 / 120], ['ACT', null, null, 8 / 120], ['United', null, null, 1 / 120]];
+  const sy = lin(0, 55, 230, 40);
+  o += axes({ sx: lin(0, 6, 50, 530), sy, x0: 0, x1: 6, y0: 0, y1: 55, yt: [[0, '0%'], [10, '10%'], [20, '20%'], [30, '30%'], [40, '40%'], [50, '50%']], grid: true });
+  const bw = 20;
+  P.forEach(([n, v, s93, s96], i) => {
+    const cx = 50 + (i + 0.5) * 80;
+    const bars = [[v, 'wash2'], [s93 == null ? null : s93 * 100, 'wash-strong'], [s96 * 100, 'solid']];
+    bars.forEach(([val, cls], k) => {
+      if (val == null) return;
+      const x = cx - 31 + k * (bw + 1);
+      o += rect(x, sy(val), bw, sy(0) - sy(val), cls);
+      if (k > 0 || i < 4) o += text(x + bw / 2, sy(val) - 5, val >= 10 ? val.toFixed(0) : val.toFixed(1), 'ts', 'middle');
+    });
+    o += text(cx, 248, n, 'tb', 'middle');
+  });
+  const lg = (x, cls, s) => rect(x, 18, 12, 12, cls) + text(x + 17, 28, s, 'ts');
+  o += lg(250, 'wash2', '1993 vote') + lg(335, 'wash-strong', '1993 seat') + lg(420, 'solid', '1996 seat（MMP）');
+  o += text(290, 278, 'Seat 的 effective number：2.16 → 3.76　　Gallagher index：18.2 → 4.8', 'ts', 'middle');
+  return svg(560, 290, o, 'New Zealand 1993 年最后一次 plurality election 与 1996 年第一次 MMP election：1993 年 Alliance 得 18.21% 的 vote 只有 2% 的 seat，National 和 Labour 的 seat share 远高于 vote share；1996 年 seat 分散到六个 party');
+}
+
+// 英德海军竞赛的时间线
+function naval() {
+  let o = '';
+  o += text(150, 22, 'Britain', 'tb', 'middle') + text(410, 22, 'Germany', 'tb', 'middle');
+  const rows = [
+    ['1898', null, null, 'First Naval Act', '7 年内建 11 艘 battleship'],
+    ['1900', null, null, 'Second Naval Law', '计划大致翻了一倍'],
+    ['1906', 'HMS Dreadnought 下水', '现有 battleship 全部过时', '追加建造', ''],
+    ['1908', null, null, '再次追加', '每年从 3 艘增到 4 艘'],
+    ['1909', '“We want eight”', '折中：先造 4 艘，必要时再 4 艘', null, null],
+    ['1912', 'Haldane Mission：拒绝', '不接受中立的条件', '接受 Britain 优势', '条件是 Britain 中立'],
+  ];
+  const y0 = 50, dy = 40;
+  o += line(280, 34, 280, y0 + rows.length * dy + 40, 'grid');
+  rows.forEach(([yr, b1, b2, g1, g2], i) => {
+    const y = y0 + i * dy;
+    o += rect(258, y - 2, 44, 22, 'paper', 4) + text(280, y + 14, yr, 'tb', 'middle');
+    if (b1) o += text(248, y + 6, b1, 'tl', 'end') + text(248, y + 23, b2, 'ts', 'end');
+    if (g1) o += text(312, y + 6, g1, 'tb') + (g2 ? text(312, y + 23, g2, 'ts') : '');
+  });
+  const y = y0 + rows.length * dy + 6;
+  o += rect(258, y - 2, 44, 22, 'paper', 4) + text(280, y + 14, '1914', 'tb', 'middle');
+  const sq = (x, yy, cls) => rect(x, yy, 7, 12, cls, 1);
+  for (let k = 0; k < 29; k++) o += sq(248 - 8 * (k + 1), y + 3, k < 20 ? 'solid' : 'wash ink-s');
+  for (let k = 0; k < 22; k++) o += sq(312 + 8 * k, y + 3, k < 15 ? 'solid' : 'wash ink-s');
+  o += text(248, y + 38, '20 dreadnought + 9 battlecruiser', 'ts', 'end') + text(312, y + 38, '15 dreadnought + 7 battlecruiser', 'ts');
+  o += text(280, y + 62, '上下只按先后排列，间距不代表时间长短。实心是 dreadnought，空心是 battlecruiser。', 'ts', 'middle');
+  return svg(560, y + 72, o, '1898 到 1914 年英德海军竞赛的时间线：Germany 1898 和 1900 年两次 naval law，1906 年 Britain 的 HMS Dreadnought 下水，1908 年 Germany 把每年建造数提到 4 艘，1909 年 Britain 的 we want eight，1912 年 Haldane Mission 失败；1914 年 Britain 有 20 艘 dreadnought 和 9 艘 battlecruiser，Germany 有 15 艘和 7 艘');
+}
+
+// Bargaining model：range 与 commitment problem
+function bargain() {
+  let o = '';
+  const sx = lin(0, 1, 60, 500), y = 92;
+  o += text(20, 22, '一期：p = 0.6，c_A = c_B = 0.1。横轴是 A 分到的份额 x', 'tb');
+  o += rect(sx(0.5), y - 12, sx(0.7) - sx(0.5), 24, 'wash-strong');
+  o += line(sx(0), y, sx(1), y, 'axis');
+  for (const v of [0, 0.5, 0.6, 0.7, 1]) o += line(sx(v), y - 4, sx(v), y + 4, 'axis') + text(sx(v), y + 28, String(v), 'ts', 'middle');
+  o += text(sx(0), y + 44, '全部归 B', 'ts', 'middle') + text(sx(1), y + 44, '全部归 A', 'ts', 'middle');
+  o += text(sx(0.6), y + 46, 'bargaining range', 'tl', 'middle');
+  o += arrow(sx(0.5), y - 26, sx(0.82), y - 26, 'ink') + text(sx(0.5) - 6, y - 22, 'A 接受：x ≥ p − c_A = 0.5', 'ts', 'end');
+  o += arrow(sx(0.7), y - 46, sx(0.38), y - 46, 'ink') + text(sx(0.7) + 6, y - 42, 'B 接受：x ≤ p + c_B = 0.7', 'ts');
+  o += line(20, 160, 540, 160, 'grid');
+  o += text(20, 186, '两期：p₁ = 0.3，p₂ = 0.7，c_B = 0.1。B 两期合计能拿到多少', 'tb');
+  const bx = lin(0, 1.5, 200, 520);
+  const bar = (yy, v, lab, cls, note) => rect(bx(0), yy, bx(v) - bx(0), 22, cls, 3) + text(190, yy + 16, lab, 't', 'end') + text(bx(v) + 6, yy + 16, note, 'tb');
+  o += bar(202, 1.3, '现在开战', 'solid', '1.3');
+  o += bar(234, 1.2, '接受，且 A 第一期全让', 'wash-strong', '1.2');
+  o += line(bx(0), 198, bx(0), 260, 'axis');
+  o += text(280, 284, '一期时 range 总是非空；两期时 A 让到底也比不上 B 现在开战：preventive war。', 'ts', 'middle');
+  return svg(560, 294, o, 'Bargaining model：一期时 A 接受 x 不小于 0.5，B 接受 x 不大于 0.7，双方都宁愿和平的分法是 0.5 到 0.7；两期 commitment problem 中，B 现在开战得 1.3，即使 A 第一期全部让出 B 也只得 1.2，所以 B 选择开战');
+}
+
 export default {
   'ps1101e-faces': faces,
   'ps1101e-pd': pd,
@@ -231,4 +346,9 @@ export default {
   'ps1101e-seats': seats,
   'ps1101e-games': games,
   'ps1101e-spiral': spiral,
+  'ps1101e-delta': delta,
+  'ps1101e-markov': markov,
+  'ps1101e-nz': nz,
+  'ps1101e-naval': naval,
+  'ps1101e-bargain': bargain,
 };

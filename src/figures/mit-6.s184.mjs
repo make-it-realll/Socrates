@@ -325,6 +325,73 @@ function latent() {
   return svg(560, 256, o, 'Latent diffusion 的流程：先 train VAE，把图像编码成 latent；在 latent 上做 flow matching；sampling 时先在 latent 里解 ODE，再用 decoder decode成图像');
 }
 
+// ---------- 开头第一次失败：一步 regression 把每个 noise 送到 mean ----------
+function fail1() {
+  const pd = (x) => 0.5 * npdf(x, -2, 0.25) + 0.5 * npdf(x, 2, 0.25);
+  const sx = lin(-4, 4, 50, 400), sy = lin(0, 0.85, 210, 30);
+  let o = path(area(pd, -4, 4, sx, sy, 0, 300), 'wash') + path(curve(pd, -4, 4, sx, sy, 300), 'ln');
+  o += path(curve((x) => npdf(x, 0, 1), -4, 4, sx, sy, 200), 'dash');
+  o += axes({ sx, sy, x0: -4, x1: 4, y0: 0, y1: 0.85, xt: [[-2, '−2'], [0, '0'], [2, '2']], yt: [] });
+  o += line(sx(0), sy(0), sx(0), sy(0.72), 'ink-b') + circle(sx(0), sy(0), 4.5, 'ink-f');
+  o += text(sx(0), sy(0.72) - 8, 'every output = E[z] = 0', 'tb', 'middle');
+  o += text(sx(-2.75), sy(0.6), 'p_data', 'tl', 'end') + text(sx(2.75), sy(0.6), 'p_data', 'tl', 'start');
+  o += text(sx(-3.9), sy(0.28), 'input noise', 'ts') + text(sx(-3.9), sy(0.28) + 14, 'ε ~ N(0, 1)（虚线）', 'ts');
+  o += text(416, 70, 'Loss：(output − z)²', 't') + text(416, 88, 'z 与 ε independent', 'ts');
+  o += text(416, 120, '最优 output 是 E[z] = 0', 't') + text(416, 138, '与 ε 无关', 'ts');
+  o += text(416, 170, 'p_data(0) = ' + pd(0).toFixed(4), 't') + text(416, 188, '几乎没有 data', 'ts');
+  o += text(280, 248, '不管 network 多大，一步 regression 都把所有 noise 送到两个 bump 中间', 'ts', 'middle');
+  return svg(560, 258, o, '两个 bump 的 data distribution 和 standard normal noise；一步 regression 的最优解把所有 noise 都映射到 0，那里几乎没有 data');
+}
+
+// ---------- 第 6 站：t = 0.5 时 CFG 的 field 只在类别模糊处放大 ----------
+function cfgField() {
+  const t = 0.5, w = 4;
+  const sx = lin(-3, 3, 50, 380), sy = lin(-6, 14, 230, 24);
+  let o = line(sx(-3), sy(0), sx(3), sy(0), 'grid');
+  o += axes({ sx, sy, x0: -3, x1: 3, y0: -6, y1: 14, xt: [[-2, '−2'], [0, '0'], [1, '1'], [2, '2']], yt: [[-5, '−5'], [0, '0'], [5, '5'], [10, '10']] });
+  o += text(sx(3) + 4, sy(-6) + 4, it('x'), 't');
+  o += path(curve((x) => uG(x, t), -3, 3, sx, sy, 300), 'mute') + path(curve((x) => uPlus(x, t), -3, 3, sx, sy, 300), 'ink-b');
+  const cf = (x) => (1 - w) * uG(x, t) + w * uPlus(x, t);
+  let xa = -3; while (cf(xa) > 14) xa += 0.001;
+  o += path(curve(cf, xa, 3, sx, sy, 300), 'ln');
+  for (const x of [0, 1]) {
+    o += line(sx(x), sy(-6), sx(x), sy(Math.max(cf(x), uPlus(x, t))), 'grid');
+    o += circle(sx(x), sy(uG(x, t)), 3.5, 'ink-f') + circle(sx(x), sy(uPlus(x, t)), 3.5, 'ink-f') + circle(sx(x), sy(cf(x)), 4.5, 'ln-f');
+  }
+  o += text(sx(0) + 8, sy(cf(0)) + 4, cf(0).toFixed(1), 'tl');
+  o += text(sx(1) + 8, sy(cf(1)) - 8, cf(1).toFixed(4), 'tl');
+  o += text(398, 44, 't = 0.5，w = 4', 'tb');
+  o += text(398, 70, '灰线：u(x | ∅)', 't') + text(398, 88, '黑粗线：u(x | +)', 't') + text(398, 106, '彩线：(1 − w)u(x | ∅)', 't') + text(398, 122, '　　　+ w·u(x | +)', 't');
+  o += text(398, 156, 'x = 0：u(x | ∅) = 0，', 'ts') + text(398, 172, '差值 3.2 被放大到 12.8', 'ts');
+  o += text(398, 198, 'x = 1：两条几乎相同，', 'ts') + text(398, 214, 'guidance 几乎不起作用', 'ts');
+  o += text(280, 262, '−3 · 1.9894 + 4 · 2.0 = 2.0318；CFG 只在两类还分不清的地方使劲', 'ts', 'middle');
+  return svg(560, 272, o, '在 t 等于 0.5 时，unguided field、class 正的 guided field 和 w 等于 4 的 CFG field 随 x 的变化；CFG field 在 x 接近 0 处远大于另两条，在 x 等于 1 处与 guided field 几乎相同');
+}
+
+// ---------- 第 5 站：x = 0.6、t = 0.5 处四个量在一条数轴上 ----------
+function fourQ() {
+  const t = 0.5, x = 0.6, v = vt(t), wk = post(x, t);
+  const Dk = MU.map((m) => m + ((t * S * S) / v) * (x - t * m));
+  const D = wk[0] * Dk[0] + wk[1] * Dk[1], eh = (x - t * D) / (1 - t);
+  const sx = lin(-2.5, 2.5, 40, 520);
+  let o = line(sx(-2.5), 110, sx(2.5), 110, 'axis');
+  for (const v2 of [-2, -1, 0, 1, 2]) o += line(sx(v2), 110, sx(v2), 114, 'axis') + text(sx(v2), 128, String(v2).replace('-', '−'), 'ts', 'middle');
+  const lab = (val, s, cls, dy, anc = 'middle') => circle(sx(val), 110, 5, cls) + text(sx(val), 110 + dy, s, cls === 'ln-f' ? 'tl' : 'tb', anc);
+  // component 内的 posterior mean，按 weight 合成 D
+  o += circle(sx(Dk[0]), 110, 3.5, 'mute-f') + circle(sx(Dk[1]), 110, 3.5, 'mute-f');
+  const kL = MU[0] < 0 ? 0 : 1, kR = 1 - kL;
+  o += text(sx(Dk[kL]), 150, 'E[z | x, −] = ' + Dk[kL].toFixed(2), 'ts', 'middle') + text(sx(Dk[kL]), 166, 'weight ' + wk[kL].toFixed(5), 'ts', 'middle');
+  o += text(520, 150, 'E[z | x, +] = ' + Dk[kR].toFixed(2), 'ts', 'end') + text(520, 166, 'weight ' + wk[kR].toFixed(5), 'ts', 'end');
+  o += lab(eh, 'ε̂ = ' + eh.toFixed(4), 'ink-f', -14) + lab(x, 'x = ' + x, 'ln-f', -14) + lab(D, 'D = ' + D.toFixed(4), 'ink-f', -30);
+  // x = tD + (1 − t)ε̂：x 是 ε̂ 与 D 的中点
+  o += path(`M${sx(eh)} 100 Q${(sx(eh) + sx(x)) / 2} 78 ${sx(x)} 100`, 'dash') + path(`M${sx(x)} 100 Q${(sx(x) + sx(D)) / 2} 78 ${sx(D)} 100`, 'dash');
+  o += text(sx(x), 42, 'x = 0.5·D + 0.5·ε̂（t = 0.5）', 't', 'middle');
+  // u = D − ε̂
+  o += arrow(sx(eh), 196, sx(D), 196, 'ln') + text((sx(eh) + sx(D)) / 2, 214, 'u = D − ε̂ = ' + (D - eh).toFixed(4), 'tl', 'middle');
+  o += text(280, 240, 'score = −ε̂ / β_t = ' + (-eh / (1 - t)).toFixed(4) + '，与 Tweedie (αD − x)/β² 相同', 'ts', 'middle');
+  return svg(560, 252, o, '在 t 等于 0.5、x 等于 0.6 处，predicted noise、x 和 denoiser output D 在一条数轴上，x 是两者的中点，vector field 等于 D 减去 predicted noise');
+}
+
 export default {
   'mit6s184-ou': ou,
   'mit6s184-paths': paths,
@@ -337,4 +404,7 @@ export default {
   'mit6s184-cfg': cfg,
   'mit6s184-dit': dit,
   'mit6s184-latent': latent,
+  'mit6s184-fail1': fail1,
+  'mit6s184-cfgfield': cfgField,
+  'mit6s184-four': fourQ,
 };

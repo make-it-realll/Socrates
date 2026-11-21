@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 // 全页共用的那个 market：demand P = 70 − Q，supply（也就是 MC）P = 10 + 2Q。Q 的单位是千卷，P 的单位是元。
 const PD = (q) => 70 - q;
@@ -251,6 +251,108 @@ function band() {
   return svg(560, 304, o, 'S$NEER policy band 的三个可调参数示意：slope 是 band 随时间升值的速度，centre 是整条 band 的水平位置，width 是 band 的宽度');
 }
 
+// 11. Price ceiling 44：quantity 由 supply 一边决定，17 千卷
+function ceiling() {
+  const sx = lin(0, 36, 60, 340), sy = lin(0, 75, 262, 28);
+  let o = '';
+  o += poly([[sx(0), sy(70)], [sx(17), sy(53)], [sx(17), sy(44)], [sx(0), sy(44)]], 'wash');
+  o += rect(sx(0), sy(50), sx(17) - sx(0), sy(44) - sy(50), 'wash-strong');
+  o += poly([[sx(0), sy(44)], [sx(17), sy(44)], [sx(0), sy(10)]], 'wash2');
+  o += poly([[sx(17), sy(53)], [sx(20), sy(50)], [sx(17), sy(44)]], 'solid2');
+  o += line(sx(17), sy(53), sx(17), sy(0), 'grid') + line(sx(26), sy(44), sx(26), sy(0), 'grid') + line(sx(0), sy(53), sx(17), sy(53), 'grid') + line(sx(0), sy(50), sx(20), sy(50), 'grid');
+  o += axes({ sx, sy, x0: 0, x1: 36, y0: 0, y1: 75, xt: [17, 20, 26], yt: [10, 44, 50, 53, 70], xl: 'quantity Q（千卷 / 周）', yl: 'price P（元 / 卷）' });
+  o += line(sx(0), sy(44), sx(36), sy(44), 'ln-dash');
+  o += seg(PS, 0, 32.5, sx, sy, 'ink-b') + seg(PD, 0, 36, sx, sy, 'ln');
+  o += dot(sx, sy, 17, 44) + dot(sx, sy, 26, 44) + dot(sx, sy, 17, 53, 'ln-f', 3.5) + circle(sx(20), sy(50), 3.5, 'ink paper-f');
+  const by = sy(44) + 12;
+  o += line(sx(17), by, sx(26), by, 'mute') + line(sx(17), by - 4, sx(17), by + 4, 'mute') + line(sx(26), by - 4, sx(26), by + 4, 'mute');
+  o += text(sx(21.5), by + 15, 'shortage 9', 'ts', 'middle');
+  o += text(sx(6), sy(56.5), 'CS 297.5', 't', 'middle') + text(sx(8.5), sy(47) + 4, 'transfer 102', 'ts', 'middle') + text(sx(5.6), sy(32) + 4, 'PS 289', 't', 'middle');
+  o += text(sx(31.5), sy(PS(31.5)) + 22, 'S', 'tb') + text(sx(34), sy(PD(34)) - 9, 'D', 'tl');
+  o += text(sx(35.8), sy(44) - 7, 'ceiling 44', 'tl', 'end');
+  const tx = 362;
+  o += text(tx, 54, 'Price ceiling：P ≤ 44', 'tb');
+  o += text(tx, 80, 'Seller 只肯卖 17，', 't') + text(tx, 99, 'buyer 想买 26，缺 9。', 't');
+  o += text(tx, 128, '深色小三角形：第 17 到 20', 'ts') + text(tx, 145, '千卷不再成交，DWL 13.5。', 'ts');
+  o += text(tx, 172, '浅色：货落到愿付最高的', 'ts') + text(tx, 189, 'buyer 手里时的 CS 297.5，', 'ts') + text(tx, 206, '其中 102 原来属于 seller。', 'ts');
+  o += text(tx, 234, '随机分给 26 千卷的需求：', 'ts') + text(tx, 251, 'CS 只剩 221，total 510。', 'ts');
+  return svg(560, 300, o, 'Price ceiling 定在 44：seller 只卖 17 千卷，buyer 想买 26 千卷，缺 9 千卷；图中标出 consumer surplus、从 seller 转给 buyer 的 102、producer surplus 289 和 deadweight loss 三角形');
+}
+
+// 12. Public good：三户的 marginal benefit 竖着加，和每盏灯的 cost 30 相交在 q = 6
+function pubgood() {
+  const sx = lin(0, 20, 60, 330), sy = lin(0, 50, 262, 28);
+  const SUM = (q) => (q <= 12 ? 48 - 3 * q : q <= 16 ? 36 - 2 * q : 20 - q);
+  let o = poly([[sx(0), sy(48)], [sx(6), sy(30)], [sx(0), sy(30)]], 'wash');
+  o += line(sx(6), sy(30), sx(6), sy(0), 'grid');
+  o += axes({ sx, sy, x0: 0, x1: 20, y0: 0, y1: 50, xt: [6, 12, 16, 20], yt: [6, 10, 14, 20, 30, 48], xl: '路灯数 q', yl: '元 / 盏' });
+  o += line(sx(0), sy(30), 496, sy(30), 'ln-dash');
+  o += seg((q) => 20 - q, 0, 20, sx, sy, 'mute') + seg((q) => 16 - q, 0, 16, sx, sy, 'mute') + seg((q) => 12 - q, 0, 12, sx, sy, 'mute');
+  o += path(curve(SUM, 0, 20, sx, sy, 80), 'ln');
+  for (const v of [14, 10, 6]) o += dot(sx, sy, 6, v, 'ink-f', 3.5);
+  o += dot(sx, sy, 6, 30, 'ln-f', 4.5);
+  o += text(sx(10.5), sy(23), '三户之和 48 − 3q', 'tl');
+  o += line(sx(2), sy(33.5), sx(6.4), sy(37), 'mute') + text(sx(6.6), sy(37.6), 'surplus 54', 'ts');
+  o += text(sx(19.8), sy(30) - 7, 'cost 30', 'tl', 'end');
+  // 右边：第 6 盏灯的三份 marginal benefit 叠起来，正好到 30
+  const bx = 470, bw = 26;
+  o += rect(bx, sy(6), bw, sy(0) - sy(6), 'wash2') + rect(bx, sy(16), bw, sy(6) - sy(16), 'wash') + rect(bx, sy(30), bw, sy(16) - sy(30), 'wash-strong');
+  o += rect(bx, sy(30), bw, sy(0) - sy(30), 'frame');
+  o += text(bx + bw + 7, (sy(0) + sy(6)) / 2 + 4, 'C：6', 'ts') + text(bx + bw + 7, (sy(6) + sy(16)) / 2 + 4, 'B：10', 'ts') + text(bx + bw + 7, (sy(16) + sy(30)) / 2 + 4, 'A：14', 'ts');
+  o += text(bx + bw / 2, sy(0) + 17, '第 6 盏', 'ts', 'middle');
+  const tx = 352;
+  o += text(tx, 46, '一户自己装：第一盏最多', 'ts') + text(tx, 63, '值 20 < 30，没人装，q = 0。', 'ts');
+  o += text(tx, 92, 'Efficient：48 − 3q = 30，q = 6', 'tb');
+  o += text(tx, 150, '三条灰线从上到下：', 'ts');
+  o += text(tx, 168, 'MB' + sub('A') + ' = 20 − q', 'ts') + text(tx, 186, 'MB' + sub('B') + ' = 16 − q', 'ts') + text(tx, 204, 'MB' + sub('C') + ' = 12 − q', 'ts');
+  return svg(560, 300, o, '三户各自的 marginal benefit 是三条向下的直线，竖着加起来是 48 减 3q；它和每盏灯的 cost 30 相交在 q 等于 6，第 6 盏灯给三户的好处分别是 14、10、6');
+}
+
+// 13. 成年人口分成三类；1 百万人灰心不找了，unemployment rate 下降而没有人多找到工作
+function labor() {
+  const sx = lin(0, 262.029, 30, 530);
+  let o = '';
+  const row = (y, title, U, N, rate, part) => {
+    const e = 155.175;
+    o += text(30, y - 30, title, 'tb');
+    o += rect(sx(0), y, sx(e) - sx(0), 30, 'solid') + rect(sx(e), y, sx(e + U) - sx(e), 30, 'ln-f') + rect(sx(e + U), y, sx(262.029) - sx(e + U), 30, 'wash2');
+    o += text((sx(0) + sx(e)) / 2, y + 20, 'employed 155.175', 'tw', 'middle');
+    o += text((sx(e + U) + sx(262.029)) / 2, y + 20, 'not in labor force ' + N, 't', 'middle');
+    o += line(sx(e + U / 2), y + 30, sx(e + U / 2), y + 44, 'mute') + text(sx(e + U / 2), y + 57, 'unemployed ' + f(U), 'ts', 'middle');
+    const ly = y - 9;
+    o += line(sx(0), ly, sx(e + U), ly, 'ink') + line(sx(0), ly, sx(0), ly + 5, 'ink') + line(sx(e + U), ly, sx(e + U), ly + 5, 'ink');
+    o += text(sx(e + U) - 4, ly - 6, 'labor force ' + f(e + U), 'ts', 'end');
+    o += text(30, y + 80, 'unemployment rate = ' + f(U) + ' / ' + f(e + U) + ' = ' + rate + '，participation rate = ' + part, 't');
+  };
+  const f = (v) => v.toFixed(3);
+  row(58, '原来（2021 年 11 月，百万人）', 6.877, '99.977', '4.24%', '61.85%');
+  row(196, '1 百万 unemployed 灰心，不再找工作之后', 5.877, '100.977', '3.65%', '61.46%');
+  o += text(280, 312, '成年人口 262.029 不变，employed 也一个没多。变的只是分子和分母里各少了 1 百万。', 'ts', 'middle');
+  return svg(560, 322, o, '成年人口 262.029 百万分成 employed、unemployed 和 not in labor force 三段；1 百万 unemployed 转入 not in labor force 后，unemployment rate 从 4.24% 降到 3.65%，employed 人数不变');
+}
+
+// 14. Supply shock：SRAS 左移，price 升、output 降；demand-side policy 只能在 SRAS′ 上选一个点
+function stagflation() {
+  const sx = lin(880, 1060, 62, 340), sy = lin(85, 130, 262, 28);
+  const AD = (y) => (1400 - y) / 4, S0 = (y) => (y - 600) / 4, S1 = (y) => (y - 520) / 4;
+  let o = line(sx(1000), sy(85), sx(1000), sy(130), 'dash');
+  o += line(sx(880), sy(110), sx(960), sy(110), 'grid') + line(sx(960), sy(110), sx(960), sy(85), 'grid') + line(sx(880), sy(120), sx(1000), sy(120), 'grid') + line(sx(880), sy(100), sx(1000), sy(100), 'grid') + line(sx(920), sy(100), sx(920), sy(85), 'grid');
+  o += axes({ sx, sy, x0: 880, x1: 1060, y0: 85, y1: 130, xt: [920, 960, 1000], yt: [100, 110, 120], xl: 'real GDP Y', yl: 'price level P' });
+  o += seg(S0, 940, 1056, sx, sy, 'ink-b') + seg(S1, 880, 1040, sx, sy, 'ink-b') + seg(AD, 880, 1060, sx, sy, 'ln');
+  o += arrow(sx(1008), sy(102.5), sx(933), sy(102.5), 'mute') + text(sx(962), sy(103.6), '−80', 'ts', 'middle');
+  o += circle(sx(1000), sy(100), 4, 'ink paper-f') + dot(sx, sy, 960, 110, 'ln-f', 4.5) + dot(sx, sy, 1000, 120, 'ink-f', 3.5) + dot(sx, sy, 920, 100, 'ink-f', 3.5);
+  o += text(sx(1048), sy(114.5), 'SRAS', 'tb', 'end') + text(sx(995), sy(121), 'SRAS′', 'tb', 'end') + text(sx(884), sy(AD(884)) + 22, 'AD', 'tl');
+  o += text(sx(1004), sy(128), 'LRAS', 'ts');
+  o += text(sx(1000) + 9, sy(120) + 14, '(1000, 120)', 'ts') + text(sx(920) + 8, sy(100) + 16, '(920, 100)', 'ts');
+  const tx = 362;
+  o += text(tx, 54, 'Oil 涨价：SRAS 左移 80', 'tb') + text(tx, 74, 'Y = 520 + 4P', 't');
+  o += text(tx, 104, 'AD 不变：P = 110，Y = 960', 'tl') + text(tx, 124, 'Price 升、output 降：stagflation', 'ts');
+  o += text(tx, 156, 'Policy 移动 AD，只能在 SRAS′ 上', 'ts') + text(tx, 173, '换一个点：', 'ts');
+  o += text(tx, 197, 'Output 回到 1000 → P = 120', 't') + text(tx, 219, 'Price 回到 100 → Y = 920', 't');
+  o += text(tx, 249, '不能同时回到 (1000, 100)。', 'ts');
+  return svg(560, 300, o, 'Supply shock 使 SRAS 左移 80，与不变的 AD 相交在 output 960、price level 110；沿新的 SRAS，让 output 回到 1000 要 price level 120，让 price level 回到 100 则 output 只有 920');
+}
+
 export default {
   'ec1101e-ppf': ppf,
   'ec1101e-sd': sd,
@@ -262,4 +364,8 @@ export default {
   'ec1101e-extern': extern,
   'ec1101e-adas': adas,
   'ec1101e-band': band,
+  'ec1101e-ceiling': ceiling,
+  'ec1101e-pubgood': pubgood,
+  'ec1101e-labor': labor,
+  'ec1101e-stagflation': stagflation,
 };

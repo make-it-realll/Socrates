@@ -5,7 +5,7 @@ export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 export const f1 = (v) => (Math.round(v * 10) / 10).toString();
 
 export function svg(w, h, body, label) {
-  return `<svg class="fig-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${body}</svg>`;
+  return `<svg class="fig-svg" viewBox="-4 -6 ${w + 8} ${h + 12}" role="img" aria-label="${esc(label)}">${body}</svg>`;
 }
 export const lin = (d0, d1, r0, r1) => (v) => r0 + ((v - d0) * (r1 - r0)) / (d1 - d0);
 export const logx = (d0, d1, r0, r1) => (v) => r0 + ((Math.log10(v) - Math.log10(d0)) * (r1 - r0)) / (Math.log10(d1) - Math.log10(d0));
@@ -69,3 +69,18 @@ export function axes({ sx, sy, x0, x1, y0, y1, xt = [], yt = [], xl = '', yl = '
   if (yl) o += text(ax - 4, sy(y1) - 8, yl, 'ts', 'start');
   return o;
 }
+
+// ---------- 动图（SMIL）：一组 keyframe 值，循环播放 ----------
+// svgA 和 svg 一样，只是多一个 class，app.js 用它做“点一下暂停”和 reduced-motion。
+export function svgA(w, h, body, label) {
+  return `<svg class="fig-svg fig-anim" viewBox="-4 -6 ${w + 8} ${h + 12}" role="img" aria-label="${esc(label)}">${body}</svg>`;
+}
+// anim(attr, values, kt, dur, discrete)：values 和 kt（0..1 的 keyTimes）一一对应
+export const anim = (attr, values, kt, dur, discrete = false) =>
+  `<animate attributeName="${attr}" values="${values.join(';')}" keyTimes="${kt.map((t) => (Math.round(t * 1e5) / 1e5).toString()).join(';')}" dur="${dur}s" repeatCount="indefinite" calcMode="${discrete ? 'discrete' : 'linear'}"/>`;
+export const animRot = (angles, cx, cy, kt, dur) =>
+  `<animateTransform attributeName="transform" type="rotate" values="${angles.map((a) => f1(a) + ' ' + f1(cx) + ' ' + f1(cy)).join(';')}" keyTimes="${kt.map((t) => (Math.round(t * 1e5) / 1e5).toString()).join(';')}" dur="${dur}s" repeatCount="indefinite"/>`;
+// 带动画的 path / circle / text：第一个值就是静态时（截图、reduced-motion）显示的样子
+export const apath = (ds, kt, dur, cls, discrete = false) => `<path d="${ds[0]}" class="${cls}">${anim('d', ds, kt, dur, discrete)}</path>`;
+export const acircle = (xs, ys, kt, dur, r, cls) => `<circle cx="${f1(xs[0])}" cy="${f1(ys[0])}" r="${r}" class="${cls}">${anim('cx', xs.map(f1), kt, dur)}${anim('cy', ys.map(f1), kt, dur)}</circle>`;
+export const ashow = (on, kt, dur) => anim('opacity', on.map((v) => (v ? 1 : 0)), kt, dur, true);

@@ -238,6 +238,116 @@ function seeds() {
   return svg(560, 294, o, '同一份 PPO 代码在 CartPole 上跑 10 个 seed，按 seed 分成两组，两组平均的 learning curve 看起来像两个不同的 algorithm');
 }
 
+// ---------- 第 1 站：λ 实验用的 21-state random walk ----------
+function walk() {
+  const N = 21, p = 0.6, g = 0.98;
+  // DP：两端是 terminal，进入右端得 1
+  let V = new Array(N).fill(0);
+  for (let it2 = 0; it2 < 5000; it2++) {
+    const W = V.slice();
+    for (let s2 = 1; s2 < N - 1; s2++) W[s2] = p * ((s2 + 1 === N - 1 ? 1 : 0) + g * V[s2 + 1]) + (1 - p) * g * V[s2 - 1];
+    V = W;
+  }
+  const sx = (i) => 56 + i * 23.5, y = 70;
+  let o = '';
+  for (let i = 0; i < N; i++) {
+    const term = i === 0 || i === N - 1;
+    o += term ? rect(sx(i) - 9, y - 9, 18, 18, 'wash2', 2) : circle(sx(i), y, 8, i === 10 ? 'solid' : 'paper');
+  }
+  o += text(sx(10), y - 18, 'start', 'tl', 'middle');
+  o += arrow(sx(10) + 10, y + 22, sx(11) + 2, y + 22, 'ln') + text(sx(11) + 6, y + 27, '0.6', 'ts');
+  o += arrow(sx(10) - 10, y + 22, sx(9) - 2, y + 22, 'mute') + text(sx(9) - 6, y + 27, '0.4', 'ts', 'end');
+  o += text(sx(N - 1), y - 18, 'r = +1', 'tl', 'middle') + text(sx(0), y - 18, 'r = 0', 'ts', 'middle');
+  o += text(sx(0), y + 30, 'end', 'ts', 'middle') + text(sx(N - 1), y + 30, 'end', 'ts', 'middle');
+  // true V（DP）
+  const sy = lin(0, 1, 230, 130);
+  o += line(sx(0) - 10, sy(0), sx(N - 1) + 10, sy(0), 'axis');
+  for (const v of [0, 0.5, 1]) o += line(sx(0) - 14, sy(v), sx(0) - 10, sy(v), 'axis') + text(sx(0) - 16, sy(v) + 4, String(v), 'ts', 'end');
+  for (let i = 1; i < N - 1; i++) o += rect(sx(i) - 7, sy(V[i]), 14, sy(0) - sy(V[i]), i === 10 ? 'solid' : 'wash-strong');
+  o += text(sx(10), sy(V[10]) - 8, V[10].toFixed(3), 'tl', 'middle');
+  o += text(sx(1), 124, '真实的 V(s)（γ = 0.98，dynamic programming）；critic = V + 固定的 N(0, 0.1) error', 'ts');
+  return svg(560, 246, o, '21 个 state 排成一条线的 random walk：从中间出发，向右的 probability 0.6，走到右端 reward 1，两端都结束；下方是用 dynamic programming 算出的真实 value');
+}
+
+// ---------- 第 2 站：24 步一段时，段末 bootstrap 在每个位置的 coefficient ----------
+function segCoef() {
+  const g = 0.99, lam = 0.95, T = 24;
+  const c = (t) => g * (g * lam) ** (T - 1 - t);
+  const avg = Array.from({ length: T }, (_, t) => c(t)).reduce((a, b) => a + b, 0) / T;
+  const sx = lin(-0.5, 23.5, 60, 520), sy = lin(0, 1, 210, 40);
+  let o = axes({ sx, sy, x0: -0.5, x1: 23.5, y0: 0, y1: 1, xt: [0, 5, 10, 15, 20, 23], yt: [0, 0.5, 1], xl: 't（这一段里的第几步）', yl: 'V(s₂₄) 在 Â_t 里的 coefficient' });
+  for (let t = 0; t < T; t++) o += rect(sx(t) - 7, sy(c(t)), 14, sy(0) - sy(c(t)), 'wash-strong');
+  o += line(sx(-0.5), sy(avg), sx(23.5), sy(avg), 'dash') + text(sx(1), sy(avg) - 6, '24 个位置平均 ' + avg.toFixed(2), 'ts');
+  o += text(sx(0) - 6, sy(c(0)) - 10, c(0).toFixed(2), 'tl') + text(sx(23), sy(c(23)) - 6, c(23).toFixed(2), 'tl', 'middle');
+  o += text(290, 262, 'γ(γλ)^(23 − t)，γλ = 0.99 × 0.95 = 0.9405', 'ts', 'middle');
+  return svg(560, 272, o, '一段 24 步的 trajectory 里，段末 critic value 在每一步 advantage 中的 coefficient：第 0 步是 0.24，第 23 步是 0.99，平均 0.53');
+}
+
+// ---------- 第 6 站：DPPO 的两层 MDP ----------
+function dppo() {
+  let o = '';
+  const sY = 50;
+  const xs = [40, 290, 520];
+  o += circle(xs[0], sY, 18, 'paper') + text(xs[0], sY + 5, 's_t', 'tb', 'middle');
+  o += circle(xs[2], sY, 18, 'paper') + text(xs[2], sY + 5, 's_t+1', 'tb', 'middle');
+  o += arrow(58, sY, 502, sY, 'ink') + text(290, sY - 10, 'environment 执行 a_t = a⁰，拿到 reward', 'ts', 'middle');
+  // 内层：denoising chain
+  const ks = ['a^K', 'a^K−1', '…', 'a¹', 'a⁰'];
+  const kx = (i) => 90 + i * 95, ky = 116;
+  o += rect(60, 100, 440, 100, 'wash', 8) + text(150, 186, '内层：K 步 denoising，每一步都是一次 Gaussian 的 “action”', 'tl');
+  ks.forEach((s2, i) => {
+    if (s2 === '…') { o += text(kx(i), ky + 18, '…', 'tb', 'middle'); return; }
+    o += rect(kx(i) - 28, ky, 56, 28, i === ks.length - 1 ? 'solid' : 'paper', 5) + text(kx(i), ky + 19, s2, i === ks.length - 1 ? 'tw' : 't', 'middle');
+    if (i < ks.length - 1) o += arrow(kx(i) + 29, ky + 14, kx(i + 1) - (ks[i + 1] === '…' ? 14 : 30), ky + 14, 'ink');
+    if (ks[i - 1] === '…') o += arrow(kx(i - 1) + 14, ky + 14, kx(i) - 30, ky + 14, 'ink');
+  });
+  o += line(xs[0], sY + 18, 90, ky, 'mute') + line(kx(4), ky, 510, sY + 16, 'mute');
+  o += text(kx(0), ky + 46, '~ N(0, I)', 'ts', 'middle');
+  o += text(60, 222, 'a^(k−1) ~ N(μ_θ(a^k, k, s_t), σ_k² I)：每步的 log-probability 有 closed form', 't');
+  o += text(60, 242, 'log π_θ(整条链 | s_t) = 各步之和；advantage 只看外层的 environment', 't');
+  return svg(560, 256, o, 'DPPO 把 environment 的 MDP 和 denoising 的 MDP 叠成两层：外层每一步执行一个 action，内层从 Gaussian noise 经过 K 步 Gaussian denoising 得到这个 action');
+}
+
+// ---------- 第 6 站：RECAP 的 advantage conditioning ----------
+function recap() {
+  const pi = [0.5, 0.3, 0.2], A = [0, -0.2, 0.3], sd = 0.3;
+  const erf = (x) => { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; };
+  const Phi = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+  const P = A.map((a) => Phi(a / sd));
+  const norm = (v) => { const z = v.reduce((a, b) => a + b, 0); return v.map((x) => x / z); };
+  const c1 = norm(pi.map((x, i) => x * P[i])), c3 = norm(pi.map((x, i) => x * P[i] ** 3));
+  const meanA = (q) => q.reduce((a, x, i) => a + x * A[i], 0);
+  const groups = [['data 里的 policy', pi, 'wash2'], ['conditioned on I = 1', c1, 'wash-strong'], ['P(I=1|a) 取 3 次方', c3, 'solid']];
+  const sy = lin(0, 0.7, 200, 40), gx = (k) => 70 + k * 160;
+  let o = line(50, sy(0), 540, sy(0), 'axis');
+  groups.forEach(([lab, q, cls], k) => {
+    q.forEach((v, i) => {
+      const x = gx(k) + i * 40;
+      o += rect(x, sy(v), 30, sy(0) - sy(v), cls) + text(x + 15, sy(v) - 5, v.toFixed(3), 'ts', 'middle') + text(x + 15, sy(0) + 15, 'a' + (i + 1), 'ts', 'middle');
+    });
+    o += text(gx(k) + 55, sy(0) + 34, lab, 'tb', 'middle') + text(gx(k) + 55, sy(0) + 50, '平均 advantage ' + meanA(q).toFixed(3), 'ts', 'middle');
+  });
+  o += text(50, 24, `真实 advantage A = (0, −0.2, 0.3)；Â = A + N(0, 0.3²)；P(I=1 | a) = Φ(A/0.3) = (${P.map((x) => x.toFixed(3)).join(', ')})`, 'ts');
+  return svg(560, 262, o, '三个 action 的例子：data 里的 policy 是 0.5、0.3、0.2，按 P(I=1|a) 重新加权后变成 0.506、0.153、0.341，取三次方后变成 0.335、0.026、0.639，平均 advantage 依次升高');
+}
+
+// ---------- 第 7 站：(B,1) 减 (B,) 被 broadcast 成 (B,B) ----------
+function bcast() {
+  const B = 4, c = 44, x0 = 200, y0 = 64;
+  let o = text(30, 28, 'q.shape = (B, 1)', 'tb') + text(200, 28, 'y.shape = (B,)', 'tb') + text(390, 28, '(q − y).shape = (B, B)', 'tl');
+  for (let i = 0; i < B; i++) o += rect(60, y0 + i * c, 50, c, 'paper') + text(85, y0 + i * c + 27, 'q' + (i + 1), 't', 'middle');
+  for (let j = 0; j < B; j++) o += rect(x0 + j * c, 38, c, 22, 'wash2') + text(x0 + j * c + c / 2, 54, 'y' + (j + 1), 'ts', 'middle');
+  for (let i = 0; i < B; i++) for (let j = 0; j < B; j++) {
+    o += rect(x0 + j * c, y0 + i * c, c, c, i === j ? 'wash-strong' : 'paper');
+    o += text(x0 + j * c + c / 2, y0 + i * c + 27, `q${i + 1}−y${j + 1}`, 'ts', 'middle');
+  }
+  o += arrow(112, y0 + 2 * c, 196, y0 + 2 * c, 'mute') + text(154, y0 + 2 * c - 8, 'broadcast', 'ts', 'middle');
+  o += text(390, 90, '想要的只有对角线：', 't') + text(390, 108, 'q_i − y_i', 'ts');
+  o += text(390, 144, '.mean() 平均了全部 B² 个，', 't') + text(390, 162, '每个 q_i 的最优解都是', 't') + text(390, 180, 'mean(y)，与 state 无关', 'tl');
+  o += text(30, 260, 'Loss 照样是一个数、照样下降：critic 退化成常数 baseline，explained variance ≈ 0', 'ts');
+  return svg(560, 272, o, 'Shape 为 B 乘 1 的 critic 输出减去 shape 为 B 的 target，被 broadcast 成 B 乘 B 的 matrix，只有对角线是想要的差');
+}
+
 export default {
   'mrl-gae': gae,
   'mrl-clip': clip,
@@ -251,4 +361,9 @@ export default {
   'mrl-mixed': mixed,
   'mrl-passk': passk,
   'mrl-seeds': seeds,
+  'mrl-walk': walk,
+  'mrl-segcoef': segCoef,
+  'mrl-dppo': dppo,
+  'mrl-recap': recap,
+  'mrl-bcast': bcast,
 };

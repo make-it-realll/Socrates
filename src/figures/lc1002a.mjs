@@ -1,4 +1,4 @@
-import { svg, lin, line, rect, circle, poly, text, arrow, path, d } from '../lib/svg.mjs';
+import { svg, lin, line, rect, circle, poly, text, arrow, path, d, axes } from '../lib/svg.mjs';
 
 // Bentham 的四种 cases unmeet for punishment：四道依次检查的问题
 function bentham() {
@@ -198,6 +198,96 @@ function indet() {
   return svg(560, 186, o, '三个方框表示所有可以想象的判决结果。Determinate 时站得住的只有一个；underdeterminate 时是一个真子集，例如 Riggs 案只有两个；indeterminate 时所有结果都站得住');
 }
 
+// Dudley and Stephens：救生艇上的日子
+function boat() {
+  let o = '';
+  const sx = lin(0.5, 25.5, 30, 530), yb = 120;
+  const band = (a, b, cls, t1, t2) => {
+    o += rect(sx(a - 0.5), yb - 16, sx(b + 0.5) - sx(a - 0.5), 32, cls, 4);
+    o += text((sx(a - 0.5) + sx(b + 0.5)) / 2, yb + 5, t1, 't', 'middle');
+    if (t2) o += text((sx(a - 0.5) + sx(b + 0.5)) / 2, yb + 52, t2, 'ts', 'middle');
+  };
+  band(1, 12, 'wash2', '两罐 turnip，一只小海龟', '第 12 天吃完');
+  band(13, 20, 'wash', '没有食物', '八天');
+  band(21, 25, 'wash-strong', '靠 Parker 的身体', '四天后获救');
+  o += line(sx(0.5), yb + 22, sx(25.5), yb + 22, 'axis');
+  for (const dd of [1, 12, 20, 21, 25]) o += line(sx(dd), yb + 22, sx(dd), yb + 26, 'axis');
+  o += text(sx(1), yb + 38, '1', 'ts', 'middle') + text(sx(12), yb + 38, '12', 'ts', 'middle') + text(sx(20) - 2, yb + 38, '20', 'ts', 'end') + text(sx(21) + 2, yb + 38, '21', 'ts');
+  o += text(sx(25), yb + 38, '25', 'ts', 'middle');
+  const mark = (dd, y, a, b, anchor) => {
+    o += line(sx(dd), y + 6, sx(dd), yb - 18, 'mute');
+    o += text(sx(dd) + (anchor === 'end' ? 4 : -4), y - 14, a, 'tb', anchor) + text(sx(dd) + (anchor === 'end' ? 4 : -4), y + 2, b, 'ts', anchor);
+  };
+  mark(1, 40, '7 月 5 日', 'yacht 沉没，四人上救生艇', 'start');
+  mark(21, 40, '7 月 25 日', '杀死 Parker：Stephens 同意，Brooks 不同意', 'end');
+  o += line(sx(20), yb + 42, sx(20), yb + 78, 'mute');
+  o += text(sx(20) + 4, yb + 94, '7 月 24 日', 'tb', 'end') + text(sx(20) + 4, yb + 110, 'Dudley 提议抽签，Brooks 拒绝', 'ts', 'end');
+  return svg(560, 240, o, 'Dudley and Stephens 案的时间线：7 月 5 日 yacht 沉没；前 12 天靠两罐 turnip 和一只海龟；之后八天没有食物；第 20 天即 7 月 24 日 Dudley 提议抽签被拒；7 月 25 日 Parker 被杀；三人靠他的身体活了四天后获救');
+}
+
+// 两种 rule 下钱往哪里流
+function rules() {
+  let o = '';
+  const sx = lin(-14, 19, 40, 520);
+  o += line(sx(-10), 222, sx(15), 222, 'axis');
+  for (const v of [-10, -5, 0, 5, 10, 15]) o += line(sx(v), 222, sx(v), 226, 'axis') + text(sx(v), 240, String(v), 'ts', 'middle');
+  o += text(sx(-7), 24, '← farmer 的净得', 'ts', 'middle') + text(sx(9), 24, 'rancher 的净得 →', 'ts', 'middle');
+  const row = (y, lab, cows, f0, f1, r0, r1, sum) => {
+    o += text(sx(-14), y - 18, lab, 'tb') + text(sx(19), y - 18, cows + '，合计 ' + sum, 'ts', 'end');
+    if (f0 < 0) o += rect(sx(f0), y - 10, sx(0) - sx(f0), 22, 'solid2', 3);
+    if (f1 < f0) o += rect(sx(f1), y - 10, sx(f0) - sx(f1), 22, 'wash2', 3);
+    o += rect(sx(0), y - 10, sx(r0) - sx(0), 22, 'solid', 3) + line(sx(0), y - 14, sx(0), y + 16, 'axis');
+    if (r1 > r0) o += rect(sx(r0), y - 10, sx(r1) - sx(r0), 22, 'wash-strong', 3);
+    const fl = f1 < f0 ? `${f0} 到 ${f1}` : String(f0);
+    const rl = r1 > r0 ? `${r0} 到 ${r1}` : String(r0);
+    o += text(sx(f1) - 6, y + 6, fl === '0' ? '0' : fl.replace(/-/g, '−'), 'ts', 'end') + text(sx(r1) + 6, y + 6, rl, 'tb');
+  };
+  row(68, 'Rule A：rancher 赔', '3 头', 0, 0, 6.5, 6.5, '6.5');
+  row(132, 'Rule B，还没谈判', '4 头', -10, -10, 14, 14, '4');
+  row(196, 'Rule B，farmer 付 p 让他少养一头', '3 头', -7.5, -9, 14, 15.5, '6.5');
+  o += text(280, 266, '浅色段是 p 在 1.5 到 3 之间时的范围。两种 rule 最后都是 3 头、合计 6.5，只是钱的去向不同。', 'ts', 'middle');
+  return svg(560, 276, o, 'Coase 例子里双方的净得：Rule A 下 rancher 养 3 头净得 6.5，farmer 得到全额赔偿净得 0；Rule B 下不谈判时 rancher 养 4 头净得 14，farmer 损失 10，合计只有 4；谈判后 farmer 付 p 让 rancher 减到 3 头，rancher 净得 14 到 15.5，farmer 净得负 7.5 到负 9，合计回到 6.5');
+}
+
+// Hand formula：PL 与 B
+function hand() {
+  let o = '';
+  const sx = lin(0, 0.6, 70, 420), sy = lin(0, 60, 230, 40);
+  o += axes({ sx, sy, x0: 0, x1: 0.6, y0: 0, y1: 60, xt: [[0, '0'], [0.1, '0.1%'], [0.2, '0.2%'], [0.3, '0.3%'], [0.4, '0.4%'], [0.5, '0.5%'], [0.6, '0.6%']], yt: [0, 20, 40, 60], grid: true, xl: 'P：无人看守时出事的 probability', yl: '元' });
+  o += path(d([[sx(0.2), sy(20)], [sx(0.6), sy(60)], [sx(0.6), sy(20)]]) + 'Z', 'wash');
+  o += path(d([[sx(0), sy(0)], [sx(0.6), sy(60)]]), 'ln');
+  o += line(sx(0), sy(20), sx(0.6), sy(20), 'ink-b');
+  o += text(sx(0.6) + 6, sy(60) + 4, 'PL = P × 10,000', 'tl') + text(sx(0.6) + 6, sy(20) + 4, 'B = 20', 'tb');
+  o += circle(sx(0.1), sy(10), 4.5, 'ink-f') + circle(sx(0.5), sy(50), 4.5, 'ink-f');
+  o += text(sx(0.1) + 8, sy(10) + 16, '夜间：PL = 10 < B', 'ts') + text(sx(0.5) - 8, sy(50) - 8, '白天：PL = 50 > B', 'ts', 'end');
+  o += line(sx(0.2), sy(0), sx(0.2), sy(20), 'dash');
+  o += text(sx(0.45), sy(30), '这一侧不派人', 'ts', 'middle') + text(sx(0.45), sy(30) + 16, '就是 negligent', 'ts', 'middle');
+  return svg(560, 276, o, 'Hand formula 的假想数字：expected loss PL 随 P 线性上升，L 为一万；预防成本 B 为 20。两线在 P 等于 0.2% 处相交。夜间 P 为 0.1%，PL 为 10，小于 B；白天 P 为 0.5%，PL 为 50，大于 B，不派人是 negligent');
+}
+
+// Michael Fay 案：1994 年的经过
+function fay() {
+  let o = '';
+  o += text(150, 22, 'Singapore', 'tb', 'middle') + text(440, 22, 'United States', 'tb', 'middle');
+  const rows = [
+    ['2 月 28 日', ['plead guilty：五项 charge', 'vandalism、mischief 各两项，赃物一项'], null],
+    ['3 月 3 日', ['四个月 imprisonment、六下 caning', '其余三项 fine 3,500 新元'], null],
+    ['3 月 7 日', null, ['Clinton：punishment “extreme”', '']],
+    ['4 月 5 日', null, ['Clinton 写信给 Ong Teng Cheong', '要求免除 caning']],
+    ['5 月 5 日', ['caning 由六下减为四下后执行', '考虑与美国的关系'], null],
+  ];
+  const y0 = 50, dy = 44;
+  o += line(300, 34, 300, y0 + rows.length * dy - 14, 'grid');
+  rows.forEach(([dt, sg, us], i) => {
+    const y = y0 + i * dy;
+    o += rect(264, y - 2, 72, 22, 'paper', 4) + text(300, y + 14, dt, 'tb', 'middle');
+    if (sg) o += text(256, y + 6, sg[0], 'tl', 'end') + text(256, y + 23, sg[1], 'ts', 'end');
+    if (us) o += text(344, y + 6, us[0], 'tb') + (us[1] ? text(344, y + 23, us[1], 'ts') : '');
+  });
+  o += text(280, y0 + rows.length * dy + 8, '全部在 1994 年。上下只按先后排列，间距不代表时间长短。', 'ts', 'middle');
+  return svg(560, y0 + rows.length * dy + 18, o, 'Michael Fay 案 1994 年的经过：2 月 28 日认罪，3 月 3 日判四个月监禁和六下鞭刑；美国方面 3 月 7 日 Clinton 称其 extreme，4 月 5 日写信要求免除；5 月 5 日鞭刑减为四下后执行');
+}
+
 export default {
   'lc1002a-bentham': bentham,
   'lc1002a-hart': hart,
@@ -207,4 +297,8 @@ export default {
   'lc1002a-coase': coase,
   'lc1002a-377a': s377a,
   'lc1002a-indet': indet,
+  'lc1002a-boat': boat,
+  'lc1002a-rules': rules,
+  'lc1002a-hand': hand,
+  'lc1002a-fay': fay,
 };

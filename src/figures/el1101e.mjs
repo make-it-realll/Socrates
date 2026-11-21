@@ -278,6 +278,97 @@ function labov() {
   return svg(560, 290, o, 'Labov 的 department store 研究：Saks 的店员 62% 至少一次发出 r，Macy’s 51%，S. Klein 20%');
 }
 
+// Arabic 的 al-：按 place 排开，[+coronal] 的那几列 l 被同化
+function coronal() {
+  let o = '';
+  const cols = ['bilabial', 'labiodental', 'interdental', 'alveolar', 'postalveolar', 'palatal', 'velar', 'uvular'];
+  const W = 64, x0 = 24, X = (i) => x0 + i * W + W / 2;
+  o += rect(x0 + 2 * W, 64, 3 * W, 170, 'wash', 6);
+  cols.forEach((c, i) => { o += text(X(i), i % 2 ? 54 : 36, c, 'ts', 'middle'); o += line(X(i), i % 2 ? 58 : 40, X(i), 64, 'grid'); });
+  const S = [[1, 0, 'f', 'al-faras'], [2, 0, 'θ', 'aθ-θawb'], [3, 0, 'd', 'ad-daar'], [3, 1, 'n', 'an-nahr'], [3, 2, 'z', 'az-zajt'], [4, 0, 'ʃ', 'aʃ-ʃams'], [6, 0, 'k', 'al-kitaab'], [7, 0, 'q', 'al-qamr']];
+  for (const [i, r, c, w] of S) {
+    const y = 92 + r * 48;
+    o += text(X(i), y, c, (i >= 2 && i <= 4) ? 'tl' : 'tb', 'middle') + text(X(i), y + 18, w, 'ts', 'middle');
+  }
+  o += text(x0 + 3.5 * W, 226, '[+coronal]：l 变成后面的 consonant', 'tl', 'middle');
+  o += text(X(1), 160, 'l 不变', 'ts', 'middle') + text((X(6) + X(7)) / 2, 160, 'l 不变', 'ts', 'middle');
+  o += arrow(40, 262, 520, 262, 'mute') + text(40, 280, 'lips', 'ts') + text(520, 280, 'throat', 'ts', 'end');
+  o += text(280, 280, 'uvular 不在第 2 站的表里：q 比 velar 的 k 更靠后', 'ts', 'middle');
+  return svg(560, 290, o, 'Arabic 定冠词 al- 的同化：把后面的 consonant 按 place 从唇到喉排开，interdental、alveolar、postalveolar 三列是 coronal，其中的 θ、d、n、z、ʃ 前面 l 变成同一个 consonant；labiodental 的 f、velar 的 k、uvular 的 q 前面 l 不变');
+}
+
+// 买好酒：third-tone sandhi 由内层到外层
+function sandhi() {
+  let o = '';
+  const panel = (x0, title, gloss, inner, rows) => {
+    const xs = [x0 + 96, x0 + 160, x0 + 224];
+    o += text(x0 + 140, 22, title, 'tb', 'middle') + text(x0 + 140, 40, gloss, 'ts', 'middle');
+    const [a, b] = inner, mid = (xs[a] + xs[b]) / 2, top = (xs[0] + xs[2]) / 2;
+    const other = inner[0] === 0 ? 2 : 0;
+    o += line(top, 58, mid, 78, 'ink') + line(top, 58, xs[other], 100, 'ink');
+    o += line(mid, 78, xs[a], 100, 'ink') + line(mid, 78, xs[b], 100, 'ink');
+    o += circle(top, 58, 3, 'ink-f') + circle(mid, 78, 3, 'ln-f');
+    ['买 mǎi', '好 hǎo', '酒 jiǔ'].forEach((w, i) => { o += text(xs[i], 118, w, 't', 'middle'); });
+    rows.forEach(([lab, tones, hi], r) => {
+      const y = 152 + r * 30;
+      o += text(x0 + 2, y, lab, 'ts');
+      tones.forEach((t, i) => { o += text(xs[i], y, t, hi === i ? 'tl' : 't', 'middle'); });
+    });
+  };
+  panel(10, '[[买 好] 酒]', "'finished buying wine'", [0, 1], [['underlying', ['214', '214', '214']], ['内层', ['35', '214', '214'], 0], ['外层', ['35', '35', '214'], 1]]);
+  panel(290, '[买 [好 酒]]', "'buy good wine'", [1, 2], [['underlying', ['214', '214', '214']], ['内层', ['214', '35', '214'], 1], ['外层', ['214', '35', '214']]]);
+  o += line(280, 14, 280, 222, 'grid');
+  o += text(280, 246, '彩色的 node 是内层，先用 rule；彩色的数字是这一层刚改的 tone。', 'ts', 'middle');
+  o += text(280, 264, '右边外层时 买 后面已经是 35，rule 不再适用。', 'ts', 'middle');
+  return svg(560, 274, o, '买好酒的两种结构：左边内层是买好，买先变 35，外层好在酒前也变 35，得 35 35 214；右边内层是好酒，好先变 35，外层买后面已不是 214，不变，得 214 35 214');
+}
+
+// BPE 8 轮合并与最后的切分
+function bpe() {
+  let o = '';
+  const M = [['a + b', 'ab', 15], ['ab + l', 'abl', 15], ['abl + e', 'able', 15], ['able + _', 'able_', 15], ['l + o', 'lo', 11], ['lo + c', 'loc', 11], ['loc + k', 'lock', 11], ['lock + _', 'lock_', 8]];
+  o += text(20, 22, '8 轮合并（括号里是加权次数）', 'tb');
+  M.forEach(([p, r, n], i) => {
+    const y = 48 + i * 26;
+    o += text(30, y, String(i + 1), 'ts', 'end') + text(42, y, p, 't') + text(126, y, '→', 'ts') + text(146, y, r, 'tl') + text(196, y, '(' + n + ')', 'ts');
+  });
+  o += line(250, 14, 250, 254, 'grid');
+  const seg = (y, word, bpeParts, morph) => {
+    o += text(268, y, word, 'tb');
+    let x = 268;
+    const draw = (parts, yy, cls) => { let xx = 356; for (const s of parts) { const w = 12 + s.length * 8; o += rect(xx, yy - 15, w, 22, cls, 4) + text(xx + w / 2, yy, s, 't', 'middle'); xx += w + 4; } };
+    draw(bpeParts, y, 'wash');
+    draw(morph, y + 28, 'paper');
+  };
+  o += text(340, 22, 'BPE（上）与 morpheme（下）', 'tb');
+  seg(60, 'table', ['t', 'able_'], ['table']);
+  seg(130, 'unable', ['u', 'n', 'able_'], ['un', 'able']);
+  seg(200, 'unlockable', ['u', 'n', 'lock', 'able_'], ['un', 'lock', 'able']);
+  o += text(280, 276, '合并只看 frequency：table 里切出了 able，un 一直没被合并。', 'ts', 'middle');
+  return svg(560, 286, o, '在 table、able、lock、unlock、lockable、unable、unlockable 这个小 corpus 上跑 8 轮 BPE：依次合并 ab、abl、able、able_、lo、loc、lock、lock_；最后 table 被切成 t 加 able_，unlockable 被切成 u、n、lock、able_，和 morpheme 的切分不一致');
+}
+
+// Grimm's law：整类 stop 一起变
+function grimm() {
+  let o = '';
+  const block = (x0, title, cells) => {
+    o += text(x0 + 125, 22, title, 'tb', 'middle');
+    cells.forEach(([pl, a, b, ex1, ex2, grey], i) => {
+      const cx = x0 + 42 + i * 83;
+      o += text(cx, 46, pl, 'ts', 'middle');
+      o += rect(cx - 22, 58, 44, 32, grey ? 'wash2' : 'paper', 6) + text(cx, 80, a, grey ? 'ts' : 'tb', 'middle');
+      o += arrow(cx, 92, cx, 124, grey ? 'mute' : 'ln');
+      o += rect(cx - 22, 126, 44, 32, grey ? 'wash2' : 'wash', 6) + text(cx, 148, b, grey ? 'ts' : 'tb', 'middle');
+      o += text(cx, 180, ex1, 'ts', 'middle') + text(cx, 198, ex2, 'ts', 'middle');
+    });
+  };
+  block(10, 'voiceless stop → fricative', [['labial', 'p', 'f', 'pater', 'father'], ['dental', 't', 'θ', 'tres', 'three'], ['velar', 'k', 'h', 'cornu', 'horn']]);
+  block(290, 'voiced stop → voiceless stop', [['labial', 'b', 'p', '（表里', '没有例词）', true], ['dental', 'd', 't', 'decem', 'ten'], ['velar', 'g', 'k', 'genu', 'knee']]);
+  o += line(280, 14, 280, 206, 'grid');
+  o += text(280, 228, '每一格上面是 Latin，下面是 English。同一个 manner 的一整行在三个 place 上一起变：', 'ts', 'middle') + text(280, 246, '变的是一个 natural class，不是一个个 sound。', 'ts', 'middle');
+  return svg(560, 258, o, 'Grimm’s law：Latin 保留的 voiceless stop p、t、k 在 English 里对应 fricative f、θ、h，voiced stop d、g 对应 voiceless stop t、k；例词是 pater 和 father、tres 和 three、cornu 和 horn、decem 和 ten、genu 和 knee');
+}
+
 export default {
   'el1101e-embed': embed,
   'el1101e-vowels': vowels,
@@ -290,4 +381,8 @@ export default {
   'el1101e-sets': sets,
   'el1101e-scope': scope,
   'el1101e-labov': labov,
+  'el1101e-coronal': coronal,
+  'el1101e-sandhi': sandhi,
+  'el1101e-bpe': bpe,
+  'el1101e-grimm': grimm,
 };

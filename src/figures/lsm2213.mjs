@@ -313,6 +313,118 @@ function hpa() {
   return svg(560, 310, o, 'HPA axis：stressor 经 amygdala 激活 hypothalamus 释放 CRH，pituitary 释放 ACTH，adrenal cortex 释放 cortisol；cortisol 反过来作用于 hippocampus、hypothalamus 和 pituitary，inhibit 这条链；prefrontal cortex inhibit amygdala');
 }
 
+// ---------- 第 2 站：被动传导的 exponential decay ----------
+function passive() {
+  const Vr = -60, V0 = -50, lam = 1;
+  const V = (x) => Vr + (V0 - Vr) * Math.exp(-x / lam);
+  const sx = lin(0, 4, 70, 400), sy = lin(-61, -49, 220, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 4, y0: -61, y1: -49, xt: [0, 1, 2, 3, 4], yt: [[-60, '−60'], [-56, '−56'], [-50, '−50']], xl: '离注入点的距离（mm）', yl: 'V（mV）', grid: true });
+  o += path(curve(V, 0, 4, sx, sy), 'ln');
+  for (const x of [0, 1, 2]) o += circle(sx(x), sy(V(x)), 4, 'ln-f') + text(sx(x) + 8, sy(V(x)) - 6, V(x).toFixed(1), 'tl');
+  o += line(sx(0), sy(Vr + 10 / Math.E), sx(1), sy(Vr + 10 / Math.E), 'dash');
+  o += text(418, 60, 'λ = 1 mm：每走 1 mm', 't') + text(418, 78, '剩下 1/e = 37%', 't');
+  o += text(418, 116, 'resting = −60 mV', 'ts') + text(418, 132, 'soma 处 +10 mV', 'ts');
+  o += text(418, 170, '走到脚趾 1 m = 1000 λ：', 'ts') + text(418, 186, '剩下 e^(−1000)', 'ts');
+  return svg(560, 262, o, '被动传导的 voltage 随距离 exponential decay：注入点是 −50 mV，1 mm 处约 −56 mV，2 mm 处约 −58.6 mV，接近 resting 的 −60 mV');
+}
+
+// ---------- 第 3 站：shunting inhibition 的 weighted average ----------
+function shunt() {
+  const rows = [
+    ['只有 resting conductance', [[1, -65]]],
+    ['+ excitatory 0.3', [[1, -65], [0.3, 0]]],
+    ['+ excitatory 0.3 + Cl⁻ 0.5', [[1, -65], [0.3, 0], [0.5, -65]]],
+    ['+ excitatory 0.45 + Cl⁻ 0.5', [[1, -65], [0.45, 0], [0.5, -65]]],
+  ];
+  const sx = lin(-70, 5, 230, 530);
+  const wavg = (g) => g.reduce((a, [w, e]) => a + w * e, 0) / g.reduce((a, [w]) => a + w, 0);
+  let o = line(sx(-50), 36, sx(-50), 214, 'dash') + text(sx(-50), 28, 'threshold −50', 'ts', 'middle');
+  for (const v of [-70, -65, -60, -55, -50, -45, -40, -30, -20, -10, 0]) if (v % 10 === 0) o += text(sx(v), 232, String(v).replace('-', '−'), 'ts', 'middle') + line(sx(v), 216, sx(v), 220, 'axis');
+  o += line(sx(-70), 216, sx(5), 216, 'axis') + text(sx(-70) - 14, 232, 'V（mV）', 'ts', 'end');
+  rows.forEach(([lab, g], i) => {
+    const y = 60 + i * 44, v = wavg(g);
+    o += line(sx(-70), y, sx(5), y, 'grid') + text(16, y + 4, lab, 't');
+    o += circle(sx(-65), y, 3, 'mute-f') + circle(sx(0), y, 3, 'mute-f');
+    o += circle(sx(v), y, 6, v >= -50.0001 ? 'ln-f' : 'ink-f') + (v >= -50.0001 ? text(sx(v) + 11, y + 5, v.toFixed(1), 'tl') : (v > -60 ? text(sx(v) + 4, y - 10, v.toFixed(1), 'tb', 'end') : text(sx(v) - 11, y + 5, v.toFixed(1), 'tb', 'end')));
+  });
+  o += text(sx(-65), 254, 'E_rest = E_Cl', 'ts', 'middle') + text(sx(0), 254, 'E_exc', 'ts', 'middle');
+  return svg(560, 264, o, '四种 conductance 组合下 membrane voltage 的 weighted average：加入 excitatory conductance 0.3 刚到 threshold，再打开 reversal potential 等于 resting 的 Cl channel 后降到 −54.2 mV，excitatory 要增到 0.45 才回到 threshold');
+}
+
+// ---------- 第 4 站：膝跳 reflex 的路线与时间 ----------
+function reflex() {
+  const L = 0.5, v = 100, cond = (L / v) * 1000;
+  let o = '';
+  // 路线
+  o += rect(20, 40, 120, 40, 'wash2', 6) + text(80, 58, 'thigh muscle', 't', 'middle') + text(80, 73, 'stretch receptor', 'ts', 'middle');
+  o += rect(420, 30, 120, 60, 'paper', 6) + text(480, 52, 'spinal cord', 't', 'middle') + text(480, 70, '1 个 synapse', 'ts', 'middle');
+  o += arrow(140, 50, 418, 50, 'ink') + text(280, 42, `sensory fiber：${L} m，${v} m/s → ${cond} ms`, 'ts', 'middle');
+  o += arrow(418, 72, 142, 72, 'ln') + text(280, 90, `motor axon：${L} m，${v} m/s → ${cond} ms`, 'ts', 'middle');
+  o += text(80, 100, '+ neuromuscular junction', 'ts', 'middle');
+  // 时间轴
+  const sx = lin(0, 12, 40, 520), y = 150;
+  const seg = [[0, cond, 'solid', 'conduction'], [cond, cond + 1, 'wash-strong', ''], [cond + 1, 2 * cond + 1, 'solid', 'conduction'], [2 * cond + 1, 2 * cond + 2, 'wash-strong', '']];
+  for (const [a, b, cls, s2] of seg) { o += rect(sx(a), y, sx(b) - sx(a), 26, cls); if (s2) o += text((sx(a) + sx(b)) / 2, y + 17, `${s2} ${cond} ms`, 'tw', 'middle'); }
+  o += text(sx(cond + 0.5), y + 44, 'synapse', 'ts', 'middle') + text(sx(cond + 0.5), y + 58, '0.5–1 ms', 'ts', 'middle');
+  o += text(sx(2 * cond + 1.5), y + 44, 'NMJ', 'ts', 'middle') + text(sx(2 * cond + 1.5), y + 58, '0.5–1 ms', 'ts', 'middle');
+  for (const t of [0, 5, 10, 12]) o += line(sx(t), y - 4, sx(t), y, 'axis') + text(sx(t), y - 8, t + ' ms', 'ts', 'middle');
+  o += text(40, 244, `合计 ${2 * cond} + 2 × (0.5～1) ≈ ${2 * cond + 1}～${2 * cond + 2} ms，时间主要花在路上`, 't');
+  return svg(560, 256, o, '膝跳 reflex 的路线：stretch receptor 的 signal 沿 sensory fiber 进入 spinal cord，经一个 synapse 交给 motor neuron，再沿 motor axon 回到 muscle；两段 conduction 各 5 ms，两个 synapse 各 0.5 到 1 ms');
+}
+
+// ---------- 第 5 站：Bliss 与 Lømo 的 design ----------
+function bliss() {
+  let o = '';
+  // 解剖示意
+  o += rect(20, 40, 130, 44, 'wash2', 6) + text(85, 58, 'entorhinal', 't', 'middle') + text(85, 74, 'cortex', 't', 'middle');
+  o += rect(330, 40, 210, 44, 'wash', 6) + text(435, 58, 'dentate gyrus', 't', 'middle') + text(435, 74, 'granule cell 群体', 'ts', 'middle');
+  o += arrow(150, 62, 328, 62, 'ink') + text(210, 54, 'perforant path', 'ts', 'middle');
+  o += line(250, 62, 250, 104, 'ln') + circle(250, 62, 4, 'ln-f') + text(250, 120, 'stimulate', 'tl', 'middle');
+  o += line(470, 84, 470, 104, 'ink') + circle(470, 84, 4, 'ink-f') + text(470, 120, 'record', 'tb', 'middle');
+  o += text(470, 136, 'population EPSP、spike', 'ts', 'middle') + text(470, 150, '的大小与 latency', 'ts', 'middle');
+  // protocol 时间轴
+  const y = 196;
+  o += line(20, y, 540, y, 'axis');
+  for (let x = 30; x < 180; x += 24) o += line(x, y - 14, x, y, 'ink');
+  o += text(100, y + 18, 'test stimulus：baseline', 'ts', 'middle');
+  for (const x0 of [200, 236]) { o += rect(x0, y - 22, 24, 22, 'solid', 2); }
+  o += text(248, y + 18, 'conditioning train', 'tl', 'middle') + text(248, y + 34, '100 Hz × 3–4 s，或 10–20 Hz × 10–15 s', 'ts', 'middle');
+  for (let x = 290; x < 540; x += 24) o += line(x, y - 14, x, y, 'ink');
+  o += text(420, y + 18, '同样的 test stimulus：30 min – 10 h', 'ts', 'middle');
+  o += text(20, 256, '18 只 anesthetized rabbit，15 只出现持续增强', 't');
+  return svg(560, 268, o, 'Bliss 与 Lømo 1973 年的 design：在 perforant path 上 stimulate，在 dentate gyrus 记录 granule cell 群体的 response；先测 baseline，再给高频 conditioning train，之后继续用同样的 test stimulus 测几十分钟到十小时');
+}
+
+// ---------- 第 6 站：Hermann grid 的 lateral inhibition ----------
+function hermann() {
+  const B = 4, S = 1, nB = 3, N = nB * B + (nB + 1) * S;
+  const white = (i, j) => { const m = (k) => k % (B + S) < S; return m(i) || m(j); };
+  const val = (i, j) => (i < 0 || j < 0 || i >= N || j >= N) ? 1 : (white(i, j) ? 1 : 0);
+  const out = (i, j) => val(i, j) - 0.1 * (val(i - 1, j) + val(i + 1, j) + val(i, j - 1) + val(i, j + 1));
+  const c = 13, x0 = 24, y0 = 30;
+  let o = '';
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (!white(i, j)) o += rect(x0 + j * c, y0 + i * c, c, c, 'ink-f');
+  o += rect(x0, y0, N * c, N * c, 'frame');
+  const mark = (i, j, cls) => {
+    let q = '';
+    for (const [di, dj] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) q += rect(x0 + (j + dj) * c + 2, y0 + (i + di) * c + 2, c - 4, c - 4, 'dash');
+    return q + rect(x0 + j * c + 1, y0 + i * c + 1, c - 2, c - 2, cls);
+  };
+  // 中段：竖直街道（第 2B+2S 列）上、一个黑块旁边的一格；交叉口取另一处
+  const midP = [S + Math.floor(B / 2), 2 * (B + S)], cross = [2 * (B + S), B + S];
+  o += mark(...midP, 'wash-strong') + mark(...cross, 'solid');
+  const ox = x0 + N * c + 30;
+  const nb = (i, j) => val(i - 1, j) + val(i + 1, j) + val(i, j - 1) + val(i, j + 1);
+  o += rect(ox, 40, 14, 14, 'wash-strong') + text(ox + 22, 52, '街道中段', 'tb');
+  o += text(ox + 22, 72, `四个邻居里 ${nb(...midP)} 个白（上下）、${4 - nb(...midP)} 个黑（左右）`, 'ts');
+  o += text(ox + 22, 92, `1 − 0.1 × ${nb(...midP)} = ${out(...midP).toFixed(1)}`, 't');
+  o += rect(ox, 130, 14, 14, 'solid') + text(ox + 22, 142, '交叉口', 'tb');
+  o += text(ox + 22, 162, `四个邻居都是白的`, 'ts');
+  o += text(ox + 22, 182, `1 − 0.1 × ${nb(...cross)} = ${out(...cross).toFixed(1)}`, 'tl');
+  o += text(ox, 222, '交叉口受的 inhibition 更多，', 'ts') + text(ox, 238, '所以看起来更暗：灰点', 'ts');
+  return svg(560, y0 + N * c + 24, o, 'Hermann grid：黑方块之间是一格宽的白色街道。街道中段的点上下是白、左右是黑，output 为 0.8；交叉口四个邻居都是白，output 为 0.6，看起来更暗');
+}
+
 export default {
   'lsm2213-potentials': potentials,
   'lsm2213-ghk': ghk,
@@ -326,4 +438,9 @@ export default {
   'lsm2213-lateral': lateral,
   'lsm2213-simple': simple,
   'lsm2213-hpa': hpa,
+  'lsm2213-passive': passive,
+  'lsm2213-shunt': shunt,
+  'lsm2213-reflex': reflex,
+  'lsm2213-bliss': bliss,
+  'lsm2213-hermann': hermann,
 };

@@ -61,6 +61,8 @@ sources:
 
 **第一次。** 一维的 data，一半在 $-2$ 附近，一半在 $2$ 附近（后面整页都用它：$p_{\text{data}}=\tfrac12N(-2,0.5^2)+\tfrac12N(2,0.5^2)$）。train 一个 network，输入一个 Gaussian noise，一步输出一个 sample，loss 用 output 和随机抽的一个 data point 的 squared error。Noise 和抽到的 data point 互相独立，network 从 noise 里得不到任何关于“该输出哪个 data point”的信息，而 squared error 下最好的输出是 mean（第 3 站证明）。所以不管 network 多大，最优解都是把每个 noise 送到 data 的 mean，也就是 0，正好落在两个 bump 中间那个几乎没有 data 的地方。
 
+::fig[mit6s184-fail1] 第一次失败。虚线是 input 的 noise，彩色是 $p_{\text{data}}$；squared error 下的最优解把每个 noise 都送到 $\mathbb E[z]=0$，那里的 density 几乎为 0。
+
 **第二次。** 换个办法：先把 noise 和 data 一对一配好，再做 regression。一维时可以按大小配（第 $k$ 小的 noise 配第 $k$ 小的 data），这正是 quantile map $F^{-1}(\Phi(x))$。但一张 $1024\times1024$ 的彩色图片是 $3{,}145{,}728$ 维的 vector，没有“大小顺序”，也没有 $F^{-1}$ 可写。
 
 **第三次。** 那就不配对，只要求 output 的 distribution 和 data 的 distribution 一样。可是“两个 distribution 一样”没法写成一个对每个 sample 单独算的 loss：手里没有 $p_{\text{data}}$ 的 formula，只有它的 sample。
@@ -666,6 +668,8 @@ $$D=0.97896\times1.84+0.02104\times(-1.36)=1.7727$$
 
 然后由第一式，$\hat\varepsilon=(x-tD)/(1-t)=(0.6-0.88634)/0.5=-0.5727$；score $=-\hat\varepsilon/\beta_t=0.5727/0.5=1.1453$，与上一站相同；$u=D-\hat\varepsilon=1.7727+0.5727=2.3453$，也与上一站相同。
 
+::fig[mit6s184-four] $t=0.5$、$x=0.6$ 处的四个量。$x$ 恰是 $\hat\varepsilon$ 和 $D$ 的中点（$\alpha_t=\beta_t=0.5$）；$D$ 由两个 component 内的 posterior mean 按 weight 合成；$D-\hat\varepsilon$ 就是 vector field。
+
 ### 换 parameterization 等于换 loss 的 weight
 
 既然四个量可以互换，让 network 输出哪一个有区别吗？有：它决定了 loss 在各个 $t$ 上的 weight。以 CondOT 为例，假设 network 输出 $\hat\varepsilon^\theta$，再按上面的关系换算成 vector field。由 $x=tD+(1-t)\hat\varepsilon$ 得 $D=(x-(1-t)\hat\varepsilon)/t$，于是
@@ -752,6 +756,8 @@ $w=1$ 时是普通的 guided model，$w=0$ 时是 unguided model。Notes 说几�
 | 1 | 1.9894 | 2.0 | $-3\times1.9894+4\times2.0=2.0318$ |
 
 在 $x=1$，unguided model 已经确信这个点属于 $+$，两个 field 几乎相同，guidance 几乎不起作用；在 $x=0$，unguided model 不知道去哪边（field 为 0），guidance 把差值放大 4 倍。CFG 只在“类别还模糊”的地方使劲。
+
+::fig[mit6s184-cfgfield] 上表两行在整条 $x$ 轴上的样子。$t=0.5$、$w=4$：CFG field 只在 $x$ 接近 0、两类还分不清的地方远离 $u(x\mid +)$。
 
 用 exact field 跑 CFG 的 ODE（起点是 $N(0,1)$ 的 4000 个 quantile，Euler 400 步），终点的统计：
 

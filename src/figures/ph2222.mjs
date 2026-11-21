@@ -118,8 +118,8 @@ function phaedo() {
     if (after) o += rect(X2, y, X3 - X2, 26, after);
     o += line(X1, y - 4, X1, y + 30, 'axis') + line(X2, y - 4, X2, y + 30, 'axis');
   });
-  o += text(280, 262, '实心：这个 argument 如果 sound，就证明 soul 在这一段存在。浅色：只得到“很可能”。空白：没有涉及。', 'ts', 'middle');
-  return svg(560, 274, o, 'Phaedo 四个 argument 各自声称证明 soul 在哪一段时间存在：cyclical argument 覆盖出生前和死后，recollection argument 只覆盖出生前，affinity argument 只给出死后的可能性，final argument 覆盖全部');
+  o += text(280, 262, '实心：这个 argument 如果 sound，就证明 soul 在这一段存在。', 'ts', 'middle') + text(280, 279, '浅色：只得到“很可能”。空白：没有涉及。', 'ts', 'middle');
+  return svg(560, 290, o, 'Phaedo 四个 argument 各自声称证明 soul 在哪一段时间存在：cyclical argument 覆盖出生前和死后，recollection argument 只覆盖出生前，affinity argument 只给出死后的可能性，final argument 覆盖全部');
 }
 
 // Republic IV：city 的三个 class 对 soul 的三个 part
@@ -221,7 +221,35 @@ function cave() {
   return svg(560, 396, o, 'Cave 的侧视示意：prisoners 面对洞壁看 shadows，身后是矮墙上举着的 statues 和 fire，再往后是通向洞外的陡坡，洞外有 reflections、实物和 sun；四个阶段标上了与 Divided Line 四段的通常对应');
 }
 
+// Republic II：Glaucon 的三类 good，以及把名声和结果全部倒过来的两个人
+function glaucon() {
+  let o = text(16, 20, 'Glaucon 的三类 good（357b–d）', 'tb');
+  const cls = [['只为它本身而要', '无害的 pleasure', 'paper'], ['为它本身，也为结果', 'knowledge、sight、health', 'wash'], ['只为结果而忍受', '锻炼、治病、赚钱', 'paper']];
+  cls.forEach(([a, b, c], i) => {
+    const x = 16 + i * 179;
+    o += rect(x, 32, 170, 52, c, 6) + text(x + 85, 54, a, 'tb', 'middle') + text(x + 85, 73, b, 'ts', 'middle');
+  });
+  o += arrow(280, 112, 280, 88, 'ln') + text(280, 128, 'Socrates：justice 在这里，', 'tl', 'middle') + text(280, 145, '而且是最好的那种', 'tl', 'middle');
+  o += arrow(459, 112, 459, 88, 'ink') + text(459, 128, '多数人：justice 在这里', 't', 'middle');
+  const y0 = 180;
+  o += text(16, y0, '最后的思想实验（361e–362a）：名声和结果全部倒过来', 'tb');
+  const cx = [130, 215, 300];
+  ['实际是', '名声', '一辈子的结果'].forEach((h, i) => { o += text(cx[i], y0 + 26, h, 'ts'); });
+  const rows = [['第一个人', 'unjust', 'just', '顺遂'], ['第二个人', 'just', 'unjust', '鞭打、上刑、烧瞎眼睛，最后被 impale']];
+  rows.forEach(([who, a, b, c], k) => {
+    const y = y0 + 50 + k * 30;
+    o += text(16, y, who, 't');
+    o += rect(cx[0] - 6, y - 15, 70, 21, a === 'just' ? 'wash' : 'wash2', 4) + text(cx[0], y, a, a === 'just' ? 'tl' : 't');
+    o += rect(cx[1] - 6, y - 15, 70, 21, b === 'just' ? 'wash' : 'wash2', 4) + text(cx[1], y, b, b === 'just' ? 'tl' : 't');
+    o += text(cx[2], y, c, 'ts');
+  });
+  o += text(16, y0 + 122, '名声带来的好处全归了 unjust 的人，剩下能比的只有 justice 本身对 soul 做了什么。', 'ts');
+  o += text(16, y0 + 142, 'Socrates 要证明：即使这样，just 的人仍然过得更好。', 'tl');
+  return svg(560, y0 + 154, o, 'Glaucon 把 good 分成只为本身、为本身也为结果、只为结果三类，Socrates 把 justice 放在第二类，多数人放在第三类；最后的思想实验里，unjust 的人有 just 的名声且一生顺遂，just 的人被当成 unjust 而受尽酷刑');
+}
+
 export default {
+  'ph2222-glaucon': glaucon,
   'ph2222-elenchus': elenchus,
   'ph2222-horns': horns,
   'ph2222-crito': crito,

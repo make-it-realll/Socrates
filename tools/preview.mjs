@@ -32,7 +32,7 @@ for (const w of [1180, 390]) {
     document.querySelectorAll('.katex-display').forEach((d) => { const k = d.querySelector('.katex'); const pw = d.parentElement.getBoundingClientRect().width; if (k && k.getBoundingClientRect().width > pw + 2 && getComputedStyle(d).overflowX === 'visible') wide.push(k.textContent.slice(0, 50)); });
     // 图里的文字有没有伸出画布
     const clipped = [];
-    document.querySelectorAll('svg.fig-svg').forEach((s, i) => { const vb = s.viewBox.baseVal; s.querySelectorAll('text').forEach((t) => { const bb = t.getBBox(); if (bb.x < -1 || bb.y < -1 || bb.x + bb.width > vb.width + 1 || bb.y + bb.height > vb.height + 1) clipped.push(`图 ${i + 1}: “${t.textContent.slice(0, 30)}”`); }); });
+    document.querySelectorAll('svg.fig-svg').forEach((s, i) => { const vb = s.viewBox.baseVal; s.querySelectorAll('text').forEach((t) => { const bb = t.getBBox(); if (bb.x < vb.x - 1 || bb.y < vb.y - 1 || bb.x + bb.width > vb.x + vb.width + 1 || bb.y + bb.height > vb.y + vb.height + 1) clipped.push(`图 ${i + 1}: “${t.textContent.slice(0, 30)}”`); }); });
     return { docW: document.documentElement.scrollWidth, katexErr: document.querySelectorAll('.katex-error').length, wide, clipped, figs: document.querySelectorAll('svg.fig-svg').length, stations: document.querySelectorAll('.stop-h').length, chars: document.querySelector('main').innerText.length };
   });
   const issues = [];

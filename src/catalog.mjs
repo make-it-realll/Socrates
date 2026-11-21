@@ -255,7 +255,7 @@ const C = [
   ['STANFORD-CS237B', '机器人自主性 II', 'Principles of Robot Autonomy II (Stanford CS237B)', 'front'],
   ['HF-LEROBOT', 'LeRobot 与 VLA', 'Robotics Course and LeRobot (Hugging Face)', 'front'],
   ['IS4302', '区块链与分布式账本', 'Blockchain and Distributed Ledger Technologies', 'fin'],
-  ['FIN4724', '区块链、AI 与 DeFi 经济学', 'Economics of Blockchain, AI and Decentralized Finance', 'fin'],
+  ['DSE4211', '数字货币', 'Digital Currencies', 'fin'],
   ['MODERN-RL', '现代强化学习实践', 'Modern Reinforcement Learning in Practice (Socrates 专题)', 'front'],
   ['MIT-6.5940', '高效深度学习', 'TinyML and Efficient Deep Learning Computing (MIT 6.5940)', 'front'],
   ['CMU-10714', '深度学习系统', 'Deep Learning Systems: Algorithms and Implementation (CMU 10-414/714)', 'front'],
@@ -270,6 +270,7 @@ export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, li
 
 // 官方先修（NUSMods）
 const P = {
+  DSE4211: ['DSA2102'],
   DSA2101: ['ST2131'], DSA3101: ['DSA2101', 'ST2132'], DSA4211: ['ST3131'], DSA4212: ['ST2132'],
   DSA4213: ['ST2137', 'CS2040'],
   CS2102: ['CS2030', 'CS2040'], CS2103: ['CS2030', 'CS2040'], CS2105: ['CS2040'], CS2106: ['CS2100'],
@@ -328,7 +329,7 @@ const K = {
   'NW-MODERNROBOTICS': ['RB2202'], 'MIT-6.4210': ['NW-MODERNROBOTICS'], 'MIT-6.8210': ['RB2203', 'MIT-6.4210'],
   'BERKELEY-CS285': ['CS4246'], 'STANFORD-CS224R': ['CS4246'], 'STANFORD-CS237B': ['RB4301'],
   'HF-LEROBOT': ['RB4301', 'MIT-6.S184'],
-  IS4302: ['CS2030', 'CS2102', 'CS4230'], FIN4724: ['EC1101E'], 'MODERN-RL': ['CS4246', 'BERKELEY-CS285'],
+  IS4302: ['CS2030', 'CS2102', 'CS4230'], DSE4211: ['IS4302', 'ST3236', 'ST3131'], 'MODERN-RL': ['CS4246', 'BERKELEY-CS285'],
   'MIT-6.5940': ['CS3244', 'CS4262'], 'CMU-10714': ['CS3244'], 'STANFORD-CS149': ['CS3210'], 'CMU-15442': ['CS4262'],
   'STANFORD-CS231N': ['CS4243'], 'CMU-16825': ['CS4277'], 'HARVARD-CS249R': ['MIT-6.5940'],
   GE3255: ['GE2103'], 'MIT-12.802': ['MIT-12.800'], 'MIT-12.800': ['PC3238'],

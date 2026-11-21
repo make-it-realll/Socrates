@@ -267,6 +267,162 @@ function tiers() {
   return svg(560, 302, o, 'Money 的层级：central bank 的 ledger 在最上层，commercial bank 的 deposit 是下一层，stablecoin issuer 把 reserve 存在 commercial bank，on-chain 的 token 是对 issuer 的 claim');
 }
 
+// ---------- 第 1 站：GoofyCoin 的 double spend ----------
+function goofy() {
+  let o = '';
+  const box = (x, y, w, title, lines, cls = 'paper') => {
+    o += rect(x, y, w, 30 + lines.length * 17, cls, 6) + text(x + 10, y + 19, title, 'tb');
+    lines.forEach((s, i) => { o += text(x + 10, y + 38 + i * 17, s, 'ts'); });
+  };
+  box(16, 86, 140, 'CreateCoin', ['coinID = 73', 'signed by Goofy']);
+  box(196, 86, 150, 'Pay to pkAlice', ['pointer → CreateCoin', 'signed by Goofy']);
+  box(390, 30, 154, 'Pay to pkBob', ['pointer → pkAlice 那条', 'signed by Alice'], 'wash');
+  box(390, 150, 154, 'Pay to pkChuck', ['pointer → pkAlice 那条', 'signed by Alice'], 'wash');
+  o += arrow(194, 116, 158, 116, 'ink') + arrow(388, 64, 348, 104, 'ln') + arrow(388, 178, 348, 128, 'ln');
+  o += text(530, 112, 'Verify ✓', 'tl', 'end') + text(530, 232, 'Verify ✓', 'tl', 'end');
+  o += text(16, 24, '箭头是 pointer：顺着它往回查，每一步的 signature 都对得上', 'ts');
+  o += text(16, 252, '两条都是 Alice 亲手签的，各自都有效；矛盾只有看到全部记录才能发现', 't');
+  return svg(560, 264, o, 'GoofyCoin 的 double spend：Alice 对同一个 coin 签了两条转账，一条给 Bob、一条给 Chuck，两条都指向她收到这个 coin 的那条记录，各自都能通过验证');
+}
+
+// ---------- 第 2 站：deficit 的 random walk（gambler's ruin） ----------
+function ruin() {
+  const q = 0.3, p = 0.7, N = 6;
+  let o = '';
+  const X = (z) => 50 + z * 88, Y = 100;
+  for (let z = 0; z < N; z++) {
+    o += circle(X(z), Y, 20, z === 0 ? 'solid' : 'paper') + text(X(z), Y + 5, String(z), z === 0 ? 'tw' : 'tb', 'middle');
+    o += text(X(z), Y + 50, (q / p) ** z === 1 ? '1' : ((q / p) ** z).toFixed(4), z === 0 ? 'tl' : 't', 'middle');
+    if (z > 0) {
+      o += path(`M${X(z) - 16} ${Y - 12} Q${X(z) - 44} ${Y - 42} ${X(z - 1) + 16} ${Y - 12}`, 'ln');
+      o += poly([[X(z - 1) + 16, Y - 12], [X(z - 1) + 18, Y - 22], [X(z - 1) + 25, Y - 15]], 'ln-f');
+      o += text(X(z) - 44, Y - 34, 'q', 'tl', 'middle');
+    }
+    if (z < N - 1) {
+      o += path(`M${X(z) + 16} ${Y + 12} Q${X(z) + 44} ${Y + 30} ${X(z + 1) - 16} ${Y + 12}`, 'mute');
+      o += poly([[X(z + 1) - 16, Y + 12], [X(z + 1) - 18, Y + 22], [X(z + 1) - 25, Y + 15]], 'mute-f');
+    }
+  }
+  o += text(X(N - 1) + 26, Y + 5, '…', 'tb');
+  o += text(X(0) + 44, Y + 30, 'p', 'ts', 'middle');
+  o += text(X(0) - 20, 40, 'deficit = 0：追平', 'tl');
+  o += text(20, Y + 50, '', 'ts') + text(530, 40, 'q = 0.3，p = 0.7', 'tb', 'end');
+  o += text(20, 182, '每出一个 block，attacker 落后的 block 数 z 以 probability q 减 1、以 p 加 1；', 't');
+  o += text(20, 202, '圆圈下的数是从 z 出发最终追平的 probability a_z = (q/p)^z = (3/7)^z。', 't');
+  return svg(560, 216, o, 'Attacker 落后 block 数的 random walk：每一步以 q 向 0 走一格、以 p 远离一格，从 z 出发到达 0 的 probability 是 q/p 的 z 次方');
+}
+
+// ---------- 第 3 站：Ethereum 的两层 ledger ----------
+function ffg() {
+  const slot = 12, perEpoch = 32;
+  let o = '';
+  const y = 110, bw = 22, gap = 8, n = 15;
+  const X = (i) => 30 + i * (bw + gap);
+  const cps = [0, 4, 8, 12];          // 画出的 checkpoint 位置（每个 epoch 的第一个 slot，图里每 4 个 block 代表一个 epoch）
+  const fin = 8;                      // 到这里为止已 finalize
+  o += rect(X(0) - 6, y - 26, X(fin) + bw + 6 - (X(0) - 6), 52, 'wash', 8);
+  for (let i = 0; i < n; i++) {
+    const cp = cps.includes(i);
+    o += rect(X(i), y - 11, bw, 22, cp ? (i <= fin ? 'solid' : 'paper') : 'paper', 3);
+    if (i > 0) o += line(X(i) - gap, y, X(i), y, 'ink');
+  }
+  // head 处的 fork
+  o += line(X(n - 1) + bw, y, X(n - 1) + bw + gap, y, 'ink') + rect(X(n - 1) + bw + gap, y - 11, bw, 22, 'paper', 3);
+  o += line(X(n - 2) + bw, y, X(n - 1) + 4, y + 34, 'mute') + rect(X(n - 1) + 4, y + 26, bw, 22, 'wash2', 3);
+  for (const i of cps) o += text(X(i) + bw / 2, y - 34, 'checkpoint', 'ts', 'middle');
+  o += text(X(0), 40, 'Finalized chain：checkpoint 得到 2/3 stake 的票（Casper FFG）', 'tl');
+  o += text(X(0), 60, '永远是 available chain 的 prefix，不会被推翻', 'ts');
+  o += text(X(n - 1) + bw + gap + bw, y + 5, '', 'ts');
+  o += text(X(0), y + 66, 'Available chain：一直往前长，head 处的 fork 用 LMD GHOST 选', 'ts');
+  o += text(30, 206, `1 slot = ${slot} s，1 epoch = ${perEpoch} slot = ${(slot * perEpoch / 60).toFixed(1)} 分钟（图里每个 epoch 只画 4 个 block）`, 't');
+  o += text(30, 228, '小额收款看 available chain，不必等；大额收款等到 finalize。', 't');
+  return svg(560, 240, o, 'Ethereum 的两层 ledger：底下的 available chain 一直增长，每个 epoch 开头的 checkpoint 经 2/3 投票后 finalize，finalized 部分是 available chain 的 prefix');
+}
+
+// ---------- 第 5 站：一笔 EIP-1559 fee 的去向 ----------
+function fee() {
+  const baseFee = 20, maxFee = 30, tip = 2, gasLimit = 30000, used = 21000;
+  const gp = Math.min(maxFee, baseFee + tip);
+  const pre = gasLimit * gp, burn = used * baseFee, prop = used * (gp - baseFee), refund = (gasLimit - used) * gp;
+  const fmt = (v) => v.toLocaleString('en-US');
+  const sx = lin(0, pre, 30, 530);
+  let o = text(30, 30, `gasPrice = min(maxFee, baseFee + tip) = min(${maxFee}, ${baseFee} + ${tip}) = ${gp} gwei`, 't');
+  o += rect(sx(0), 56, sx(pre) - sx(0), 30, 'wash2', 4) + text(sx(pre / 2), 76, `先扣 gasLimit × gasPrice = ${fmt(gasLimit)} × ${gp} = ${fmt(pre)} gwei`, 't', 'middle');
+  const y = 120;
+  o += rect(sx(0), y, sx(burn) - sx(0), 34, 'solid', 3) + rect(sx(burn), y, sx(burn + prop) - sx(burn), 34, 'wash-strong', 0) + rect(sx(burn + prop), y, sx(pre) - sx(burn + prop), 34, 'paper', 3);
+  o += text(sx(burn / 2), y + 22, 'burn', 'tw', 'middle');
+  o += text(sx(burn + prop + refund / 2), y + 22, 'refund', 't', 'middle');
+  o += text(sx(0), y + 56, `burn = ${fmt(used)} × ${baseFee}`, 'ts') + text(sx(0), y + 72, `= ${fmt(burn)}`, 'tb');
+  o += line(sx(burn + prop / 2), y + 36, sx(burn + prop / 2), y + 82, 'mute');
+  o += text(sx(burn + prop / 2) + 4, y + 96, `proposer = ${fmt(used)} × ${gp - baseFee} = ${fmt(prop)}`, 'ts', 'middle');
+  o += text(sx(pre), y + 56, `退回 ${fmt(gasLimit - used)} × ${gp}`, 'ts', 'end') + text(sx(pre), y + 72, `= ${fmt(refund)}`, 'tb', 'end');
+  o += text(30, 246, `实付 ${fmt(pre)} − ${fmt(refund)} = ${fmt(burn + prop)} gwei = ${((burn + prop) / 1e9).toFixed(6)} ETH = burn + proposer`, 't');
+  return svg(560, 258, o, '一笔 EIP-1559 transaction 的 fee：先按 gasLimit 乘 gasPrice 预扣，未用完的 gas 退回，实际用掉的部分按 baseFee 烧掉、其余给 proposer');
+}
+
+// ---------- 第 6 站：Bob 的 health 随 ETH price 变化 ----------
+function health() {
+  const eth = 2, debt = 4000, th = 0.83;
+  const H = (P) => (eth * P * th) / debt, Pl = debt / (eth * th);
+  const sx = lin(1500, 3600, 60, 400), sy = lin(0.5, 1.6, 220, 30);
+  let o = rect(sx(1500), sy(1.6), sx(Pl) - sx(1500), sy(0.5) - sy(1.6), 'wash2');
+  o += line(sx(1500), sy(1), sx(3600), sy(1), 'dash');
+  for (const v of [2000, 2500, 3000, 3500]) o += line(sx(v), sy(0.5), sx(v), sy(0.5) + 4, 'axis') + text(sx(v), sy(0.5) + 17, String(v), 'ts', 'middle');
+  for (const v of [0.6, 1, 1.4]) o += line(sx(1500) - 4, sy(v), sx(1500), sy(v), 'axis') + text(sx(1500) - 7, sy(v) + 4, String(v), 'ts', 'end');
+  o += line(sx(1500), sy(0.5), sx(3600), sy(0.5), 'axis') + line(sx(1500), sy(0.5), sx(1500), sy(1.6), 'axis');
+  o += text(sx(3600), sy(0.5) + 32, 'ETH price（USDC）', 'ts', 'end') + text(sx(1500) - 4, sy(1.6) - 8, 'health', 'ts');
+  o += path(d([[sx(1500), sy(H(1500))], [sx(3600), sy(H(3600))]]), 'ln');
+  o += circle(sx(3000), sy(H(3000)), 4.5, 'ln-f') + text(sx(3000) - 8, sy(H(3000)) - 8, `3000：${H(3000).toFixed(3)}`, 'tl', 'end');
+  o += circle(sx(Pl), sy(1), 4.5, 'ink-f') + text(sx(Pl) + 8, sy(1) + 18, Pl.toFixed(2), 'tb');
+  o += text(sx(1560), sy(1.5), '可以被 liquidate', 'ts');
+  o += text(418, 50, 'Bob：2 ETH collateral', 't') + text(418, 68, 'debt 4000 USDC', 't') + text(418, 86, 'threshold 0.83', 't');
+  o += text(418, 120, 'health = 2P × 0.83 / 4000', 'ts') + text(418, 136, '跌破 1 时可以被', 'ts') + text(418, 152, 'liquidate', 'ts');
+  return svg(560, 262, o, 'Bob 的 health 随 ETH price 线性变化：price 3000 时是 1.245，跌到 2409.64 时等于 1，再低就可以被 liquidate');
+}
+
+// ---------- 第 6 站：flash loan 在一笔 transaction 里 ----------
+function flash() {
+  const L = 1e6, r1 = 1.002, r2 = 1.001;
+  const dai = L * r1, back = dai / r2, prof = back - L;
+  const fmt = (v) => Math.round(v).toLocaleString('en-US');
+  const A = 56, B = 216, U = 352, C = 488;
+  let o = rect(16, 34, 528, 262, 'wash', 8) + text(28, 54, '同一笔 transaction', 'tl');
+  for (const [s2, x, sub] of [['Aave', A, ''], ['Borrower', B, '（一个 contract）'], ['Uniswap', U, `1 USDC = ${r1} DAI`], ['Curve', C, `1 USDC = ${r2} DAI`]]) {
+    o += text(x, 80, s2, 'tb', 'middle') + text(x, 96, sub, 'ts', 'middle') + line(x, 104, x, 262, 'dash');
+  }
+  const msg = (y, x1, x2, s2, cls = 'ink', lx = (x1 + x2) / 2) => arrow(x1, y, x2, y, cls) + text(lx, y - 6, s2, 'ts', 'middle');
+  o += msg(126, A, B, `borrow ${fmt(L)} USDC`);
+  o += msg(152, B, U, `${fmt(L)} USDC`);
+  o += msg(178, U, B, `${fmt(dai)} DAI`);
+  o += msg(204, B, C, `${fmt(dai)} DAI`, 'ink', (U + C) / 2);
+  o += msg(230, C, B, `${fmt(back)} USDC`, 'ink', (U + C) / 2);
+  o += msg(256, B, A, `repay ${fmt(L)} USDC`, 'ln');
+  o += text(B, 284, `Borrower 剩下 ${fmt(back)} − ${fmt(L)} = ${fmt(prof)} ≈ 1,000 USDC`, 'tl', 'middle');
+  o += text(16, 318, '最后一步还不上，整笔 transaction revert，等于从没借过：lender 没有风险，也就不需要 collateral。', 'ts');
+  return svg(560, 328, o, 'Flash loan 的顺序：在同一笔 transaction 里从 Aave 借一百万 USDC，在 Uniswap 换成 DAI，在 Curve 换回 USDC，再还给 Aave，剩下约一千 USDC');
+}
+
+// ---------- 第 7 站：custodial stablecoin 的 mint、transfer、burn ----------
+function mintBurn() {
+  const steps = [
+    ['① mint', { Alice: 35, Bob: 100, Carol: 0 }],
+    ['② transfer Bob → Carol 15', { Alice: 35, Bob: 85, Carol: 15 }],
+    ['③ Bob redeem 60：burn', { Alice: 35, Bob: 25, Carol: 15 }],
+  ];
+  let o = line(16, 150, 544, 150, 'dash') + text(544, 144, 'on-chain', 'ts', 'end') + text(544, 166, 'off-chain（bank）', 'ts', 'end');
+  steps.forEach(([title, bal], i) => {
+    const x = 20 + i * 176, sup = Object.values(bal).reduce((a, b) => a + b, 0);
+    o += text(x, 26, title, 'tb');
+    o += rect(x, 38, 150, 96, 'paper', 6) + text(x + 10, 56, 'ERC-20 balances', 'ts');
+    Object.entries(bal).forEach(([k, v], j) => { o += text(x + 10, 76 + j * 17, k, 't') + text(x + 140, 76 + j * 17, String(v), 't', 'end'); });
+    o += line(x + 8, 128 - 1, x + 142, 128 - 1, 'grid');
+    o += rect(x, 178, 150, 44, 'wash2', 6) + text(x + 10, 196, 'reserve（USD）', 'ts') + text(x + 140, 214, String(sup), 'tb', 'end');
+    o += text(x + 10, 214, 'supply = ' + sup, 'ts');
+  });
+  o += text(20, 246, 'mint 和 burn 要 custodian 在 bank 和 chain 两边同时动；transfer 只在 chain 上完成。', 't');
+  return svg(560, 258, o, 'Custodial stablecoin 的三步：custodian 收到 USD 后 mint，用户之间 on-chain transfer，redeem 时 custodian 付出 USD 并 burn；每一步 off-chain 的 reserve 都等于 on-chain 的 supply');
+}
+
 export default {
   'is4302-chain': chain,
   'is4302-merkle': merkle,
@@ -279,4 +435,11 @@ export default {
   'is4302-il': il,
   'is4302-peg': peg,
   'is4302-tiers': tiers,
+  'is4302-goofy': goofy,
+  'is4302-ruin': ruin,
+  'is4302-ffg': ffg,
+  'is4302-fee': fee,
+  'is4302-health': health,
+  'is4302-flash': flash,
+  'is4302-mint': mintBurn,
 };

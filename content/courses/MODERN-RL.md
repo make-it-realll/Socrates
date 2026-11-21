@@ -228,6 +228,8 @@ $\lambda=1$ 那一列正好是 $G_t-V(s_t)$，比如 $0.729-0.5=0.229$。这个 
 
 要看 $\lambda$ 的作用，得有一个 true advantage 已知的例子。取 21 个 state 排成一条线的 random walk，从中间出发，向右的 probability 0.6，走到最右端 reward 1，走到任何一端就结束，$\gamma=0.98$。用 dynamic programming 算出真正的 $V$，再给每个 state 的 value 加上一个 $N(0,0.1)$ 的固定 error（seed 0），当作一个不准的 critic。对第一个 action 的 policy gradient 的 estimate（advantage 乘 score），在 20000 条 trajectory（seed 1）上量它的 bias 和 standard deviation。
 
+::fig[mrl-walk] 这个实验的 MDP 和它的真实 value。
+
 ::fig[mrl-gae] 横轴是 $\lambda$。|bias| 从 $\lambda=0$ 的 0.031 单调降到 $\lambda=1$ 的 0；standard deviation 从 0.012 升到 0.0998，是 true gradient 0.0178 的 5.6 倍。两者合成的 RMSE 在 $\lambda=0.6$ 处最小。
 
 这张图把 GAE 论文第 3 节的两句话都验证了。第一，$\lambda=1$ 无论 critic 准不准都没有 bias，因为 $V$ 只以 baseline 的身份出现；第二，$\lambda<1$ 只有在 critic 不准时才引入 bias（把 critic 的 error 减到 0.05，$\lambda=0$ 的 bias² 从 0.00094 降到 0.00023）。$\gamma$ 不一样：$\gamma<1$ 不管 critic 多准都会引入 bias，它改变的是要优化的 objective 本身。论文因此观察到最好的 $\lambda$ 比最好的 $\gamma$ 小得多。实际库里的默认值几乎都是 $\gamma=0.99$、$\lambda=0.95$。
@@ -368,6 +370,8 @@ Batch size 固定时，robot 越多，每个 robot 每轮走的步数越少。Ru
 $$t=0:\ 0.99\times0.9405^{23}=0.24,\qquad t=23:\ 0.99$$
 
 24 个位置平均下来是 0.53。也就是说，这一段 trajectory 里大部分的 advantage 信号都要经过 critic 在段末的那一次 bootstrap。$\gamma=0.99$ 对应的 effective horizon $1/(1-\gamma)=100$ 步，即 2 秒，远长于 0.48 秒的一段；critic 不准，advantage 就不准。段长再缩短，问题只会更严重。
+
+::fig[mrl-segcoef] 一段 24 步里，段末那一次 bootstrap 在每一步 advantage 里的分量。越靠近段末，advantage 越是由 critic 决定。
 
 :::wrong 并行的 environment 越多越好
 Batch size 不变时，environment 越多，每个 environment 每轮的步数越少，上面那个 coefficient 就越大，critic 的 error 被放大得越厉害。Rudin 等人在固定 batch 下增加 robot 数，performance 在超过某个点之后急剧下降。反过来，如果同时放大 batch，每轮的计算量随之增加，training time 在 4000 个 robot 之后就不再明显下降。Isaac Lab 文档对 `--num_envs` 的说法也是：加大它会加快 data collection，直到 simulation、optimization 或 GPU memory 成为瓶颈。
@@ -858,6 +862,8 @@ $$\log\pi_\theta(a^{K-1},\dots,a^0\mid s)=\sum_{k=1}^{K}\log\mathcal N\big(a^{k-
 
 每一项都有 closed form。于是把 environment 的 MDP 和 denoising 的 MDP 叠成两层，在上面跑 PPO，advantage 只依赖 environment 的 state。为了省 GPU memory 只 fine-tune 最后几步 denoising，exploration noise 的 std 设下限。结果：Robomimic Transport 上，用 state 输入超过 90%，用 pixel 输入超过 50%，Gaussian policy 停在 0%；Furniture-Bench 的 One-leg 任务 zero-shot 部署到真机，DPPO 16/20，而 Gaussian policy 在 simulation 里 88%、真机上 0%。论文认为 diffusion 的每一步 denoising 都把 action 拉回 demonstration 的 manifold，exploration 因此是“结构化”的。代价：sample efficiency 不如 off-policy 方法，wall-clock 最多慢一倍。
 
+::fig[mrl-dppo] DPPO 的两层 MDP。
+
 **πRL** 针对 π0 和 π0.5 这类 flow VLA 给出两种办法：Flow-Noise 加一个可学的 noise network，让 denoising 变成一个能算 exact log-likelihood 的离散 MDP（训练后丢掉，inference 仍是 deterministic）；Flow-SDE 把 ODE 换成保持 marginal distribution 不变的 SDE，同样叠成两层 MDP。RL algorithm 是 PPO。少量 demonstration SFT 之后，LIBERO 平均 success rate：π0 从 57.6% 到 97.6%（Flow-Noise），π0.5 从 77.1% 到 98.3%；ManiSkill 的 4,352 种任务组合上，π0 从 38.4% 到 77.8%，π0.5 从 40.1% 到 90.9%（Flow-SDE）。用 8 张 H100。论文自己说，online RL 的 sample efficiency 太低，目前只能在 simulation 里训、再 sim-to-real。
 
 **SimpleVLA-RL** 用的是 token 化 action 的 OpenVLA-OFT，log-likelihood 现成，直接上 GRPO：每个任务 8 个 rollout、binary 的成功 reward、不加 KL，clip 范围放宽到 $[0.8,1.28]$，rollout temperature 1.6，只保留对错都有的组。每个任务 1 条 demonstration SFT 后，LIBERO 四个 suite 平均从 48.9% 到 96.9%（Long 从 17.3% 到 91.7%；论文引言写的是 17.1%，表里是 17.3%）；RoboTwin 2.0 的 12 个双臂任务从 38.3% 到 68.8%；4 个真机任务（simulation 训练、不用真机 demonstration）平均从 17.5% 到 38.5%，正文和表格在其中两个任务上的数字不一致。论文报告了一个现象：demonstration 里总是“抓起、移动、放下”，RL 之后 policy 学会了直接把东西推过去（他们叫 pushcut）。
@@ -871,6 +877,8 @@ $$\log\pi_\theta(a^{K-1},\dots,a^0\mid s)=\sum_{k=1}^{K}\log\mathcal N\big(a^{k-
 $$\pi(a\mid s,I=1)=\frac{\pi(a\mid s)\,P(I=1\mid s,a)}{P(I=1\mid s)}\ \propto\ \pi(a\mid s)\,P(I=1\mid s,a)$$
 
 $\hat A$ 是带 noise 的 estimate，$P(I=1\mid s,a)$ 随真实 advantage 增大而增大，这就把 data 里的 policy 往好的 action 重新加权。算一个三个 action 的例子：data 里的 policy 是 $(0.5,0.3,0.2)$，真实 advantage $(0,-0.2,0.3)$（在这个 policy 下平均为 0），$\hat A$ 带 $\mathcal N(0,0.3^2)$ 的 noise，$\varepsilon=0$。那么 $P(I=1\mid a)=\Phi(A/0.3)=(0.5,0.252,0.841)$，conditioned policy 是 $(0.506,0.153,0.341)$，平均 advantage 从 0 升到 0.072；像 classifier-free guidance 那样把 $P(I=1\mid a)$ 取 3 次方，得到 $(0.335,0.026,0.639)$，平均 advantage 0.186。论文说 guidance 的 weight 太大会让行为变得激进，所以选择调 threshold $\varepsilon$。结果是公司自己的评估：在最难的几个任务上 throughput 提高一倍以上、failure rate 大约减半，连续做了 13 小时 espresso、在一个新的家里连续叠了两个多小时衣服。它每轮先收集 data、再离线训练，不是完全 online 的；人的 correction 被一律标为好的。
+
+::fig[mrl-recap] 上面三个 action 的例子：conditioning 把 probability 从坏的 action 挪到好的 action 上，取 3 次方挪得更多。
 
 | 工作 | policy | RL 方法 | rollout 在哪 | 主要结果 |
 |---|---|---|---|---|
@@ -942,6 +950,8 @@ Critic 输出的 shape 是 `(B, 1)`，target 是 `(B,)`，写 `((q - y) ** 2).me
 $$\frac{\partial}{\partial q_i}\frac{1}{B^2}\sum_{i',j}(q_{i'}-y_j)^2=\frac{2}{B^2}\sum_j(q_i-y_j)=0\quad\Longrightarrow\quad q_i=\frac1B\sum_jy_j$$
 
 每个 state 的 value 都被拉向这个 batch 的 target 平均值，和 state 无关。Critic 退化成一个常数 baseline，explained variance 接近 0，policy 还能学，只是慢。这类 bug 的通用检查是在 loss 之前 assert 两边的 shape。
+
+::fig[mrl-bcast] $B=4$ 时的 broadcasting。
 
 ### 读 learning curve：seed 与 variance
 

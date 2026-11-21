@@ -159,6 +159,12 @@ export default {
 - 填充：`wash`（主题色浅底）、`wash-strong`、`wash2`（灰底）、`solid`（主题色实心）、`solid2`、`paper`（卡片底加描边）、`ink-f`、`ln-f`、`mute-f`
 - 文字：默认 13px；`ts` 小号灰字、`tb` 加粗、`tl` 主题色加粗、`tw` 压在 `solid` 上的反白字、`tbig` 大号；`it('x')` 斜体数学字母
 
+**图要让人一眼看懂，不只是“有图”**（用户抽查 RB2202 开头后的要求）：
+- 画“东西本身”，不要只画数字的 plot。机械臂就画机械臂、gripper 就画 gripper（有厚度的面，不是几根线），cache 就画格子，protocol 就画参与方和消息箭头。plot 只在要看趋势时用，而且尽量放在实物图旁边，两边同步。
+- 过程类的设定做成动图：一个东西在动、一个量跟着变（arm 伸直时 joint 速度暴涨、IK 目标挪一点 arm 突然翻转、gimbal 附近读数乱甩、算法一步步执行）。用 `src/lib/svg.mjs` 里的 `svgA`（代替 `svg`）、`apath`、`acircle`、`animRot`、`ashow`、`anim`：给每个 keyframe 算好形状，keyTimes 按真实时间排（例如按真实速度走），跳变用 discrete。第一帧就是静态截图和 reduced-motion 时看到的样子，要能单独看懂。页面会自动加“点图暂停”。范例：`src/figures/rb2202.mjs` 的 `pitch88A`、`stretchA`、`ikjumpA`。
+- 一张图只讲一件事；标注直接写在对应的东西旁边，不靠图例来回对照。
+- 字体：图和图注统一用 Alegreya（style.css 已设好，数字是 lining figures），不要在 SVG 里另设 font-family。
+
 **什么时候必须有图**（用户明确要求过）：凡是正文给出一个具体的设定，读者需要在脑子里自己搭出画面或表格才能跟上，就必须在那一段紧挨着放图，不能只靠文字和数字。典型情形：
 - 带几何关系的设定（机械臂、障碍物、坐标系、受力、轨道、电路），尤其是一串数字描述的位置和角度；
 - K-map、truth table、状态机、DP 表、cache 的访问序列、pipeline 时序、递归树、搜索树、图和网络；

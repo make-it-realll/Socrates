@@ -288,6 +288,162 @@ function patch() {
   return svg(560, 258, o, 'Patch-based inference：input 切成 4 乘 4 个 patch，每个 patch 带一圈 halo 单独通过前几个 block，拼回 feature map 后剩下的网络逐层执行');
 }
 
+// ---------- 开头第一次：model size 与 8 GB ----------
+function fit() {
+  const P = 6738415616;
+  const rows = [['fp16', 16], ['int8', 8], ['int4', 4]];
+  const sx = lin(0, 16, 90, 500);
+  let o = '';
+  rows.forEach(([lab, bit], i) => {
+    const y = 40 + i * 50, gb = P * bit / 8 / 1e9;
+    o += text(80, y + 20, lab, 'tb', 'end') + rect(sx(0), y, sx(gb) - sx(0), 30, gb > 8 ? 'wash2' : 'solid', 3);
+    o += gb > 8 ? text(sx(gb) + 8, y + 20, gb.toFixed(2) + ' GB', 't') : text(sx(gb) - 8, y + 20, gb.toFixed(2) + ' GB', 'tw', 'end');
+  });
+  o += line(sx(8), 26, sx(8), 196, 'ln') + text(sx(8) + 6, 30, 'Jetson Orin NX：8 GB', 'tl');
+  o += line(sx(0), 196, sx(16), 196, 'axis');
+  for (const v of [0, 4, 8, 12, 16]) o += line(sx(v), 196, sx(v), 200, 'axis') + text(sx(v), 214, v + ' GB', 'ts', 'middle');
+  o += text(90, 240, `Llama-2-7B：${P.toLocaleString('en-US')} 个 parameter × bit 数；int4 还要加上 scale`, 'ts');
+  return svg(560, 252, o, 'Llama-2-7B 的 weight 在 fp16、int8、int4 下分别是 13.48、6.74、3.37 GB，与 Jetson Orin NX 的 8 GB memory 对比');
+}
+
+// ---------- 第 1 站：AlexNet conv1 与 FC1 的 parameter 和 MACs ----------
+function convfc() {
+  const conv = { p: 96 * 3 * 11 * 11, m: 96 * 3 * 11 * 11 * 55 * 55 }, fc = { p: 4096 * 9216, m: 4096 * 9216 };
+  const sx = logx(1e4, 1e9, 150, 520);
+  const fmt = (v) => v.toLocaleString('en-US');
+  let o = '';
+  for (const k of [4, 5, 6, 7, 8, 9]) o += line(sx(10 ** k), 30, sx(10 ** k), 206, 'grid') + text(sx(10 ** k), 222, '10' + sup(k), 'ts', 'middle');
+  const bar = (y, v, cls, lab) => rect(sx(1e4), y, sx(v) - sx(1e4), 22, cls, 3) + text(sx(v) + (v > 3e8 ? -6 : 6), y + 16, fmt(v), v > 3e8 ? 'tw' : 'ts', v > 3e8 ? 'end' : 'start') + text(140, y + 16, lab, 't', 'end');
+  o += text(20, 44, 'conv1', 'tb') + bar(52, conv.p, 'wash-strong', 'params') + bar(80, conv.m, 'solid', 'MACs');
+  o += text(20, 132, 'FC1', 'tb') + bar(140, fc.p, 'wash-strong', 'params') + bar(168, fc.m, 'solid', 'MACs');
+  o += text(sx(1e9), 244, 'log scale', 'ts', 'end');
+  o += text(20, 244, `conv1 的 parameter 是 FC1 的 1/${Math.round(fc.p / conv.p)}，MACs 是 FC1 的 ${(conv.m / fc.m).toFixed(1)} 倍`, 'ts');
+  return svg(560, 256, o, 'AlexNet 的 conv1 只有 34,848 个 parameter，却有一亿多次 MAC；第一个 fully-connected layer 有三千七百多万个 parameter，MACs 与 parameter 数相同');
+}
+
+// ---------- 第 3 站：k-means 与 linear 两种 4 个值 ----------
+function kmeans() {
+  const W = [2.09, -0.98, 1.48, 0.09, 0.05, -0.14, -1.08, 2.12, -0.91, 1.92, 0, -1.03, 1.87, 0, 1.53, 1.49];
+  let c = [-1.08, -1.08 + 3.2 / 3, -1.08 + 6.4 / 3, 2.12];
+  const assign = () => W.map((w) => c.reduce((bi, ci, i) => (Math.abs(w - ci) < Math.abs(w - c[bi]) ? i : bi), 0));
+  for (let it2 = 0; it2 < 10; it2++) { const a = assign(); c = c.map((ci, k) => { const m = W.filter((_, i) => a[i] === k); return m.reduce((x, y) => x + y, 0) / m.length; }); }
+  const a = assign();
+  const S = 3.2 / 3, grid = [-2, -1, 0, 1].map((q) => S * (q + 1));
+  const lq = W.map((w) => grid.reduce((b, g) => (Math.abs(w - g) < Math.abs(w - b) ? g : b), grid[0]));
+  const nrm = Math.sqrt(W.reduce((x, w) => x + w * w, 0));
+  const eK = Math.sqrt(W.reduce((x, w, i) => x + (w - c[a[i]]) ** 2, 0)) / nrm, eL = Math.sqrt(W.reduce((x, w, i) => x + (w - lq[i]) ** 2, 0)) / nrm;
+  const sx = lin(-1.5, 2.5, 40, 520), y1 = 80, y2 = 190;
+  const cls = ['ink-f', 'mute-f', 'ln-f', 'solid'];
+  let o = text(40, 30, 'k-means：codebook 放在 weight 密集的地方', 'tb') + line(40, y1, 520, y1, 'axis');
+  W.forEach((w, i) => { o += circle(sx(w), y1 - 14, 3.5, cls[a[i]]); });
+  c.forEach((ci, k) => { o += line(sx(ci), y1 - 4, sx(ci), y1 + 8, 'ink-b') + text(sx(ci), y1 + 24, ci.toFixed(2).replace('-', '−'), 'tb', 'middle'); });
+  o += text(520, y1 + 44, `error ${eK.toFixed(3)}`, 'tl', 'end');
+  o += text(40, 140, 'linear：4 个格点只能等距，间隔 S = 1.07', 'tb') + line(40, y2, 520, y2, 'axis');
+  W.forEach((w) => { o += circle(sx(w), y2 - 14, 3.5, 'ink-f'); });
+  grid.forEach((g) => { o += line(sx(g), y2 - 4, sx(g), y2 + 8, 'ink-b') + text(sx(g), y2 + 24, g.toFixed(2).replace('-', '−'), 'tb', 'middle'); });
+  o += text(520, y2 + 44, `error ${eL.toFixed(3)}`, 'tl', 'end');
+  return svg(560, 246, o, '同一个 4 乘 4 matrix 的 16 个 weight：k-means 的四个值是 −1、0、1.5、2，贴着 weight 的聚集处；linear quantization 的四个值等距，误差约为 k-means 的 2.8 倍');
+}
+
+// ---------- 第 2 站：channel pruning 要改的三处 ----------
+function chprune() {
+  let o = '';
+  const keep = 0.7;
+  const slab = (x, y, w, h, n, cut, dir, lab, sub2) => {
+    let q = text(x + w / 2, y - 10, lab, 'tb', 'middle') + text(x + w / 2, y + h + 18, sub2, 'ts', 'middle');
+    for (let i = 0; i < n; i++) {
+      const pruned = i >= Math.round(n * keep);
+      if (dir === 'row') q += rect(x, y + i * h / n, w, h / n, pruned ? 'wash2' : 'wash-strong');
+      else q += rect(x + i * w / n, y, w / n, h, pruned ? 'wash2' : 'wash-strong');
+    }
+    return q + rect(x, y, w, h, 'frame');
+  };
+  o += slab(30, 50, 120, 120, 10, true, 'row', 'layer ℓ 的 weight', 'c_o × c_i × k × k：剪第 0 维');
+  o += slab(220, 50, 40, 120, 10, true, 'row', 'BatchNorm', '4 个 tensor 都剪');
+  o += slab(340, 50, 120, 120, 10, true, 'col', 'layer ℓ+1 的 weight', 'c_o × c_i × k × k：剪第 1 维');
+  o += arrow(152, 110, 216, 110, 'mute') + arrow(262, 110, 336, 110, 'mute');
+  o += rect(470, 56, 12, 12, 'wash-strong') + text(488, 66, '保留 70%', 'ts') + rect(470, 76, 12, 12, 'wash2') + text(488, 86, '剪掉 30%', 'ts');
+  o += text(30, 230, `三处必须用同一组 channel；layer ℓ+1 的 c_i 和 c_o 都乘 ${keep}，MACs 乘 ${(keep * keep).toFixed(2)}，即 1/${(1 / keep / keep).toFixed(2)}`, 't');
+  return svg(560, 244, o, 'Channel pruning：剪掉 layer ℓ 的 30% output channel 时，要同时剪它的 BatchNorm 和 layer ℓ+1 对应的 input channel');
+}
+
+// ---------- 第 3 站：integer-only matmul 的 data flow ----------
+function intmm() {
+  let o = '';
+  const box = (x, y, w, lines, cls = 'paper') => { o += rect(x, y, w, 20 + lines.length * 16, cls, 6); lines.forEach((s2, i) => { o += text(x + w / 2, y + 17 + i * 16, s2, cls === 'solid' ? 'tw' : i === 0 ? 'tb' : 'ts', 'middle'); }); };
+  box(20, 40, 130, ['q_W（int8）', 'symmetric，Z_W = 0']);
+  box(20, 110, 130, ['q_X（int8）', 'Z_X = −64']);
+  box(190, 70, 150, ['q_W q_X（int32）', '(−20565, 15384, …)']);
+  box(190, 150, 150, ['Z_X q_W 𝟏（int32）', 'offline 算好，折进 bias'], 'wash2');
+  box(380, 70, 160, ['accumulator（int32）', '(−10325, 19032,', '11389, 10880)']);
+  box(380, 172, 160, ['× M = 2⁻⁶ × 0.56155', 'integer 乘 + bit shift', '+ Z_Y，clamp'], 'wash');
+  box(380, 270, 160, ['q_Y（int8）', '(−128, 127, 62, 57)'], 'solid');
+  o += arrow(152, 60, 188, 86, 'ink') + arrow(152, 128, 188, 96, 'ink') + arrow(342, 94, 378, 94, 'ink') + arrow(342, 172, 378, 112, 'mute');
+  o += text(370, 162, '−', 'tb', 'middle');
+  o += arrow(460, 136, 460, 170, 'ink') + arrow(460, 236, 460, 268, 'ink');
+  o += text(20, 230, 'int8 只是 memory 里的格式；', 'ts') + text(20, 248, '中间的 accumulator 要 int32，', 'ts') + text(20, 266, '整条路上没有 floating-point', 'ts');
+  return svg(560, 330, o, 'Integer-only matrix multiplication 的数据流：int8 的 weight 和 input 相乘累加成 int32，减去 offline 算好的 zero point 项，乘以定点数 M 并移位，加上 output 的 zero point 后 clamp 回 int8');
+}
+
+// ---------- 第 4 站：scale 沿哪个维度才能提到 sum 外面 ----------
+function scaleAxes() {
+  let o = '';
+  const T = 3, C = 4, J = 2, c = 26;
+  const xX = 40, yX = 70, xW = 250, yW = 44;
+  for (let t = 0; t < T; t++) for (let i = 0; i < C; i++) o += rect(xX + i * c, yX + t * c, c, c, i === 2 ? 'wash-strong' : 'paper');
+  for (let i = 0; i < C; i++) for (let j = 0; j < J; j++) o += rect(xW + j * c, yW + i * c, c, c, i === 2 ? 'wash-strong' : 'paper');
+  o += text(xX + C * c / 2, yX - 26, 'X：token t × input channel i', 'ts', 'middle') + text(xW + J * c / 2, yW - 10, 'W：i × output j', 'ts', 'middle');
+  for (let t = 0; t < T; t++) o += text(xX - 8, yX + t * c + 18, 'a' + '₁₂₃'[t], 'tl', 'end');
+  for (let j = 0; j < J; j++) o += text(xW + j * c + c / 2, yW + C * c + 18, 'b' + '₁₂'[j], 'tl', 'middle');
+  o += text(xX + 2 * c + c / 2, yX - 8, 'outlier', 'ts', 'middle');
+  o += text(xW + J * c + 8, yW + 2 * c + 18, '← c_i 在这一维', 'ts');
+  o += text(30, 200, 'Y_tj = Σ_i X_ti W_ij，sum 沿着 i 走：', 't');
+  o += text(30, 222, '· per-token a_t、per-output-channel b_j 不随 i 变 → 提到 sum 外面，仍是 integer GEMM', 'ts');
+  o += text(30, 242, '· per-input-channel c_i 随 i 变 → 每一项乘的数不同，留在 sum 里', 'ts');
+  o += text(400, 80, 'outlier 沿 i 分布，', 'ts') + text(400, 96, '最需要的恰好是 c_i', 'ts');
+  return svg(560, 256, o, 'Y 等于 X 乘 W 时，activation 的每个 token 一个 scale、weight 的每个 output channel 一个 scale 可以提到求和之外；按 input channel 的 scale 沿着求和的维度变化，提不出来');
+}
+
+// ---------- 第 6 站：MHA 与 GQA ----------
+function gqa() {
+  let o = '';
+  const row = (y, nKV, lab, sub2) => {
+    o += text(20, y - 22, lab, 'tb') + text(540, y - 22, sub2, 'ts', 'end');
+    const H = 64, w = 7.4, x0 = 30;
+    for (let h = 0; h < H; h++) o += rect(x0 + h * w, y, w - 1.5, 14, 'wash-strong');
+    const per = H / nKV;
+    for (let g = 0; g < nKV; g++) {
+      const xa = x0 + g * per * w, xb = x0 + (g + 1) * per * w - 1.5;
+      o += rect(xa, y + 34, xb - xa, 14, 'solid') + line((xa + xb) / 2, y + 16, (xa + xb) / 2, y + 32, 'mute');
+    }
+    o += text(x0 - 6, y + 11, 'Q', 'ts', 'end') + text(x0 - 6, y + 45, 'KV', 'ts', 'end');
+  };
+  const per = (g) => 2 * 80 * g * 128 * 2 / 1024;
+  row(50, 64, 'Multi-head attention：64 组 K、V', `每 token ${per(64) / 1024} MiB`);
+  row(150, 8, 'Grouped-query attention：8 个 query head 共用一组 K、V', `每 token ${per(8)} KiB`);
+  o += text(20, 236, 'Llama-2-70B：80 层，d_h = 128，fp16。Query head 不变，KV cache 小 8 倍', 'ts');
+  return svg(560, 248, o, 'Llama-2-70B 的 64 个 query head：multi-head attention 每个 head 一组 key 和 value；grouped-query attention 每 8 个 query head 共用一组，KV cache 从每 token 2.5 MiB 降到 320 KiB');
+}
+
+// ---------- 第 7 站：MobileNetV2 第 2 个 block 的 expand ----------
+function invres() {
+  const H = 112, cin = 16, cexp = 96;
+  const bIn = cin * H * H, bOut = cexp * H * H, tot = bIn + bOut;
+  const sram = 320 * 1000;
+  const sx = lin(0, 1.5e6, 40, 520);
+  let o = text(40, 28, `第 2 个 block 的 1×1 expand：${cin} → ${cexp} 个 channel，${H}×${H}，int8`, 'tb');
+  o += rect(sx(0), 50, sx(bIn) - sx(0), 34, 'wash-strong', 3) + rect(sx(bIn), 50, sx(tot) - sx(bIn), 34, 'solid', 3);
+  o += text(sx(bIn / 2), 104, `input ${cin}×${H}×${H}`, 'ts', 'middle') + text(sx(bIn / 2), 120, bIn.toLocaleString('en-US') + ' B', 'ts', 'middle');
+  o += text(sx(bIn + bOut / 2), 72, `output ${cexp}×${H}×${H} = ${bOut.toLocaleString('en-US')} B`, 'tw', 'middle');
+  o += text(sx(tot), 104, `合计 ${Math.round(tot / 1024)} KiB`, 'tl', 'end');
+  o += rect(sx(0), 150, sx(sram) - sx(0), 34, 'wash2', 3) + text(sx(sram) + 8, 172, 'SRAM 320 kB（STM32F746）', 't');
+  o += line(sx(sram), 44, sx(sram), 190, 'dash');
+  o += line(sx(0), 200, sx(1.5e6), 200, 'axis');
+  for (const v of [0, 5e5, 1e6, 1.5e6]) o += line(sx(v), 200, sx(v), 204, 'axis') + text(sx(v), 218, (v / 1e6).toFixed(1) + ' MB', 'ts', 'middle');
+  o += text(40, 244, `一个 layer 的 input 和 output 必须同时在 SRAM 里：${(tot / sram).toFixed(1)} 倍；weight 放在 Flash，不占这里`, 'ts');
+  return svg(560, 256, o, 'MobileNetV2 第二个 block 的 1x1 expand conv：input 200,704 byte 加 output 1,204,224 byte 共 1372 KiB，是 320 kB SRAM 的四倍多');
+}
+
 export default {
   'm6940-roofline': roofline,
   'm6940-sensitivity': sensitivity,
@@ -300,4 +456,12 @@ export default {
   'm6940-specdec': specdec,
   'm6940-mcupeak': mcupeak,
   'm6940-patch': patch,
+  'm6940-fit': fit,
+  'm6940-convfc': convfc,
+  'm6940-kmeans': kmeans,
+  'm6940-chprune': chprune,
+  'm6940-intmm': intmm,
+  'm6940-scaleaxes': scaleAxes,
+  'm6940-gqa': gqa,
+  'm6940-invres': invres,
 };

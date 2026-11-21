@@ -8,7 +8,7 @@ ONLY=$(paste -sd, tools/published.txt) NODE_PATH=/opt/npm-tools/node_modules nod
 files="tools/published.txt docs"
 for c in "$@"; do l=$(echo "$c" | tr A-Z a-z); files="$files content/courses/$c.md src/figures/$l.mjs"; done
 git add $files
-git -c user.name="make-it-realll" -c user.email="42yongxi@gmail.com" commit -q -m "Publish $*
+git -c user.name="make-it-realll" -c user.email="225644236+make-it-realll@users.noreply.github.com" commit -q -m "Publish $*
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01ChPbXWzbUZA9KUhf3j8xtF"

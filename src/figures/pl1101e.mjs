@@ -186,6 +186,149 @@ function milgram() {
   return svg(560, 300, o, 'Milgram 各个 variation 里一直按到 450 伏的比例：peer 代按开关时 92.5%，baseline 65%，搬到 Bridgeport 办公楼 47.5%，learner 在同一房间 40%，要亲手按住 learner 的手 30%，experimenter 用电话下指令 21%，learner 是朋友或亲属 15%，两个 peer 拒绝继续时 10%');
 }
 
+// 每组 21 人与每组 100 人：observed d 的 sampling distribution（真实 d = 0.2）
+function power() {
+  let o = '';
+  const sx = lin(-1, 1.2, 40, 400);
+  const phi = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2);
+  const panel = (base, n, thr, pct, mean) => {
+    const se = Math.sqrt(2 / n);
+    const sy = lin(0, 1, base, base - 76);
+    const f = (x) => phi(x, 0.2, se);
+    o += path(area(f, thr, 1.2, sx, sy), 'wash-strong') + path(area(f, -1, -thr, sx, sy), 'wash-strong');
+    o += path(curve(f, -1, 1.2, sx, sy), 'ln');
+    o += line(sx(-1), base, sx(1.2), base, 'axis');
+    for (const v of [-thr, thr]) o += line(sx(v), base, sx(v), base - 84, 'mute');
+    o += line(sx(0.2), base, sx(0.2), base - 80, 'dash');
+    for (const [v, s] of [[-thr, '−' + thr], [0, '0'], [thr, String(thr)], [1, '1.0']]) o += line(sx(v), base, sx(v), base + 4, 'axis') + text(sx(v), base + 17, s, 'ts', 'middle');
+    o += text(sx(0.2), base - 86, 'true d = 0.2', 'ts', 'middle');
+    o += text(416, base - 62, '每组 ' + n + ' 人', 'tb');
+    o += text(416, base - 42, 'significant：|d| > ' + thr, 'ts');
+    o += text(416, base - 22, '比例 ' + pct + '（阴影）', 'tl');
+    o += text(416, base - 4, '这些结果的 mean d = ' + mean, 'ts');
+  };
+  panel(122, 21, 0.62, '9.8%', '0.71');
+  panel(262, 100, 0.28, '29%', '0.37');
+  o += text(280, 296, '横轴是一次 study 观察到的 d。曲线按 normal 近似画（SE = √(2/n)），', 'ts', 'middle') + text(280, 313, '百分比和 mean 取自正文的 simulation。', 'ts', 'middle');
+  return svg(560, 322, o, '真实 effect 为 d 等于 0.2 时，一次 study 观察到的 d 的分布：每组 21 人时分布很宽，只有超过 0.62 的那一小截尾巴才 significant，比例 9.8%，平均报告 0.71；每组 100 人时分布窄得多，门槛 0.28，比例 29%，平均报告 0.37');
+}
+
+// Split-brain：两侧 visual field 各送到对侧 hemisphere
+function split() {
+  let o = '';
+  o += rect(150, 30, 260, 56, 'paper', 6);
+  o += text(215, 22, 'left visual field', 'ts', 'middle') + text(345, 22, 'right visual field', 'ts', 'middle');
+  o += line(280, 34, 280, 82, 'grid') + circle(280, 58, 3, 'ink-f');
+  o += text(215, 63, 'KEY', 'tb', 'middle') + text(345, 63, 'RING', 'tb', 'middle');
+  o += text(422, 54, '病人盯住中心的点，', 'ts') + text(422, 70, '图像只闪一瞬间', 'ts');
+  o += rect(150, 136, 118, 66, 'wash', 30) + rect(292, 136, 118, 66, 'wash', 30);
+  o += text(209, 165, 'left', 'tb', 'middle') + text(209, 182, 'hemisphere', 'tb', 'middle');
+  o += text(351, 165, 'right', 'tb', 'middle') + text(351, 182, 'hemisphere', 'tb', 'middle');
+  o += arrow(215, 90, 330, 132, 'ln') + arrow(345, 90, 230, 132, 'ln');
+  o += line(268, 169, 292, 169, 'dash') + line(274, 160, 286, 178, 'ink-b') + line(286, 160, 274, 178, 'ink-b');
+  o += text(280, 222, 'corpus callosum 已切断', 'ts', 'middle');
+  o += arrow(209, 204, 150, 246, 'ink') + arrow(351, 204, 410, 246, 'ink');
+  o += rect(40, 248, 200, 46, 'paper', 6) + text(140, 268, 'speech：', 'tb', 'middle') + text(140, 286, '说看到的是 ring', 't', 'middle');
+  o += rect(320, 248, 200, 46, 'paper', 6) + text(420, 268, 'left hand：', 'tb', 'middle') + text(420, 286, '从一堆东西里摸出 key', 't', 'middle');
+  o += text(280, 316, '左手由 right hemisphere 控制，开口说话靠 left hemisphere。', 'ts', 'middle') + text(280, 333, '两侧之间没有连接，各自只知道自己看到的那一半。', 'ts', 'middle');
+  return svg(560, 344, o, 'Split-brain 实验：左侧 visual field 闪现的 key 只送到 right hemisphere，右侧闪现的 ring 只送到 left hemisphere；corpus callosum 已切断，所以病人开口说看到 ring，左手却摸出 key');
+}
+
+// Sperling：whole report 与 partial report
+function sperling() {
+  let o = '';
+  const L = [['R', 'G', 'T', 'F'], ['Q', 'L', 'X', 'B'], ['S', 'N', 'K', 'P']];
+  o += text(100, 22, '屏幕闪现几十分之一秒', 'tb', 'middle');
+  o += rect(20, 34, 160, 104, 'paper', 6);
+  L.forEach((r, i) => r.forEach((c, j) => { o += text(48 + j * 35, 66 + i * 30, c, 'tb', 'middle'); }));
+  const tones = ['high tone → 报上一行', 'middle tone → 报中间一行', 'low tone → 报下一行'];
+  tones.forEach((s, i) => { o += arrow(184, 61 + i * 30, 206, 61 + i * 30, 'ln') + text(212, 66 + i * 30, s, 'ts'); });
+  o += text(212, 22, '字母消失后立刻响一个音（事先不知道是哪个）', 'ts');
+  const cells = (y, k, lab, note) => {
+    o += text(20, y - 8, lab, 'tb');
+    for (let i = 0; i < 12; i++) o += rect(20 + i * 30, y, 26, 22, i < k ? 'solid' : 'wash2', 3);
+    o += text(388, y + 16, note, 'tl');
+  };
+  cells(184, 4, 'Whole report：报告全部字母', '约 4 个');
+  cells(246, 9, 'Partial report：任一行报出约 3 个（4 个里）', '¾ × 12 ≈ 9 个');
+  o += text(280, 292, '指定哪一行是随机的，所以那一瞬间每一行都有约 ¾ 可用：信息在，只是说不完就消退了。', 'ts', 'middle');
+  return svg(560, 302, o, 'Sperling 的实验：12 个字母排成三行四列，闪现后用高、中、低三个音指定报告哪一行。报告全部时只能说出约 4 个；只报指定的一行时能报出 4 个里的约 3 个，推算那一瞬间可用的约有 9 个');
+}
+
+// Baillargeon 的 drawbridge：可能事件与不可能事件
+function screen() {
+  let o = '';
+  const L = 72;
+  const panel = (x0, title, stop, boxCls, note1, note2) => {
+    const px = x0 + 130, py = 170;
+    o += text(x0 + 130, 24, title, 'tb', 'middle');
+    o += line(x0 + 10, py, x0 + 260, py, 'ink');
+    o += rect(px + 30, py - 40, 34, 40, boxCls, 2);
+    o += text(px + 47, py + 18, 'box', 'ts', 'middle');
+    const tip = (th) => [px - L * Math.cos(th), py - L * Math.sin(th)];
+    for (const th of [0, Math.PI / 4, Math.PI / 2]) { const [x, y] = tip(th); o += line(px, py, x, y, 'grid'); }
+    const [ex, ey] = tip(stop);
+    o += line(px, py, ex, ey, 'ink-b') + circle(px, py, 3, 'ink-f');
+    const r = L + 12, pts = [];
+    for (let k = 0; k <= 40; k++) { const th = (stop * k) / 40; pts.push([px - r * Math.cos(th), py - r * Math.sin(th)]); }
+    o += path(d(pts), 'ln');
+    const a = stop - 0.08;
+    o += arrow(px - r * Math.cos(a), py - r * Math.sin(a), px - r * Math.cos(stop), py - r * Math.sin(stop), 'ln');
+    o += text(x0 + 24, py + 18, 'infant 从这边看', 'ts');
+    o += text(x0 + 130, 214, note1, 't', 'middle') + text(x0 + 130, 232, note2, 'ts', 'middle');
+  };
+  const contact = Math.PI - Math.atan2(40, 30);
+  panel(10, 'Possible event', contact, 'wash-strong', '屏板转到碰上箱子就停住', '转的角度小，时间短');
+  panel(290, 'Impossible event', Math.PI, 'dash', '屏板一直转到底', '箱子被暗中撤掉（虚线）');
+  o += line(280, 14, 280, 240, 'grid');
+  o += text(280, 262, '婴儿看右边更久。批评者指出：右边也转得更远、更久，看得久可能只因为它在知觉上不同（premise 2）。', 'ts', 'middle');
+  return svg(560, 272, o, 'Baillargeon 的 screen study 的侧视示意：屏板从平放朝婴儿的一侧转起来。可能事件里它碰到后面的箱子就停住；不可能事件里箱子被暗中撤掉，屏板一直转到底。不可能事件转的角度更大、时间更长');
+}
+
+// Asch：stimulus 与座位
+function asch() {
+  let o = '';
+  o += text(60, 40, 'standard', 'ts', 'middle');
+  o += line(60, 50, 60, 170, 'ink-b') + text(60, 190, 'X', 'tb', 'middle');
+  const cmp = [['A', 92], ['B', 120], ['C', 104]].map(([a, h]) => [a, h]);
+  o += text(170, 22, '判断哪条和 X 一样长', 'tb', 'middle') + text(170, 40, 'comparison lines', 'ts', 'middle');
+  cmp.forEach(([s, h], i) => { const x = 130 + i * 40; o += line(x, 170 - h, x, 170, 'ink-b') + text(x, 190, s, 'tb', 'middle'); });
+  o += text(130, 214, '正确答案是 B（长度示意）', 'ts', 'middle');
+  o += line(262, 14, 262, 230, 'grid');
+  o += text(410, 22, '8 人按座位依次大声报答案', 'tb', 'middle');
+  for (let i = 0; i < 8; i++) {
+    const x = 291 + i * 34, y = 90, real = i === 7;
+    o += circle(x, y, 14, real ? 'solid' : 'wash2') + text(x, y + 5, String(i + 1), real ? 'tw' : 'tb', 'middle');
+    if (i < 7) o += text(x, y - 22, '“A”', 'ts', 'middle');
+  }
+  o += arrow(285, 118, 535, 118, 'mute');
+  o += text(410, 146, '1–7：confederates', 't', 'middle') + text(410, 168, 'critical trial 上一致报错（A）', 'ts', 'middle');
+  o += text(410, 192, '8：唯一的真被试，最后一个回答', 'tl', 'middle');
+  o += text(410, 214, '18 轮里 12 轮是 critical trial', 'ts', 'middle');
+  return svg(560, 238, o, 'Asch 的 conformity 实验：左边是 standard line 和三条 comparison line，正确答案一眼可见；右边是 8 个座位，前 7 个是知情的 confederate，在 critical trial 上一致报出错误答案，真被试坐在最后一个');
+}
+
+// Regression to the mean：在最糟的日子求助
+function regress() {
+  let o = '';
+  const sx = lin(10, 90, 40, 520), sy = lin(0, 1, 190, 50);
+  const f = (x) => Math.exp(-0.5 * ((x - 50) / 10) ** 2);
+  o += path(area(f, 10, 30, sx, sy), 'wash-strong');
+  o += path(curve(f, 10, 90, sx, sy), 'ln');
+  o += axes({ sx, sy, x0: 10, x1: 90, y0: 0, y1: 0, xt: [20, 30, 40, 50, 60, 70, 80], xl: '心情分数' });
+  o += line(sx(50), 190, sx(50), 46, 'dash') + text(sx(50), 38, '自己的 mean 50，SD 10', 'ts', 'middle');
+  o += text(sx(18), 150, '分数 < 30', 'tb', 'middle') + text(sx(18), 166, '约 2.3% 的日子', 'ts', 'middle');
+  const yM = 270;
+  o += line(sx(20), yM, sx(56), yM, 'axis');
+  o += path(`M${sx(26.3) + 4} ${yM - 5}Q${(sx(26.3) + sx(38.1)) / 2} ${yM - 30} ${sx(38.1) - 4} ${yM - 5}`, 'ln');
+  o += path(`M${sx(26.3) + 4} ${yM - 5}Q${(sx(26.3) + sx(50)) / 2} ${yM - 62} ${sx(50) - 4} ${yM - 5}`, 'ln-dash');
+  const pt = (v, lab, note, cls) => circle(sx(v), yM, 5, cls) + text(sx(v), yM + 20, lab, 'ts', 'middle') + text(sx(v), yM + 38, note, 'tl', 'middle');
+  o += pt(26.3, '26.3', '求助那天', 'solid') + pt(38.1, '38.1', 'r = 0.5', 'wash-strong ink-s') + pt(50, '50', 'r = 0', 'wash-strong ink-s');
+  o += text(sx(57), yM - 4, '下一次测量的期望：', 'ts');
+  o += text(sx(57), yM + 14, '什么都不做也“提高”12 到 24 分', 'ts');
+  return svg(560, 318, o, 'Regression to the mean：一个人的心情分数 mean 50、SD 10；只在分数低于 30 的日子求助，这些日子平均 26.3 分。下一次测量的期望值，相邻两次 correlation 为 0.5 时是 38.1，互不相关时回到 50');
+}
+
 export default {
   'pl1101e-design': design,
   'pl1101e-third': third,
@@ -194,4 +337,10 @@ export default {
   'pl1101e-rw': rw,
   'pl1101e-forget': forget,
   'pl1101e-milgram': milgram,
+  'pl1101e-power': power,
+  'pl1101e-split': split,
+  'pl1101e-sperling': sperling,
+  'pl1101e-screen': screen,
+  'pl1101e-asch': asch,
+  'pl1101e-regress': regress,
 };

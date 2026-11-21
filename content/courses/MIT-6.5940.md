@@ -92,9 +92,15 @@ sources:
 
 **第一次。** Llama-2-7B 有 67.4 亿个 parameter，每个存成 fp16 占 2 byte，光 weight 就是 13.5 GB。Jetson Orin NX 8GB 一共只有 8 GB memory，放不下。
 
+::fig[m6940-fit] 第一次：weight 的大小与 8 GB 的设备。
+
 **第二次。** 换一块 RTX 4090，165 TFLOPS 的算力，生成一个 token 只需要 135 亿次 floating-point operation，照这个算一秒能出一万多个 token。实测是 20 个 token 要 310 ms，每秒 65 个左右，算力用掉不到百分之一。
 
+::fig[m6940-roofline] 第二次：decode 落在 roofline 的斜线段上，离拐点很远（第 1 站会算出这些位置）。
+
 **第三次。** MobileNetV2 只有 340 万个 parameter，int8 之后 3.4 MB。放到一块 320 KB SRAM 的 microcontroller 上，问题出在 activation：网络前部的一个 $1\times1$ conv，input 加 output 要 1372 KiB，是 SRAM 的四倍多。
+
+::fig[m6940-invres] 第三次：那个 $1\times1$ conv 的 input、output 与 SRAM（第 7 站逐层算）。
 
 三件事的原因是同一个：设备的瓶颈常常是“把多少 byte 从哪里搬到哪里”，而不是“做多少次乘法”。这门课的每个方法都可以用同一组问题去检验：它减少了存下的 bytes 吗？减少了每次 inference 要搬的 bytes 吗？减少了 operation 吗？在真实 hardware 上变快了吗？最后一个问题的答案常常和前三个不一样。
 
@@ -154,6 +160,8 @@ $$\text{MACs}=c_o\times c_i\times k_h\times k_w\times h_o\times w_o$$
 $$\text{params}=96\times3\times11\times11=34{,}848,\qquad\text{MACs}=34{,}848\times55\times55=105{,}415{,}200$$
 
 而 AlexNet 的第一个 fully-connected layer 有 $4096\times9216=37{,}748{,}736$ 个 parameter，MACs 也只是这么多。前者 parameter 是后者的千分之一，MACs 却是后者的 2.8 倍。“参数量”“计算量”“memory”是三本不同的账，只看一本会得出错误的结论。1 个 MAC 记作 2 个 FLOP（一乘一加），所以上面的 105M MACs 是 211M FLOP。
+
+::fig[m6940-convfc] AlexNet 的 conv1 与第一个 FC layer，两本账方向相反。
 
 ### Latency 由两个时间里大的那个决定
 
@@ -325,6 +333,8 @@ int8 时是 $(2\times8+2\times2)/32=62.5\%$。位置的种类固定（4 选 2 �
 
 **Channel pruning。** 剪掉 conv layer $\ell$ 的一部分 output channel，就是让这个 layer 的 weight tensor 变“瘦”，结果仍然是一个普通的 dense layer，任何 hardware 都能直接受益。代价是要同时改三处：layer $\ell$ 的 weight（第 0 维）、它后面 BatchNorm 的四个 tensor（weight、bias、running mean、running var），以及 layer $\ell+1$ 的 weight（第 1 维，即 input channel）。
 
+::fig[m6940-chprune] 每层剪掉 30% output channel 时要同时改的三处。
+
 MACs 降多少？Layer $\ell+1$ 的 MACs 是 $c_o\,c_i\,k^2\,h\,w$。每个 layer 都剪掉 30% 的 output channel 时，$c_i$ 和 $c_o$ 都乘 0.7：
 
 $$0.7\times0.7=0.49,\qquad\frac{1}{0.49}=2.04$$
@@ -367,6 +377,8 @@ Optimization 的写法、magnitude criterion、granularity 的分类、2:4 的�
 $$r=\frac{nb}{n\log_2k+kb}=\frac{16\times32}{16\times2+4\times32}=3.2$$
 
 $n$ 很大时 codebook 可以忽略，压缩倍数趋于 $b/\log_2k$，2-bit 时是 16。Reconstruction error 是 $\|W-\hat W\|_F/\|W\|_F=0.059$，最大的单个 error 是 0.14（$-0.14$ 被当成 0）。
+
+::fig[m6940-kmeans] 同样 4 个值：k-means 让它们落在 weight 聚集的地方，linear 只能等距（下一小节）。
 
 Codebook 还能 fine-tune。$w_i=c_{\ell(i)}$，$\ell(i)$ 是 $w_i$ 所在的 cluster，由 chain rule
 
@@ -480,6 +492,8 @@ $$M=\frac{S_WS_X}{S_Y}=0.0087742=2^{-6}\times0.56155$$
 
 $q_Y=\mathrm{clamp}(\mathrm{round}(M\times\text{acc})+Z_Y)=(-128,\ 127,\ 62,\ 57)$，dequantize 后是 $(-1.074,\ 1.970,\ 1.194,\ 1.134)$。
 
+::fig[m6940-intmm] 上面这次计算的数据流和每一步的位宽。
+
 :::wrong int8 的模型里所有数都是 8-bit 的
 上面的 accumulator 里出现了 $-20565$、$19032$，int8 存不下，int16 也只是勉强。一般地，$K$ 个 int8 乘积相加，最大可以到 $K\times128\times128$；$K=4096$ 时是 $6.7\times10^7$，要 int32。Bias 存 int32，$M_0$ 是 32-bit 的 fixed-point 数。“int8”说的是 weight 和 activation 在 memory 里的格式，计算中间值都更宽。Lab 里先 cast 成 int8 再加 zero point 会溢出，就是这个原因。
 :::
@@ -555,6 +569,8 @@ $$Y_{tj}=\sum_ia_t\,q_{ti}\,b_j\,q'_{ij}=a_t\,b_j\sum_iq_{ti}\,q'_{ij}$$
 $$Y_{tj}=\sum_ic_i\,q_{ti}\,q'_{ij}$$
 
 $c_i$ 留在 sum 里，每一项乘的数都不一样，这就不再是一个 integer GEMM 了。Tensor Core 一类的 hardware 只做一长串同样的 integer multiply-accumulate，中间插不进别的 operation。
+
+::fig[m6940-scaleaxes] 三种 scale 各沿哪个维度。
 
 ### SmoothQuant：把难度挪到 weight 上
 
@@ -792,6 +808,8 @@ $$2\times80\times8\times128\times2=327{,}680\ \text{byte}=320\ \text{KiB per tok
 
 $B=16$、$N=4096$ 时从 160 GiB 降到 20 GiB。Query head 的数目不变，计算量几乎不变；按课上的说法，accuracy 基本保住。
 
+::fig[m6940-gqa] Llama-2-70B 的 64 个 query head 与 KV 的对应。
+
 ### KV cache 怎样分配
 
 :::skip
@@ -906,6 +924,8 @@ int8 下一个数占 1 byte，input 是 $224\times224$。MobileNetV2 的 block �
 - 第 2 个 block（$t=6$，stride 2，24 个 output channel）：expand 把 16 个 channel 扩成 96 个，
 $$\underbrace{16\times112\times112}_{200{,}704}+\underbrace{96\times112\times112}_{1{,}204{,}224}=1{,}404{,}928\ \text{byte}=1372\ \text{KiB}$$
 接着的 depthwise（stride 2）输出 $96\times56\times56=301{,}056$，in + out 是 1,505,280 byte $=1470$ KiB。
+
+::fig[m6940-invres] 这一层的 input、output 与 SRAM。
 
 按 in + out 硬算，peak 是 1470 KiB，在第 2 个 block 的 depthwise。如果 depthwise 能原地计算（下面 TinyEngine 那部分），它只需要 input 那么多加一点，peak 落到 expand 那一层的 1372 KiB。这正是 MCUNetV2 论文 Table 1 里 MobileNetV2 的 peak SRAM 1372 kB，$1372/256=5.36$ 也就是 MCUNet 说的“int8 之后仍要 5.3 倍”（对 256 kB 的预算而言）。
 

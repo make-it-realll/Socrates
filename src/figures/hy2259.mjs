@@ -216,6 +216,177 @@ function argmap() {
   return svg(560, top + 4 * rh + 3 * gapy + 10, o, '中间是 Coras 和 Le Sueur 记下的四件事，左边是 Davis 从每件事推出 Bertrande 知情的读法，右边是 Finlay 认为她受骗的读法');
 }
 
+// 1819 年 1 月底到 2 月初的几件事，以及之后 Farquhar 的四年
+function founding() {
+  const sd = lin(27, 39, 50, 520), y1 = 104;
+  let o = text(16, 22, '1819 年 1 月 27 日到 2 月 8 日', 'tb') + text(16, 40, '彩色的三处都可以被选作 “founding” 的那一天', 'ts');
+  o += line(sd(27), y1, sd(39), y1, 'axis');
+  for (let k = 27; k <= 39; k++) o += line(sd(k), y1, sd(k), y1 + 4, 'axis');
+  o += line(sd(28), y1 - 14, sd(29), y1 - 14, 'ln') + line(sd(28), y1 - 18, sd(28), y1 - 10, 'ln') + line(sd(29), y1 - 18, sd(29), y1 - 10, 'ln');
+  o += text(40, y1 - 24, '第一次上岸：28 日还是 29 日？', 'tl');
+  o += circle(sd(28), y1, 4.5, 'ink-f') + circle(sd(30), y1, 5, 'ln-f') + circle(sd(37), y1, 6, 'ln-f') + circle(sd(38), y1, 4.5, 'ink-f');
+  o += text(530, y1 - 42, 'Treaty 签字（2 月 6 日）', 'tl', 'end') + text(530, y1 - 24, 'EIC 设 factory；每年付 5,000 与 3,000 Spanish dollars', 'ts', 'end');
+  o += line(sd(37), y1 - 7, sd(37), y1 - 18, 'mute');
+  o += text(sd(30) - 6, y1 + 22, '1 月 30 日：provisional agreement', 'tl');
+  o += text(530, y1 + 22, '2 月 7 日 Raffles 离开', 't', 'end');
+  o += line(sd(28), y1 + 6, sd(28), y1 + 32, 'mute') + text(sd(28) - 6, y1 + 46, '1 月 28 日：船队到达，在 St John\'s Island 下锚', 't');
+  // 之后几年
+  const sy = lin(1819, 1825, 50, 520), y2 = 248;
+  o += text(16, y2 - 46, 'Raffles 走后', 'tb');
+  o += rect(sy(1819 + 37 / 365), y2 - 30, sy(1823 + 120 / 365) - sy(1819 + 37 / 365), 22, 'solid', 3);
+  o += text((sy(1819.1) + sy(1823.33)) / 2, y2 - 14, 'Farquhar 任 Resident：1,544 天', 'tw', 'middle');
+  o += line(sy(1824), y2 - 22, sy(1825), y2 - 22, 'ink') + line(sy(1824), y2 - 26, sy(1824), y2 - 18, 'ink') + line(sy(1825), y2 - 26, sy(1825), y2 - 18, 'ink');
+  o += text((sy(1824) + sy(1825)) / 2, y2 - 32, '新 treaty 取代', 'ts', 'middle') + text((sy(1824) + sy(1825)) / 2, y2 - 48, '1824 年', 'ts', 'middle');
+  o += line(sy(1819), y2, sy(1825), y2, 'axis');
+  for (let yr = 1819; yr <= 1825; yr++) o += line(sy(yr), y2, sy(yr), y2 + 4, 'axis') + text(sy(yr), y2 + 18, String(yr), 'ts', 'middle');
+  o += text(16, y2 + 42, 'Raffles 前后来过三次，在 Singapore 的时间加起来', 'ts') + text(16, y2 + 59, '不到八个月（Wright）或不到十个月（Infopedia）。', 'ts');
+  return svg(560, y2 + 70, o, '上面一条放大 1819 年 1 月 27 日到 2 月 8 日：28 日船队到达，28 或 29 日第一次上岸，30 日签 provisional agreement，2 月 6 日签 treaty，7 日 Raffles 离开；下面一条是之后的几年，Farquhar 任 Resident 1,544 天，1824 年的 treaty 取代了 1819 年的');
+}
+
+// Sook Ching 的 death toll：各份 source 给的数字
+function toll() {
+  const sx = lin(0, 50000, 240, 530);
+  let o = '';
+  const top = 70, rh = 30;
+  o += line(sx(5000), 40, sx(50000), 40, 'ink') + line(sx(5000), 36, sx(5000), 44, 'ink') + line(sx(50000), 36, sx(50000), 44, 'ink');
+  o += text(sx(27500), 32, '最低和最高相差十倍', 'tb', 'middle');
+  o += text(16, 30, '黑点：执行一方', 'ts') + text(16, 47, '深色条：受害一方；浅色条：secondary', 'ts');
+  for (const v of [0, 10000, 20000, 30000, 40000, 50000]) o += line(sx(v), top - 14, sx(v), top + 4 * rh + 14, 'grid');
+  const rows = [
+    ['驻军的 diary（2 月 23 日）', 'p', 5000, '5,000'],
+    ['Japanese 政府战后的说法', 'p', 6000, '≤ 6,000'],
+    ['Hishakari 战后转述', 'p', 25000, '约 25,000'],
+    ['Chinese community 的估计', 'r', [40000, 50000], '40,000–50,000'],
+    ['后来的 historian 通常给的', 's', [25000, 50000], '25,000–50,000'],
+  ];
+  rows.forEach(([lab, kind, v, vl], i) => {
+    const y = top + i * rh;
+    o += text(228, y + 4, lab, 'ts', 'end');
+    if (kind === 'p') o += circle(sx(v), y, 5, 'ink-f') + text(sx(v) + 10, y + 4, vl, 't');
+    else {
+      o += rect(sx(v[0]), y - 7, sx(v[1]) - sx(v[0]), 14, kind === 'r' ? 'solid' : 'wash-strong', 3);
+      o += text(sx(v[0]) - 8, y + 4, vl, kind === 'r' ? 'tl' : 't', 'end');
+    }
+  });
+  const ya = top + 4 * rh + 18;
+  o += line(sx(0), ya, sx(50000), ya, 'axis');
+  for (const v of [0, 10000, 20000, 30000, 40000, 50000]) o += line(sx(v), ya, sx(v), ya + 4, 'axis') + text(sx(v), ya + 18, v.toLocaleString('en-US'), 'ts', 'middle');
+  // 15 天
+  const yd = ya + 52, bw = 30, bx = 40;
+  o += text(16, yd - 10, '行动一共 15 天（2 月 18 日至 3 月 4 日），diary 的数字只记到第 6 天', 'tb');
+  for (let k = 0; k < 15; k++) o += rect(bx + k * (bw + 2), yd, bw, 20, k < 6 ? 'wash-strong' : 'paper', 2);
+  for (const k of [1, 6, 15]) o += text(bx + (k - 1) * (bw + 2) + bw / 2, yd + 36, '第 ' + k + ' 天', 'ts', 'middle');
+  return svg(560, yd + 46, o, 'Sook Ching 死亡人数的各种数字：执行一方 diary 记的 5,000、Japanese 政府说的不超过 6,000、Hishakari 转述的约 25,000，Chinese community 估计的 40,000 到 50,000，historian 通常给的 25,000 到 50,000；diary 的记载只覆盖 15 天行动中的前 6 天');
+}
+
+// 1914 年 6 月 28 日：Latin Bridge 路口（示意，不按比例）
+function sarajevo() {
+  let o = text(16, 22, '1914 年 6 月 28 日上午，从 Town Hall 出发之后', 'tb');
+  o += rect(250, 40, 24, 128, 'wash2') + text(242, 60, 'Franz Joseph Street', 'ts', 'end');
+  o += rect(20, 168, 520, 24, 'wash2') + text(330, 180, 'Appel Quay（沿河的路）', 'ts');
+  o += rect(20, 198, 520, 24, 'wash') + text(40, 214, 'Miljacka 河', 'ts');
+  o += rect(250, 192, 24, 36, 'paper') + text(282, 244, 'Latin Bridge', 'ts');
+  o += rect(470, 112, 60, 38, 'paper', 4) + text(500, 136, 'Town Hall', 'tb', 'middle');
+  o += text(530, 102, '先遇炸弹，车队照常开到这里', 'ts', 'end');
+  // 计划的路线：沿 Appel Quay 直走
+  o += arrow(262, 187, 34, 187, 'ln-dash');
+  o += text(30, 252, '计划：沿 Appel Quay 直走，去 hospital', 'tl') + text(30, 270, 'Potiorek 的决定，没有传达给司机', 'ts');
+  // 实际的路线
+  o += line(470, 187, 262, 187, 'ln') + arrow(262, 187, 262, 160, 'ln');
+  o += rect(255, 134, 14, 24, 'solid', 3);
+  o += text(242, 124, '跟着前车右转；', 'ts', 'end') + text(242, 140, '听到喊停，刹车、想倒车，', 'ts', 'end') + text(242, 156, '发动机熄火', 'ts', 'end');
+  o += circle(286, 146, 5.5, 'ink-f') + text(298, 142, 'Princip', 'tb') + text(298, 159, 'delicatessen 门口，离车几步', 'ts');
+  o += text(30, 296, '← west', 'ts') + text(530, 296, 'east →', 'ts', 'end') + text(280, 296, '示意图，不按比例', 'ts', 'middle');
+  return svg(560, 306, o, 'Sarajevo 的 Latin Bridge 路口示意：车队从东边的 Town Hall 沿河边的 Appel Quay 向西开，计划一直直走去 hospital，司机却跟着前车在 Latin Bridge 右转进 Franz Joseph Street，停车熄火的位置就在 Princip 站的 delicatessen 门口');
+}
+
+// Rome 什么时候结束：按三个 variable 切出三个答案
+function rome() {
+  const sx = lin(300, 1500, 170, 530);
+  let o = '';
+  const rows = [
+    [70, 'Western emperor', '还有没有', 476],
+    [128, 'Mediterranean 的贸易', '连不连成一片（Pirenne）', 700],
+    [186, '自称 Roman 的', '东方 state（Gibbon）', 1453],
+  ];
+  for (const [y, a, b] of rows) o += text(16, y - 1, a, 't') + text(16, y + 15, b, 'ts');
+  // 第 1 行
+  o += rect(sx(300), 62, sx(476) - sx(300), 14, 'solid', 2) + line(sx(476), 54, sx(476), 84, 'ink');
+  o += text(sx(476) + 8, 74, '476：Odoacer 废黜 Ravenna 的最后一位 western emperor', 'ts');
+  // 第 2 行
+  o += rect(sx(300), 120, sx(600) - sx(300), 14, 'solid', 2) + rect(sx(600), 120, sx(800) - sx(600), 14, 'wash-strong', 2);
+  o += text(sx(800) + 8, 132, '7、8 世纪 Arab 的征服之后', 'ts');
+  o += text(sx(600), 152, 'Gold coinage、papyrus 从 northern Europe 消失；', 'ts') + text(sx(600), 168, '后来 archaeology 显示贸易仍有相当规模', 'ts');
+  // 第 3 行
+  o += rect(sx(300), 178, sx(1453) - sx(300), 14, 'solid', 2) + line(sx(1453), 170, sx(1453), 200, 'ink');
+  o += text(sx(1453) - 6, 214, '1453：Constantinople 陷落', 'ts', 'end');
+  // 轴
+  const ya = 238;
+  o += line(sx(300), ya, sx(1500), ya, 'axis');
+  for (let yr = 300; yr <= 1500; yr += 200) o += line(sx(yr), ya, sx(yr), ya + 4, 'axis') + text(sx(yr), ya + 18, String(yr), 'ts', 'middle');
+  const yb = ya + 40;
+  o += line(sx(476), yb, sx(1453), yb, 'ln') + line(sx(476), yb - 5, sx(476), yb + 5, 'ln') + line(sx(1453), yb - 5, sx(1453), yb + 5, 'ln');
+  o += text((sx(476) + sx(1453)) / 2, yb - 7, '1453 − 476 = 977 年', 'tl', 'middle');
+  return svg(560, yb + 12, o, '三条横条分别是 western emperor、Mediterranean 的贸易和自称 Roman 的东方 state 持续的时间：第一条在 476 年断开，第二条在 7、8 世纪，第三条到 1453 年；最早和最晚的答案差 977 年');
+}
+
+// 14 世纪的 Temasek：两句常被连在一起说的话，各自靠什么
+function temasek() {
+  const sx = lin(1280, 1420, 40, 520);
+  let o = text(16, 26, '“1299 年，Sang Nila Utama”', 'tb') + text(222, 26, '只靠 Sejarah Melayu；它最早的 version 是 1612 年的', 'ts');
+  const y0 = 66;
+  o += line(sx(1299), y0, sx(1413), y0, 'dash') + circle(sx(1299), y0, 5.5, 'ink paper-f') + circle(sx(1413), y0, 5, 'ink-f');
+  o += text((sx(1299) + sx(1413)) / 2, y0 - 8, '五位 king，共 114 年', 'ts', 'middle');
+  o += text(sx(1299) - 6, y0 + 22, '1299：倒推出来的', 't');
+  o += text(sx(1413) + 6, y0 + 22, '1413：Ming 的 record 记 Iskandar Shah 死', 't', 'end');
+  o += text(16, 126, '“14 世纪这里有一个 settlement”', 'tb') + text(244, 126, '四条 independent 的渠道，一条是器物', 'ts');
+  const r = (k) => 152 + k * 25;
+  o += circle(sx(1320), r(0), 4.5, 'ln-f') + circle(sx(1325), r(0), 4.5, 'ln-f') + text(sx(1325) + 10, r(0) + 4, '1320、1325：Chinese record 里到 Longyamen 的使团', 'ts');
+  o += rect(sx(1330), r(1) - 5, sx(1339) - sx(1330), 10, 'ln-f', 2) + circle(sx(1349), r(1), 4.5, 'ln-f') + text(sx(1349) + 10, r(1) + 4, '1330 年代 Wang Dayuan 到访，1349 年成书', 'ts');
+  o += circle(sx(1365), r(2), 4.5, 'ln-f') + text(sx(1365) + 10, r(2) + 4, '1365：Majapahit 的 court poem', 'ts');
+  o += rect(sx(1285), r(3) - 8, sx(1400) - sx(1285), 16, 'wash-strong', 3) + text((sx(1285) + sx(1400)) / 2, r(3) + 4, 'Fort Canning：13 世纪末到 14 世纪的 artefact 层', 'ts', 'middle');
+  o += text(sx(1400) + 6, r(3) + 4, '约 1400 被放弃', 'ts');
+  const ya = r(3) + 26;
+  o += line(sx(1280), ya, sx(1420), ya, 'axis');
+  for (let yr = 1280; yr <= 1420; yr += 20) o += line(sx(yr), ya, sx(yr), ya + 4, 'axis') + text(sx(yr), ya + 18, String(yr), 'ts', 'middle');
+  return svg(560, ya + 28, o, '上面一行：1299 年是从 1413 年 Iskandar Shah 之死倒推 114 年得来的，只靠 Sejarah Melayu；下面四行是 14 世纪 settlement 的四条 independent 证据：1320 和 1325 年的 Chinese record、Wang Dayuan 1349 年成书的记载、1365 年 Majapahit 的诗，以及 Fort Canning 的 artefact 层');
+}
+
+// Martin Guerre 的 case：一个 village 的十二年
+function guerre() {
+  const sx = lin(1536, 1562, 150, 530);
+  let o = rect(sx(1560), 34, sx(1561) - sx(1560), 214, 'wash') + text(sx(1560.5), 28, 'trial', 'tl', 'middle');
+  const row = (y, a, b) => text(16, y + 4, a, 'tb') + (b ? text(16, y + 20, b, 'ts') : '');
+  // Martin
+  let y = 72;
+  o += row(y, 'Martin Guerre');
+  o += line(sx(1538), y, sx(1548), y, 'ink-b') + line(sx(1548), y, sx(1560), y, 'dash');
+  o += circle(sx(1538), y, 4.5, 'ink-f') + circle(sx(1548), y, 4.5, 'ink-f') + circle(sx(1557), y, 4.5, 'ink paper-f') + circle(sx(1560.4), y, 5, 'ink-f');
+  o += text(sx(1538) - 4, y - 12, '1538 结婚，约 14 岁', 'ts') + text(sx(1548) - 4, y - 28, '1548 被指偷粮，离家', 'ts');
+  o += text(sx(1557) + 4, y - 12, '1557 当兵负伤，截肢', 'ts', 'end') + text(sx(1560.4), y + 20, '拄着木腿回来', 'ts', 'end');
+  // Bertrande
+  y = 140;
+  o += row(y, 'Bertrande', 'de Rols');
+  o += line(sx(1538), y, sx(1548), y, 'ink-b') + rect(sx(1548), y - 6, sx(1556.5) - sx(1548), 12, 'wash2', 2) + line(sx(1556.5), y, sx(1559.7), y, 'ln');
+  o += circle(sx(1546.5), y, 4.5, 'ink paper-f') + text(sx(1546.5), y - 12, '婚后 8 年多有了儿子 Sanxi', 'ts', 'middle');
+  o += text(sx(1552.25), y + 22, '8 年：不是 wife，也不是 widow', 'ts', 'middle');
+  o += text(sx(1559.7), y - 12, '认他做 husband', 'tl', 'end') + circle(sx(1560.4), y, 5, 'ln-f') + text(sx(1560.4) + 8, y + 4, 'plaintiff', 'ts');
+  // Arnaud
+  y = 208;
+  o += row(y, 'Arnaud du Tilh', '自称 Martin');
+  o += circle(sx(1556.5), y, 4.5, 'ln-f') + line(sx(1556.5), y, sx(1560.7), y, 'ln') + circle(sx(1560.7), y, 5, 'ink-f');
+  o += text(sx(1559.5), y - 12, '向 Pierre Guerre 讨家产，反目', 'ts', 'end');
+  o += text(sx(1556.5) + 2, y + 22, '1556 年夏来到 Artigat，被村里和 Bertrande 接受', 'ts', 'end');
+  o += text(sx(1561), y + 40, '1560 年在 Rieux、Toulouse 受审；9 月 12 日宣判，四天后绞死', 'ts', 'end');
+  const ya = 268;
+  o += line(sx(1536), ya, sx(1562), ya, 'axis');
+  for (let yr = 1540; yr <= 1560; yr += 5) o += line(sx(yr), ya, sx(yr), ya + 4, 'axis') + text(sx(yr), ya + 18, String(yr), 'ts', 'middle');
+  const yb = ya + 40;
+  o += line(sx(1548), yb, sx(1560), yb, 'ink') + line(sx(1548), yb - 4, sx(1548), yb + 4, 'ink') + line(sx(1560), yb - 4, sx(1560), yb + 4, 'ink');
+  o += text(sx(1554), yb - 7, '这个 case 涉及的：一个 village 的十二年', 'ts', 'middle');
+  return svg(560, yb + 12, o, 'Martin Guerre 一案的时间线：1538 年 Martin 与 Bertrande 结婚，1548 年 Martin 出走，1556 年 Arnaud du Tilh 冒充他来到 Artigat 并被接受，1557 年 Martin 在外负伤，1560 年受审期间 Martin 回来，Arnaud 被宣判并处死');
+}
+
 export default {
   'hy2259-chain': chain,
   'hy2259-donation': donation,
@@ -224,4 +395,10 @@ export default {
   'hy2259-scales': scales,
   'hy2259-debate': debate,
   'hy2259-argmap': argmap,
+  'hy2259-founding': founding,
+  'hy2259-toll': toll,
+  'hy2259-sarajevo': sarajevo,
+  'hy2259-rome': rome,
+  'hy2259-temasek': temasek,
+  'hy2259-guerre': guerre,
 };

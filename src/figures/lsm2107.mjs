@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, axes, area } from '../lib/svg.mjs';
 
 // 固定 seed 的 PRNG（mulberry32），让 drift 的图每次构建都一样
 function rng(seed) {
@@ -236,6 +236,176 @@ function lactase() {
   return svg(560, 274, o, '一个 dominant 的有利 allele 从 0.01 涨到 0.74 所需的时间：s 等于 0.1 约 2500 年，0.07 约 3600 年，0.025 约 9700 年，0.015 约 16000 年');
 }
 
+// Hypercycle：cheater 与 compartment
+function hyper() {
+  let o = '';
+  const node = (x, y, s, cls = 'paper') => circle(x, y, 17, cls) + text(x, y + 5, s, 'tb', 'middle');
+  const link = (x1, y1, x2, y2, cls = 'ln') => { const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy); return arrow(x1 + dx * 20 / L, y1 + dy * 20 / L, x2 - dx * 20 / L, y2 - dy * 20 / L, cls); };
+  o += text(135, 22, '自由扩散的 solution', 'tb', 'middle');
+  const A = [100, 62], B = [160, 150], C = [40, 150], X = [218, 84];
+  o += link(...A, ...B) + link(...B, ...C) + link(...C, ...A) + link(...A, ...X);
+  o += line(X[0] - 6, X[1] + 18, X[0] - 18, X[1] + 34, 'dash');
+  o += text(X[0] - 22, X[1] + 48, '✗', 'tb', 'middle');
+  o += node(...A, 'A') + node(...B, 'B') + node(...C, 'C') + node(...X, 'B*', 'wash-strong');
+  o += text(240, 150, 'cheater：', 'ts', 'middle') + text(240, 166, '收 A 的帮助，', 'ts', 'middle') + text(240, 182, '不帮 C', 'ts', 'middle');
+  o += text(125, 206, '每轮快 10%：1.1⁵⁰ ≈ 117 倍', 'tl', 'middle');
+  o += line(280, 14, 280, 236, 'grid');
+  o += text(420, 22, '关进 compartment', 'tb', 'middle');
+  const comp = (cx, cy, cheat, lab1, lab2) => {
+    o += circle(cx, cy, 58, cheat ? 'wash2' : 'wash');
+    const a = [cx, cy - 30], b = [cx + 28, cy + 20], c = [cx - 28, cy + 20];
+    o += link(...a, ...b) + link(...c, ...a) + (cheat ? line(b[0] - 18, b[1] + 2, c[0] + 18, c[1] + 2, 'dash') : link(...b, ...c));
+    o += node(...a, 'A') + node(...b, cheat ? 'B*' : 'B', cheat ? 'wash-strong' : 'paper') + node(...c, 'C');
+    o += text(cx, cy + 82, lab1, 'tb', 'middle') + text(cx, cy + 98, lab2, 'ts', 'middle');
+  };
+  comp(355, 108, false, '合作者', 'replicate 快，分裂快');
+  comp(487, 108, true, '有 cheater', '整个 compartment 变慢');
+  o += text(280, 236, '', 'ts');
+  return svg(560, 228, o, 'Hypercycle：A 帮 B、B 帮 C、C 帮 A。在自由扩散的 solution 里，B 的 mutant B* 接受 A 的帮助却不帮 C，每轮快 10%，50 轮后多出约 117 倍；关进 compartment 后，帮助只给同一个 compartment 的成员，有 cheater 的 compartment 整体变慢');
+}
+
+// John 和 Jill 的 pedigree
+function pedigree() {
+  let o = '';
+  const sq = (x, y, cls = 'paper') => rect(x - 14, y - 14, 28, 28, cls, 2);
+  const ci = (x, y, cls = 'paper') => circle(x, y, 14, cls);
+  o += sq(140, 50) + ci(220, 50) + line(154, 50, 206, 50, 'ink');
+  o += text(180, 24, 'John 的 parents：都是 Aa', 'ts', 'middle');
+  o += line(180, 50, 180, 84, 'ink') + line(100, 84, 260, 84, 'ink') + line(100, 84, 100, 106, 'ink') + line(260, 84, 260, 106, 'ink');
+  o += sq(100, 120, 'ink-f') + text(100, 154, '哥哥：aa', 'ts', 'middle') + text(100, 170, '死于这种病', 'ts', 'middle');
+  o += sq(260, 120) + text(260, 154, 'John：健康', 'tb', 'middle') + text(260, 172, 'P(Aa) = ½ ÷ ¾ = ⅔', 'tl', 'middle');
+  o += ci(420, 120) + text(420, 154, 'Jill：健康', 'tb', 'middle') + text(420, 172, 'P(Aa) = 0.18 ÷ 0.99 ≈ 0.182', 'tl', 'middle');
+  o += line(274, 120, 406, 120, 'ink');
+  o += rect(354, 30, 132, 44, 'wash2', 6) + text(420, 48, 'population：q² = 1%', 'ts', 'middle') + text(420, 65, 'q = 0.1，2pq = 0.18', 'ts', 'middle');
+  o += line(420, 74, 420, 106, 'dash');
+  o += line(340, 120, 340, 200, 'ink');
+  o += poly([[340, 200], [354, 214], [340, 228], [326, 214]], 'paper') + text(340, 219, '?', 'tb', 'middle');
+  o += text(362, 210, '孩子是 aa 的 probability', 'ts') + text(362, 228, '⅔ × 0.182 × ¼ ≈ 0.030', 'tl');
+  o += text(280, 260, '方块是 male，圆是 female，涂黑是患者。John 健康，所以排除了 aa，只在 AA 与 Aa 之间算。', 'ts', 'middle');
+  return svg(560, 272, o, 'John 和 Jill 的 pedigree：John 的哥哥是 aa，所以 parents 都是 Aa；John 健康，是 carrier 的 probability 为三分之二；Jill 来自 carrier 占 0.18 的 population，健康，是 carrier 的 probability 约 0.182；孩子得病的 probability 约 0.030');
+}
+
+// Euler–Lotka：两种策略每个年龄的 l_x m_x
+function lotka() {
+  let o = '';
+  const sx = lin(0.4, 6.6, 60, 370), sy = lin(0, 1.3, 220, 40);
+  o += axes({ sx, sy, x0: 0.4, x1: 6.6, y0: 0, y1: 1.3, xt: [1, 2, 3, 4, 5, 6], yt: [0, 0.5, 1], grid: true, xl: '年龄 x', yl: 'lₓmₓ：这个年龄平均生几个 daughter' });
+  for (let x = 1; x <= 6; x++) {
+    const a = 0.2 * 0.5 ** (x - 1) * 5, b = x >= 2 ? 0.2 * 0.5 ** (x - 1) * 12 : 0;
+    o += rect(sx(x) - 17, sy(a), 16, sy(0) - sy(a), 'solid') + rect(sx(x) + 1, sy(b), 16, sy(0) - sy(b), 'wash-strong');
+    if (x <= 3) { o += text(sx(x) - 9, sy(a) - 5, a.toFixed(2).replace(/0$/, ''), 'ts', 'middle'); if (b) o += text(sx(x) + 9, sy(b) - 5, b.toFixed(1), 'ts', 'middle'); }
+  }
+  o += rect(392, 56, 14, 14, 'solid') + text(412, 68, 'A：1 岁起，每年 5', 'tb');
+  o += text(412, 88, 'R₀ = 2.0，λ = 1.5', 'tl');
+  o += rect(392, 120, 14, 14, 'wash-strong') + text(412, 132, 'B：2 岁起，每年 12', 'tb');
+  o += text(412, 152, 'R₀ = 2.4，λ ≈ 1.37', 'tl');
+  o += text(392, 190, 'R₀ 是 bar 的总和：B 多。', 'ts') + text(392, 208, 'λ 还看早晚：A 早一年。', 'ts');
+  return svg(560, 256, o, '两种 life history 策略每个年龄的 l_x m_x：策略 A 从 1 岁起依次是 1、0.5、0.25……，总和 R0 为 2.0，λ 为 1.5；策略 B 从 2 岁起依次是 1.2、0.6、0.3……，总和 2.4 更大，但 λ 只有约 1.37');
+}
+
+// Fly：每天 expected 产卵数，晚年几乎不占分量
+function aging() {
+  let o = '';
+  const sx = lin(0.3, 25.7, 60, 520), sy = lin(0, 11, 220, 36), w = 13;
+  o += axes({ sx, sy, x0: 0.3, x1: 25.7, y0: 0, y1: 11, xt: [1, 5, 10, 15, 19, 25], yt: [0, 2, 4, 6, 8, 10], grid: true, xl: '第 t 天', yl: 'expected egg 数 = 10 × 0.8ᵗ⁻¹' });
+  for (let t = 1; t <= 25; t++) {
+    const v = 10 * 0.8 ** (t - 1);
+    o += rect(sx(t) - w / 2, sy(v), w, sy(0) - sy(v), t <= 19 ? 'solid' : 'wash-strong');
+  }
+  o += rect(sx(1) - w / 2, sy(11), w, sy(10) - sy(11), 'wash2 ink-s');
+  o += text(sx(1) + 12, sy(10.6) + 4, '第二个 mutant：第 1 天多 1 个，+1', 'ts');
+  o += line(sx(19.5), sy(0), sx(19.5), sy(7.2), 'dash');
+  o += text(sx(19.5) + 4, sy(6.6), '第 19 天之后必死：', 'ts') + text(sx(19.5) + 4, sy(6.6) + 16, '浅色部分合计只有 0.72', 'tl');
+  o += text(sx(19.5) + 4, sy(6.6) + 32, '（活到第 20 天的', 'ts') + text(sx(19.5) + 4, sy(6.6) + 48, 'probability 约 1.4%）', 'ts');
+  o += text(sx(8), sy(7.6), '不 aging：全部 bar 合计 50', 'tb');
+  return svg(560, 264, o, '一只每天 survival 为 0.8 的 fly 每天 expected 的 egg 数：第 1 天 10 个，之后每天乘 0.8，全部合计 50；第 19 天之后的部分合计只有 0.72，所以一个第 1 天多产 1 个、代价是第 19 天后必死的 mutant 总数更多');
+}
+
+// 读 tree：clade、paraphyletic 与绕 node 旋转
+function tree() {
+  let o = '';
+  const panel = (x0, title, tips, nodes, shade, note) => {
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+    const ty = (i) => 52 + i * 28, X = (dep) => x0 + 20 + dep * 28;
+    const pos = {};
+    tips.forEach((t, i) => { pos[t] = [X(5), ty(i)]; });
+    if (shade) { const ys = shade.map((t) => pos[t][1]); o += rect(X(shade.length === 3 ? 3 : 1) - 6, Math.min(...ys) - 13, X(5) - X(3) + 88, Math.max(...ys) - Math.min(...ys) + 26, 'wash', 6); }
+    for (const [name, dep, kids] of nodes) {
+      const ys = kids.map((k) => pos[k][1]);
+      const y = (Math.min(...ys) + Math.max(...ys)) / 2, x = X(dep);
+      o += line(x, Math.min(...ys), x, Math.max(...ys), 'ink');
+      for (const k of kids) o += line(x, pos[k][1], pos[k][0], pos[k][1], 'ink');
+      pos[name] = [x, y];
+    }
+    o += line(X(0) - 12, pos.root[1], X(0), pos.root[1], 'ink');
+    tips.forEach((t) => { o += text(X(5) + 6, pos[t][1] + 5, t, 't'); });
+    o += text(x0 + 130, 236, note[0], 'ts', 'middle') + text(x0 + 130, 252, note[1], 'ts', 'middle');
+    return pos;
+  };
+  const N = [['amn', 4, ['lizard', 'human']], ['tet', 3, ['frog', 'amn']], ['sar', 2, ['lungfish', 'tet']], ['ost', 1, ['tuna', 'sar']], ['root', 0, ['shark', 'ost']]];
+  const p = panel(10, 'Tetrapod 是 clade，“fish”不是', ['shark', 'tuna', 'lungfish', 'frog', 'lizard', 'human'], N, ['frog', 'lizard', 'human'], ['阴影：一个 node 加上它全部 descendant。', '“fish”缺了 tetrapod，是 paraphyletic。']);
+  o += text(p.tet[0] - 4, p.tet[1] - 6, '', 'ts');
+  o += path(`M240 42L248 42L248 118L240 118`, 'dash');
+  o += text(250, 34, '“fish”', 'ts', 'middle');
+  const N2 = [['amn', 4, ['lizard', 'human']], ['tet', 3, ['frog', 'amn']], ['sar', 2, ['lungfish', 'tet']], ['ost', 1, ['sar', 'tuna']], ['root', 0, ['shark', 'ost']]];
+  panel(290, '把一个 node 转 180°', ['shark', 'lungfish', 'frog', 'lizard', 'human', 'tuna'], N2, null, ['human 现在挨着 tuna，关系一点没变：', 'human 和 lungfish 的 common ancestor 更近。']);
+  o += line(280, 14, 280, 258, 'grid');
+  return svg(560, 264, o, '同一棵 vertebrate 的 tree 画两次：左边 frog、lizard、human 组成 tetrapod clade，shark、tuna、lungfish 合称的 fish 不包含 tetrapod，是 paraphyletic；右边把 tuna 所在的 node 转了 180 度，human 排到了 tuna 旁边，但 human 与 lungfish 的 common ancestor 仍然比与 tuna 的更近');
+}
+
+// Hamilton：cousin 的 relatedness 走哪几步
+function paths() {
+  let o = '';
+  const sq = (x, y, cls = 'paper') => rect(x - 13, y - 13, 26, 26, cls, 2);
+  const ci = (x, y, cls = 'paper') => circle(x, y, 13, cls);
+  o += sq(200, 44) + ci(300, 44) + line(213, 44, 287, 44, 'ink') + text(250, 22, '两个共同的 grandparent', 'ts', 'middle');
+  o += line(250, 44, 250, 72, 'ink') + line(150, 72, 350, 72, 'ink') + line(150, 72, 150, 92, 'ink') + line(350, 72, 350, 92, 'ink');
+  o += ci(150, 106, 'wash') + text(150, 111, 'P', 'tb', 'middle') + sq(70, 106) + line(83, 106, 137, 106, 'ink');
+  o += sq(350, 106, 'wash') + text(350, 111, 'U', 'tb', 'middle') + ci(430, 106) + line(363, 106, 417, 106, 'ink');
+  o += text(150, 138, 'parent', 'ts', 'middle') + text(350, 138, 'aunt / uncle', 'ts', 'middle');
+  o += line(110, 106, 110, 160, 'ink') + line(80, 160, 140, 160, 'ink') + line(80, 160, 80, 174, 'ink') + line(140, 160, 140, 174, 'ink');
+  o += line(390, 106, 390, 174, 'ink');
+  o += circle(80, 188, 15, 'solid') + text(80, 193, 'me', 'tw', 'middle') + ci(140, 188) + ci(390, 188);
+  o += text(140, 220, 'full sibling', 'ts', 'middle') + text(140, 236, 'r = ½', 'tl', 'middle');
+  o += text(390, 220, 'cousin', 'ts', 'middle') + text(390, 236, 'r = 2 × (½)⁴ = ⅛', 'tl', 'middle');
+  const hop = (x1, y1, x2, y2) => { o += path(`M${x1} ${y1}Q${(x1 + x2) / 2 + (y2 > y1 ? 18 : -18)} ${(y1 + y2) / 2} ${x2} ${y2}`, 'ln-dash'); o += text((x1 + x2) / 2 + (y2 > y1 ? 22 : -22), (y1 + y2) / 2 + 4, '½', 'tl', 'middle'); };
+  hop(92, 176, 140, 120); hop(160, 94, 208, 56); hop(292, 56, 340, 94); hop(362, 120, 382, 176);
+  o += text(500, 160, '从 me 走到 cousin：', 'ts', 'middle') + text(500, 176, '上两代、下两代，', 'ts', 'middle') + text(500, 192, '每一步 ½；', 'ts', 'middle') + text(500, 208, '经过两个 grandparent', 'ts', 'middle') + text(500, 224, '各有一条这样的路', 'ts', 'middle');
+  o += text(280, 262, '虚线画的是经过 grandmother 的那条路；经过 grandfather 的另一条同样是 (½)⁴。', 'ts', 'middle');
+  return svg(560, 272, o, 'Cousin 之间 relatedness 的算法：从 me 到 parent、到 grandparent、到 aunt 或 uncle、到 cousin，每一步 probability 二分之一，共四步；两个共同 grandparent 各给一条这样的路，所以 r 等于 2 乘以二分之一的四次方，即八分之一。Full sibling 的 r 是二分之一');
+}
+
+// Human、Neanderthal、Denisovan
+function hominin() {
+  let o = '';
+  const sx = lin(450, 0, 70, 430);
+  const yH = 70, yN = 150, yD = 196;
+  o += line(sx(450), yH, sx(15), yH, 'ln');
+  o += line(sx(400), yH, sx(400), 170, 'ink') + line(sx(400), 170, sx(300), 170, 'ink');
+  o += line(sx(300), yN, sx(300), yD, 'ink') + line(sx(300), yN, sx(40), yN, 'ink') + line(sx(300), yD, sx(40), yD, 'ink');
+  o += text(sx(40) + 6, yN + 5, 'Neanderthal', 'tb') + text(sx(40) + 6, yD + 5, 'Denisovan', 'tb');
+  const tips = [['African', 44], ['non-African', 70], ['Oceanian', 96]];
+  o += line(sx(15), yH, sx(15), 96, 'ln') + line(sx(15), 44, sx(15), yH, 'ln');
+  for (const [t, y] of tips) o += line(sx(15), y, sx(0), y, 'ln') + text(sx(0) + 6, y + 5, t, 'tb');
+  o += arrow(sx(55), yN - 4, sx(10), 74, 'ink');
+  o += text(sx(70), 118, '1.5–2.1%', 'ts', 'end');
+  o += arrow(sx(55), yD - 4, sx(5), 100, 'ink');
+  o += text(sx(60), 186, '约 6%', 'ts', 'end');
+  for (const [k, lab, dy] of [[315, 'Jebel Irhoud，约 315', -14], [196, '', 0], [160, '', 0]]) {
+    o += circle(sx(k), yH, 5, 'paper ink-s');
+    if (lab) o += text(sx(k), yH + dy, lab, 'ts', 'middle');
+  }
+  o += text((sx(196) + sx(160)) / 2, yH - 14, 'Ethiopia', 'ts', 'middle');
+  o += text(sx(250), 30, 'H. sapiens 的 fossil', 'tl', 'middle');
+  const ya = 232;
+  o += line(sx(450), ya, sx(0), ya, 'axis');
+  for (const k of [400, 300, 196, 160, 0]) o += line(sx(k), ya, sx(k), ya + 4, 'axis') + text(sx(k), ya + 17, k === 0 ? '今天' : String(k), 'ts', 'middle');
+  o += text(sx(450), ya + 34, '千年前', 'ts');
+  o += text(sx(450), 216, '← chimpanzee 与 bonobo：6–12 million 年前分开（远在轴外）', 'ts');
+  o += text(sx(0) + 6, ya + 34, '混合的位置是示意', 'ts', 'middle');
+  return svg(560, 274, o, '现代人、Neanderthal 与 Denisovan 的关系：后两者的共同 ancestor 约 40 万年前与现代人的 lineage 分开，两者约 30 万年前分开；H. sapiens 最早的 fossil 是 Morocco 的 Jebel Irhoud，约 31.5 万年，Ethiopia 的约 19.6 万年和 16 万年；non-African 的 genome 有 1.5% 到 2.1% 来自 Neanderthal，Oceanian 约 6% 来自 Denisovan');
+}
+
 export default {
   'lsm2107-threshold': threshold,
   'lsm2107-hw': hw,
@@ -248,4 +418,11 @@ export default {
   'lsm2107-dm': dm,
   'lsm2107-kin': kin,
   'lsm2107-lactase': lactase,
+  'lsm2107-hyper': hyper,
+  'lsm2107-pedigree': pedigree,
+  'lsm2107-lotka': lotka,
+  'lsm2107-aging': aging,
+  'lsm2107-tree': tree,
+  'lsm2107-paths': paths,
+  'lsm2107-hominin': hominin,
 };

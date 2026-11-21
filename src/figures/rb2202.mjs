@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, animRot, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 const R = Math.PI / 180;
 const fk2 = (t1, t2) => [Math.cos(t1) + Math.cos(t1 + t2), Math.sin(t1) + Math.sin(t1 + t2)];
@@ -400,6 +400,159 @@ function ikjump() {
   return svg(560, 270, o, 'radius 根号 2 的 arc 上两个相距 1.2 cm 的目标，从同一个 seed 做 Newton IK 得到两组完全不同的 joint angle');
 }
 
+
+// ---------- 开头三次事故：动图 ----------
+const Rz3 = (a) => [[Math.cos(a), -Math.sin(a), 0], [Math.sin(a), Math.cos(a), 0], [0, 0, 1]];
+// 第一次：gripper 几乎没动，读出来的 yaw、roll 来回甩
+function pitch88A() {
+  const T = 4, N = 72, kt = [], eps = [];
+  for (let i = 0; i <= N; i++) { kt.push(i / N); eps.push(Math.sin(2 * Math.PI * i / N)); }
+  const Rs = eps.map((e) => mul3(Rx3(e * R), Ry3(88 * R)));
+  const E = Rs.map(eulerZYX);
+  // 斜二测投影：world z 朝上
+  const C = [138, 104], s = 66;
+  const Pj = ([x, y, z]) => [C[0] + s * (-0.72 * x + 0.72 * y), C[1] + s * (0.36 * x + 0.36 * y - 0.86 * z)];
+  const col = (M, k) => [M[0][k], M[1][k], M[2][k]];
+  const add = (a, b, k = 1) => a.map((v, i) => v + k * b[i]);
+  const O = [0, 0, 0];
+  let o = text(128, 22, 'gripper 的真实 orientation', 'tb', 'middle');
+  // world frame：放在左下角，只表示方向
+  const W0 = [40, 176], Wv = (v) => [W0[0] + 26 * (-0.72 * v[0] + 0.72 * v[1]), W0[1] + 26 * (0.36 * v[0] + 0.36 * v[1] - 0.86 * v[2])];
+  for (const [v, lab, dx, dy] of [[[1, 0, 0], 'x', -6, 12], [[0, 1, 0], 'y', 8, 10], [[0, 0, 1], 'z', 0, -5]]) {
+    const b = Wv(v); o += arrow(W0[0], W0[1], b[0], b[1], 'mute', 5) + text(b[0] + dx, b[1] + dy, lab + '<tspan class="sub" dy="3">s</tspan>', 'ts', 'middle');
+  }
+  // gripper：flange + palm + 两根 finger，都画成有厚度的面；finger 沿 x_b
+  const quad = (c, u, v, a, b) => d([add(add(c, u, -a), v, -b), add(add(c, u, a), v, -b), add(add(c, u, a), v, b), add(add(c, u, -a), v, b), add(add(c, u, -a), v, -b)].map(Pj)) + 'Z';
+  const shape = (M) => {
+    const xb = col(M, 0), yb = col(M, 1), zb = col(M, 2);
+    return quad(add(O, xb, -0.62), xb, yb, 0.32, 0.12) + quad(add(O, xb, -0.22), yb, xb, 0.5, 0.08) + quad(add(add(O, yb, -0.42), xb, 0.22), xb, yb, 0.32, 0.06) + quad(add(add(O, yb, 0.42), xb, 0.22), xb, yb, 0.32, 0.06);
+  };
+  const axisD = (M, k, L, o0 = 0.6) => d([col(M, k).map((v) => v * o0), col(M, k).map((v) => v * L)].map(Pj));
+  o += apath(Rs.map(shape), kt, T, 'paper');
+  o += apath(Rs.map((M) => axisD(M, 0, 1.3)), kt, T, 'ln');
+  const tipX = Pj(col(Rs[0], 0).map((v) => v * 1.3));
+  o += text(tipX[0] + 10, tipX[1] + 4, 'x<tspan class="sub" dy="3">b</tspan>', 'tl', 'start');
+
+  // 真实转动的 slider：ε ∈ [−1°, 1°]
+  const sx = lin(-1, 1, 48, 208), Y = 262;
+  o += line(sx(-1), Y, sx(1), Y, 'axis');
+  for (const v of [-1, 0, 1]) o += line(sx(v), Y - 4, sx(v), Y + 4, 'axis') + text(sx(v), Y + 18, (v < 0 ? '−' : '') + Math.abs(v) + '°', 'ts', 'middle');
+  o += acircle(eps.map(sx), eps.map(() => Y), kt, T, 6, 'ink-f');
+  o += text(128, Y - 14, '绕 x<tspan class="sub" dy="3">s</tspan><tspan dy="-3"> </tspan>真实转过的 angle：只在 ±1° 之间', 'ts', 'middle');
+  // 三个 dial
+  const dial = (cx, cy, vals, name, cls, hot) => {
+    const r = 46;
+    let q = circle(cx, cy, r, 'paper');
+    for (let a = -180; a < 180; a += 30) {
+      const t = (a - 90) * R, r0 = a % 90 === 0 ? r - 9 : r - 5;
+      q += line(cx + r0 * Math.cos(t), cy + r0 * Math.sin(t), cx + r * Math.cos(t), cy + r * Math.sin(t), 'axis');
+    }
+    q += text(cx, cy - r - 8, '0°', 'ts', 'middle') + text(cx + r + 6, cy + 4, '90°', 'ts', 'start');
+    // 摆动范围
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    if (hot) {
+      const arcPts = [];
+      for (let k = 0; k <= 30; k++) { const t = ((lo + (hi - lo) * k / 30) - 90) * R; arcPts.push([cx + (r - 14) * Math.cos(t), cy + (r - 14) * Math.sin(t)]); }
+      q += path(d(arcPts), 'ln-dash');
+    }
+    q += `<g>${line(cx, cy, cx, cy - (r - 6), cls)}${animRot(vals, cx, cy, kt, T)}</g>` + circle(cx, cy, 3.5, 'ink-f');
+    q += text(cx, cy + r + 18, name, hot ? 'tl' : 'tb', 'middle');
+    q += text(cx, cy + r + 34, hot ? '在 ' + lo.toFixed(1).replace('-', '−') + '° 到 +' + hi.toFixed(1) + '° 之间甩' : '一直约 88°', 'ts', 'middle');
+    return q;
+  };
+  o += text(410, 22, '读出的 ZYX Euler angles（= 发给 wrist 三个 joint 的指令）', 'tb', 'middle');
+  o += dial(310, 110, E.map((e) => e[0]), 'yaw α', 'ln', true);
+  o += dial(420, 110, E.map((e) => e[1]), 'pitch β', 'ink-b', false);
+  o += dial(530, 110, E.map((e) => e[2]), 'roll γ', 'ln', true);
+  o += text(420, 232, '左边只转了 2°，右边两根指针各甩了约 53°，', 'ts', 'middle') + text(420, 249, 'robot 照着指针转 joint，wrist 就猛甩。', 'ts', 'middle');
+  return svgA(600, 292, o, '动图：gripper pitch 约 88 度时绕 x 轴来回转正负 1 度，几乎看不出动；读出的 yaw 和 roll 指针却在正负 26.6 度之间来回甩');
+}
+
+// 第二次：tip 匀速往外伸，joint 2 越来越快
+function stretchA() {
+  const v = 0.1, r = (t2) => 2 * Math.cos(t2 / 2);
+  const ths = []; for (let t2 = 90; t2 >= 2 - 1e-9; t2 -= 1) ths.push(t2);
+  const ts = ths.map((t2) => (r(t2 * R) - Math.SQRT2) / v), Tm = ts[ts.length - 1];
+  const pre = 0.8, post = 1.6, T = pre + Tm + post;
+  const kt = [0, ...ts.map((t) => (pre + t) / T), 1];
+  const seq = [ths[0], ...ths, ths[ths.length - 1]];
+  const rate = (t2) => v / Math.sin(t2 * R / 2) / R; // °/s
+  // 左：arm
+  const u = 118, B = [36, 108], P = ([x, y]) => [B[0] + x * u, B[1] - y * u];
+  const conf = (t2d) => { const t2 = t2d * R, t1 = -t2 / 2; return [[0, 0], [Math.cos(t1), Math.sin(t1)], fk2(t1, t2)]; };
+  let o = text(150, 22, 'tip 以 0.1 m/s 沿直线往外走', 'tb', 'middle');
+  o += line(B[0] - 10, B[1], B[0] + 2.08 * u, B[1], 'grid');
+  o += line(P([Math.SQRT2, 0])[0], B[1] - 5, P([Math.SQRT2, 0])[0], B[1] + 5, 'axis') + line(P([2, 0])[0], B[1] - 5, P([2, 0])[0], B[1] + 5, 'axis');
+  o += text(P([Math.SQRT2, 0])[0], B[1] - 10, '√2 m', 'ts', 'middle') + text(P([2, 0])[0], B[1] - 10, '2 m', 'ts', 'middle');
+  o += apath(seq.map((t) => d(conf(t).map(P))), kt, T, 'ink-b');
+  o += circle(B[0], B[1], 5, 'paper');
+  const el = seq.map((t) => P(conf(t)[1])), tp = seq.map((t) => P(conf(t)[2]));
+  o += acircle(el.map((p) => p[0]), el.map((p) => p[1]), kt, T, 4, 'paper');
+  o += acircle(tp.map((p) => p[0]), tp.map((p) => p[1]), kt, T, 3.5, 'ln-f');
+  o += `<text class="ts" text-anchor="middle" x="${f1(el[0][0])}" y="${f1(el[0][1] + 20)}">elbow${anim('x', el.map((p) => f1(p[0])), kt, T)}${anim('y', el.map((p) => f1(p[1] + 20)), kt, T)}</text>`;
+  // 右：joint 2 的速度
+  const sx = lin(Math.SQRT2, 2, 330, 560), sy = lin(0, 340, 236, 40);
+  o += axes({ sx, sy, x0: Math.SQRT2, x1: 2, y0: 0, y1: 340, xt: [[Math.SQRT2, '1.41'], [1.6, '1.6'], [1.8, '1.8'], [2, '2.0']], yt: [0, 100, 200, 300], grid: true, xl: 'tip 到 base 的距离（m）' });
+  o += text(330, 28, 'joint 2 要转多快（°/s）', 'tb', 'start');
+  const cur = []; for (let t2 = 90; t2 >= 2; t2 -= 0.25) cur.push([sx(r(t2 * R)), sy(rate(t2))]);
+  o += path(d(cur), 'ln');
+  const px = seq.map((t) => sx(r(t * R))), py = seq.map((t) => sy(rate(t)));
+  o += apath(seq.map((t) => d([[330, sy(rate(t))], [sx(r(t * R)), sy(rate(t))]])), kt, T, 'dash');
+  o += acircle(px, py, kt, T, 5, 'ln-f');
+  o += text(sx(r(90 * R)) + 4, sy(rate(90)) - 26, rate(90).toFixed(1) + '°/s（elbow 90°）', 'ts', 'start');
+  o += text(sx(r(2 * R)) - 8, sy(rate(2)) + 4, rate(2).toFixed(0) + '°/s（elbow 差 2°）', 'ts', 'end');
+  o += text(150, 252, 'tip 每秒只走 10 cm；elbow 越接近伸直，', 'ts', 'middle') + text(150, 268, 'joint 2 为了同样的 10 cm 要转得越快。', 'ts', 'middle');
+  return svgA(600, 284, o, '动图：2R arm 的 tip 以 0.1 m/s 沿直线往外伸，elbow 从 90 度伸到只差 2 度，右边曲线上的点显示 joint 2 的速度从 8.1 度每秒涨到 328 度每秒');
+}
+
+// 第三次：目标沿 arc 慢慢走，每一步都从同一个 seed 做 Newton IK
+function ikjumpA() {
+  const wrap = (a) => ((((a + 180) % 360) + 360) % 360) - 180;
+  const solve = (xd) => {
+    let t1 = 0, t2 = 30 * R;
+    for (let k = 0; k < 60; k++) {
+      const f = fk2(t1, t2), e = [xd[0] - f[0], xd[1] - f[1]];
+      if (Math.hypot(e[0], e[1]) < 1e-12) break;
+      const J = J2(t1, t2), det = J[0][0] * J[1][1] - J[0][1] * J[1][0];
+      t1 += (J[1][1] * e[0] - J[0][1] * e[1]) / det; t2 += (-J[1][0] * e[0] + J[0][0] * e[1]) / det;
+    }
+    return [wrap(t1 / R), wrap(t2 / R)];
+  };
+  const polars = []; for (let p = 30; p <= 39.5 + 1e-9; p += 0.5) polars.push(p);
+  polars.push(40);
+  const sols = polars.map((p) => solve([Math.SQRT2 * Math.cos(p * R), Math.SQRT2 * Math.sin(p * R)]));
+  const n = polars.length, step = 0.22, hold = 2.4, T = step * (n - 1) + hold + 0.6;
+  const kt = [], seq = [];
+  polars.forEach((p, i) => { kt.push(step * i / T); seq.push(i); });
+  kt.push((step * (n - 1) + hold) / T); seq.push(n - 1);
+  kt.push(1); seq.push(n - 1);
+  const u = 128, P = ([x, y]) => [60 + x * u, 236 - y * u];
+  const conf = ([a, b]) => [[0, 0], [Math.cos(a * R), Math.sin(a * R)], fk2(a * R, b * R)];
+  let o = '';
+  const arc = []; for (let k = 0; k <= 40; k++) { const a = (24 + 24 * k / 40) * R; arc.push(P([Math.SQRT2 * Math.cos(a), Math.SQRT2 * Math.sin(a)])); }
+  o += path(d(arc), 'mute') + text(arc[40][0] - 8, arc[40][1] - 2, 'radius √2 的 arc', 'ts', 'end');
+  o += path(d(conf([0, 30]).map(P)), 'dash');
+  const sp = P(fk2(0, 30 * R));
+  o += text(sp[0] + 8, sp[1] + 5, 'seed (0°, 30°)', 'ts', 'start');
+  o += apath(seq.map((i) => d(conf(sols[i]).map(P))), kt, T, 'ink-b', true);
+  const els = seq.map((i) => P(conf(sols[i])[1]));
+  o += acircle(els.map((p) => p[0]), els.map((p) => p[1]), kt, T, 4, 'paper');
+  const tg = seq.map((i) => P([Math.SQRT2 * Math.cos(polars[i] * R), Math.SQRT2 * Math.sin(polars[i] * R)]));
+  o += `<circle cx="${f1(tg[0][0])}" cy="${f1(tg[0][1])}" r="6" class="ln-f">${anim('cx', tg.map((p) => f1(p[0])), kt, T, true)}${anim('cy', tg.map((p) => f1(p[1])), kt, T, true)}</circle>`;
+  o += circle(...P([0, 0]), 5, 'paper') + text(P([0, 0])[0], P([0, 0])[1] + 22, 'base', 'ts', 'middle');
+  // 读数：翻之前 / 翻之后
+  const flip = seq.map((i) => i === n - 1);
+  const X = 360;
+  o += text(X, 40, '目标 polar angle 和 IK 给出的 (θ₁, θ₂)', 'tb', 'start');
+  const lineOf = (i) => polars[i].toFixed(1) + '°  →  (' + sols[i].map((v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1) + '°').join(', ') + ')';
+  [0, Math.round((n - 2) / 2), n - 2, n - 1].forEach((i, k) => {
+    o += `<text x="${X}" y="${68 + k * 22}" class="${i === n - 1 ? 'tl' : 't'}" text-anchor="start">${lineOf(i)}${ashow(seq.map((j) => j >= i), kt, T)}</text>`;
+  });
+  o += `<text x="${X}" y="${172}" class="tl" text-anchor="start">目标只挪了 1.2 cm，arm 整个翻过去${ashow(flip, kt, T)}</text>`;
+  o += text(X, 206, '每个目标都从同一个 seed 做 Newton IK。', 'ts', 'start') + text(X, 224, '39.5° 和 40° 之间，结果在两组解和', 'ts', 'start') + text(X, 242, '不 converge 之间来回跳（第 5 站）。', 'ts', 'start');
+  return svgA(600, 262, o, '动图：目标沿 radius 根号 2 的 arc 从 30 度走到 39.5 度，Newton IK 一直给出 elbow-up 的解；目标再挪到 40 度（只差 1.2 cm），arm 突然翻成 elbow-down');
+}
+
 // ---------- 第 1 站 :::wrong：quaternion 中点走哪条路 ----------
 function slerpsign() {
   const c = [200, 150], r = 100, P = (a) => [c[0] + r * Math.cos(a * R), c[1] - r * Math.sin(a * R)];
@@ -494,9 +647,9 @@ function via() {
 }
 
 export default {
-  'rb2202-pitch88': pitch88,
-  'rb2202-stretch': stretch,
-  'rb2202-ikjump': ikjump,
+  'rb2202-pitch88': pitch88A,
+  'rb2202-stretch': stretchA,
+  'rb2202-ikjump': ikjumpA,
   'rb2202-slerpsign': slerpsign,
   'rb2202-tfmove': tfmove,
   'rb2202-statics': statics,

@@ -169,9 +169,9 @@ function l1ball() {
   o += text(P(0, 1)[0] - 16, P(0, 1)[1] + 5, '(0, 1)', 'tb', 'end');
   o += text(P(0.4, 0.8)[0] + 6, P(0.4, 0.8)[1] - 10, '(0.4, 0.8)', 't');
   o += text(P(1.3, 0.55)[0], P(1.3, 0.55)[1], 'x₁ + 2x₂ = 2', 'tl');
-  o += text(392, 196, '实线 diamond：‖x‖₁ = 1，', 't') + text(392, 214, '碰到 line 在 vertex (0, 1)。', 't');
-  o += text(392, 240, '虚线 circle：‖x‖₂ = 0.894，', 't') + text(392, 258, '碰到 line 在 (0.4, 0.8)，', 't') + text(392, 276, '两个 component 都不为 0。', 't');
-  return svg(560, 290, o, '一条 constraint line 与逐渐放大的 L1 ball、L2 ball 第一次相碰的位置：L1 ball 碰在 coordinate axis 上的 vertex，得到 sparse solution；L2 ball 碰在一般位置');
+  o += text(384, 196, '实线 diamond：‖x‖₁ = 1，', 't') + text(384, 214, '碰到 line 在 vertex (0, 1)。', 't');
+  o += text(384, 240, '虚线 circle：', 't') + text(384, 258, '‖x‖₂ = 0.894，碰到 line', 't') + text(384, 276, '在 (0.4, 0.8)，', 't') + text(384, 294, '两个 component 都不为 0。', 't');
+  return svg(560, 304, o, '一条 constraint line 与逐渐放大的 L1 ball、L2 ball 第一次相碰的位置：L1 ball 碰在 coordinate axis 上的 vertex，得到 sparse solution；L2 ball 碰在一般位置');
 }
 
 // 第 7 站：L1 recovery 的 phase transition（d = 50，每个 n 做 50 次）
@@ -213,6 +213,127 @@ function sinkhorn() {
   return svg(560, 276, o, '三个 epsilon 下 Sinkhorn 给出的 3 乘 3 transport plan：epsilon 大时 mass 摊开到每一格，epsilon 小时集中到 linear program 的 optimal coupling 上');
 }
 
+// ---------- 开头第一个数：pairwise distance 的 spread（第 6 站的数表） ----------
+function spread() {
+  const rows = [[2, 1.72, 0.048, 5.10], [10, 4.28, 1.42, 8.08], [100, 14.12, 10.69, 17.48], [1000, 44.73, 40.93, 47.90], [10000, 141.48, 138.17, 144.90]];
+  const sx = lin(0, 3, 120, 520);
+  let o = line(sx(1), 30, sx(1), 214, 'dash') + text(sx(1), 24, 'mean', 'ts', 'middle');
+  rows.forEach(([dd, m, lo, hi], i) => {
+    const y = 50 + i * 38;
+    o += text(110, y + 4, 'd = ' + dd, 't', 'end');
+    o += line(sx(lo / m), y, sx(hi / m), y, 'ln') + line(sx(lo / m), y - 5, sx(lo / m), y + 5, 'ln') + line(sx(hi / m), y - 5, sx(hi / m), y + 5, 'ln');
+    const rr = (hi - lo) / lo;
+    o += text(sx(1.04), y - 10, `${lo.toFixed(lo < 1 ? 3 : 2)} 到 ${hi.toFixed(2)}，(max − min)/min = ${rr >= 10 ? rr.toFixed(0) : rr >= 1 ? rr.toFixed(1) : rr.toPrecision(2)}`, 'ts');
+  });
+  o += line(sx(0), 222, sx(3), 222, 'axis');
+  for (const v of [0, 0.5, 1, 1.5, 2, 2.5, 3]) o += line(sx(v), 222, sx(v), 226, 'axis') + text(sx(v), 240, String(v), 'ts', 'middle');
+  o += text(sx(3), 256, 'distance ÷ 这一维的 mean distance', 'ts', 'end');
+  return svg(560, 264, o, '100 个 standard Gaussian 点两两之间 4950 个 distance 的最小值到最大值，除以平均值后画出：2 维时从 0.03 到 3，10000 维时挤在 0.98 到 1.02 之间');
+}
+
+// ---------- 第 1 站：XOR ----------
+function xor() {
+  const P = [[0, 1, 1], [1, 0, 1], [0, 0, -1], [1, 1, -1]];
+  let o = '';
+  const panel = (x0, title) => {
+    const sx = lin(-0.3, 1.3, x0, x0 + 200), sy = lin(-0.3, 1.3, 230, 30);
+    return { sx, sy, head: text(x0 + 100, 20, title, 'tb', 'middle') + rect(sx(-0.3), sy(1.3), 200, 200, 'frame') };
+  };
+  const pts = (sx, sy, wrong) => P.map(([a, b, y], i) => (y > 0 ? circle(sx(a), sy(b), 8, 'solid') + text(sx(a), sy(b) + 4, '+', 'tw', 'middle') : circle(sx(a), sy(b), 8, 'paper') + text(sx(a), sy(b) + 4, '−', 'tb', 'middle')) + (wrong && wrong(a, b, y) ? circle(sx(a), sy(b), 13, 'dash') : '')).join('');
+  // 左：一条 line x1 + x2 = 0.5
+  const L = panel(30, '一条 line：总有一个点在错的一侧');
+  o += L.head + path(d([[L.sx(-0.3), L.sy(0.8)], [L.sx(0.8), L.sy(-0.3)]]), 'ln');
+  o += pts(L.sx, L.sy, (a, b, y) => (a + b - 0.5 > 0 ? 1 : -1) !== y);
+  o += text(L.sx(0.75), L.sy(-0.18), 'x₁ + x₂ = ½', 'tl');
+  // 右：x1 + x2 − 2x1x2 − ½ = −2(x1 − ½)(x2 − ½)
+  const R = panel(310, '加上 feature x₁x₂');
+  o += R.head + rect(R.sx(-0.3), R.sy(1.3), R.sx(0.5) - R.sx(-0.3), R.sy(0.5) - R.sy(1.3), 'wash') + rect(R.sx(0.5), R.sy(0.5), R.sx(1.3) - R.sx(0.5), R.sy(-0.3) - R.sy(0.5), 'wash');
+  o += line(R.sx(0.5), R.sy(-0.3), R.sx(0.5), R.sy(1.3), 'ln') + line(R.sx(-0.3), R.sy(0.5), R.sx(1.3), R.sy(0.5), 'ln');
+  o += pts(R.sx, R.sy, null);
+  o += text(410, 256, 'x₁ + x₂ − 2x₁x₂ − ½ = −2(x₁ − ½)(x₂ − ½) > 0：浅色两块', 'ts', 'middle');
+  return svg(560, 266, o, 'XOR 的四个点：左边任何一条 line 都至少分错一个点；右边加上 x1 x2 这个 feature 之后，规则在原平面上的 boundary 是 x1 等于二分之一和 x2 等于二分之一两条 line，positive 点落在对角的两块里');
+}
+
+// ---------- 第 2 站：undirected graph 上的 random walk ----------
+function undirected() {
+  const E = [[0, 1], [0, 2], [1, 2], [2, 3], [3, 4]];
+  const deg = [0, 0, 0, 0, 0];
+  for (const [i, j] of E) { deg[i]++; deg[j]++; }
+  const m2 = deg.reduce((a, b) => a + b, 0), pi = deg.map((x) => x / m2);
+  const pos = [[110, 120], [260, 45], [260, 200], [400, 200], [515, 200]];
+  const r = pi.map((p) => 8 + 42 * Math.sqrt(p));
+  let o = '';
+  for (const [i, j] of E) {
+    const [A, B] = [pos[i], pos[j]], dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy);
+    o += line(A[0] + dx / L * r[i], A[1] + dy / L * r[i], B[0] - dx / L * r[j], B[1] - dy / L * r[j], 'ink');
+  }
+  pos.forEach(([x, y], i) => { o += circle(x, y, r[i], 'wash ink-s') + text(x, y + 5, String(i + 1), 'tb', 'middle'); });
+  const lab = (i) => `degree ${deg[i]}，π = ${deg[i]}/${m2} = ${pi[i].toFixed(1)}`;
+  o += text(pos[0][0], pos[0][1] + r[0] + 18, lab(0), 'ts', 'middle') + text(pos[1][0] + r[1] + 8, pos[1][1] + 4, lab(1), 'ts');
+  o += text(pos[2][0], pos[2][1] + r[2] + 18, lab(2), 'ts', 'middle');
+  o += text(pos[3][0], pos[3][1] - r[3] - 26, `degree ${deg[3]}`, 'ts', 'middle') + text(pos[3][0], pos[3][1] - r[3] - 10, `π = ${pi[3].toFixed(1)}`, 'ts', 'middle');
+  o += text(pos[4][0], pos[4][1] - r[4] - 26, `degree ${deg[4]}`, 'ts', 'middle') + text(pos[4][0], pos[4][1] - r[4] - 10, `π = ${pi[4].toFixed(1)}`, 'ts', 'middle');
+  return svg(560, 262, o, '五个 node 的 undirected graph，edge 为 1-2、1-3、2-3、3-4、4-5；圆的面积正比于 stationary distribution，也就是 degree 除以 10');
+}
+
+// ---------- 第 5 站：两层网络的一次 forward 与 backward ----------
+function backprop() {
+  const W = [[0.5, -0.5], [0.3, 0.8]], b = [0, -0.2], v = [1, -1], c = 0, x = [1, 0], y = 1;
+  const a = [0, 1].map((i) => W[i][0] * x[0] + W[i][1] * x[1] + b[i]);
+  const h = a.map(Math.tanh), z = v[0] * h[0] + v[1] * h[1] + c, yh = 1 / (1 + Math.exp(-z)), L = -Math.log(yh);
+  const d2 = yh - y, dv = h.map((q) => d2 * q), dh = v.map((q) => d2 * q), d1 = dh.map((q, i) => q * (1 - h[i] * h[i]));
+  const f = (q) => q.toFixed(4).replace('-', '−'), vec = (q) => `(${q.map(f).join(', ')})`;
+  const rows = [
+    ['x', vec(x).replace(/\.0000/g, ''), ''],
+    ['Wx + b', vec(a), `δ₁ = ${vec(d1)}`],
+    ['h = tanh(·)', vec(h), `∂L/∂h = δ₂ v = ${vec(dh)}`],
+    ['z = v·h + c', f(z), `δ₂ = ŷ − y = ${f(d2)}`],
+    ['ŷ = σ(z)', f(yh), ''],
+    ['L = −log ŷ', f(L), ''],
+  ];
+  const bx = 200, bw = 130, y0 = 44, gap = 34;
+  let o = text(bx - 14, 24, 'forward（存下来）', 'tb', 'end') + text(bx + bw + 14, 24, 'backward', 'tl');
+  rows.forEach(([lab, fw, bwd], i) => {
+    const yy = y0 + i * gap;
+    o += rect(bx, yy, bw, 24, i === 0 ? 'wash2' : 'paper', 5) + text(bx + bw / 2, yy + 17, lab, 't', 'middle');
+    o += text(bx - 14, yy + 17, fw, 't', 'end');
+    if (bwd) o += text(bx + bw + 14, yy + 17, bwd, 'tl');
+    if (i > 0) o += arrow(bx + 30, yy - gap + 25, bx + 30, yy - 1, 'mute');
+  });
+  o += arrow(bx + bw - 22, y0 + 3 * gap - 1, bx + bw - 22, y0 + 2 * gap + 25, 'ln') + arrow(bx + bw - 22, y0 + 2 * gap - 1, bx + bw - 22, y0 + gap + 25, 'ln');
+  o += text(bx + bw + 14, y0 + 3 * gap + 36, `∂L/∂v = δ₂ h = ${vec(dv)}`, 'ts');
+  o += text(bx + bw + 14, y0 + 1 * gap + 36, 'δ₁ = ∂L/∂h ⊙ (1 − h²)', 'ts');
+  o += text(30, 262, '∂L/∂W = δ₁xᵀ，∂L/∂b = δ₁；每个 δ 只算一次，被这一层的所有 parameter 共用', 'ts');
+  return svg(560, 272, o, '两层网络对一个 sample 的计算：左边是 forward 时存下的中间值，右边是从后往前算的 derivative');
+}
+
+// ---------- 第 8 站：3 个位置之间的 optimal transport ----------
+function otPlan() {
+  const a = [0.5, 0.3, 0.2], b = [0.1, 0.3, 0.6];
+  // 一维：按顺序依次配对（north-west corner）
+  const P = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], ra = a.slice(), rb = b.slice();
+  let i = 0, j = 0;
+  while (i < 3 && j < 3) { const q = Math.min(ra[i], rb[j]); P[i][j] = q; ra[i] -= q; rb[j] -= q; if (ra[i] < 1e-12) i++; else j++; }
+  const cost = P.reduce((s2, row, ii) => s2 + row.reduce((t, q, jj) => t + q * (ii - jj) ** 2, 0), 0);
+  const X = (k) => 110 + k * 170, yS = 70, yT = 190, H = 120;
+  let o = text(30, yS - 34, 'source a', 'tb') + text(30, yT + 52, 'target b', 'tb');
+  for (let k = 0; k < 3; k++) {
+    o += rect(X(k) - 30, yS - a[k] * H * 0.5, 60, a[k] * H * 0.5, 'solid') + text(X(k) + 36, yS - 4, a[k].toFixed(1), 'tl');
+    o += rect(X(k) - 30, yT, 60, b[k] * H * 0.5, 'wash-strong') + text(X(k) + 36, yT + 14, b[k].toFixed(1), 't');
+    o += text(X(k), yT + b[k] * H * 0.5 + 16, 'x = ' + k, 'ts', 'middle');
+  }
+  for (let ii = 0; ii < 3; ii++) for (let jj = 0; jj < 3; jj++) if (P[ii][jj] > 1e-9) {
+    const x1 = X(ii) + (jj - 1) * 14, x2 = X(jj) + (ii - 1) * 14;
+    o += arrow(x1, yS + 4, x2, yT - 4, ii === jj ? 'mute' : 'ink');
+    // 标注放在箭头旁边、避开别的箭头：(0,2) 放得靠下，(0,0)、(0,1)、(0,2) 放在左侧
+    const t = ii === 0 && jj === 2 ? 0.72 : 0.5, left = ii === 0;
+    const lx = x1 + (x2 - x1) * t, ly = yS + 4 + (yT - yS - 8) * t;
+    o += text(lx + (left ? -6 : 6), ly + 4, `${P[ii][jj].toFixed(1)}，cost ${(ii - jj) ** 2}`, 'ts', left ? 'end' : 'start');
+  }
+  o += text(30, 276, `⟨C, P*⟩ = 0.3×1 + 0.1×4 + 0.3×1 = ${cost.toFixed(1)}（C = (i − j)²）`, 't');
+  return svg(560, 288, o, '位置 0、1、2 上的 source mass 0.5、0.3、0.2 搬到 target mass 0.1、0.3、0.6：从左到右依次配对，总 cost 为 1.0');
+}
+
 export default {
   'ma3270-centroid': centroid,
   'ma3270-pagerank': pagerank,
@@ -224,4 +345,9 @@ export default {
   'ma3270-l1': l1ball,
   'ma3270-phase': phase,
   'ma3270-sinkhorn': sinkhorn,
+  'ma3270-spread': spread,
+  'ma3270-xor': xor,
+  'ma3270-undirected': undirected,
+  'ma3270-backprop': backprop,
+  'ma3270-ot': otPlan,
 };
