@@ -57,7 +57,6 @@ const C = [
   ['MA4221', '偏微分方程', 'Partial Differential Equations', 'ana'],
   ['MA4229', 'Fourier 分析与逼近', 'Fourier Analysis and Approximation', 'ana'],
   ['MA4233', '动力系统', 'Dynamical Systems', 'ana'],
-  ['MA4198', '数学毕业项目', 'Mathematics Capstone Project', 'ana'],
 
   ['CS2030', '程序设计方法 II', 'Programming Methodology II', 'sys'],
   ['CS2040', '数据结构与算法', 'Data Structures and Algorithms', 'sys'],
@@ -81,7 +80,6 @@ const C = [
   ['DSA2112', '数据管线里的 AI', 'Practical AI for Data Science Pipelines', 'ds'],
   ['DSA3101', '数据科学实践', 'Data Science in Practice', 'ds'],
   ['DSA426x', '案例分析', 'Sense-making Case Analysis (DSA4262–4266)', 'ds'],
-  ['DSA4288', '荣誉项目', 'Honours Project in Data Science and Analytics', 'ds'],
 
   ['EE2012', '概率与复变', 'Analytical Methods in Electrical and Computer Engineering', 'sig'],
   ['EE2023', '信号与系统', 'Signals and Systems', 'sig'],
@@ -273,7 +271,7 @@ export const courses = C.map(([code, zh, title, line]) => ({ code, zh, title, li
 // 官方先修（NUSMods）
 const P = {
   DSA2101: ['ST2131'], DSA3101: ['DSA2101', 'ST2132'], DSA4211: ['ST3131'], DSA4212: ['ST2132'],
-  DSA4213: ['ST2137', 'CS2040'], DSA4288: ['DSA3101', 'DSA3102', 'CS3244', 'ST3131'],
+  DSA4213: ['ST2137', 'CS2040'],
   CS2102: ['CS2030', 'CS2040'], CS2103: ['CS2030', 'CS2040'], CS2105: ['CS2040'], CS2106: ['CS2100'],
   CS2109S: ['CS2040'], CS3210: ['CS2100'], CS3241: ['CS2030', 'CS2040'], CS3244: ['CS2040', 'ST2131'],
   CS4225: ['CS2102'], CS4248: ['CS2109S', 'CS3244'], CS4277: ['CS2040'],
@@ -291,7 +289,7 @@ const K = {
   DSA2102: ['MA2101'], DSA3102: ['MA2101'], DSA426x: ['DSA3101'], DSA2112: ['DSA2111'],
   PC3442: ['PC2135', 'GE2208', 'MIT-12.003', 'SIO-210'], PC3441: ['PC3442', 'PC3238'], ME4233: ['PC3238'], CE3132: ['PC3238'],
   CCS5201: ['PC4441', 'PC3441'], PC4262: ['PC2135'], MA4233: ['MA3220'], EE4314: ['EE3331C'],
-  EE3305: [], MA4198: ['MA3264'], ST3248: ['ST3131'], DSA4212: ['DSA3102'],
+  EE3305: [], ST3248: ['ST3131'], DSA4212: ['DSA3102'],
   // 2026-11 扩充的课：下面这些边是按内容衔接画的，还没有逐门对照 NUSMods 的 prerequisite 字段。
   MA3210: ['MA2108'], MA4262: ['MA3210'],
   MA3236: ['MA3252'],
