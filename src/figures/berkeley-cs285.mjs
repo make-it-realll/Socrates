@@ -251,8 +251,140 @@ function expectile() {
   return svg(560, 266, o, '一个四点 distribution 的 expectile 随 tau 增大从 mean 1.2 单调上升，趋向 data 中的最大值 5');
 }
 
+// 第 1 站：random walk 按终点 relabel。左：到 (10, 2) 的 path，第一步向上 126 条、向下 84 条；右：终点的 distribution
+function relabel() {
+  const C = (n, k) => { if (k < 0 || k > n) return 0; let r = 1; for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i; return Math.round(r); };
+  const T = 10, G = 2;
+  const N = (t, s) => { const n = T - t, dd = G - s; return (n + dd) % 2 === 0 && Math.abs(dd) <= n ? C(n, (n + dd) / 2) : 0; };
+  const ok = (t, s) => Math.abs(s) <= t && (t + s) % 2 === 0 && N(t, s) > 0;
+  const sx = (t) => 40 + t * 21, sy = (s) => 150 - s * 15;
+  let o = text(20, 20, '终点 g = 2 的 path（共 ' + N(0, 0) + ' 条）', 'tb');
+  for (let t = 0; t < T; t++) for (let s = -t; s <= t; s += 2) {
+    if (!ok(t, s)) continue;
+    for (const ds of [1, -1]) if (ok(t + 1, s + ds)) o += line(sx(t), sy(s), sx(t + 1), sy(s + ds), 'grid');
+  }
+  o += line(sx(0), sy(0), sx(1), sy(1), 'ln') + line(sx(0), sy(0), sx(1), sy(-1), 'ink-b');
+  for (let t = 0; t <= T; t++) for (let s = -t; s <= t; s += 2) if (ok(t, s)) o += circle(sx(t), sy(s), 2.2, 'ink-f');
+  o += circle(sx(T), sy(G), 5, 'solid') + text(sx(T) + 8, sy(G) + 4, 'g', 'tl');
+  o += text(sx(1) - 2, sy(1) - 10, N(1, 1) + ' 条', 'tl', 'end') + text(sx(1) - 2, sy(-1) + 20, N(1, -1) + ' 条', 'tb', 'end');
+  o += text(sx(0) - 8, sy(0) + 4, 's = 0', 'ts', 'end');
+  o += line(sx(0), sy(-5), sx(T), sy(-5), 'axis') + text(sx(0), sy(-5) + 16, 't = 0', 'ts', 'middle') + text(sx(T), sy(-5) + 16, '10', 'ts', 'middle');
+  o += text(20, sy(-5) + 40, `第一步朝 goal：${N(1, 1)} / ${N(0, 0)} = ${(N(1, 1) / N(0, 0)).toFixed(1)}`, 'tl');
+  // 右：终点的 distribution
+  const bx = lin(-11, 11, 300, 548), by = lin(0, 0.26, 200, 40);
+  o += text(300, 20, '10 步 random walk 的终点 g', 'tb');
+  for (let g = -10; g <= 10; g += 2) {
+    const p = C(10, (10 + g) / 2) / 1024, far = Math.abs(g) >= 8;
+    o += rect(bx(g) - 8, by(p), 16, by(0) - by(p), far ? 'solid' : 'wash');
+  }
+  o += line(bx(-11), by(0), bx(11), by(0), 'axis');
+  for (const g of [-10, -6, -2, 2, 6, 10]) o += text(bx(g), by(0) + 16, String(g).replace('-', '−'), 'ts', 'middle');
+  o += text(bx(0), by(C(10, 5) / 1024) - 6, '252 / 1024', 'ts', 'middle');
+  o += text(bx(8) + 6, by(0.135), '|g| ≥ 8：', 'tl', 'middle') + text(bx(8) + 6, by(0.135) + 16, '22 / 1024', 'tl', 'middle');
+  return svg(560, 276, o, '左：10 步 random walk 中终点为 2 的 210 条 path，第一步向上的 126 条；右：终点的 binomial distribution，离 0 越远 data 越少');
+}
+
+// 第 3 站：GAE 是 n-step advantage 的加权平均；交换求和次序后 γ^l δ_{t+l} 的系数是 λ^l
+function gaesum() {
+  const lam = 0.7, R = 6, Cn = 6, X0 = 112, W = 54, Y0 = 44, H = 26;
+  let o = '';
+  const head = ['δ_t', 'γδ_{t+1}', 'γ²δ_{t+2}', 'γ³δ_{t+3}', 'γ⁴δ_{t+4}', 'γ⁵δ_{t+5}'];
+  head.forEach((h, l) => { o += text(X0 + l * W + W / 2, Y0 - 10, h.replace(/_\{([^}]*)\}/, '<tspan class="sub" dy="3">$1</tspan><tspan dy="-3">​</tspan>').replace('_t', '<tspan class="sub" dy="3">t</tspan><tspan dy="-3">​</tspan>'), 'ts', 'middle'); });
+  o += text(X0 + Cn * W + 12, Y0 - 10, '× weight', 'ts', 'start');
+  for (let n = 1; n <= R; n++) {
+    const y = Y0 + (n - 1) * H;
+    o += text(16, y + 18, `Â⁽${'¹²³⁴⁵⁶'[n - 1]}⁾`, 'tb', 'start');
+    for (let l = 0; l < Math.min(n, Cn); l++) o += rect(X0 + l * W + 2, y + 2, W - 4, H - 4, 'wash', 3);
+    o += text(X0 + Cn * W + 12, y + 18, ((1 - lam) * lam ** (n - 1)).toFixed(3), 't', 'start');
+  }
+  o += text(X0 + 3 * W, Y0 + R * H + 14, '⋮（n 一直到 ∞）', 'ts', 'middle');
+  const ys = Y0 + R * H + 46;
+  o += line(X0, ys - 18, X0 + Cn * W, ys - 18, 'axis');
+  o += text(16, ys, '列的 weight 和', 'tb', 'start');
+  for (let l = 0; l < Cn; l++) o += text(X0 + l * W + W / 2, ys, (lam ** l).toFixed(l < 3 ? 2 : 3).replace(/0+$/, '').replace(/\.$/, ''), 'tl', 'middle');
+  o += text(16, ys + 22, `= (1 − λ)(λˡ + λˡ⁺¹ + …) = λˡ，这里 λ = ${lam}`, 'ts', 'start');
+  return svg(560, ys + 32, o, 'GAE 的交换求和：第 n 行是 n-step advantage，覆盖前 n 个 TD error，weight 是 (1-λ)λ^(n-1)；每一列的 weight 加起来是 λ^l');
+}
+
+// 第 3 站：bias 实验用的 random walk
+function walk() {
+  const sx = (s) => 30 + s * 50, y = 150;
+  const visits = (s) => (s === 0 || s === 10 ? 0 : (2 * Math.min(s, 5) * (10 - Math.max(s, 5))) / 10);
+  let o = text(20, 20, '从 5 出发，每步 ½ 向右、½ 向左；γ = 1', 'tb');
+  for (let s = 0; s <= 10; s++) {
+    const v = visits(s), term = s === 0 || s === 10;
+    if (v > 0) o += rect(sx(s) - 12, y - 24 - v * 14, 24, v * 14, 'wash') + text(sx(s), y - 30 - v * 14, f(v), 'ts', 'middle');
+    o += rect(sx(s) - 16, y - 16, 32, 32, term ? 'solid2' : s === 5 ? 'wash-strong' : 'paper', 4) + text(sx(s), y + 5, String(s), term ? 'tw' : 'tb', 'middle');
+    if (!term) o += text(sx(s), y + 34, (s / 10).toFixed(1), 'ts', 'middle');
+  }
+  function f(v) { return String(Math.round(v)); }
+  o += text(sx(0), y + 34, 'r = 0', 'ts', 'middle') + text(sx(10), y + 34, 'r = 1', 'tl', 'middle');
+  o += text(sx(5), y - 24 - 5 * 14 - 22, 'start', 'tl', 'middle');
+  o += text(20, y + 60, '柱子：一个 episode 里访问每个 state 的 expected 次数 2·min(s,5)·(10−max(s,5))/10；', 'ts');
+  o += text(20, y + 78, '格子下面的数是 true value V(s) = s/10。灰色是 terminal state。', 'ts');
+  return svg(560, y + 88, o, 'state 0 到 10 的 random walk：从 5 出发，到 10 得 1，到 0 得 0；每个 state 的 expected 访问次数是 1,2,3,4,5,4,3,2,1');
+}
+
+// 第 4 站：residual gradient 把 V1、V2 拉向中间
+function residual() {
+  // 解 2V0 = V1 + V2，2V1 = V0 + 1，2V2 = V0
+  const A = [[2, -1, -1], [-1, 2, 0], [-1, 0, 2]], b = [0, 1, 0];
+  const M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < 3; c++) { for (let r = 0; r < 3; r++) if (r !== c) { const k = M[r][c] / M[c][c]; for (let j = 0; j < 4; j++) M[r][j] -= k * M[c][j]; } }
+  const Vr = M.map((r, i) => r[3] / r[i]);
+  const Vt = [0.5, 1, 0];
+  let o = '';
+  const S0 = [70, 120], S1 = [200, 60], S2 = [200, 180];
+  const nd = ([x, y], s) => circle(x, y, 22, 'paper') + text(x, y + 5, s, 'tb', 'middle');
+  o += arrow(S0[0] + 20, S0[1] - 10, S1[0] - 20, S1[1] + 10, 'ink') + text(128, 78, '½，r 0', 'ts', 'middle');
+  o += arrow(S0[0] + 20, S0[1] + 10, S2[0] - 20, S2[1] - 10, 'ink') + text(128, 172, '½，r 0', 'ts', 'middle');
+  o += arrow(S1[0] + 22, S1[1], 272, S1[1], 'ink') + rect(274, S1[1] - 8, 14, 16, 'solid2') + text(248, S1[1] - 8, 'r 1', 'ts', 'middle');
+  o += arrow(S2[0] + 22, S2[1], 272, S2[1], 'ink') + rect(274, S2[1] - 8, 14, 16, 'solid2') + text(248, S2[1] - 8, 'r 0', 'ts', 'middle');
+  o += nd(S0, 's₀') + nd(S1, 's₁') + nd(S2, 's₂');
+  // 表
+  const X = 330, cw = 64;
+  o += text(X + cw, 50, 'true', 'tb', 'middle') + text(X + 2 * cw + 10, 50, 'residual', 'tl', 'middle') + text(X + 2 * cw + 10, 66, 'gradient', 'tl', 'middle');
+  ['V₀', 'V₁', 'V₂'].forEach((v, i) => {
+    const y = 100 + i * 34;
+    o += text(X, y, v, 'tb') + text(X + cw, y, Vt[i].toFixed(2), 't', 'middle') + text(X + 2 * cw + 10, y, Vr[i].toFixed(2), 'tl', 'middle');
+  });
+  o += text(X, 212, '把 target 当 constant 的', 'ts') + text(X, 229, 'Q-learning 在 table 上收敛到 true。', 'ts');
+  return svg(560, 240, o, '两步的 MDP：s0 各一半转到 s1 或 s2；true value 是 0.5、1、0，residual gradient 的解是 0.5、0.75、0.25');
+}
+
+// 第 7 站：open-loop 与 closed-loop
+function openloop() {
+  let o = '';
+  const panel = (x0, title, pick, val) => {
+    o += text(x0 + 125, 22, title, 'tb', 'middle');
+    const R = [x0 + 125, 58], L = [x0 + 60, 128], Rr = [x0 + 190, 128];
+    o += rect(R[0] - 36, R[1] - 14, 72, 28, 'paper', 5) + text(R[0], R[1] + 5, 'nature', 't', 'middle');
+    o += line(R[0], R[1] + 14, L[0], L[1] - 16, 'ink') + line(R[0], R[1] + 14, Rr[0], Rr[1] - 16, 'ink');
+    o += text((R[0] + L[0]) / 2 - 12, 96, '½', 'ts', 'end') + text((R[0] + Rr[0]) / 2 + 12, 96, '½', 'ts', 'start');
+    for (const [P, st] of [[L, 'L'], [Rr, 'R']]) {
+      o += circle(P[0], P[1], 16, 'paper') + text(P[0], P[1] + 5, st, 'tb', 'middle');
+      const a = pick(st);
+      for (const [dx, act] of [[-28, 'left'], [28, 'right']]) {
+        const chosen = act === a, r = (act === 'left') === (st === 'L') ? 1 : 0;
+        o += line(P[0], P[1] + 16, P[0] + dx, P[1] + 58, chosen ? 'ln' : 'grid');
+        o += text(P[0] + dx, P[1] + 74, act, chosen ? 'tl' : 'ts', 'middle') + text(P[0] + dx, P[1] + 92, 'r ' + r, chosen ? 'tl' : 'ts', 'middle');
+      }
+    }
+    o += text(x0 + 125, 246, 'expected reward = ' + val, 'tb', 'middle');
+  };
+  panel(20, 'Open-loop：先定好第二步 = right', () => 'right', '½ · 0 + ½ · 1 = 0.5');
+  panel(300, 'Closed-loop：看到 state 再选', (st) => (st === 'L' ? 'left' : 'right'), '½ · 1 + ½ · 1 = 1');
+  o += line(280, 14, 280, 250, 'grid');
+  return svg(560, 258, o, '同一个完美的 model：open-loop plan 在看到 state 之前定下第二步，expected reward 0.5；closed-loop 看到 state 再选，expected reward 1');
+}
+
 export default {
   'cs285-ar': ar,
+  'cs285-relabel': relabel,
+  'cs285-gaesum': gaesum,
+  'cs285-walk': walk,
+  'cs285-residual': residual,
+  'cs285-openloop': openloop,
   'cs285-flowtau': flowtau,
   'cs285-pgvar': pgvar,
   'cs285-gae': gae,

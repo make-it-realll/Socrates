@@ -61,7 +61,7 @@ const GW = (() => {
   let pol;
   for (let k = 0; k < 200; k++) { [V, pol] = backup(V); hist.push(V); }
   const err = hist.slice(0, 60).map((h) => Math.max(...cells.map((s) => Math.abs(h[key(s)] - V[key(s)]))));
-  return { V, pol, err, term, wall };
+  return { V, pol, err, term, wall, hist };
 })();
 
 function grid() {
@@ -89,6 +89,32 @@ function grid() {
   o += text(tx, 146, '进入 +1 或 −1', 't') + text(tx, 164, '拿到那个 reward，', 'ts') + text(tx, 181, 'episode 结束。', 'ts');
   o += text(tx, 214, '数字是 V*，', 't') + text(tx, 232, '箭头是对 V* 的', 'ts') + text(tx, 249, 'greedy policy。', 'ts');
   return svg(560, 3 * S + 2 * y0, o, '4 乘 3 的 gridworld，value iteration converge 后每个格子的 optimal value 和 greedy policy 的箭头');
+}
+
+// ---------- value iteration 前几轮：value 从 +1 一圈圈往外传 ----------
+function visweeps() {
+  const S = 58, H = 40;
+  let o = '';
+  const panel = (x0, y0, k, title) => {
+    const V = GW.hist[k];
+    o += text(x0, y0 - 8, title, 'tb', 'start');
+    for (let y = 3; y >= 1; y--) for (let x = 1; x <= 4; x++) {
+      const key = `${x},${y}`, X = x0 + (x - 1) * S, Y = y0 + (3 - y) * H;
+      if (key === GW.wall) { o += rect(X, Y, S, H, 'solid2'); continue; }
+      if (key in GW.term) { o += rect(X, Y, S, H, GW.term[key] > 0 ? 'wash-strong' : 'wash2') + text(X + S / 2, Y + H / 2 + 5, GW.term[key] > 0 ? '+1' : '−1', 'tb', 'middle'); continue; }
+      const v = V[key];
+      if (v > 1e-9) o += rect(X, Y, S, H, 'wash');
+      o += text(X + S / 2, Y + H / 2 + 5, v > 1e-9 ? v.toFixed(3) : '0', v > 1e-9 ? 't' : 'ts', 'middle');
+    }
+    for (let i = 0; i <= 4; i++) o += line(x0 + i * S, y0, x0 + i * S, y0 + 3 * H, 'frame');
+    for (let j = 0; j <= 3; j++) o += line(x0, y0 + j * H, x0 + 4 * S, y0 + j * H, 'frame');
+  };
+  panel(20, 30, 1, 'V₁：只剩 1 步');
+  panel(308, 30, 2, 'V₂：只剩 2 步');
+  panel(20, 192, 3, 'V₃：只剩 3 步');
+  panel(308, 192, 5, 'V₅：只剩 5 步');
+  o += text(280, 338, '浅色格子是 value 已经非零的格子。每做一次 sweep，非零的区域从 +1 往外多走一格。', 'ts', 'middle');
+  return svg(560, 348, o, 'gridworld 上 value iteration 的 V1、V2、V3、V5：非零的 value 从 +1 的格子一圈一圈往外扩');
 }
 
 // ---------- value iteration 的 error：log scale ----------
@@ -147,6 +173,34 @@ function belief() {
 }
 
 // ---------- bandit regret（模拟：seed 0，2000 次 run 的平均） ----------
+// ---------- Tiger：belief 只取决于“听到左”减“听到右”的次数 ----------
+function tigerchain() {
+  const bel = (n) => 0.85 ** n / (0.85 ** n + 0.15 ** n);
+  const pL = (b) => 0.85 * b + 0.15 * (1 - b);
+  const xs = (n) => 280 + n * 108, y = 120, R = 32;
+  let o = '';
+  o += text(280, 22, '从 b = 0.5 开始一直 listen；b = P(tiger-left)', 'tb', 'middle');
+  for (let n = -2; n <= 2; n++) {
+    const b = bel(n), open = Math.abs(n) === 2;
+    o += circle(xs(n), y, R, open ? 'wash-strong' : 'paper');
+    o += text(xs(n), y - 2, b.toFixed(n === 2 || n === -2 ? 4 : 2), 'tb', 'middle') + text(xs(n), y + 15, 'n = ' + (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n), 'ts', 'middle');
+    if (n < 2) {
+      const up = pL(bel(n)), dn = 1 - pL(bel(n + 1));
+      // 上：hear L（向右，只从 listen 的 belief 出发）；下：hear R（向左）
+      if (n >= -1) o += path(`M${xs(n) + 20} ${y - 26} Q ${xs(n) + 54} ${y - 58}, ${xs(n + 1) - 22} ${y - 26}`, 'ln');
+      if (n >= -1) o += arrow(xs(n + 1) - 32, y - 34, xs(n + 1) - 22, y - 26, 'ln');
+      if (n >= -1) o += text(xs(n) + 54, y - 52, 'hear L ' + up.toFixed(3).replace(/0+$/, '').replace(/\.$/, ''), 'tl', 'middle');
+      if (n + 1 <= 1) o += path(`M${xs(n + 1) - 20} ${y + 26} Q ${xs(n) + 54} ${y + 58}, ${xs(n) + 22} ${y + 26}`, 'mute');
+      if (n + 1 <= 1) o += arrow(xs(n) + 32, y + 34, xs(n) + 22, y + 26, 'mute');
+      if (n + 1 <= 1) o += text(xs(n) + 54, y + 62, 'hear R ' + dn.toFixed(3).replace(/0+$/, '').replace(/\.$/, ''), 'ts', 'middle');
+    }
+  }
+  o += text(xs(2) + 34, y + 88, '≥ 0.9475：open-right', 'tl', 'end') + text(xs(-2) - 34, y + 88, '≤ 0.0525：open-left', 'tl', 'start');
+  o += text(280, y + 88, '中间三个：listen', 't', 'middle');
+  o += text(280, y + 116, 'n = 听到左的次数 − 听到右的次数。箭头上的数是从这个 belief 出发听到这一边的 probability。', 'ts', 'middle');
+  return svg(560, y + 126, o, 'Tiger 问题里 belief 随 listen 结果在一条链上左右移动：0.5、0.85、0.9698，两端越过 threshold 就开门');
+}
+
 const REG = { t: [1, 2, 5, 10, 20, 50, 100, 200, 400, 800, 1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000, 6400, 6800, 7200, 7600, 8000, 8400, 8800, 9200, 9600, 10000, 10400, 10800, 11200, 11600, 12000, 12400, 12800, 13200, 13600, 14000, 14400, 14800, 15200, 15600, 16000, 16400, 16800, 17200, 17600, 18000, 18400, 18800, 19200, 19600, 20000], g: [0.4, 0.6, 1.0, 1.6, 2.8, 6.0, 11.1, 21.2, 41.1, 80.7, 120.2, 159.8, 199.2, 238.7, 278.1, 317.5, 356.8, 396.2, 435.6, 474.9, 514.3, 553.6, 593.0, 632.4, 671.7, 711.1, 750.4, 789.8, 829.2, 868.5, 907.8, 947.1, 986.4, 1025.7, 1064.9, 1104.2, 1143.5, 1182.8, 1222.0, 1261.3, 1300.6, 1339.9, 1379.2, 1418.4, 1457.6, 1496.9, 1536.1, 1575.4, 1614.6, 1653.8, 1693.1, 1732.3, 1771.6, 1810.8, 1850.0, 1889.3, 1928.5, 1967.8], e: [0.4, 0.6, 1.0, 1.7, 2.8, 5.3, 8.1, 11.9, 17.3, 25.9, 34.0, 42.0, 50.0, 58.0, 66.0, 74.1, 82.0, 90.0, 98.0, 106.0, 114.0, 121.9, 129.9, 137.8, 145.8, 153.8, 161.8, 169.8, 177.8, 185.8, 193.8, 201.8, 209.8, 217.8, 225.8, 233.8, 241.8, 249.8, 257.8, 265.8, 273.8, 281.9, 289.8, 297.9, 305.9, 313.9, 321.9, 329.9, 337.9, 345.9, 353.9, 362.0, 370.0, 378.0, 386.0, 394.0, 402.0, 410.0], u: [0.4, 0.6, 0.9, 1.7, 3.1, 6.6, 11.4, 18.6, 28.6, 41.3, 49.7, 55.9, 61.0, 65.2, 68.8, 72.1, 74.9, 77.4, 79.7, 81.8, 83.7, 85.4, 87.0, 88.7, 90.2, 91.7, 92.9, 94.1, 95.2, 96.4, 97.5, 98.6, 99.6, 100.6, 101.5, 102.4, 103.2, 104.0, 104.8, 105.5, 106.3, 107.0, 107.6, 108.3, 109.0, 109.7, 110.3, 110.9, 111.5, 112.1, 112.7, 113.3, 113.8, 114.3, 114.8, 115.4, 115.9, 116.4] };
 function regret() {
   const sx = lin(0, 20000, 70, 500), sy = lin(0, 450, 236, 30);
@@ -274,6 +328,59 @@ function pgvar() {
 }
 
 // ---------- MCTS：50 次 iteration 后的树（seed 3，c = √2） ----------
+// ---------- 同一批 8 个 episode：batch MC 与 batch TD ----------
+function batch() {
+  const eps = [['A', 0, 'B', 0], ['B', 1], ['B', 1], ['B', 1], ['B', 1], ['B', 1], ['B', 1], ['B', 0]];
+  // MC：每个 state 首次出现之后的 return 取平均（γ = 1）
+  const ret = { A: [], B: [] };
+  for (const e of eps) for (let i = 0; i < e.length; i += 2) { let G = 0; for (let j = i + 1; j < e.length; j += 2) G += e[j]; ret[e[i]].push(G); }
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const mcA = mean(ret.A), mcB = mean(ret.B);
+  // TD 的 certainty-equivalence model
+  const pB1 = ret.B.filter((g) => g === 1).length / ret.B.length, tdB = pB1, tdA = 0 + tdB;
+  let o = '';
+  o += text(20, 22, 'Data（γ = 1）', 'tb');
+  o += text(20, 46, 'A, 0, B, 0', 't') + text(130, 46, '× 1', 'ts');
+  o += text(20, 66, 'B, 1', 't') + text(130, 66, '× 6', 'ts');
+  o += text(20, 86, 'B, 0', 't') + text(130, 86, '× 1', 'ts');
+  o += line(176, 14, 176, 196, 'grid');
+  // MC panel
+  const nd = (x, y, s) => circle(x, y, 20, 'paper') + text(x, y + 5, s, 'tb', 'middle');
+  o += text(276, 22, 'MC：只看从 A 出发的 return', 'tb', 'middle');
+  o += nd(222, 80, 'A') + nd(312, 80, 'B') + arrow(242, 80, 290, 80, 'ink') + text(266, 72, '0', 'ts', 'middle');
+  o += arrow(332, 80, 352, 80, 'ink') + text(343, 72, '0', 'ts', 'middle') + rect(354, 72, 12, 16, 'solid2');
+  o += text(276, 124, 'A 只出现 1 次，return = 0', 'ts', 'middle');
+  o += text(276, 160, 'V(A) = ' + mcA.toFixed(2), 'tl', 'middle') + text(276, 182, 'V(B) = ' + mcB.toFixed(2) + '（6 / 8）', 't', 'middle');
+  o += line(380, 14, 380, 196, 'grid');
+  // TD panel：估计出的 Markov model
+  o += text(470, 22, 'TD：先估计 model 再解', 'tb', 'middle');
+  o += nd(410, 80, 'A') + nd(486, 80, 'B') + arrow(430, 80, 464, 80, 'ln') + text(447, 70, '1, r 0', 'ts', 'middle');
+  o += rect(530, 40, 14, 16, 'solid2') + rect(530, 104, 14, 16, 'solid2');
+  o += arrow(504, 70, 528, 50, 'ln') + text(500, 44, (pB1).toFixed(2) + ', r 1', 'ts', 'end');
+  o += arrow(504, 90, 528, 110, 'ln') + text(500, 124, (1 - pB1).toFixed(2) + ', r 0', 'ts', 'end');
+  o += text(470, 160, 'V(A) = 0 + V(B) = ' + tdA.toFixed(2), 'tl', 'middle') + text(470, 182, 'V(B) = ' + tdB.toFixed(2), 't', 'middle');
+  o += text(280, 222, 'B 两边都是 0.75；A 的分歧来自 TD 把其余 7 次关于 B 的经验也用在了 A 上。', 'ts', 'middle');
+  return svg(560, 236, o, '同一批 8 个 episode：MC 给 V(A)=0，TD 先估计出 A 到 B、B 以 3/4 拿到 1 的 model，给 V(A)=0.75');
+}
+
+// ---------- flat Monte Carlo：random 的第二步把 a 的 value 拉低 ----------
+function flatmc() {
+  const p = { a1: 0.2, a2: 0.9, b1: 0.6, b2: 0.6 };
+  const flat = { a: (p.a1 + p.a2) / 2, b: (p.b1 + p.b2) / 2 }, opt = { a: Math.max(p.a1, p.a2), b: Math.max(p.b1, p.b2) };
+  let o = '';
+  const box = (x, y, top, cls) => rect(x - 34, y - 16, 68, 32, cls, 6) + rect(x - 34, y - 16, 68, 32, 'frame', 6) + text(x, y + 5, top, 'tb', 'middle');
+  const R = [280, 34], A = [150, 116], B = [410, 116];
+  const L = { a1: [80, 200], a2: [220, 200], b1: [340, 200], b2: [480, 200] };
+  o += line(R[0], R[1] + 16, A[0], A[1] - 16, 'ink') + line(R[0], R[1] + 16, B[0], B[1] - 16, 'ink');
+  for (const k in L) { const P = k[0] === 'a' ? A : B; o += line(P[0], P[1] + 16, L[k][0], L[k][1] - 16, k === 'a2' ? 'ln' : 'mute'); }
+  o += box(R[0], R[1], 'root', 'paper-f') + box(A[0], A[1], 'a', 'paper-f') + box(B[0], B[1], 'b', 'paper-f');
+  for (const k in L) o += box(L[k][0], L[k][1], k, k === 'a2' ? 'wash' : 'paper-f') + text(L[k][0], L[k][1] + 34, 'p = ' + p[k], 'ts', 'middle');
+  o += text(A[0] - 44, A[1] - 2, 'flat MC：' + flat.a.toFixed(2), 'ts', 'end') + text(A[0] - 44, A[1] + 14, '真正：' + opt.a.toFixed(1), 'tl', 'end');
+  o += text(B[0] + 44, B[1] - 2, 'flat MC：' + flat.b.toFixed(2), 'ts', 'start') + text(B[0] + 44, B[1] + 14, '真正：' + opt.b.toFixed(1), 'tl', 'start');
+  o += text(280, 268, 'Flat MC 在 a 下面 random 地选 a1 或 a2，估计的是 ½ × 0.2 + ½ × 0.9 = 0.55 < 0.6，于是选 b。', 'ts', 'middle');
+  return svg(560, 280, o, '两层的 search tree：flat Monte Carlo 估计 a 为 0.55、b 为 0.6，选错；a 真正的 value 是 0.9');
+}
+
 function mcts() {
   let o = '';
   const node = (x, y, top, bot, hot) => {
@@ -296,6 +403,10 @@ function mcts() {
 export default {
   'cs4246-twostate': twostate,
   'cs4246-grid': grid,
+  'cs4246-visweeps': visweeps,
+  'cs4246-tigerchain': tigerchain,
+  'cs4246-batch': batch,
+  'cs4246-flatmc': flatmc,
   'cs4246-vierr': vierr,
   'cs4246-belief': belief,
   'cs4246-regret': regret,

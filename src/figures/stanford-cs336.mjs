@@ -329,8 +329,184 @@ function clip() {
   return svg(560, 260, o, 'PPO 式 clipping：advantage 为正时 ratio 超过 1.2 后 objective 变平、gradient 为零；advantage 为负时 ratio 低于 0.8 时变平，ratio 增大的一侧不截断');
 }
 
+// 第 1 站：Sennrich 例子的前 12 次 merge（并列时取 lexicographically greater 的 pair）
+function bpemerges() {
+  const words = [['low', 5], ['lower', 2], ['widest', 3], ['newest', 6]];
+  let seg = words.map(([w]) => w.split(''));
+  const merges = [], snaps = { 0: seg.map((t) => t.slice()) };
+  const greater = (a, b) => (a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1]);
+  for (let k = 1; k <= 12; k++) {
+    const cnt = new Map();
+    seg.forEach((t, i) => { for (let j = 0; j + 1 < t.length; j++) { const key = t[j] + '\u0000' + t[j + 1]; cnt.set(key, (cnt.get(key) || 0) + words[i][1]); } });
+    let best = null, bc = -1;
+    for (const [key, c] of cnt) { const pr = key.split('\u0000'); if (c > bc || (c === bc && greater(pr, best))) { best = pr; bc = c; } }
+    merges.push(best);
+    seg = seg.map((t) => { const o = []; for (let j = 0; j < t.length; j++) { if (j + 1 < t.length && t[j] === best[0] && t[j + 1] === best[1]) { o.push(best[0] + best[1]); j++; } else o.push(t[j]); } return o; });
+    snaps[k] = seg.map((t) => t.slice());
+  }
+  const cw = 15, X0 = 96, gap = 22, xs = [];
+  let x = X0;
+  for (const [w] of words) { xs.push(x); x += w.length * cw + gap; }
+  let o = '';
+  words.forEach(([w, c], i) => { o += text(xs[i], 20, `${w} ×${c}`, 'tb'); });
+  [0, 2, 4, 6, 9, 12].forEach((k, r) => {
+    const y = 34 + r * 38;
+    o += text(10, y + 17, `${k} 次 merge`, 't');
+    let total = 0;
+    snaps[k].forEach((toks, i) => {
+      let xx = xs[i];
+      total += toks.length * words[i][1];
+      for (const t of toks) {
+        const wd = t.length * cw;
+        o += rect(xx + 1, y, wd - 2, 26, t.length > 1 ? 'wash' : 'paper', 3);
+        o += text(xx + wd / 2, y + 17, t, t.length > 1 ? 'tb' : 't', 'middle');
+        xx += wd;
+      }
+    });
+    o += text(548, y + 17, `${total}`, r === 5 ? 'tl' : 't', 'end');
+  });
+  o += text(548, 20, 'token 数', 'ts', 'end');
+  const yl = 34 + 6 * 38 + 8;
+  const ms = merges.map((m, i) => `${i + 1} (${m[0]}, ${m[1]})`);
+  o += text(10, yl, 'merge 顺序：' + ms.slice(0, 6).join('  '), 'ts') + text(10, yl + 18, '　　　　　' + ms.slice(6).join('  '), 'ts');
+  return svg(560, yl + 28, o, 'Sennrich 例子在 0、2、4、6、9、12 次 merge 之后的切分，token 总数从 79 降到 ' + (snaps[12].reduce((a, t, i) => a + t.length * words[i][1], 0)));
+}
+
+// 第 2 站：RoPE 每一对 dimension 的转速
+function rope() {
+  const dk = 32, rate = (k) => 10000 ** (-(2 * k - 2) / dk);
+  let o = '';
+  // 左：第 1、2 对在位置 0..6 的角度
+  const cx = 130, cy = 150, R1 = 100, R2 = 62;
+  o += text(20, 22, '位置 i = 0…6 时每一对转到的角度', 'tb');
+  o += circle(cx, cy, R1, 'grid') + circle(cx, cy, R2, 'grid') + line(cx - R1 - 8, cy, cx + R1 + 8, cy, 'grid') + line(cx, cy - R1 - 8, cx, cy + R1 + 8, 'grid');
+  for (const [k, R, cls, tcls] of [[1, R1, 'ln-f', 'tl'], [2, R2, 'ink-f', 'ts']]) {
+    for (let i = 0; i <= 6; i++) {
+      const a = i * rate(k), px = cx + R * Math.cos(a), py = cy - R * Math.sin(a);
+      o += circle(px, py, 3.5, cls);
+      const lx = cx + (R + (k === 1 ? 13 : -12)) * Math.cos(a), ly = cy - (R + (k === 1 ? 13 : -12)) * Math.sin(a) + 4 - (i === 0 ? 9 : 0);
+      o += text(lx, ly, String(i), tcls, 'middle');
+    }
+  }
+  o += text(cx, cy + R1 + 30, 'k = 1：每个 token 转 1 rad（外圈）', 'tl', 'middle');
+  o += text(cx, cy + R1 + 47, `k = 2：每个 token 转 ${rate(2).toFixed(3)} rad（内圈）`, 'ts', 'middle');
+  // 右：转一圈要多少个 token（log scale）
+  const sx = lin(1, 16, 330, 530), sy = lin(0, 5, 250, 50);
+  o += text(300, 22, '转一圈要多少个 token', 'tb');
+  for (let e = 0; e <= 5; e++) o += line(sx(1), sy(e), sx(16), sy(e), 'grid') + text(322, sy(e) + 4, ['1', '10', '100', '1k', '10k', '100k'][e], 'ts', 'end');
+  o += line(sx(1), sy(0), sx(16), sy(0), 'axis');
+  for (const k of [1, 4, 8, 12, 16]) o += text(sx(k), sy(0) + 16, String(k), 'ts', 'middle');
+  o += text(sx(16), sy(0) + 32, 'pair k', 'ts', 'end');
+  const pts = [];
+  for (let k = 1; k <= 16; k++) pts.push([sx(k), sy(Math.log10(2 * Math.PI / rate(k)))]);
+  o += path(d(pts), 'mute');
+  pts.forEach(([px, py]) => { o += circle(px, py, 3, 'ln-f'); });
+  o += text(pts[0][0] + 8, pts[0][1] + 4, (2 * Math.PI).toFixed(1), 'tl', 'start');
+  o += text(pts[15][0] - 8, pts[15][1] - 2, Math.round(2 * Math.PI / rate(16)).toLocaleString('en-US'), 'tl', 'end');
+  return svg(560, 300, o, 'RoPE：第 1 对 dimension 每个 token 转 1 rad，6.3 个 token 转一圈；第 16 对要约 35000 个 token 才转一圈');
+}
+
+// 第 5 站：wave quantization，A100 108 个 SM，tile 256 × 128
+function wave() {
+  const SM = 108, th = 256, tw = 128, px = 16 / tw; // 每个 element 的像素
+  let o = '';
+  const panel = (x0, n, title) => {
+    const R = Math.ceil(n / th), C = Math.ceil(n / tw), tot = R * C;
+    o += text(x0, 22, title, 'tb') + text(x0, 40, `${R} × ${C} = ${tot} 块`, 'ts');
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+      const idx = r * C + c, second = idx >= SM;
+      o += rect(x0 + c * tw * px + 1, 52 + r * th * px + 1, tw * px - 2, th * px - 2, second ? 'solid' : 'wash');
+    }
+    o += rect(x0, 52, n * px, n * px, 'frame');
+    const waves = Math.ceil(tot / SM);
+    return { R, C, tot, waves, last: tot - (waves - 1) * SM };
+  };
+  const a = panel(20, 1792, '1792 × 1792');
+  const b = panel(300, 1793, '1793 × 1793');
+  const yb = 52 + 8 * 32 + 22;
+  o += text(20, yb, `${a.waves} 轮：${a.tot} 块 ≤ ${SM} 个 SM`, 't');
+  o += text(300, yb, `${b.waves} 轮：${SM} 块，再单独跑 ${b.last} 块`, 'tl');
+  o += text(280, yb + 22, '浅色：第一轮；深色：第二轮，这时 108 个 SM 里只有 12 个在干活。', 'ts', 'middle');
+  o += text(280, yb + 40, '外框是 matrix 的实际大小：1793 只比 1792 多 1，却多出一整行和一整列 tile。', 'ts', 'middle');
+  return svg(560, yb + 50, o, 'A100 上 256×128 的 tile：1792 的 matmul 切成 98 块一轮做完；1793 切成 120 块，要两轮，第二轮只有 12 块');
+}
+
+// 第 5 站：online softmax 分两段读一行
+function online() {
+  const s = [1, 2, 3, 0], v = [10, 20, 30, 40];
+  let m = -Infinity, l = 0, O = 0;
+  const st = [];
+  for (const [a, b] of [[0, 2], [2, 4]]) {
+    const mn = Math.max(m, ...s.slice(a, b)), sc = Math.exp(m - mn);
+    let ln = sc * l, On = sc * O;
+    for (let i = a; i < b; i++) { ln += Math.exp(s[i] - mn); On += Math.exp(s[i] - mn) * v[i]; }
+    st.push({ m: mn, l: ln, O: On, sc }); m = mn; l = ln; O = On;
+  }
+  const Z = s.reduce((a2, x) => a2 + Math.exp(x), 0), direct = s.reduce((a2, x, i) => a2 + Math.exp(x) / Z * v[i], 0);
+  let o = '';
+  const cx = (i) => 150 + i * 70 + (i >= 2 ? 30 : 0);
+  o += text(20, 50, 'score s', 'tb') + text(20, 84, 'value v', 'tb');
+  for (let i = 0; i < 4; i++) {
+    o += rect(cx(i) - 26, 32, 52, 26, 'paper', 3) + text(cx(i), 50, String(s[i]), 't', 'middle');
+    o += rect(cx(i) - 26, 66, 52, 26, 'paper', 3) + text(cx(i), 84, String(v[i]), 't', 'middle');
+  }
+  o += rect(cx(0) - 34, 24, cx(1) - cx(0) + 68, 76, 'frame', 6) + text((cx(0) + cx(1)) / 2, 18, '第一段', 'ts', 'middle');
+  o += rect(cx(2) - 34, 24, cx(3) - cx(2) + 68, 76, 'frame', 6) + text((cx(2) + cx(3)) / 2, 18, '第二段', 'ts', 'middle');
+  const box = (x, y, t, a1) => {
+    o += rect(x, y, 170, 82, 'wash', 6) + text(x + 12, y + 20, t, 'tb');
+    o += text(x + 12, y + 42, `m = ${a1.m}`, 't') + text(x + 12, y + 60, `l = ${a1.l.toFixed(3)}`, 't') + text(x + 12, y + 78 - 2, `O = ${a1.O.toFixed(2)}`, 't');
+  };
+  const b1 = 50, b2 = 340;
+  box(b1, 124, '读完第一段', st[0]);
+  box(b2, 124, '读完第二段', st[1]);
+  const x1 = b1 + 170, x2 = b2;
+  o += arrow(x1 + 6, 165, x2 - 6, 165, 'ln');
+  o += text((x1 + x2) / 2, 154, '× e^(2 − 3)', 'tl', 'middle') + text((x1 + x2) / 2, 184, `= ${st[1].sc.toFixed(3)}`, 'tl', 'middle');
+  o += line((cx(0) + cx(1)) / 2, 100, b1 + 85, 124, 'mute') + line((cx(2) + cx(3)) / 2, 100, b2 + 85, 124, 'mute');
+  o += text(280, 236, `O / l = ${st[1].O.toFixed(2)} / ${st[1].l.toFixed(3)} = ${(st[1].O / st[1].l).toFixed(2)}；整行一次做 softmax 再加权：${direct.toFixed(2)}`, 'tb', 'middle');
+  o += text(280, 258, '读到更大的 max 时，旧的 l 和 O 乘 e^(m − m′) 换到新的基准，再加上新一段的项。', 'ts', 'middle');
+  return svg(560, 268, o, 'online softmax：score 1,2,3,0 分两段读，第一段后 m=2、l=1.368、O=23.68，第二段后 m=3、l=1.553、O=40.70，O/l=26.21');
+}
+
+// 第 6 站：ring all-gather，N = 4
+function ring() {
+  const N = 4, names = ['A', 'B', 'C', 'D'];
+  let o = '';
+  const gx = (g) => 110 + g * 118, rowY = (k) => 40 + k * 62;
+  for (let g = 0; g < N; g++) o += text(gx(g) + 40, 22, 'GPU ' + g, 'tb', 'middle');
+  let have = Array.from({ length: N }, (_, g) => new Set([g]));
+  for (let k = 0; k < N; k++) {
+    const y = rowY(k);
+    o += text(16, y + 22, k === 0 ? '开始' : `第 ${k} 步后`, 't');
+    let fresh = Array.from({ length: N }, () => -1);
+    if (k > 0) {
+      const nh = have.map((h) => new Set(h));
+      for (let g = 0; g < N; g++) { const c = (g - (k - 1) + N) % N, to = (g + 1) % N; nh[to].add(c); fresh[to] = c; }
+      have = nh;
+    }
+    for (let g = 0; g < N; g++) {
+      for (let c = 0; c < N; c++) {
+        const own = have[g].has(c), x = gx(g) + c * 20;
+        o += rect(x, y + 8, 18, 22, own ? (fresh[g] === c ? 'solid' : 'wash') : 'paper', 2);
+        if (own) o += text(x + 9, y + 24, names[c], fresh[g] === c ? 'tw' : 't', 'middle');
+      }
+    }
+    if (k > 0) for (let g = 0; g < N - 1; g++) o += arrow(gx(g) + 82, y - 4, gx(g + 1) - 2, y - 4, 'mute');
+    if (k > 0) o += text(gx(N - 1) + 40, y - 8, '→ GPU 0', 'ts', 'start');
+  }
+  const yb = rowY(N) + 4;
+  o += text(280, yb, '每一步每块卡把上一步收到的那一段（S/N）传给右边，GPU 3 传回 GPU 0；深色是这一步刚收到的。', 'ts', 'middle');
+  o += text(280, yb + 18, 'N − 1 = 3 步之后人人都有 A、B、C、D，每块卡一共发了 (N − 1)/N · S。', 'ts', 'middle');
+  return svg(560, yb + 28, o, '4 块 GPU 的 ring all-gather：每步每块卡把一段传给右边，3 步之后每块卡都有全部 4 段');
+}
+
 export default {
   'cs336-bpeindex': bpeindex,
+  'cs336-bpemerges': bpemerges,
+  'cs336-rope': rope,
+  'cs336-wave': wave,
+  'cs336-online': online,
+  'cs336-ring': ring,
   'cs336-lm': lm,
   'cs336-flops': flops,
   'cs336-lr': lr,

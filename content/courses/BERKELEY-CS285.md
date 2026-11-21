@@ -223,6 +223,8 @@ $g=2$：$126/210=0.6$；$g=4$：$0.7$；$g=10$：只有一条 path，$1.0$。只
 
 Lecture 3 说 goal-conditioned BC 的 distribution shift 出现在两个地方，slide 把第二个留作问题。第一个和普通 BC 一样，在 state 上。第二个在 goal 上：test 时要求的 goal 未必是 data 里常见的终点。上面的 random walk 走 10 步，终点满足 $|g|\ge8$ 的 trajectory 只占 $22/1024=2.1\%$，$g=10$ 只占 $1/1024$。离出发点越远的 goal，data 越少，policy 越不可靠。
 
+::fig[cs285-relabel] 左：终点 $g=2$ 的 path 在第一步的分叉。右：10 步 random walk 的终点，也就是 relabel 之后 data 里各个 goal 的比例。
+
 Slide 28 给出的办法是把这个过程反复做：用当前的 goal-conditioned policy 去追 random 选的 goal，把实际到达的地方 relabel 成 goal 加进 data，再 train。Policy 每一轮都比 random walk 走得更远，下一轮的 data 就覆盖更远的 goal。Slide 30 提到同样的 relabeling 也用在 off-policy 的 value-based RL 里。
 
 :::edge 只用少量高质量 data 为什么也会失败
@@ -385,6 +387,8 @@ $$\hat A_t^{\text{GAE}}=(1-\lambda)\sum_{n=1}^{\infty}\lambda^{n-1}\hat A_t^{(n)
 
 $$\hat A_t^{\text{GAE}}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}\,(1-\lambda)\sum_{n=l+1}^{\infty}\lambda^{n-1}=\sum_{l=0}^{\infty}\gamma^l\delta_{t+l}\,(1-\lambda)\frac{\lambda^l}{1-\lambda}=\sum_{l=0}^{\infty}(\gamma\lambda)^l\delta_{t+l}$$
 
+::fig[cs285-gaesum] 交换求和次序：先按行（每个 $n$）加，等于先按列（每个 $\delta_{t+l}$）加。
+
 最后的形式可以从后往前一步算出来，这就是 HW2 要实现的 recursion（Eq. 22）：
 
 $$\hat A_t^{\text{GAE}}=\delta_t+\gamma\lambda\,\hat A_{t+1}^{\text{GAE}}$$
@@ -396,6 +400,8 @@ $$\hat A_t^{\text{GAE}}=\delta_t+\gamma\lambda\,\hat A_{t+1}^{\text{GAE}}$$
 ### 在一个 random walk 上量 bias 和 variance
 
 State $0,1,\dots,10$，从 5 出发，每步向右的 probability 是 $\sigma(\theta)$，$\theta=0$；到 10 得 reward 1 并结束，到 0 得 0 并结束；每步另有 std 0.3 的 reward noise；$\gamma=1$。True value $V^\pi(s)=s/10$。由 gambler's ruin 的 formula 对 $\theta$ 求 derivative，true gradient 是 1.25。Critic 是 $\hat V(s)=V^\pi(s)+e(s)$，$e(s)$ 取 std 0.15 的固定 error（seed 3，两个 terminal state 上为 0）。
+
+::fig[cs285-walk] 这个 random walk。
 
 $\lambda=0$ 的 bias 可以 exact 算出。上一小节说 bias 来自 $\mathbb E[x_t\,e(s_{t+1})]$：在 state $s$，$x_t=+\tfrac12$ 时去 $s+1$，$x_t=-\tfrac12$ 时去 $s-1$，各占一半，所以每访问一次 $s$ 贡献 $\tfrac14\big(e(s+1)-e(s-1)\big)$。Symmetric random walk 从 5 出发、到 0 或 10 停止，访问 $s$ 的 expected 次数是 $2\min(s,5)\,(10-\max(s,5))/10$，即 $1,2,3,4,5,4,3,2,1$。加权求和，bias 是 0.252。
 
@@ -483,6 +489,8 @@ $$\partial_{V_0}:\ 2V_0=V_1+V_2,\qquad\partial_{V_1}:\ 2V_1=V_0+1,\qquad\partial
 $$\tfrac12(V_0-V_1)^2+\tfrac12(V_0-V_2)^2=(V_0-m)^2+d^2$$
 
 第一项是想要的 Bellman error；第二项是 next state value 的 variance，它惩罚 $V_1$ 和 $V_2$ 不相等。Transition 有 randomness 时，sampled 的 squared Bellman error 多了一个 variance term，要消掉它需要从同一个 $s$ 独立抽两次 $s'$，data 里没有这样的 sample。只更新 $Q(s,a)$、把 target 当 constant 的做法，在 table 上 converge 到 $V_1=1$、$V_2=0$。代价是它不再是任何 objective 的 gradient，function approximation 下没有 convergence 的保证（Lecture 8 的 theory 部分，例子见 [CS4246](../courses/CS4246.html#fa)）。
+
+::fig[cs285-residual] 这个例子的结构和两种做法 converge 到的 value。
 
 ### Target network：hard update 与 Polyak
 
@@ -832,6 +840,8 @@ One-step 与 token 级两种看法、value baseline 的两种做法、GRPO 这�
 Lecture 16 先区分两种 plan。Open-loop：在 $t=1$ 就决定整条 action sequence，之后只执行；closed-loop：每一步看到 state 再决定。Deterministic 的 dynamics 下两者一样好；dynamics 有 randomness 时，open-loop 是 suboptimal 的。
 
 最小的例子：第一步不管做什么，nature 以各一半的 probability 把 state 变成 $L$ 或 $R$；第二步选 left 或 right，和 state 一致得 reward 1，否则 0。Open-loop 的 plan 必须在看到 state 之前定下第二步，不管定哪个，expected reward 都是 0.5。Closed-loop 的 policy 看到 state 再选，expected reward 是 1。这里 model 是完美的，差距全部来自“plan 不能对还没发生的 randomness 做反应”。
+
+::fig[cs285-openloop] 同一个 model 上的两种 plan。彩色是实际执行的选择。
 
 :::wrong 只要 model 是对的，optimize 出来的 action sequence 就是 optimal 的
 上面的例子 model 完全正确，open-loop 的最好 plan 也只有 0.5，closed-loop 是 1。Optimize 一条 action sequence 和 optimize 一个 policy 是两个问题：前者的 optimum 是对所有可能的未来取平均后最好的那一条，后者可以对每个未来各自选。MPC 每一步重新 plan，用 replanning 把一部分 closed-loop 的好处找回来（见 [RB4301](../courses/RB4301.html#mpc)）。

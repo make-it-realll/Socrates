@@ -250,6 +250,95 @@ function krr() {
   return svg(560, 280, o, 'Gaussian kernel 的 kernel ridge regression：lambda 很小时 curve 几乎穿过每个点并在两个相邻点之间剧烈振荡，lambda 增大时 curve 变平滑、RKHS norm 变小');
 }
 
+// 第 1、2 站：threshold，training error 为 0 的 threshold 被夹在两个 ε-interval 之间
+function sandwich() {
+  let seed = 7;
+  const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const X = Array.from({ length: 199 }, rnd);
+  const lo = Math.max(...X.filter((x) => x < 0.5)), hi = Math.min(...X.filter((x) => x >= 0.5));
+  let o = '';
+  // 上：整条 [0, 1)
+  const sx = lin(0, 1, 40, 520), y0 = 52;
+  o += text(40, 22, 'm = 199 个 sample，label = 1[x ≥ 0.5]', 'tb');
+  o += line(40, y0, 520, y0, 'axis');
+  for (const x of X) o += line(sx(x), y0 - 9, sx(x), y0 + 9, x >= 0.5 ? 'ln' : 'mute');
+  for (const t of [0, 0.5, 1]) o += text(sx(t), y0 + 26, String(t), 'ts', 'middle');
+  o += rect(sx(0.4), y0 - 14, sx(0.6) - sx(0.4), 28, 'frame');
+  // 下：放大 [0.4, 0.6]
+  const zx = lin(0.4, 0.6, 40, 520), y1 = 170;
+  o += line(sx(0.4), y0 + 14, zx(0.4), y1 - 44, 'grid') + line(sx(0.6), y0 + 14, zx(0.6), y1 - 44, 'grid');
+  o += rect(zx(0.45), y1 - 30, zx(0.5) - zx(0.45), 60, 'wash') + rect(zx(0.5), y1 - 30, zx(0.55) - zx(0.5), 60, 'wash');
+  o += text(zx(0.475), y1 - 36, '[0.45, 0.5)', 'ts', 'middle') + text(zx(0.525), y1 - 36, '[0.5, 0.55)', 'ts', 'middle');
+  o += line(40, y1, 520, y1, 'axis');
+  for (const x of X) if (x >= 0.4 && x <= 0.6) o += line(zx(x), y1 - 12, zx(x), y1 + 12, x >= 0.5 ? 'ln' : 'mute');
+  o += rect(zx(lo), y1 + 18, zx(hi) - zx(lo), 8, 'solid');
+  for (const [t, s] of [[0.45, 'a₋ = 0.45'], [0.5, 'a* = 0.5'], [0.55, 'a₊ = 0.55']]) o += line(zx(t), y1 + 30, zx(t), y1 + 36, 'axis') + text(zx(t), y1 + 50, s, 'ts', 'middle');
+  o += text(zx(lo) - 6, y1 + 27, `${lo.toFixed(3)}`, 'ts', 'end') + text(zx(hi) + 6, y1 + 27, `${hi.toFixed(3)}`, 'ts', 'start');
+  o += text(280, y1 + 78, '实心条：training error 为 0 的 threshold 只能落在最大的 0 和最小的 1 之间。', 'ts', 'middle');
+  o += text(280, y1 + 96, '两个浅色 interval 里各有 sample，这一条就被关在 (0.45, 0.55) 里，true error < 0.05。', 'ts', 'middle');
+  return svg(560, y1 + 106, o, '199 个 uniform sample 和 threshold 0.5：training error 为 0 的 threshold 只能在最大的负 sample 和最小的正 sample 之间');
+}
+
+// 第 6 站：三个点的 kernel ridge regression
+function krr3() {
+  const XS = [0, 1, 2], YS = [0, 1, 0];
+  const K = (a, b) => Math.exp(-((a - b) ** 2) / 2);
+  const fit = (lm) => { const A = XS.map((a, i) => XS.map((b, j) => K(a, b) + (i === j ? lm : 0))); const al = solve(A, YS); return (x) => XS.reduce((acc, xi, i) => acc + al[i] * K(xi, x), 0); };
+  const f0 = fit(1e-12), f1 = fit(0.3);
+  const sx = lin(-0.6, 2.6, 60, 400), sy = lin(-0.45, 1.2, 250, 24);
+  let o = axes({ sx, sy, x0: -0.6, x1: 2.6, y0: -0.45, y1: 1.2, xt: [0, 0.5, 1, 1.5, 2], yt: [[-0.4, '−0.4'], [0, '0'], [0.5, '0.5'], [1, '1']], grid: true });
+  o += path(curve(f0, -0.6, 2.6, sx, sy), 'mute');
+  o += path(curve(f1, -0.6, 2.6, sx, sy), 'ln');
+  XS.forEach((x, i) => { o += circle(sx(x), sy(YS[i]), 4.5, 'ink-f'); });
+  XS.forEach((x) => { o += circle(sx(x), sy(f1(x)), 3.5, 'ln-f'); });
+  o += text(sx(0) - 8, sy(f1(0)) - 8, f1(0).toFixed(3), 'tl', 'end') + text(sx(2) + 8, sy(f1(2)) - 8, f1(2).toFixed(3), 'tl', 'start') + text(sx(1), sy(f1(1)) + 22, f1(1).toFixed(3), 'tl', 'middle');
+  o += circle(sx(1.5), sy(f1(1.5)), 3.5, 'ln-f') + line(sx(1.5) + 3, sy(f1(1.5)) - 3, sx(1.6), sy(0.6), 'mute') + text(sx(1.6) + 3, sy(0.62), 'f(1.5) = ' + f1(1.5).toFixed(3), 'tl', 'start');
+  const lx = 418;
+  o += line(lx, 60, lx + 22, 60, 'mute') + text(lx + 28, 64, 'λ → 0', 't') + text(lx + 28, 80, '穿过 0, 1, 0', 'ts') + text(lx + 28, 96, '‖w‖² = 2.841', 'ts');
+  o += line(lx, 126, lx + 22, 126, 'ln') + text(lx + 28, 130, 'λ = 0.1', 'tl') + text(lx + 28, 146, '(λm = 0.3)', 'ts') + text(lx + 28, 162, '‖w‖² = 0.613', 'ts');
+  o += circle(lx + 11, 192, 4.5, 'ink-f') + text(lx + 28, 196, 'data (x, y)', 't');
+  o += text(400, 282, 'x', 'ts', 'end');
+  return svg(560, 290, o, '三个点 0,1,0 的 Gaussian kernel ridge regression：lambda 趋于 0 时穿过三个点，lambda=0.1 时在三个点上是 0.161、0.619、0.161');
+}
+
+// 第 8 站：AdaBoost 在 10 个点上的三轮
+function adaboost() {
+  const Y = [1, 1, 1, -1, -1, -1, -1, 1, 1, 1], m = 10;
+  const stumps = [[(x) => (x <= 3 ? 1 : -1), 3.5, 'x ≤ 3 为 +'], [(x) => (x >= 8 ? 1 : -1), 7.5, 'x ≥ 8 为 +'], [() => 1, null, '全部为 +']];
+  let D = Array(m).fill(1 / m);
+  const rounds = [], F = Array(m).fill(0);
+  for (const [h, th, name] of stumps) {
+    const wrong = Y.map((y, i) => h(i + 1) !== y);
+    const eps = D.reduce((a, w, i) => a + (wrong[i] ? w : 0), 0), al = 0.5 * Math.log((1 - eps) / eps);
+    rounds.push({ D: D.slice(), wrong, eps, al, th, name });
+    for (let i = 0; i < m; i++) F[i] += al * h(i + 1);
+    const nd = D.map((w, i) => w * Math.exp(-al * Y[i] * h(i + 1))), Z = nd.reduce((a, b) => a + b, 0);
+    D = nd.map((w) => w / Z);
+  }
+  const px = (i) => 196 + i * 36, bw = 22;
+  let o = '';
+  // 数据
+  o += text(16, 34, 'data', 'tb');
+  for (let i = 0; i < m; i++) { o += text(px(i), 14, String(i + 1), 'ts', 'middle') + circle(px(i), 34 - 4, 9, Y[i] > 0 ? 'wash-strong' : 'paper') + text(px(i), 34, Y[i] > 0 ? '+' : '−', 'tb', 'middle'); }
+  const H = 40, sc = H / (1 / 6);
+  rounds.forEach((r, t) => {
+    const base = 104 + t * 68;
+    o += text(16, base - 24, `round ${t + 1}：${r.name}`, 'tb') + text(16, base - 6, `ε = ${r.eps.toFixed(3)}，α = ${r.al.toFixed(3)}`, 'ts');
+    o += line(px(0) - 18, base, px(9) + 18, base, 'axis');
+    for (let i = 0; i < m; i++) o += rect(px(i) - bw / 2, base - r.D[i] * sc, bw, r.D[i] * sc, r.wrong[i] ? 'solid' : 'wash');
+    if (r.th !== null) { const x = px(r.th - 1); o += line(x, base - H - 6, x, base + 4, 'ln-dash'); }
+  });
+  o += text(px(9) + 22, 104 - 34, 'D_t(i)', 'ts', 'end');
+  // F_3
+  const fb = 104 + 3 * 68 + 10, fs = 30;
+  o += text(16, fb - 4, 'F₃ = Σ α_t h_t', 'tb') + text(16, fb + 14, 'sign 全对', 'ts');
+  o += line(px(0) - 18, fb, px(9) + 18, fb, 'axis');
+  for (let i = 0; i < m; i++) { const v = F[i]; o += rect(px(i) - bw / 2, v > 0 ? fb - v * fs : fb, bw, Math.abs(v) * fs, v > 0 ? 'wash-strong' : 'wash2'); }
+  for (const [i, dy] of [[1, -1], [5, 1], [8, -1]]) o += text(px(i), fb + (dy < 0 ? -F[i] * fs - 6 : -F[i] * fs + 16), F[i].toFixed(3), 'ts', 'middle');
+  o += text(280, fb + 52, '每一轮的柱高是这一轮开始时的 weight，深色是这一轮分错的点；虚线是 stump 的切点。', 'ts', 'middle');
+  return svg(560, fb + 62, o, 'AdaBoost 在 10 个点上跑三轮：每轮的 weight、分错的点、stump 的切点，以及三轮之后 F3 在每段上的值');
+}
+
 // 第 7 站：一直看到 0 时 θ 的 posterior：Beta(1, n + 1)
 function beta() {
   const sx = lin(0, 0.2, 70, 520), sy = lin(0, 55, 230, 30);
@@ -325,6 +414,9 @@ function boost() {
 
 export default {
   'cs3264-tail': tail,
+  'cs3264-sandwich': sandwich,
+  'cs3264-krr3': krr3,
+  'cs3264-adaboost': adaboost,
   'cs3264-shatter': shatter,
   'cs3264-rad': radfig,
   'cs3264-ramp': ramp,

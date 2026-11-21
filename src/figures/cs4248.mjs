@@ -35,6 +35,119 @@ function bpe() {
   return svg(560, 214, o, 'BPE 在 J&M 的小 corpus 上的 merge 过程：随着 merge 增加，每个 word 被切成的 token 越来越少，token 总数从 30 降到 8');
 }
 
+// 用学到的 8 条 merge 按顺序切 `_resent`
+function bpeencode() {
+  const merges = [['n', 'e'], ['ne', 'w'], ['_', 'r'], ['_r', 'e'], ['_', 'new'], ['_re', 'new'], ['s', 'e'], ['se', 't']];
+  const apply = (toks, m) => { const o = []; let hit = false; for (let i = 0; i < toks.length; i++) { if (i + 1 < toks.length && toks[i] === m[0] && toks[i + 1] === m[1]) { o.push(m[0] + m[1]); i++; hit = true; } else o.push(toks[i]); } return [o, hit]; };
+  let toks = '_resent'.split('');
+  const cw = 16, X0 = 250, rh = 30;
+  let o = text(20, 20, 'merge（按学到的顺序）', 'tb') + text(X0, 20, '_resent 当前的切分', 'tb');
+  const row = (y, ts, fresh) => {
+    let x = X0;
+    for (const t of ts) {
+      const wd = Math.max(t.length * cw, 22);
+      o += rect(x + 1, y, wd - 2, 24, t.length > 1 ? (t === fresh ? 'wash-strong' : 'wash') : 'paper', 3);
+      o += text(x + wd / 2, y + 16, t, t.length > 1 ? 'tb' : 't', 'middle');
+      x += wd;
+    }
+  };
+  o += text(20, 50, '开始：拆成 character', 'ts');
+  row(34, toks, null);
+  merges.forEach((m, k) => {
+    const y = 34 + (k + 1) * rh;
+    const [nt, hit] = apply(toks, m);
+    o += text(20, y + 16, `${k + 1}.  ${m[0]} ${m[1]}  →  ${m[0] + m[1]}`, hit ? 'tl' : 'ts');
+    o += text(548, y + 16, hit ? '合并' : '没有这个 pair', hit ? 'tl' : 'ts', 'end');
+    row(y, nt, hit ? m[0] + m[1] : null);
+    toks = nt;
+  });
+  const yb = 34 + 9 * rh + 22;
+  o += text(280, yb, '第 1 条找 n e，这里只有 e n，顺序不对；第 8 条找 se t，但 se 后面是 n。结果 _re se n t。', 'ts', 'middle');
+  return svg(560, yb + 10, o, '用 8 条 merge 按学到的顺序切分新 word _resent：第 3、4、7 条起作用，结果是 _re se n t');
+}
+
+// 三句话的 bigram model 画成图：每条边是 P(下一个 | 当前)
+function bigram() {
+  const sents = ['<s> I am Sam </s>', '<s> Sam I am </s>', '<s> I do not like green eggs and ham </s>'].map((x) => x.split(' '));
+  const C = {}, C2 = {};
+  for (const w of sents) for (let i = 0; i + 1 < w.length; i++) { C[w[i]] = (C[w[i]] || 0) + 1; const k = w[i] + '|' + w[i + 1]; C2[k] = (C2[k] || 0) + 1; }
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const P = (a, b) => { const n = C2[a + '|' + b] || 0, m = C[a]; const g = gcd(n, m); return n === m ? '1' : `${n / g}/${m / g}`; };
+  const esc = (t) => t.replace('<', '&lt;').replace('>', '&gt;');
+  const pos = { '<s>': [40, 90], I: [150, 90], am: [270, 90], Sam: [390, 90], '</s>': [515, 90],
+    do: [40, 210], not: [112, 210], like: [184, 210], green: [262, 210], eggs: [342, 210], and: [412, 210], ham: [482, 210] };
+  const hw = (t) => Math.max(18, t.length * 4.6 + 8), hh = 13;
+  const path_ = ['<s>', 'I', 'am', 'Sam', '</s>'];
+  const onPath = (a, b) => path_.indexOf(b) === path_.indexOf(a) + 1 && path_.indexOf(a) >= 0;
+  let o = '';
+  // 直线边：端点停在框边上
+  const edge = (a, b, lab, ldx = 0, ldy = -6) => {
+    const [x1, y1] = pos[a], [x2, y2] = pos[b];
+    const dx = x2 - x1, dy = y2 - y1;
+    const cut = (w) => Math.min(Math.abs(dx) > 1e-9 ? w / Math.abs(dx) : 1e9, Math.abs(dy) > 1e-9 ? hh / Math.abs(dy) : 1e9);
+    const t1 = cut(hw(a)), t2 = cut(hw(b)) + 0.01;
+    const cls = onPath(a, b) ? 'ln' : 'ink';
+    o += arrow(x1 + dx * t1, y1 + dy * t1, x2 - dx * t2, y2 - dy * t2, cls);
+    o += text((x1 + x2) / 2 + ldx, (y1 + y2) / 2 + ldy, lab, onPath(a, b) ? 'tl' : 'ts', 'middle');
+  };
+  // 曲线边：从 (x1,y1) 经控制点到 (x2,y2)，在末端画箭头
+  const arc = (x1, y1, cx, cy, x2, y2, lab, lx, ly, cls = 'ink') => {
+    o += path(`M${x1} ${y1} Q ${cx} ${cy}, ${x2} ${y2}`, cls);
+    const t = 0.9, ex = (1 - t) ** 2 * x1 + 2 * t * (1 - t) * cx + t * t * x2, ey = (1 - t) ** 2 * y1 + 2 * t * (1 - t) * cy + t * t * y2;
+    o += arrow(ex, ey, x2, y2, cls);
+    o += text(lx, ly, lab, cls === 'dash' ? 'ts' : 'ts', 'middle');
+  };
+  edge('<s>', 'I', P('<s>', 'I')); edge('I', 'am', P('I', 'am')); edge('am', 'Sam', P('am', 'Sam')); edge('Sam', '</s>', P('Sam', '</s>'));
+  arc(pos['<s>'][0], 77, 215, -4, pos.Sam[0] - 6, 77, P('<s>', 'Sam'), 215, 30);
+  arc(pos.am[0] + 4, 77, 395, 16, pos['</s>'][0] - 6, 77, P('am', '</s>'), 395, 42);
+  arc(pos.Sam[0] - 4, 103, 270, 160, pos.I[0] + 6, 103, P('Sam', 'I'), 270, 146);
+  edge('I', 'do', P('I', 'do'), -8, 0);
+  const chain = ['do', 'not', 'like', 'green', 'eggs', 'and', 'ham'];
+  for (let i = 0; i + 1 < chain.length; i++) edge(chain[i], chain[i + 1], P(chain[i], chain[i + 1]), 0, -6);
+  edge('ham', '</s>', P('ham', '</s>'), 12, 0);
+  // 测试句需要、训练里没出现过的边
+  arc(pos.like[0], 223, 333, 300, pos.ham[0], 223, '', 0, 0, 'dash');
+  o += text(333, 274, 'ham | like：训练里 0 次 → P = 0', 'ts', 'middle');
+  for (const [w, [x, y]] of Object.entries(pos)) {
+    const hot = path_.includes(w);
+    o += rect(x - hw(w), y - hh, 2 * hw(w), 2 * hh, hot ? 'wash' : 'paper', 5) + text(x, y + 5, esc(w), 'tb', 'middle');
+  }
+  o += text(280, 306, '彩色是 &lt;s&gt; I am Sam &lt;/s&gt;：2/3 · 2/3 · 1/2 · 1/2 = 1/9。', 'ts', 'middle');
+  o += text(280, 324, '虚线是 “I do not like ham” 要走、却不存在的那条边。', 'ts', 'middle');
+  return svg(560, 334, o, '三句训练语料估出的 bigram model 画成有向图，每条边标 P(下一个|当前)；like 到 ham 的边不存在');
+}
+
+// the green witch：decoder state 对三个 encoder state 的 attention
+function witch() {
+  const H = { the: [1, 0], green: [0.5, 2], witch: [1.5, 0.5] }, s = [0, 1];
+  const sc = Object.fromEntries(Object.entries(H).map(([k, h]) => [k, s[0] * h[0] + s[1] * h[1]]));
+  const Z = Object.values(sc).reduce((a, e) => a + Math.exp(e), 0);
+  const al = Object.fromEntries(Object.keys(H).map((k) => [k, Math.exp(sc[k]) / Z]));
+  const c = [0, 1].map((i) => Object.keys(H).reduce((a, k) => a + al[k] * H[k][i], 0));
+  const sx = lin(-0.2, 2, 50, 50 + 2.2 * 115), sy = lin(-0.2, 2.2, 284, 284 - 2.4 * 115);
+  let o = axes({ sx, sy, x0: -0.2, x1: 2, y0: -0.2, y1: 2.2, xt: [0, 1, 2], yt: [0, 1, 2], xAt: 0, yAt: 0 });
+  o += path(`M${sx(1)} ${sy(0)} L${sx(0.5)} ${sy(2)} L${sx(1.5)} ${sy(0.5)} Z`, 'dash');
+  const lab = { the: [8, 17, 'start'], green: [10, 0, 'start'], witch: [10, 4, 'start'] };
+  for (const k of Object.keys(H)) {
+    o += arrow(sx(0), sy(0), sx(H[k][0]), sy(H[k][1]), 'ink');
+    const [dx, dy, an] = lab[k];
+    o += text(sx(H[k][0]) + dx, sy(H[k][1]) + dy, 'h_' + k, 'tb', an);
+  }
+  o += arrow(sx(0), sy(0), sx(s[0]), sy(s[1]), 'ln') + text(sx(s[0]) + 8, sy(s[1]) - 4, 's（decoder）', 'tl', 'start');
+  o += circle(sx(c[0]), sy(c[1]), 5, 'solid') + line(sx(c[0]) + 5, sy(c[1]) - 2, sx(1.0), sy(1.68), 'mute') + text(sx(1.0) + 4, sy(1.68) + 4, 'c', 'tl', 'start');
+  // 右边：分数、weight
+  const X = 360;
+  o += text(X, 40, 'score = s · h', 'tb') + text(X + 140, 40, 'α', 'tb', 'end');
+  Object.keys(H).forEach((k, i) => {
+    const y = 68 + i * 30;
+    o += text(X, y, k + '：' + sc[k], 't') + text(X + 140, y, al[k].toFixed(3), 'tb', 'end');
+    o += rect(X + 150, y - 11, 46 * al[k] / 0.75, 12, 'wash-strong');
+  });
+  o += text(X, 176, 'c = Σ α h', 'tb') + text(X, 200, `= (${c[0].toFixed(3)}, ${c[1].toFixed(3)})`, 't');
+  o += text(X, 236, '虚线三角形是三个 h 的', 'ts') + text(X, 254, 'convex hull；c 是 weighted', 'ts') + text(X, 272, 'average，一定落在里面，', 'ts') + text(X, 290, '而且靠近 weight 大的 green。', 'ts');
+  return svg(560, 306, o, 'the green witch 的 attention：三个 encoder state、decoder state s、score、softmax weight 和 context vector c');
+}
+
 // like 后面的 distribution：MLE 与 Laplace
 function laplace() {
   const syms = ['green', 'I', 'Sam', 'am', 'and', 'do', 'eggs', 'ham', 'like', 'not', '</s>'];
@@ -337,6 +450,9 @@ function lora() {
 
 export default {
   'cs4248-bpe': bpe,
+  'cs4248-bpeencode': bpeencode,
+  'cs4248-bigram': bigram,
+  'cs4248-witch': witch,
   'cs4248-laplace': laplace,
   'cs4248-sgns': sgns,
   'cs4248-viterbi': viterbi,

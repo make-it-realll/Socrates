@@ -140,6 +140,8 @@ PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s
 
 继续做下去，前 12 次 merge 是 `s t`、`e st`、`o w`、`l ow`、`w est`、`n e`、`ne west`、`w i`、`wi d`、`wid est`、`low e`、`lowe r`，和 handout 一致。每次 merge 之后 token 总数减少的量恰好是被合并 pair 的 count：$79\to70\to61\to54\to47\to41\to35$，依次减去 9、9、7、7、6、6。
 
+::fig[cs336-bpemerges] 四个 pre-token 在 0、2、4、6、9、12 次 merge 之后的切分。右边是按次数加权的 token 总数。
+
 ### Merge 之后，只有少数 count 会变
 
 朴素的实现每次 merge 后重新数一遍所有 pair。设不同 pre-token 的总长度是 $S$，要做 $M$ 次 merge，代价是 $M\times S$。TinyStories 上 $M=9743$，OpenWebText 上要 32,000 次，这样做远超 handout 给的时间。
@@ -275,6 +277,8 @@ RoPE 把 $q$、$k$ 的 dimension 两两配对，每对看成 plane 上的一个�
 $$\theta_{i,k}=i\cdot\Theta^{-(2k-2)/d_k}$$
 
 $\Theta=10000$，$d_k=32$。第 1 对每过一个 token 转 1 radian，转一圈要 $2\pi\approx6.3$ 个 token；第 16 对每个 token 转 $10000^{-30/32}$ radian，转一圈要约 35,000 个 token。前面的 dimension 分辨相邻几个 token，后面的 dimension 分辨很远的距离。为什么转过之后 score 只依赖 $j-i$，见 CS4248 第 6 站。
+
+::fig[cs336-rope] $\Theta=10000$、$d_k=32$ 时各对 dimension 的转速。
 
 实现上不要真的造一个 $d_k\times d_k$ 的 block-diagonal matrix。对每一对 $(x_{2k-1},x_{2k})$ 直接算
 
@@ -518,6 +522,8 @@ Matmul 是 compute-bound 的前提是每个数读进来之后被用很多次。�
 
 Tile 大小也带来新问题。Lecture 5 的例子：A100 有 108 个 SM，用 $256\times128$ 的 tile，$1792\times1792$ 的 matmul 切成 $7\times14=98$ 块，一轮就做完；$1793\times1793$ 要切成 $8\times15=120$ 块，第一轮 108 块，剩下 12 块单独跑一轮，大部分 SM 空着。这叫 wave quantization，所以 matrix 的 dimension 取 64、128 的倍数不只是对齐 memory，也是为了块数整齐。
 
+::fig[cs336-wave] A100 上同样的 tile，两个只差 1 的 matrix。
+
 ### Attention 为什么需要 FlashAttention
 
 普通的 attention 是三个 kernel：$S=QK^\top/\sqrt d$ 写进 HBM，softmax 读 $S$ 写 $P$，再读 $P$ 乘 $V$。$S$ 和 $P$ 都是 $T\times T$ 的。$T=16384$ 时一个 head 一条 sequence 的 $S$ 用 fp32 存就是 1 GiB；第 3 站看到它们占了一个 block activation 的一半以上。
@@ -536,6 +542,8 @@ $$m'=\max(m,\ \max s_{\text{new}}),\qquad l'=e^{m-m'}\,l+\sum e^{s_{\text{new}}-
 - 第二段 $(3,0)$：$m'=3$，旧的量乘 $e^{2-3}=0.368$；新的 $e^{s-m'}=(1,\,e^{-3})=(1,\,0.0498)$。$l'=0.368\times1.368+1.0498=1.553$，$O'=0.368\times23.68+30+0.0498\times40=40.70$。
 
 $O'/l'=26.21$。直接算：softmax 是 $(0.087,\,0.237,\,0.644,\,0.032)$，weighted average $0.087\times10+0.237\times20+0.644\times30+0.032\times40=26.21$，相同。再存一个数 $L=m'+\log l'=3+\log1.553=3.440$，它恰好是这一行的 log-sum-exp，backward 会用它。
+
+::fig[cs336-online] 上面这一行分两段读的过程。
 
 ::fig[cs336-flash] FlashAttention-2 forward：每个 program instance 负责一块 query，把它留在 shared memory 里，依次读入每一块 key 和 value。$T\times T$ 的 $S$、$P$ 只以 $B_q\times B_k$ 的小块出现在 shared memory 里，从不写进 HBM。
 
@@ -610,6 +618,8 @@ A2 的分析 model：$N$ 块卡，每块卡每秒能向外发 $W$ byte，tensor 
 $$t_{\text{all-reduce}}=2\,\frac{N-1}{N}\,\frac SW$$
 
 $\tfrac{N-1}{N}$ 随 $N$ 增大趋于 1，所以时间几乎不随卡数增长。算一个：1.64B 的 model，bf16 的 gradient 是 $S=3.28$ GB。8 块卡、按 1.8 TB/s 算是 3.19 ms，64 块卡是 3.59 ms；同样 8 块卡如果走 0.05 TB/s 的 InfiniBand，是 115 ms。
+
+::fig[cs336-ring] $N=4$ 时的 ring all-gather。Reduce-scatter 的走法相同，只是每块卡传出去之前先把自己的那份加进去。
 
 ### Data parallel 与 ZeRO
 
