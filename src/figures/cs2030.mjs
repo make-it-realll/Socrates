@@ -255,7 +255,146 @@ function forkjoin() {
   return svg(560, 306, o, 'Summer 对 1 到 8 的 array 做 fork join 的 recursion tree：每个 node 把范围对半分，左半 fork，右半 compute，leaf 是单个 element，sum 由下向上合并成 36');
 }
 
+// ---------- 开头第三个 program：EagerList.iterate 一直往 stack 上压 frame ----------
+function eager() {
+  let o = '';
+  o += text(130, 22, 'stack（往上长）', 'tb', 'middle') + text(410, 22, 'heap', 'tb', 'middle');
+  const fx = 20, fw = 220, fh = 30, base = 290;
+  const frames = ['main：nat = EagerList.iterate(0, …)', 'iterate(0, …)', 'iterate(1, …)', 'iterate(2, …)', 'iterate(3, …)'];
+  frames.forEach((s, k) => {
+    const y = base - (k + 1) * (fh + 6);
+    o += rect(fx, y, fw, fh, k ? 'paper' : 'wash2', 5) + text(fx + 10, y + 19, s, k ? 't' : 'ts');
+    if (k) o += text(fx + fw - 8, y + 19, `等 iterate(${k}, …)`, 'ts', 'end');
+  });
+  const ytop = base - 6 * (fh + 6);
+  o += text(fx + fw / 2, ytop + 22, '⋮', 'tb', 'middle');
+  o += rect(fx, ytop - 24, fw, 26, 'solid', 5) + text(fx + fw / 2, ytop - 6, 'StackOverflowError', 'tw', 'middle');
+  o += line(280, 30, 280, base, 'grid');
+  o += rect(320, 100, 180, 120, 'frame', 8) + text(410, 152, '一个 EagerList 都没有', 'ts', 'middle') + text(410, 170, '（new 从没执行到）', 'ts', 'middle');
+  o += text(20, base + 26, '每个 iterate(k, …) 在 call constructor 之前，要先算出第二个 argument iterate(k + 1, …)：', 'ts');
+  o += text(20, base + 44, '它自己的 frame 留在 stack 上等着，永远等不到。', 'ts');
+  return svg(560, base + 56, o, 'EagerList.iterate 每一层都要先算出下一层才能 new，stack 上的 frame 越压越多，heap 上一个 object 都没有');
+}
+
+// ---------- reset 与 shift：parameter 得到的是 reference 的 copy ----------
+function passval() {
+  let o = '';
+  const panel = (x0, title, mname, after) => {
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+    o += rect(x0 + 6, 40, 104, 58, 'frame', 6) + text(x0 + 14, 56, 'main', 'ts') + slot(x0 + 50, 78, 'a');
+    o += rect(x0 + 6, 112, 104, 58, 'frame', 6) + text(x0 + 14, 128, mname, 'ts') + slot(x0 + 50, 150, 'q');
+    if (after === 'reset') {
+      o += obj(x0 + 150, 46, 104, 'Point', ['x: 3.0', 'y: 4.0']);
+      o += obj(x0 + 150, 122, 104, 'Point', ['x: 0.0', 'y: 0.0']);
+      o += arrow(x0 + 80, 78, x0 + 148, 78, 'ink') + arrow(x0 + 80, 150, x0 + 148, 152, 'ln');
+      o += path(`M${x0 + 80} 146L${x0 + 118} 110L${x0 + 140} 90`, 'dash');
+      o += text(x0 + 130, 210, 'q 改指新 object；a 没动', 'ts', 'middle');
+    } else {
+      o += obj(x0 + 150, 80, 104, 'Point', ['x: 9.0', 'y: 9.0']);
+      o += rect(x0 + 150, 80, 104, 67, 'wash', 6);
+      o += arrow(x0 + 80, 78, x0 + 148, 98, 'ink') + arrow(x0 + 80, 150, x0 + 148, 128, 'ln');
+      o += text(x0 + 130, 210, '顺着 q 改了 a 指的那个 object', 'ts', 'middle');
+    }
+  };
+  panel(10, 'reset(a) 里，q = new Point(0, 0) 之后', 'reset', 'reset');
+  panel(290, 'shift(a) 里，q.moveTo(9, 9) 之后', 'shift', 'shift');
+  o += text(280, 238, '两次 call 开始时，q 都是 a 里那个 reference 的 copy（虚线是 reset 里 q 原来的指向）。', 'ts', 'middle');
+  return svg(560, 250, o, 'reset 让 parameter q 改指一个新 Point，caller 的 a 不受影响；shift 顺着 q 修改 a 指向的同一个 Point');
+}
+
+// ---------- immutable 的 Circle：c1 = c1.moveTo(1, 1) 之后 ----------
+function immut() {
+  let o = '';
+  o += text(92, 22, 'stack', 'tb', 'middle') + text(385, 22, 'heap', 'tb', 'middle');
+  o += rect(22, 34, 140, 232, 'frame', 8) + text(32, 52, 'main', 'ts');
+  o += slot(98, 82, 'p') + slot(98, 160, 'c2') + slot(98, 232, 'c1');
+  o += line(190, 30, 190, 272, 'grid');
+  o += obj(236, 44, 126, 'Circle', ['c:', 'r: 1.0']) + rect(236, 44, 126, 67, 'dash', 6);
+  o += obj(236, 126, 126, 'Circle', ['c:', 'r: 4.0']);
+  o += obj(424, 70, 112, 'Point', ['x: 0.0', 'y: 0.0']);
+  o += obj(236, 202, 126, 'Circle', ['c:', 'r: 1.0']) + rect(236, 202, 126, 67, 'wash', 6);
+  o += obj(424, 202, 112, 'Point', ['x: 1.0', 'y: 1.0']) + rect(424, 202, 112, 67, 'wash', 6);
+  o += text(299, 38, '原来的 c1，已经没人指着', 'ts', 'middle');
+  o += path('M121 82 L206 82 L206 118 L414 118', 'ink') + poly([[422, 118], [414, 114], [414, 122]], 'ink-f');
+  o += arrow(121, 160, 234, 160, 'ink') + arrow(121, 232, 234, 232, 'ln');
+  o += circle(272, 80, 3.2, 'ink-f') + circle(272, 162, 3.2, 'ink-f') + circle(272, 238, 3.2, 'ink-f');
+  o += path('M272 80 L400 80 L422 90', 'mute') + path('M272 162 L400 162 L422 120', 'ink') + poly([[422, 120], [414, 122], [418, 114]], 'ink-f');
+  o += arrow(272, 238, 422, 238, 'ln');
+  o += text(280, 292, '浅色底是 moveTo 新造的两个 object。原来的 Point 和 c2 一点没变。', 'ts', 'middle');
+  return svg(560, 304, o, 'Immutable 的 Circle 和 Point：c1 改指新造的 Circle 和 Point，c2 和 p 仍指向原来那个在原点的 Point');
+}
+
+// ---------- Roster 的 representation exposure ----------
+function roster() {
+  let o = '';
+  o += text(92, 22, 'stack', 'tb', 'middle') + text(385, 22, 'heap', 'tb', 'middle');
+  o += rect(22, 34, 140, 140, 'frame', 8) + text(32, 52, 'main', 'ts');
+  o += slot(98, 82, 'src') + slot(98, 142, 'r');
+  o += line(190, 30, 190, 180, 'grid');
+  o += obj(236, 110, 126, 'Roster', ['names:']);
+  o += obj(412, 50, 124, 'ArrayList', ['"Ann"', '"Bob"']);
+  o += arrow(121, 82, 410, 82, 'ink') + arrow(121, 142, 234, 142, 'ink');
+  o += circle(300, 140, 3.2, 'ink-f') + path('M300 140 L380 140 L410 110', 'ln') + poly([[410, 110], [402, 112], [406, 104]], 'ln-f');
+  o += text(280, 200, 'src.add("Bob") 之后：Roster 的 private final field 和 caller 的 src 指向同一个 list。', 'ts', 'middle');
+  o += text(280, 218, 'getNames() 再交出去一份，外面的 code 就能直接 clear() 它。', 'ts', 'middle');
+  return svg(560, 230, o, 'Roster 的 field names 和 caller 的 src 指向同一个 ArrayList，外面改这个 list，Roster 的 state 就变了');
+}
+
+// ---------- race condition：两个 thread 交错执行 balance = balance + 1 ----------
+function race() {
+  let o = '';
+  const steps = [['T1', '读 balance：41'], ['T2', '读 balance：41'], ['T1', '算 41 + 1，写回 42'], ['T2', '算 41 + 1，写回 42']];
+  const bal = [41, 41, 42, 42];
+  const sx = (k) => 110 + k * 108, lanes = { T1: 50, T2: 106 };
+  o += text(96, lanes.T1 + 18, 'thread 1', 'tb', 'end') + text(96, lanes.T2 + 18, 'thread 2', 'tb', 'end') + text(96, 182, 'balance', 'tb', 'end');
+  steps.forEach(([t, s], k) => {
+    const y = lanes[t];
+    o += rect(sx(k) + 2, y, 104, 28, k >= 2 ? 'wash' : 'paper', 4) + text(sx(k) + 54, y + 18, s.split('，')[0], 'ts', 'middle');
+    if (s.includes('，')) o += text(sx(k) + 54, y + 42, s.split('，')[1], 'tl', 'middle');
+    o += rect(sx(k) + 30, 166, 48, 24, 'paper', 4) + text(sx(k) + 54, 183, String(bal[k]), 't', 'middle');
+    o += text(sx(k) + 54, 34, `第 ${k + 1} 步`, 'ts', 'middle');
+  });
+  o += line(110, 156, 542, 156, 'grid');
+  o += text(20, 222, '两个 thread 都在对方写回之前读到了 41，各自写回 42：做了两次加 1，balance 只多了 1。', 'ts');
+  o += text(20, 240, '换一种交错（T1 读、写完了 T2 再读）就是 43。结果取决于 thread 恰好怎么排。', 'ts');
+  return svg(560, 252, o, 'Race condition：thread 1 和 thread 2 先后读到 41，再先后写回 42，丢掉了一次加 1');
+}
+
+// ---------- parallel reduce：每段各自从 identity 开始 ----------
+function preduce() {
+  let o = '';
+  const panel = (x0, title, id, op, sym, seqv) => {
+    const leaves = [1, 2, 3, 4].map((e) => [e, op(id, e)]);
+    const m1 = op(leaves[0][1], leaves[1][1]), m2 = op(leaves[2][1], leaves[3][1]), top = op(m1, m2);
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+    const X = (k) => x0 + 32 + k * 65, y1 = 70, y2 = 140, y3 = 206;
+    leaves.forEach(([e, v], k) => {
+      o += text(X(k), 46, `${id} ${sym} ${e}`, 'ts', 'middle');
+      o += rect(X(k) - 22, y1 - 14, 44, 26, 'paper', 4) + text(X(k), y1 + 4, String(v).replace('-', '−'), 't', 'middle');
+    });
+    const c1 = (X(0) + X(1)) / 2, c2 = (X(2) + X(3)) / 2, c3 = (c1 + c2) / 2;
+    o += line(X(0), y1 + 12, c1, y2 - 14, 'mute') + line(X(1), y1 + 12, c1, y2 - 14, 'mute') + line(X(2), y1 + 12, c2, y2 - 14, 'mute') + line(X(3), y1 + 12, c2, y2 - 14, 'mute');
+    o += rect(c1 - 22, y2 - 14, 44, 26, 'paper', 4) + text(c1, y2 + 4, String(m1).replace('-', '−'), 't', 'middle');
+    o += rect(c2 - 22, y2 - 14, 44, 26, 'paper', 4) + text(c2, y2 + 4, String(m2).replace('-', '−'), 't', 'middle');
+    o += line(c1, y2 + 12, c3, y3 - 14, 'mute') + line(c2, y2 + 12, c3, y3 - 14, 'mute');
+    o += rect(c3 - 24, y3 - 14, 48, 26, 'solid', 4) + text(c3, y3 + 4, String(top).replace('-', '−'), 'tw', 'middle');
+    o += text(x0 + 130, 244, `parallel ${String(top).replace('-', '−')}；sequential ${String(seqv).replace('-', '−')}`, 'tl', 'middle');
+  };
+  const seq = (id, op) => [1, 2, 3, 4].reduce(op, id);
+  panel(10, 'identity 1，(x, y) -> x + y', 1, (a, b) => a + b, '+', seq(1, (a, b) => a + b));
+  panel(290, 'identity 0，(x, y) -> x - y', 0, (a, b) => a - b, '−', seq(0, (a, b) => a - b));
+  o += text(280, 274, '最上面一行：4 个 element 各成一段，每段先和 identity 算一次；往下两两合并用的是同一个 function。', 'ts', 'middle');
+  o += text(280, 292, '左边 1 被加了四次；右边减法换一种加括号的方式就换一个答案。', 'ts', 'middle');
+  return svg(560, 304, o, 'Parallel reduce 对 1 到 4：identity 1 配加法得 14 而不是 11；identity 0 配减法得 0 而不是负 10');
+}
+
 export default {
+  'cs2030-eager': eager,
+  'cs2030-passval': passval,
+  'cs2030-immut': immut,
+  'cs2030-roster': roster,
+  'cs2030-race': race,
+  'cs2030-preduce': preduce,
   'cs2030-heap': heap,
   'cs2030-dispatch': dispatch,
   'cs2030-lsp': lsp,

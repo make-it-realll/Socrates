@@ -348,6 +348,375 @@ function trace() {
   return svg(560, 186, o, '同一串 16 次 access：direct-mapped cache 全部 miss，capacity 相同的 2-way set-associative cache 有一半 hit');
 }
 
+// ---------- 开头第三件事：64 × 64 的 int array，按 row 与按 column 走 ----------
+function rowcol() {
+  let o = '';
+  const cs = 14, R = 8, C = 16;
+  const panel = (x0, title, sub2, mode) => {
+    const y0 = 70;
+    o += text(x0 + C * cs / 2, 24, title, 'tb', 'middle') + text(x0 + C * cs / 2, 42, sub2, 'ts', 'middle');
+    for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+      let cls = 'paper-f';
+      if (mode === 'row' && r < 2) cls = c % 4 === 0 ? 'solid' : 'wash';
+      if (mode === 'col' && c < 2) cls = 'solid';
+      o += rect(x0 + c * cs, y0 + r * cs, cs, cs, cls) + rect(x0 + c * cs, y0 + r * cs, cs, cs, 'frame');
+    }
+    for (let r = 0; r < R; r++) for (let b = 0; b < C / 4; b++) o += rect(x0 + b * 4 * cs, y0 + r * cs, 4 * cs, cs, 'ink');
+    o += text(x0 + C * cs + 6, y0 + 10, '…', 'ts') + text(x0 + C * cs / 2, y0 + R * cs + 16, '⋮', 'ts', 'middle');
+    if (mode === 'row') {
+      o += arrow(x0 + 2, y0 - 7, x0 + C * cs - 2, y0 - 7, 'ln');
+    } else {
+      o += arrow(x0 - 7, y0 + 2, x0 - 7, y0 + R * cs - 2, 'ln');
+    }
+  };
+  panel(28, '按 row 读：sum += A[i][j]，j 在内层', '相邻两次 access 差 4 bytes', 'row');
+  panel(312, '按 column 读：i 在内层', '相邻两次 access 差 64 × 4 = 256 bytes', 'col');
+  const ly = 214;
+  o += rect(28, ly - 10, 12, 12, 'solid') + text(46, ly, 'miss', 'ts') + rect(90, ly - 10, 12, 12, 'wash') + text(108, ly, 'hit', 'ts');
+  o += rect(146, ly - 11, 56, 14, 'ink') + text(208, ly, '一个 block = 16 bytes = 4 个 int', 'ts');
+  o += text(28, 238, '左：每个 block 第一次碰到是 miss，带回来的另外 3 个 int 都 hit，4096 / 4 = 1024 次 miss。', 'ts');
+  o += text(28, 256, '右：每次都落进一个新的 block；回头要用同一个 block 的下一个 int 时，', 'ts');
+  o += text(28, 272, '它已经被换掉了，4096 次全 miss（原因在第 8 站）。图里只画了左上角 8 个 row × 16 个 column。', 'ts');
+  return svg(560, 284, o, '64 乘 64 的 int array：按 row 读时每个 4 个 int 的 block 一次 miss 三次 hit；按 column 读时每次 access 都 miss');
+}
+
+// ---------- Float 的间隔：2^24 两边 ----------
+function gap() {
+  let o = '';
+  const sx = lin(-6, 8, 40, 520), y = 96;
+  o += line(sx(-6.4), y, sx(8.4), y, 'axis');
+  for (let k = -6; k <= 8; k++) {
+    o += line(sx(k), y - 4, sx(k), y + 4, 'axis');
+    if (k % 2 === 0) o += text(sx(k), y + 34, k === 0 ? '2²⁴' : '2²⁴' + (k > 0 ? '+' : '−') + Math.abs(k), 'ts', 'middle');
+    const rep = k < 0 || k % 2 === 0;
+    o += circle(sx(k), y, 5, rep ? 'ink-f' : 'paper');
+    if (!rep) o += circle(sx(k), y, 5, 'ink');
+  }
+  o += text(sx(0), 30, '2²⁴ = 16777216', 'tb', 'middle') + line(sx(0), 36, sx(0), y - 8, 'dash');
+  // 间隔标注
+  o += path(`M${sx(-5)} ${y - 18}L${sx(-5)} ${y - 24}L${sx(-4)} ${y - 24}L${sx(-4)} ${y - 18}`, 'ink') + text(sx(-4.5), y - 30, 'gap 1', 'ts', 'middle');
+  o += path(`M${sx(4)} ${y - 18}L${sx(4)} ${y - 24}L${sx(6)} ${y - 24}L${sx(6)} ${y - 18}`, 'ink') + text(sx(5), y - 30, 'gap 2', 'ts', 'middle');
+  o += text(sx(-3), y + 92, '[2²³, 2²⁴)：exponent 23，间隔 2²³⁻²³ = 1', 'ts', 'middle');
+  o += text(sx(4.5), y + 92, '[2²⁴, 2²⁵)：exponent 24，间隔 2²⁴⁻²³ = 2', 'ts', 'middle');
+  // 16777217
+  o += arrow(sx(1), y + 50, sx(1), y + 8, 'ln') + arrow(sx(1) - 2, y - 11, sx(0) + 2, y - 11, 'ln');
+  o += text(sx(1), y + 66, '16777217 = 2²⁴+1 没有对应的 pattern，round 到 16777216', 'tl', 'middle');
+  o += circle(60, 218, 5, 'ink-f') + text(72, 222, 'float 能表示的数', 'ts') + circle(200, 218, 5, 'paper') + circle(200, 218, 5, 'ink') + text(212, 222, '表示不了的 integer', 'ts');
+  return svg(560, 234, o, '2 的 24 次方两边能表示的 float：左边每个 integer 都有，右边只有偶数，16777217 被 round 到 16777216');
+}
+
+// ---------- Struct 的 layout：alignment 与 padding ----------
+function structs() {
+  let o = '';
+  const bw = 22, x0 = 132;
+  const lay = (fields) => { // [name, size, align]
+    let off = 0, maxA = 1; const out = [];
+    for (const [n, s, a] of fields) {
+      maxA = Math.max(maxA, a);
+      const p = (a - (off % a)) % a;
+      if (p) { out.push(['pad', off, p]); off += p; }
+      out.push([n, off, s]); off += s;
+    }
+    const p = (maxA - (off % maxA)) % maxA;
+    if (p) { out.push(['pad', off, p]); off += p; }
+    return [out, off];
+  };
+  const rows = [
+    ['student_t', [['id', 4, 4], ['grade', 1, 1], ['marks[0]', 4, 4], ['marks[1]', 4, 4]]],
+    ['{ char c; int x; char d; }', [['c', 1, 1], ['x', 4, 4], ['d', 1, 1]]],
+    ['{ int x; char c; char d; }', [['x', 4, 4], ['c', 1, 1], ['d', 1, 1]]],
+  ];
+  for (let k = 0; k <= 16; k += 4) o += text(x0 + k * bw, 28, String(k), 'ts', 'middle') + line(x0 + k * bw, 34, x0 + k * bw, 40, 'axis');
+  o += text(x0 - 10, 28, 'offset', 'ts', 'end');
+  rows.forEach(([name, f], r) => {
+    const y = 46 + r * 62, [L, size] = lay(f);
+    o += text(x0 - 10, y + 17, r === 0 ? name : '', 'tb', 'end');
+    if (r) o += text(x0, y - 4, name, 'ts');
+    for (let b = 0; b < size; b++) o += rect(x0 + b * bw, y, bw, 26, 'frame');
+    for (const [n, off, s] of L) {
+      o += rect(x0 + off * bw + 1.5, y + 1.5, s * bw - 3, 23, n === 'pad' ? 'wash2' : 'wash', 3);
+      o += text(x0 + (off + s / 2) * bw, y + 17, n === 'pad' ? (s > 1 ? 'padding' : 'pad') : n, n === 'pad' ? 'ts' : 't', 'middle');
+    }
+    o += text(x0 + size * bw + 8, y + 17, size + ' bytes', 'tl');
+    if (r === 0) o += text(x0 - 10, y + 33, '', 'ts', 'end');
+  });
+  o += text(20, 234, 'int 只能从 4 的倍数开始；struct 的 size 也要补成 4 的倍数（最大的 alignment），', 'ts');
+  o += text(20, 250, '这样 array 里下一个 struct 的 int 仍然对齐。', 'ts');
+  return svg(560, 262, o, '三个 struct 的 byte layout：student_t 16 bytes；char、int、char 的顺序 12 bytes；int、char、char 的顺序 8 bytes');
+}
+
+// ---------- Branch 的 immediate：从 PC + 4 数起 ----------
+function branch() {
+  let o = '';
+  const A = ['addi $t0, $zero, 0', 'addi $s1, $zero, 0', 'slti $t1, $t0, 8', 'beq $t1, $zero, exit', 'sll $t2, $t0, 2', 'add $t2, $s0, $t2', 'lw $t3, 0($t2)', 'add $s1, $s1, $t3', 'addi $t0, $t0, 1', 'j loop', 'exit:'];
+  const B = ['addi $t0, $zero, 0', 'addi $s1, $zero, 0', 'sll $t2, $t0, 2', 'add $t2, $s0, $t2', 'lw $t3, 0($t2)', 'add $s1, $s1, $t3', 'addi $t0, $t0, 1', 'slti $t1, $t0, 8', 'bne $t1, $zero, loop', 'exit:'];
+  const rh = 20, y0 = 70;
+  const panel = (x0, title, L, br, tgt) => {
+    o += text(x0, 24, title, 'tb');
+    L.forEach((s, i) => {
+      const y = y0 + i * rh;
+      const cls = i === br || i === tgt ? 'wash2' : '';
+      if (cls) o += rect(x0 - 4, y - 14, 200, rh - 2, cls, 3);
+      o += text(x0, y, '0x' + (0x00400000 + 4 * i).toString(16).toUpperCase().padStart(8, '0').slice(-2), 'ts') + text(x0 + 34, y, s, i === br ? 'tb' : 't');
+    });
+    const n = tgt - (br + 1), ax = x0 + 226;
+    // 数的那几条
+    const lo = Math.min(br + 1, tgt), hi = Math.max(br + 1, tgt);
+    for (let i = lo; i < hi; i++) o += text(ax - 6, y0 + i * rh, String(n > 0 ? i - br : i - br - 1).replace('-', '−'), 'tl', 'end');
+    const ya = y0 + (br + 1) * rh - 5, yb = y0 + tgt * rh - 5;
+    o += line(ax, ya, ax + 10, ya, 'ln') + line(ax + 10, ya, ax + 10, yb, 'ln') + arrow(ax + 10, yb, ax + 1, yb, 'ln');
+    o += text(ax + 16, (ya + yb) / 2 + 4, 'imm', 'ts') + text(ax + 16, (ya + yb) / 2 + 20, '= ' + (n > 0 ? n : '−' + -n), 'tl');
+  };
+  panel(14, 'Version A：beq 往前跳', A, 3, 10);
+  panel(290, 'Version B：bne 往回跳', B, 8, 2);
+  o += text(14, 42, 'address 只写最低两个 hex digit', 'ts') + text(290, 42, '灰底：branch（粗体）和它的 target', 'ts');
+  o += text(14, 304, '左：从 PC + 4（0x10）开始数，跳过 6 条到 0x28。右：PC + 4 是 0x24，往回数 7 条到 0x08。', 'ts');
+  o += text(14, 322, '右边的小数字是数到的第几条；immediate = (target − (PC + 4)) / 4。', 'ts');
+  return svg(560, 334, o, '两个 branch 的 immediate：version A 的 beq 从下一条数起往前 6 条到 exit；version B 的 bne 从下一条往回 7 条到 loop');
+}
+
+// ---------- segment e 的 POS：圈 0 ----------
+function kpos() {
+  let o = '';
+  const S = 40, x0 = 120, y0 = 72, gray = ['00', '01', '11', '10'];
+  const val = (m) => ([0, 2, 6, 8].includes(m) ? '1' : m >= 10 ? 'X' : '0');
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const m = parseInt(gray[r] + gray[c], 2), v = val(m);
+    o += rect(x0 + c * S, y0 + r * S, S, S, 'frame') + text(x0 + c * S + S / 2, y0 + r * S + S / 2 + 5, v, v === '0' ? 'tb' : 'ts', 'middle');
+  }
+  for (let c = 0; c < 4; c++) o += text(x0 + c * S + S / 2, y0 - 8, gray[c], 'ts', 'middle');
+  for (let r = 0; r < 4; r++) o += text(x0 - 8, y0 + r * S + S / 2 + 4, gray[r], 'ts', 'end');
+  o += text(x0 + 2 * S, y0 - 26, it('C') + it('D'), 't', 'middle') + text(x0 - 34, y0 + 2 * S + 4, it('A') + it('B'), 't', 'end');
+  // D：中间两列
+  o += rect(x0 + S + 3, y0 + 3, 2 * S - 6, 4 * S - 6, 'ln', 10);
+  // BC'：row 01、11 × column 00、01
+  o += rect(x0 + 7, y0 + S + 7, 2 * S - 14, 2 * S - 14, 'dash', 10);
+  const tx = 330;
+  o += text(tx, 92, '圈的是 0 和 X，不碰 1', 'tb');
+  o += line(tx, 118, tx + 26, 118, 'ln') + text(tx + 32, 122, '中间两列（D = 1）：' + it('D'), 't');
+  o += line(tx, 144, tx + 26, 144, 'dash') + text(tx + 32, 148, 'm₄、m₅、m₁₂、m₁₃：' + it('BC') + '′', 't');
+  o += text(tx, 182, 'e′ = D + BC′', 'tl');
+  o += text(tx, 204, 'e = (D + BC′)′ = D′(B′ + C)', 'tl');
+  o += text(20, 256, '同一张图、同样的 X：SOP 圈 1，POS 圈 0。', 'ts');
+  return svg(560, 268, o, 'segment e 的 K-map 上圈 0：中间两列是 D，左边中间四格是 BC 非，于是 e 等于 D 非乘以 B 非加 C');
+}
+
+// ---------- Static hazard：Y = AC' + BC ----------
+function hazard() {
+  let o = '';
+  const S = 38, x0 = 64, y0 = 74, gray = ['00', '01', '11', '10'];
+  const Y = (a, b, c) => (a && !c) || (b && c) ? '1' : '0';
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) {
+    const v = Y(r, +gray[c][0], +gray[c][1]);
+    o += rect(x0 + c * S, y0 + r * S, S, S, 'frame') + text(x0 + c * S + S / 2, y0 + r * S + S / 2 + 5, v, v === '1' ? 'tb' : 'ts', 'middle');
+  }
+  for (let c = 0; c < 4; c++) o += text(x0 + c * S + S / 2, y0 - 8, gray[c], 'ts', 'middle');
+  ['0', '1'].forEach((s, r) => { o += text(x0 - 8, y0 + r * S + S / 2 + 4, s, 'ts', 'end'); });
+  o += text(x0 + 2 * S, y0 - 26, it('B') + it('C'), 't', 'middle') + text(x0 - 26, y0 + S + 4, it('A'), 't', 'end');
+  // BC：column 11 两格
+  o += rect(x0 + 2 * S + 5, y0 + 5, S - 10, 2 * S - 10, 'ink', 9);
+  // AC'：row 1 的 column 00 和 10，左右相邻（两个半开的框）
+  const yb = y0 + S + 5, yt = y0 + 2 * S - 5, k = 30;
+  o += path(`M${x0} ${yb}L${x0 + k - 7} ${yb}Q${x0 + k} ${yb} ${x0 + k} ${yb + 7}L${x0 + k} ${yt - 7}Q${x0 + k} ${yt} ${x0 + k - 7} ${yt}L${x0} ${yt}`, 'ink');
+  const x4 = x0 + 4 * S;
+  o += path(`M${x4} ${yb}L${x4 - k + 7} ${yb}Q${x4 - k} ${yb} ${x4 - k} ${yb + 7}L${x4 - k} ${yt - 7}Q${x4 - k} ${yt} ${x4 - k + 7} ${yt}L${x4} ${yt}`, 'ink');
+  // AB：row 1 的 column 11、10
+  o += rect(x0 + 2 * S + 10, y0 + S + 10, 2 * S - 14, S - 20, 'ln', 7);
+  o += text(x0 + 2 * S, y0 + 2 * S + 24, '细线：' + it('AC') + '′、' + it('BC') + '；粗线：补上的 ' + it('AB'), 'ts', 'middle');
+  o += text(x0 + 2 * S, y0 + 2 * S + 42, 'A = B = 1 时 C 从 1 变 0：', 'ts', 'middle') + text(x0 + 2 * S, y0 + 2 * S + 58, '从 column 11 跨到 column 10', 'ts', 'middle');
+  // timing：A = B = 1，C 在 t = 1 从 1 变 0，每个 gate delay = 1
+  const dl = 1;
+  const C = (t) => (t < 1 ? 1 : 0);
+  const Cn = (t) => 1 - C(t - dl);
+  const BC = (t) => C(t - dl);
+  const ACn = (t) => Cn(t - dl);
+  const Yv = (t) => (BC(t - dl) || ACn(t - dl) ? 1 : 0);
+  const Yfix = (t) => (BC(t - dl) || ACn(t - dl) || 1 ? 1 : 0);
+  const sig = [['C', C], ['C′', Cn], ['BC', BC], ['AC′', ACn], ['Y', Yv], ['Y + AB', Yfix]];
+  const tx = lin(0, 6, 340, 540), rh = 34, ty0 = 40;
+  o += text(440, 22, 'A = B = 1，每个 gate 的 delay 是 1', 'ts', 'middle');
+  sig.forEach(([n, f], i) => {
+    const yb2 = ty0 + i * rh + 24, hi = 16, pts = [];
+    for (let s = 0; s <= 600; s++) { const t = s / 100; pts.push([tx(t), yb2 - hi * f(t)]); }
+    // 去掉重复的点，保留竖直跳变
+    o += path(d(pts), n === 'Y' ? 'ln' : 'ink') + text(330, yb2 - 3, n, n === 'Y' ? 'tl' : 't', 'end');
+  });
+  o += line(tx(1), ty0 + 4, tx(1), ty0 + 6 * rh + 4, 'grid');
+  for (let t = 0; t <= 6; t++) o += text(tx(t), ty0 + 6 * rh + 18, String(t), 'ts', 'middle');
+  o += text(tx(3.5), ty0 + 4 * rh + 2, 'glitch', 'tl', 'middle');
+  return svg(560, 278, o, 'Y 等于 A C 非加 B C 的 K-map，两个 group 相邻不重叠；时序图显示 C 下降时 Y 短暂掉到 0，补上 AB 之后 Y 一直是 1');
+}
+
+// ---------- SR latch：两个 NOR 交叉相接 ----------
+function latch() {
+  let o = '';
+  const nor = (x, y) => {
+    const w = 52, h = 44;
+    return path(`M${x} ${y - h / 2}Q${x + 14} ${y} ${x} ${y + h / 2}Q${x + w * 0.62} ${y + h / 2} ${x + w} ${y}Q${x + w * 0.62} ${y - h / 2} ${x} ${y - h / 2}Z`, 'paper') + circle(x + w + 5, y, 5, 'paper');
+  };
+  const gx = 190, y1 = 80, y2 = 200, out = gx + 62;
+  o += nor(gx, y1) + nor(gx, y2);
+  // 外部 input
+  o += line(90, y1 - 12, gx + 4, y1 - 12) + text(80, y1 - 8, it('R'), 't', 'end');
+  o += line(90, y2 + 12, gx + 4, y2 + 12) + text(80, y2 + 16, it('S'), 't', 'end');
+  // output
+  o += line(out, y1, 380, y1) + text(388, y1 + 5, it('Q'), 'tb');
+  o += line(out, y2, 380, y2) + text(388, y2 + 5, it('Q') + '′', 'tb');
+  // feedback：Q → 下面那个 NOR 的上 input；Q′ → 上面那个 NOR 的下 input
+  const fx = 300, bx = 150;
+  o += circle(fx, y1, 3, 'ink-f') + path(d([[fx, y1], [fx, y1 + 32], [bx, y2 - 40], [bx, y2 - 12], [gx + 4, y2 - 12]]), 'ln');
+  o += circle(fx, y2, 3, 'ink-f') + path(d([[fx, y2], [fx, y2 - 32], [bx, y1 + 40], [bx, y1 + 12], [gx + 4, y1 + 12]]), 'ink-b');
+  o += text(420, 120, 'Q = (R + Q′)′', 't') + text(420, 144, 'Q′ = (S + Q)′', 't');
+  o += text(420, 176, 'S = R = 0：', 'ts') + text(420, 192, '两个 output 互相撑住，', 'ts') + text(420, 208, '记住原来的 bit', 'ts');
+  o += text(20, 252, '两根交叉的线：Q 接回下面那个 NOR 的 input，Q′ 接回上面那个 NOR 的 input。', 'ts') + text(20, 268, 'output 又成了 input，这就是 feedback。', 'ts');
+  return svg(560, 280, o, 'SR latch：两个 NOR gate，各自的 output 接到对方的一个 input 上');
+}
+
+// ---------- Single-cycle 与 pipeline：同样三条 instruction ----------
+function overlap() {
+  let o = '';
+  const sx = lin(0, 24, 120, 540), bh = 22;
+  const st = [['IF', 2], ['ID', 1], ['EX', 2], ['MEM', 2], ['WB', 1]];
+  const ins = [['lw', [1, 1, 1, 1, 1]], ['add', [1, 1, 1, 0, 1]], ['beq', [1, 1, 1, 0, 0]]];
+  o += text(20, 24, '每个 stage 的 delay 用第 4 站的数字：memory 2 ns、ALU 2 ns、register file 1 ns', 'ts');
+  // single-cycle：一行，三段各 8 ns
+  let y = 58;
+  o += text(20, y + 15, 'single-cycle', 'tb') + text(20, y + 31, 'clock 8 ns', 'ts');
+  ins.forEach(([n, use], k) => {
+    const t0 = 8 * k, used = st.reduce((s, [, dt], j) => s + (use[j] ? dt : 0), 0);
+    o += rect(sx(t0), y, sx(t0 + used) - sx(t0), bh, 'wash') + rect(sx(t0), y, sx(t0 + used) - sx(t0), bh, 'frame');
+    if (used < 8) o += rect(sx(t0 + used) + 2, y + 2, sx(t0 + 8) - sx(t0 + used) - 4, bh - 4, 'dash', 3);
+    o += '' + text((sx(t0) + sx(t0 + used)) / 2, y + 15, n + '：' + used + ' ns', 't', 'middle');
+  });
+  o += text(sx(24), y + 40, '24 ns', 'tl', 'end');
+  // pipeline：三行，每个 stage 2 ns
+  y = 128;
+  o += text(20, y + 15, 'pipeline', 'tb') + text(20, y + 31, 'clock 2 ns', 'ts');
+  ins.forEach(([n], k) => {
+    const yy = y + k * (bh + 6);
+    st.forEach(([s], j) => {
+      const t0 = 2 * (k + j);
+      o += rect(sx(t0) + 1, yy, sx(2) - sx(0) - 2, bh, 'wash', 3) + text(sx(t0 + 1), yy + 15, s, 'ts tb', 'middle');
+    });
+    o += text(sx(2 * k) - 6, yy + 15, n, 't', 'end');
+  });
+  o += line(sx(14), y - 6, sx(14), y + 3 * (bh + 6), 'dash') + text(sx(14) + 6, y + 3 * (bh + 6) - 4, '(3 + 4) × 2 = 14 ns', 'tl');
+  const ay = 232;
+  o += line(sx(0), ay, sx(24), ay, 'axis');
+  for (let t = 0; t <= 24; t += 2) o += line(sx(t), ay, sx(t), ay + 4, 'axis') + text(sx(t), ay + 17, String(t), 'ts', 'middle');
+  o += text(sx(24), ay + 32, 'ns', 'ts', 'end');
+  o += text(20, 276, '上：每条都等满 8 ns，虚线框是用不上的时间。下：五组 hardware 同时在忙，每 2 ns 完成一条。', 'ts');
+  return svg(560, 288, o, '同样三条 instruction：single-cycle 每条 8 ns 共 24 ns；pipeline 每个 stage 2 ns，三条重叠，共 14 ns');
+}
+
+// ---------- 设定 C 下 loop 的一遍：按规则逐条排出来 ----------
+function loopC() {
+  let o = '';
+  // dep：[producer 下标, 'alu' | 'load']；branch 在 ID 比较
+  const L = [
+    ['I1 sll $t2, $t0, 2', null, false],
+    ['I2 add $t2, $s0, $t2', [0, 'alu'], false],
+    ['I3 lw $t3, 0($t2)', [1, 'alu'], false],
+    ['I4 add $s1, $s1, $t3', [2, 'load'], false],
+    ['I5 addi $t0, $t0, 1', null, false],
+    ['I6 slti $t1, $t0, 8', [4, 'alu'], false],
+    ['I7 bne $t1, $zero, loop', [5, 'alu'], true],
+  ];
+  const sch = [];
+  L.forEach(([, dep, br], i) => {
+    const p = sch[i - 1];
+    const ifs = p ? Math.max(p.ifs + 1, p.ids) : 1;
+    const ids = p ? Math.max(ifs + 1, p.ide + 1) : ifs + 1;
+    let ide = ids;
+    if (dep) {
+      const q = sch[dep[0]], ready = dep[1] === 'load' ? q.ide + 2 : q.ide + 1; // EX 或 MEM 结束的 cycle
+      ide = Math.max(ids, br ? ready + 1 : ready);
+    }
+    sch.push({ ifs, ids, ide });
+  });
+  const b = sch[6], fl = { ifs: Math.max(b.ifs + 1, b.ids), ide: b.ide }, nxt = b.ide + 1;
+  const x0 = 160, cw = 29, y0 = 50, rh = 25, bh = 19, NC = 13;
+  for (let c = 0; c < NC; c++) o += text(x0 + c * cw + cw / 2, 40, String(c + 1), 'ts', 'middle') + line(x0 + c * cw, 46, x0 + c * cw, y0 + 9 * rh, 'grid');
+  o += line(x0 + NC * cw, 46, x0 + NC * cw, y0 + 9 * rh, 'grid') + text(x0 - 8, 40, 'cycle', 'ts', 'end');
+  const cell = (r, c, s, kind) => {
+    const x = x0 + (c - 1) * cw + 2, y = y0 + r * rh + 3;
+    if (kind === 'stall') return rect(x, y, cw - 4, bh, 'wash2', 3) + text(x + cw / 2 - 2, y + 14, '·', 'ts', 'middle');
+    if (kind === 'flush') return rect(x, y, cw - 4, bh, 'dash', 3) + text(x + cw / 2 - 2, y + 13, s, 'sub', 'middle');
+    return rect(x, y, cw - 4, bh, s === 'EX' || s === 'MEM' ? 'wash' : 'paper-f', 3) + rect(x, y, cw - 4, bh, 'frame', 3) + text(x + cw / 2 - 2, y + 13, s, 'sub tb', 'middle');
+  };
+  sch.forEach(({ ifs, ids, ide }, r) => {
+    o += text(x0 - 8, y0 + r * rh + 17, L[r][0], 'ts', 'end');
+    o += cell(r, ifs, 'IF');
+    for (let c = ifs + 1; c < ids; c++) o += cell(r, c, '', 'stall');
+    o += cell(r, ids, 'ID');
+    for (let c = ids + 1; c <= ide; c++) o += cell(r, c, '', 'stall');
+    o += cell(r, ide + 1, 'EX') + cell(r, ide + 2, 'MEM') + cell(r, ide + 3, 'WB');
+  });
+  o += text(x0 - 8, y0 + 7 * rh + 17, '猜的下一条：猜错，flush', 'ts', 'end');
+  o += cell(7, fl.ifs, 'IF', 'flush');
+  for (let c = fl.ifs + 1; c <= fl.ide; c++) o += cell(7, c, '', 'stall');
+  o += text(x0 - 8, y0 + 8 * rh + 17, '下一遍的 I1', 'ts', 'end') + cell(8, nxt, 'IF');
+  o += text(20, y0 + 9 * rh + 22, '灰格是 stall：I4 等 lw 的 MEM（load-use，1）；I7 在 ID 比较，要等 I6 的 EX（1）；', 'ts');
+  o += text(20, y0 + 9 * rh + 38, `猜错 flush 掉一条（1）。I1 在 cycle 1 取，下一遍的 I1 在 cycle ${nxt} 取：`, 'ts');
+  o += text(20, y0 + 9 * rh + 54, `一遍 ${nxt - 1} 个 cycle = 7 + 3，就是表里设定 C 的 3。`, 'ts');
+  return svg(560, y0 + 9 * rh + 66, o, '设定 C 下 version B 的 loop 一遍的 pipeline diagram：load-use stall 一个 cycle，branch 等 slti 一个 cycle，猜错 flush 一个 cycle');
+}
+
+// ---------- 三种 block size 下 instruction 的 block 与 index ----------
+function iblocks() {
+  let o = '';
+  const cw = 46, x0 = 128, n = 9;
+  for (let i = 0; i < n; i++) o += text(x0 + i * cw + cw / 2, 56, '0x' + (4 * i).toString(16).toUpperCase().padStart(2, '0'), 'ts', 'middle');
+  // loop body：0x08 到 0x20
+  o += path(`M${x0 + 2 * cw + 2} 38L${x0 + 2 * cw + 2} 32L${x0 + n * cw - 2} 32L${x0 + n * cw - 2} 38`, 'ln') + text(x0 + 5.5 * cw, 26, 'loop body（每遍都要取）', 'tl', 'middle');
+  const cfg = [[4, 8, 9], [8, 4, 5], [16, 2, 17]];
+  cfg.forEach(([B, nb, miss], r) => {
+    const y = 70 + r * 66;
+    o += text(x0 - 10, y + 16, B + '-byte block', 'tb', 'end') + text(x0 - 10, y + 32, nb + ' 个 index · ' + miss + ' miss', 'ts', 'end');
+    const per = B / 4;
+    for (let s = 0; s < n; s += per) {
+      const idx = (4 * s / B) % nb, w = Math.min(per, n - s);
+      // 同一个 index 被两个 block 用，且两者都在 loop 里
+      const others = [];
+      for (let t = 0; t < n; t += per) if (t !== s && (4 * t / B) % nb === idx) others.push(t);
+      const clash = others.length > 0, both = clash && [s, ...others].every((t) => t + per > 2);
+      o += rect(x0 + s * cw + 2, y, w * cw - 4, 26, both ? 'band-n' : clash ? 'wash2' : 'wash', 4);
+      if (clash && !both) o += rect(x0 + s * cw + 2, y, w * cw - 4, 26, 'dash', 4);
+      o += text(x0 + (s + Math.min(per, n - s) / 2) * cw, y + 17, 'index ' + idx, w === 1 ? 'sub tb' : 'ts tb', 'middle');
+    }
+  });
+  o += rect(20, 276, 12, 12, 'wash') + text(38, 286, '这个 index 只有一个 block', 'ts');
+  o += rect(190, 276, 12, 12, 'wash2') + rect(190, 276, 12, 12, 'dash') + text(208, 286, '和 0x00 那个 block 抢，但 0x00 只取一次', 'ts');
+  o += rect(20, 296, 12, 12, 'band-n') + text(38, 306, '两个 block 都在 loop 里，每遍互相换掉一次：16 bytes 时每遍多 2 次 miss', 'ts');
+  return svg(560, 318, o, '0x00 到 0x20 的 9 条 instruction 在三种 block size 下分成的 block 和 index；16 字节的 block 时两个 loop 里的 block 抢同一个 index');
+}
+
+// ---------- 按 column 读：一个 column 只落在 4 个 index 上 ----------
+function colmap() {
+  let o = '';
+  const y0 = 64, rh = 22;
+  o += text(20, 26, 'A[i][0]，i = 0, 1, 2, …（A[0][0] 当作 byte 0）', 'tb');
+  ['element', 'byte', 'block', 'index'].forEach((s, k) => { o += text([20, 104, 160, 214][k], 50, s, 'ts'); });
+  const cx = 330, cy = 56, cs = 24;
+  for (let r = 0; r < 8; r++) {
+    const byte = 256 * r, blk = byte / 16, idx = blk % 64, y = y0 + r * rh;
+    o += text(20, y + 4, `A[${r}][0]`, 't') + text(104, y + 4, String(byte), 't') + text(160, y + 4, String(blk), 't') + text(214, y + 4, String(idx), 'tl');
+    const gy = cy + Math.floor(idx / 8) * cs + cs / 2;
+    o += path(d([[244, y], [cx - 4, gy]]), r < 4 ? 'ink' : 'dash');
+  }
+  o += text(20, y0 + 8 * rh + 2, '⋮', 'ts');
+  for (let i = 0; i < 64; i++) {
+    const r = Math.floor(i / 8), c = i % 8, hitI = i % 16 === 0;
+    o += rect(cx + c * cs, cy + r * cs, cs, cs, hitI ? 'band-n' : 'paper-f') + rect(cx + c * cs, cy + r * cs, cs, cs, 'frame');
+    if (hitI || c === 0) o += text(cx + c * cs + cs / 2, cy + r * cs + 16, String(i), hitI ? 'tb' : 'ts', 'middle');
+  }
+  o += text(cx + 4 * cs, cy + 8 * cs + 18, '1 KB cache 的 64 个 index', 'ts', 'middle');
+  o += text(20, 290, '每往下 4 个 row，index 转回原处：A[4][0] 把 A[0][0..3] 那个 block 换掉。', 'ts');
+  o += text(20, 308, '一个 column 的 64 个 element 只用到 index 0、16、32、48，每个被改写 16 次；', 'ts');
+  o += text(20, 326, '轮到 A[0][1] 时，它所在的 block 早已不在。', 'ts');
+  return svg(560, 338, o, '按 column 读时 A[i][0] 的 address 每次加 256，block 号每次加 16，index 只在 0、16、32、48 四个之间轮转');
+}
+
 export default {
   'cs2100-wheel': wheel,
   'cs2100-float': float,
@@ -360,4 +729,15 @@ export default {
   'cs2100-pipeline': pipeline,
   'cs2100-addr': addr,
   'cs2100-trace': trace,
+  'cs2100-rowcol': rowcol,
+  'cs2100-gap': gap,
+  'cs2100-struct': structs,
+  'cs2100-branch': branch,
+  'cs2100-kpos': kpos,
+  'cs2100-hazard': hazard,
+  'cs2100-latch': latch,
+  'cs2100-overlap': overlap,
+  'cs2100-loopc': loopC,
+  'cs2100-iblocks': iblocks,
+  'cs2100-colmap': colmap,
 };

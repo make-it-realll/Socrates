@@ -390,7 +390,156 @@ function backprop() {
   return svg(560, 268, o, '一个两个 input、两个 hidden unit、一个 output 的 network 的 computational graph，每个 node 标着 forward pass 的值和 backward pass 传回来的 gradient');
 }
 
+// ---------- 数值 feature：体温的 6 个候选 threshold ----------
+function thresh() {
+  let o = '';
+  const D = [[36.5, 0], [36.8, 0], [37.1, 0], [37.9, 1], [38.4, 0], [39.0, 1], [39.6, 1]];
+  const H = (p) => (p <= 0 || p >= 1 ? 0 : -p * Math.log2(p) - (1 - p) * Math.log2(1 - p));
+  const Hs = (S) => H(S.filter((e) => e[1]).length / S.length);
+  const th = [];
+  for (let i = 0; i + 1 < D.length; i++) {
+    const t = (D[i][0] + D[i + 1][0]) / 2, L = D.filter((e) => e[0] < t), R = D.filter((e) => e[0] >= t);
+    th.push([t, Hs(D) - (L.length / D.length) * Hs(L) - (R.length / D.length) * Hs(R)]);
+  }
+  const best = th.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const sx = lin(36.2, 39.9, 40, 520), yl = 70;
+  o += line(sx(36.2), yl, sx(39.9), yl, 'axis');
+  for (const [v, y] of D) {
+    o += circle(sx(v), yl, 7, y ? 'ink-f' : 'paper') + (y ? '' : circle(sx(v), yl, 7, 'ink'));
+    o += text(sx(v), yl - 14, v.toFixed(1), 'ts', 'middle');
+  }
+  // gain 的柱子
+  const gy = lin(0, 0.6, 230, 120);
+  o += line(sx(36.2), gy(0), sx(39.9), gy(0), 'axis');
+  for (const [t, g] of th) {
+    const isB = t === best[0];
+    o += line(sx(t), yl + 10, sx(t), gy(g) - 20, 'grid');
+    o += rect(sx(t) - 14, gy(g), 28, gy(0) - gy(g), isB ? 'solid' : 'wash', 2);
+    o += text(sx(t), gy(g) - 6, g.toFixed(3), isB ? 'tl' : 'ts', 'middle');
+    o += text(sx(t), gy(0) + 16, t.toFixed(2), 'ts', 'middle');
+  }
+  o += text(20, 24, '实心是 +，空心是 −。下面的柱子是每个 threshold 的 information gain。', 'ts');
+  o += text(20, 272, `Gain 最大的是 ${best[0].toFixed(1)}：左边三个全是 −，右边四个里只有一个 −。`, 'ts');
+  return svg(560, 284, o, '7 个体温读数和 6 个候选 threshold 的 information gain，37.5 最大');
+}
+
+// ---------- 三个点和 least squares 的 line ----------
+function fit3() {
+  let o = '';
+  const P = [[1, 1], [2, 2], [3, 2]];
+  const n = 3, sx1 = P.reduce((s, p) => s + p[0], 0), sxx = P.reduce((s, p) => s + p[0] * p[0], 0), sy1 = P.reduce((s, p) => s + p[1], 0), sxy = P.reduce((s, p) => s + p[0] * p[1], 0);
+  const w1 = (n * sxy - sx1 * sy1) / (n * sxx - sx1 * sx1), w0 = (sy1 - w1 * sx1) / n;
+  const sx = lin(0, 4, 70, 330), sy = lin(0, 3, 250, 40);
+  o += axes({ sx, sy, x0: 0, x1: 4, y0: 0, y1: 3, xt: [0, 1, 2, 3, 4], yt: [0, 1, 2, 3], xl: 'x', yl: 'y', grid: true });
+  o += path(curve((x) => w0 + w1 * x, 0, 4, sx, sy), 'ln');
+  const fr = (v) => { const s = v < 0 ? '−' : '+'; const a = Math.abs(v) * 6; return s + (Math.abs(a - 1) < 1e-9 ? '1/6' : Math.abs(a - 2) < 1e-9 ? '1/3' : Math.abs(v).toFixed(3)); };
+  let J = 0;
+  for (const [x, y] of P) {
+    const e = w0 + w1 * x - y; J += e * e / (2 * n);
+    o += line(sx(x), sy(y), sx(x), sy(w0 + w1 * x), 'dash') + circle(sx(x), sy(y), 5, 'ink-f');
+    o += text(sx(x) + 8, e > 0 ? sy(y) + 18 : sy(y) - 8, 'e = ' + fr(e), 'ts');
+  }
+  o += text(360, 70, `h(x) = ${'2/3'} + ${'1/2'}·x`, 'tl');
+  o += text(360, 96, `（w₀ = ${w0.toFixed(4)}，w₁ = ${w1}）`, 'ts');
+  o += text(360, 130, '虚线是每个点的 error', 'ts') + text(360, 148, 'e = h(x) − y', 'ts');
+  o += text(360, 182, `J = (1/6)·Σ e² = ${J.toFixed(4)}`, 't') + text(360, 200, '= 1/36', 't');
+  return svg(560, 296, o, '三个点 (1,1)、(2,2)、(3,2) 和 least squares 的 line h(x) = 2/3 + x/2，三个 error 是 1/6、负 1/3、1/6');
+}
+
+// ---------- 8 个点，三条都能分开的 line ----------
+function lines8() {
+  let o = '';
+  const pos = [[2, 2], [3, 2], [2, 3], [3, 4]], neg = [[1, 1], [0, 0], [1, 0], [0, 1]];
+  const sx = lin(-0.6, 4.6, 150, 410), sy = lin(-0.6, 4.6, 290, 30);
+  o += rect(sx(-0.6), sy(4.6), sx(4.6) - sx(-0.6), sy(-0.6) - sy(4.6), 'frame');
+  const L = [[[1, 1], 2.2, 'x₁ + x₂ = 2.2', 'dash'], [[1, 1], 3.8, 'x₁ + x₂ = 3.8', 'dash'], [[1, 0], 1.5, 'x₁ = 1.5', 'mute']];
+  for (const [w, c, lab, cls] of L) {
+    const pts = [];
+    for (let i = 0; i <= 400; i++) {
+      const t = -0.6 + 5.2 * i / 400;
+      const p = w[1] ? [t, (c - w[0] * t) / w[1]] : [c / w[0], t];
+      if (p[0] >= -0.6 && p[0] <= 4.6 && p[1] >= -0.6 && p[1] <= 4.6) pts.push(p);
+    }
+    const a = pts[0], b = pts[pts.length - 1];
+    o += line(sx(a[0]), sy(a[1]), sx(b[0]), sy(b[1]), cls);
+    if (w[1] && c > 3) { const bot = a[1] < b[1] ? a : b; o += text(sx(bot[0]) + 6, sy(bot[1]) - 6, lab, 'ts'); }
+    else if (w[1]) { const top = a[1] > b[1] ? a : b; o += text(sx(top[0]) - 6, sy(top[1]) + 4, lab, 'ts', 'end'); }
+    else { const top = a[1] > b[1] ? a : b; o += text(sx(top[0]) + 4, sy(top[1]) + 14, lab, 'ts'); }
+  }
+  // (1,1) 到 2.2 那条线的距离
+  const dd = (2.2 - 2) / Math.SQRT2;
+  o += line(sx(1), sy(1), sx(1 + dd / Math.SQRT2), sy(1 + dd / Math.SQRT2), 'ln');
+  o += circle(sx(1), sy(1), 10, 'ln') + text(140, sy(1.6), '圈出的 (1, 1) 离', 'ts', 'end') + text(140, sy(1.6) + 16, 'x₁ + x₂ = 2.2', 'ts', 'end') + text(140, sy(1.6) + 34, `只有 ${dd.toFixed(2)}`, 'tl', 'end');
+  for (const p of neg) o += circle(sx(p[0]), sy(p[1]), 5, 'paper') + circle(sx(p[0]), sy(p[1]), 5, 'ink');
+  for (const p of pos) o += circle(sx(p[0]), sy(p[1]), 5, 'ink-f');
+  o += circle(440, 60, 5, 'ink-f') + text(452, 64, '+1', 't') + circle(440, 84, 5, 'paper') + circle(440, 84, 5, 'ink') + text(452, 88, '−1', 't');
+  return svg(560, 300, o, '8 个点，+1 四个在右上，−1 四个在左下；x1+x2=2.2、x1+x2=3.8、x1=1.5 三条 line 都能把它们分开');
+}
+
+// ---------- XOR：原来的 space 与 hidden unit 的 space ----------
+function xor() {
+  let o = '';
+  const P = [[0, 0, 0], [0, 1, 1], [1, 0, 1], [1, 1, 0]];
+  const relu = (z) => Math.max(0, z);
+  const pt = (x, y, lab) => (lab ? circle(x, y, 6, 'ink-f') : circle(x, y, 6, 'paper') + circle(x, y, 6, 'ink'));
+  // 左
+  let sx = lin(-0.4, 1.4, 50, 230), sy = lin(-0.4, 1.4, 240, 60);
+  o += text(140, 24, '(x₁, x₂)', 'tb', 'middle') + text(140, 42, '没有一条 line 能把实心和空心分开', 'ts', 'middle');
+  o += axes({ sx, sy, x0: -0.4, x1: 1.4, y0: -0.4, y1: 1.4, xt: [1], yt: [1], xAt: 0, yAt: 0 });
+  for (const [a, b, y] of P) o += pt(sx(a), sy(b), y);
+  // 右
+  sx = lin(-0.4, 2.4, 320, 530); sy = lin(-0.4, 1.4, 240, 60);
+  o += text(425, 24, '(h₁, h₂)', 'tb', 'middle') + text(425, 42, 'ŷ = h₁ − 2h₂ = 0.5 那条 line 就够了', 'ts', 'middle');
+  o += axes({ sx, sy, x0: -0.4, x1: 2.4, y0: -0.4, y1: 1.4, xt: [1, 2], yt: [1], xAt: 0, yAt: 0 });
+  o += line(sx(0.5 + 2 * -0.4), sy(-0.4), sx(0.5 + 2 * 1.4), sy(1.4), 'dash');
+  const seen = {};
+  for (const [a, b, y] of P) {
+    const h1 = relu(a + b), h2 = relu(a + b - 1), k = h1 + ',' + h2;
+    o += pt(sx(h1), sy(h2), y);
+    if (!seen[k]) { seen[k] = []; }
+    seen[k].push(`(${a},${b})`);
+  }
+  for (const k in seen) { const [h1, h2] = k.split(',').map(Number); o += text(sx(h1) + 10, sy(h2) - 10, seen[k].join(' '), 'ts'); }
+  o += text(280, 278, '(0,1) 和 (1,0) 被送到同一个点 (1, 0)；(1,1) 被送到 (2, 1)。实心 ŷ = 1，空心 ŷ = 0。', 'ts', 'middle');
+  return svg(560, 290, o, 'XOR 的四个点在原来的 plane 上不能被一条 line 分开；经过两个 ReLU hidden unit 之后，在 h1、h2 的 plane 上可以');
+}
+
+// ---------- Convolution：3×3 filter 在 5×5 image 上滑 ----------
+function conv() {
+  let o = '';
+  const I = Array.from({ length: 5 }, () => [1, 1, 1, 0, 0]), F = Array.from({ length: 3 }, () => [1, 0, -1]);
+  const out = [];
+  for (let r = 0; r < 3; r++) { out.push([]); for (let c = 0; c < 3; c++) { let s = 0; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) s += I[r + i][c + j] * F[i][j]; out[r].push(s); } }
+  const cs = 18;
+  for (let k = 0; k < 3; k++) {
+    const x0 = 14 + k * 184, y0 = 56;
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
+      const inW = r < 3 && c >= k && c < k + 3;
+      o += rect(x0 + c * cs, y0 + r * cs, cs, cs, inW ? 'wash' : 'paper-f') + rect(x0 + c * cs, y0 + r * cs, cs, cs, 'frame');
+      o += text(x0 + c * cs + cs / 2, y0 + r * cs + 13, String(I[r][c]), 'ts', 'middle');
+    }
+    o += rect(x0 + k * cs, y0, 3 * cs, 3 * cs, 'ln');
+    const ox = x0 + 5 * cs + 30;
+    o += arrow(x0 + 5 * cs + 6, y0 + 1.5 * cs, ox - 4, y0 + 1.5 * cs, 'ink');
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+      const on = r === 0 && c === k;
+      o += rect(ox + c * cs, y0 + r * cs, cs, cs, on ? 'solid' : 'paper-f') + rect(ox + c * cs, y0 + r * cs, cs, cs, 'frame');
+      if (on || c < k || r === 0 && c <= k) o += text(ox + c * cs + cs / 2, y0 + r * cs + 13, String(out[r][c]), on ? 'tw' : 'ts', 'middle');
+    }
+    const L = I.slice(0, 3).reduce((s, row) => s + row[k], 0), R = I.slice(0, 3).reduce((s, row) => s + row[k + 2], 0);
+    o += text(x0 + 76, y0 + 5 * cs + 24, `左列和 ${L} − 右列和 ${R} = ${L - R}`, 'ts', 'middle');
+  }
+  o += text(14, 24, 'Filter 每一行都是 (1, 0, −1)。粗框是它此刻盖住的 3 × 3；右边是 output，深色格是这一步算出来的。', 'ts');
+  o += text(14, 202, `只画了第一行的三个位置；往下滑，五行一样，output 每一行都是 ${out[0].join(', ')}。`, 'ts');
+  return svg(560, 214, o, '3 乘 3 的 filter 在 5 乘 5 的 image 第一行的三个位置，分别得到 0、3、3');
+}
+
 export default {
+  'cs2109s-thresh': thresh,
+  'cs2109s-fit3': fit3,
+  'cs2109s-lines': lines8,
+  'cs2109s-xor': xor,
+  'cs2109s-conv': conv,
   'cs2109s-graph': graph,
   'cs2109s-tree': tree,
   'cs2109s-grid': grid,

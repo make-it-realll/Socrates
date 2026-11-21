@@ -353,7 +353,306 @@ function dijkstra() {
   return svg(560, 362, o, 'Dijkstra’s algorithm 在一个 5 个 vertex 的 directed graph 上的五步：每一步 pop 出 D 最小的 vertex，把它标成已完成，并 relax 它的 outgoing edge；最终的 D 是 0、2、5、7、10');
 }
 
+// ---------- 新加的图共用：按 inorder 排 x、按 depth 排 y 画一棵 binary tree ----------
+function bstFrom(keys) {
+  let root = null;
+  for (const k of keys) {
+    const n = { k, l: null, r: null };
+    if (!root) { root = n; continue; }
+    let c = root;
+    for (;;) {
+      if (k < c.k) { if (!c.l) { c.l = n; break; } c = c.l; }
+      else { if (!c.r) { c.r = n; break; } c = c.r; }
+    }
+  }
+  return root;
+}
+function drawTree(root, ox, oy, dx, dy, hl = [], r = 13) {
+  const pos = new Map();
+  let i = 0;
+  const walk = (n, dep) => { if (!n) return; walk(n.l, dep + 1); pos.set(n, [ox + i * dx, oy + dep * dy]); i++; walk(n.r, dep + 1); };
+  walk(root, 0);
+  let o = '';
+  for (const [n, p] of pos) for (const c of [n.l, n.r]) if (c) o += edge(p, pos.get(c), 'ink', r);
+  for (const [n, [x, y]] of pos) o += node(x, y, String(n.k), hl.includes(n.k) ? 'wash ink-s' : 'paper', 't', r);
+  return o;
+}
+const height = (n) => (n ? 1 + Math.max(height(n.l), height(n.r)) : -1);
+
+// ---------- 开头第三件事：按顺序 insert 得到一条链，同样的 key 可以很矮 ----------
+function chain() {
+  let o = '';
+  const A = bstFrom([1, 2, 3, 4, 5, 6, 7]), B = bstFrom([4, 2, 6, 1, 3, 5, 7]);
+  o += text(120, 22, '依次 insert 1, 2, …, 7', 'tb', 'middle') + text(120, 40, `height ${height(A)}：每个新 key 都挂在最右下角`, 'ts', 'middle');
+  o += drawTree(A, 40, 66, 27, 27);
+  o += text(410, 22, '同样 7 个 key，换一种挂法', 'tb', 'middle') + text(410, 40, `height ${height(B)}`, 'ts', 'middle');
+  o += drawTree(B, 314, 92, 32, 56);
+  o += text(280, 262, 'Search 7：左边要比 7 次，右边 3 次。', 'ts', 'middle');
+  o += text(280, 280, '10⁶ 个 key 时，左边那种 height 是 999999，右边那种可以只有 19。', 'ts', 'middle');
+  return svg(560, 292, o, '依次 insert 1 到 7 得到 height 为 6 的一条链；同样 7 个 key 可以摆成 height 为 2 的满 tree');
+}
+
+// ---------- Insertion sort 排 3 个 element 的 decision tree ----------
+function dtree() {
+  let o = '';
+  const names = ['a', 'b', 'c'];
+  const perms = [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]];
+  const root = { q: null, kids: {} };
+  for (const val of perms) {
+    const A = names.slice(), v = Object.fromEntries(names.map((n, i) => [n, val[i]]));
+    let cur = root;
+    for (let i = 1; i < 3; i++) {
+      const x = A[i]; let j = i - 1;
+      while (j >= 0) {
+        const q = `${A[j]} > ${x} ?`, ans = v[A[j]] > v[x] ? 'yes' : 'no';
+        cur.q = q; cur.kids[ans] = cur.kids[ans] || { q: null, kids: {} }; cur = cur.kids[ans];
+        if (ans === 'no') break;
+        A[j + 1] = A[j]; j--;
+      }
+      A[j + 1] = x;
+    }
+    cur.leaf = A.join(' < ');
+  }
+  // 布局：leaf 按 DFS 次序排开，内部 node 取 children 的平均
+  let li = 0; const nl = 6, X = (k) => 52 + k * (456 / (nl - 1));
+  const place = (n, dep) => {
+    n.y = 58 + dep * 66;
+    if (n.leaf) { n.x = X(li++); return; }
+    const ks = ['yes', 'no'].filter((k) => n.kids[k]);
+    ks.forEach((k) => place(n.kids[k], dep + 1));
+    n.x = ks.reduce((s, k) => s + n.kids[k].x, 0) / ks.length;
+  };
+  place(root, 0);
+  let maxd = 0;
+  const draw = (n, dep) => {
+    maxd = Math.max(maxd, dep);
+    if (n.leaf) { o += rect(n.x - 38, n.y - 13, 76, 24, 'wash', 5) + text(n.x, n.y + 4, n.leaf, 't', 'middle'); return; }
+    for (const k of ['yes', 'no']) if (n.kids[k]) {
+      const c = n.kids[k];
+      o += line(n.x, n.y + 12, c.x, c.y - 13, 'ink');
+      const mx = (n.x + c.x) / 2, my = (n.y + 12 + c.y - 13) / 2;
+      o += text(mx + (k === 'yes' ? -6 : 6), my + 4, k, 'ts', k === 'yes' ? 'end' : 'start');
+      draw(c, dep + 1);
+    }
+    o += rect(n.x - 30, n.y - 12, 60, 24, 'paper', 5) + text(n.x, n.y + 4, n.q, 't', 'middle');
+  };
+  draw(root, 0);
+  o += text(20, 24, 'Insertion sort 排三个不同的 element a, b, c（一开始依次放在 A[0], A[1], A[2]）', 'ts');
+  o += text(20, 58 + 3 * 66 + 38, `6 个 leaf 对应 3! = 6 种 input 顺序；最深的 leaf 在第 ${maxd} 层：worst case 要 ${maxd} 次 comparison。`, 'ts');
+  o += text(20, 58 + 3 * 66 + 56, '只有 2 层的话最多 4 个 leaf，分不出 6 种情况。', 'ts');
+  return svg(560, 58 + 3 * 66 + 68, o, 'Insertion sort 排三个 element 的 decision tree：6 个 leaf，最深 3 层');
+}
+
+// ---------- Linked list：两行 pointer 赋值的先后 ----------
+function linsert() {
+  let o = '';
+  const box = (x, y, s, cls = 'paper') => rect(x, y, 34, 24, cls) + rect(x + 34, y, 18, 24, cls) + text(x + 17, y + 16, s, 't', 'middle') + circle(x + 43, y + 12, 2.5, 'ink-f');
+  const ptr = (x1, y1, x2, y2, cls = 'ink') => arrow(x1, y1, x2, y2, cls);
+  const row = (x0, y, title, st) => {
+    o += text(x0, y - 8, title, 'ts');
+    const C = [x0, y + 14], B = [x0 + 170, y + 14], N = [x0 + 85, y + 50];
+    o += box(C[0], C[1], 'cur') + box(B[0], B[1], 'B') + box(N[0], N[1], 'x', 'wash');
+    o += text(B[0] + 60, B[1] + 16, '…', 't');
+    if (st.cb) o += ptr(C[0] + 45, C[1] + 12, B[0] - 1, B[1] + 12, st.cb);
+    if (st.cn) o += ptr(C[0] + 45, C[1] + 14, N[0] - 1, N[1] + 6, 'ln');
+    if (st.nb) o += ptr(N[0] + 45, N[1] + 10, B[0] + 6, B[1] + 25, 'ln');
+    if (st.nn) o += path(`M${N[0] + 46} ${N[1] + 14}C${N[0] + 90} ${N[1] + 44} ${N[0] - 30} ${N[1] + 50} ${N[0] - 2} ${N[1] + 18}`, 'ln') + arrow(N[0] - 6, N[1] + 22, N[0] - 1, N[1] + 16, 'ln');
+    if (st.lost) o += text(B[0] + 26, B[1] + 44, '没人指着了', 'tl', 'middle');
+  };
+  o += text(20, 22, '正确的顺序', 'tb');
+  row(20, 50, '开始：x 刚建好', { cb: 'ink' });
+  row(20, 150, '① node.next = cur.next', { cb: 'ink', nb: true });
+  row(20, 250, '② cur.next = node', { cn: true, nb: true });
+  o += text(300, 22, '反过来写', 'tb');
+  row(300, 150, '① cur.next = node', { cn: true, lost: true });
+  row(300, 250, '② node.next = cur.next（即 node）', { cn: true, nn: true, lost: true });
+  o += text(20, 354, '粗线是改过的 pointer。右边第一步覆盖了 cur.next，而 B 那一整段原本只有它记着。', 'ts');
+  return svg(560, 366, o, 'Linked list insert：先让新 node 指向后半段再改 cur.next 是对的；反过来写，后半段丢失，新 node 指向自己');
+}
+
+// ---------- Quadratic probing：m = 11 ----------
+function quad() {
+  let o = '';
+  const m = 11, cw = 40, x0 = 60;
+  const sx = (i) => x0 + i * cw;
+  const insert = (T, k) => { const seq = []; for (let j = 0; j < 2 * m; j++) { const s = (k % m + j * j) % m; seq.push(s); if (T[s] === null) { T[s] = k; return seq; } } return seq; };
+  const arr = (y, T, mark = []) => {
+    for (let i = 0; i < m; i++) {
+      o += cell(sx(i), y, cw, 28, T[i] === null ? '' : String(T[i]), mark.includes(i) ? 'wash' : 'paper');
+      o += text(sx(i) + cw / 2, y + 44, String(i), 'ts', 'middle');
+    }
+  };
+  // 上：14, 25, 3, 36, 5
+  const T1 = Array(m).fill(null); let s36 = [];
+  for (const k of [14, 25, 3, 36, 5]) { const s = insert(T1, k); if (k === 36) s36 = s; }
+  o += text(20, 24, 'insert 14, 25, 3, 36, 5（home 依次是 3, 3, 3, 3, 5），偏移是 0, 1, 4, 9, …', 'ts');
+  const y1 = 92;
+  arr(y1, T1, [3, 4, 7, 1]);
+  // 36 的 probe：3 → 4 → 7 → 1
+  for (let j = 1; j < s36.length; j++) {
+    const a = sx(s36[j - 1]) + cw / 2, b = sx(s36[j]) + cw / 2, lift = 14 + 7 * j;
+    o += path(`M${a} ${y1 - 2}Q${(a + b) / 2} ${y1 - 2 - lift * 2} ${b} ${y1 - 4}`, 'ln') + poly([[b, y1 - 2], [b - 4, y1 - 10], [b + 4, y1 - 10]], 'ln-f');
+  }
+  o += text(sx(s36[0]) + cw / 2, y1 - 8, '', 'ts');
+  o += text(x0 + m * cw + 6, y1 + 18, '', 'ts');
+  o += text(sx(9) + 10, 44, '36 的 probe：3 → 4 → 7 → 1', 'tl', 'middle');
+  // 下：3, 14, 25, 36, 47, 58，再 insert 69
+  const T2 = Array(m).fill(null);
+  for (const k of [3, 14, 25, 36, 47, 58]) insert(T2, k);
+  const offs = []; for (let j = 0; j < m; j++) offs.push((j * j) % m);
+  const reach = [...new Set(offs.map((d) => (3 + d) % m))];
+  const y2 = 214;
+  o += text(20, y2 - 40, 'insert 3, 14, 25, 36, 47, 58（home 都是 3）之后，再 insert 69（home 也是 3）', 'ts');
+  o += text(20, y2 - 22, `j² mod 11 = ${offs.join(', ')}：69 只会看 ${reach.length} 个 slot`, 'ts');
+  arr(y2, T2, reach);
+  for (let i = 0; i < m; i++) if (!reach.includes(i)) o += text(sx(i) + cw / 2, y2 + 18, '·', 'ts', 'middle');
+  o += text(20, y2 + 72, `彩色底是 69 的 probe sequence 会看的 slot（全满）；其余 ${m - reach.length} 个空 slot 它永远看不到。`, 'ts');
+  return svg(560, y2 + 84, o, 'Quadratic probing，m 等于 11：上面 36 依次看 slot 3、4、7、1；下面 home 为 3 的 key 只能用到 6 个 slot，第 7 个 key 找不到空位');
+}
+
+// ---------- Heap 画成 tree：用 index 算位置 ----------
+function heapTree(A, x0, y0, w, dy, hl = [], pathI = [], r = 13) {
+  let o = '';
+  const P = (i) => { const lv = Math.floor(Math.log2(i)), k = i - (1 << lv); return [x0 + (k + 0.5) * w / (1 << lv), y0 + lv * dy]; };
+  for (let i = 2; i < A.length; i++) o += edge(P(i >> 1), P(i), pathI.includes(i) && pathI.includes(i >> 1) ? 'ln' : 'ink', r);
+  for (let i = 1; i < A.length; i++) { const [x, y] = P(i); o += node(x, y, String(A[i]), hl.includes(i) ? 'wash ink-s' : 'paper', 't', r); }
+  return o;
+}
+function shiftPanels(up) {
+  let o = '';
+  const base = [null, 90, 70, 80, 30, 60, 50, 20, 10, 25, 40];
+  let B, Aft, path1, h1, h2, t1, t2, note;
+  if (up) {
+    B = [...base, 85]; Aft = [null, 90, 85, 80, 30, 70, 50, 20, 10, 25, 40, 60];
+    path1 = [11, 5, 2, 1]; h1 = [11]; h2 = [2]; t1 = '放在 index 11'; t2 = 'shiftUp 之后';
+    note = '85 沿 11 → 5 → 2 往上换了两次；到 index 2 时 parent 90 不小于它，停。';
+  } else {
+    B = [null, 60, 85, 80, 30, 70, 50, 20, 10, 25, 40]; Aft = [null, 85, 70, 80, 30, 60, 50, 20, 10, 25, 40];
+    path1 = [1, 2, 5, 10]; h1 = [1]; h2 = [5]; t1 = '取走 90，60 补到 root'; t2 = 'shiftDown 之后';
+    note = '60 沿 1 → 2 → 5 往下，每次和较大的 child 换；到 index 5 时唯一的 child 40 比它小，停。';
+  }
+  o += text(140, 22, t1, 'tb', 'middle') + text(420, 22, t2, 'tb', 'middle');
+  o += heapTree(B, 10, 48, 260, 46, h1, path1, 12) + heapTree(Aft, 290, 48, 260, 46, h2, path1, 12);
+  o += text(280, 220, note, 'ts', 'middle') + text(280, 238, '粗线是它走过的 path，其余的 node 一个都没碰。', 'ts', 'middle');
+  return svg(560, 250, o, up ? 'Insert 85：放在 index 11，沿 path 往上换到 index 2' : 'ExtractMax：60 补到 root，沿 path 往下换到 index 5');
+}
+const shiftup = () => shiftPanels(true);
+const shiftdown = () => shiftPanels(false);
+
+// ---------- Bottom-up build heap：[4,1,7,3,8,5,9] ----------
+function buildheap() {
+  let o = '';
+  const A = [null, 4, 1, 7, 3, 8, 5, 9], n = 7, steps = [[A.slice(), null, 0, []]];
+  for (let i = Math.floor(n / 2); i >= 1; i--) {
+    let k = i, sw = 0; const pth = [i];
+    while (2 * k <= n) {
+      let c = 2 * k; if (c + 1 <= n && A[c + 1] > A[c]) c++;
+      if (A[k] >= A[c]) break;
+      [A[k], A[c]] = [A[c], A[k]]; k = c; sw++; pth.push(k);
+    }
+    steps.push([A.slice(), i, sw, pth]);
+  }
+  steps.forEach(([T, i, sw, pth], s) => {
+    const x0 = 6 + s * 138;
+    o += text(x0 + 64, 24, i === null ? '开始' : `shiftDown(${i})`, 'tb', 'middle');
+    o += text(x0 + 64, 42, i === null ? '把 array 当成 tree' : `swap ${sw} 次`, 'ts', 'middle');
+    o += heapTree(T, x0, 70, 128, 50, pth.slice(-1).concat(i ? [i] : []), pth, 12);
+    o += text(x0 + 64, 200, T.slice(1).join(' '), 'ts', 'middle');
+  });
+  o += text(280, 230, '粗线是这一次 shiftDown 走过的 path；浅色底是它的起点和终点。Index 4 到 7 是 leaf，不用处理。', 'ts', 'middle');
+  return svg(560, 242, o, 'Bottom-up build heap：对 index 3、2、1 依次 shiftDown，一共 4 次 swap');
+}
+
+// ---------- BST delete 的三种情况 ----------
+function bstdel() {
+  let o = '';
+  const cases = [
+    ['删 20：没有 child', '直接摘掉', [50, 30, 70, 40, 60, 80, 35], []],
+    ['删 40：一个 child', '35 顶替它，挂到 30 的右边', [50, 30, 70, 20, 35, 60, 80], [35]],
+    ['删 50：两个 child', '换成 successor 60，再删旧的 60', [60, 30, 70, 20, 40, 80, 35], [60]],
+  ];
+  cases.forEach(([t, s, keys, hl], k) => {
+    const x0 = 10 + k * 184;
+    o += text(x0 + 82, 24, t, 'tb', 'middle') + text(x0 + 82, 42, s, 'ts', 'middle');
+    o += drawTree(bstFrom(keys), x0 + 10, 76, 24, 46, hl, 12);
+  });
+  o += text(280, 258, '三棵都是从正文那棵 8 个 node 的 tree 删一个 key 得到的；浅色底是位置或 key 变了的 node。', 'ts', 'middle');
+  return svg(560, 270, o, 'BST delete 的三种情况：删 leaf 20、删只有一个 child 的 40、删有两个 child 的 50');
+}
+
+// ---------- AVL：height 为 h、node 最少的 tree ----------
+function minavl() {
+  let o = '';
+  let id = 0;
+  const T = (h) => (h < 0 ? null : h === 0 ? { k: '', l: null, r: null, id: id++ } : { k: '', l: T(h - 1), r: T(h - 2), id: id++ });
+  const cnt = (n) => (n ? 1 + cnt(n.l) + cnt(n.r) : 0);
+  const xs = [30, 92, 178, 330], dxs = [0, 26, 26, 26];
+  for (let h = 0; h <= 3; h++) {
+    const t = T(h);
+    o += text(xs[h] + (cnt(t) - 1) * dxs[h] / 2, 26, `h = ${h}`, 'tb', 'middle') + text(xs[h] + (cnt(t) - 1) * dxs[h] / 2, 44, `N${'₀₁₂₃'[h]} = ${cnt(t)}`, 'tl', 'middle');
+    o += drawTree(t, xs[h], 72, dxs[h] || 1, 40, [], 9);
+  }
+  o += text(280, 238, '每一棵都是：一个 root，左边接上一棵（height 少 1 的最小 tree），右边接上上一棵（height 少 2 的）。', 'ts', 'middle');
+  o += text(280, 256, '1 + 4 + 2 = 7：这就是 Nₕ = 1 + Nₕ₋₁ + Nₕ₋₂。', 'ts', 'middle');
+  return svg(560, 268, o, 'height 为 0 到 3 的 node 最少的 AVL tree，node 数是 1、2、4、7');
+}
+
+// ---------- 第 6 站前半部分的 undirected graph ----------
+function ugraph() {
+  let o = '';
+  const P = { b: [34, 30], a: [96, 30], s: [96, 100], c: [158, 100], d: [204, 46], e: [204, 154], f: [250, 100], g: [34, 154] };
+  const E = [['a', 'b'], ['a', 's'], ['s', 'c'], ['c', 'd'], ['c', 'e'], ['d', 'e'], ['d', 'f'], ['e', 'f']];
+  const Q = Object.fromEntries(Object.entries(P).map(([k, [x, y]]) => [k, [x + 30, y + 20]]));
+  for (const [u, v] of E) o += edge(Q[u], Q[v], 'ink');
+  for (const k in Q) o += node(Q[k][0], Q[k][1], k, k === 's' ? 'wash ink-s' : 'paper');
+  // adjacency list
+  const adj = {};
+  for (const k of Object.keys(P).sort()) adj[k] = [];
+  for (const [u, v] of E) { adj[u].push(v); adj[v].push(u); }
+  const keys = Object.keys(adj).sort((x, y) => (x === 's' ? 1 : y === 's' ? -1 : x < y ? -1 : 1));
+  o += text(340, 26, 'adjacency list', 'tb');
+  keys.forEach((k, i) => {
+    const y = 50 + i * 22;
+    o += text(352, y, k + ':', 'tb', 'end');
+    adj[k].sort().forEach((v, j) => { o += cell(360 + j * 26, y - 15, 26, 20, v, 'paper', 'ts'); });
+    o += text(360 + Math.max(adj[k].length, 0) * 26 + 8, y, String(adj[k].length), 'tl');
+  });
+  o += text(20, 238, `8 个 vertex、${E.length} 条 edge；g 是孤立的。右边彩色数字是每条 list 的长度，加起来是 ${Object.values(adj).reduce((s, l) => s + l.length, 0)} = 2 × ${E.length}。`, 'ts');
+  return svg(560, 250, o, '第 6 站前半部分的 undirected graph：8 个 vertex，8 条 edge，以及它的 adjacency list');
+}
+
+// ---------- Bellman–Ford 的例子 ----------
+function bfgraph() {
+  let o = '';
+  const P = { s: [70, 130], a: [230, 60], b: [230, 200], c: [390, 60] };
+  const E = [['a', 'c', 1, 1], ['b', 'a', -4, 2], ['s', 'a', 2, 3], ['s', 'b', 5, 4]];
+  for (const [u, v, w, k] of E) {
+    o += dedge(P[u], P[v], 'ink', 16);
+    const [mx, my] = mid(P[u], P[v]);
+    const off = u === 'b' ? [14, 4, 'start'] : u === 'a' ? [0, -10, 'middle'] : u === 's' && v === 'a' ? [-10, -8, 'end'] : [-10, 18, 'end'];
+    o += text(mx + off[0], my + off[1], (w < 0 ? '−' + -w : String(w)) + `（第 ${k} 条）`, 't', off[2]);
+  }
+  // 只在 negative cycle 那一段才加的 c → b
+  o += path(`M${P.c[0] + 4} ${P.c[1] + 16}Q${P.c[0] + 10} ${P.b[1] - 10} ${P.b[0] + 18} ${P.b[1] - 2}`, 'dash') + arrow(P.b[0] + 30, P.b[1] - 5, P.b[0] + 16, P.b[1] - 1, 'ink');
+  o += text(P.c[0] + 20, 150, 'c → b（1）', 'ts') + text(P.c[0] + 20, 166, '只在 negative cycle', 'ts') + text(P.c[0] + 20, 182, '那一段才加上', 'ts');
+  for (const k in P) o += node(P[k][0], P[k][1], k, k === 's' ? 'wash ink-s' : 'paper', 't', 15);
+  o += text(20, 256, '括号里是它在 edge list 里的次序：每一轮按 a→c、b→a、s→a、s→b 的顺序 relax。', 'ts');
+  o += text(20, 274, '到 c 的 shortest path 是 s → b → a → c，weight 5 − 4 + 1 = 2，正好和 edge list 的顺序相反。', 'ts');
+  return svg(560, 286, o, 'Bellman–Ford 的例子：s、a、b、c 四个 vertex，四条 edge，其中 b 到 a 的 weight 是负 4');
+}
+
 export default {
+  'cs2040-chain': chain,
+  'cs2040-dtree': dtree,
+  'cs2040-linsert': linsert,
+  'cs2040-quad': quad,
+  'cs2040-shiftup': shiftup,
+  'cs2040-shiftdown': shiftdown,
+  'cs2040-buildheap': buildheap,
+  'cs2040-bstdel': bstdel,
+  'cs2040-minavl': minavl,
+  'cs2040-ugraph': ugraph,
+  'cs2040-bf': bfgraph,
   'cs2040-mergetree': mergetree,
   'cs2040-cqueue': cqueue,
   'cs2040-hash': hash,
