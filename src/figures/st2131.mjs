@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, apath, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 const C = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i; return Math.round(r); };
 const phi = (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
@@ -303,23 +303,98 @@ function billiards() {
   return svg(560, 250, o, 'Bayes billiards：5 个白球和 1 个红球扔在 0 到 1 上。上面先定红球在 0.42，左边有 2 个白球；下面把 6 个球排好，红球是哪一个都等可能，K 取 0 到 5 各六分之一');
 }
 
+// 开头第一次：同一手 card 被“先各挑一张，第四张随便挑”造出两遍
+function twice() {
+  const card = (x, y, rank, suit, cls = 'paper') => {
+    const red = suit === '♥' || suit === '♦';
+    return rect(x, y, 40, 54, cls, 5) + text(x + 20, y + 25, rank, red ? 'tl' : 'tb', 'middle') + text(x + 20, y + 44, suit, red ? 'tl' : 'tb', 'middle');
+  };
+  const slots = ['挑一张 J', '挑一张 Q', '挑一张 K', '剩下 49 张里任取'];
+  const X = [40, 100, 160, 236];
+  let o = '';
+  slots.forEach((s, i) => { o += text(X[i] + 20, 24, s, 'ts', 'middle'); });
+  const rows = [[['J', '♠'], ['Q', '♦'], ['K', '♣'], ['J', '♥']], [['J', '♥'], ['Q', '♦'], ['K', '♣'], ['J', '♠']]];
+  rows.forEach((r, k) => {
+    const y = 40 + k * 92;
+    o += text(10, y + 32, k ? '②' : '①', 'tb', 'middle');
+    r.forEach(([rk, su], i) => { o += card(X[i], y, rk, su, (i === 0 || i === 3) ? 'wash-strong' : 'paper'); });
+    o += arrow(290, y + 27, 352, k ? 128 : 102, 'mute');
+  });
+  o += line(222, 34, 222, 190, 'grid');
+  // 右边：造出的那一手（unordered）
+  o += rect(362, 70, 186, 90, 'wash', 6);
+  [['J', '♠'], ['J', '♥'], ['Q', '♦'], ['K', '♣']].forEach(([rk, su], i) => { o += card(372 + i * 44, 88, rk, su); });
+  o += text(455, 60, '造出的是同一手 card', 'tb', 'middle');
+  o += text(455, 182, '这一手在 3136 里被数了两次', 'tl', 'middle');
+  o += text(280, 224, '两张 J 谁在第一步、谁在第四步都行，所以凡是某个 rank 有两张的 hand（288 手）都被数两遍：', 'ts', 'middle');
+  o += text(280, 242, '2 × 288 + 2560 = 3136，正确的是 288 + 2560 = 2848', 'ts', 'middle');
+  return svg(560, 254, o, '两种选法造出同一手 card：第一步挑黑桃 J、第四步挑红桃 J，或者反过来，结果都是黑桃 J、红桃 J、方块 Q、梅花 K，所以这手 card 被数了两次');
+}
+
+// 开头第二次：1000 个被拦下的 driver，每个点是一个人；test 之后只剩 positive 的人
+function crowd() {
+  const cols = 40, gap = 8.4, x0 = 20, y0 = 48;
+  const T = 9, kt = [0, 3 / T, 6 / T, 1];
+  // 980 个 sober 里取 49 个 false positive（期望 980 × 5% = 49），用固定的伪随机挑位置
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const fp = new Set(); while (fp.size < 49) fp.add(20 + Math.floor(rnd() * 980));
+  let drunk = '', pos = '', neg = '';
+  for (let i = 0; i < 1000; i++) {
+    const cx = x0 + (i % cols) * gap, cy = y0 + Math.floor(i / cols) * gap;
+    if (i < 20) drunk += circle(cx, cy, 3.2, 'solid');
+    else if (fp.has(i)) pos += circle(cx, cy, 3.2, 'ink-f');
+    else neg += circle(cx, cy, 2.6, 'wash2');
+  }
+  // 帧：0 全体（positive 的 sober 还看不出来） / 1 test 结果亮出来 / 2 只剩 positive
+  let o = `<g>${neg}${anim('opacity', [1, 1, 0.12, 0.12], kt, T, true)}</g>`;
+  o += `<g>${pos.replace(/class="ink-f"/g, 'class="wash2"')}${ashow([1, 0, 0, 1], kt, T)}</g>`;
+  o += `<g>${pos}${ashow([0, 1, 1, 0], kt, T)}</g>`;
+  o += drunk;
+  o += text(x0 - 4, 30, '1000 个被拦下的 driver，每个点是一个人', 'tb', 'start');
+  const X = 370;
+  const say = (lines, on) => `<g>${lines.map(([s, cls], k) => text(X, 70 + k * 20, s, cls)).join('')}${ashow(on, kt, T)}</g>`;
+  o += say([['20 个 drunk（左上角深色）', 'tl'], ['980 个 sober', 't'], ['', 't'], ['Test 对 drunk 98% 报 positive，', 'ts'], ['对 sober 95% 报 negative。', 'ts']], [1, 0, 0, 1]);
+  o += say([['做 test：', 'tb'], ['20 个 drunk 几乎全是 positive', 'tl'], ['（期望 19.6 个）', 'ts'], ['980 个 sober 里 5% 也 positive', 't'], ['（期望 49 个，亮出来的点）', 'ts']], [0, 1, 0, 0]);
+  o += say([['只留下 positive 的人：', 'tb'], ['19.6 个 drunk + 49 个 sober', 't'], ['= 68.6 个', 't'], ['drunk 只占 19.6 / 68.6 ≈ 28.6%', 'tl'], ['不是 98%', 'ts']], [0, 0, 1, 0]);
+  return svgA(560, 264, o, '动图：1000 个 driver 画成 1000 个点，其中 20 个 drunk；做 test 后 drunk 的几乎都 positive，980 个 sober 里也有 49 个 positive；只留 positive 的人时，drunk 只占约 28.6%');
+}
+
 // 第 5 站：Uniform prior → 4 次 3 head → 再 4 次 1 head 的 posterior
 function posterior() {
   const lg = (z) => { let s = 0; for (let k = 2; k < z; k++) s += Math.log(k); return s; }; // log((z-1)!)，z 是 integer
   const beta = (a, b) => (x) => Math.exp(lg(a + b) - lg(a) - lg(b) + (a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x));
-  const sx = lin(0, 1, 60, 520), sy = lin(0, 2.6, 232, 30);
+  const sx = lin(0, 1, 60, 520), sy = lin(0, 2.6, 272, 92);
+  const seq = ['H', 'T', 'H', 'H', 'H', 'T', 'T', 'T'];
+  const st = [[1, 1]]; seq.forEach((c) => { const [a, b] = st[st.length - 1]; st.push(c === 'H' ? [a + 1, b] : [a, b + 1]); });
+  // 时间：先停在最后（静态图看到的就是全部 8 次之后），再从 prior 起每 1.1 s 一次 toss
+  const step = 1.1, hold0 = 2.6, T = hold0 + 0.8 + step * seq.length + 1.2;
+  const frames = [8, 0], shown = [8, 0], times = [0, hold0];
+  for (let i = 1; i <= 8; i++) { frames.push(i - 1, i); shown.push(i, i); times.push(hold0 + 0.8 + step * (i - 1), hold0 + 0.8 + step * (i - 1) + 0.35); }
+  frames.push(8); shown.push(8); times.push(T);
+  const kt = times.map((t) => t / T);
+  const curveD = (k) => curve(beta(...st[k]), 0.002, 0.998, sx, sy, 160);
   let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 2.6, xt: [0, [0.25, '0.25'], [0.5, '0.5'], [0.75, '0.75'], 1], yt: [[1, '1'], [2, '2']], xl: 'x = P(head)', yl: 'density' });
-  const cs = [[1, 1, 'mute', 'Beta(1, 1)：prior'], [4, 2, 'ln', 'Beta(4, 2)：4 次里 3 次 head'], [5, 5, 'ink', 'Beta(5, 5)：再 4 次里 1 次 head']];
-  for (const [a, b, cls] of cs) {
-    const f = beta(a, b), m = a / (a + b);
-    o += path(curve(f, 0.001, 0.999, sx, sy), cls === 'ink' ? 'ink-b' : cls);
-    if (a > 1) o += line(sx(m), sy(0), sx(m), sy(f(m)), 'dash');
+  // 两个 milestone 留作参照
+  o += path(curve(beta(1, 1), 0.002, 0.998, sx, sy), 'mute') + text(sx(0.02), sy(1) - 6, 'prior Beta(1, 1)', 'ts');
+  o += path(curve(beta(4, 2), 0.002, 0.998, sx, sy), 'ln-dash') + text(sx(0.86), sy(2.1), 'Beta(4, 2)', 'tl', 'start');
+  o += apath(frames.map(curveD), kt, T, 'ink-b');
+  const mx = frames.map((k) => sx(st[k][0] / (st[k][0] + st[k][1])));
+  o += `<line x1="${mx[0]}" y1="${sy(0)}" x2="${mx[0]}" y2="${sy(2.6)}" class="dash">${anim('x1', mx, kt, T)}${anim('x2', mx, kt, T)}</line>`;
+  // 上面一排：toss 的结果
+  o += text(156, 20, '第一轮 4 次 toss：3 head', 'ts', 'middle') + text(376, 20, '第二轮 4 次 toss：1 head', 'ts', 'middle');
+  seq.forEach((c, i) => {
+    const x = 90 + i * 44 + (i >= 4 ? 28 : 0);
+    o += circle(x, 44, 14, 'paper');
+    const on = shown.map((k) => k > i);
+    o += `<g>${circle(x, 44, 14, c === 'H' ? 'solid' : 'wash2')}${text(x, 49, c, c === 'H' ? 'tw' : 't', 'middle')}${ashow(on, kt, T)}</g>`;
+  });
+  o += line(240, 28, 240, 60, 'grid');
+  // 状态说明：现在是哪个 Beta、mean 多少
+  for (let k = 0; k <= 8; k++) {
+    const [a, b] = st[k], on = shown.map((f) => f === k);
+    o += `<g>${text(84, 112, `现在：Beta(${a}, ${b})`, 'tl', 'start')}${text(84, 130, `mean = ${a}/${a + b}`, 'ts', 'start')}${ashow(on, kt, T)}</g>`;
   }
-  o += text(sx(0.04), sy(1) - 8, cs[0][3], 'ts');
-  o += text(sx(0.66), sy(2.42), cs[1][3], 'tl');
-  o += text(sx(0.05), sy(2.25), 'Beta(5, 5)', 'tb') + text(sx(0.05), sy(2.25) + 17, '再 4 次里 1 次 head', 'tb');
-  o += text(sx(2 / 3) + 4, sy(0) - 6, 'mean 2/3', 'ts') + text(sx(0.5) + 4, sy(0) - 6, '1/2', 'ts');
-  return svg(560, 268, o, '三条 Beta density：Beta(1,1) 是平的；看到 4 次里 3 次 head 后是 Beta(4,2)，mean 三分之二；再看到 4 次里 1 次 head 后是 Beta(5,5)，mean 二分之一');
+  return svgA(560, 312, o, '动图：coin 依次出 H T H H，再出 H T T T；每次 head 把 Beta 的第一个 parameter 加 1，每次 tail 把第二个加 1，density 从平的 Beta(1,1) 变到 Beta(4,2)，再变到 Beta(5,5)，越来越窄');
 }
 
 export default {
@@ -338,4 +413,6 @@ export default {
   'st2131-dice': dice,
   'st2131-billiards': billiards,
   'st2131-posterior': posterior,
+  'st2131-twice': twice,
+  'st2131-crowd': crowd,
 };

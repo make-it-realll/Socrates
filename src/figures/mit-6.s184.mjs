@@ -1,4 +1,7 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, apath, acircle, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 动图的时间轴：先停在第 0 帧 hold 秒，再用 run 秒匀速走完 K 帧，最后停 tail 秒
+const timeline = (K, hold, run, tail) => { const T = hold + run + tail, kt = [0]; for (let k = 0; k <= K; k++) kt.push((hold + (run * k) / K) / T); kt.push(1); return { T, kt, idx: [0, ...Array.from({ length: K + 1 }, (_, k) => k), K] }; };
 
 // ---------- 共用的数值工具 ----------
 // 可复现的 pseudo-random：mulberry32 + Box–Muller
@@ -131,29 +134,44 @@ function avg() {
 
 // 两点 dataset：conditional path 会相交，marginal ODE 的 trajectory 不相交
 function traj() {
-  const sx = lin(0, 1, 60, 380), sy = lin(-3, 3, 240, 20);
+  const sx = lin(0, 1, 60, 380), sy = lin(-3, 3, 264, 56);
   let o = axes({ sx, sy, x0: 0, x1: 1, y0: -3, y1: 3, xt: [0, 0.5, 1], yt: [[-2, '−2'], [0, '0'], [2, '2']], yl: 'x' });
   o += text(sx(1) + 8, sy(-3) + 4, 't', 'ts');
   // conditional straight lines that cross
   o += line(sx(0), sy(0.8), sx(1), sy(-2), 'dash') + line(sx(0), sy(-0.8), sx(1), sy(2), 'dash');
-  const xs = quantiles(14);
+  const K = 40, tmax = 0.995, tk = Array.from({ length: K + 1 }, (_, k) => (tmax * k) / K);
+  const { T, kt, idx } = timeline(K, 1.6, 5, 2.2);
+  const xs = quantiles(14), at = [];
   for (const x0 of xs) {
     let x = x0;
-    const n = 400, tmax = 0.995, h = tmax / n;
-    const pts = [[sx(0), sy(x)]];
+    const n = 400, h = tmax / n;
+    const pts = [[sx(0), sy(x)]], pos = [x];
     for (let i = 0; i < n; i++) {
       const t = i * h;
       const k1 = uTwo(x, t), k2 = uTwo(x + (h / 2) * k1, t + h / 2), k3 = uTwo(x + (h / 2) * k2, t + h / 2), k4 = uTwo(x + h * k3, t + h);
       x += (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
       pts.push([sx((i + 1) * h), sy(x)]);
+      if ((i + 1) % 10 === 0) pos.push(x);
     }
     o += path(d(pts), 'ln');
+    at.push(pos);
   }
   o += circle(sx(1), sy(2), 4, 'ink-f') + circle(sx(1), sy(-2), 4, 'ink-f');
-  o += text(400, 50, '彩线：marginal ODE', 't') + text(400, 68, '14 个起点是 N(0, 1) 的', 'ts') + text(400, 84, '14 个 quantile', 'ts');
-  o += text(400, 120, '虚线：两条 conditional', 't') + text(400, 138, 'path（直线），中途相交', 'ts');
-  o += text(400, 180, 'ODE 的 solution 唯一，', 'ts') + text(400, 196, 'marginal trajectory', 'ts') + text(400, 212, '不可能相交', 'ts');
-  return svg(560, 272, o, '在 t-x 平面上，两点 dataset 的 marginal ODE trajectory 从 15 个起点出发分成两束，分别到达正 2 和负 2，彼此不相交；两条虚线表示的 conditional path 则在中途交叉');
+  o += text(60, 16, '彩线：marginal ODE，起点是 N(0, 1) 的 14 个 quantile', 'tl', 'start') + text(60, 34, '虚线：两条 conditional path（直线），中途相交', 'ts', 'start');
+  // 当前时刻的竖线和 14 个点
+  const cx = idx.map((k) => sx(tk[k]));
+  o += `<line x1="${f1(cx[0])}" y1="${sy(-3)}" x2="${f1(cx[0])}" y2="${sy(3)}" class="grid">${anim('x1', cx.map(f1), kt, T)}${anim('x2', cx.map(f1), kt, T)}</line>`;
+  at.forEach((pos) => { o += acircle(cx, idx.map((k) => sy(pos[k])), kt, T, 4, 'ink-f'); });
+  // 右边：同一时刻的 marginal density p_t(x)（竖着画，和左边共用 x 轴）
+  const X0 = 408, W = 70;
+  const pt = (x, t) => 0.5 * npdf(x, 2 * t, (1 - t) ** 2) + 0.5 * npdf(x, -2 * t, (1 - t) ** 2);
+  const shape = (t) => { const ys = []; let mx = 0; for (let i = 0; i <= 160; i++) { const x = -3 + (6 * i) / 160, v = pt(x, t); ys.push([x, v]); mx = Math.max(mx, v); } return d([[X0, sy(-3)], ...ys.map(([x, v]) => [X0 + (W * v) / mx, sy(x)]), [X0, sy(3)]]); };
+  o += line(X0, sy(-3), X0, sy(3), 'axis');
+  o += apath(idx.map((k) => shape(tk[k])), kt, T, 'wash');
+  o += apath(idx.map((k) => shape(tk[k]).replace(/^M[^L]*L/, 'M')), kt, T, 'ln');
+  o += text(X0 + 4, 46, 'p_t(x)', 'tb', 'start') + text(X0 + 4, 292, '每帧按最高点缩放', 'ts', 'start');
+  for (let k = 0; k <= K; k++) o += `<g>${text(X0 + 4, 274, 't = ' + tk[k].toFixed(2), 't', 'start')}${ashow(idx.map((j) => j === k), kt, T)}</g>`;
+  return svgA(560, 300, o, '动图：在 t-x 平面上，14 个点从 N(0,1) 的 quantile 出发沿两点 dataset 的 marginal ODE 走，分成两束到达正 2 和负 2，彼此不相交；右边是同一时刻的 marginal density，从一个 Gaussian 分成两个尖峰。两条虚线表示的 conditional path 在中途交叉');
 }
 
 // Euler 步数：exact field 下 n = 1, 2, 5, 100
@@ -232,30 +250,51 @@ function plateau() {
 // ---------- 第 4 站：ODE 与 SDE 的 trajectory ----------
 function sde() {
   let o = '';
+  const K = 40, { T, kt, idx } = timeline(K, 1.6, 6, 2.4);
+  const sy = lin(-3.6, 3.6, 220, 30);
   const panel = (x0, sig, title) => {
-    const sx = lin(0, 1, x0, x0 + 220), sy = lin(-3.6, 3.6, 220, 30);
-    o += rect(x0, 30, 220, 190, 'frame');
-    o += line(x0, sy(2), x0 + 220, sy(2), 'grid') + line(x0, sy(-2), x0 + 220, sy(-2), 'grid');
-    const g = rng(11), n = 400, h = 1 / n;
-    const starts = quantiles(10);
+    const sx = lin(0, 1, x0, x0 + 190);
+    o += rect(x0, 30, 190, 190, 'frame');
+    o += line(x0, sy(2), x0 + 190, sy(2), 'grid') + line(x0, sy(-2), x0 + 190, sy(-2), 'grid');
+    const n = 400, h = 1 / n, stepFn = (x, t, z) => x + h * (uG(x, t) + 0.5 * sig * sig * sG(x, t)) + sig * Math.sqrt(h) * z;
+    // 10 条画出来的路径（与原图同一个 seed）
+    const g = rng(11), starts = quantiles(10), at = [];
     starts.forEach((s0, j) => {
       let x = s0;
-      const pts = [[sx(0), sy(x)]];
+      const pts = [[sx(0), sy(x)]], pos = [x];
       for (let i = 0; i < n; i++) {
-        const t = i * h;
-        x += h * (uG(x, t) + 0.5 * sig * sig * sG(x, t)) + sig * Math.sqrt(h) * g();
+        x = stepFn(x, i * h, g());
         pts.push([sx((i + 1) * h), sy(Math.max(-3.6, Math.min(3.6, x)))]);
+        if ((i + 1) % 10 === 0) pos.push(x);
       }
       o += path(d(pts), j === 4 || j === 5 ? 'ln' : 'mute');
+      at.push(pos);
     });
-    o += text(x0 + 110, 20, title, 'tb', 'middle');
-    o += text(x0, 236, '0', 'ts', 'middle') + text(x0 + 220, 236, '1', 'ts', 'middle') + text(x0 + 110, 236, 't', 'ts', 'middle');
+    // 另外 1000 个点只用来做每一时刻的 histogram
+    const g2 = rng(29), many = quantiles(1000), H = [];
+    let xsM = many.slice();
+    H.push(histo(xsM, -3.6, 3.6, 36));
+    for (let i = 0; i < n; i++) { xsM = xsM.map((x) => stepFn(x, i * h, sig ? g2() : 0)); if ((i + 1) % 10 === 0) H.push(histo(xsM, -3.6, 3.6, 36)); }
+    const cx = idx.map((k) => sx(k / K));
+    o += `<line x1="${f1(cx[0])}" y1="30" x2="${f1(cx[0])}" y2="220" class="mute">${anim('x1', cx.map(f1), kt, T)}${anim('x2', cx.map(f1), kt, T)}</line>`;
+    at.forEach((pos) => { o += acircle(cx, idx.map((k) => sy(Math.max(-3.6, Math.min(3.6, pos[k])))), kt, T, 3.5, 'ink-f'); });
+    // 右侧竖着的 histogram + exact p_t（虚线）
+    const X0 = x0 + 196, sc = 62, bh = (sy(-3.6) - sy(3.6)) / 36;
+    const hd = (hs) => { const pts = [[X0, sy(-3.6)]]; hs.forEach((v, i) => { const y0 = sy(-3.6) - i * bh, xx = X0 + sc * Math.min(v, 0.7); pts.push([xx, y0], [xx, y0 - bh]); }); pts.push([X0, sy(3.6)]); return d(pts); };
+    const ed = (t) => { const pts = []; for (let i = 0; i <= 120; i++) { const x = -3.6 + (7.2 * i) / 120; pts.push([X0 + sc * Math.min(pG(x, Math.min(t, 0.999)), 0.7), sy(x)]); } return d(pts); };
+    o += apath(idx.map((k) => hd(H[k])), kt, T, 'wash-strong');
+    o += apath(idx.map((k) => ed(k / K)), kt, T, 'dash');
+    o += line(X0, 30, X0, 220, 'axis');
+    o += text(x0 + 95, 20, title, 'tb', 'middle');
+    o += text(x0, 236, '0', 'ts', 'middle') + text(x0 + 190, 236, '1', 'ts', 'middle') + text(x0 + 95, 236, 't', 'ts', 'middle');
     o += text(x0 - 5, sy(2) + 4, '2', 'ts', 'end') + text(x0 - 5, sy(-2) + 4, '−2', 'ts', 'end');
+    o += text(X0 + 2, 236, '此刻', 'ts', 'start');
   };
-  panel(50, 0, 'ODE：σ = 0');
-  panel(320, 1, 'SDE：σ = 1，drift 加 ½σ²·score');
-  o += text(280, 260, '同样 10 个起点；右图的 noise 来自 seed 11。单条路径变得曲折，但每个时刻的 distribution 和左图相同', 'ts', 'middle');
-  return svg(560, 270, o, '左图是 ODE 的 trajectory，平滑地分成两束；右图是加了 noise 和 score 修正的 SDE 的 trajectory，弯弯曲曲，但同样到达正负 2 两个 mode');
+  panel(30, 0, 'ODE：σ = 0');
+  panel(300, 1, 'SDE：σ = 1，drift 加 ½σ²·score');
+  o += text(280, 258, '同样 10 个起点；右边每一格旁边是 1000 个点此刻的 histogram，虚线是 exact 的 p_t', 'ts', 'middle');
+  o += text(280, 276, '单条路径一个平滑、一个曲折，但两边的 histogram 每一刻都贴着同一条虚线', 'ts', 'middle');
+  return svgA(560, 286, o, '动图：左边 ODE、右边 sigma 等于 1 的 SDE，各 10 个点从同样的起点同时往右走；ODE 的路径平滑，SDE 的路径弯弯曲曲。旁边是 1000 个点在当前时刻的 histogram，两边都贴着同一条 exact density，从一个 Gaussian 变成正负 2 两个 bump');
 }
 
 // ---------- 第 6 站：CFG ----------
@@ -328,19 +367,27 @@ function latent() {
 // ---------- 开头第一次失败：一步 regression 把每个 noise 送到 mean ----------
 function fail1() {
   const pd = (x) => 0.5 * npdf(x, -2, 0.25) + 0.5 * npdf(x, 2, 0.25);
-  const sx = lin(-4, 4, 50, 400), sy = lin(0, 0.85, 210, 30);
+  const sx = lin(-4, 4, 50, 400), sy = lin(0, 0.85, 250, 92);
   let o = path(area(pd, -4, 4, sx, sy, 0, 300), 'wash') + path(curve(pd, -4, 4, sx, sy, 300), 'ln');
-  o += path(curve((x) => npdf(x, 0, 1), -4, 4, sx, sy, 200), 'dash');
   o += axes({ sx, sy, x0: -4, x1: 4, y0: 0, y1: 0.85, xt: [[-2, '−2'], [0, '0'], [2, '2']], yt: [] });
-  o += line(sx(0), sy(0), sx(0), sy(0.72), 'ink-b') + circle(sx(0), sy(0), 4.5, 'ink-f');
-  o += text(sx(0), sy(0.72) - 8, 'every output = E[z] = 0', 'tb', 'middle');
   o += text(sx(-2.75), sy(0.6), 'p_data', 'tl', 'end') + text(sx(2.75), sy(0.6), 'p_data', 'tl', 'start');
-  o += text(sx(-3.9), sy(0.28), 'input noise', 'ts') + text(sx(-3.9), sy(0.28) + 14, 'ε ~ N(0, 1)（虚线）', 'ts');
-  o += text(416, 70, 'Loss：(output − z)²', 't') + text(416, 88, 'z 与 ε independent', 'ts');
-  o += text(416, 120, '最优 output 是 E[z] = 0', 't') + text(416, 138, '与 ε 无关', 'ts');
-  o += text(416, 170, 'p_data(0) = ' + pd(0).toFixed(4), 't') + text(416, 188, '几乎没有 data', 'ts');
-  o += text(280, 248, '不管 network 多大，一步 regression 都把所有 noise 送到两个 bump 中间', 'ts', 'middle');
-  return svg(560, 258, o, '两个 bump 的 data distribution 和 standard normal noise；一步 regression 的最优解把所有 noise 都映射到 0，那里几乎没有 data');
+  // 上面一条：16 个 input noise（N(0, 1) 的 quantile）
+  const Y0 = 40, eps = quantiles(16);
+  o += line(sx(-4), Y0, sx(4), Y0, 'grid') + text(sx(-4) - 6, Y0 + 4, 'input ε', 'ts', 'end');
+  eps.forEach((e) => { o += circle(sx(e), Y0, 4.5, 'paper'); });
+  // 帧：0 = 都已送到 0（静态图）；1 = 在 input 处；2 = 落到 0 叠成一列
+  const T = 7, kt = [0, 2.99 / T, 3 / T, 4.2 / T, 5.4 / T, 1];
+  eps.forEach((e, i) => {
+    const yEnd = sy(0) - 6 - i * 8;
+    o += acircle([sx(0), sx(0), sx(e), sx(e), sx(0), sx(0)], [yEnd, yEnd, Y0, Y0, yEnd, yEnd], kt, T, 4.5, 'ink-f');
+  });
+  o += `<g>${eps.map((e) => line(sx(e), Y0 + 6, sx(0), sy(0) - 12, 'grid')).join('')}${ashow([0, 0, 1, 1, 0, 0], kt, T)}</g>`;
+  o += `<g>${text(sx(0), sy(0) - 16 * 8 - 10, 'output 全是 0', 'tb', 'middle')}${ashow([1, 1, 0, 0, 1, 1], kt, T)}</g>`;
+  o += text(416, 80, 'Loss：(output − z)²', 't') + text(416, 98, 'z 与 ε independent', 'ts');
+  o += text(416, 130, '最优 output 是 E[z] = 0', 't') + text(416, 148, '与 ε 无关', 'ts');
+  o += text(416, 180, 'p_data(0) = ' + pd(0).toFixed(4), 't') + text(416, 198, '几乎没有 data', 'ts');
+  o += text(280, 288, '不管 network 多大，一步 regression 都把所有 noise 送到两个 bump 中间', 'ts', 'middle');
+  return svgA(560, 298, o, '动图：上面一行是 16 个 input noise，按 N(0,1) 的 quantile 排开；一步 regression 的最优解把它们全部送到 0，在 0 处叠成一列，而 data 的两个 bump 在正负 2，0 处几乎没有 data');
 }
 
 // ---------- 第 6 站：t = 0.5 时 CFG 的 field 只在类别模糊处放大 ----------

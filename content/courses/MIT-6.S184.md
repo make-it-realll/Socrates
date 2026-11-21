@@ -61,7 +61,7 @@ sources:
 
 **第一次。** 一维的 data，一半在 $-2$ 附近，一半在 $2$ 附近（后面整页都用它：$p_{\text{data}}=\tfrac12N(-2,0.5^2)+\tfrac12N(2,0.5^2)$）。train 一个 network，输入一个 Gaussian noise，一步输出一个 sample，loss 用 output 和随机抽的一个 data point 的 squared error。Noise 和抽到的 data point 互相独立，network 从 noise 里得不到任何关于“该输出哪个 data point”的信息，而 squared error 下最好的输出是 mean（第 3 站证明）。所以不管 network 多大，最优解都是把每个 noise 送到 data 的 mean，也就是 0，正好落在两个 bump 中间那个几乎没有 data 的地方。
 
-::fig[mit6s184-fail1] 第一次失败。虚线是 input 的 noise，彩色是 $p_{\text{data}}$；squared error 下的最优解把每个 noise 都送到 $\mathbb E[z]=0$，那里的 density 几乎为 0。
+::fig[mit6s184-fail1] 第一次失败。上面一行是 16 个 input noise，彩色是 $p_{\text{data}}$。动起来时看这些点落到哪里：squared error 下的最优解不管 noise 是多少都输出 $\mathbb E[z]=0$，16 个点叠在 0 上，而那里的 density 几乎为 0。
 
 **第二次。** 换个办法：先把 noise 和 data 一对一配好，再做 regression。一维时可以按大小配（第 $k$ 小的 noise 配第 $k$ 小的 data），这正是 quantile map $F^{-1}(\Phi(x))$。但一张 $1024\times1024$ 的彩色图片是 $3{,}145{,}728$ 维的 vector，没有“大小顺序”，也没有 $F^{-1}$ 可写。
 
@@ -324,7 +324,7 @@ $$\int p_t(x\mid z)\,u_t(x\mid z)\,p_{\text{data}}(z)\,dz=p_t(x)\int u_t(x\mid z
 每条 conditional path 是从某个 noise 走向某个 data point 的直线，但这些直线会交叉：从 $0.8$ 走向 $-2$ 的那条和从 $-0.8$ 走向 $+2$ 的那条，在 $t=2/7$ 处相遇（$0.8-2.8t=-0.8+2.8t$）。Marginal ODE 的 trajectory 不可能相交（第 1 站的唯一性），所以它们必须弯：在交叉点附近，一个点“不知道”自己该去哪边，field 取两边的平均。
 :::
 
-::fig[mit6s184-traj] 两点 dataset 的 marginal ODE，从 $N(0,1)$ 的 14 个 quantile 出发，用 RK4 走到 $t=0.995$。正的起点全部到 $+2$，负的全部到 $-2$，没有一条交叉。虚线是两条互相交叉的 conditional path。
+::fig[mit6s184-traj] 两点 dataset 的 marginal ODE，从 $N(0,1)$ 的 14 个 quantile 出发，用 RK4 走到 $t=0.995$。动起来时跟着 14 个点看：正的起点全部到 $+2$，负的全部到 $-2$，没有一条交叉；右边是同一时刻的 marginal density，从一个 Gaussian 分成两个尖峰。虚线是两条互相交叉的 conditional path。
 
 ### Gaussian mixture 的 exact field
 
@@ -583,7 +583,7 @@ $$-\mathrm{div}(p_tu_t)-\frac{\sigma_t^2}{2}\Delta p_t+\frac{\sigma_t^2}{2}\Delt
 
 取 $u_t=0$、$p_t=p$ 不随时间变，就得到第 1 站的 Langevin dynamics：$dX_t=\tfrac12\sigma^2\nabla\log p(X_t)\,dt+\sigma\,dW_t$ 保持 $p$ 不变。这就是 OU process 停在 $N(0,D)$ 的理由。
 
-::fig[mit6s184-sde] 本页例子上同样 10 个起点。左边 ODE，右边 $\sigma=1$ 的 SDE（exact 的 $u$ 和 score，Euler–Maruyama 400 步）。单条路径完全不同，每个时刻的 distribution 相同。
+::fig[mit6s184-sde] 本页例子上同样 10 个起点。左边 ODE，右边 $\sigma=1$ 的 SDE（exact 的 $u$ 和 score，Euler–Maruyama 400 步）。动起来时两边的点同时往右走：单条路径一个平滑、一个乱跳，但看每格旁边 1000 个点的 histogram，两边每一刻都贴着同一条虚线（exact 的 $p_t$）。
 
 ### $\sigma$ 取多大
 

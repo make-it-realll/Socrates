@@ -545,7 +545,7 @@ $O'/l'=26.21$。直接算：softmax 是 $(0.087,\,0.237,\,0.644,\,0.032)$，weig
 
 ::fig[cs336-online] 上面这一行分两段读的过程。
 
-::fig[cs336-flash] FlashAttention-2 forward：每个 program instance 负责一块 query，把它留在 shared memory 里，依次读入每一块 key 和 value。$T\times T$ 的 $S$、$P$ 只以 $B_q\times B_k$ 的小块出现在 shared memory 里，从不写进 HBM。
+::fig[cs336-flash] FlashAttention-2 forward：每个 program instance 负责一块 query，把它留在 shared memory 里，依次读入每一块 key 和 value。动起来时看 Q₂ 这一行：每读一块，只在 SRAM 里算出 $S$ 的一小块（深色），下面的 $m$、$l$、$O$ 跟着更新，四块读完正好是上面算的 26.21。$T\times T$ 的 $S$、$P$ 只以 $B_q\times B_k$ 的小块出现，从不写进 HBM。
 
 **Backward 用 recomputation。** Backward 需要 $P$，但没存。只存了每行的 $L$（$T$ 个数），所以 $P_{ij}=\exp(S_{ij}-L_i)$ 可以从 $Q$、$K$、$L$ 当场重算。A2 handout 给了不经过 softmax 的 backward：先算 $D=\mathrm{rowsum}(O\circ dO)$，然后
 
@@ -619,7 +619,7 @@ $$t_{\text{all-reduce}}=2\,\frac{N-1}{N}\,\frac SW$$
 
 $\tfrac{N-1}{N}$ 随 $N$ 增大趋于 1，所以时间几乎不随卡数增长。算一个：1.64B 的 model，bf16 的 gradient 是 $S=3.28$ GB。8 块卡、按 1.8 TB/s 算是 3.19 ms，64 块卡是 3.59 ms；同样 8 块卡如果走 0.05 TB/s 的 InfiniBand，是 115 ms。
 
-::fig[cs336-ring] $N=4$ 时的 ring all-gather。Reduce-scatter 的走法相同，只是每块卡传出去之前先把自己的那份加进去。
+::fig[cs336-ring] $N=4$ 时的 ring all-gather。动起来时看四条 link：每一步四个 packet 同时沿 ring 走一格，深色是这一步刚收到的；3 步之后每块卡都齐了。Reduce-scatter 的走法相同，只是每块卡传出去之前先把自己的那份加进去。
 
 ### Data parallel 与 ZeRO
 
@@ -670,7 +670,7 @@ $D$、$F$ 消掉了，结论和 model 大小无关：每块卡分到的 token �
 | 4 | 4 | 57% |
 | 4 | 16 | 84% |
 
-::fig[cs336-pipe] 4 个 stage、4 个 microbatch 的 pipeline。灰色是 bubble：一块卡一共 14 格时间里只有 8 格在算，$8/14=4/7$。
+::fig[cs336-pipe] 4 个 stage、4 个 microbatch 的 pipeline。动起来时跟着竖线一格一格往右看：F1 要先流过前面的卡，后面的卡才有活干；backward 又要等最后一块卡先开始。灰色是 bubble：一块卡一共 14 格时间里只有 8 格在算，$8/14=4/7$。
 
 Lecture 8 的经验法则：先在一个 node 内用 tensor parallel（或 MoE 的 expert parallel）到 8 路；model 还放不下，就跨 node 加 pipeline parallel（或用 ZeRO-3，看网络）；放下之后，剩下的卡全用 data parallel。Llama 3 405B 的配置是 DP 128、TP 8、PP 16。
 

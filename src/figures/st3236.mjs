@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, acircle, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
 
 // ---------- 小工具 ----------
 const matmul = (A, B) => A.map((r) => B[0].map((_, j) => r.reduce((s, a, k) => s + a * B[k][j], 0)));
@@ -35,27 +35,98 @@ function mulberry32(a) {
 }
 const SOC = [[0.7, 0.2, 0.1], [0.3, 0.5, 0.2], [0.2, 0.4, 0.4]];
 
-// 1. 两个 state 的 chain：graph 和 n-step probability
+// 开头第一个问题：从 $2 出发，赌到 $0 或 $4 为止；8 局的 sample path
+function ruinwalk() {
+  const rnd = mulberry32(5), paths = [];
+  for (let j = 0; j < 8; j++) { let x = 2; const p = [2]; while (x > 0 && x < 4) { x += rnd() < 0.4 ? 1 : -1; p.push(x); } paths.push(p); }
+  const sx = lin(0, 8, 130, 400), sy = lin(0, 4, 236, 56);
+  const step = 0.42, gapT = 0.9, hold = 3.0;
+  // 时间轴：先停在“8 局都走完”，再从第 1 局开始重放
+  const start = []; let t = hold;
+  paths.forEach((p) => { start.push(t); t += step * (p.length - 1) + gapT; });
+  const T = t + 0.6;
+  // 所有用到的 key time
+  const keys = new Set([0, hold, T]);
+  paths.forEach((p, j) => { for (let k = 0; k < p.length; k++) keys.add(start[j] + step * k); keys.add(start[j] + step * (p.length - 1) + gapT); });
+  const tl = [...keys].sort((a, b) => a - b), kt = tl.map((x) => x / T);
+  const at = (fn) => tl.map(fn);
+  const end = paths.map((p, j) => start[j] + step * (p.length - 1) + gapT);
+  const done = (j, x) => x < hold || x >= end[j];          // 这一次已经走完（静态帧里全部算走完）
+  const live = (j, x) => x >= hold && x >= start[j] && x < end[j];
+  const stepAt = (j, x) => Math.min(Math.floor((x - start[j]) / step + 1e-9), paths[j].length - 1);
+  let o = axes({ sx, sy, x0: 0, x1: 8, y0: 0, y1: 4, xt: [0, 2, 4, 6, 8], yt: [], xl: '第几局' });
+  for (let m = 0; m <= 4; m++) o += line(sx(0), sy(m), sx(8), sy(m), m === 0 || m === 4 ? 'ink' : 'grid');
+  // 左边的“钱数”柱：$0…$4，token 在旁边上下走
+  for (let m = 0; m <= 4; m++) o += rect(50, sy(m) - 13, 46, 26, m === 0 || m === 4 ? 'wash-strong' : 'paper', 4) + text(73, sy(m) + 5, '$' + m, 'tb', 'middle');
+  o += text(73, sy(4) - 22, '手里的钱', 'ts', 'middle');
+  o += text(sx(8) + 8, sy(4) + 4, '到 $4 停', 'ts', 'start') + text(sx(8) + 8, sy(0) + 4, '输光停', 'ts', 'start');
+  // 每一次模拟的 path：正在走时彩色，走完变灰留在图上（同一段被几次重复走时上下稍微错开）
+  paths.forEach((p, j) => {
+    const off = 2.2 * (j - 3.5);
+    for (let k = 1; k < p.length; k++) {
+      const segO = d([[sx(k - 1), sy(p[k - 1]) + off], [sx(k), sy(p[k]) + off]]), seg = d([[sx(k - 1), sy(p[k - 1])], [sx(k), sy(p[k])]]);
+      o += `<path d="${segO}" class="mute">${ashow(at((x) => done(j, x)), kt, T)}</path>`;
+      o += `<path d="${seg}" class="ln">${ashow(at((x) => live(j, x) && stepAt(j, x) >= k), kt, T)}</path>`;
+    }
+  });
+  // token：当前这一次走到的钱数
+  const cur = (x) => paths.findIndex((p, j) => live(j, x));
+  const ty = at((x) => { const j = cur(x); return f1(sy(j < 0 ? 2 : paths[j][stepAt(j, x)])); });
+  o += `<circle cx="113" cy="${ty[0]}" r="7" class="ln-f">${anim('cy', ty, kt, T, true)}${ashow(at((x) => cur(x) >= 0), kt, T)}</circle>`;
+  // 计分
+  for (let a = 0; a <= 8; a++) for (let w = 0; w <= a; w++) {
+    const on = at((x) => { const fin = paths.filter((p, j) => done(j, x)); return fin.length === a && fin.filter((p) => p[p.length - 1] === 4).length === w; });
+    if (!on.some(Boolean)) continue;
+    o += `<g>${text(452, 120, `模拟了 ${a} 次`, 'tb', 'start')}${text(452, 140, `到 $4：${w} 次`, 'tl', 'start')}${text(452, 160, `输光：${a - w} 次`, 't', 'start')}${ashow(on, kt, T)}</g>`;
+  }
+  o += text(452, 200, '真实的 probability', 'ts', 'start') + text(452, 218, '要算出来：4/13 ≈ 0.31', 'ts', 'start') + text(452, 236, '（第 2 站）', 'ts', 'start');
+  o += text(280, 24, '从 $2 开始，每局押 $1，赢的 probability 0.4', 'tb', 'middle');
+  return svgA(560, 276, o, '动图：从 2 美元开始，每局赢 1 美元的 probability 是 0.4，输 1 美元是 0.6，到 0 或 4 美元就停。8 次模拟依次走完，3 次到 4 美元，5 次输光；每一次的 path 长短不一');
+}
+
+// 1. 两个 state 的 chain：graph 上画出 mass 的流动，右边 plot 同步
 function twostate() {
   const P = [[0.5, 0.5], [0.2, 0.8]];
-  const A = [65, 120], B = [195, 120], r = 22;
-  let o = node(A[0], A[1], r, '1') + node(B[0], B[1], r, '2');
+  const A = [65, 130], B = [195, 130], r = 24;
+  const N = 10, step = 0.9, hold = 2.2, T = hold + step * N + 1.6;
+  // 帧：先停在 n = 0，再每 0.9 s 走一步，到 n = 10 停住
+  const ns = [0], ts = [0];
+  for (let n = 1; n <= N; n++) ns.push(n), ts.push(hold + step * (n - 1));
+  ns.push(N); ts.push(T);
+  const kt = ts.map((t) => t / T);
+  const dist = ns.map((n) => matpow(P, n)[0]);
+  let o = '<defs>' + [A, B].map((c, k) => `<clipPath id="st3236-tw-c${k}"><circle cx="${c[0]}" cy="${c[1]}" r="${r}"/></clipPath>`).join('') + '</defs>';
+  [A, B].forEach((c, k) => {
+    o += circle(c[0], c[1], r, 'paper');
+    const ys = dist.map((p) => f1(c[1] + r - 2 * r * p[k]));
+    o += `<rect x="${c[0] - r}" y="${ys[0]}" width="${2 * r}" height="${2 * r}" class="wash-strong" clip-path="url(#st3236-tw-c${k})">${anim('y', ys, kt, T, true)}</rect>`;
+    o += circle(c[0], c[1], r, 'ink') + text(c[0], c[1] + 5, String(k + 1), 'tb', 'middle');
+  });
   const top = bent(A[0], A[1], B[0], B[1], r, -42, 'ink'), bot = bent(B[0], B[1], A[0], A[1], r, -42, 'ink');
   o += top.o + text(top.lx, top.ly - 8, '0.5', 'ts', 'middle') + bot.o + text(bot.lx, bot.ly + 18, '0.2', 'ts', 'middle');
   const l1 = loop(A[0], A[1], r, 'up', 'ink'), l2 = loop(B[0], B[1], r, 'up', 'ink');
   o += l1.o + text(l1.lx, l1.ly - 10, '0.5', 'ts', 'middle') + l2.o + text(l2.lx, l2.ly - 10, '0.8', 'ts', 'middle');
-  const sx = lin(0, 10, 290, 515), sy = lin(0, 1, 215, 35);
+  o += text(130, 22, '从 1 出发：涂色的高度 = 在这个 state 的 probability', 'ts', 'middle');
+  // 每一帧的读数
+  for (let n = 0; n <= N; n++) {
+    const p = matpow(P, n)[0], on = ns.map((m) => m === n);
+    o += `<g>${text(130, 218, `n = ${n}`, 'tl', 'middle')}${text(A[0], 242, p[0].toFixed(n < 4 ? 3 : 4), 't', 'middle')}${text(B[0], 242, p[1].toFixed(n < 4 ? 3 : 4), 't', 'middle')}${ashow(on, kt, T)}</g>`;
+  }
+  const sx = lin(0, 10, 300, 515), sy = lin(0, 1, 215, 45);
   o += axes({ sx, sy, x0: 0, x1: 10, y0: 0, y1: 1, xt: [0, 2, 4, 6, 8, 10], yt: [[0, '0'], [0.5, '0.5'], [1, '1']], xl: 'n' });
   o += line(sx(0), sy(2 / 7), sx(10), sy(2 / 7), 'dash') + text(sx(10) + 4, sy(2 / 7) + 4, '2/7', 'ts');
   for (const [i, cls] of [[0, 'ln'], [1, 'ink']]) {
     const pts = [];
     for (let n = 0; n <= 10; n++) pts.push([sx(n), sy(matpow(P, n)[i][0])]);
     o += path(d(pts), cls);
-    for (const p of pts) o += circle(p[0], p[1], 3, cls === 'ln' ? 'ln-f' : 'ink-f');
+    for (const p of pts) o += circle(p[0], p[1], 2.5, cls === 'ln' ? 'ln-f' : 'ink-f');
+    o += `<circle cx="${f1(pts[0][0])}" cy="${f1(pts[0][1])}" r="6" class="${cls === 'ln' ? 'ln' : 'ink'}" fill="none">${anim('cx', ns.map((n) => f1(sx(n))), kt, T, true)}${anim('cy', ns.map((n) => f1(sy(matpow(P, n)[i][0]))), kt, T, true)}</circle>`;
   }
+  const cx = ns.map((n) => f1(sx(n)));
+  o += `<line x1="${cx[0]}" y1="${sy(0)}" x2="${cx[0]}" y2="${sy(1)}" class="grid">${anim('x1', cx, kt, T, true)}${anim('x2', cx, kt, T, true)}</line>`;
   o += text(sx(1.3), sy(0.88), '从 1 出发', 'tl') + text(sx(1.3), sy(0.06), '从 2 出发', 't');
   o += text(sx(5), 22, 'n 步后在 state 1 的 probability', 'tb', 'middle');
-  return svg(560, 255, o, '两个 state 的 Markov chain 的 transition graph，以及从 state 1 和 state 2 出发 n 步后在 state 1 的 probability，两者都趋向七分之二');
+  return svgA(560, 255, o, '动图：两个 state 的 chain 从 state 1 出发，每一步把 mass 按 arrow 上的 probability 分出去；state 1 里的 mass 从 1 降到约七分之二，右边两条 curve 上的点同步移动，从 1 和从 2 出发都趋向七分之二');
 }
 
 // 2. gambler's ruin，N = 4，p = 0.4
@@ -304,16 +375,51 @@ function weather() {
   return svg(560, 330, o, '天气的 4 个 state RR、SR、RS、SS 的 transition graph：每个 state 只有两条 arrow，指向以“今天”开头的两个 state');
 }
 
-// 第 3 站：Ehrenfest chain（3 个球），两组 state 交替
+// 第 3 站：Ehrenfest chain（3 个球）：上面是两个 urn，下面是 chain 上的位置
 function ehren() {
-  const r = 22, xs = [80, 213, 347, 480], y = 110;
+  const r = 22, xs = [80, 213, 347, 480], y = 236;
+  const rnd = mulberry32(11), N = 12;
+  const side = [[0, 0, 0]]; // 0 = 右边 urn，1 = 左边 urn；从 state 0 出发
+  for (let n = 1; n <= N; n++) { const s0 = side[n - 1].slice(), k = Math.floor(rnd() * 3); s0[k] = 1 - s0[k]; side.push(s0); }
+  const st = side.map((s0) => s0.reduce((a, b) => a + b, 0));
+  const step = 1.0, hold = 2.0, T = hold + step * N + 1.6, mv = 0.5;
+  const times = [0], fr = [0];
+  const ph = [0], shown = [0];
+  // 每一步四个 key：开始动、在原来的 urn 上方、到另一个 urn 上方、落进去；读数在球开始动时就切换
+  for (let n = 1; n <= N; n++) { const t0 = hold + step * (n - 1); times.push(t0, t0 + mv * 0.25, t0 + mv * 0.75, t0 + mv); fr.push(n, n, n, n); ph.push(0, 1, 2, 3); shown.push(n, n, n, n); }
+  times.push(T); fr.push(N); ph.push(3); shown.push(N);
+  const kt = times.map((t) => t / T);
   let o = '';
+  // 两个 urn
+  const urn = (x, lab) => path(`M${x - 70} 46 L${x - 62} 140 Q${x - 60} 150 ${x - 50} 150 L${x + 50} 150 Q${x + 60} 150 ${x + 62} 140 L${x + 70} 46`, 'ink-b') + text(x, 170, lab, 'ts', 'middle');
+  const UL = 170, UR = 390;
+  o += urn(UL, '左边 urn') + urn(UR, '右边 urn');
+  const slot = (k, left) => [(left ? UL : UR) + (k - 1) * 40, 126];
+  const names = ['a', 'b', 'c'];
+  for (let k = 0; k < 3; k++) {
+    const P = fr.map((f, i) => {
+      if (f === 0 || ph[i] === 3) return slot(k, side[f][k] === 1);
+      const a = slot(k, side[f - 1][k] === 1), b = slot(k, side[f][k] === 1);
+      if (a[0] === b[0]) return a;
+      return ph[i] === 0 ? a : ph[i] === 1 ? [a[0], 24] : [b[0], 24];
+    });
+    const xs2 = P.map((p) => p[0]), ys2 = P.map((p) => p[1]);
+    o += acircle(xs2, ys2, kt, T, 15, 'solid');
+    o += `<text x="${f1(xs2[0])}" y="131" class="tw" text-anchor="middle">${names[k]}${anim('x', xs2.map(f1), kt, T)}${anim('y', ys2.map((v) => f1(v + 5)), kt, T)}</text>`;
+  }
+  o += text(280, 92, '每一步随机挑', 'ts', 'middle') + text(280, 110, '一个球换边', 'ts', 'middle');
+  // chain
   for (let i = 0; i < 3; i++) o += edgeL([xs[i], y], [xs[i + 1], y], r, -26, ['1', '2/3', '1/3'][i]) + edgeL([xs[i + 1], y], [xs[i], y], r, -26, ['1/3', '2/3', '1'][i]);
   xs.forEach((x, i) => { o += node(x, y, r, String(i), i % 2 ? 'paper' : 'wash-strong') + (i % 2 ? '' : circle(x, y, r, 'ink')); });
-  o += text(280, 26, 'state = 左边 urn 里的球数', 'tb', 'middle');
-  o += rect(150, 186, 16, 16, 'wash-strong') + text(172, 199, '{0, 2}', 't') + rect(270, 186, 16, 16, 'paper') + text(292, 199, '{1, 3}', 't');
-  o += text(280, 226, '每一步都从一组跳到另一组，所以从 0 出发只可能在偶数步回到 0', 'ts', 'middle');
-  return svg(560, 240, o, 'Ehrenfest chain 的 4 个 state 0 到 3 排成一行，向右的 probability 是 1、2/3、1/3，向左的是 1/3、2/3、1。0 和 2 一组，1 和 3 一组，每一步换组');
+  const rx = shown.map((f) => f1(xs[st[f]]));
+  o += `<circle cx="${rx[0]}" cy="${y}" r="${r + 6}" class="ln" fill="none">${anim('cx', rx, kt, T, true)}</circle>`;
+  for (let n = 0; n <= N; n++) {
+    const on = shown.map((f) => f === n);
+    o += `<g>${text(280, 306, `第 ${n} 步：左边 ${st[n]} 个球，${n % 2 ? '奇数步，在 {1, 3}' : '偶数步，在 {0, 2}'}`, n % 2 ? 'tb' : 'tl', 'middle')}${ashow(on, kt, T)}</g>`;
+  }
+  o += rect(150, 322, 16, 16, 'wash-strong') + text(172, 335, '{0, 2}', 't') + rect(270, 322, 16, 16, 'paper') + text(292, 335, '{1, 3}', 't');
+  o += text(280, 362, '每一步都从一组跳到另一组，所以从 0 出发只可能在偶数步回到 0', 'ts', 'middle');
+  return svgA(560, 372, o, '动图：Ehrenfest chain，3 个球 a、b、c 起初都在右边 urn。每一步随机挑一个球换到另一边，下面 chain 上的圈跟着移动；偶数步总在浅色的 state 0 或 2，奇数步总在白色的 state 1 或 3');
 }
 
 // 第 3 站：state 0 同时在长度 3 和长度 4 的 cycle 上
@@ -384,6 +490,7 @@ function brtree() {
 
 export default {
   'st3236-twostate': twostate,
+  'st3236-ruinwalk': ruinwalk,
   'st3236-ruin': ruin,
   'st3236-ruincurve': ruincurve,
   'st3236-classes': classes,

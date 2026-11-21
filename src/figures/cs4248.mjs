@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, apath, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 const sup = (n) => String(n).replace('-', '⁻').split('').map((c) => ('0123456789'.includes(c) ? '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c] : c)).join('');
 const sci = (v, k = 2) => { const e = Math.floor(Math.log10(v)); const m = v / 10 ** e; return `${m.toFixed(k - 1)}×10${sup(e)}`; };
@@ -172,35 +172,82 @@ function laplace() {
   return svg(560, yb + 10, o, '训练数据里 like 后面只出现过 green。MLE 给 green 概率 1，其余为 0；Laplace smoothing 后 green 只剩六分之一，十个没见过的 symbol 各十二分之一');
 }
 
-// SGNS 的一步 update
+// 开头第一次：测试句沿 bigram 一步步乘下去，碰到训练里没出现过的 like → ham 就变成 0
+function zero() {
+  const sents = ['<s> I am Sam </s>', '<s> Sam I am </s>', '<s> I do not like green eggs and ham </s>'].map((x) => x.split(' '));
+  const C = {}, C2 = {};
+  for (const w of sents) for (let i = 0; i + 1 < w.length; i++) { C[w[i]] = (C[w[i]] || 0) + 1; const k = w[i] + ' ' + w[i + 1]; C2[k] = (C2[k] || 0) + 1; }
+  const test = '<s> I do not like ham </s>'.split(' ');
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const frac = (n, m) => (n === 0 ? '0' : n === m ? '1' : `${n / gcd(n, m)}/${m / gcd(n, m)}`);
+  const esc = (t) => t.replace('<', '&lt;').replace('>', '&gt;');
+  const X = (k) => 40 + k * 80, Y = 92;
+  const E = test.length - 1;
+  // 帧 s：0 = 全部乘完（静态图）；k = 1..6 = 乘到第 k 条边
+  const dur = [3.4, 1.5, 1.5, 1.5, 1.5, 1.9, 1.5, 0.6], T = dur.reduce((a, b) => a + b, 0);
+  const kt = [0]; for (let k = 0; k < dur.length - 1; k++) kt.push(kt[k] + dur[k] / T);
+  const S = [0, 1, 2, 3, 4, 5, 6, 0];
+  const g = (body, on) => `<g>${body}${ashow(S.map(on), kt, T)}</g>`;
+  let o = text(280, 20, '测试句的 probability = 每一步 P(下一个 | 当前) 乘起来', 'tb', 'middle');
+  o += text(280, 40, '五个 word 在训练的三句话里都出现过', 'ts', 'middle');
+  let num = 1, den = 1;
+  for (let k = 1; k <= E; k++) {
+    const a = test[k - 1], b = test[k], n = C2[a + ' ' + b] || 0, m = C[a];
+    num *= n; den *= m;
+    const x1 = X(k - 1) + 30, x2 = X(k) - 30, zeroE = n === 0;
+    o += arrow(x1, Y, x2, Y, zeroE ? 'dash' : 'mute');
+    o += g(arrow(x1, Y, x2, Y, 'ln'), (s) => s === k || (s === 0 && zeroE));
+    o += g(text((x1 + x2) / 2, Y - 10, frac(n, m), zeroE ? 'tl' : 't', 'middle'), (s) => s === 0 || s >= k);
+    const pr = num === 0 ? '0' : frac(num, den);
+    o += g(text(X(k), Y + 50, pr, num === 0 ? 'tl' : 't', 'middle'), (s) => s === 0 || s >= k);
+    // 状态说明
+    o += g(text(280, 180, `P(${esc(b)} | ${esc(a)}) = C(${esc(a)} ${esc(b)}) / C(${esc(a)}) = ${n}/${m}${zeroE ? '：训练里 like 后面只接过 green' : ''}`, zeroE ? 'tl' : 't', 'middle'), (s) => s === k);
+  }
+  test.forEach((w, k) => { o += rect(X(k) - 28, Y - 14, 56, 28, k === 4 || k === 5 ? 'wash' : 'paper', 5) + text(X(k), Y + 5, esc(w), 'tb', 'middle'); });
+  o += text(X(0), Y + 50, '乘到这里', 'ts', 'middle');
+  o += g(text(280, 180, '只要有一条边在训练里是 0 次，整句的 probability 就是 0', 'tl', 'middle'), (s) => s === 0);
+  return svgA(560, 194, o, '动图：测试句 s I do not like ham /s 沿 bigram 一步步乘 probability：2/3、1/3、1、1，到 like 后面接 ham 时训练里是 0 次，乘积变成 0 并一直是 0');
+}
+
+// SGNS：同一组 (w, c_pos, c_neg) 反复做 SGD update（η = 1）
 function sgns() {
   const sig = (x) => 1 / (1 + Math.exp(-x));
   const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
-  const w = [0.5, 0.2], cp = [0.1, 0.4], cn = [0.6, 0.1];
-  const sp = sig(dot(cp, w)), sn = sig(dot(cn, w));
-  const cp2 = [cp[0] - (sp - 1) * w[0], cp[1] - (sp - 1) * w[1]];
-  const cn2 = [cn[0] - sn * w[0], cn[1] - sn * w[1]];
-  const w2 = [w[0] - ((sp - 1) * cp[0] + sn * cn[0]), w[1] - ((sp - 1) * cp[1] + sn * cn[1])];
-  const S = 380, O = [60, 226];
-  const P = (v) => [O[0] + S * v[0], O[1] - S * v[1]];
-  let o = line(O[0] - 10, O[1], O[0] + S * 0.72, O[1], 'axis') + line(O[0], O[1] + 14, O[0], O[1] - S * 0.56, 'axis');
-  const vec = (v, cls, lab, dx, dy, tcls, anc = 'start') => { const p = P(v); o += arrow(O[0], O[1], p[0], p[1], cls); if (lab) o += text(p[0] + dx, p[1] + dy, lab, tcls, anc); };
-  vec(w, 'mute', 'w', 6, 4, 'ts');
-  vec(cp, 'mute', 'c_pos', -6, -8, 'ts');
-  vec(cn, 'mute', 'c_neg', 8, 0, 'ts');
-  vec(w2, 'ink-b', 'w′', -8, 0, 'tb', 'end');
-  vec(cp2, 'ln', 'c_pos′', 8, -2, 'tl');
-  vec(cn2, 'ink', 'c_neg′', 10, 5, 't');
-  for (const [a, b] of [[w, w2], [cp, cp2], [cn, cn2]]) { const p = P(a), q = P(b); o += line(p[0], p[1], q[0], q[1], 'grid'); }
+  const loss = ({ w, cp, cn }) => -(Math.log(sig(dot(cp, w))) + Math.log(sig(-dot(cn, w))));
+  const st = [{ w: [0.5, 0.2], cp: [0.1, 0.4], cn: [0.6, 0.1] }];
+  for (let k = 0; k < 3; k++) {
+    const { w, cp, cn } = st[k], sp = sig(dot(cp, w)), sn = sig(dot(cn, w));
+    st.push({ cp: [cp[0] - (sp - 1) * w[0], cp[1] - (sp - 1) * w[1]], cn: [cn[0] - sn * w[0], cn[1] - sn * w[1]], w: [w[0] - ((sp - 1) * cp[0] + sn * cn[0]), w[1] - ((sp - 1) * cp[1] + sn * cn[1])] });
+  }
+  // 帧：静态 = 第 1 步之后（正文算的那一步）；然后从 0 开始一步一步走到 4
+  const ks = [1, 1, 0, 0], ts = [0, 3.2, 3.2, 4.4];
+  for (let k = 1; k <= 3; k++) { const t0 = ts[ts.length - 1]; ks.push(k, k); ts.push(t0 + 0.6, t0 + 1.8); }
+  ks.push(1); ts.push(ts[ts.length - 1] + 0.01);
+  const T = ts[ts.length - 1], kt = ts.map((t) => t / T);
+  const U = 190, O = [60, 196];
+  const P = (v) => [O[0] + U * v[0], O[1] - U * v[1]];
+  const arr = (v) => { const [x, y] = P(v), a = Math.atan2(y - O[1], x - O[0]), h = (t) => [x - 8 * Math.cos(a + t), y - 8 * Math.sin(a + t)]; return d([O, [x, y]]) + d([h(0.42), [x, y], h(-0.42)]); };
+  let o = line(O[0] - 14, O[1], O[0] + U * 0.75, O[1], 'axis') + line(O[0], O[1] + U * 0.5, O[0], O[1] - U * 0.98, 'axis');
+  // 起点（灰）
+  for (const [v, lab, dx, dy] of [[st[0].w, 'w', 8, 12], [st[0].cp, 'c_pos', -8, -6], [st[0].cn, 'c_neg', 8, 4]]) { const p = P(v); o += path(arr(v), 'mute') + text(p[0] + dx, p[1] + dy, lab, 'ts', dx < 0 ? 'end' : 'start'); }
+  for (const [key, cls, lab, tcls, dx, dy, anc] of [['cn', 'ink', 'c_neg', 't', 10, 6, 'start'], ['cp', 'ln', 'c_pos', 'tl', 10, -4, 'start'], ['w', 'ink-b', 'w', 'tb', -10, 0, 'end']]) {
+    const vs = ks.map((k) => st[k][key]);
+    o += apath(vs.map(arr), kt, T, cls);
+    const px = vs.map((v) => f1(P(v)[0] + dx)), py = vs.map((v) => f1(P(v)[1] + dy));
+    o += `<text x="${px[0]}" y="${py[0]}" class="${tcls}" text-anchor="${anc}">${lab}${anim('x', px, kt, T)}${anim('y', py, kt, T)}</text>`;
+  }
   o += circle(O[0], O[1], 3, 'ink-f');
-  const tx = 360;
-  o += text(tx, 40, '灰色：update 之前', 'ts') + text(tx, 58, '实线：update 之后（η = 1）', 'ts');
-  o += text(tx, 92, `c_pos · w：${dot(cp, w).toFixed(3)} → ${dot(cp2, w2).toFixed(3)}`, 't');
-  o += text(tx, 114, `c_neg · w：${dot(cn, w).toFixed(3)} → ${dot(cn2, w2).toFixed(3)}`, 't');
-  const loss = (a, b, c) => -(Math.log(sig(dot(a, b))) + Math.log(sig(-dot(c, b))));
-  o += text(tx, 136, `loss：${loss(cp, w, cn).toFixed(3)} → ${loss(cp2, w2, cn2).toFixed(3)}`, 't');
-  o += text(tx, 170, 'positive pair 的 dot product 变大，', 'ts') + text(tx, 186, 'negative pair 的变小', 'ts');
-  return svg(560, 250, o, 'Skip-gram with negative sampling 的一步 SGD：target vector w 转向 positive context vector，negative context vector 被推开');
+  // 读数
+  const tx = 330;
+  o += text(tx, 28, '灰色：update 之前', 'ts') + text(tx, 46, '彩色和黑色：update 之后（η = 1）', 'ts');
+  const show = (k) => ashow(ks.map((j) => j === k), kt, T);
+  for (let k = 0; k <= 3; k++) {
+    const q = st[k];
+    o += `<g>${text(tx, 84, k === 0 ? '还没 update' : `第 ${k} 步之后`, 'tb')}${text(tx, 108, `c_pos · w = ${dot(q.cp, q.w).toFixed(3)}`, 'tl')}${text(tx, 130, `c_neg · w = ${dot(q.cn, q.w).toFixed(3).replace("-", "−")}`, 't')}${text(tx, 152, `loss = ${loss(q).toFixed(3)}`, 't')}${show(k)}</g>`;
+  }
+  o += text(tx, 186, '开始时：0.130、0.320、1.496', 'ts');
+  o += text(tx, 218, 'positive pair 的 dot product 越来越大，', 'ts') + text(tx, 236, 'negative pair 的越来越小（变成负的）；', 'ts') + text(tx, 254, '同一组 pair 反复练，vector 也越拉越长。', 'ts');
+  return svgA(560, 296, o, '动图：Skip-gram with negative sampling 对同一组 w、c_pos、c_neg 反复做 3 步 SGD update。w 和 c_pos 互相靠拢，c_neg 被推到另一侧；c_pos·w 从 0.130 涨到 0.894，c_neg·w 从 0.320 降到负 0.378，loss 从 1.496 降到 0.865');
 }
 
 // Viterbi trellis：Janet will back the bill
@@ -230,27 +277,43 @@ function viterbi() {
   let last = tags[0]; for (const t of tags) if (v[4][t] > v[4][last]) last = t;
   const pathT = [last]; for (let i = 4; i > 0; i--) pathT.unshift(bp[i][pathT[0]]);
   const cx = (i) => 112 + i * 104, cy = (j) => 44 + j * 31, bw = 84, bh = 22;
+  // 帧 s：0 = 全部算完、路径已标出（静态图）；1–5 = 逐列填 v；6–10 = 从最后一列沿 backpointer 往回走
+  const dur = [3.2, 1.6, 1.6, 1.6, 1.6, 1.6, 0.9, 0.9, 0.9, 0.9, 2.6], T = dur.reduce((a, b) => a + b, 0);
+  const kt = [0]; for (let k = 0; k < dur.length - 1; k++) kt.push(kt[k] + dur[k] / T);
+  const S = dur.map((_, k) => k);
+  const filled = (i, s) => s === 0 || s >= i + 1;
+  const lit = (i, s) => s === 0 || (s >= 6 && i >= 10 - s);
+  const g = (body, on) => `<g>${body}${ashow(S.map(on), kt, T)}</g>`;
   let o = '';
   words.forEach((w, i) => { o += text(cx(i), 20, w, 'tb', 'middle'); });
   tags.forEach((t, j) => { o += text(14, cy(j) + 5, t, 'ts'); });
   for (let i = 1; i < 5; i++) for (const t of tags) if (v[i][t] > 0) {
-    const s = bp[i][t], j0 = tags.indexOf(s), j1 = tags.indexOf(t);
-    const onPath = pathT[i] === t && pathT[i - 1] === s;
-    o += line(cx(i - 1) + bw / 2, cy(j0), cx(i) - bw / 2, cy(j1), onPath ? 'ln' : 'mute');
+    const s0 = bp[i][t], j0 = tags.indexOf(s0), j1 = tags.indexOf(t);
+    const onPath = pathT[i] === t && pathT[i - 1] === s0;
+    const ln = line(cx(i - 1) + bw / 2, cy(j0), cx(i) - bw / 2, cy(j1), 'mute');
+    o += onPath ? g(ln, (s) => filled(i, s) && !lit(i, s)) + g(line(cx(i - 1) + bw / 2, cy(j0), cx(i) - bw / 2, cy(j1), 'ln'), (s) => lit(i, s)) : g(ln, (s) => filled(i, s));
   }
   for (let i = 0; i < 5; i++) tags.forEach((t, j) => {
     const val = v[i][t];
     if (val > 0) {
-      const onPath = pathT[i] === t;
-      o += rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, onPath ? 'wash' : 'paper', 4) + (onPath ? rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'frame', 4) : '');
-      o += text(cx(i), cy(j) + 5, sci(val), onPath ? 'tb' : 'ts', 'middle');
+      const plain = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'paper', 4) + text(cx(i), cy(j) + 5, sci(val), 'ts', 'middle');
+      if (pathT[i] === t) {
+        const hot = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'wash', 4) + rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'frame', 4) + text(cx(i), cy(j) + 5, sci(val), 'tb', 'middle');
+        o += g(plain, (s) => filled(i, s) && !lit(i, s)) + g(hot, (s) => lit(i, s));
+      } else o += g(plain, (s) => filled(i, s));
     } else o += circle(cx(i), cy(j), 2, 'mute-f');
   });
+  // 正在填的那一列 / 正在回溯的那一格
+  const colX = S.map((s) => f1(s >= 1 && s <= 5 ? cx(s - 1) - bw / 2 - 6 : -200));
+  o += `<rect x="${colX[0]}" y="${cy(0) - bh / 2 - 6}" width="${bw + 12}" height="${cy(6) - cy(0) + bh + 12}" rx="6" class="ln-dash">${anim('x', colX, kt, T, true)}</rect>`;
   const jr = tags.indexOf('RB');
-  o += rect(cx(2) - bw / 2 - 4, cy(jr) - bh / 2 - 4, bw + 8, bh + 8, 'dash', 6);
-  o += text(cx(2), cy(6) + 26, 'back 这一列最大的是 RB', 'ts', 'middle');
-  o += text(280, cy(6) + 50, `最优路径 ${pathT.join(' → ')}，probability ${sci(v[4][last])}`, 't', 'middle');
-  return svg(560, cy(6) + 60, o, 'Viterbi trellis：Janet will back the bill 每个位置每个 tag 的最优前缀 probability，最优路径是 NNP MD VB DT NN；back 处 RB 的值最大却不在最优路径上');
+  o += g(rect(cx(2) - bw / 2 - 4, cy(jr) - bh / 2 - 4, bw + 8, bh + 8, 'dash', 6) + text(cx(2), cy(6) + 26, 'back 这一列最大的是 RB', 'ts', 'middle'), (s) => s === 0 || s >= 8);
+  const Y = cy(6) + 50;
+  o += g(text(280, Y, `最优路径 ${pathT.join(' → ')}，probability ${sci(v[4][last])}`, 't', 'middle'), (s) => s === 0 || s === 10);
+  o += g(text(280, Y, '第 1 列：v = a(&lt;s&gt;, tag) × b(tag, Janet)', 'tl', 'middle'), (s) => s === 1);
+  for (let i = 1; i < 5; i++) o += g(text(280, Y, `第 ${i + 1} 列（${words[i]}）：每格从前一列挑 v × a 最大的那格（灰线），再乘 b`, 'tl', 'middle'), (s) => s === i + 1);
+  o += g(text(280, Y, '从最后一列最大的格子出发，沿灰线往回走', 'tl', 'middle'), (s) => s >= 6 && s <= 9);
+  return svgA(560, cy(6) + 60, o, '动图：Viterbi trellis，Janet will back the bill。先一列一列填出每个 tag 的最优前缀 probability，每格连回前一列的 backpointer；再从最后一列最大的 NN 沿 backpointer 往回走，得到 NNP MD VB DT NN；back 处 RB 的值最大却不在最优路径上');
 }
 
 // encoder-decoder 的 bottleneck 与 attention
@@ -452,6 +515,7 @@ export default {
   'cs4248-bpe': bpe,
   'cs4248-bpeencode': bpeencode,
   'cs4248-bigram': bigram,
+  'cs4248-zero': zero,
   'cs4248-witch': witch,
   'cs4248-laplace': laplace,
   'cs4248-sgns': sgns,

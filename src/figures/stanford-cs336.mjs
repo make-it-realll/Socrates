@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 // 第 1 站：合并 (s, t) 时只改写两个 pre-token、只改三个 pair count
 function bpeindex() {
@@ -148,25 +148,48 @@ function roofline() {
 // 第 5 站：FlashAttention-2 forward 的 tiling
 function flash() {
   const n = 4, s = 42, gx = 150, gy = 62;
+  // Q₂ 这一行用正文 online softmax 的例子：score (1, 2, 3, 0)，value (10, 20, 30, 40)，每块 1 个 key
+  const sc = [1, 2, 3, 0], vv = [10, 20, 30, 40], acc = [];
+  let m = -Infinity, l = 0, O = 0;
+  for (let j = 0; j < n; j++) { const m2 = Math.max(m, sc[j]), f = m === -Infinity ? 0 : Math.exp(m - m2); l = f * l + Math.exp(sc[j] - m2); O = f * O + Math.exp(sc[j] - m2) * vv[j]; m = m2; acc.push([m, l, O]); }
+  // 帧 p：0 = 四块都处理完（静态图）；1 = 开始；2..5 = 处理 K₁…K₄；6 = 输出
+  const dur = [3.2, 1.2, 1.7, 1.7, 1.7, 1.7, 2.2], T = dur.reduce((a, b) => a + b, 0);
+  const kt = [0]; for (let k = 0; k < dur.length - 1; k++) kt.push(kt[k] + dur[k] / T);
+  const P = dur.map((_, k) => k);
+  const g = (body, on) => `<g>${body}${ashow(P.map(on), kt, T)}</g>`;
+  const cur = (p) => (p >= 2 && p <= 5 ? p - 2 : -1);              // 正在处理的 j
+  const done = (j, p) => p === 0 || p === 6 || (p >= 2 && j < p - 2);
   let o = '';
-  // K^T 横条
-  for (let j = 0; j < n; j++) o += rect(gx + j * s + 2, 24, s - 4, 26, j === 2 ? 'solid' : 'wash2', 3) + text(gx + j * s + s / 2, 42, 'K' + '₁₂₃₄'[j], j === 2 ? 'tw' : 'ts', 'middle');
-  o += text(gx - 8, 42, 'Kᵀ', 'ts', 'end');
-  // Q 竖条
-  for (let i = 0; i < n; i++) o += rect(96, gy + i * s + 2, 40, s - 4, i === 1 ? 'wash-strong' : 'wash2', 3) + text(116, gy + i * s + s / 2 + 5, 'Q' + '₁₂₃₄'[i], 't', 'middle');
-  // S 网格
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-    const cls = i === 1 && j === 2 ? 'solid' : i === 1 ? 'wash' : 'paper';
-    o += rect(gx + j * s + 1, gy + i * s + 1, s - 2, s - 2, cls, 2);
+  for (let j = 0; j < n; j++) {
+    const x = gx + j * s + 2, lab = 'K' + '₁₂₃₄'[j];
+    o += rect(x, 24, s - 4, 26, 'wash2', 3) + text(x + s / 2 - 2, 42, lab, 'ts', 'middle');
+    o += g(rect(x, 24, s - 4, 26, 'solid', 3) + text(x + s / 2 - 2, 42, lab, 'tw', 'middle'), (p) => cur(p) === j);
   }
-  o += text(gx + 2 * s + s / 2, gy + s + s / 2 + 5, 'S', 'tw', 'middle');
-  o += arrow(gx + 4, gy + s + 36, gx + n * s - 4, gy + s + 36, 'ln');
-  o += text(gx + (n * s) / 2, gy + n * s + 20, '对 Q₂ 这一行，j = 1 … 4 依次处理', 'ts', 'middle');
+  o += text(gx - 8, 42, 'Kᵀ', 'ts', 'end');
+  for (let i = 0; i < n; i++) o += rect(96, gy + i * s + 2, 40, s - 4, i === 1 ? 'wash-strong' : 'wash2', 3) + text(116, gy + i * s + s / 2 + 5, 'Q' + '₁₂₃₄'[i], 't', 'middle');
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const x = gx + j * s + 1, y = gy + i * s + 1;
+    o += rect(x, y, s - 2, s - 2, 'paper', 2);
+    if (i === 1) {
+      o += g(rect(x, y, s - 2, s - 2, 'wash', 2) + text(x + s / 2 - 1, y + s / 2 + 4, 's = ' + sc[j], 'ts', 'middle'), (p) => done(j, p));
+      o += g(rect(x, y, s - 2, s - 2, 'solid', 2) + text(x + s / 2 - 1, y + s / 2 + 4, 's = ' + sc[j], 'tw', 'middle'), (p) => cur(p) === j);
+    }
+  }
+  o += text(gx + (n * s) / 2, gy + n * s + 20, 'Q₂ 这一行：j = 1 … 4 依次读入 Kⱼ、Vⱼ', 'ts', 'middle');
+  // 累加量的读数
+  const Y = gy + n * s + 46, f2 = (v) => v.toFixed(v >= 10 ? 2 : 3);
+  o += g(text(gx + (n * s) / 2, Y, '开始：m = −∞，l = 0，O = 0', 't', 'middle'), (p) => p === 1);
+  for (let j = 0; j < n; j++) {
+    const [mm, ll, OO] = acc[j];
+    o += g(text(gx + (n * s) / 2, Y, `读完 K${'₁₂₃₄'[j]}：m = ${mm}，l = ${f2(ll)}，O = ${f2(OO)}`, 'tl', 'middle'), (p) => cur(p) === j);
+  }
+  o += g(text(gx + (n * s) / 2, Y, `m = 3，l = ${f2(acc[3][1])}，O = ${f2(acc[3][2])}；输出 O / l = ${(acc[3][2] / acc[3][1]).toFixed(2)}`, 'tl', 'middle'), (p) => p === 0 || p === 6);
+  o += text(gx + (n * s) / 2, Y + 20, '（score 和 value 取上面 online softmax 的例子，每块 1 个 key）', 'ts', 'middle');
   // SRAM 与 HBM
   o += rect(350, 24, 196, 136, 'wash', 6) + text(360, 44, 'SRAM', 'tb') + text(360, 62, '每个 program instance 一份', 'ts');
   o += text(360, 84, 'Q₂、当前的 Kⱼ 与 Vⱼ', 't') + text(360, 104, 'S 的一小块', 't') + text(360, 124, 'm、l、O₂ 的累加量（fp32）', 't') + text(360, 146, '用完即丢，不写回 HBM', 'ts');
   o += rect(350, 176, 196, 70, 'paper', 6) + text(360, 196, 'HBM', 'tb') + text(360, 216, '读 Q、K、V', 't') + text(360, 236, '只写 O 和每行一个 L', 't');
-  return svg(560, 262, o, 'FlashAttention-2 forward：每个 program instance 负责一块 query，沿 key 方向依次读入每块 K 和 V，在 SRAM 里算出 S 的一小块并更新累加量，T 乘 T 的 matrix 从不写入 HBM');
+  return svgA(560, Y + 30, o, '动图：FlashAttention-2 forward。负责 Q2 这一块 query 的 program instance 依次读入 K1 到 K4，每次只在 SRAM 里算 S 的一小块，并更新 m、l、O；读完四块后 m 为 3，l 为 1.553，O 为 40.70，输出 26.21。T 乘 T 的 matrix 从不写入 HBM');
 }
 
 // 第 6 站：ZeRO 各级在 8 块卡上每个 parameter 每块卡占的 byte
@@ -198,22 +221,36 @@ function zero() {
 // 第 6 站：4 个 stage、4 个 microbatch 的 pipeline schedule
 function pipe() {
   const p = 4, m = 4, slots = 2 * (m + p - 1), x0 = 70, w = 33, h = 30, y0 = 34;
+  // 帧：先停在画满的样子（静态图），再从空的开始一格一格往右走
+  const R = [slots, 0]; const ts = [0, 3.2];
+  for (let t = 1; t <= slots; t++) { R.push(t); ts.push(3.2 + 0.9 + 0.55 * (t - 1)); }
+  const T = ts[ts.length - 1] + 2.2, kt = ts.map((t) => t / T);
+  const g = (body, on) => `<g>${body}${ashow(R.map(on), kt, T)}</g>`;
+  const busy = Array.from({ length: slots }, () => 0);
   let o = '';
   for (let s = 1; s <= p; s++) {
     const y = y0 + (s - 1) * (h + 6);
     o += text(x0 - 8, y + 20, 'GPU ' + s, 'ts', 'end');
-    for (let t = 0; t < slots; t++) o += rect(x0 + t * w + 1, y, w - 2, h, 'wash2', 2);
+    const work = {};
     for (let k = 1; k <= m; k++) {
       const tf = s - 1 + k - 1, tb = m + p - 1 + (p - s) + (m - k);
-      o += rect(x0 + tf * w + 1, y, w - 2, h, 'wash-strong', 2) + text(x0 + tf * w + w / 2, y + 20, 'F' + k, 't', 'middle');
-      o += rect(x0 + tb * w + 1, y, w - 2, h, 'solid', 2) + text(x0 + tb * w + w / 2, y + 20, 'B' + k, 'tw', 'middle');
+      work[tf] = rect(x0 + tf * w + 1, y, w - 2, h, 'wash-strong', 2) + text(x0 + tf * w + w / 2, y + 20, 'F' + k, 't', 'middle');
+      work[tb] = rect(x0 + tb * w + 1, y, w - 2, h, 'solid', 2) + text(x0 + tb * w + w / 2, y + 20, 'B' + k, 'tw', 'middle');
+      busy[tf]++; busy[tb]++;
+    }
+    for (let t = 0; t < slots; t++) {
+      o += rect(x0 + t * w + 1, y, w - 2, h, 'paper', 2);
+      o += g(work[t] || rect(x0 + t * w + 1, y, w - 2, h, 'wash2', 2), (r) => r > t);
     }
   }
+  const cx = R.map((r) => f1(x0 + r * w));
+  o += `<line x1="${cx[0]}" y1="${y0 - 6}" x2="${cx[0]}" y2="${y0 + p * (h + 6)}" class="ln">${anim('x1', cx, kt, T, true)}${anim('x2', cx, kt, T, true)}</line>`;
   const yb = y0 + p * (h + 6) + 6;
   o += arrow(x0, yb, x0 + slots * w, yb, 'mute') + text(x0 + slots * w, yb + 16, 'time', 'ts', 'end');
   o += text(x0, 20, 'F：forward；B：backward；灰色：bubble（这里设 forward 与 backward 一样长）', 'ts');
-  o += text(x0, yb + 34, '每块卡 14 格里有 8 格在算：m / (m + p − 1) = 4 / 7', 'ts');
-  return svg(560, 228, o, '4 个 stage 和 4 个 microbatch 的 pipeline schedule：forward 依次流过 4 块卡，backward 反向流回，每块卡在 14 个时间格里只有 8 格在计算，其余是 bubble');
+  o += g(text(x0, yb + 34, '每块卡 14 格里有 8 格在算：m / (m + p − 1) = 4 / 7', 'ts'), (r) => r === slots);
+  for (let t = 1; t < slots; t++) o += g(text(x0, yb + 34, `第 ${t} 格：${busy[t - 1]} 块卡在算，${p - busy[t - 1]} 块在等`, busy[t - 1] < p ? 'tl' : 't'), (r) => r === t);
+  return svgA(560, 228, o, '动图：4 个 stage 和 4 个 microbatch 的 pipeline schedule 一格一格展开：forward 依次流过 4 块卡，backward 反向流回，开头和中间每块卡都有空等的 bubble，每块卡在 14 个时间格里只有 8 格在计算');
 }
 
 // 第 7 站：A3 的 IsoFLOP 数据与拟合
@@ -471,33 +508,43 @@ function online() {
 // 第 6 站：ring all-gather，N = 4
 function ring() {
   const N = 4, names = ['A', 'B', 'C', 'D'];
+  const C = [[150, 78], [410, 78], [410, 222], [150, 222]], bw = 120, bh = 50; // GPU 0..3 顺时针排成一圈
+  const acq = (g, c) => (g - c + N) % N;  // chunk c 在第几步到达 GPU g（0 = 本来就有）
+  // 阶段 p：0 = 全部完成（静态图）；1 = 开始；然后每一步 k 两个阶段：传送中（2k）、到达（2k+1）；最后回到完成
+  const dur = [3.4, 1.4, 0.9, 1.0, 0.9, 1.0, 0.9, 1.6], T = dur.reduce((a, b) => a + b, 0);
+  const kt = [0]; for (let k = 0; k < dur.length - 1; k++) kt.push(kt[k] + dur[k] / T);
+  const Pp = dur.map((_, k) => k);
+  const g = (body, on) => `<g>${body}${ashow(Pp.map(on), kt, T)}</g>`;
+  const owned = (gg, c, p) => p === 0 || (p === 1 ? c === gg : acq(gg, c) <= (p % 2 === 1 ? (p - 1) / 2 : p / 2 - 1));
+  const fresh = (gg, c, p) => p >= 3 && p % 2 === 1 && acq(gg, c) === (p - 1) / 2 && acq(gg, c) > 0;
   let o = '';
-  const gx = (g) => 110 + g * 118, rowY = (k) => 40 + k * 62;
-  for (let g = 0; g < N; g++) o += text(gx(g) + 40, 22, 'GPU ' + g, 'tb', 'middle');
-  let have = Array.from({ length: N }, (_, g) => new Set([g]));
-  for (let k = 0; k < N; k++) {
-    const y = rowY(k);
-    o += text(16, y + 22, k === 0 ? '开始' : `第 ${k} 步后`, 't');
-    let fresh = Array.from({ length: N }, () => -1);
-    if (k > 0) {
-      const nh = have.map((h) => new Set(h));
-      for (let g = 0; g < N; g++) { const c = (g - (k - 1) + N) % N, to = (g + 1) % N; nh[to].add(c); fresh[to] = c; }
-      have = nh;
+  // ring 上的四条 link
+  const edge = (a, b) => { const [x1, y1] = C[a], [x2, y2] = C[b]; if (y1 === y2) { const sg = Math.sign(x2 - x1); return [x1 + sg * (bw / 2 + 6), y1, x2 - sg * (bw / 2 + 6), y2]; } const sg = Math.sign(y2 - y1); return [x1, y1 + sg * (bh / 2 + 6), x2, y2 - sg * (bh / 2 + 6)]; };
+  for (let a = 0; a < N; a++) { const [x1, y1, x2, y2] = edge(a, (a + 1) % N); o += arrow(x1, y1, x2, y2, 'mute'); }
+  C.forEach(([x, y], gg) => {
+    o += rect(x - bw / 2, y - bh / 2, bw, bh, 'paper', 6) + text(x, gg < 2 ? y - bh / 2 - 8 : y + bh / 2 + 20, 'GPU ' + gg, 'tb', 'middle');
+    for (let c = 0; c < N; c++) {
+      const sx = x - bw / 2 + 10 + c * 26, sy = y - 13;
+      o += rect(sx, sy, 22, 26, 'wash2', 2);
+      o += g(rect(sx, sy, 22, 26, 'wash', 2) + text(sx + 11, sy + 18, names[c], 't', 'middle'), (p) => owned(gg, c, p) && !fresh(gg, c, p));
+      o += g(rect(sx, sy, 22, 26, 'solid', 2) + text(sx + 11, sy + 18, names[c], 'tw', 'middle'), (p) => fresh(gg, c, p));
     }
-    for (let g = 0; g < N; g++) {
-      for (let c = 0; c < N; c++) {
-        const own = have[g].has(c), x = gx(g) + c * 20;
-        o += rect(x, y + 8, 18, 22, own ? (fresh[g] === c ? 'solid' : 'wash') : 'paper', 2);
-        if (own) o += text(x + 9, y + 24, names[c], fresh[g] === c ? 'tw' : 't', 'middle');
-      }
-    }
-    if (k > 0) for (let g = 0; g < N - 1; g++) o += arrow(gx(g) + 82, y - 4, gx(g + 1) - 2, y - 4, 'mute');
-    if (k > 0) o += text(gx(N - 1) + 40, y - 8, '→ GPU 0', 'ts', 'start');
+  });
+  // 传送中的 packet：第 k 步，GPU gg 把 chunk (gg − (k − 1)) 传给 gg + 1
+  for (let k = 1; k < N; k++) for (let gg = 0; gg < N; gg++) {
+    const c = (gg - (k - 1) + N) % N, [x1, y1, x2, y2] = edge(gg, (gg + 1) % N);
+    const t0 = kt[2 * k], t1 = kt[2 * k + 1];
+    const xs = [x1, x1, x2, x2].map((v) => f1(v - 11)), ys = [y1, y1, y2, y2].map((v) => f1(v - 13)), kk = [0, t0, t1, 1];
+    const on = [0, 1, 0, 0];
+    o += `<g>${ashow(on, kk, T)}<rect x="${xs[0]}" y="${ys[0]}" width="22" height="26" rx="2" class="solid">${anim('x', xs, kk, T)}${anim('y', ys, kk, T)}</rect><text x="${f1(x1)}" y="${f1(y1 + 5)}" class="tw" text-anchor="middle">${names[c]}${anim('x', [x1, x1, x2, x2].map(f1), kk, T)}${anim('y', [y1, y1, y2, y2].map((v) => f1(v + 5)), kk, T)}</text></g>`;
   }
-  const yb = rowY(N) + 4;
-  o += text(280, yb, '每一步每块卡把上一步收到的那一段（S/N）传给右边，GPU 3 传回 GPU 0；深色是这一步刚收到的。', 'ts', 'middle');
-  o += text(280, yb + 18, 'N − 1 = 3 步之后人人都有 A、B、C、D，每块卡一共发了 (N − 1)/N · S。', 'ts', 'middle');
-  return svg(560, yb + 28, o, '4 块 GPU 的 ring all-gather：每步每块卡把一段传给右边，3 步之后每块卡都有全部 4 段');
+  // 状态说明
+  const X = 280, Y = 150;
+  o += g(text(X, Y - 8, '3 步之后', 'tb', 'middle') + text(X, Y + 12, '每块卡都有 A B C D', 'ts', 'middle'), (p) => p === 0 || p === 7);
+  o += g(text(X, Y - 8, '开始', 'tb', 'middle') + text(X, Y + 12, '每块卡只有自己那 1/4', 'ts', 'middle'), (p) => p === 1);
+  for (let k = 1; k < N; k++) o += g(text(X, Y - 8, `第 ${k} 步`, 'tl', 'middle') + text(X, Y + 12, k === 1 ? '把自己那段传给下一块' : '把上一步收到的传下去', 'ts', 'middle'), (p) => p === 2 * k || p === 2 * k + 1);
+  o += text(280, 286, '每一步四条 link 同时在用，每块卡每步只发 S/N；N − 1 = 3 步，每块卡一共发了 (N − 1)/N · S。', 'ts', 'middle');
+  return svgA(560, 296, o, '动图：4 块 GPU 排成一圈做 ring all-gather。开始时每块卡只有自己的一段；每一步每块卡把一段沿 ring 传给下一块，四条 link 同时在用；3 步之后每块卡都有 A、B、C、D');
 }
 
 export default {
