@@ -82,7 +82,11 @@ sources:
 
 **第二次。** 一辆车正绕地面上的点 $(2,-1)$ 以 2 rad/s 逆时针转。它的 body twist 是 $(0,0,-2,\ 2.8,4,0)$。把这六个数原样发给一个按 space frame 理解 twist 的接口，车改成绕 $(2,-1.4)$ 顺时针转。
 
+::fig[mr-twistframe] 同一个车、同一组六个数。灰色折线说明 $(2,-1.4)$ 从哪来：从 $\{b\}$ 的 origin 出发，沿 $\hat y_b$ 走 $-1.4$、再沿 $\hat x_b$ 走 2，正好到 $q$。第 2 站会把这件事算一遍。
+
 **第三次。** Mobile manipulator 的 gripper 要沿一条 reference trajectory 把方块从 $(1,0)$ 搬到 $(0,-1)$。Controller 只用 feedforward：每一步照着 reference 的 velocity 走。Gripper 开始时偏了 40° 和 0.47 m，走完 15 秒，它停在地面以下 0.25 m。
+
+::fig[mr-ffonly] Gripper 高度随时间的变化（自己写的 kinematic simulation，第 6 站会讲）。只用 feedforward 时，起点的偏差一直没被拉回来；加上 feedback 后不到 3 秒就贴上 reference。
 
 三件事分别要用到这门课的三样东西：configuration space 的 topology（第 1 站），twist 和它所在的 frame（第 2 站），以及带 feedback 的 task-space control（第 6 站）。
 
@@ -136,6 +140,8 @@ $$6(17-1-21)+9\times1+12\times3=-30+9+36=15$$
 :::wrong Grübler's formula 给出 0，mechanism 就动不了
 在一个 parallelogram four-bar 的两根竖杆中间再加一根同样长、同样竖直的杆，上下各一个 revolute joint。5 个 link，6 个 joint：$3(5-1-6)+6=0$。实际上它照样能像 parallelogram 一样平行地晃动，dof 是 1。公式假设每个 joint 的 constraint 互相独立；新加的那根杆施加的 constraint，原来的 parallelogram 本来就满足，是 redundant 的。只要三根竖杆的长度稍有不等，这个 mechanism 就真的卡死，所以这种“公式失灵”只发生在特殊的几何上，但 robot 设计里偏偏常用这种特殊几何。
 :::
+
+::fig[mr-parallel] 中间那根杆和两边一样长、一样竖直时，它要求的 motion 两边的杆本来就在做。
 
 ### 同样是两个数，形状不同
 
@@ -292,6 +298,8 @@ $$\mathcal V_b^\top\mathcal F_b=\mathcal V_a^\top\mathcal F_a=\big([\mathrm{Ad}_
 Twist 用 $[\mathrm{Ad}]$，wrench 用 $[\mathrm{Ad}]^\top$，方向还相反（换到 $\{b\}$ 用的是 $T_{ab}$）。
 
 书上 Example 3.28：手腕上装 force-torque sensor $\{f\}$，手（0.5 kg）的 center of mass 在 sensor 前方 $L_1=0.1$ m，手里握的 apple（0.1 kg）再往前 $L_2=0.15$ m。取 $g=10$。在手的 frame $\{h\}$（$\hat y_h$ 朝上）里，gravity 是 $\mathcal F_h=(0,0,0,\ 0,-5,0)$；apple 的 frame $\{a\}$ 的 $\hat z_a$ 朝下，gravity 是 $\mathcal F_a=(0,0,0,\ 0,0,1)$。Sensor 读到多少？
+
+::fig[mr-apple] 侧视图。$\{h\}$ 和 $\{f\}$ 方向相同，$\{a\}$ 的 $\hat z_a$ 朝下。
 
 $\{h\}$ 和 $\{f\}$ 方向相同，$T_{hf}$ 只有 translation $(-0.1,0,0)$（$\{f\}$ 的 origin 在 $\{h\}$ 后方 0.1）。$[\mathrm{Ad}_{T_{hf}}]^\top$ 作用在 pure force 上：force 不变，moment 变成 $p_{fh}\times f$，也就是 sensor 看到的 moment arm：
 
@@ -552,6 +560,8 @@ $$at^2+bt+c=0,\qquad a=\|B-A\|^2,\quad b=2(A-C)\cdot(B-A),\quad c=\|A-C\|^2-R^2$
 :::wrong 求出 line 和 circle 有交点，这段 segment 就碰了
 Obstacle 的 center 在 origin、radius 0.13，segment 从 $A=(0.2,0.05)$ 到 $B=(0.4,0.05)$。$a=0.04$，$b=2(0.2\times0.2+0.05\times0)=0.08$，$c=0.0425-0.0169=0.0256$。Discriminant 是 $0.0064-4\times0.04\times0.0256=0.0023>0$，line 确实穿过 circle，交点在 $x=\pm0.12$。可两个 root 是 $t=\dfrac{-0.08\pm0.048}{0.08}=-0.4,\ -1.6$，都在 $[0,1]$ 外：交点在 $A$ 的后方，segment 本身离 circle 还远。只看 discriminant 的 planner 会把这条可行的 edge 扔掉；在 PRM 里扔掉的 edge 多了，start 和 goal 就连不到一起。Sampling-based planning project 的 handout 把“忘了检查交点是否在 segment 内”列为常见错误。另一种情况也要处理：segment 整个落在 circle 里面时两个 root 一个小于 0、一个大于 1，它碰了。
 :::
+
+::fig[mr-segcircle] 只看 discriminant 会认为它碰了；看 root 落在哪里才知道没有。
 
 :::edge Revolute joint 的 distance
 在 2R arm 的 C-space 里做 RRT，nearest neighbor 用的 distance 必须按 circle 算：$\theta_1$ 从 $170^\circ$ 到 $-170^\circ$ 的距离是 20°，不是 340°。Local planner 也要沿较短的 arc 走，否则 tree 永远不会跨过 $\pm180^\circ$ 那条边，第 1 站那种“方形里不连通、torus 上连通”的问题就找不到 path。
@@ -814,6 +824,8 @@ $$\Delta x_b=\frac{0.475\sin1.234}{1.234}=0.363,\qquad\Delta y_b=\frac{0.475(1-\
 
 直接加得到的是 $(0.475,0)$，差了 0.28 m：chassis 实际走的是一段 arc，chord 比 arc 短，而且偏向转动的一侧。把同样的 $\Delta\theta$ 拆成 100 小步、每步用 exact formula，结果仍是 $(0.363,0.258)$，说明 exact formula 和 timestep 无关。Capstone 的 $\Delta t=0.01$ 很小，直接加的误差小得多，但 handout 要求按书上 13.4 节做。
 :::
+
+::fig[mr-odom] 两种算法都走了 0.475 m，exact 的那条沿 arc 走，终点偏向转动的一侧。
 
 ### Mobile manipulation：把 chassis 当作几个 joint
 

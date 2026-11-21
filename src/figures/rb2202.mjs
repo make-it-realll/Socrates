@@ -339,7 +339,168 @@ function cartline() {
   return svg(560, 292, o, '左图：2R arm 的 tip 沿离 base 0.1 m 的 straight line 走，经过 base 旁时 arm 几乎折叠；joint space straight line 对应的 tip path 远离 base。右图：joint 1 的 velocity 在 x 等于 0 处尖起，达到 5 rad/s');
 }
 
+// ---------- 开头三次事故 ----------
+const eulerZYX = (M) => [Math.atan2(M[1][0], M[0][0]) / R, Math.atan2(-M[2][0], Math.hypot(M[0][0], M[1][0])) / R, Math.atan2(M[2][1], M[2][2]) / R];
+const mul3 = (A, B) => A.map((r, i) => B[0].map((_, j) => r.reduce((s, _, k) => s + A[i][k] * B[k][j], 0)));
+const Rx3 = (a) => [[1, 0, 0], [0, Math.cos(a), -Math.sin(a)], [0, Math.sin(a), Math.cos(a)]];
+const Ry3 = (a) => [[Math.cos(a), 0, Math.sin(a)], [0, 1, 0], [-Math.sin(a), 0, Math.cos(a)]];
+function pitch88() {
+  const sx = lin(-1, 1, 80, 380), sy = lin(-35, 95, 250, 30);
+  let o = axes({ sx, sy, x0: -1, x1: 1, y0: -35, y1: 95, xt: [[-1, '−1°'], [-0.5, '−0.5°'], [0, '0'], [0.5, '0.5°'], [1, '1°']], yt: [[-30, '−30°'], [0, '0'], [30, '30°'], [60, '60°'], [90, '90°']], xAt: -35, grid: true, xl: 'wrist 真实转过的 angle' });
+  const ser = (k, cls) => { const pts = []; for (let i = 0; i <= 200; i++) { const e = -1 + 2 * i / 200; pts.push([sx(e), sy(eulerZYX(mul3(Rx3(e * R), Ry3(88 * R)))[k])]); } return [path(d(pts), cls), pts]; };
+  const [pb] = ser(1, 'ink-b'), [pa, A] = ser(0, 'ln'), [pg] = ser(2, 'ln-dash');
+  o += pb + pg + pa;
+  const a0 = eulerZYX(mul3(Rx3(-1 * R), Ry3(88 * R)))[0], a1 = eulerZYX(mul3(Rx3(1 * R), Ry3(88 * R)))[0];
+  o += text(392, sy(88) + 4, 'pitch ≈ 88°', 'tb', 'start');
+  o += text(392, A[200][1] - 4, 'yaw ' + a1.toFixed(1) + '°', 'tl', 'start') + text(392, A[200][1] + 12, 'roll（虚线）几乎相同', 'ts', 'start');
+  o += text(392, A[0][1] + 4, '起点 ' + a0.toFixed(1).replace('-', '−') + '°', 'ts', 'start');
+  o += line(380, A[0][1], 388, A[0][1], 'mute');
+  return svg(560, 296, o, 'Pitch 在 88 度附近时，wrist 真实转动 2 度，读出的 yaw 和 roll 各从负 26.6 度变到正 26.6 度');
+}
+function stretch() {
+  const u = 105;
+  let o = '';
+  const panel = (x0, t2d, title) => {
+    const t2 = t2d * R, t1 = -t2 / 2, P = ([x, y]) => [x0 + x * u, 112 - y * u];
+    const e = [Math.cos(t1), Math.sin(t1)], tip = fk2(t1, t2);
+    let q = text(x0 + 110, 24, title, 'tb', 'middle');
+    q += line(x0 - 6, 112, x0 + 2.05 * u, 112, 'grid');
+    q += arm([[0, 0], e, tip], P);
+    const T = P(tip);
+    q += arrow(T[0], T[1], T[0] + 40, T[1], 'ln') + text(T[0] + 20, T[1] - 9, '0.1 m/s', 'tl', 'middle');
+    const rate = 0.1 / Math.sin(t2 / 2) / R;
+    q += text(x0 + 110, 228, 'joint 2 要 ' + rate.toFixed(rate < 20 ? 1 : 0) + '°/s', 'tb', 'middle');
+    return [q, P(e)];
+  };
+  const [a, E1] = panel(30, 90, 'elbow 弯 90°'), [b, E2] = panel(300, 2, 'elbow 只差 2° 伸直');
+  o += a + b;
+  o += text(E1[0], E1[1] + 22, 'θ₂ = 90°', 'ts', 'middle') + text(E2[0], E2[1] + 22, 'θ₂ = 2°', 'ts', 'middle');
+  o += text(280, 258, 'tip 沿 base 到 tip 的方向往外伸；要的 tip velocity 一样，joint velocity 差了四十倍。', 'ts', 'middle');
+  return svg(560, 270, o, '2R arm 两个姿态：elbow 弯 90 度时 joint 2 只需 8.1 度每秒，elbow 差 2 度伸直时需要 328 度每秒');
+}
+function ikjump() {
+  const u = 135, P = ([x, y]) => [70 + x * u, 200 - y * u];
+  let o = '';
+  const r = Math.SQRT2, arc = [];
+  for (let k = 0; k <= 40; k++) { const a = (25 + 25 * k / 40) * R; arc.push(P([r * Math.cos(a), r * Math.sin(a)])); }
+  o += path(d(arc), 'mute') + text(arc[0][0] + 6, arc[0][1] + 4, 'radius √2 的 arc', 'ts', 'start');
+  // seed
+  const s1 = 0, s2 = 30 * R;
+  o += path(d([[0, 0], [1, 0], fk2(s1, s2)].map(P)), 'dash') + text(P(fk2(s1, s2))[0] + 6, P(fk2(s1, s2))[1] + 16, 'seed (0°, 30°)', 'ts', 'start');
+  const A = [-5.5 * R, 90 * R], B = [85 * R, -90 * R];
+  o += arm([[0, 0], [Math.cos(A[0]), Math.sin(A[0])], fk2(...A)], P, 'ink-b');
+  o += arm([[0, 0], [Math.cos(B[0]), Math.sin(B[0])], fk2(...B)], P, 'ln');
+  const tA = fk2(...A), tB = fk2(...B), gap = Math.hypot(tA[0] - tB[0], tA[1] - tB[1]);
+  o += line(P(tA)[0] + 4, P(tA)[1] - 3, P(tA)[0] + 26, P(tA)[1] - 20, 'mute') + text(P(tA)[0] + 30, P(tA)[1] - 22, '两个目标相距 ' + (gap * 100).toFixed(1) + ' cm', 'tb', 'start');
+  const e1 = P([Math.cos(A[0]), Math.sin(A[0])]), e2 = P([Math.cos(B[0]), Math.sin(B[0])]);
+  o += text(e1[0] + 8, e1[1] + 18, 'polar 39.5° → (−5.5°, 90°)', 't', 'start');
+  o += text(e2[0] - 4, e2[1] - 12, 'polar 40° → (85°, −90°)', 'tl', 'start');
+  o += circle(...P([0, 0]), 5, 'paper') + text(P([0, 0])[0], P([0, 0])[1] + 22, 'base', 'ts', 'middle');
+  o += text(280, 258, '同一个 seed 出发做 Newton IK：目标挪了一点，解从 elbow-up 跳到 elbow-down。', 'ts', 'middle');
+  return svg(560, 270, o, 'radius 根号 2 的 arc 上两个相距 1.2 cm 的目标，从同一个 seed 做 Newton IK 得到两组完全不同的 joint angle');
+}
+
+// ---------- 第 1 站 :::wrong：quaternion 中点走哪条路 ----------
+function slerpsign() {
+  const c = [200, 150], r = 100, P = (a) => [c[0] + r * Math.cos(a * R), c[1] - r * Math.sin(a * R)];
+  let o = circle(c[0], c[1], r, 'grid') + circle(c[0], c[1], 3, 'ink-f');
+  const arcp = (a0, a1, rr) => { const pts = []; for (let k = 0; k <= 80; k++) { const a = (a0 + (a1 - a0) * k / 80) * R; pts.push([c[0] + rr * Math.cos(a), c[1] - rr * Math.sin(a)]); } return pts; };
+  // 长路：170° 经 0° 到 −170°（顺时针 340°）
+  const long = arcp(170, -170, r - 16);
+  o += path(d(long), 'dash'); const le = long[80], l0 = long[77]; o += arrow(l0[0], l0[1], le[0], le[1], 'ink');
+  // 短路：170° 经 180° 到 190°
+  const short = arcp(170, 190, r + 14);
+  o += path(d(short), 'ln'); const se = short[80], s0 = short[76]; o += arrow(s0[0], s0[1], se[0], se[1], 'ln');
+  for (const [a, lab] of [[170, '170°'], [-170, '−170°']]) { const p = P(a); o += line(c[0], c[1], p[0], p[1], 'ink') + circle(p[0], p[1], 4, 'ink-f') + text(c[0] + (r + 30) * Math.cos(a * R), c[1] - (r + 30) * Math.sin(a * R) + 4, lab, 'tb', 'end'); }
+  const m0 = P(0), m1 = P(180);
+  o += circle(m0[0], m0[1], 4, 'paper') + text(m0[0] + 22, m0[1] + 4, '0°', 'ts', 'start');
+  o += circle(m1[0], m1[1], 4, 'ln-f');
+  o += text(340, 70, '直接取中点：', 't', 'start') + text(340, 88, '落在 0°，走 340°（虚线）', 'ts', 'start');
+  o += text(340, 128, '先把 q₂ 换成 −q₂：', 'tl', 'start') + text(340, 146, '落在 180°，走 20°（彩色）', 'ts', 'start');
+  o += text(340, 186, 'q₁ · q₂ = −0.985 < 0', 'ts', 'start') + text(340, 202, '就要先翻 sign', 'ts', 'start');
+  o += text(c[0], 284, '俯视 gripper 绕 ẑ 的 yaw', 'ts', 'middle');
+  return svg(560, 296, o, 'Gripper 从 170 度转到负 170 度：直接对 quaternion 取中点会经过 0 度绕 340 度；先翻转 q2 的 sign，经过 180 度只走 20 度');
+}
+
+// ---------- 第 2 站：左乘与右乘 ----------
+function tfmove() {
+  const p = [0.616, 1.799], ph = 60;
+  let o = '';
+  // (a) Trans(0.1, 0)
+  const u = 900, A = ([x, y]) => [120 + (x - p[0]) * u, 190 - (y - p[1]) * u];
+  o += text(140, 24, '(a) 沿 x̂ 移动 0.1 m', 'tb', 'middle');
+  o += arrow(...A(p), A(p)[0] + 30 * Math.cos((ph + 90) * R), A(p)[1] - 30 * Math.sin((ph + 90) * R), 'mute') + text(A(p)[0] + 34 * Math.cos((ph + 90) * R) - 4, A(p)[1] - 34 * Math.sin((ph + 90) * R), 'ŷₑ', 'ts', 'end') + circle(...A(p), 4, 'ink-f');
+  o += text(A(p)[0] - 10, A(p)[1] + 18, '(0.616, 1.799)', 'ts', 'end');
+  const rB = [p[0] + 0.1 * Math.cos(ph * R), p[1] + 0.1 * Math.sin(ph * R)], rS = [p[0] + 0.1, p[1]];
+  o += arrow(...A(p), ...A(rB), 'ln') + circle(...A(rB), 4, 'ln-f') + text(A(rB)[0] - 8, A(rB)[1] - 20, 'T·Trans（沿 x̂ₑ）', 'tl', 'end') + text(A(rB)[0] - 8, A(rB)[1] - 5, '(0.666, 1.886)', 'tl', 'end');
+  o += arrow(...A(p), ...A(rS), 'ink') + circle(...A(rS), 4, 'ink-f') + text(A(rS)[0] - 6, A(rS)[1] + 20, 'Trans·T：(0.716, 1.799)', 't', 'middle');
+  o += arrow(190, 236, 222, 236, 'mute') + text(226, 240, 'x̂ₛ', 'ts', 'start');
+  // (b) Rot(90°)
+  const v = 55, B = ([x, y]) => [450 + x * v, 196 - y * v], rot = ([x, y]) => [-y, x];
+  o += text(420, 24, '(b) 转 90°', 'tb', 'middle');
+  const J = [[0, 0], [0.866, 0.5], [0.366, 1.366], p];
+  o += path(d(J.map(B)), 'mute') + path(d(J.map(rot).map(B)), 'mute');
+  const arc = []; const r0 = Math.hypot(...p), a0 = Math.atan2(p[1], p[0]);
+  for (let k = 0; k <= 40; k++) { const a = a0 + Math.PI / 2 * k / 40; arc.push(B([r0 * Math.cos(a), r0 * Math.sin(a)])); }
+  o += path(d(arc), 'dash') + arrow(arc[37][0], arc[37][1], arc[40][0], arc[40][1], 'ink');
+  o += frameAx(B(p), 150 * R, 30, 'ln', '', '') + circle(...B(p), 4, 'ln-f');
+  o += text(B(p)[0] + 10, B(p)[1] - 2, 'T·Rot', 'tl', 'start') + text(B(p)[0] + 10, B(p)[1] + 14, '原地转', 'tl', 'start');
+  const q = rot(p);
+  o += frameAx(B(q), 150 * R, 30, 'ink', '', '') + circle(...B(q), 4, 'ink-f');
+  o += line(B(q)[0], B(q)[1] + 6, B(q)[0] - 16, B(q)[1] + 52, 'mute') + text(B(q)[0] - 20, B(q)[1] + 66, 'Rot·T：(−1.799, 0.616)', 't', 'middle');
+  o += circle(...B([0, 0]), 4, 'paper') + text(B([0, 0])[0] + 8, B([0, 0])[1] + 16, 'base', 'ts', 'start');
+  o += text(280, 272, '灰线是 arm。右乘的 transform 在 gripper frame 里描述，左乘的在 base frame 里描述。', 'ts', 'middle');
+  return svg(560, 284, o, '左：右乘 Trans 沿 gripper 的 x 轴走，左乘沿 base 的 x 轴走。右：右乘 Rot 让 gripper 原地转，左乘让整条 arm 绕 base 转到 (-1.799, 0.616)');
+}
+
+// ---------- 第 4 站：statics 的 moment arm ----------
+function statics() {
+  const u = 150, P = ([x, y]) => [130 + x * u, 290 - y * u];
+  const t1 = 30 * R, t2 = 90 * R, e = [Math.cos(t1), Math.sin(t1)], tip = fk2(t1, t2), F = 10;
+  let o = line(...P([-0.4, 0]), ...P([1.2, 0]), 'grid');
+  o += arm([[0, 0], e, tip], P);
+  const T = P(tip);
+  o += arrow(T[0], T[1], T[0], T[1] - 60, 'ln') + text(T[0] + 8, T[1] - 50, 'F = (0, 10) N', 'tl', 'start');
+  o += line(T[0], T[1], T[0], P([0, -0.24])[1], 'dash');
+  const y1 = -0.18, y2 = -0.18;
+  const dim = (xa, xb, y, lab) => line(...P([xa, y]), ...P([xb, y]), 'ink') + line(P([xa, y])[0], P([xa, y])[1] - 5, P([xa, y])[0], P([xa, y])[1] + 5, 'ink') + line(P([xb, y])[0], P([xb, y])[1] - 5, P([xb, y])[0], P([xb, y])[1] + 5, 'ink') + text((P([xa, y])[0] + P([xb, y])[0]) / 2, P([xa, y])[1] + 16, lab, 'ts', 'middle');
+  o += line(...P([0, 0]), ...P([0, y1 - 0.06]), 'mute') + line(...P(e), ...P([e[0], y2 - 0.06]), 'mute');
+  o += dim(0, tip[0], y1, tip[0].toFixed(3) + ' m');
+  o += dim(tip[0], e[0], y2, (e[0] - tip[0]).toFixed(1) + ' m');
+  o += text(P([0, 0])[0] - 10, P([0, 0])[1] + 4, 'joint 1', 'ts', 'end') + text(P(e)[0] + 10, P(e)[1] + 4, 'joint 2', 'ts', 'start');
+  o += text(370, 170, 'τ₁ = +' + (tip[0] * F).toFixed(2) + ' N·m', 'tb', 'start') + text(370, 188, 'tip 在 joint 1 右边', 'ts', 'start');
+  o += text(370, 226, 'τ₂ = ' + ((tip[0] - e[0]) * F).toFixed(1).replace('-', '−') + ' N·m', 'tb', 'start') + text(370, 244, 'tip 在 joint 2 左边', 'ts', 'start');
+  return svg(560, 344, o, '2R arm 在 (30°, 90°) 托住 10 N：force 的作用线离 joint 1 有 0.366 m，离 joint 2 有 0.5 m，得 τ = (3.66, −5.0)');
+}
+
+// ---------- 第 7 站：via point 的两种 velocity ----------
+function via() {
+  const seg = (b0, v0, b1, v1, T) => [b0, v0, (3 * (b1 - b0) - (2 * v0 + v1) * T) / T ** 2, (-2 * (b1 - b0) + (v0 + v1) * T) / T ** 3];
+  const make = (v) => { const c1 = seg(0, 0, 60, v, 1), c2 = seg(60, v, 90, 0, 1); return { pos: (t) => { const [c, s] = t <= 1 ? [c1, t] : [c2, t - 1]; return c[0] + c[1] * s + c[2] * s * s + c[3] * s ** 3; }, acc: (t) => { const [c, s] = t <= 1 ? [c1, t] : [c2, t - 1]; return 2 * c[2] + 6 * c[3] * s; }, c1, c2 }; };
+  const H = make(45), S = make(67.5);
+  let o = '';
+  const sx = lin(0, 2, 60, 250), sy = lin(0, 100, 220, 50);
+  o += text(155, 24, 'θ(t)', 'tb', 'middle') + axes({ sx, sy, x0: 0, x1: 2, y0: 0, y1: 100, xt: [0, 1, 2], yt: [[0, '0'], [60, '60°'], [90, '90°']], grid: true, xl: 't (s)' });
+  o += path(curve(H.pos, 0, 2, sx, sy), 'ink') + path(curve(S.pos, 0, 2, sx, sy), 'ln-dash') + circle(sx(1), sy(60), 4, 'ink-f');
+  o += text(sx(1) + 8, sy(60) + 16, 'via (1 s, 60°)', 'ts', 'start');
+  const ax = lin(0, 2, 330, 530), ay = lin(-200, 300, 220, 50);
+  o += text(430, 24, 'acceleration（°/s²）', 'tb', 'middle') + axes({ sx: ax, sy: ay, x0: 0, x1: 2, y0: -200, y1: 300, xt: [0, 1, 2], yt: [-180, -90, 0, 135, 270].map((v) => [v, String(v).replace('-', '−')]), xl: 't (s)' }) + line(ax(0), ay(0), ax(2), ay(0), 'grid');
+  const accPath = (F) => d([[0, F.acc(0)], [1, F.acc(1)]].map(([t, a]) => [ax(t), ay(a)])) + d([[1.0000001, F.acc(1.0000001)], [2, F.acc(2)]].map(([t, a]) => [ax(t), ay(a)]));
+  o += path(accPath(H), 'ink') + path(accPath(S), 'ln-dash');
+  o += line(ax(1), ay(H.acc(1)), ax(1), ay(H.acc(1.0000001)), 'mute');
+  o += text(ax(1) + 6, ay(-165), '跳 ' + Math.round(H.acc(1.0000001) - H.acc(1)) + '°/s²', 'ts', 'start');
+  o += text(280, 284, '实线：v = 45°/s（两段平均 slope）；彩色虚线：v = 67.5°/s（cubic spline）', 'ts', 'middle');
+  return svg(560, 296, o, '同一组 via point，两种 via velocity：45 度每秒时 acceleration 在 1 秒处跳 180；67.5 度每秒时连续');
+}
+
 export default {
+  'rb2202-pitch88': pitch88,
+  'rb2202-stretch': stretch,
+  'rb2202-ikjump': ikjump,
+  'rb2202-slerpsign': slerpsign,
+  'rb2202-tfmove': tfmove,
+  'rb2202-statics': statics,
+  'rb2202-via': via,
   'rb2202-frame': frame,
   'rb2202-gimbal': gimbal,
   'rb2202-chain': chain,

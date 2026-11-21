@@ -316,7 +316,95 @@ function dist() {
   return svg(560, 272, o, 'Plant input 上加一个 step disturbance 后 position 的偏离：P control 留下 0.3 的 error，lead-lag 小一些但不为零，PID 把它拉回 0');
 }
 
+// ---------- 开头三件事 ----------
+const settle = (pts, tol = 0.02) => { let ts = 0; for (const [t, v] of pts) if (Math.abs(v - 1) > tol) ts = t; return ts; };
+function openloop() {
+  let o = '';
+  const row = (y, g, out, cls, note) => {
+    let q = text(20, y + 5, '1 rad/s', 't', 'start') + arrow(72, y, 108, y, 'ink');
+    q += rect(108, y - 20, 96, 40, 'paper', 6) + text(156, y - 2, '÷ 0.5', 't', 'middle') + text(156, y + 13, 'model', 'ts', 'middle');
+    q += arrow(204, y, 266, y, 'ink') + text(235, y - 8, '2 V', 'tb', 'middle');
+    q += rect(266, y - 20, 110, 40, cls === 'ln' ? 'wash' : 'wash2', 6) + text(321, y - 2, 'motor', 'ts', 'middle') + text(321, y + 13, 'DC gain ' + g, cls === 'ln' ? 'tl' : 't', 'middle');
+    q += arrow(376, y, 430, y, 'ink') + text(438, y + 5, (2 * g).toFixed(1) + ' rad/s', cls === 'ln' ? 'tl' : 'tb', 'start') + text(438, y + 21, note, 'ts', 'start');
+    return q;
+  };
+  o += row(46, 0.5, '', 'ink', '和 model 一样') + row(126, 0.4, '', 'ln', '少了 20%');
+  o += text(321, 96, '换了 load、发热之后', 'ts', 'middle');
+  o += text(280, 178, 'Open loop：controller 只按 model 算 voltage，不量 output，plant 变了它也不知道。', 'ts', 'middle');
+  return svg(560, 190, o, 'Open loop speed control：要 1 rad/s 就按 model 加 2 V；motor 的 DC gain 从 0.5 变成 0.4 时 speed 变成 0.8 rad/s');
+}
+function k50() {
+  const K = 50, T = 6;
+  const real = step([20 * K], padd(G0, [20 * K]), T, 6000), simp = step([K], [1, 2, K], T, 6000);
+  const sx = lin(0, T, 60, 420), sy = lin(-1, 3, 230, 30);
+  let o = axes({ sx, sy, x0: 0, x1: T, y0: -1, y1: 3, xt: [0, 1, 2, 3, 4, 5, 6], yt: [-1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), grid: true, xl: 't (s)', yl: 'position（step 的 response）' });
+  const clip = (pts) => { const out = []; for (const p of pts) { if (p[1] > 3 || p[1] < -1) break; out.push(p); } return out; };
+  o += path(plotPts(simp, sx, sy), 'ink') + path(plotPts(clip(real), sx, sy), 'ln');
+  o += text(432, 70, '真实 plant', 'tl', 'start') + text(432, 86, '20/(s(s+2)(s+20))', 'ts', 'start') + text(432, 102, 'amplitude 越来越大', 'ts', 'start');
+  o += text(432, 150, '简化 model', 'tb', 'start') + text(432, 166, '1/(s(s+2))', 'ts', 'start') + text(432, 182, '振荡但会停下', 'ts', 'start');
+  o += text(240, 270, '同一个 K = 50。', 'ts', 'middle');
+  return svg(560, 282, o, 'K=50 的 position loop：简化的 second-order model 振荡后安定，真实的 third-order plant 振荡越来越大');
+}
+function tsK() {
+  const Ks = []; for (let i = 0; i <= 400; i++) Ks.push(10 ** (2 * i / 400));
+  const ts = Ks.map((K) => [K, settle(step([K], [1, 2, K], 14, 14000))]);
+  const sx = logx(1, 100, 70, 470), sy = lin(0, 8, 220, 30);
+  let o = axes({ sx, sy, x0: 1, x1: 100, y0: 0, y1: 8, xt: [1, 2, 4, 10, 20, 50, 100], yt: [0, 2, 4, 6, 8], grid: true, xl: 'gain K（log scale）', yl: '2% settling time（s）' });
+  o += path(d(ts.map(([K, t]) => [sx(K), sy(t)])), 'ln');
+  const t4 = settle(step([4], [1, 2, 4], 14, 7000));
+  o += circle(sx(4), sy(t4), 4, 'ink-f') + text(sx(4) + 8, sy(t4) - 10, 'K = 4：' + t4.toFixed(2) + ' s', 'tb', 'start');
+  const lo = Math.min(...ts.map((x) => x[1])), hi = Math.max(...ts.map((x) => x[1]));
+  o += text(280, 274, '简化 model 上 K 从 1 加到 100，settling time 在 ' + lo.toFixed(1) + ' 到 ' + hi.toFixed(1) + ' s 之间：衰减由 Re s = −1 决定，K 改不了它。', 'ts', 'middle');
+  return svg(560, 286, o, 'P control 的 2% settling time 随 K 的变化：K 从 1 到 100，settling time 一直在 2.8 到 5.8 秒之间');
+}
+
+// ---------- 第 1 站：带 tachometer 的 inner loop ----------
+function tacho() {
+  let o = '';
+  const y0 = 64;
+  const sum = (x, y) => circle(x, y, 13, 'paper') + line(x - 6, y, x + 6, y, 'ink') + line(x, y - 6, x, y + 6, 'ink');
+  o += text(16, y0 + 5, it('r'), 'tb') + arrow(28, y0, 57, y0, 'ink') + sum(70, y0) + text(52, y0 + 26, '−', 'tb', 'middle');
+  o += arrow(83, y0, 110, y0, 'ink') + rect(110, y0 - 18, 50, 36, 'paper', 6) + text(135, y0 + 5, it('K'), 't', 'middle');
+  o += arrow(160, y0, 197, y0, 'ink') + sum(210, y0) + text(194, y0 + 26, '−', 'tb', 'middle');
+  o += arrow(223, y0, 262, y0, 'ink') + text(242, y0 - 8, it('u'), 't', 'middle');
+  o += rect(262, y0 - 20, 92, 40, 'wash', 6) + text(308, y0 + 5, '1/(' + it('s') + '+2)', 't', 'middle');
+  o += arrow(354, y0, 412, y0, 'ink') + text(383, y0 - 8, it('ω'), 't', 'middle');
+  o += rect(412, y0 - 20, 56, 40, 'wash', 6) + text(440, y0 + 5, '1/' + it('s'), 't', 'middle');
+  o += arrow(468, y0, 530, y0, 'ink') + text(536, y0 + 5, it('θ'), 'tb');
+  // inner loop：ω → k_t → 第二个 sum
+  o += circle(390, y0, 3, 'ink-f') + line(390, y0, 390, 120, 'ink') + line(390, 120, 335, 120, 'ink');
+  o += rect(275, 104, 60, 32, 'paper', 6) + text(305, 125, it('k') + '<tspan class="sub" dy="3">t</tspan><tspan dy="-3"> </tspan>', 't', 'middle');
+  o += line(275, 120, 210, 120, 'ink') + arrow(210, 120, 210, y0 + 13, 'ink');
+  o += text(312, 152, 'inner loop：tachometer 量 speed', 'ts', 'middle');
+  // outer loop：θ → 第一个 sum
+  o += circle(500, y0, 3, 'ink-f') + line(500, y0, 500, 178, 'ink') + line(500, 178, 70, 178, 'ink') + arrow(70, 178, 70, y0 + 13, 'ink');
+  o += text(130, 172, 'outer loop：position', 'ts', 'middle');
+  o += text(280, 210, 'θ/r = K /(s² + (2 + kₜ) s + K)。K = 16：kₜ = 0 时 ζ = 0.25，kₜ = 2 时 ζ = 0.5。', 'ts', 'middle');
+  return svg(560, 222, o, '带 tachometer 的 position control：outer loop 用 K 乘 position error，inner loop 用 k_t 乘量到的 speed 再减掉');
+}
+
+// ---------- 第 8 站：reference 从哪里进 ----------
+function ipd() {
+  const den = [1, 22, 192, 768, 1280], T = 3;
+  const runs = [[[20 * 7.6, 20 * 38.4, 20 * 64], 'ink', 'PID'], [[20 * 38.4, 20 * 64], 'ln-dash', 'PI-D'], [[1280], 'ln', 'I-PD']];
+  const sx = lin(0, T, 60, 420), sy = lin(0, 1.5, 230, 30);
+  let o = axes({ sx, sy, x0: 0, x1: T, y0: 0, y1: 1.5, xt: [0, 0.5, 1, 1.5, 2, 2.5, 3], yt: [0, 0.5, 1, 1.5], grid: true, xl: 't (s)' });
+  runs.forEach(([num, cls, lab], i) => {
+    const r = step(num, den, T, 3000);
+    const mp = (Math.max(...r.map((p) => p[1])) - 1) * 100;
+    o += path(plotPts(r, sx, sy, 3), cls);
+    o += line(436, 70 + i * 40, 462, 70 + i * 40, cls) + text(468, 74 + i * 40, lab, cls === 'ink' ? 'tb' : 'tl', 'start') + text(436, 92 + i * 40, 'overshoot ' + mp.toFixed(1) + '%', 'ts', 'start');
+  });
+  o += text(240, 284, '真实 plant，同一组 gain、同一组 closed-loop pole，只是 reference 进入的位置不同。', 'ts', 'middle');
+  return svg(560, 296, o, '真实 plant 上三种 structure 的 step response：PID overshoot 34%，PI-D 40%，I-PD 几乎没有 overshoot');
+}
+
 export default {
+  'ee3331c-openloop': openloop,
+  'ee3331c-k50': k50,
+  'ee3331c-tsk': tsK,
+  'ee3331c-tacho': tacho,
+  'ee3331c-ipd': ipd,
   'ee3331c-loop': loop,
   'ee3331c-sens': sens,
   'ee3331c-region': region,

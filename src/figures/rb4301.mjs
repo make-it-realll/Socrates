@@ -264,7 +264,80 @@ function vla() {
   return svg(560, 244, o, 'Image、语言指令和robot state输入一个预训练的 vision-language model；上路把 action 当作离散 token 逐个生成，下路用一个 action expert 以 flow matching 一次生成整段 action chunk');
 }
 
+// ---------- 开头三次失败 ----------
+function offdist() {
+  const eps = 0.01, T = 200, sx = lin(0, T, 60, 470), sy = lin(0, 1, 220, 40);
+  let o = axes({ sx, sy, x0: 0, x1: T, y0: 0, y1: 1, xt: [0, 50, 100, 150, 200], yt: [0, 0.25, 0.5, 0.75, 1].map((v) => [v, String(v)]), grid: true, xl: 'step t', yl: 'P(第 t 步已离开 demonstration 覆盖的 state)' });
+  const f = (t) => 1 - (1 - eps) ** t;
+  o += `<path d="${area(f, 0, T, sx, sy)}" class="wash"/>` + path(curve(f, 0, T, sx, sy), 'ln');
+  let J = 0; for (let t = 1; t <= T; t++) J += f(t);
+  o += text(sx(130), sy(0.35), '面积 = ' + J.toFixed(1) + ' 步', 'tl', 'middle');
+  o += text(sx(130), sy(0.35) + 16, '（200 步里的期望值）', 'ts', 'middle');
+  o += circle(sx(T), sy(f(T)), 3.5, 'ln-f') + text(sx(T) + 8, sy(f(T)) + 4, f(T).toFixed(2), 'tl', 'start');
+  o += text(280, 284, '每步只有 ε = 1% 的 probability 出错，但错一次之后就回不到 demonstration 里。', 'ts', 'middle');
+  return svg(560, 296, o, '每步出错 1% 时，第 t 步已经离开 demonstration 分布的概率 1-0.99^t；200 步里平均有 114 步处在没见过的 state');
+}
+function mseavoid() {
+  const cnt = [0, 1, 2, 5, 21, 24, 12, 15, 6, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 11, 16, 31, 26, 17, 5, 1, 1, 0];
+  const X = (y) => 280 + y * 105, Y = (s) => 250 - s * 210;
+  let o = rect(X(-0.5), Y(0.6), X(0.5) - X(-0.5), Y(0.4) - Y(0.6), 'wash2') + text(X(0), Y(0.5) + 4, 'obstacle', 'tb', 'middle');
+  let mean = 0, nL = 0, nR = 0;
+  cnt.forEach((c, i) => {
+    if (!c) return;
+    const yi = -1.6 + i * 0.1 + 0.05; mean += c * yi; if (yi < 0) nL += c; else nR += c;
+    const pts = []; for (let k = 0; k <= 40; k++) { const sv = k / 40; pts.push([X(yi * Math.sin(Math.PI * sv)), Y(sv)]); }
+    o += path(d(pts), 'mute');
+  });
+  mean /= nL + nR;
+  const mp = []; for (let k = 0; k <= 16; k++) { const sv = 0.4 * k / 16; mp.push([X(mean * Math.sin(Math.PI * sv)), Y(sv)]); }
+  o += path(d(mp), 'ln');
+  const hit = mp[16];
+  o += line(hit[0] - 6, hit[1] - 6, hit[0] + 6, hit[1] + 6, 'ln') + line(hit[0] - 6, hit[1] + 6, hit[0] + 6, hit[1] - 6, 'ln');
+  o += circle(X(0), Y(0), 5, 'ink-f') + text(X(0) - 24, Y(0) + 6, 'start', 'ts', 'end') + circle(X(0), Y(1), 5, 'ink-f') + text(X(0) + 10, Y(1) + 4, 'goal', 'ts', 'start');
+  o += text(X(-1.7), Y(0.5) + 4, nL + ' 条从左绕', 'tb', 'end') + text(X(1.7), Y(0.5) + 4, nR + ' 条从右绕', 'tb', 'start');
+  o += text(X(0) + 24, Y(0) + 6, '彩色：MSE policy，offset ' + mean.toFixed(3), 'tl', 'start');
+  o += text(280, 282, '俯视。灰线是 200 条 demonstration 绕过 obstacle 的路线（按 lateral offset 分组）。', 'ts', 'middle');
+  return svg(560, 294, o, '200 条 demonstration 分别从 obstacle 左右两边绕过，MSE 训练出的 policy 取平均 0.094，正对 obstacle');
+}
+function exploit() {
+  const fh = (a) => 0.999 * a - 0.031 * a * a - 0.3 * a ** 3;
+  const sx = lin(-3, 3, 60, 470), sy = lin(-2.5, 3, 230, 30);
+  let o = rect(sx(-0.5), sy(3), sx(0.5) - sx(-0.5), sy(-2.5) - sy(3), 'wash');
+  o += text(sx(0), sy(2.75), 'data', 'tl', 'middle') + text(sx(0), sy(2.75) + 14, '[−0.5, 0.5]', 'ts', 'middle');
+  o += axes({ sx, sy, x0: -3, x1: 3, y0: -2.5, y1: 3, xt: [-3, -2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), yt: [-2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), xAt: -2.5, grid: true, xl: 'action a', yl: "s′ − s" });
+  o += line(sx(-3), sy(2), sx(3), sy(2), 'dash') + text(sx(3), sy(2) - 6, '目标 +2', 'ts', 'end');
+  const lo = -3, hi = 3, clip = (f) => (a) => { const v = f(a); return v > 3 || v < -2.5 ? NaN : v; };
+  o += path(curve(clip(fh), lo, hi, sx, sy), 'ln') + path(curve(Math.tanh, lo, hi, sx, sy), 'ink-b');
+  const a = -2.5;
+  o += line(sx(a), sy(fh(a)), sx(a), sy(Math.tanh(a)), 'mute');
+  o += circle(sx(a), sy(fh(a)), 4, 'ln-f') + text(sx(a) + 8, sy(fh(a)) + 16, 'model：2.00', 'tl', 'start');
+  o += circle(sx(a), sy(Math.tanh(a)), 4, 'ink-f') + text(sx(a) + 8, sy(Math.tanh(a)) + 18, '真实：' + Math.tanh(a).toFixed(3).replace('-', '−'), 'tb', 'start');
+  o += text(sx(a), sy(-2.5) - 6, 'a = −2.5', 'ts', 'middle');
+  o += text(480, sy(Math.tanh(3)) + 4, 'tanh(a)', 'tb', 'start') + text(480, sy(fh(1.6)) + 30, 'cubic fit', 'tl', 'start');
+  return svg(560, 270, o, '真实 dynamics tanh(a) 与在 [-0.5,0.5] 上拟合的 cubic；planner 在 a=-2.5 处找到 model 预测命中 +2 的点，真实结果是 -0.987');
+}
+
+// ---------- 第 4 站：sim 里最好的 controller 到真机上 ----------
+function simgap() {
+  const N = 14;
+  const run = (c, dly) => { const x = [1]; for (let t = 0; t < N; t++) x.push(x[t] - c * (t - dly >= 0 ? x[t - dly] : 0)); return x; };
+  const runs = [[run(1, 0), 'mute', 'simulator：m = 1，d = 0，c = 1'], [run(1.25, 1), 'ln', '真机：m = 0.8，d = 1，c = 1.25'], [run(0.21 / 0.8, 1), 'ink', '真机上用 κ = 0.21：c = 0.2625']];
+  const sx = lin(0, N, 60, 400), sy = lin(-3, 3, 240, 30);
+  let o = axes({ sx, sy, x0: 0, x1: N, y0: -3, y1: 3, xt: [0, 2, 4, 6, 8, 10, 12, 14], yt: [-3, -2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), grid: true, xl: 'step t', yl: 'x_t' });
+  runs.forEach(([x, cls, lab], i) => {
+    const pts = x.map((v, t) => [t, v]).filter(([, v]) => Math.abs(v) <= 3);
+    o += path(d(pts.map(([t, v]) => [sx(t), sy(v)])), cls);
+    pts.forEach(([t, v]) => { o += circle(sx(t), sy(v), 2.8, cls === 'ln' ? 'ln-f' : cls === 'ink' ? 'ink-f' : 'mute-f'); });
+    const y0 = 60 + i * 56; o += line(410, y0, 430, y0, cls) + text(436, y0 + 4, lab.split('：')[0], cls === 'ln' ? 'tl' : 'tb', 'start') + text(410, y0 + 22, lab.split('：')[1], 'ts', 'start');
+  });
+  return svg(560, 288, o, 'x_{t+1} = x_t - c x_{t-d}：simulator 里 c=1、d=0 一步归零；真机 m=0.8、一步 latency，c=1.25 时振荡发散；改用 κ=0.21 后收敛');
+}
+
 export default {
+  'rb4301-offdist': offdist,
+  'rb4301-mseavoid': mseavoid,
+  'rb4301-exploit': exploit,
+  'rb4301-simgap': simgap,
   'rb4301-soft': soft,
   'rb4301-ens': ens,
   'rb4301-dr': dr,

@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, axes, sub } from '../lib/svg.mjs';
 
 // ---------- 共用的 model 与 simulation ----------
 // Joint J：M θ'' + b θ' + mgr cos θ = τ
@@ -393,7 +393,125 @@ function mobile() {
   return svg(560, 320, o, '左图：两种 controller 从同一个错位的起点出发，都收敛到 radius 1 米的 circle 形 reference 上。右图：offset point 取在车前时车头朝前，取在车后时 P 同样跟上 straight line 但车一路倒着开');
 }
 
+// ---------- 开头三次实验 ----------
+function three() {
+  const D = (r) => r * 180 / Math.PI;
+  let o = '';
+  const panel = (x0, title, yr, yt, series, target, notes) => {
+    const sx = lin(0, series.T, x0 + 34, x0 + 170), sy = lin(yr[0], yr[1], 212, 40);
+    let q = text(x0 + 100, 22, title, 'tb', 'middle');
+    q += axes({ sx, sy, x0: 0, x1: series.T, y0: yr[0], y1: yr[1], xt: series.xt, yt: yt.map((v) => [v, String(v).replace('-', '−') + '°']), grid: true });
+    q += line(sx(0), sy(target), sx(series.T), sy(target), 'dash');
+    for (const [pts, cls] of series.lines) q += path(d(pts.filter(([t, y]) => y >= yr[0] && y <= yr[1]).map(([t, y]) => [sx(t), sy(y)])), cls);
+    for (const [t, y, s, cls, anc] of notes) q += text(sx(t), sy(y), s, cls, anc);
+    return q;
+  };
+  const pd = jointSim({ Kp: 20, Kd: 1.9, T: 1.5 }).map((z) => [z.t, D(z.th)]);
+  const pid = jointSim({ Kp: 20, Kd: 1.9, Ki: 100, tmax: 3, T: 1.5 }).map((z) => [z.t, D(z.th)]);
+  const peak = Math.max(...pid.map(([, y]) => y));
+  o += panel(0, '① PD', [-95, 15], [-90, -45, 0], { T: 1.5, xt: [0, 0.5, 1, 1.5], lines: [[pd, 'ln']] }, 0, [[1.45, D(-0.0976) - 14, '停在 −' + Math.abs(pd[pd.length - 1][1]).toFixed(1) + '°', 'tl', 'end']]);
+  o += panel(186, '② PID，3 N·m limit', [-95, 65], [-90, -45, 0, 45], { T: 1.5, xt: [0, 0.5, 1, 1.5], lines: [[pid, 'ln']] }, 0, [[0.62, peak + 4, '冲过 ' + peak.toFixed(0) + '°', 'tl', 'start']]);
+  const s1 = sampledSim({ f: 1000, T: 1.2 }).map((z) => [z.t, D(z.th)]), s55 = sampledSim({ f: 55, T: 1.2 }).map((z) => [z.t, D(z.th)]);
+  o += panel(372, '③ 同一组 gain，55 Hz', [-10, 30], [0, 11.5, 20], { T: 1.2, xt: [0, 0.4, 0.8, 1.2], lines: [[s1, 'mute'], [s55, 'ln']] }, 11.46, [[0.6, -8, '灰线：同一组 gain，1 kHz', 'ts', 'middle']]);
+  o += text(280, 246, '横轴是 time（s），竖轴是 link angle，虚线是目标。③ 是第 3 站用的 0.2 rad step。', 'ts', 'middle');
+  return svg(560, 258, o, '三次实验的 link angle：PD 停在差 5.6 度处；PID 加 3 N·m torque limit 冲过水平 54 度；同一组 gain 在 55 Hz 下越摆越大');
+}
+function jointj() {
+  const u = 500, O = [150, 110], P = (r, a) => [O[0] + r * u * Math.cos(a), O[1] - r * u * Math.sin(a)];
+  let o = '';
+  o += rect(O[0] - 70, O[1] - 22, 52, 44, 'wash2', 4) + text(O[0] - 44, O[1] + 40, 'motor + gear', 'ts', 'middle') + text(O[0] - 44, O[1] + 55, 'N = 50', 'ts', 'middle');
+  o += line(O[0] - 18, O[1], O[0], O[1], 'ink-b');
+  const L = 0.25, ths = [[-90, 'dash', 'start −90°'], [0, 'dash', 'target 0°']];
+  for (const [a, cls, lab] of ths) { const E = P(L, a * Math.PI / 180); o += line(O[0], O[1], E[0], E[1], cls) + text(E[0] + (a ? 0 : 6), E[1] + (a ? 16 : 4), lab, 'ts', a ? 'middle' : 'start'); }
+  const th = -35 * Math.PI / 180, E = P(L, th), C = P(0.2, th);
+  o += line(O[0], O[1], E[0], E[1], 'ink-b') + circle(C[0], C[1], 8, 'solid') + circle(O[0], O[1], 5, 'paper');
+  o += text(C[0] + 14, C[1] - 22, '1 kg', 'tb', 'start') + text(C[0] + 14, C[1] - 7, 'r = 0.2 m', 'ts', 'start');
+  o += arrow(C[0], C[1] + 8, C[0], C[1] + 58, 'ln') + text(C[0] + 6, C[1] + 54, 'mg = 9.81 N', 'tl', 'start');
+  const arc = []; for (let k = 0; k <= 20; k++) { const a = th * k / 20; arc.push([O[0] + 62 * Math.cos(a), O[1] - 62 * Math.sin(a)]); }
+  o += path(d(arc), 'ink') + text(O[0] + 70, O[1] + 18, 'θ', 'tb', 'start');
+  // r = 0.2 m 标注
+  const tx = 370;
+  o += text(tx, 54, 'joint 一侧：', 'tb', 'start');
+  o += text(tx, 76, 'M = 0.05 kg·m²', 't', 'start') + text(tx, 96, 'b = 0.1 N·m·s/rad', 't', 'start');
+  o += text(tx, 116, 'gravity torque = 1.962 cos θ', 't', 'start') + text(tx, 136, '|τ| ≤ 3 N·m', 't', 'start');
+  o += text(tx, 160, 'θ 从水平量起，向上为正', 'ts', 'start');
+  return svg(560, 270, o, 'Joint J：motor 经 50:1 gear 带一节 link，1 kg 的 mass 在 0.2 m 处，θ 从水平量起；从竖直向下的 -90 度转到水平');
+}
+
+// ---------- 第 3 站：sampled 后 error 每步乘多少 ----------
+function samplede() {
+  const N = 12;
+  const nodelay = (g) => { const e = [1]; for (let k = 0; k < N; k++) e.push((1 - g) * e[k]); return e; };
+  const delay = (g) => { const e = [1, 1]; for (let k = 1; k < N; k++) e.push(e[k] - g * e[k - 1]); return e; };
+  let o = '';
+  const panel = (x0, title, runs) => {
+    const sx = lin(0, N, x0 + 34, x0 + 230), sy = lin(-2.2, 2.2, 222, 44);
+    let q = text(x0 + 132, 22, title, 'tb', 'middle');
+    q += axes({ sx, sy, x0: 0, x1: N, y0: -2.2, y1: 2.2, xt: [0, 4, 8, 12], yt: [[-2, '−2'], [-1, '−1'], [0, '0'], [1, '1'], [2, '2']], grid: true, xl: 'k' });
+    runs.forEach(([e, cls, lab, ly]) => {
+      const pts = e.map((v, k) => [k, v]).filter(([, v]) => Math.abs(v) <= 2.2);
+      q += path(d(pts.map(([k, v]) => [sx(k), sy(v)])), cls === 'ln' ? 'ln' : cls);
+      pts.forEach(([k, v]) => { q += circle(sx(k), sy(v), 2.6, cls === 'mute' ? 'mute-f' : cls === 'ink' ? 'ink-f' : 'ln-f'); });
+      q += text(x0 + 52, ly, lab, cls === 'mute' ? 'ts' : cls === 'ink' ? 't' : 'tl', 'start');
+    });
+    return q;
+  };
+  o += panel(0, '每一步 error 乘上 1 − hK' + sub('p'), [[nodelay(0.5), 'ink', 'hK' + sub('p') + ' = 0.5', 236 + 20], [nodelay(1.5), 'mute', 'hK' + sub('p') + ' = 1.5', 236 + 36], [nodelay(2.1), 'ln', 'hK' + sub('p') + ' = 2.1', 236 + 52]]);
+  o += panel(280, '多一个 sample 的 delay', [[delay(0.2), 'ink', 'hK' + sub('p') + ' = 0.2', 236 + 20], [delay(0.8), 'mute', 'hK' + sub('p') + ' = 0.8', 236 + 36], [delay(1.1), 'ln', 'hK' + sub('p') + ' = 1.1', 236 + 52]]);
+  return svg(560, 300, o, '左：没有 delay 时 error 每步乘 1-hKp，hKp 超过 2 就发散。右：多一个 sample 的 delay 后，hKp 超过 1 就发散');
+}
+
+// ---------- 第 5 站：via point 的三种 velocity ----------
+function spline3() {
+  const th = [0, 0.6, 0.9, 1.0];
+  const V = [[[0, 0.64, 0.14, 0], 'ln', 'spline：v = (0.64, 0.14)'], [[0, 0.45, 0.2, 0], 'ink', '平均 slope：v = (0.45, 0.2)'], [[0, 0, 0, 0], 'mute', '每个点都停下']];
+  const seg = (v, i) => { const p0 = th[i], p1 = th[i + 1], v0 = v[i], v1 = v[i + 1]; const c2 = 3 * (p1 - p0) - 2 * v0 - v1, c3 = -2 * (p1 - p0) + v0 + v1; return { p: (t) => p0 + v0 * t + c2 * t * t + c3 * t ** 3, a: (t) => 2 * c2 + 6 * c3 * t }; };
+  let o = '';
+  const sx = lin(0, 3, 50, 250), sy = lin(0, 1.1, 210, 40);
+  o += text(150, 22, 'θ(t)', 'tb', 'middle') + axes({ sx, sy, x0: 0, x1: 3, y0: 0, y1: 1.1, xt: [0, 1, 2, 3], yt: [0, 0.6, 0.9, 1].map((v) => [v, String(v)]), grid: true, xl: 't (s)' });
+  const ax = lin(0, 3, 330, 530), ay = lin(-4, 4, 210, 40);
+  o += text(430, 22, 'acceleration', 'tb', 'middle') + axes({ sx: ax, sy: ay, x0: 0, x1: 3, y0: -4, y1: 4, xt: [0, 1, 2, 3], yt: [-3.6, -1.8, 0, 1.8, 3.6].map((v) => [v, String(v).replace('-', '−')]), xl: 't (s)' }) + line(ax(0), ay(0), ax(3), ay(0), 'grid');
+  for (const [v, cls] of V) {
+    const pts = [], acc = [];
+    for (let i = 0; i < 3; i++) { const S = seg(v, i); for (let k = 0; k <= 30; k++) pts.push([sx(i + k / 30), sy(S.p(k / 30))]); acc.push(d([[ax(i), ay(S.a(0))], [ax(i + 1), ay(S.a(1))]])); }
+    o += path(d(pts), cls) + path(acc.join(''), cls);
+  }
+  th.forEach((v, i) => { o += circle(sx(i), sy(v), 3.5, 'ink-f'); });
+  V.forEach(([, cls, lab], i) => { const x = [30, 210, 412][i]; o += line(x, 270, x + 22, 270, cls) + text(x + 28, 274, lab, 'ts', 'start'); });
+  return svg(560, 286, o, '同一组 via point 的三种 velocity 选法：spline 的 acceleration 连续；按平均 slope 取，第一个中间点从 -1.8 跳到 -0.4；每点都停，从 -3.6 跳到 1.8');
+}
+
+// ---------- 第 7 站：Cartesian stiffness 压桌面 ----------
+function contact() {
+  const z = (mm) => 150 - mm * 2.2, X = 150;
+  let o = '';
+  o += rect(60, z(0), 200, 70, 'wash2') + line(60, z(0), 260, z(0), 'ink-b');
+  for (let k = 0; k < 9; k++) o += line(70 + k * 22, z(0) + 4, 58 + k * 22, z(0) + 16, 'mute');
+  o += text(272, z(0) + 40, 'table：k' + sub('e') + ' = 2×10⁴ N/m', 'ts', 'start');
+  // x_d
+  o += line(X - 40, z(-25), X + 40, z(-25), 'ln-dash') + text(X + 46, z(-25) + 4, 'x' + sub('d') + '：桌面下 25 mm', 'tl', 'start');
+  // 起点的 mass
+  o += rect(X - 22, z(50) - 26, 44, 26, 'paper', 3) + text(X, z(50) - 9, '1 kg', 'tb', 'middle');
+  o += text(X - 30, z(50) - 9, '起点：桌面上 50 mm', 'ts', 'end');
+  // virtual spring：从 mass 底到 x_d
+  const zz = [[X, z(50)], [X, z(50) + 12]]; const n = 8, y0 = z(50) + 12, y1 = z(-25) - 12;
+  for (let k = 1; k < 2 * n; k++) zz.push([X + (k % 2 ? 9 : -9), y0 + (y1 - y0) * k / (2 * n)]);
+  zz.push([X, y1], [X, z(-25)]);
+  o += path(d(zz), 'ln');
+  o += text(X + 20, (z(50) + z(0)) / 2 + 6, 'virtual spring K = 400 N/m', 'tl', 'start') + text(X + 20, (z(50) + z(0)) / 2 + 22, '+ damper D', 'ts', 'start');
+  // 尺寸
+  o += line(70, z(50), 70, z(0), 'mute') + text(66, (z(50) + z(0)) / 2 + 4, '50 mm', 'ts', 'end');
+  o += text(280, 248, '停下来时 F = Kk' + sub('e') + 'd /(K + k' + sub('e') + ') = 9.80 N ≈ Kd', 'tb', 'middle');
+  o += text(280, 266, 'position controller 很硬（K ≫ k' + sub('e') + '）时是 k' + sub('e') + 'd = 500 N', 'ts', 'middle');
+  return svg(560, 278, o, '1 DOF 的 end-effector 从桌面上方 50 mm 出发，virtual spring 的 x_d 设在桌面下 25 mm；稳态压力 9.8 N');
+}
+
 export default {
+  'rb2203-three': three,
+  'rb2203-jointj': jointj,
+  'rb2203-samplede': samplede,
+  'rb2203-spline3': spline3,
+  'rb2203-contact': contact,
   'rb2203-bode': bode,
   'rb2203-pid': pid,
   'rb2203-windup': windup,
