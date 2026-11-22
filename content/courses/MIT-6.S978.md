@@ -1,8 +1,8 @@
 ---
 code: MIT-6.S978
 evidence: syllabus
-evidenceNote: "MIT Fall 2024 一期（6.S978 Deep Generative Models，Kaiming He 主讲，TA 是 Minghao Guo），没有找到更新的一期。讲法跟着课程公开的 5 讲 slides 和 Yang Song 的 consistency models guest lecture slides（都用 WebFetch 读的，工具返回的是逐页转述，大部分 formula 在抽取时丢了，按转述和论文补齐），以及 reading session 里的关键论文（MAR、SiT、SD3、VAR、MAGVIT-v2、Fluid）和课后的 MeanFlow。MAR 的 sampling schedule 和 masking ratio 对着 GitHub LTH14/mar 的代码核过。6 份 problem set 放在 Google Drive 文件夹里，这次打不开，作业一节的题目内容没有核实。快速路线和可跳过的部分来自本站的调研条目。"
-exam: "无考试。课程主页写的考核：30% 双周 problem set 与出勤（按 Good / Fair / Poor / None 评，去掉最低两次，不收迟交），30% seminar（报名与按时上传 5%、presentation 20%、讨论 5%），40% final project（proposal 5%、final presentation 15%、blog post 20%，最多两人一组）。"
+evidenceNote: "MIT Fall 2024 一期（6.S978 Deep Generative Models，Kaiming He 主讲，TA 是 Minghao Guo），没有找到更新的一期。5 讲 slides 和 Yang Song 的 consistency models guest lecture：课程网站的 PDF 用 WebFetch 只能拿到丢了 formula 的转述，这次从课程网站的 GitHub 仓库取得原 PDF，用 pdftotext 读了全部文字；slides 里的 formula 是图片，含 formula 的关键页渲染成图片逐页看过（页码列在每站的 :::from 里），其余页只读了文字。6 份 problem set 的 handout PDF 和 notebook 从 Google Drive 逐份读过。课程主页和 schedule 重新读过。Reading session 的论文：MAR 的 Table 1 到 3 对着 arXiv HTML 核过，VAR 的 scale 列表、codebook 大小和 mask 对着官方代码核过；VQ-VAE、FSQ、Progressive Distillation、DDPM、Bengio 与 Bengio 1999 读了相关章节；Consistency Models 读了正文前半、Algorithm 1 和 Eq. 10，Appendix C 没有读到，c_skip 和 c_out 改为对着 openai/consistency_models 的代码核对；MAGVIT-v2（Figure 1 的具体数值没有读到）、SiT、SD3、Fluid（scaling 的 exponent 没有读到）、MeanFlow 以及 VAR 的正文仍是上一次读的工具转述，没有重新核对。快速路线和可跳过的部分来自本站的调研条目。"
+exam: "无考试。课程主页写的考核：30% 双周 problem set 与 participation（含出勤；按 Good / Fair / Poor / None 评，去掉最低两次），30% seminar（报名与按时上传 5%、presentation 20%、讨论 5%），40% final project（proposal 5%、final presentation 15%、blog post 20%，最多两人一组）。迟交政策两处说法不一：主页写除严重的医疗或个人情况外不收，每份 handout 写 7 天内可交、得分乘一个按天从 1 线性降到 0.5 的系数；以当学期 Canvas 为准。"
 subskills:
   - id: factor
     name: Generative model 是对 joint distribution 的分解
@@ -45,30 +45,60 @@ subskills:
     l4: "能在一个 toy 例子上算出 Euler 走 1 步、2 步的结果，并解释为什么 1 步一定落在 posterior mean。"
     l5: "能推出 MeanFlow identity，并在 toy 例子上验证它；能说明 distillation、consistency、MeanFlow 三条路的上限各由什么决定。"
 open:
-  - label: "MIT 6.S978 课程主页与 schedule（Fall 2024）"
+  - label: "MIT 6.S978 课程 schedule（Fall 2024）"
     url: "https://mit-6s978.github.io/schedule.html"
-    note: "讲次、reading session 的论文清单、作业发布与截止日期、考核方式。"
+    note: "讲次、reading session 的论文清单、作业发布与截止日期。"
+  - label: "MIT 6.S978 课程主页"
+    url: "https://mit-6s978.github.io/"
+    note: "考核、迟交政策、seminar 与 final project 的要求、blog post 范例。"
   - label: "6.S978 Lecture 1: Introduction"
     url: "https://mit-6s978.github.io/assets/pdfs/lec1_intro.pdf"
-    note: "第 1 站。读的是工具返回的逐页转述，formula 大多丢失。"
+    note: "第 1 站。原 PDF 的文字全部读过，看了第 15、30、36、49 页的图。"
   - label: "6.S978 Lecture 2: Variational Autoencoder"
     url: "https://mit-6s978.github.io/assets/pdfs/lec2_vae.pdf"
-    note: "第 2 站。逐页转述；ELBO 的 formula 没有抽出来，按标准推导补。"
+    note: "第 2 站。文字全读；看了第 8、18、20、22、27、28、30、77 页（ELBO 推导、两项 loss、reparameterization、VQ-VAE 的 loss）。"
   - label: "6.S978 Lecture 3: Autoregressive Models"
     url: "https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf"
-    note: "第 1、3 站。逐页转述。"
+    note: "第 1、3 站。文字全读；看了第 35、38、74、98 页。"
   - label: "6.S978 Lecture 4: Generative Adversarial Network"
     url: "https://mit-6s978.github.io/assets/pdfs/lec4_gan.pdf"
-    note: "第 4、5 站。逐页转述；minimax 和 JS 的 formula 按标准形式补。"
+    note: "第 4、5 站。文字全读；看了第 22、32、48、50、62、64、72、73 页（flip trick、JS 的结论、delta 的例子、1-d 的 W1、WGAN 的 objective）。"
   - label: "6.S978 Lecture 5: EBM, Score Matching, Diffusion Models"
     url: "https://mit-6s978.github.io/assets/pdfs/lec5_diffusion.pdf"
-    note: "第 6 站。逐页转述，formula 大多丢失。"
+    note: "第 6 站。文字全读；看了第 9、16、21、22、37、45、53、56、60、62、77、78 页。"
   - label: "6.S978 Guest lecture: Yang Song, Consistency Models"
     url: "https://mit-6s978.github.io/assets/pdfs/CM_lecture.pdf"
-    note: "第 8 站。逐页转述，$c_{\\text{skip}}$、$c_{\\text{out}}$ 等 formula 没有抽出来。"
+    note: "第 8 站。文字全读；看了第 16、18、21、27、28、31、36、37 页。"
+  - label: "课程网站的 GitHub 仓库 mit-6s978/mit-6s978.github.io"
+    url: "https://github.com/mit-6s978/mit-6s978.github.io"
+    note: "原 slides PDF 从这里 sparse checkout 取得（课程网站本身对命令行下载不开放）。"
+  - label: "6.S978 Problem Set 1（Google Drive：pset1.pdf、pset1.ipynb）"
+    url: "https://drive.google.com/drive/folders/18ApUM-i2h5AVDQu7zYmMvKlZH5I3vy1I"
+    note: "handout 和 notebook 全读。作业一节。"
+  - label: "6.S978 Problem Set 2（Google Drive：pset2.pdf、pset2.ipynb）"
+    url: "https://drive.google.com/drive/folders/1a7nFsrYK-VlA3NwecXjN2Fp2OU-E4nJw"
+    note: "handout 和 notebook 全读。"
+  - label: "6.S978 Problem Set 3（Google Drive：pset3.pdf、pset3.ipynb）"
+    url: "https://drive.google.com/drive/folders/18dWKJYv2vXQ5VKV8kMqTwDJBWIe6O7PU"
+    note: "handout 和 notebook 全读。"
+  - label: "6.S978 Problem Set 4（Google Drive：pset4.pdf、pset4.ipynb）"
+    url: "https://drive.google.com/drive/folders/1eY4KrD4Q5f4CIAUWWDbo_Zp1Qrv3Dfea"
+    note: "handout 和 notebook 全读。"
+  - label: "6.S978 Problem Set 5（Google Drive：pset5.pdf、pset5.ipynb）"
+    url: "https://drive.google.com/drive/folders/1naBf_tYfl4X_9kNL2qK9srT8tVlEq19R"
+    note: "handout 和 notebook 全读。"
+  - label: "6.S978 Problem Set 6（Google Drive：pset6.pdf、pset6.ipynb）"
+    url: "https://drive.google.com/drive/folders/1diX47OdTMAFfP1BuEJSjQDRwDeWsRzKn"
+    note: "handout 和 notebook 全读。"
   - label: "GitHub LTH14/mar（MAR 官方代码）"
     url: "https://github.com/LTH14/mar"
-    note: "clone 下来读了 models/mar.py 和 models/diffloss.py：masking ratio、cosine schedule、CFG schedule、diffusion_batch_mul。"
+    note: "读了 models/mar.py、models/diffloss.py、main_mar.py 的默认参数和 README 的训练、评测命令。"
+  - label: "GitHub FoundationVision/VAR（VAR 官方代码）"
+    url: "https://github.com/FoundationVision/VAR"
+    note: "核对了 patch_nums、vocab_size 和 block-causal mask。"
+  - label: "GitHub openai/consistency_models（Consistency Models 官方代码）"
+    url: "https://github.com/openai/consistency_models"
+    note: "核对了 cm/karras_diffusion.py 里 boundary condition 的 c_skip、c_out 和 sigma_data。"
 sources:
   - label: "Li, Tian, Li, Deng, He. Autoregressive Image Generation without Vector Quantization（arXiv 2406.11838）"
     url: "https://arxiv.org/abs/2406.11838"
@@ -80,8 +110,18 @@ sources:
     url: "https://arxiv.org/abs/2404.02905"
   - label: "Yu et al. Language Model Beats Diffusion: Tokenizer is Key to Visual Generation（arXiv 2310.05737）"
     url: "https://arxiv.org/abs/2310.05737"
-  - label: "Mentzer et al. Finite Scalar Quantization（arXiv 2309.15505，只读了摘要）"
-    url: "https://arxiv.org/abs/2309.15505"
+  - label: "Mentzer et al. Finite Scalar Quantization: VQ-VAE Made Simple（arXiv 2309.15505）"
+    url: "https://ar5iv.labs.arxiv.org/html/2309.15505"
+  - label: "van den Oord, Vinyals, Kavukcuoglu. Neural Discrete Representation Learning（VQ-VAE，arXiv 1711.00937）"
+    url: "https://ar5iv.labs.arxiv.org/html/1711.00937"
+  - label: "Bengio & Bengio. Modeling High-Dimensional Discrete Data with Multi-Layer Neural Networks（NeurIPS 1999）"
+    url: "https://proceedings.neurips.cc/paper/1999/file/e6384711491713d29bc63fc5eeb5ba4f-Paper.pdf"
+  - label: "Ho, Jain, Abbeel. Denoising Diffusion Probabilistic Models（arXiv 2006.11239）"
+    url: "https://ar5iv.arxiv.org/html/2006.11239"
+  - label: "Salimans & Ho. Progressive Distillation for Fast Sampling of Diffusion Models（arXiv 2202.00512）"
+    url: "https://ar5iv.labs.arxiv.org/html/2202.00512"
+  - label: "Song, Dhariwal, Chen, Sutskever. Consistency Models（arXiv 2303.01469，Appendix C 没有读到）"
+    url: "https://ar5iv.labs.arxiv.org/html/2303.01469"
   - label: "Fan et al. Fluid: Scaling Autoregressive Text-to-image Generative Models with Continuous Tokens（arXiv 2410.13863）"
     url: "https://arxiv.org/html/2410.13863v1"
   - label: "Geng et al. Mean Flows for One-step Generative Modeling（arXiv 2505.13447）"
@@ -122,7 +162,7 @@ Lecture 1 先列出 generative model 的共同点：一个 input 对应很多个
 | “Unconditional” CIFAR-10 生成 | 隐含的 condition：“像 CIFAR-10 的图像” | image |
 | Robot policy（Diffusion Policy） | 视觉和其他 sensor 的 observation | action 的 distribution |
 
-最后一行和第一行是同一种问题：同一个 observation 下合理的 action 不止一个（绕障碍物从左走和从右走都行），所以 policy 要输出 distribution。Classification 也能写进这张表（$y$ 是图像、$x$ 是 class probability），只是 output 的 distribution 简单到只有一个峰。
+最后一行和第一行是同一种问题：同一个 observation 下合理的 action 不止一个（绕障碍物从左走和从右走都行），所以 policy 要输出 distribution。Lecture 1 把 classification 也写进这张表：$y$ 是图像，$x$ 是各个 class 的 probability。Open-vocabulary recognition 和 image captioning 同样以图像为 $y$，只是合理的 $x$ 不止一个：同一张图标成 flamingo、bird、red color 都对。
 
 Generative model 也能反过来做 discriminative 的事：Bayes rule 给出 $p(y\mid x)\propto p(x\mid y)\,p(y)$，对给定的 $x$，$p(x)$ 是 constant。反过来不行：只有 $p(y\mid x)$，得不到 $p(x)$。
 
@@ -160,13 +200,13 @@ Chain rule 对任何 order 都成立。换成 $(x_1,x_4,x_2,x_3)$：$p(x_1=1)=\t
 
 用 lookup table 表示 conditional，parameter 个数是 $1+2+4+8=15$，正好等于直接存 joint 需要的 $2^4-1=15$。Chain rule 本身一个 parameter 也没省。
 
-省 parameter 要靠给 conditional 一个受限的形式。最早的做法（reading session 里 Bengio & Bengio 1999 那一类）是每个 conditional 用一个 logistic regression：
+省 parameter 要靠给 conditional 一个受限的形式。最简单的做法是每个 conditional 用一个 logistic regression，Frey 把它叫作 logistic autoregressive Bayesian network（LARC）：
 
 $$p(x_i=1\mid x_{<i})=\sigma\Big(b_i+\sum_{j<i}w_{ij}x_j\Big)$$
 
 4 个 pixel 时 parameter 是 $4+(0+1+2+3)=10$ 个；784 个 pixel 时是 $784+\tfrac{784\cdot783}{2}=307{,}720$ 个，不再是 $2^{783}$。
 
-代价是表示能力。换一个世界：$2\times2$ 图像中所有黑 pixel 个数为偶数的 8 种（全白、全黑、四种 bar、两种 diagonal），各 1/8。这时 $x_1,x_2,x_3$ 是三个独立的硬币，$x_4=x_1\oplus x_2\oplus x_3$（parity）。Parity 不是 linearly separable 的，没有任何 $w,b$ 能让 logistic regression 表示它。直接对 8 张图做 maximum likelihood（从随机起点做 gradient descent），$w_{4j}$ 和 $b_4$ 全部收敛到 0，$p(x_4=1\mid\cdot)=1/2$。于是这个 AR model sample 出来只有 50% 是合格的图像，和完全 independent 的 model 一样差。换成一个有 hidden layer 的 MLP，就能表示 parity。
+代价是表示能力。换一个世界：$2\times2$ 图像中所有黑 pixel 个数为偶数的 8 种（全白、全黑、四种 bar、两种 diagonal），各 1/8。这时 $x_1,x_2,x_3$ 是三个独立的硬币，$x_4=x_1\oplus x_2\oplus x_3$（parity）。Parity 不是 linearly separable 的，没有任何 $w,b$ 能让 logistic regression 表示它。直接对 8 张图做 maximum likelihood（从随机起点做 gradient descent），$w_{4j}$ 和 $b_4$ 全部收敛到 0，$p(x_4=1\mid\cdot)=1/2$。于是这个 AR model sample 出来只有 50% 是合格的图像，和完全 independent 的 model 一样差。换成一个有 hidden layer 的 MLP，就能表示 parity。这正是 reading session 第一篇 Bengio 与 Bengio（1999）做的事：每个 conditional 由一个 multi-layer network 给出，hidden unit 在不同的 conditional 之间共享，parameter 个数是 $O(n^2H)$（$H$ 是 hidden unit 数）；论文明确说 $H=0$ 时就退化成 Frey 的 LARC。
 
 > Chain rule 不引入任何 approximation；approximation 全部来自 inductive bias：conditional 用什么 architecture、几个 conditional 是否共用 weight、选了哪个 order。
 
@@ -177,7 +217,7 @@ Factorization 在任何 order 下都是精确的，上面两种 order 的 entrop
 :::
 
 :::from
-“generative model 的共同特征”“$p(x\mid y)$ 的表格”“Bayes rule 的两个方向”“deep generative model 的组成部分”来自 [Lecture 1](https://mit-6s978.github.io/assets/pdfs/lec1_intro.pdf)；chain rule、任意 order 与 partition、inductive bias 的三个来源来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf) 第一部分（都是读工具返回的逐页转述）。Bar 世界、conditional entropy 的表、parameter 计数、parity 的反例和它的 gradient descent 是为这一页构造和计算的。
+“generative model 的共同特征”（第 11 页）、“$p(x\mid y)$ 的表格”（第 38 到 49 页）、“Bayes rule 的两个方向”（第 15 页）、“deep generative model 的组成部分”（第 36 页）来自 [Lecture 1](https://mit-6s978.github.io/assets/pdfs/lec1_intro.pdf)；chain rule、任意 order 与 partition（第 15、16 页注明是 MAR 的基础）、“decomposition 没有任何 approximation”（第 35 页）、inductive bias 的来源（第 38 到 42 页）来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf) 第一部分。两讲都读的原 PDF。LARC 与 multi-layer 版本的关系来自 [Bengio 与 Bengio 1999](https://proceedings.neurips.cc/paper/1999/file/e6384711491713d29bc63fc5eeb5ba4f-Paper.pdf) 的正文。Bar 世界、conditional entropy 的表、parameter 计数、parity 的反例和它的 gradient descent 是为这一页构造和计算的。
 :::
 
 ## [vae] Latent variable、ELBO 与 VQ-VAE
@@ -198,7 +238,7 @@ Training 要 maximize $\log p_\theta(x)$（等价于 minimize $D_{\text{KL}}(p_{
 
 ### ELBO：不用 Jensen 的推导
 
-任取一个 distribution $q(z)$。因为 $\int q(z)\,dz=1$，
+Lecture 2 用的正是下面这条路（第 12 到 20 页，旁注是“for any distribution $q(z)$”“Bayes' rule”“just algebra”），全程是等式，不需要 Jensen inequality。任取一个 distribution $q(z)$。因为 $\int q(z)\,dz=1$，
 
 $$\log p_\theta(x)=\mathbb E_{q(z)}\big[\log p_\theta(x)\big]$$
 
@@ -253,11 +293,11 @@ decoder 从 $z_q$ 重建 $x$。
 
 两个难处。第一，argmin 没有 gradient，reconstruction loss 传不回 encoder。解法是 straight-through：forward 用 $z_q$，backward 假装 quantizer 是 identity，把对 $z_q$ 的 gradient 原样给 $z_e$。代码写成 $z_q=z_e+\mathrm{sg}(e_k-z_e)$：forward 时数值等于 $e_k$，backward 时 $\mathrm{sg}$（stop gradient）那一项没有 gradient，只剩 $z_e$。Lecture 2 给的是 one-hot 版本的同一个技巧：$\mathrm{sg}(\mathrm{hardmax}(y)-\mathrm{softmax}(y))+\mathrm{softmax}(y)$。例如 logit $y=(2,1,0)$，forward 的值是 $(1,0,0)$，backward 用的是 $\mathrm{softmax}(y)=(0.665,0.245,0.090)$ 的 Jacobian。
 
-第二，codebook 本身也要学。VQ-VAE 论文的 loss 是（这一行按我对论文的记忆写，slides 只说“相当于 K-means 的 reconstruction loss，两项 gradient 的 weight 不同”）
+第二，codebook 本身也要学。Lecture 2 第 77 页先把这一块的 regularization loss 写成 K-means 的 reconstruction loss $\|z_e-z_q\|^2$，再在脚注里给出论文实际用的写法：把这一项拆成两项，各自只让 gradient 流向一边。VQ-VAE 论文的 Eq. 3 写成要 minimize 的形式是
 
-$$\mathcal L=\|x-\hat x\|^2+\|\mathrm{sg}(z_e)-e_k\|^2+\beta\,\|z_e-\mathrm{sg}(e_k)\|^2,\qquad\beta=0.25$$
+$$\mathcal L=-\log p(x\mid z_q)+\|\mathrm{sg}(z_e)-e_k\|^2+\beta\,\|z_e-\mathrm{sg}(e_k)\|^2$$
 
-第二项只更新 codebook，把 $e_k$ 拉向 $z_e$，就是 K-means 的 M-step；第三项（commitment loss）只更新 encoder，防止 $z_e$ 跑得离 codebook 太远。
+Decoder 取 fixed std 的 Gaussian 时，第一项就是 L2 reconstruction loss（Lecture 2 第 27 页的那一步）。第二项只更新 codebook，把 $e_k$ 拉向 $z_e$，就是 K-means 的 M-step；第三项（commitment loss）只更新 encoder，论文的说法是让 encoder“commit”到一个 codeword、output 不至于无限变大。论文所有实验用 $\beta=0.25$，并说 $\beta$ 在 0.1 到 2.0 之间结果几乎不变。拿上图的数检验：$\|z_e-e_1\|^2=0.05$，codebook 项和 commitment 项的数值都是 0.05，总共贡献 $0.05+0.25\times0.05=0.0625$；两项数值相同，区别只在 gradient 流向哪一边：codebook 项对 $e_k$ 的 gradient 是 $2(e_k-z_e)=(0.2,-0.4)$，commitment 项对 $z_e$ 的 gradient 是 $2\beta(z_e-e_k)=(-0.05,0.1)$，大小差 $1/\beta=4$ 倍。这就是脚注说的“weights the gradients differently”。
 
 实际使用时一个 one-hot 太少，VQ-VAE 在 spatial grid 上每个位置输出一个 token：一张图变成一个 token grid。这正是 tokenizer。
 
@@ -270,7 +310,7 @@ VQ-VAE 的 prior 对每个位置独立：每个 token 各自 uniform。这正是
 :::
 
 :::from
-Latent variable model、world model 的说法、ELBO、VAE 的两项、“autoencoding distributions”的视角、VAE 与 EM 的对比、K-means 作为 autoencoder 和 generative model、VQ-VAE 的结构、straight-through 的 one-hot 写法、“VQ-VAE 常用作 tokenizer”“prior 只建模单个 token”来自 [Lecture 2](https://mit-6s978.github.io/assets/pdfs/lec2_vae.pdf)（逐页转述，formula 丢失）；“VAE 对高维 data 太严格”来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf)。不用 Jensen 的推导是标准推导，Gaussian 例子的表、K-means 的数值迭代、VQ 的数值例子是为这一页算的。VQ-VAE 的 loss 和 $\beta=0.25$ 凭我对 van den Oord et al. 2017 的记忆，没有核对原文。
+Latent variable model、world model 的说法（第 4 到 7 页）、不用 Jensen 的 ELBO 推导（第 12 到 22 页）、VAE 的两项与它们的 Gaussian 例子（第 23 到 28 页，KL 的 closed form 和“fixed covariance 时是 $\mu$ 上的 L2”两处标着 see pset 1）、reparameterization（第 30 页）、“autoencoding distributions”的视角、VAE 与 EM 的对比（第 50 到 55 页）、K-means 作为 autoencoder 和 generative model、VQ-VAE 的结构、regularization loss 与脚注里论文的两项（第 77 页）、straight-through 的 one-hot 写法（第 78 页）、“VQ-VAE 常用作 tokenizer”“prior 只建模单个 token”（第 79、81 页）来自 [Lecture 2](https://mit-6s978.github.io/assets/pdfs/lec2_vae.pdf) 的原 PDF；“VAE 对高维 data 太严格”来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf) 第 7、8 页。VQ-VAE 的 Eq. 3、$\beta=0.25$ 与 0.1 到 2.0 的范围、commitment loss 的理由来自 [VQ-VAE 论文](https://ar5iv.labs.arxiv.org/html/1711.00937) 第 3.2 节。Gaussian 例子的表、K-means 的数值迭代、VQ 的数值例子和两项 gradient 的数是为这一页算的。
 :::
 
 ## [ar] Autoregressive model 与 teacher forcing
@@ -308,7 +348,7 @@ $n$ 个 conditional 如果用 $n$ 个 network，parameter 和计算都太多。L
 三种 architecture 都能满足这个条件：
 
 - RNN：天然只看过去，按时间展开，每一步预测下一个。例子是 char-RNN。
-- CNN：用 causal convolution，kernel 只覆盖当前和过去的位置（等价于在左边 padding）。例子是 WaveNet，用 dilated causal convolution 生成 raw audio。
+- CNN：用 causal convolution，kernel 只覆盖当前和过去的位置（等价于在左边 padding）。例子是 WaveNet，用 dilated causal convolution 生成 raw audio。在 2D 图像上，同样的想法就是 PixelCNN 的 masked convolution（pset 2 要从零实现，type A 与 type B 两种 mask 见本页最后的作业一节，masked kernel 的画法见 [CS5788 的 autoregressive 一站](../courses/CORNELL-CS5788.html#ar)）。
 - Transformer：用 causal attention。Attention score $s_{ij}=q_i^\top k_j/\sqrt{d}$ 在 softmax 之前，把所有 $j>i$ 的 entry 设成 $-\infty$，softmax 后这些 weight 恰好是 0。例子是 image GPT，把 pixel 当 sequence。
 
 ::fig[mit6s978-mask] 深色格表示 query（行）能看见 key（列）。Full attention 每个位置都看见全部；causal 是下三角；第三张是第 4 站 VAR 用的 block-causal，先预告。
@@ -324,7 +364,7 @@ Full attention 下位置 $i$ 的 output 能看见 $x_{i+1}$，而 target 正是 
 一张 $256\times256$ 的 RGB 图像有 $256\times256\times3=196{,}608$ 个 value。按 pixel 做 AR，sampling 要走 196,608 个 sequential step，而且 Transformer 的 attention 长度也是这么多。这就是为什么后来的 AR 都先用 tokenizer 把图像压成几百个 token（第 4 站），以及为什么有人想办法一步生成不止一个 token（第 4 站的 VAR、第 7 站的 MAR）。
 
 :::from
-“auto + regression”的解释、inference 与 training 的区分、为什么不能 backprop through inference、teacher forcing 的利弊、“与 architecture 无关”、shared computation 的条件与 target 错开一位、RNN / causal CNN / causal attention 三种实现和 char-RNN、WaveNet、iGPT 三个例子都来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf)（逐页转述，slides 里 mask 只有文字描述）。Bar 世界上的 loss、没见过的 prefix 的例子、mask 的数值检验、pixel 数的计算是为这一页写的。
+“auto + regression”的解释、inference 与 training 的区分、为什么不能 backprop through inference、teacher forcing 的利弊、“与 architecture 无关”、shared computation 的条件与 target 错开一位、RNN / causal CNN / causal attention 三种实现和 char-RNN、WaveNet、iGPT 三个例子都来自 [Lecture 3](https://mit-6s978.github.io/assets/pdfs/lec3_ar.pdf) 的原 PDF（第 31 到 107 页；shared computation 的条件在第 73、74 页，causal attention 在第 97、98 页画的是连线图，没有画成 mask 矩阵）。Lecture 3 的 running example 是按 raster order 在 MNIST 上做 AR（第 58 到 63 页），pset 2 的 PixelCNN 就在这个设定上。Bar 世界上的 loss、没见过的 prefix 的例子、mask 的矩阵画法和数值检验、pixel 数的计算是为这一页写的。
 :::
 
 ## [tok] Tokenizer 与 next-scale prediction
@@ -353,7 +393,9 @@ $$\mathcal L_{\text{entropy}}=\mathbb E\big[H(q(z))\big]-H\big[\mathbb E\,q(z)\b
 
 第一项要每个 sample 的分配都很确定，第二项要整个 codebook 的平均使用尽量均匀。论文默认 $K=2^{18}=262{,}144$，这时 reconstruction 和 generation 都随 vocabulary 增大而变好。在 $2^{18}$ 类上做 softmax 太大，AR model 把它拆成两个 $2^9=512$ 类的 head 分别预测。
 
-FSQ（finite scalar quantization，这里只读了摘要）是同一思路的另一种写法：把 latent 投影到不到 10 维，每一维 round 到少数几个固定值，codebook 是各维取值集合的乘积。例如每维的 level 数取 $(8,5,5,5)$，codebook 大小是 $8\cdot5\cdot5\cdot5=1000$（这组数是我记得的论文例子，没有核对）。摘要说 FSQ 不需要 commitment loss、codebook reseeding 和 entropy penalty。
+FSQ（finite scalar quantization，reading session 的选读）把同一思路推广到每维多于 2 个值。Latent 先投影到很少的几维（论文说通常 $d<10$，VQ 常用 $d\ge512$），每一维先过一个 bounded function 再 round 到 integer。第 $i$ 维有 $L_i$ 个 level 时，论文给的例子是 $f(z)=\lfloor L/2\rfloor\tanh(z)$（$L$ 为奇数时 round 后正好落在 $L$ 个 integer 上），codebook 是各维取值集合的 Cartesian product，大小 $\prod_iL_i$，没有任何要学的 codeword。LFQ 相当于每维只有 2 个 level。
+
+拿上面同一个 $z=(0.3,-1.2,0.7,-0.1)$ 检验，每维取 $L=5$：$2\tanh(z)=(0.583,-1.667,1.209,-0.199)$，round 成 $(1,-2,1,0)$，codebook 大小 $5^4=625$。论文的 Table 1 给出凑某个 codebook 大小时推荐的 level：$2^8$ 用 $[8,6,5]$，$2^{10}$ 用 $[8,5,5,5]$（实际大小 $8\cdot5\cdot5\cdot5=1000$），$2^{12}$ 用 $[7,5,5,5,5]$，$2^{14}$ 用 $[8,8,8,6,5]$，$2^{16}$ 用 $[8,8,8,5,5,5]$；论文的 MaskGIT 实验用的就是 $[8,5,5,5]$。论文强调 FSQ 不会 codebook collapse，不需要 VQ 的那一套补丁（commitment loss、codebook reseeding、code splitting、entropy penalty），所有 codeword 都会被用到。
 
 ### Reconstruction 好不等于 generation 好
 
@@ -383,7 +425,7 @@ $$p(r_1,\dots,r_K)=\prod_{k=1}^Kp(r_k\mid r_1,\dots,r_{k-1})$$
 
 $r_k$ 是第 $k$ 个 scale 的整张 token map，从 $1\times1$ 逐步到 $16\times16$；同一个 scale 里的 token 在一步里并行生成。Tokenizer 也要相应改成 multi-scale：对同一张 $16\times16$ 的 feature map，先缩到 $1\times1$ 量化，放大回 $16\times16$ 并减掉，残差缩到 $2\times2$ 再量化，依此类推；所有 scale 共用一个 $V=4096$ 的 codebook。Decode 时把各 scale 放大后的 embedding 加起来。Training 用 block-causal mask（上一张图的第三个 panel）：同一个 scale 内互相看见，只看见更粗的 scale。
 
-::fig[mit6s978-var] VAR 在 $256\times256$ 上的 10 个 scale（具体的 scale 列表是我记得的官方设置，论文正文只说“逐步增大到 $h\times w$”）。
+::fig[mit6s978-var] VAR 在 $256\times256$ 上的 10 个 scale。列表取自官方代码的默认值 `patch_nums=(1, 2, 3, 4, 5, 6, 8, 10, 13, 16)`（论文正文只说“逐步增大到 $h\times w$”）。
 
 10 步共 $1+4+9+16+25+36+64+100+169+256=680$ 个 token。VAR 省下了什么？按两种方式数 attention 的计算量（数的是 query–key pair 的个数）：
 
@@ -416,7 +458,7 @@ $r_k$ 是第 $k$ 个 scale 的整张 token map，从 $1\times1$ 逐步到 $16\ti
 VAR 训了 depth 6 到 30（18.5M 到 2.0B parameter）一系列 model。最后一个 scale 的 test loss 对 parameter 数 $N$ 拟合成 power law，exponent 是 $-0.23$，correlation 0.9993。读成数字：$N$ 翻倍，loss 乘 $2^{-0.23}=0.853$，降 14.7%；从 18.5M 到 2.0B（约 108 倍），loss 乘 $108^{-0.23}=0.34$。论文对 compute 也拟合了 exponent 约 $-0.13$ 到 $-0.16$ 的 power law（正文公式和图里的常数有不一致的地方，这里只引 exponent）。第 7 站的 Fluid 会给出相反的一面：不是所有 AR 变体都能一直 scale 下去。
 
 :::from
-Tokenizer 喂给 AR 和 diffusion 的分工、VQ-GAN = VQ-VAE + adversarial + perceptual 来自 [Lecture 4](https://mit-6s978.github.io/assets/pdfs/lec4_gan.pdf) 的最后一部分。Codebook 大小的两难、LFQ 的 formula、entropy penalty、$2^{18}$ 与两个 $2^9$ 的 head 来自 [MAGVIT-v2](https://arxiv.org/abs/2310.05737) 正文（工具转述，Figure 1 的具体数值没有读到）。FSQ 只读了 [摘要](https://arxiv.org/abs/2309.15505)。Tokenizer 对比表来自 [MAR](https://arxiv.org/abs/2406.11838) Table 2，channel 的结果来自 [SD3](https://arxiv.org/abs/2403.03206) Table 3。VAR 的 formulation、multi-scale quantization、$V=4096$、block-causal mask、复杂度证明、Table 1、scaling exponent 来自 [VAR](https://arxiv.org/abs/2404.02905) 正文。这三篇都在 reading session “AR and Tokenizers”的清单里（MAGVIT-v2、VAR 是必读，FSQ 是选读）。LFQ 的数值例子、680 个 token 和两种 attention 计数是为这一页算的，“有 KV cache 时 VAR 总计算更多”是我自己的结论，论文没有这样比。
+Tokenizer 喂给 AR 和 diffusion 的分工、VQ-GAN = VQ-VAE + adversarial + perceptual 来自 [Lecture 4](https://mit-6s978.github.io/assets/pdfs/lec4_gan.pdf) 第 90 到 92 页（原 PDF）。Codebook 大小的两难、LFQ 的 formula、entropy penalty、$2^{18}$ 与两个 $2^9$ 的 head 来自 [MAGVIT-v2](https://arxiv.org/abs/2310.05737) 正文（上一次读的工具转述，Figure 1 的具体数值至今没有读到）。FSQ 的 formula、$d<10$、推荐 level 的表和“不需要的补丁”来自 [FSQ 论文](https://ar5iv.labs.arxiv.org/html/2309.15505) 第 1 到 3 节和 Table 1。Tokenizer 对比表来自 [MAR](https://arxiv.org/html/2406.11838v2) Table 2（这次对着 arXiv HTML 逐格核过），channel 的结果来自 [SD3](https://arxiv.org/abs/2403.03206) Table 3（工具转述）。VAR 的 formulation、multi-scale quantization、复杂度证明、Table 1、scaling exponent 来自 [VAR](https://arxiv.org/abs/2404.02905) 正文（工具转述）；scale 列表、$V=4096$ 和 block-causal mask 的条件（key 的 scale 不超过 query 的 scale）对着 [官方代码](https://github.com/FoundationVision/VAR) 的 `models/var.py`、`models/__init__.py` 核过。这几篇都在 reading session “AR and Tokenizers”的清单里（MAGVIT-v2、VAR 是必读，FSQ 是选读）。LFQ 与 FSQ 的数值例子、680 个 token 和两种 attention 计数是为这一页算的，“有 KV cache 时 VAR 总计算更多”是我自己的结论，论文没有这样比。
 :::
 
 ## [gan] GAN 与 adversarial loss
@@ -463,9 +505,15 @@ Training 初期 $G$ 很差，$D$ 一眼看穿，$D(G(z))$ 接近 0。写 $D=\sig
 
 Lecture 4 列的 GAN training 问题：equilibrium 很难达到，loss 震荡；gradient 消失；mode collapse（$G$ 只产生少数几种 output）。其中 gradient 消失可以算出来。
 
-最极端的例子：data 是 $p=\delta_0$，generator 是 $q_\theta=\delta_\theta$。$\theta\ne0$ 时两个 support 不重叠，在 $x=0$ 处 $m=\tfrac12\delta_0$，$\log\frac{p}{m}=\log2$；在 $x=\theta$ 处同理。所以 $D_{\text{JS}}=\tfrac12\log2+\tfrac12\log2=\log2$，对任何 $\theta\ne0$ 都一样，对 $\theta$ 的 gradient 是 0。只有 $\theta=0$ 时才跳到 0。高维 data 集中在低维的 manifold 上，training 初期 $p_g$ 和 $p_{\text{data}}$ 几乎不重叠，情形和这个例子很像。
+Lecture 4 用一个例子把它算出来（第 47 到 51 页）：两个很窄的 Gaussian 拉开 $\Delta\mu=4,3,2$，三种情况下 $D_{\text{JS}}$ 都是 0.693；最极端的情形是把它们收窄成 delta function。Data 是 $p=\delta_0$，generator 是 $q_\theta=\delta_\theta$。$\theta\ne0$ 时两个 support 不重叠，在 $x=0$ 处 $m=\tfrac12\delta_0$，$\log\frac{p}{m}=\log2$；在 $x=\theta$ 处同理。所以 $D_{\text{JS}}=\tfrac12\log2+\tfrac12\log2=\log2$，对任何 $\theta\ne0$ 都一样，对 $\theta$ 的 gradient 是 0。只有 $\theta=0$ 时才跳到 0。高维 data 集中在低维的 manifold 上，training 初期 $p_g$ 和 $p_{\text{data}}$ 几乎不重叠，情形和这个例子很像。
 
 Wasserstein distance（earth mover's distance）量的是把一堆质量搬成另一堆要做多少功：质量乘以搬运距离。把 $\delta_\theta$ 搬到 $\delta_0$，质量 1，距离 $|\theta|$，所以 $W_1=|\theta|$，对 $\theta$ 的 derivative 是 $\mathrm{sign}(\theta)$，一直指向正确的方向。
+
+一维时 Lecture 4 给了一个能直接算的 formula（第 62 页）：
+
+$$W_1(p,q)=\int\big|\mathrm{cdf}_p(x)-\mathrm{cdf}_q(x)\big|\,dx$$
+
+离散时 integral 换成 sum。拿 delta 的例子检验（设 $\theta>0$）：$\delta_0$ 的 cdf 在 $x=0$ 处从 0 跳到 1，$\delta_\theta$ 的 cdf 在 $x=\theta$ 处跳；两者只在 $[0,\theta)$ 上不同，差是 1，integral 是 $1\times\theta=\theta$，和“搬运距离”的算法一致。第 64 页把两条曲线画在一起：$\Delta\mu\ne0$ 时 $D_{\text{JS}}$ 是一条 0.693 的水平线，$W_1=|\Delta\mu|$ 是一个 V 字。
 
 ::fig[mit6s978-jsw] 同一个例子画出来。动起来时看两个点：generator 的 delta 一路靠近 0，JS（彩色点）始终停在 $\log2\approx0.69$，直到重合才跳下来；$W_1$（黑点）沿着直线一路下降。
 
@@ -473,7 +521,7 @@ Wasserstein distance（earth mover's distance）量的是把一堆质量搬成�
 
 $$W_1(p,q)=\sup_{\|f\|_L\le1}\;\mathbb E_{x\sim p}f(x)-\mathbb E_{x\sim q}f(x)$$
 
-sup 取遍所有 1-Lipschitz function。WGAN 用一个 network $f_w$ 近似这个 $f$（叫 critic），把 weight clip 到 $[-0.01,0.01]$ 来粗略保证 Lipschitz。Lecture 4 的总结：对工程师来说，WGAN 就是去掉 log、clip weight；原来的 $D$ 是只说真假的鉴定专家，critic 输出一个分数，给出改进的方向。
+sup 取遍所有 1-Lipschitz function。WGAN 用一个 network $f_w$ 近似这个 $f$（叫 critic），objective 是 $\max_{w}\ \mathbb E_{x\sim p_{\text{data}}}f_w(x)-\mathbb E_{x\sim p_g}f_w(x)$，把 weight clip 到 $[-0.01,0.01]$ 来粗略保证 Lipschitz。和原来的 D-step $\max_D\ \mathbb E\log D(x)+\mathbb E\log(1-D(x))$ 并排放（第 73 页），差别正是两处：log 去掉了，weight 被 clip。Lecture 4 的总结：对工程师来说，WGAN 就是去掉 log、clip weight；原来的 $D$ 是只说真假的鉴定专家，critic 输出一个分数，给出改进的方向。Duality 在离散情形下是一个 linear program 的 primal 与 dual，pset 3 的 Problem 5 要你用 Lagrange multiplier 推出来。
 
 :::wrong Discriminator 的 loss 降到 0，说明 training 进展顺利
 $D$ 完美地分开真假，意味着 $D(G(z))\approx0$，对应上面 $p_g$ 和 $p_{\text{data}}$ 不重叠的情形：原始 G loss 的 gradient 是 $-\sigma(a)\approx0$，$G$ 学不到东西。$D$ 太强和太弱都不行，GAN training 的困难正在于让两者保持平衡。
@@ -484,7 +532,7 @@ $D$ 完美地分开真假，意味着 $D(G(z))\approx0$，对应上面 $p_g$ 和
 GAN 的 adversarial loss 可以接在任何 generator 后面，input 不必是 random noise。Lecture 4 的模式是：input 来自别处，经过 encoder–decoder，loss 是 L2/L1 reconstruction 加 adversarial loss，两者交替 train；有 reconstruction loss 托底，training 稳定很多。例子：SRGAN（super-resolution，加了 adversarial loss 后 PSNR 变差、视觉质量变好）、pix2pix、CycleGAN，以及第 4 站的 VQ-GAN。Reading session 里的 “Distilling Diffusion Models into Conditional GANs” 把 diffusion model 的多步 sampling 蒸馏成一个一步的 GAN generator，第 8 站会回到一步生成这个问题。
 
 :::from
-从 VAE 的局限引出 GAN、minimax、D-step 是 logistic regression、non-saturating 的动机、optimal $D$、JS 的性质、training 的三类问题、WGAN 的“三种说法”、earth mover 的直观、KR duality 与 weight clipping 的 $[-0.01,0.01]$、adversary as loss 的模式和例子来自 [Lecture 4](https://mit-6s978.github.io/assets/pdfs/lec4_gan.pdf)（逐页转述；formula 按 Goodfellow et al. 2014 和 Arjovsky et al. 2017 的标准形式写）。$D^*$ 的数值例子、non-saturating 的 gradient 数值、delta 例子的逐步计算是为这一页算的。
+从 VAE 的局限引出 GAN（第 7 页）、minimax、D-step 是 logistic regression（第 16 页）、non-saturating 的 flip trick 与“早期 $D(G)$ 接近 0”的图（第 22 页）、optimal $D$ 与 $2D_{\text{JS}}-2\log2$（第 30、32 页，证明指向 Goodfellow et al. 2014）、JS 的性质、training 的三类问题（第 42 页）、WGAN 的“三种说法”、delta 的例子与 JS、$W_1$ 的对比（第 47 到 64 页）、一维 $W_1$ 的 cdf formula（第 62 页）、KR duality、WGAN 的 objective 与 weight clipping 的 $[-0.01,0.01]$（第 67 到 73 页）、adversary as loss 的模式和例子来自 [Lecture 4](https://mit-6s978.github.io/assets/pdfs/lec4_gan.pdf) 的原 PDF。Minimax 的写法和 pset 3 handout 的 Eq. 1 一致。$D^*$ 的推导步骤、$D^*$ 的数值例子、non-saturating 的 gradient 数值、delta 例子的逐步计算和 cdf 的检验是为这一页写和算的。
 :::
 
 ## [diff] Diffusion 与 flow matching 的设计空间
@@ -501,15 +549,41 @@ $$x_t=\sqrt{1-\beta_t}\,x_{t-1}+\sqrt{\beta_t}\,\varepsilon_t,\qquad t=1,\dots,T
 
 系数这样取是为了 variance preserving：若 $\mathrm{Var}(x_{t-1})=1$，则 $\mathrm{Var}(x_t)=(1-\beta_t)+\beta_t=1$。加 Gaussian noise 在 density 上就是和 Gaussian 做 convolution。记 $\alpha_t=1-\beta_t$、$\bar\alpha_t=\prod_{s\le t}\alpha_s$，可以一步跳到任意 $t$：$x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\varepsilon$。DDPM 的 linear schedule（$\beta$ 从 $10^{-4}$ 线性增加到 $0.02$，$T=1000$）下，$\bar\alpha_{100}=0.897$，$\bar\alpha_{500}=0.0786$，$\bar\alpha_{1000}=4.0\times10^{-5}$：到最后几乎只剩 noise。
 
-Reverse 的 conditional $q(x_{t-1}\mid x_t)$ 依赖 data 的 distribution，不知道；但多加一个 condition $x_0$ 之后，$q(x_{t-1}\mid x_t,x_0)$ 是 Gaussian，mean 和 variance 都能写出来（mean 是 $x_t$ 和 $x_0$ 的 linear combination）。用 network 表示 $p_\theta(x_{t-1}\mid x_t)=N(\mu_\theta(x_t,t),\sigma_t^2I)$，ELBO 里每个 $t$ 一项 $D_{\text{KL}}\big(q(x_{t-1}\mid x_t,x_0)\,\|\,p_\theta(x_{t-1}\mid x_t)\big)$。这就是一个有 $T$ 层 latent 的 VAE，区别只在 encoder（forward process）是固定的，不用学。
+Reverse 的 conditional $q(x_{t-1}\mid x_t)$ 依赖 data 的 distribution，不知道（Lecture 5 第 28、29 页的图：同一个 $x_t$ 可能来自好几个不同的 $x_{t-1}$，各占多少取决于 data）。多加一个 condition $x_0$ 之后，它是一个已知的 Gaussian（第 37 页，DDPM 论文 Eq. 6、7）：
+
+$$q(x_{t-1}\mid x_t,x_0)=N\big(\tilde\mu_t(x_t,x_0),\,\tilde\beta_tI\big),\qquad\tilde\beta_t=\frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\,\beta_t$$
+
+$$\tilde\mu_t(x_t,x_0)=\frac{\sqrt{\bar\alpha_{t-1}}\,\beta_t}{1-\bar\alpha_t}\,x_0+\frac{\sqrt{\alpha_t}\,(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}\,x_t$$
+
+Lecture 只说它是“dependency graph 加若干 linear combination 的结果”，配方的推导见 [CS5788 的 diffusion 一站](../courses/CORNELL-CS5788.html#diff)。用 network 表示 $p_\theta(x_{t-1}\mid x_t)=N(\mu_\theta(x_t,t),\sigma_t^2I)$。ELBO（第 53 页叫 variational lower bound）拆成
+
+$$\mathcal L_{\text{VLB}}=L_T+L_{T-1}+\dots+L_0$$
+
+$$L_T=D_{\text{KL}}\big(q(x_T\mid x_0)\,\|\,p(x_T)\big),\qquad L_0=-\log p_\theta(x_0\mid x_1)$$
+
+$$L_{t-1}=D_{\text{KL}}\big(q(x_{t-1}\mid x_t,x_0)\,\|\,p_\theta(x_{t-1}\mid x_t)\big)$$
+
+$L_T$ 里没有 parameter；$L_0$ 像 VAE 的 reconstruction loss；中间每个 $t$ 一项 KL。这就是一个有 $T$ 层 latent 的 VAE，区别只在 encoder（forward process）是固定的，不用学（第 51 页：没有 VAE 的 $q_\phi$ 那样的 parameter）。
 
 两个 variance 相同的 Gaussian 的 KL：
 
 $$D_{\text{KL}}\big(N(\mu_1,\sigma^2)\,\|\,N(\mu_2,\sigma^2)\big)=\mathbb E_{x\sim N(\mu_1,\sigma^2)}\Big[\frac{(x-\mu_2)^2-(x-\mu_1)^2}{2\sigma^2}\Big]$$
 
-展开分子：$(x-\mu_2)^2-(x-\mu_1)^2=2x(\mu_1-\mu_2)+\mu_2^2-\mu_1^2$，取 expectation（$\mathbb Ex=\mu_1$）得 $2\mu_1^2-2\mu_1\mu_2+\mu_2^2-\mu_1^2=(\mu_1-\mu_2)^2$。所以 KL 就是 $\dfrac{\|\mu_1-\mu_2\|^2}{2\sigma^2}$，一个 L2 loss。Lecture 5 说这一步是 problem set 的题。
+展开分子：$(x-\mu_2)^2-(x-\mu_1)^2=2x(\mu_1-\mu_2)+\mu_2^2-\mu_1^2$，取 expectation（$\mathbb Ex=\mu_1$）得 $2\mu_1^2-2\mu_1\mu_2+\mu_2^2-\mu_1^2=(\mu_1-\mu_2)^2$。所以 KL 就是 $\dfrac{\|\mu_1-\mu_2\|^2}{2\sigma^2}$，一个 L2 loss。Lecture 5 第 45 页把一般的 formula 放在旁边，标注“pset 1”（pset 1 Problem 3 推的是它在 $N_2=N(0,I)$ 时的特例）：
 
-把 mean 写成 noise 的形式：$q$ 的 mean 是 $\tilde\mu_t=\dfrac{1}{\sqrt{\alpha_t}}\Big(x_t-\dfrac{\beta_t}{\sqrt{1-\bar\alpha_t}}\varepsilon\Big)$，network 照样子写 $\mu_\theta=\dfrac{1}{\sqrt{\alpha_t}}\Big(x_t-\dfrac{\beta_t}{\sqrt{1-\bar\alpha_t}}\varepsilon_\theta(x_t,t)\Big)$。两者相减只剩 noise 那一项：
+$$D_{\text{KL}}(N_1\,\|\,N_2)=\log\frac{\sigma_2}{\sigma_1}+\frac{\sigma_1^2+\|\mu_1-\mu_2\|^2}{2\sigma_2^2}-\frac12$$
+
+令 $\sigma_1=\sigma_2=\sigma$：$\log1=0$，$\dfrac{\sigma^2}{2\sigma^2}-\dfrac12=0$，只剩 $\dfrac{\|\mu_1-\mu_2\|^2}{2\sigma^2}$，和上面的展开一致。
+
+把 mean 写成 noise 的形式。由 $x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\varepsilon$ 得 $x_0=\big(x_t-\sqrt{1-\bar\alpha_t}\,\varepsilon\big)/\sqrt{\bar\alpha_t}$，代进 $\tilde\mu_t$ 的第一项，并用 $\sqrt{\bar\alpha_{t-1}}/\sqrt{\bar\alpha_t}=1/\sqrt{\alpha_t}$：
+
+$$\frac{\sqrt{\bar\alpha_{t-1}}\,\beta_t}{1-\bar\alpha_t}\,x_0=\frac{\beta_t}{(1-\bar\alpha_t)\sqrt{\alpha_t}}\,x_t-\frac{\beta_t}{\sqrt{\alpha_t}\,\sqrt{1-\bar\alpha_t}}\,\varepsilon$$
+
+$x_t$ 的总系数是 $\dfrac{\beta_t+\alpha_t(1-\bar\alpha_{t-1})}{(1-\bar\alpha_t)\sqrt{\alpha_t}}$，分子 $=1-\alpha_t+\alpha_t-\alpha_t\bar\alpha_{t-1}=1-\bar\alpha_t$，所以系数是 $1/\sqrt{\alpha_t}$：
+
+$$\tilde\mu_t=\frac{1}{\sqrt{\alpha_t}}\Big(x_t-\frac{\beta_t}{\sqrt{1-\bar\alpha_t}}\,\varepsilon\Big)$$
+
+Lecture 5 第 37 页这一行把括号前的系数印成了 $1/\sqrt{\bar\alpha_t}$；按上面三行算是 $1/\sqrt{\alpha_t}$，和 DDPM 论文 Eq. 11、Algorithm 2（第 62 页）、pset 4 handout 一致。Network 照样子写 $\mu_\theta=\dfrac{1}{\sqrt{\alpha_t}}\Big(x_t-\dfrac{\beta_t}{\sqrt{1-\bar\alpha_t}}\varepsilon_\theta(x_t,t)\Big)$。两者相减只剩 noise 那一项：
 
 $$D_{\text{KL}}=\underbrace{\frac{\beta_t^2}{2\sigma_t^2\,\alpha_t\,(1-\bar\alpha_t)}}_{\lambda_t}\,\big\|\varepsilon-\varepsilon_\theta(x_t,t)\big\|^2$$
 
@@ -519,7 +593,7 @@ DDPM 把 $\lambda_t$ 设成 1，Lecture 5 说这一步“critical”。为什么
 |---|---|---|---|---|---|
 | $\lambda_t$ | 0.500 | 0.0737 | 0.0101 | 0.0055 | 0.0102 |
 
-ELBO 本来让 $t=1$（几乎没有 noise）那一项的 weight 比 $t=500$ 大 91 倍。这些小 noise 的项只管最细微的细节，对 sample 质量贡献很小。设成 1 等于把 training 的力气大幅挪到中、大 noise level 上。代价是 loss 不再是 likelihood 的 bound。
+ELBO 本来让 $t=1$（几乎没有 noise）那一项的 weight 比 $t=500$ 大 91 倍。这些小 noise 的项只管最细微的细节，DDPM 论文的说法是它们训练 network 去掉极少量的 noise，down-weight 它们有好处。设成 1 等于把 training 的力气大幅挪到中、大 noise level 上。代价是 loss 不再是 likelihood 的 bound。Lecture 5 第 56 页引了 DDPM 论文 Table 2（CIFAR-10）的结果：按真正的 bound 训练（fixed isotropic $\Sigma$）FID 是 13.51，weight 设成 1 的 $L_{\text{simple}}$ 是 3.17。
 
 Network 只有一个：input 是 $x_t$ 和 $t$，output 和 $x_t$ 同样形状。$T$ 个 conditional 共用一个 noise-conditional network，这就是第 1 站的 shared weight。Lecture 5 的总结是：forward 固定、reverse 学 Gaussian、loss 是 noise 上的 L2，就这么简单。
 
@@ -533,7 +607,15 @@ Energy-based model 定义 $p(x)=e^{-E(x)}/Z$。$Z=\int e^{-E(x)}dx$ 在高维算
 
 $$\nabla_x\log p(x)=-\nabla_xE(x)-\nabla_x\log Z=-\nabla_xE(x)$$
 
-例如 $E(x)=(x^2-1)^2$（$\pm1$ 处两个 well），score 是 $-4x(x^2-1)$，在 $x=0.5$ 处是 $1.5$，指向 $+1$ 那个 well。所以与其 parameterize $p$，不如 parameterize score $s_\theta(x)$，用 score matching 去拟合。Vincent 2011 的 denoising score matching 证明：对加了 Gaussian noise 的 data，拟合 score 等价于预测（负的、缩放过的）noise，这就是上面的 $\varepsilon_\theta$。有了 score，用 Langevin dynamics（沿 score 走一步、再加一点 noise）就能 sample，不需要知道 $p$。
+例如 $E(x)=(x^2-1)^2$（$\pm1$ 处两个 well），score 是 $-4x(x^2-1)$，在 $x=0.5$ 处是 $1.5$，指向 $+1$ 那个 well。所以与其 parameterize $p$，不如 parameterize score $s_\theta(x)$，用 score matching 去拟合。Vincent 2011 的 denoising score matching（Lecture 5 第 76、77 页）：data 加 noise 成 $\tilde x=x+\varepsilon$，$\varepsilon\sim N(0,\sigma^2I)$，拟合 noisy data 的 score，等价于拟合 conditional 的 score
+
+$$\nabla_{\tilde x}\log q(\tilde x\mid x)=\frac{x-\tilde x}{\sigma^2}=-\frac{\varepsilon}{\sigma^2}$$
+
+也就是预测负的、除以 $\sigma^2$ 的 noise，这就是上面的 $\varepsilon_\theta$。有了 score，Langevin dynamics（第 78 页）
+
+$$x_t\leftarrow x_{t-1}+\frac{\sigma^2}{2}\nabla_x\log p(x_{t-1})+\sigma z_t,\qquad z_t\sim N(0,I)$$
+
+就能 sample，不需要知道 $p$。Score 换成 $-\nabla_xE$ 时，这一步就是在 energy landscape 上做 gradient descent，再加一点 perturbation。在上面的 double well 里，从 $x=0.5$ 出发、取 $\sigma=0.1$，不算 noise 的那部分走到 $0.5+0.005\times1.5=0.5075$，往 $+1$ 那个 well 挪了一点。
 
 ### 设计空间之一：interpolant 与 prediction target
 
@@ -601,7 +683,7 @@ $$t_m=\frac{\alpha\,t_n}{1+(\alpha-1)\,t_n}$$
 SD3 从另一个角度看步数：rectified flow 在步数减少时退化最少；model 越大，需要的步数越少（5 步相对 50 步的 CLIP score 下降，depth 15 是 4.30%，depth 38 是 2.71%）。SD3 也做了 scaling：depth 到 38（约 8B parameter），validation loss 随 model size 和 training step 平滑下降，并和 GenEval、human preference 相关。
 
 :::from
-Forward process、variance preserving、noise 即 convolution、reverse conditional 依赖 data、DDPM 作为 hierarchical VAE、“KL 变成 L2 是 problem set 的题”“weight 设成 1 是 critical”、noise-conditional network、EBM、score 与 $Z$ 无关、denoising score matching、Langevin 来自 [Lecture 5](https://mit-6s978.github.io/assets/pdfs/lec5_diffusion.pdf)（逐页转述，formula 大多丢失，按 Ho et al. 2020 的标准形式补）。设计空间的表、path 的 formula、ODE/SDE 的比较来自 [SiT](https://arxiv.org/abs/2401.08740) 正文；rectified flow、logit-normal、rank、resolution shift 的推导和 $\alpha=3$、scaling 和步数的数字来自 [SD3](https://arxiv.org/abs/2403.03206) 正文。两篇都在 reading session “Flow Matching 2”。$\lambda_t$ 的数表、$x/\varepsilon/v$ 的换算与 weight 表、logit-normal 的数值、shift 的数值检验、score 的例子是为这一页算的。
+Forward process 与 variance preserving（第 16 页）、noise 即 convolution（第 9 页）、closed form 的 $q(x_t\mid x_0)$（第 21 页）、reverse conditional 依赖 data（第 28、29 页）、$\tilde\mu_t$ 与 $\tilde\beta_t$（第 37 页）、两个 Gaussian 的 KL 与“weight 设成 1 是 critical”（第 45 页）、$\mathcal L_{\text{VLB}}$ 的分解（第 53 页）、Table 2 的引用（第 56 页）、noise-conditional network（第 59、60 页）、DDPM 的两个 algorithm（第 62 页）、EBM、score 与 $Z$ 无关、denoising score matching 与 Langevin 的 formula（第 69 到 78 页）来自 [Lecture 5](https://mit-6s978.github.io/assets/pdfs/lec5_diffusion.pdf) 的原 PDF。Linear schedule 的数值（$T=1000$，$\beta$ 从 $10^{-4}$ 到 0.02）、Eq. 6、7、11、12 的写法、$\sigma_t^2$ 的两种取法、down-weight 小 $t$ 的理由来自 [DDPM 论文](https://ar5iv.arxiv.org/html/2006.11239) 第 2 到 4 节。设计空间的表、path 的 formula、ODE/SDE 的比较来自 [SiT](https://arxiv.org/abs/2401.08740) 正文；rectified flow、logit-normal、rank、resolution shift 的推导和 $\alpha=3$、scaling 和步数的数字来自 [SD3](https://arxiv.org/abs/2403.03206) 正文（两篇都是上一次读的工具转述，这次没有重新核对）。两篇都在 reading session “Flow Matching 2”。$\tilde\mu_t$ 换成 noise 形式的三行、slides 第 37 页系数的核对、$\lambda_t$ 的数表、$x/\varepsilon/v$ 的换算与 weight 表、logit-normal 的数值、shift 的数值检验、score 与 Langevin 一步的例子是为这一页算的。
 :::
 
 ## [mar] 不用 vector quantization 的 autoregression
@@ -630,7 +712,7 @@ $$\mathcal L(z,x)=\mathbb E_{\varepsilon,t}\Big[\big\|\varepsilon-\varepsilon_\t
 
 具体设置（论文和代码）：
 
-- Denoiser 是一个 MLP：若干 residual block，每个是 LayerNorm、Linear、SiLU、Linear 加 residual；$z$ 加到 time embedding 上，通过 AdaLN 进入每个 LayerNorm。默认 3 个 block、width 1024，约 21M parameter，而 MAR-L 本体是 479M。
+- Denoiser 是一个 MLP：若干 residual block，每个是 LayerNorm、Linear、SiLU、Linear 加 residual；$z$ 加到 time embedding 上，通过 AdaLN 进入每个 LayerNorm。论文 ablation 的默认是 3 个 block、width 1024，约 21M parameter，论文说只给 MAR-L 增加约 5% 的 parameter。下面结果表里的最终 model 用更大的 MLP：MAR-B、L、H 分别是 6、8、12 个 block，width 1024、1280、1536（论文 Appendix B 和官方 README 的评测命令）。
 - Training 用 1000 步的 cosine schedule；sampling 时重新取 100 步，论文 Figure 4 显示 100 步够用。
 - Denoiser 很小，所以对同一个 $z$ 抽 4 个 $t$（代码里的 `diffusion_batch_mul=4`），不用重算 Transformer 就把 loss 用了 4 次。
 - Temperature $\tau$：sampling 时把每步加的 noise $\sigma_t\delta$ 乘上 $\tau$，用来调 diversity，相当于 discrete 时 softmax 的 temperature。
@@ -639,7 +721,7 @@ $$\mathcal L(z,x)=\mathbb E_{\varepsilon,t}\Big[\big\|\varepsilon-\varepsilon_\t
 在上图的 toy 里，diffusion 的 sample 1200 个中 50% 左右落在每个 mode（图上标出了右边的比例），没有一个落在 0 附近。
 
 :::wrong Diffusion Loss 就是在每个 token 上把整张图的 diffusion 再做一遍
-Diffusion Loss 的 denoiser 只看一个 16 维的 token 和它的 condition $z$，它只负责“这一个 token 的 distribution 长什么样”；token 之间的 dependence 全部由 Transformer 通过 $z$ 表达。这也是 denoiser 只要 21M parameter（不到 MAR-L 的 5%）就够的原因。和整图的 latent diffusion 相比，分工是 AR 管 joint、diffusion 管 marginal 的形状。
+Diffusion Loss 的 denoiser 只看一个 16 维的 token 和它的 condition $z$，它只负责“这一个 token 的 distribution 长什么样”；token 之间的 dependence 全部由 Transformer 通过 $z$ 表达。这也是 denoiser 只要 21M parameter（约为 MAR-L 的 5%）就够的原因。和整图的 latent diffusion 相比，分工是 AR 管 joint、diffusion 管 marginal 的形状。
 :::
 
 ### 从 raster 到 random order、从 causal 到 bidirectional
@@ -676,7 +758,7 @@ ImageNet $256\times256$，800 epoch：
 | MAR-L | 479M | 2.60 | 1.78 |
 | MAR-H | 943M | 2.35 | 1.55 |
 
-MAR-L 默认设置每张图约 0.29 秒。Bidirectional attention 不能用 KV cache，但每步生成多个 token，总步数只有 64。
+这张表（论文的 system-level 对比）的数字是用 256 个 AR step 评测的：官方 README 的评测命令写的是 `--num_iter 256`，每步一个 token；代码的默认值和论文 ablation 用的是 64 步，README 说减少 AR step 能显著提速。速度方面论文给的是：每张图不到 0.3 秒时 FID 可以低于 2.0（Figure 4 里 MAR-L 级别的 model 是每张 0.286 到 0.291 秒）。Bidirectional attention 不能用 KV cache，每一步都要对全部 256 个位置重算一遍 Transformer，所以 AR step 的个数直接决定速度。
 
 ### Scaling：continuous token 与 random order
 
@@ -694,7 +776,7 @@ Fluid 在 text-to-image 上做了一个 $2\times2$ 实验：discrete token（VQG
 这和第 4 站的 VAR scaling law 并不矛盾：loss 一直按 power law 下降，生成质量却可能先饱和。哪一个 metric 在 scale，要分开看。
 
 :::from
-Diffusion Loss 的 formula、denoiser 结构与大小、1000/100 步、4 个 $t$、temperature、CFG、MAE 式的 bidirectional AR、Table 1、2、4 的数字来自 [MAR](https://arxiv.org/abs/2406.11838) 正文（工具转述）。Masking ratio 的 truncated normal、cosine schedule 与取整、每步至少一个、CFG 的 linear schedule、`diffusion_batch_mul` 对着 [LTH14/mar](https://github.com/LTH14/mar) 的 `models/mar.py`、`models/diffloss.py` 核过；每步 token 数是按代码的规则算的。Fluid 的设置和结论来自 [Fluid](https://arxiv.org/html/2410.13863v1) 正文（转述，没有读到 exponent）。Bimodal 的 toy 和它的 sampling、“AR 管 joint、diffusion 管 marginal 形状”的说法是为这一页写的。
+Diffusion Loss 的 formula、denoiser 结构、1000/100 步、4 个 $t$、temperature、CFG、MAE 式的 bidirectional AR 来自 [MAR](https://arxiv.org/abs/2406.11838) 正文（上一次读的工具转述）；Table 1、Table 2、system-level 对比表的数字、21M 与“约 5%”、Appendix B 的 MLP 大小、“不到 0.3 秒”这次对着 [arXiv HTML](https://arxiv.org/html/2406.11838v2) 核过。Masking ratio 的 truncated normal、cosine schedule 与取整、每步至少一个、CFG 的 linear schedule、`diffusion_batch_mul`、`num_iter` 的默认值 64 对着 [LTH14/mar](https://github.com/LTH14/mar) 的 `models/mar.py`、`models/diffloss.py`、`main_mar.py` 核过，评测时的 256 步和各 model 的 MLP 大小来自它的 README；每步 token 数是按代码的规则算的。Fluid 的设置和结论来自 [Fluid](https://arxiv.org/html/2410.13863v1) 正文（转述，没有读到 exponent）。Bimodal 的 toy 和它的 sampling、“AR 管 joint、diffusion 管 marginal 形状”的说法是为这一页写的。
 :::
 
 ## [fast] One-step 与 few-step generation
@@ -741,32 +823,48 @@ Trajectory 是弯的，Euler 每一步沿切线走，步子大了就偏。真实
 ### Distillation：一步学会 teacher 的多步
 
 :::skip
-这一小节凭我对 Progressive Distillation（reading session “Diffusion Models”的第二篇，这次没有读原文）的了解写成，只讲它的思路和上限。
+这一小节是 reading session “Diffusion Models”第二篇 Progressive Distillation 的做法。跳过的话，只少了“distillation 的上限是 teacher”和“步数很少时不能再预测 noise”这两点。
 :::
 
-Progressive distillation 的做法：让一个 student 用 1 步去拟合 teacher 的 2 步 sampler 的结果；student 训好后当新的 teacher，再减半，反复几轮把步数从上千压到几步。它的上限由 teacher 决定。在 toy 上，用 2 步 Euler 当 teacher，student 能学到的最好结果就是 $\tanh(z_1)$，和 teacher 一样有 0.4435 的平均误差；要更好，teacher 本身必须走得更细。
+Progressive distillation（Salimans 与 Ho）的做法：student 先复制 teacher 的 architecture 和 parameter；对一个 noisy 的 $z_t$，让 teacher 用 deterministic 的 DDIM sampler 走 2 步，再反推出一个 target $\tilde x$，使 student 只走 1 步 DDIM 就落到同一个终点；student 训好后当新的 teacher，步数 $N\to N/2$，重复。论文从多达 8192 步的 sampler 出发一路减半；CIFAR-10 上 1、2、4、8 步的 FID 是 9.12、4.51、3.00、2.57，摘要强调的是 4 步时 FID 3.0。
+
+它的上限由 teacher 决定。在 toy 上，用 2 步 Euler 当 teacher，student 能学到的最好结果就是 $\tanh(z_1)$，和 teacher 一样有 0.4435 的平均误差；要更好，teacher 本身必须走得更细。
+
+论文还指出，步数压到很少时不能再让 network 预测 $\varepsilon$。记 $z_t=\alpha_tx+\sigma_t\varepsilon$，从 $\hat\varepsilon$ 换回 data 要算 $\hat x=(z_t-\sigma_t\hat\varepsilon)/\alpha_t$。Signal-to-noise ratio $\alpha_t^2/\sigma_t^2$ 趋于 0 时 $\alpha_t\to0$，$\hat\varepsilon$ 的一点误差被除以一个接近 0 的数，无限放大；压到 1 步时，network 的 input 是纯 noise，$z_t=\varepsilon$，预测 $\varepsilon$ 不再包含任何关于 $x$ 的信息。本站的 toy 也是这样：path $x_t=(1-t)x+t\varepsilon$ 在 $t=1$ 处 data 的系数 $1-t$ 是 0。论文改为预测 $x$、同时预测 $x$ 和 $\varepsilon$，或者预测
+
+$$v\equiv\alpha_t\varepsilon-\sigma_tx$$
+
+取 $\alpha_t=\cos\phi$、$\sigma_t=\sin\phi$（第 6 站 SiT 的 GVP path 就是这一族），$\dfrac{d}{d\phi}(\cos\phi\,x+\sin\phi\,\varepsilon)=\cos\phi\,\varepsilon-\sin\phi\,x=v$：它是这条 path 的 velocity，和 linear path 的 $\varepsilon-x$ 是同一个想法。Loss 的 weight 也相应改成 truncated SNR，$\max(\alpha_t^2/\sigma_t^2,1)\,\|x-\hat x\|^2$，或 SNR+1，$(1+\alpha_t^2/\sigma_t^2)\,\|x-\hat x\|^2$（后者就是 $\|v-\hat v\|^2$）；两者在 $\alpha_t\to0$ 时 weight 都不再趋于 0。
 
 ### Consistency model
 
-PF-ODE（probability flow ODE）的每条 trajectory 从一个 noise 出发、终止于一个 data point。Consistency model 学一个 function $f(x_t,t)$，把 trajectory 上的任何一点直接映到这条 trajectory 的终点（Yang Song 的 lecture 里 data 端是最小的时刻 $\epsilon$）。两条要求：
+PF-ODE（probability flow ODE）的每条 trajectory 从一个 noise 出发、终止于一个 data point。Consistency model 学一个 function $f(x_t,t)$，把 trajectory 上的任何一点直接映到这条 trajectory 的终点。Yang Song 的 slides 把 data 端写成 $t=0$；论文和 pset 6 停在一个很小的 $\epsilon=0.002$，noise 端是 $T=80$，pixel 缩放到 $[-1,1]$，noisy 的点是 $x+t\,z$（$t$ 直接就是 noise 的 std）。两条要求：
 
-- Self-consistency：同一条 trajectory 上的点映到同一个输出，$f(x_t,t)=f(x_{t'},t')$。
-- Boundary condition：$f(x,\epsilon)=x$。Lecture 强调它靠 network 的 parameterization 保证，不靠 loss：$f_\theta(x,t)=c_{\text{skip}}(t)\,x+c_{\text{out}}(t)\,F_\theta(x,t)$，取 $c_{\text{skip}}(\epsilon)=1$、$c_{\text{out}}(\epsilon)=0$（具体的系数函数在抽取的 slides 里丢了；我记得论文用的是 $c_{\text{skip}}(t)=\dfrac{\sigma_{\text{data}}^2}{(t-\epsilon)^2+\sigma_{\text{data}}^2}$、$c_{\text{out}}(t)=\dfrac{\sigma_{\text{data}}(t-\epsilon)}{\sqrt{\sigma_{\text{data}}^2+t^2}}$，没有核对）。
+- Self-consistency：同一条 trajectory 上的点映到同一个输出，$f(x_t,t)=f(x_{t'},t')$。Lecture 说它靠 learning 保证。
+- Boundary condition：$f(x,\epsilon)=x$。Lecture 强调它靠 network 的 parameterization 保证，不靠 loss（第 16、18 页）：$f_\theta(x,t)=c_{\text{skip}}(t)\,x+c_{\text{out}}(t)\,F_\theta(x,t)$，只要 $c_{\text{skip}}(\epsilon)=1$、$c_{\text{out}}(\epsilon)=0$，不管 network $F_\theta$ 输出什么，$t=\epsilon$ 时都原样输出 $x$。具体的系数 slides 没有给；官方代码（`cm/karras_diffusion.py`）用的是
+
+$$c_{\text{skip}}(t)=\frac{\sigma_{\text{data}}^2}{(t-\epsilon)^2+\sigma_{\text{data}}^2},\qquad c_{\text{out}}(t)=\frac{\sigma_{\text{data}}\,(t-\epsilon)}{\sqrt{\sigma_{\text{data}}^2+t^2}},\qquad\sigma_{\text{data}}=0.5$$
+
+代几个数：$t=\epsilon$ 时 $(c_{\text{skip}},c_{\text{out}})=(1,0)$；$t=0.5$ 时 $(0.502,0.352)$；$t=2$ 时 $(0.059,0.485)$；$t=80$ 时 $(0.000,0.500)$。Noise 小时 output 主要是 input 本身；noise 大时几乎全靠 network，network 的 output 乘上约 $\sigma_{\text{data}}=0.5$。
 
 在 toy 上，trajectory 关于 0 对称、不会穿过 0，所以 consistency function 是 $f(z,t)=\mathrm{sign}(z)$（$t>0$）：一个在 0 处跳变的 step function。这说明了一步生成的难处在哪里：要学的 function 可以非常陡，network 在跳变附近总会有误差。
 
 Training 有两种：
 
 - Consistency distillation（CD）：用一个训好的 diffusion model 在相邻的两个 noise level 之间走一步 ODE，得到同一条 trajectory 上的两个点，要求 student 在两点上的输出一致。Target 那一侧用 EMA 的 weight，距离用 L2 或 LPIPS。
-- Consistency training（CT）：不要 teacher，直接用 data 加同一个 noise 得到相邻 noise level 上的两个点。Lecture 说相邻 noise level 的间隔趋于 0 时 CT 和 CD 一致。
+- Consistency training（CT）：不要 teacher，直接用同一个 data point 加同一个 noise $z$ 得到相邻 noise level 上的两个点（论文 Eq. 10，也是 pset 6 handout 写的 loss）：
 
-Consistency model 也能多步 sample：映到终点、再加一点 noise 回到中间、再映一次，步数换质量。Lecture 的第一版结果（我按论文记忆标注 dataset：ImageNet $64\times64$）：teacher EDM 79 NFE 的 FID 是 2.44，CD 1 步 6.20、2 步 4.70，CT 1 步 12.96、2 步 11.12。
+$$\mathcal L_{\text{CT}}=\mathbb E\Big[\lambda(t_n)\,d\big(f_\theta(x+t_{n+1}z,\;t_{n+1}),\;f_{\theta^-}(x+t_nz,\;t_n)\big)\Big],\qquad\theta^-=\text{EMA}(\theta)$$
+
+Noise 更大的那个点交给正在学的 $\theta$，更小的那个交给 EMA 的 $\theta^-$ 当 target：越靠近 data 端，$f$ 越接近已知的 boundary condition，target 越可靠。相邻的 noise level 取 Karras 的 schedule $t_i=\big(\epsilon^{1/\rho}+\tfrac{i-1}{N-1}(T^{1/\rho}-\epsilon^{1/\rho})\big)^\rho$，$\rho=7$。Lecture 第 31 页说 $|t_{n+1}-t_n|\to0$ 时 CT 的 objective 收敛到用 ground-truth diffusion model 做的 CD。
+
+Consistency model 也能多步 sample（论文 Algorithm 1）：先 $x\leftarrow f_\theta(\hat x_T,T)$；对选定的 $\tau_1>\tau_2>\cdots$ 依次加 noise $\hat x\leftarrow x+\sqrt{\tau_n^2-\epsilon^2}\,z$，再映回 $x\leftarrow f_\theta(\hat x,\tau_n)$。步数换质量。Lecture 第 27、36 页的第一版结果（slides 上没写 dataset；论文引言写明 CD 一步 6.20、两步 4.70 是 ImageNet $64\times64$，CT 那一页用的是同一组 EDM 参照）：teacher EDM 79 NFE 的 FID 是 2.44，CD 1 步 6.20、2 步 4.70，CT 1 步 12.96、2 步 11.12。
 
 :::skip
 iCT 和 sCM 是后续改进的工程细节。跳过的话，只需记住：consistency training 在 CIFAR-10 上一步做到了 FID 2.51，continuous-time 版本以约 1/50 的 sampling 成本接近最好的 diffusion。
 :::
 
-Improved CT（iCT）的改动：小 noise level 上的 weight 加大；EMA decay 设成 0（理由是 loss 和 gradient 都要对上，只有 EMA 为 0 时成立）；距离从 L2 换成 pseudo-Huber（L2 效果差，LPIPS 会和用 Inception feature 的 FID 互相“作弊”）；noise level 按 discretized lognormal 抽，总数随 training 逐步加倍。CIFAR-10 上 1 步 FID 2.51、2 步 2.24。Continuous-time CM（sCM）用 PF-ODE 的切线方向作 supervision，难点是 training 不稳定，靠 TrigFlow（用三角函数统一 EDM 和 flow matching 的 path）、time 上 well-conditioned 的 architecture、adaptive weighting 解决；结论是质量在最好的 diffusion 的 10% 以内，sampling 快约 50 倍。
+Improved CT（iCT）的改动：小 noise level 上的 weight 加大；降低 noise embedding 的敏感度、用比 diffusion 更大的 dropout；EMA decay 设成 0（理由是 loss 和 gradient 都要对上，只有 EMA 为 0 时成立）；距离从 L2 换成 pseudo-Huber（L2 效果差，LPIPS 会和用 Inception feature 的 FID 互相“作弊”）；noise level 按 discretized lognormal 抽，总数随 training 逐步加倍。CIFAR-10 上 1 步 FID 2.51、2 步 2.24。Continuous-time CM（sCM）用 PF-ODE 的切线方向作 supervision，难点是 training 不稳定，靠 TrigFlow（用三角函数统一 EDM 和 flow matching 的 path）、time 上 well-conditioned 的 architecture、adaptive weighting 解决；结论是质量在最好的 diffusion 的 10% 以内，sampling 快约 50 倍。
 
 ### MeanFlow：学整段的平均速度
 
@@ -831,96 +929,172 @@ Distillation 的上限是 teacher 的多步结果；consistency model 要学一�
 :::
 
 :::from
-“diffusion 至少 10 步、最好要上千步”、PF-ODE、consistency function 的定义、self-consistency、boundary condition 靠 parameterization、CD 与 CT、CT 与 CD 的极限关系、多步 sampling、第一版的 FID 数字、iCT 的五项改动和 CIFAR-10 结果、sCM 的思路和结论来自 [Yang Song 的 guest lecture](https://mit-6s978.github.io/assets/pdfs/CM_lecture.pdf)（逐页转述，formula 丢失；$c_{\text{skip}}$、$c_{\text{out}}$ 的具体形式和第一版结果对应的 dataset 凭记忆补，没有核对）。Average velocity、MeanFlow identity 的推导、JVP、target 与 stop gradient、ablation、CFG、结果表和 training 成本来自 [MeanFlow](https://arxiv.org/html/2505.13447v1) 正文（转述）。Progressive distillation 凭自己的知识写，没有读原文。Toy 的 exact velocity、Euler 1 步与 2 步的 closed form、步数表、consistency function 与 average velocity 的 closed form 以及 identity 的验证是为这一页算的。
+“diffusion 至少 10 步、最好要上千步”（第 3 页）、PF-ODE、consistency function 的定义、self-consistency 靠 learning 与 boundary condition 靠 parameterization（第 16、18 页）、CD 与 CT、CT 与 CD 的极限关系（第 21、31 页）、多步 sampling、第一版的 FID 数字（第 27、36 页）、iCT 的改动和 CIFAR-10 结果（第 45 到 51 页）、sCM 的思路和结论（第 54 到 80 页）来自 [Yang Song 的 guest lecture](https://mit-6s978.github.io/assets/pdfs/CM_lecture.pdf) 的原 PDF。$\epsilon=0.002$、$T=80$、Karras schedule 与 $\rho=7$、Algorithm 1、$\mathcal L_{\text{CT}}$（Eq. 10）、“6.20 与 4.70 是 ImageNet $64\times64$”来自 [Consistency Models 论文](https://ar5iv.labs.arxiv.org/html/2303.01469) 的正文前半；它的 Appendix C 没有读到，$c_{\text{skip}}$、$c_{\text{out}}$ 和 $\sigma_{\text{data}}=0.5$ 是对着 [官方代码](https://github.com/openai/consistency_models) 核的。Progressive distillation 的做法、8192 步与 4 步、CIFAR-10 的 FID、$\varepsilon$ 在低 SNR 下的问题、$v$ 的定义与两种 weight 来自 [Progressive Distillation 论文](https://ar5iv.labs.arxiv.org/html/2202.00512) 第 3、4 节和 CIFAR-10 的表。Average velocity、MeanFlow identity 的推导、JVP、target 与 stop gradient、ablation、CFG、结果表和 training 成本来自 [MeanFlow](https://arxiv.org/html/2505.13447v1) 正文（上一次读的工具转述）。Toy 的 exact velocity、Euler 1 步与 2 步的 closed form、步数表、consistency function 与 average velocity 的 closed form 以及 identity 的验证、$c_{\text{skip}}$ 与 $c_{\text{out}}$ 的数值、$v$ 是 GVP path 的 velocity 的那一行、“noise 大的点给 $\theta$、小的给 $\theta^-$”的解释是为这一页写和算的。
 :::
 
 ## 作业
 
-6.S978 的作业是 6 份双周 problem set，课程 schedule 上每份链接到一个 Google Drive 文件夹（pset1 到 pset6）。这次 WebFetch 只拿到文件夹的标题，看不到里面的文件，所以**下面每份作业的具体题目都没有核实**。能确定的只有：发布和截止日期（schedule）、评分方式（课程主页：Good / Fair / Poor / None，去掉最低两次，不收迟交），以及 slides 里两处明确提到 problem set 的地方。下面按每份作业发布与截止之间讲了哪几讲来推测它的范围，提示里注明哪些是 slides 原话、哪些是推测或经验。所需时间和算力也都是估计。
+6 份 problem set 的 handout（PDF）和 notebook（`.ipynb`）放在课程 schedule 链接的 Google Drive 文件夹里，这次逐份读过（frontmatter 的 open 列表有每份的链接）。格式都一样：notebook 里留好了要填的函数（标着 `### Problem N`），data loader、training loop、画图的代码已经给出；交一份报告（`kerberos.pdf`，回答所有问题，附结果图和自己写的代码的截图）和一份所有 cell 都跑过的 notebook，后者单独算 Problem 0（1 分）。Pset 1 交 Gradescope，之后交 Canvas。每份 handout 都建议用 Colab 的免费 GPU，并说 GPU 额度用完时用 CPU 也能在合理时间内做完。评分按课程主页是 Good / Fair / Poor / None，去掉最低两次；迟交政策主页和 handout 说法不一（见页首的考核说明）。没有公开的答案。
 
-另外两项占分更多：seminar（30%，按 reading session 的论文做 presentation）和 final project（40%）。最后两小节写它们。
+下面的提示只指方向，不给答案，每条注明出处：“handout”指 PDF，“notebook”指给定的代码，“slides”指对应讲次，“经验”是这一页自己的判断，标了“跑过”的是我用 numpy 复现后确认的。时间都是估计，没有实测。
 
-### Problem Set 1：VAE（9/10 发布，9/24 截止；先做）
+另外两项占分更多：seminar（30%）和 final project（40%），最后两小节写它们。
 
-**范围。** 这段时间讲了 Lecture 1（Introduction）、Lecture 2（VAE）和 reading session “Modeling Image Prior”“Normalizing Flows”。Lecture 2 的 slides 在讲 Gaussian prior 的 regularization loss 时写着“details in Problem Set 1”（slides 原话），所以至少有一题是推 Gaussian encoder 与 Gaussian prior 之间 KL 的 closed form。
+### Problem Set 1：Autoencoder 与 VAE（先做）
 
-**做完会什么。** 第 2 站的全部内容：ELBO 的两种推导、KL 的 closed form、reparameterization，可能还有一个小 VAE 的实现。
+9 月 10 日发布，9 月 24 日截止（schedule；handout 上印的发布日期是 9 月 5 日）。
 
-**时间和算力。** 推导 2 到 3 小时；如果有 MNIST 上的实现，CPU 或 free Colab 足够（估计）。
+**要实现什么。** 前三题在 MNIST 上，都是 MLP。
 
-**提示。**
+- Problem 1（20 分）：补全 `AE` 的 encoder 和 decoder（latent 固定 2 维，notebook 给的 hidden_dims 是 `[128, 32, 16, 2]`），训练后画 reconstruction，并把 $[-2,2]^2$ 上 $8\times8$ 个 latent 点 decode 拼成一张图。
+- Problem 2（30 分）：(a) 从 $\log p(x)$ 出发写出 ELBO 的完整证明；(b) 补全 `VAE` 的 encoder（输出 mean 和 log variance 各 2 维）和 decoder；(c) 实现 `reparameterize()`；(d) 实现 `log_normal_pdf()`，完成 SGVB 估计（每个 $x$ 只抽一个 $z$ 的 Monte Carlo）。
+- Problem 3（30 分）：(a) 证明 $q(z\mid x)$ 和 prior 都是 Gaussian 时，ELBO 等于 analytic 的 $\tfrac12\sum_d\big(1+\log\sigma_d^2-\mu_d^2-\sigma_d^2\big)$ 加 reconstruction 项；(b) 跑给定的验证代码：每个 $x$ 抽的 $z$ 从 1 个加到 3901 个，看 SGVB 对 KL 项的估计是否收敛到 analytic 的值；(c) 用两种 loss 各训练一个 VAE，比较 reconstruction 和 latent grid。
+- Problem 4（20 分）：在一个 torus 的 3D point cloud（$R=1$、$r=0.5$，3000 个点，input 先过 10 个 frequency 的 positional encoding）上训练 VAE：(a) 画 reconstruction；(b) 在 latent 里对两个点做 linear interpolation 再 decode，得到的 trajectory 像 Euclidean 空间里的直线，而不贴着 torus 的 surface；(c) 可选：改 architecture 和 latent 的表示，让 interpolation 沿着 torus 的 surface 走。
 
-- KL 的 closed form 先在一维推（[6.S184 第 7 站](../courses/MIT-6.S184.html#arch)有完整步骤），diagonal Gaussian 是各维相加。拿第 2 站的表核对：$q=N(1,0.2)$、prior $N(0,1)$ 时 KL 是 0.9047（经验）。
-- Lecture 2 说 covariance 固定时 KL 退化成 encoder mean 上的 L2 loss（slides 原话）。推一遍：$\sigma$ 固定，$\tfrac12(\sigma^2+\mu^2-1-\log\sigma^2)$ 里只有 $\tfrac12\mu^2$ 依赖 encoder（推导是自己做的）。
-- 如果要证明 ELBO 是 lower bound，除了 Jensen，再写一遍第 2 站不用 Jensen 的等式，它同时告诉你 gap 是 $D_{\text{KL}}(q\,\|\,\text{posterior})$，什么时候 bound 是 tight 的就一目了然（经验）。
-- 实现 VAE 时先把 KL 的 weight 设成 0，确认 reconstruction 能降下去，再加回 KL；若 KL 项很快降到接近 0、sample 千篇一律，就是 posterior collapse（经验）。
+**做完会什么。** 第 2 站前半：ELBO 的推导、Gaussian 的 KL、reparameterization，以及 Monte Carlo 估计和 closed form 的关系。Problem 4 是“latent 的形状要和 data 的几何相符”的一个具体例子。
 
-### Problem Set 2：Autoregressive model（9/24 发布，10/8 截止；先做）
-
-**范围。** Lecture 3（AR）和 reading session “AR”“AR and Tokenizers”“AR and Diffusion”（推测）。
-
-**做完会什么。** 第 1、3 站：chain rule、teacher forcing、causal mask；可能有一个 pixel 或 token 级的小 AR model。
-
-**时间和算力。** 估计 4 到 6 小时；MNIST 级别的 AR，free Colab 的 GPU 够用。
+**时间和算力。** 都是小 MLP：MNIST 默认 20 个 epoch，torus 默认 1000 个 epoch，但每个 epoch 只有一个 3000 点的 batch。Free Colab 足够，CPU 也能做（handout）。推导、实验和报告加起来估计 6 到 8 小时（经验）。
 
 **提示。**
 
-- 检查 causality 最快的办法：随机改动位置 $j$ 的 input，确认位置 $<j$ 的 output 一点不变（经验）。Mask 写错往往表现为 training loss 低得可疑，见第 3 站的 :::wrong。
-- Target 要错开一位，第一个位置用一个 start token 或者 learnable 的初始 input（经验）。
-- 报告 likelihood 时常用 bits/dim：$\text{NLL}_{\text{nats}}/(D\ln2)$，$D$ 是 dimension 数。完美的 model 在第 1 站的 bar 世界上是 2 bit / 4 dim = 0.5 bits/dim，可以拿这个 toy 先测自己的代码（经验）。
-- Sampling 和 training 用同一个 network，sampling 时一定要从自己的 output 取 input；多 sample 几张图看有没有第 3 站说的“没见过的 prefix”之后的崩坏（经验）。
+- 2(a)：照第 2 站那三行写，全程是等式，最后一项是 KL，非负，不等式由此而来；每一步用了什么（$q$ 的 integral 为 1、Bayes rule、拆 log）都要标出来，Lecture 2 第 12 到 20 页就是这样逐步标注的（slides）。
+- 3(a)：先在一维推 $D_{\text{KL}}\big(N(\mu,\sigma^2)\,\|\,N(0,1)\big)$，diagonal 的情形是各维相加。推完拿第 2 站的表核对：$q=N(1,0.2)$ 时是 0.9047（经验）。
+- Encoder 输出的是 log variance，不是 $\sigma$；`reparameterize()` 和 `log_normal_pdf(sample, mean, logvar, raxis=1)` 都按这个约定写。后者在算 prior 时，传进来的 mean 和 logvar 是标量 0，要能 broadcast（notebook）。
+- 两个 regularizer 的符号要一致：给定的 `loss_KL_wo_E` 返回的是 $-D_{\text{KL}}$，`loss_SGVB` 返回 $\log p(z)-\log q(z\mid x)$；`loss_func` 把它们乘上 `coeff` 加到 $\log p(x\mid z)$ 上再取负。3(b) 的图上两条曲线应随 sample 数增多而重合，对不上先查 `log_normal_pdf` 的符号和 constant 项（notebook）。
+- Handout 说 MNIST 当 binary image，notebook 的 `loss_func` 用的却是 MSE，也就是 Lecture 2 第 27 页 fixed std 的 Gaussian decoder；KL 前的 `coeff` 默认是 $10^{-3}$，不是 ELBO 本来的 1。报告里写清实际优化的是哪个 objective（notebook、slides）。
+- 3(c) 允许手调 `coeff`。看 latent grid 判断：KL 太弱，grid 上有大片不像数字的空洞；KL 太强，所有 latent 挤向 prior，decode 出来千篇一律，这是 posterior collapse（经验；第 2 站表格的最后一行）。
+- `VAE.__init__` 有 `decode_dim` 和 `use_sigmoid` 两个参数，Problem 4 会用 `decode_dim=3, use_sigmoid=False` 调用同一个 class，写 decoder 时就要支持（notebook）。
+- Problem 4 给定的训练把 KL 的 `coeff` 设成了 0。Interpolation 的两个端点 $(0,1,0)$ 和 $(0,-1,0)$ 不在 torus 的 surface 上：代入 $(\sqrt{x^2+y^2}-R)^2+z^2$ 得 0，surface 上应是 $r^2=0.25$，它们在 tube 的 center circle 上（notebook，数是我算的）。可选的 4(c)：先看 `generate_torus_point_cloud` 用哪两个量参数化 torus，再想什么样的 latent 能让直线 interpolation 对应这两个量的变化，以及怎样表示它们的 periodicity（经验）。
 
-### Problem Set 3：GAN（10/8 发布，10/22 截止；值得做）
+### Problem Set 2：PixelCNN（先做）
 
-**范围。** Lecture 4（GAN）和 reading session “GAN 1/2”（推测）。
+9 月 24 日发布，10 月 8 日截止。
 
-**做完会什么。** 第 5 站：optimal $D$、JS、non-saturating loss，可能有一个 MNIST 上的 GAN（Lecture 4 的 running example 就是 MNIST，代码改编自 prcastro 的 pytorch-gan 仓库）。
+**要实现什么。**
 
-**时间和算力。** 估计 4 到 6 小时；MNIST GAN 在 free Colab 上几分钟到半小时（Lecture 4 展示了 epoch 1 到 500 的结果，不必跑那么久）。
+- Problem 1（20 分）：证明对 binary sequence 的 AR model，negative log-likelihood 等于 binary cross-entropy loss（label $y_i=x_i$）。
+- Problem 2（30 分）：(a) 实现 `MaskedConv2d`，支持两种 mask：type A 把 kernel 中心的 weight 也置 0，当前 pixel 看不见自己；type B 的中心保留；(b) 用它搭 PixelCNN（若干 masked convolution、nonlinearity、需要的 normalization）；(c) 在 binarized MNIST（threshold 取 0.5）上用 cross-entropy 训练（notebook 默认 100 个 epoch、Adam、learning rate $10^{-3}$），再用给定代码逐个 pixel 生成。
+- Problem 3（30 分）：conditional PixelCNN。每层 output 加一个由 label 决定的 bias，$W_\ell*x+b_\ell+V_\ell y$，$y$ 是 one-hot 的 label，$V_\ell y$ 按 channel 加、在空间上 broadcast；训练后每个数字生成 6 张，和 Problem 2 比较。
+- Problem 4（20 分）：证明带 $\ell_2$ regularization（即 weight decay，$\lambda\|\theta\|_2^2$）的 maximum likelihood 等价于 Gaussian prior 下的 MAP，并给出这个 prior 的 mean 和 variance。
 
-**提示。**
+**做完会什么。** 第 1、3 站：chain rule 落到 pixel 上、teacher forcing、“output $i$ 不依赖 input $\ge i$”在 convolution 上怎样实现，以及 likelihood、cross-entropy、MAP 三者的关系。
 
-- 推 $D^*$ 时对每个 $x$ 单独 maximize $a\log D+b\log(1-D)$，第 5 站有完整步骤；代回去之后在两个 log 里各乘除 2 才能凑出 JS（经验）。
-- G loss 用 non-saturating 的 $-\log D(G(z))$（slides 原话：早期 $D(G(z))$ 接近 0，原 loss gradient 很弱）。
-- 同时画 $D$ 在 real 和 fake 上的平均输出：两者迅速分到 1 和 0，说明 $D$ 太强、$G$ 拿不到 gradient；sample 只剩几种数字，是 mode collapse（经验，对应 slides 列的三类问题）。
-
-### Problem Set 4：Diffusion（10/22 发布，11/5 截止；先做）
-
-**范围。** Lecture 5（EBM、score matching、diffusion）和 reading session “Diffusion Models”“Diffusion beyond Denoising”“Discrete Diffusion”“Flow Matching 1”（推测）。Lecture 5 在讲 reverse process 的 learning 时写着“KL divergence between two Gaussians reduces to an L2 loss”，并标注是 problem set 的题（slides 原话）；按时间应在这一份。
-
-**做完会什么。** 第 6 站前两小节：DDPM 的 ELBO、KL 变 L2、noise parameterization 和被丢掉的 weight；可能有一个 toy 或 MNIST 上的 DDPM。
-
-**时间和算力。** 推导 2 到 3 小时；MNIST DDPM 在 free Colab T4 上 training 约半小时到一小时（估计）。
+**时间和算力。** 训练默认 100 个 epoch（handout 允许调）；生成时每个 pixel 要做一次完整的 forward pass。Free Colab 的 GPU 够用（handout）。估计 6 到 8 小时（经验）。
 
 **提示。**
 
-- 先证 variance 相同的两个 Gaussian 的 KL 是 $\|\mu_1-\mu_2\|^2/(2\sigma^2)$（第 6 站三行推完），再把 $\tilde\mu_t$ 和 $\mu_\theta$ 都写成 $\varepsilon$ 的形式相减（经验）。
-- 自己算一遍 $\lambda_t$ 的表，对照第 6 站：linear schedule 下 $t=1$ 是 0.5、$t=500$ 是 0.0055（经验）。
-- 写 sampler 时先拿 data 是两个点的 toy 测：用 exact 的 posterior mean 代替 network，应该准确落到两个点上（经验，第 8 站的 toy 换成 DDPM 的写法也成立）。
-- Schedule 的端点要小心：$1-\bar\alpha_t$ 在 $t=1$ 时等于 $\beta_1=10^{-4}$，除以它的地方数值很大（经验）。
+- Problem 1：把 $x_i=1$ 和 $x_i=0$ 两种情况分开写，看 cross-entropy 的两项各剩下哪一项（经验）。可以拿第 1 站的 bar 世界检验：完美的 model 在任何一张 bar 上的 loss 都是 2 bit。
+- 想清楚哪一层必须用 type A：如果第一层也用 type B，位置 $i$ 的 output 能看见 $x_i$ 本身，这正是第 3 站 :::wrong 里“把 target 直接抄过去”的情形（经验；type A、B 的定义来自 handout 的 Figure 1）。Masked kernel 的画法见 [CS5788 的 autoregressive 一站](../courses/CORNELL-CS5788.html#ar)。
+- 检查 causality：随机改动某个 pixel 的 input，确认按 raster order 排在它之前的位置 output 一点不变；training loss 低得可疑，多半是 mask 漏了（经验）。
+- Training 用的 `F.binary_cross_entropy` 要求 model 的 output 是 probability，形状和 image 一样是 $(B,1,28,28)$（notebook）。
+- 给定的 generation cell 只对 $i>0$ 且 $j>0$ 的 pixel 做 forward 和 sample，第一行、第一列留 0（MNIST 的边框本来是黑的），一共 $27\times27=729$ 次 forward。“Reconstruction”那一格只做一次 forward，每个 pixel 的 condition 是真图像的 prefix，所以它看起来好不代表 generation 好（notebook；对照第 3 站“没见过的 prefix”）。
+- Problem 3：先想清楚 $V_\ell$ 的形状，$y$ 是 10 维，output 有 $C$ 个 channel（handout 说 $V_\ell$ 是一个 2D 的 weight matrix）。
+- Problem 4：handout 的提示是把 $p_\theta(x;\theta)$ 看成 $p(x\mid\theta)$。用 Bayes rule 拆开 $\log p(\theta\mid x)$ 之后，看哪一项与 $\theta$ 无关，Gaussian 的 log density 里哪一项对应 $\lambda\|\theta\|^2$（经验）。
 
-### Problem Set 5：Flow matching（11/5 发布，11/19 截止；先做）
+### Problem Set 3：GAN 与 optimal transport（值得做）
 
-**范围。** reading session “Flow Matching 1/2”、“Application: Videos”“3D and Geometry”（推测）。
+10 月 8 日发布，10 月 22 日截止。
 
-**做完会什么。** 第 6 站后半：interpolant、prediction target 的换算、timestep sampling；可能有一个 flow matching 的实现。
+**要实现什么。**
 
-**时间和算力。** 估计 4 到 6 小时；二维 toy 用 CPU 即可。
+- Problem 1（20 分）：MNIST 上的 unconditional GAN。Generator 和 discriminator 都是 MLP，用 LeakyReLU，不用 batch normalization；G 的 hidden 是 128、256、512，D 是 512、256、128，D 用 dropout，G 不用。画 loss curve 和生成的图。
+- Problem 2（15 分）：三组 ablation：G 的 channel 翻倍；D 加层；每更新 G 一次就更新 D 十次。
+- Problem 3（15 分）：conditional GAN。G 和 D 都用 embedding layer 表示 label，G 把 embedding 拼在 noise 上，D 拼在 image 上。
+- Problem 4（20 分）：(a) 推出固定 $G$ 时的 optimal discriminator；(b) 证明 $C(G)=\max_DV(D,G)$ 的 global minimum 当且仅当 $p_g=p_{\text{data}}$ 时取到，值是 $-\log4$。
+- Problem 5（20 分）：离散的 optimal transport。两个 distribution $v\in\mathbb R^{k_1}$、$w\in\mathbb R^{k_2}$，cost matrix $C=[c_{ij}]$；primal 是在 $T\ge0$、行和为 $v$、列和为 $w$ 的约束下求 $\min\sum_{ij}T_{ij}c_{ij}$。用 Lagrange multiplier 推出 dual：$\max_{\phi,\psi}\sum_iv_i\phi_i+\sum_jw_j\psi_j$，约束是对所有 $i,j$，$\phi_i+\psi_j\le c_{ij}$。
+
+**做完会什么。** 第 5 站全部，外加 Kantorovich–Rubinstein duality 在离散情形下的来历。
+
+**时间和算力。** Notebook 默认每次训练 500 个 epoch，每个 epoch 结束都画图；Problem 1 到 3 一共要训练 5 次。都是 MLP，free Colab 的 GPU 够（handout），但 5 次各 500 个 epoch 加起来要很多小时（估计）。两道理论题估计 3 到 4 小时（经验）。
 
 **提示。**
 
-- 先确定 $t$ 的方向。Lipman et al. 和 [6.S184](../courses/MIT-6.S184.html) 用 $t=1$ 表示 data，SD3、SiT 的 linear path、MeanFlow 用 $t=1$ 表示 noise；照抄 formula 时一个符号就会反（经验）。
-- $x$、$\varepsilon$、$v$ 的换算是第 6 站的两行 formula，写成函数后用 random tensor 测一遍 round trip（经验）。
-- 二维 toy 上把 uniform 的 $t$ 换成 logit-normal(0, 1) 比较一下生成质量；用 `torch.sigmoid(torch.randn(...))` 就能抽（经验）。
-- Sampling 时比较 Euler 走 1、2、4、8 步，结果应该和第 8 站的步数表同一个趋势（经验）。
+- Data loader 做了 `Normalize(0.5, 0.5)`，pixel 在 $[-1,1]$；loss 是 `nn.BCELoss`。所以 D 的最后一层要输出 probability，G 的最后一层要输出和 data 同一个范围的值（notebook）。
+- 给定的 `train_generator` 优化的是 `criterion(D(G(z)), 1)`，即 $-\log D(G(z))$，第 5 站的 non-saturating 版本；另外记录的 `g_loss_fake` 是 $-\log(1-D(G(z)))$，只画不优化。读 loss 图时先分清四条曲线各是什么（notebook；Lecture 4 第 38、39 页注明“所有 objective 都取了原式的负号”）。
+- “D 更新 10 次、G 更新 1 次”不用改 training loop：`train_main_loop` 有一个 `d_freq` 参数（notebook）。
+- Conditional D 的 `forward` 先把 image view 成 784 维，再拼 label 的 embedding，第一层 Linear 的 input 维数要跟着改（notebook）。
+- 先用少量 epoch 跑通，看 notebook 每 100 个 step 打印的 $D(x)$ 和 $D(G(z))$ 的平均值：两者迅速分到 1 和 0，说明 D 太强、G 拿不到 gradient；sample 只剩一两种数字是 mode collapse（经验，对应 Lecture 4 第 42 页的三类问题）。Lecture 4 第 41 页给了这份代码的来源（改编自 prcastro/pytorch-gan）在 epoch 1、20、50、300、500 的 sample，可以当参照。另一个能手算的 training dynamics 的 toy（Dirac GAN）见 [CS5788 的 GAN 一站](../courses/CORNELL-CS5788.html#gan)。
+- 4(a)(b)：第 5 站的推导就是 Goodfellow et al. 2014 的思路。写作业时要补全两处理由：为什么可以对每个 $x$ 单独 maximize integrand，以及 $D_{\text{JS}}=0$ 为什么只在两个 distribution 相等时成立（经验）。
+- Problem 5：两组 equality constraint 各配一组 multiplier（它们就是 $\phi$ 和 $\psi$），$T\ge0$ 配第三组；对 $T$ 取 inf 时，想清楚什么条件下 Lagrangian 不会趋于 $-\infty$（handout 指向 KKT 条件，其余是经验）。推完可以用 `scipy.optimize.linprog` 在一个 $2\times2$ 的小例子上数值核对 primal 和 dual 的最优值相等，并用第 5 站的一维 cdf formula 再算一遍（经验）。
 
-### Problem Set 6（11/19 发布，12/3 截止；有余力再做）
+### Problem Set 4：DDPM 与 SDE（先做）
 
-**范围。** 这段时间是 reading session “Application: Robotics”“Material Science”“Protein and Biology”和 Yang Song 的 consistency models guest lecture。题目完全无从推测。如果和 consistency model 有关，第 8 站的 toy 可以用来测：consistency function 在那里是 $\mathrm{sign}(z)$，average velocity 是 $(z-\mathrm{sign}(z))/t$（经验）。
+10 月 22 日发布，11 月 5 日截止。
+
+**要实现什么。**
+
+- Problem 1（40 分）：在 MNIST 上实现 class-conditional 的 DDPM。(a) `ddpm_schedules()`：$\beta_t$ 从 $\beta_{\min}$ 线性增加到 $\beta_{\max}$，再算出 $\alpha_t$、$\bar\alpha_t$ 和 notebook 要的其余几个量（$1/\sqrt{\alpha_t}$、$\sqrt{\beta_t}$、$\sqrt{\bar\alpha_t}$、$\sqrt{1-\bar\alpha_t}$、$(1-\alpha_t)/\sqrt{1-\bar\alpha_t}$）；(b) forward process；(c) `sample()`：从 $x_T\sim N(0,I)$ 出发，按 handout 给的 reverse step 一步步走回去，这一步就是第 6 站算出的 $\tilde\mu_t$（$\varepsilon$ 换成 $\varepsilon_\theta$）再加 $\sigma_tz$；(d) 用给定代码训练。Network 是给定的 `ContextUnet`（label 和 $t$ 都是 input），sampling 带 classifier-free guidance，guidance weight 取 0、0.5、2.0。
+- Problem 2（30 分）：ablation：把 $T$ 改成 2000 和 500；inference 时用 50 步和 100 步的 resampling schedule，代替 training 时的全部步数。
+- Problem 3（40 分）：continuous-time 的 toy，记号跟 Song et al. 的 SDE 论文 Appendix C 里 DDPM 对应的 SDE。Data 是两个 Gaussian 的 mixture（notebook 里 mean $\pm0.5$、std 0.02、各一半，$\beta_{\min}=0.1$、$\beta_{\max}=50$，离散成 1000 步）：(a) 写出 $p(x(t))$；(b) 写出 $\nabla_x\log p_t(x)$ 的 analytic 形式（实际中这一项由 network 学）；(c) 实现两者，画出 forward 和 reverse SDE 的 trajectory。
+
+**做完会什么。** 第 6 站的前三小节：forward process 的 closed form、reverse step 的 formula 从哪里来、noise prediction 与 score 的关系；外加 classifier-free guidance 的实现和 sampling 步数的取舍。
+
+**时间和算力。** `ContextUnet` 取 `n_feat=128`，notebook 默认 $T=400$、20 个 epoch，每个 epoch 末尾对三个 guidance weight 各做一次完整的 $T$ 步 sampling；Problem 2 还要再训练两次。Free Colab 的 T4 可以做，全部跑完要几个小时（估计）。Problem 3 是 numpy，CPU 上几秒。
+
+**提示。**
+
+- Handout 写的是 $t=0,\dots,T-1$ 共 $T$ 个 $\beta$，notebook 的 `sample()` 循环却是 `for i in range(self.n_T, 0, -1)`，会用到 index $T$；schedule array 的长度和 index 约定要和这个循环对上（notebook）。
+- Handout 说 `forward()` 返回 $x_t$，notebook 的 training loop 却写 `loss = ddpm(x, c)`；以 notebook 为准，`forward` 里抽 $t$ 和 noise、算 $x_t$，再返回 loss（notebook）。
+- `ContextUnet.forward(x, c, t, context_mask)` 里 `context_mask` 为 1 的样本，label 会被清零，表示不给 condition；`sample()` 把后一半 batch 的 mask 设成 1，注释是 context-free。Training 时要按 `drop_prob=0.1` 随机设这个 mask，sampling 时的 guidance 才有东西可用（notebook）。
+- Time embedding 是 `EmbedFC(1, …)`，直接吃一个 real number。传 integer 的步数还是除以 $T$ 之后的值都可以，但 training 和 sampling 必须一致（notebook；“必须一致”是经验）。
+- 给定的 training loop 每个 epoch 对三个 guidance weight 都 sample 一次，却只画最后一个（$w=2.0$）；调试时可以先只留一个（notebook）。
+- Problem 2 改 $T$ 时 $\beta$ 的范围不变，$x_T$ 离纯 noise 有多远会跟着变：$T=400$ 时 $\bar\alpha_T=0.0175$（$x_T$ 里 data 的系数 $\sqrt{\bar\alpha_T}$ 还有 0.13），$T=500$ 时 0.0064，$T=1000$ 时 $4.0\times10^{-5}$。Handout 说 training 用 1000 步，notebook 默认是 400，报告里写清 baseline 用的是哪个（数是我算的）。
+- 跳步的 resampling schedule：保留下来的那些 $t$ 上 $\bar\alpha_t$ 不变，相邻两个保留步之间的 $\beta$、$\alpha$ 要由它们重新推出来，不能沿用原来那一步的 $\beta_t$（经验）。只用 $\bar\alpha$ 跳步的另一种做法（DDIM）见 [CS5788 的 diffusion 一站](../courses/CORNELL-CS5788.html#diff)。
+- Lecture 5 第 37 页 $\tilde\mu_t$ 的系数印成了 $1/\sqrt{\bar\alpha_t}$，handout 和 DDPM 的 Algorithm 2 是 $1/\sqrt{\alpha_t}$，第 6 站有三行核对。
+- Problem 3：先写出单个 Gaussian 经过这个 SDE 之后在时刻 $t$ 的 distribution（Appendix C 给了 perturbation kernel，要用到 $\int_0^t\beta(s)\,ds$），再利用 mixture 的 linearity。Notebook 的 $t$ 是 0 到 999 的 integer index，`get_beta_t` 里除以了 `timesteps`，integral 也要用同一个换算（handout、notebook）。
+- Notebook 给的 `backward_sde` 里，更新那一行是 `x[t] + (f - g**2 * score) * dt + ...`。我用正确的 score 照这一行跑，sample 发散到 $10^8$ 的量级；想清楚 reverse SDE 里时间倒着走时 $dt$ 的符号，再核对这一行（经验，跑过）。
+- Std 只有 0.02，在 `x_grid` 两端直接算 pdf 再相除会出现 $0/0$；在 log 域里算更稳（经验）。
+
+### Problem Set 5：Conditional flow matching（先做）
+
+11 月 5 日发布；schedule 写 11 月 19 日截止，handout 上印的是 11 月 12 日，以 Canvas 为准。
+
+**要实现什么。** 记号跟 Lipman et al. 的 Flow Matching 论文：$x_0$ 是 noise，$x_1$ 是 data，$t=1$ 是 data 端，和本页第 6、8 站相反。
+
+- Problem 1（40 分）：在 MNIST 上实现 conditional flow matching，用 optimal transport 的 conditional vector field：$\mu_t(x)=tx_1$，$\sigma_t(x)=1-(1-\sigma_{\min})t$，$\psi_t(x)=\big(1-(1-\sigma_{\min})t\big)x+tx_1$，loss 是 $\mathbb E\,\big\|v_t(\psi_t(x_0))-\big(x_1-(1-\sigma_{\min})x_0\big)\big\|^2$，$\sigma_{\min}=0$。要写 `compute_mu_t()`、`compute_sigma_t()`、`compute_conditional_flow()`、`sample_xt()`，再用给定代码训练（UNet，`n_feat=128`，10 个 epoch）；sampling 用 `torchdiffeq.odeint`（默认 `dopri5`）从 $t=0$ 积到 1。
+- Problem 2（30 分）：ablation：ODE solver 换成 `dopri8`、`bosh3`、`fehlberg2`、`adaptive_heun` 中的两个；把 conditional vector field 换成 diffusion 的那一种。
+- Problem 3（30 分）：二维 toy。Source 是 $N((-10,0),I)$，target 是 $N((10,0),I)$，conditional path $x_t=(1-t)x_0+tx_1$，$x_0$、$x_1$ 独立配对。(a) 推出 marginal flow $u(x_t)$ 的 closed form；(b) 实现 `conditional_paths()` 和 `marginal_flow()`；画出 conditional path 和 marginal path，对照 handout 指定的 Cambridge MLG flow matching blog 的 Figure 11、12。
+
+**做完会什么。** 第 6 站 interpolant 与 prediction target 的部分在另一套记号下再走一遍，以及“conditional path 会交叉、marginal flow 不会”。为什么 regress conditional velocity 能学到 marginal，见 [6.S184 第 3 站](../courses/MIT-6.S184.html#fm)。
+
+**时间和算力。** 10 个 epoch 的 UNet 在 free Colab 的 GPU 上可以做（handout）；adaptive solver 的步数随 tolerance 变，sampling 时间不固定。Problem 3 是 numpy。估计 6 到 8 小时（经验）。
+
+**提示。**
+
+- 先确定 $t$ 的方向：这份作业 $t=1$ 是 data，SD3、SiT 的 linear path 和 MeanFlow 是 $t=1$ 为 noise；照抄 formula 时一个符号就会反（经验）。
+- 对照 `train_main_loop` 看 `x0`、`x1` 各是什么（`x0 = torch.randn_like(x1)`），再想 $\sigma_{\min}=0$ 时 `sample_xt` 的 `epsilon` 参数和 $\sigma_t$ 起什么作用；handout 的写法和 notebook 的函数签名要先对上（notebook）。
+- `t` 的形状是 $(B,)$，和 $(B,1,28,28)$ 的 image 相乘前要 reshape，notebook 给了 `pad_t_like_x` 这个 helper（notebook）。
+- 比较 solver 时同时记下 network evaluation 的次数（NFE），给 model 包一层计数器即可；只看图像质量看不出 adaptive solver 花了多少步（经验）。
+- Diffusion 的 conditional vector field 在 Lipman et al. 论文第 4.1 节的 Example I（VE 和 VP 两种）；VP 那个的 denominator $1-\alpha_{1-t}^2$ 在 $t\to1$（data 端）时趋于 0，论文 training 时把 $t$ 限制在 $[0,1-10^{-5}]$（论文）。
+- Problem 3：$x_t$ 和 $x_1-x_0$ 是 jointly Gaussian，所以 $\mathbb E[x_1-x_0\mid x_t=x]$ 是 $x$ 的 linear function（经验）。也可以照 handout 的 formula 对 $x_1$ 求 integral；那样 $u_t(x\mid x_1)$ 里会出现 $1/(1-t)$，而 `generate_marginal_paths` 最后一次正好在 $t=1$ 处调用 `marginal_flow`，端点要处理（notebook）。
+- 画出来的 conditional path 会交叉，marginal path 不会，因为同一个 ODE 的解不相交；marginal path 交叉了，就是 formula 或实现有错（经验）。
+
+### Problem Set 6：Consistency model（值得做）
+
+11 月 19 日发布，12 月 3 日截止。
+
+**要实现什么。** 记号跟 Consistency Models 论文：noise 端 $T=80$，data 端 $\epsilon=0.002$；MNIST pad 到 $32\times32$、缩放到 $[-1,1]$。
+
+- Problem 1（60 分）：(a) `forward()`：按论文 Appendix C 的 $c_{\text{skip}}$、$c_{\text{out}}$ 实现 $f_\theta(x,t)=c_{\text{skip}}(t)\,x+c_{\text{out}}(t)\,F_\theta(x,t)$（UNet 部分已给）；(b) `sample()`：论文 Algorithm 1 的 multistep sampling；(c) `loss()`：consistency training 的 loss，target 一侧用 EMA model；(d) 用给定代码训练（默认 `n_feat=256`、100 个 epoch）。
+- Problem 2（40 分）：ablation：`n_feat` 取 256、128、64；sampling 从默认的 5 步（$t=80,40,20,10,5$）改成 2 步，讨论质量和计算量的取舍。
+
+**做完会什么。** 第 8 站 consistency model 一小节的全部：boundary condition 怎样靠 parameterization 保证、self-consistency 怎样变成一个 loss、多步 sampling 怎样用步数换质量。
+
+**时间和算力。** 默认 `n_feat=256` 训练 100 个 epoch，Problem 2 还要再训练两个更小的 model；free Colab 一次 session 未必够，先用少量 epoch 确认 loss 和 sample 正常（估计）。
+
+**提示。**
+
+- Training loop 里的时间是 `boundaries[t]`，`t` 是 $(B,1)$ 的 integer index，所以时间的形状是 $(B,1)$；`forward` 最后一行写的是 `c_skip_t[:, :, None, None] * x_ori`，$c_{\text{skip}}$、$c_{\text{out}}$ 也要算成 $(B,1)$（notebook）。
+- 写完 (a) 先查 boundary condition：$t=\epsilon$ 时不论 network 输出什么，$f_\theta(x,\epsilon)$ 都应等于 $x$；第 8 站给了 $c_{\text{skip}}$、$c_{\text{out}}$ 在几个 $t$ 上的值可以对照（经验）。
+- `model.loss(x, z, t_0, t_1, ema_model)` 收到的两个时间里，`t_0` 是较小的 $t_n$，`t_1` 是较大的 $t_{n+1}$；对照 handout 的 $\mathcal L_{\text{NCT}}$，决定哪个时间给正在训练的 model、哪个给 EMA model，以及哪一侧不要 gradient（notebook、handout）。
+- Handout 没规定距离 $d(\cdot,\cdot)$ 和 weight $\lambda(t_n)$。Yang Song 的 lecture 第 45、47 页：iCT 给小 noise level 更大的 weight，squared L2 效果差，改用 pseudo-Huber（slides）。
+- `sample(x, ts)` 收到的 `ts` 第一个就是 $T=80$，传进来的 `x` 已经乘了 80；Algorithm 1 的第一步和循环里的步不一样，循环里加 noise 用的是 $\sqrt{\tau_n^2-\epsilon^2}$（notebook、论文 Algorithm 1）。
+- 给定的 training loop 已经写好了离散步数 $N$ 和 EMA rate 的 schedule：$N$ 随 epoch 从 16 增加到 150（第 1 个 epoch 算出来是 16），EMA 的 $\mu=\exp(2\log0.95/N)$，$N=16$ 时 0.9936，$N=150$ 时 0.9993；不用自己写（notebook，数是我算的）。
+- 第 8 站的 $\pm1$ toy 换成这份作业的 $x+tz$ 写法，consistency function 仍是 $\mathrm{sign}(z)$：data 关于 0 对称，$z=0$ 处 velocity 为 0，别的 trajectory 穿不过 0。可以先用它代替 network 测 `sample()` 的逻辑（经验）。
 
 ### Seminar presentation
 
-每次 reading session 讲三篇论文，学生按时报名、上传 slides、做 presentation、参与讨论（课程主页的分项：5% 报名与按时上传、20% presentation、5% 讨论）。提示（都是经验）：
+每次 reading session 讲三篇论文，每个学生负责其中一篇：约 20 分钟报告，之后约 10 分钟讨论和问答；报告前一周报名选时段，报告前一天（周一或周三）下午 1 点前上传 slides。分项是按时报名与上传 5%、presentation 20%（清楚、深度、互动）、讨论 5%（课程主页）。提示（都是经验）：
 
 - 用第 1 站的问法开场：这篇论文的 $x$ 和 $y$ 是什么，它把 joint distribution 怎样拆，哪一块是设计的、哪一块是学的。Kaiming He 的 lecture 一直这样讲。
 - 三篇论文放在一起讲它们的差别。例如 “AR and Diffusion” 的 MAR、Transfusion、Show-o 都在一个 model 里同时用 AR 和 diffusion，分工却不同。
@@ -928,7 +1102,7 @@ Distillation 的上限是 teacher 的多步结果；consistency model 要学一�
 
 ### Final project
 
-最多两人一组，交 proposal、做 final presentation、写一篇 blog post。课程主页要求 blog post 面向一般读者、有入门和教学性质，并给了几个范例（Yang Song 讲 score 的 blog、Sander Dieleman 的 perspectives、Lilian Weng 的 video diffusion、Chris Olah 的 LSTM、Andrej Karpathy 的 RNN）。提示（经验）：
+最多两人一组，交 proposal、做 final presentation、写一篇 blog post。课程主页要求 blog post 面向一般读者，有入门和教学性质，并给了六个范例：Yang Song 讲 score 的 blog、Sander Dieleman 的 perspectives on diffusion、Lilian Weng 的 video diffusion、一篇关于 AI 前景的科普长文（The AI Revolution: The Road to Superintelligence）、Chris Olah 讲 LSTM、Andrej Karpathy 讲 RNN。提示（经验）：
 
 - 范例都是“一个问题讲透”，配大量自己画的图。选题时先想清楚一个 toy 能不能把核心现象演示出来，就像第 8 站的 $\pm1$ toy 演示了一步生成为什么失败。
-- 算力有限时，二维 toy、MNIST、CIFAR-10 上的对比实验足够支撑一篇好的 blog；第 6 站的 SiT 式 ablation（换一个 design choice、其余不动）是最容易做出可信结论的实验设计。
+- 算力有限时，二维 toy、MNIST、CIFAR-10 上的对比实验足够支撑一篇好的 blog；第 6 站的 SiT 式 ablation（换一个 design choice、其余不动）是最容易做出可信结论的实验设计。6 份 pset 的 notebook 都是在 MNIST 上从零训练，可以直接当起点。
