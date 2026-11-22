@@ -602,6 +602,92 @@ function landscape() {
   return svg(560, 274, o, `double integrator 的 LQR cost 作为 K 的 function：true gradient descent 和只靠两次 cost 评估的 weight perturbation 都从 (0.4, 4) 走到 K 星 (1, 根号 3) 附近`);
 }
 
+// ---------- 第 6 站：collision 就是把速度沿新 leg 的分量投影掉 ----------
+function impact() {
+  const al = Math.PI / 8, L = 150, gy = 214, cx = 150;
+  // math 坐标：x 向右、y 向上；hub 在两只 foot 正中上方
+  const P = (x, y) => [cx + x, gy - y];
+  const hub = [0, L * Math.cos(al)], f1p = [-L * Math.sin(al), 0], f2p = [L * Math.sin(al), 0];
+  const V = 120, vm = [Math.cos(al), -Math.sin(al)];          // v⁻ ⟂ 旧 leg（单位向量）
+  const n = [-Math.sin(al), Math.cos(al)];                    // 新 leg：新 foot → hub
+  const dot = vm[0] * n[0] + vm[1] * n[1];                    // = −sin 2α
+  const vp = [vm[0] - dot * n[0], vm[1] - dot * n[1]];         // v⁺ = (I − n nᵀ) v⁻
+  const kept = Math.hypot(...vp), lost = Math.abs(dot);
+  let o = line(...P(-L * 0.75, 0), ...P(L * 0.75, 0), 'axis');
+  for (let k = 0; k < 14; k++) { const q = P(-L * 0.72 + k * 16, 0); o += line(q[0], q[1], q[0] - 5, q[1] + 7, 'grid'); }
+  o += line(...P(...f1p), ...P(...hub), 'mute') + line(...P(...f2p), ...P(...hub), 'ink-b');
+  o += circle(...P(...f1p), 3.5, 'paper') + circle(...P(...f2p), 3.5, 'ink-f');
+  o += text(...P(f1p[0] - 6, -20), '旧 stance foot', 'ts', 'middle') + text(...P(f2p[0] + 6, -20), '新着地点', 'ts', 'middle');
+  // 2α 的角
+  const arc = []; for (let k = 0; k <= 16; k++) { const t = -al + 2 * al * k / 16; arc.push(P(hub[0] - 34 * Math.sin(t), hub[1] - 34 * Math.cos(t))); }
+  o += path(d(arc), 'mute') + text(...P(0, hub[1] - 52), '2α', 'ts', 'middle');
+  const H = P(...hub), tip = (v, s = V) => [H[0] + s * v[0], H[1] - s * v[1]];
+  // v⁻、v⁺ 与被去掉的分量
+  o += arrow(H[0], H[1], ...tip(vm), 'ink');
+  o += arrow(H[0], H[1], ...tip(vp, V), 'ln');
+  const a = tip(vp), b = tip(vm);
+  o += line(a[0], a[1], b[0], b[1], 'dash');
+  o += circle(...H, 7, 'solid');
+  const vmT = tip(vm, V + 12), vpT = tip(vp, V + 14);
+  o += text(vmT[0] + 2, vmT[1] + 12, 'v⁻', 'tb', 'start') + text(vpT[0] + 4, vpT[1] + 2, 'v⁺', 'tl', 'start');
+  const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  o += text(mid[0] + 10, mid[1] + 4, '去掉', 'ts', 'start');
+  o += text(H[0] - 12, H[1] - 6, 'hub', 'ts', 'end');
+  // 右边：数
+  const X = 330;
+  o += text(X, 34, 'v⁻ 垂直于旧 leg', 't') + text(X, 54, '新 leg 着地后 hub 绕新着地点转，', 't') + text(X, 74, 'v⁺ 必须垂直于新 leg：', 't');
+  o += text(X, 100, 'v⁺ = (I − n nᵀ) v⁻', 'tb');
+  o += text(X, 126, `沿新 leg 的分量 sin 2α = ${lost.toFixed(3)}`, 'ts') + text(X, 144, '被 impulse 吃掉（虚线）', 'ts');
+  o += text(X, 170, `留下 |v⁺| / |v⁻| = cos 2α = ${kept.toFixed(3)}`, 'tl');
+  o += text(X, 196, `速度平方留下 ${(kept * kept * 100).toFixed(0)}%`, 'ts') + text(X, 214, 'α = π/8，8 根 leg', 'ts');
+  return svg(560, 240, o, `rimless wheel 的 collision：着地前 hub 速度垂直于旧 leg，沿新 leg 的分量被 impulse 去掉，留下 cos 2 alpha 等于 ${kept.toFixed(3)} 倍`);
+}
+
+// ---------- 第 6 站：compass gait 的 model ----------
+function compass() {
+  const phi = 0.0525, thst = 0.32, L = 168, a = 0.5;
+  // 坡往右下；math 坐标，stance foot 在原点
+  const sx0 = 150, sy0 = 210, P = (x, y) => [sx0 + x, sy0 - y];
+  const hip = [L * Math.sin(thst), L * Math.cos(thst)];
+  // swing leg：从 hip 往下，与竖直夹 θsw（顺时针为正），解 swing foot 落在坡面 y = −x tan φ 上
+  let lo = -1.2, hi = 0;
+  const footSw = (t) => [hip[0] - L * Math.sin(t), hip[1] - L * Math.cos(t)];
+  const gap = (t) => { const f = footSw(t); return f[1] + f[0] * Math.tan(phi); };
+  for (let k = 0; k < 80; k++) { const m = (lo + hi) / 2; (gap(m) > 0 ? (lo = m) : (hi = m)); }
+  const thsw = (lo + hi) / 2, fs = footSw(thsw);
+  let o = path(d([P(-60, 60 * Math.tan(phi)), P(330, -330 * Math.tan(phi))]), 'axis');
+  for (let k = 0; k < 24; k++) { const x = -54 + k * 16, q = P(x, -x * Math.tan(phi)); o += line(q[0], q[1], q[0] - 5, q[1] + 7, 'grid'); }
+  // 竖直参考线
+  o += line(...P(0, 0), ...P(0, L * 0.38), 'dash') + line(...P(...hip), ...P(hip[0], hip[1] - L * 0.62), 'dash');
+  // legs
+  o += line(...P(0, 0), ...P(...hip), 'ink-b') + line(...P(...hip), ...P(...fs), 'ink-b');
+  // leg 上的 mass：离 foot a
+  const mSt = [hip[0] * a, hip[1] * a], mSw = [fs[0] + (hip[0] - fs[0]) * a, fs[1] + (hip[1] - fs[1]) * a];
+  o += circle(...P(...mSt), 7, 'solid') + circle(...P(...mSw), 7, 'solid') + circle(...P(...hip), 11, 'solid');
+  o += circle(...P(0, 0), 3.5, 'ink-f') + circle(...P(...fs), 3.5, 'paper');
+  o += text(...P(hip[0] + 16, hip[1] + 4), it('m') + '<tspan class="sub" dy="3">h</tspan>', 't', 'start');
+  o += text(...P(mSt[0] - 14, mSt[1] - 2), it('m'), 't', 'end') + text(...P(mSw[0] + 14, mSw[1] - 2), it('m'), 't', 'start');
+  // a、b 标在 stance leg 左侧
+  const nrm = [-Math.cos(thst), Math.sin(thst)];
+  const lab = (p, s) => { const q = P(p[0] + 16 * nrm[0], p[1] + 16 * nrm[1]); return text(q[0], q[1] + 4, s, 'ts', 'middle'); };
+  const labR = (p, s) => { const q = P(p[0] - 16 * nrm[0], p[1] - 16 * nrm[1]); return text(q[0], q[1] + 4, s, 'ts', 'middle'); };
+  o += labR([mSt[0] / 2, mSt[1] / 2], it('a')) + lab([(mSt[0] + hip[0]) / 2, (mSt[1] + hip[1]) / 2], it('b'));
+  // 角度
+  const arcA = (c, r, t0, t1, down) => { const pts = []; for (let k = 0; k <= 20; k++) { const t = t0 + (t1 - t0) * k / 20; pts.push(P(c[0] + r * Math.sin(t) * (down ? -1 : 1), c[1] + r * Math.cos(t) * (down ? -1 : 1))); } return path(d(pts), 'mute'); };
+  o += arcA([0, 0], 46, 0, thst, false) + text(...P(-8, 40), 'θ<tspan class="sub" dy="3">st</tspan>', 'ts', 'end');
+  o += arcA(hip, 64, 0, thsw, true) + text(...P(hip[0] - 64 * Math.sin(thsw) + 10, hip[1] - 60), 'θ<tspan class="sub" dy="3">sw</tspan>', 'ts', 'start');
+  o += text(...P(0, -22), 'stance foot', 'ts', 'middle') + text(...P(fs[0], fs[1] - 22), 'swing foot 着地', 'ts', 'middle');
+  // hip torque
+  o += text(...P(hip[0] - 18, hip[1] + 20), 'hip torque ' + it('u'), 'ts', 'end');
+  const X = 380;
+  const sb = (s) => `<tspan class="sub" dy="3">${s}</tspan><tspan dy="-3">`;
+  o += text(X, 40, `m = 5 kg，m${sb('h')} = 10 kg</tspan>`, 't');
+  o += text(X, 64, 'a = b = 0.5 m，l = a + b', 't') + text(X, 88, `坡度 φ = ${phi} rad`, 't');
+  o += text(X, 124, '两个角都从竖直方向量，', 'ts') + text(X, 142, '顺时针为正；这一刻', 'ts') + text(X, 160, `θ${sb('st')} = ${thst.toFixed(2)}，θ${sb('sw')} = ${fmt(thsw)}</tspan></tspan>`, 'ts');
+  o += text(X, 196, 'B = (−1, 1)ᵀ：hip torque', 'ts') + text(X, 214, '对两根 leg 等大反向', 'ts');
+  return svg(560, 246, o, `compass gait：stance leg 和 swing leg 在 hip 处铰接，hip mass m_h，每根 leg 上离 foot a 处有 mass m；这一刻 swing foot 正落在坡上`);
+}
+
 export default {
   'm6821-limit': limit,
   'm6821-cart': cart,
@@ -613,6 +699,8 @@ export default {
   'm6821-ilqr': ilqrA,
   'm6821-roa': roa,
   'm6821-wheel': wheelA,
+  'm6821-impact': impact,
+  'm6821-compass': compass,
   'm6821-policy': landscape,
 };
 

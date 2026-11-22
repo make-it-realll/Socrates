@@ -1,8 +1,8 @@
 ---
 code: MIT-6.8210
 evidence: syllabus
-evidenceNote: "前沿公开课，不是 NUS 课。期次：MIT 6.8210 Spring 2024（Russ Tedrake），这是课程站上最新的一期。讲法以 Tedrake 的在线教材 Underactuated Robotics 为准：把教材的 GitHub 仓库 git clone 下来，第 1 章的 Definitions 一节、第 2、3、8 章、第 4 章的 rimless wheel 部分、第 9 章前半（到 S-procedure 与 ROA）、第 10 章的 transcription、collocation、trajectory feedback、iLQR 与 exercises、第 11 章、第 20 章前半读的是 HTML 原文全文；其余章节没有读。作业部分读了 Spring 2024 的 Assignment 1、2、3、4、5、8、9、10 页面（WebFetch 摘要），set 6、7 的页面没有找到；另读了仓库里五个 exercise notebook 的说明文字。Spring 2024 的录像没有看。"
-exam: "无期末考试。Spring 2024 按课程主页：assignments 35%、midterm 25%、final project 35%、出勤与参与 5%；或者 assignments 35%、midterm 30%、final project 35%，两种算法取高的那个。Gradescope 评分不对外，自学时以教材章末 exercises 为主。"
+evidenceNote: "前沿公开课，不是 NUS 课。期次：MIT 6.8210 Spring 2024（Russ Tedrake），这是课程站上最新的一期。讲法以 Tedrake 的在线教材 Underactuated Robotics 为准：教材的 GitHub 仓库 git clone 下来读 HTML 原文。读了全文的：第 1 章的 Definitions 与 exercises、第 2、3、8、11、20 章；第 10 章读了 transcription、shooting、collocation、getting good solutions、trajectory feedback、differential flatness、iLQR 与 exercises（pseudo-spectral、MPC、perching glider、Pontryagin 几节没有读）；第 4 章读到 kneed walker 与 curved feet（SLIP 与 running 部分没有读）；第 9 章读到 rigid-body dynamics 的 polynomial 形式（finite-time reachability、control design、approximate DP 几节没有读）；第 7 章（dynamic programming）读了 minimum-time、HJB、mesh 上的 value iteration、LP dynamic programming 几节和全部 exercises，只用在作业提示里；第 5 章读了 CoP 与 ZMP 一节和 exercises；附录 B 读了 impulsive collision 一节和 exercise。作业：Spring 2024 全部 10 份 assignment 页面都读了（WebFetch 只给逐项的结构化提取，不给逐字原文），另读了仓库里 13 个 exercise notebook（`drake_systems`、`attractivity_vs_stability`、`vibrating_pendulum`、`cartpoles_urdf` 没有读）和教材的 sampling notebook 的说明文字与代码框架；课程主页、FAQ、final project 页面也读了，schedule 页是空的。Spring 2024 的录像没有看，Piazza 与 Gradescope 进不去，midterm 的范围和题目读不到。"
+exam: "无期末考试。Spring 2024 按课程主页：assignments 35%、midterm 25%、final project 35%、出勤与参与 5%；或者 assignments 35%、midterm 30%、final project 35%，两种算法取高的那个。Gradescope 评分不对外，自学时以教材章末 exercises 为主；final project 的要求见作业一节最后。"
 subskills:
   - id: pend
     name: Pendulum：phase portrait、stability 与 underactuation
@@ -28,24 +28,27 @@ subskills:
     name: Lyapunov function 与 region of attraction
     l3: "能用 energy 证明 damped pendulum 的最低点 asymptotically stable（用 LaSalle）。"
     l4: "能用 sublevel set 给出一个 region of attraction 的 inner estimate，并用 LQR 的 $S$ 当 Lyapunov candidate。"
-    l5: "能写出 S-procedure 的 SOS 条件，说明为什么 $\\rho$ 只能 line search，以及 $\\dot V<0$ 的点为什么不一定回得来。"
+    l5: "能写出 S-procedure 的 SOS 条件，说明 basic formulation 里 $\\rho$ 为什么要 line search、equality-constrained formulation 怎样一次求出 $\\rho$，以及 $\\dot V<0$ 的点为什么不一定回得来。"
   - id: walk
     name: Walking：hybrid dynamics、Poincaré map 与 rimless wheel
     l3: "能写出 rimless wheel 的 stance dynamics 和 impact 时的 velocity 变化。"
-    l4: "能推出 rimless wheel 的 return map、fixed point 和 fixed point 处的 slope。"
-    l5: "能说明 walking 的 stability 为什么要用 limit cycle 来谈，以及 collision 的 energy loss 为什么正是 stability 的来源。"
+    l4: "能推出 rimless wheel 的 return map、fixed point 和 fixed point 处的 slope，并用 impulse 公式算出 collision 之后的速度。"
+    l5: "能说明 walking 的 stability 为什么要用 orbital stability 来谈，collision 的 energy loss 为什么正是 stability 的来源，以及 compass gait 的 heel strike 怎样用 floating base 算。"
   - id: policy
     name: Policy search：把 controller 的参数直接拿来 optimize
     l3: "能写出 LQR 的 expected cost 作为 $K$ 的 function，并用 Lyapunov equation 算一次。"
     l4: "能用一个 3 维的例子说明 stabilizing $K$ 的 set 不 convex，并写出 weight perturbation 的 update 与它的 expectation。"
-    l5: "能解释 LQR 的 objective nonconvex 却没有 bad local minimum 是怎么回事，并说明 REINFORCE 和 weight perturbation 的关系。"
+    l5: "能用 PL inequality 解释 LQR 的 objective nonconvex 却没有 bad local minimum，说明 REINFORCE 和 weight perturbation 的关系，并推出 weight perturbation 的 SNR 为什么是 $1/(N+1)$。"
 open:
   - label: "MIT 6.8210 Spring 2024 课程主页"
     url: "https://underactuated.csail.mit.edu/Spring2024/index.html"
-    note: "评分方式与先修。Schedule 页里没有讲次表。"
+    note: "评分方式与先修。同目录的 schedule 页只有上课时间，没有讲次表；FAQ 页只有先修与参考书。"
+  - label: "MIT 6.8210 Spring 2024 Final Project Information"
+    url: "https://underactuated.csail.mit.edu/Spring2024/project.html"
+    note: "作业一节最后的 final project 要求。"
   - label: "Underactuated Robotics 教材 GitHub 仓库（RussTedrake/underactuated）"
     url: "https://github.com/RussTedrake/underactuated"
-    note: "git clone 后读了 book/ 下各章 HTML 的原文；exercise notebook 也在这个仓库里。"
+    note: "git clone 后读了 book/ 下各章 HTML 的原文和 exercise notebook。Spring 2024 的题号和现在的教材对得上：每道题的 notebook 文件名、小题数都一致，只有 Exercise 9.11 的小题数变了。"
   - label: "Underactuated Robotics 第 1 章 Fully-actuated vs Underactuated Systems（Definitions、Feedback Equivalence、Input and State Constraints）"
     url: "https://underactuated.mit.edu/intro.html"
     note: "第 1 站 underactuation 的定义与 feedback equivalence。"
@@ -58,21 +61,30 @@ open:
   - label: "Underactuated Robotics 第 8 章 Linear Quadratic Regulators"
     url: "https://underactuated.csail.mit.edu/lqr.html"
     note: "第 3 站：HJB 推导、finite-horizon 与 time-varying LQR、discrete-time Riccati equation。"
-  - label: "Underactuated Robotics 第 9 章 Lyapunov Analysis（读到 region of attraction 的 SOS 形式）"
+  - label: "Underactuated Robotics 第 9 章 Lyapunov Analysis（读到 rigid-body dynamics 的 polynomial 形式与 exercises）"
     url: "https://underactuated.csail.mit.edu/lyapunov.html"
-    note: "第 5 站。"
+    note: "第 5 站：direct method、LaSalle、ROA、SOS、S-procedure、equality-constrained formulation、trigonometric 坐标；作业一节的第 9 章 exercises。"
   - label: "Underactuated Robotics 第 10 章 Trajectory Optimization"
     url: "https://underactuated.csail.mit.edu/trajopt.html"
     note: "第 4 站：transcription 与 shooting 的比较、direct collocation、trajectory feedback、iLQR；作业一节的第 10 章 exercises。"
-  - label: "Underactuated Robotics 第 4 章 Simple Models of Walking and Running（读到 rimless wheel）"
+  - label: "Underactuated Robotics 第 4 章 Simple Models of Walking and Running（读到 kneed walker 与 curved feet）"
     url: "https://underactuated.csail.mit.edu/simple_legs.html"
-    note: "第 6 站。Compass gait 与 SLIP 只看了标题。"
-  - label: "Underactuated Robotics 第 11 章 Policy Search 与第 20 章 Model-Free Policy Search（前半）"
+    note: "第 6 站：Van der Pol 与 orbital stability、Poincaré map、rimless wheel、compass gait。SLIP 与 running 部分没有读。"
+  - label: "Underactuated Robotics 附录 B Multi-Body Dynamics（Impulsive Collisions 一节与 exercise）"
+    url: "https://underactuated.csail.mit.edu/multibody.html"
+    note: "第 6 站 collision 的 impulse 公式；作业一节的 Exercise B.1。"
+  - label: "Underactuated Robotics 第 11 章 Policy Search 与第 20 章 Model-Free Policy Search"
     url: "https://underactuated.csail.mit.edu/policy_search.html"
-    note: "第 7 站。第 20 章读到 REINFORCE 与 weight perturbation 的等价，signal-to-noise 一节没有读。"
-  - label: "6.8210 Spring 2024 Assignment 1、2、3、4、5、8、9、10"
+    note: "第 7 站。两章都读了全文，包括第 20 章的 signal-to-noise ratio 一节。"
+  - label: "Underactuated Robotics 第 7 章 Dynamic Programming（minimum-time、HJB、mesh 上的 value iteration、LP DP 与 exercises）"
+    url: "https://underactuated.csail.mit.edu/dp.html"
+    note: "只用于作业一节里第 7 章题目的说明和提示，这一页没有为它设站。"
+  - label: "Underactuated Robotics 第 5 章 Highly-articulated Legged Robots（CoP 与 ZMP 一节、exercises）"
+    url: "https://underactuated.csail.mit.edu/humanoids.html"
+    note: "只用于作业一节里 Exercise 5.2、5.3 的说明和提示。"
+  - label: "6.8210 Spring 2024 Assignment 1 到 10"
     url: "https://underactuated.csail.mit.edu/Spring2024/set_3.html"
-    note: "作业一节：每份的题号、分值、notebook 文件名与提交说明（WebFetch 摘要）。其余几份是同目录下的 set_1.html 等。"
+    note: "作业一节：每份的截止日期、题号、分值与小题分值、notebook 文件名与提交说明（WebFetch 的结构化提取）。其余几份是同目录下的 set_1.html 到 set_10.html。"
 sources:
   - label: "Underactuated Robotics 附录 A：Drake（Colab 与本地安装）"
     url: "https://underactuated.csail.mit.edu/drake.html"
@@ -98,11 +110,13 @@ sources:
 |---|---|---|---|
 | 1 | phase portrait、stability、underactuation 的定义 | 第 1、2 章 | Assignment 1 |
 | 2 | energy shaping、PFL、swing-up | 第 2、3 章 | Assignment 5 的 Exercise 9.11 |
-| 3 | linearization、controllability、LQR | 第 3、8 章 | Assignment 2、3 |
-| 4 | transcription、shooting、collocation、iLQR | 第 10 章 | 第 10 章 exercises（set 6、7 页面没读到） |
-| 5 | Lyapunov function、region of attraction | 第 9 章 | Assignment 4、5 |
-| 6 | rimless wheel、Poincaré map | 第 4 章 | Assignment 8 |
-| 7 | policy search、weight perturbation | 第 11、20 章 | 没有读到对应的作业 |
+| 3 | linearization、controllability、LQR | 第 3、8 章 | Assignment 2 的 8.1、Assignment 3 |
+| 4 | transcription、shooting、collocation、iLQR | 第 10 章 | Assignment 6 的 10.2、Assignment 7 |
+| 5 | Lyapunov function、region of attraction、SOS | 第 9 章 | Assignment 4、5，Assignment 6 的 9.9 |
+| 6 | rimless wheel、Poincaré map、compass gait | 第 4 章、附录 B | Assignment 8 |
+| 7 | policy search、weight perturbation | 第 11、20 章 | Spring 2024 没有布置（这两章没有 exercise） |
+
+表里没有的两块：Assignment 2、3、4 里有 6 道第 7 章（dynamic programming）的题，共 56 分；Assignment 9、10 的 5.2、5.3 是第 5 章（ZMP 与 footstep planning），10.5 是第 10 章的 differential flatness。这一页没有为它们设站，题目内容和提示写在最后的作业一节。
 
 :::note 和站内其他页面的分工
 LQR 的 continuous-time Riccati equation、double integrator 的手解 $K=(1,\sqrt3)$、Bryson's rule 在 [RB2203 第 4 站](../courses/RB2203.html#ss)；manipulator equation $M(q)\ddot q+C\dot q+g(q)=\tau$ 与 computed torque 在 [RB2203 第 6 站](../courses/RB2203.html#joint)；Lagrangian dynamics 的推导在 [RB2202](../courses/RB2202.html)；kinematic 的 trajectory optimization 与 IK as optimization 在 [MIT 6.4210 第 5 站](../courses/MIT-6.4210.html#plan)，CHOMP 在 [RB3302 第 4 站](../courses/RB3302.html#trajopt)；policy gradient 的 variance、actor-critic、PPO 在 [Berkeley CS285](../courses/BERKELEY-CS285.html)。这一页只在用到时指过去。
@@ -283,9 +297,15 @@ $$\dot{\tilde E}=\dot\theta\ddot\theta+\dot\theta\sin\theta=\dot\theta(-\ddot x^
 
 $$\ddot x^d=k_E\,\dot\theta\cos\theta\,\tilde E-k_px-k_d\dot x$$
 
-PD 项会和 energy 项抢 cart，所以它破坏了 $|\tilde E|$ 单调下降这条性质；文献里有带收敛证明的版本，教材只引用了，没有展开。
+PD 项会和 energy 项抢 cart。把这个 $\ddot x^d$ 代回 $\dot{\tilde E}=-\ddot x^d\dot\theta\cos\theta$：
 
-Acrobot 的做法相同：collocated PFL 让 elbow 的 $\ddot q_2$ 等于指定值，再取 $\ddot q_2^d=-k_1q_2-k_2\dot q_2+k_3\,\dot q_1\tilde E$，其中 $E=\tfrac12\dot q^\top M\dot q+U$，$E^d$ 是 upright 的 potential energy。教材对 acrobot 的版本只列了公式，没有证明。
+$$\dot{\tilde E}=-k_E\dot\theta^2\cos^2\theta\,\tilde E+\big(k_px+k_d\dot x\big)\dot\theta\cos\theta$$
+
+第二项可正可负，$|\tilde E|$ 不再单调下降。教材说明这个 controller 出自 Chung95 和 Spong96，Chung95 对一组 nominal 的参数证明了收敛，Fantoni02 从一个 Lyapunov argument 直接推出了另一个略有不同的 controller；这些证明教材只引用，没有展开。
+
+没有 PD 项时还差一步：$\dot{\tilde E}=-k\dot\theta^2\cos^2\theta\,\tilde E$ 只保证 $|\tilde E|$ 不增。教材给的条件是 $\int_0^t\dot\theta^2\cos^2\theta\,dt'\to\infty$，这时 $\tilde E\to0$；除了停在 fixed point 上的 constant trajectory，这个条件都满足。第 5 站会把它说成 LaSalle's theorem。
+
+Acrobot 的做法相同：collocated PFL 让 elbow 的 $\ddot q_2$ 等于指定值，再取 $\ddot q_2^d=-k_1q_2-k_2\dot q_2+k_3\,\dot q_1\tilde E$，其中 $E=\tfrac12\dot q^\top M\dot q+U$，$E^d$ 是 upright 的 potential energy。教材对 acrobot 的版本只列了公式，并注明多出来的 PD 项使得收敛到 homoclinic orbit 无法证明，另一种 energy-based controller 的证明在 Xin04。
 
 :::edge 为什么不直接 linearize pole
 也可以反过来让 $\ddot\theta=\ddot\theta^d$，这叫 non-collocated PFL。由第二式 $\ddot x=-(\ddot\theta+s)/c$，代进第一式得 $f=(c-\tfrac2c)\ddot\theta^d-2\tan\theta-\dot\theta^2s$。$\cos\theta=0$ 时它要无穷大的 force。实现时一定要先对 $f$ 做 saturation。$c-\tfrac2c$ 本身不会是 0：$|c|\le1$ 时 $|c-\tfrac2c|=\tfrac{2-c^2}{|c|}\ge1$。Swing-up 选 collocated 的版本，就是为了不去除这个会变成 0 的 $\cos\theta$。
@@ -296,7 +316,7 @@ Phase portrait、homoclinic orbit 与“attractive 不推出 stable i.s.L.”来
 :::
 
 :::from
-$\dot E=u\dot\theta$、$u=-k\dot\theta\tilde E$ 的 error dynamics、“切换到 balancing controller”、对 $m$ 不敏感的论证，来自 [教材第 2 章的 Energy-shaping control](https://underactuated.csail.mit.edu/pend.html)；polar 坐标的例子来自同章的 “Unstable equilibrium point that attracts all trajectories”。Collocated 与 non-collocated PFL 的推导、$|c-2/c|\ge1$、cart-pole 的 energy shaping 与 PD 项、acrobot 的公式，来自 [第 3 章](https://underactuated.csail.mit.edu/acrobot.html)。中间那一步代入是我补全的。2 N·m、$k=1$ 的 swing-up、4 次换向、5.81 s 与切换点的数，是为这一页 simulate 的（RK4，step 2 ms）。
+$\dot E=u\dot\theta$、$u=-k\dot\theta\tilde E$ 的 error dynamics、“切换到 balancing controller”、对 $m$ 不敏感的论证，来自 [教材第 2 章的 Energy-shaping control](https://underactuated.csail.mit.edu/pend.html)；polar 坐标的例子来自同章的 “Unstable equilibrium point that attracts all trajectories”。Collocated 与 non-collocated PFL 的推导、$|c-2/c|\ge1$、cart-pole 的 energy shaping、PD 项与 Chung95、Spong96、Fantoni02 的出处、$\int\dot\theta^2\cos^2\theta\,dt\to\infty$ 的条件、acrobot 的公式与“PD 项让证明做不出来”，来自 [第 3 章](https://underactuated.csail.mit.edu/acrobot.html)。中间那一步代入和 PD 项代回 $\dot{\tilde E}$ 的那一行是我补全的。2 N·m、$k=1$ 的 swing-up、4 次换向、5.81 s 与切换点的数，是为这一页 simulate 的（RK4，step 2 ms）。
 :::
 
 ## [lqr] Linearization、controllability 与 LQR balancing
@@ -615,13 +635,13 @@ $$\bar\theta=\sqrt{\rho/S_{11}}=\sqrt{2.607/66.19}=0.1985$$
 :::
 
 :::edge 网格 sampling 不是 proof
-上面的 $\rho$ 只在网格点上检查了 $\dot V$，两个网格点之间 $\dot V$ 可能是正的。要真正的 certificate，得把“$V\le\rho$ 上处处 $\dot V<0$”写成 optimization 的 constraint，下一节就是做这件事。
+上面的 $\rho$ 只在网格点上检查了 $\dot V$，两个网格点之间 $\dot V$ 可能是正的。教材的说法是：在大量 sample 上检查 $V>0$、$\dot V<0$ 确实可行，再加上 smoothness 一类假设可以推广到 sample 之外，但更好的是让 optimization 对所有 $x$ 严格检查这些条件。要真正的 certificate，得把“$V\le\rho$ 上处处 $\dot V<0$”写成 optimization 的 constraint，下一节就是做这件事。
 :::
 
 ### 用 SOS 把 Lyapunov 条件交给 solver
 
 :::skip
-跳过这一节，会少掉 verification 和 funnel 一类论文的背景；Assignment 5 的 Van der Pol 那题需要它。
+跳过这一节，会少掉 verification 和 funnel 一类论文的背景；Assignment 5 的 Van der Pol 和 Assignment 6 的 9.9 需要它。
 :::
 
 Linear system $\dot x=Ax$ 上，$V=x^\top Px$ 是 Lyapunov function 当且仅当 $P\succ0$ 且 $PA+A^\top P\prec0$，这是一个 semidefinite program（SDP），solver 能找到 global 的解。Nonlinear 的推广是 sums of squares（SOS）：一个 polynomial $p(x)$ 能写成 $m(x)^\top Pm(x)$、$P\succeq0$（$m(x)$ 是 monomial 组成的 vector），它就处处非负，而“能写成这样”是对 $P$ 的 linear constraint，又是 SDP。
@@ -638,25 +658,59 @@ $$2x^2-2x^4+2x^2(x^2-1)=2x^2-2x^4+2x^4-2x^2=0$$
 
 0 是 SOS，$2x^2$ 是 SOS，于是证明了 $x^2\le1$ 上 $\dot V\le0$。Solver 做的就是自动找这样的 $\lambda$。
 
-$\rho$ 不能也当 decision variable：$\lambda(x)\rho$ 里出现 $\lambda$ 的系数乘 $\rho$，是 bilinear 的，问题不再 convex。$\rho$ 只有一个数，固定它解一次 SOS，对 $\rho$ 做 line search，找最大的 feasible 值。Pendulum 的 $\sin\theta$ 不是 polynomial，教材用 $s=\sin\theta$、$c=\cos\theta$ 作变量并加上 $s^2+c^2=1$ 这个 equality constraint 来处理，这部分我没有读。
+$\rho$ 不能也当 decision variable：$\lambda(x)\rho$ 里出现 $\lambda$ 的系数乘 $\rho$，是 bilinear 的，问题不再 convex。$\rho$ 只有一个数，固定它解一次 SOS，对 $\rho$ 做 line search，找最大的 feasible 值。
+
+### 去掉 line search：equality-constrained formulation
+
+换一种问法，$\rho$ 就能直接 optimize。原点附近除原点外 $\dot V<0$（linearization 保证了这一点，条件是 $\dot V$ 在原点的 Hessian negative definite）。这时只要“除原点外，$\dot V=0$ 的点都在 $V\ge\rho$ 那一侧”，就推得出 $\{V<\rho\}$ 里处处 $\dot V\le0$：假如里面有一点 $\dot V>0$，$V$ 是 quadratic 时 $\{V<\rho\}$ 是 ellipse，从原点附近（$\dot V<0$）连一条线段到这一点，线段留在 ellipse 里，$\dot V$ 连续，中途必有一点 $\dot V=0$ 且 $V<\rho$，矛盾。条件里的 $\dot V=0$ 是等式，S-procedure 对等式的 multiplier 不要求是 SOS：在 $\dot V=0$ 的地方 $\lambda(x)\dot V(x)$ 本来就是 0，$\lambda$ 取什么符号都不影响结论。写成
+
+$$(x^\top x)^d\big(V(x)-\rho\big)-\lambda(x)\dot V(x)\ \text{是 SOS},\qquad\lambda\ \text{是任意 polynomial}$$
+
+$d$ 是取定的正整数。现在 $\rho$ 只乘已知的 polynomial $(x^\top x)^d$，不乘 $\lambda$ 的系数，constraint 对 $(\rho,\lambda)$ 是 jointly linear 的，可以一次 $\max\rho$。$(x^\top x)^d$ 这个 factor 是为原点准备的：那里 $\dot V=0$，而 $V(0)-\rho=-\rho<0$，没有这个 factor，原点本身就让条件不成立，最大的 $\rho$ 只能是 0。
+
+同一个例子，$V=x^2$、$\dot V=-2x^2+2x^4$，取 $d=1$、$\lambda$ 为常数：
+
+$$x^2(x^2-\rho)-\lambda(-2x^2+2x^4)=(1-2\lambda)x^4+(2\lambda-\rho)x^2$$
+
+只含 $x^4$ 和 $x^2$ 的 polynomial 是 SOS 当且仅当两个系数都非负：$\lambda\le\tfrac12$ 且 $\rho\le2\lambda$。最大的 $\rho$ 是 1，在 $\lambda=\tfrac12$ 取到，一次 convex program 就得到了 line search 的答案。
+
+这个 formulation 只在 $V$ 固定时 convex。如果连 $V$ 的系数也要找，$\dot V$ 里有 $V$ 的系数，乘上 $\lambda$ 的系数又是 bilinear 的。教材的做法是 bilinear alternation：固定 $V$ 用上式求 $\rho$ 和 $\lambda$，把 $V$ 换成 $V/\rho$；再固定 $\lambda$、令 $V=x^\top Px$，在 level set 取 1 的同一个 constraint 下 $\min\operatorname{tr}P$。Ellipse $x^\top Px\le1$ 的面积和 $\det P^{-1/2}$ 成正比，直接最大化它不 convex，$\operatorname{tr}P$ 是一个替代目标。每一轮都 feasible，通常几轮就收敛，但不保证找到最优的 $V$。初始的 $V$ 一般取 Lyapunov equation 或 LQR 的解。
+
+### Pendulum 不是 polynomial 怎么办
+
+Pendulum 的 $\sin\theta$ 不是 polynomial，看起来 SOS 用不上。教材的处理是换变量。Rigid body 的 kinematics 里角度只以 $\sin\theta$、$\cos\theta$ 出现，令 $s=\sin\theta$、$c=\cos\theta$，state 取 $x=(s,c,\dot\theta)$，damped pendulum 的 dynamics 就成了 polynomial：
+
+$$\dot s=c\,\dot\theta,\qquad\dot c=-s\,\dot\theta,\qquad\ddot\theta=-\frac{1}{ml^2}\big(b\dot\theta+mgl\,s\big)$$
+
+代价是多了一个 constraint $s^2+c^2=1$，$\dot V$ 只需要在这个 set 上为负。又是等式，multiplier 任意：找 $V$（所有 degree 不超过 2 的 monomial 的组合，系数是 decision variable）和任意 polynomial $\lambda(x)$，使 $V$ 是 SOS、$-\dot V-\lambda(x)(s^2+c^2-1)$ 是 SOS。教材的 notebook 解出来的 $V$ 很像 mechanical energy，多出几个小项，正好让它直接证明 exponential stability，不必再借 LaSalle。
+
+Energy 能落进这个 basis，是因为它本来就是 trigonometric 的二次式。Potential 的零点取在最低点，$E=\tfrac12ml^2\dot\theta^2+mgl(1-\cos\theta)$，而 $1-\cos\theta=2\sin^2\tfrac\theta2$，所以
+
+$$E=\frac12\begin{pmatrix}2\sin\frac\theta2\\ \dot\theta\end{pmatrix}^{\!\top}\begin{pmatrix}mgl&0\\0&ml^2\end{pmatrix}\begin{pmatrix}2\sin\frac\theta2\\ \dot\theta\end{pmatrix}$$
+
+展开：$\tfrac12\big(mgl\cdot4\sin^2\tfrac\theta2+ml^2\dot\theta^2\big)=mgl(1-\cos\theta)+\tfrac12ml^2\dot\theta^2$。$2\sin\frac\theta2$ 在 $\theta=0$ 处 slope 为 1，和 $\theta$ 本身的 linearization 一样，又以 $2\pi$ 为周期。反过来，破坏 polynomial 结构的是 $\theta$ 和 $\sin\theta$ 同时出现，例如 rotary spring $\tau=k(\theta_0-\theta)$；LQR 的 linear feedback $-k\theta$ 也是这种形状。教材据此指出，对 mechanical system 做 LQR 时可以把 $-k\theta$ 换成 $-2k\sin\frac\theta2$，两者的 linearization 相同。Multibody 的 $\ddot q$ 要乘 $M^{-1}(q)$，结果是 rational 的；教材的做法是把 manipulator equation 以 implicit form 当作等式交给 S-procedure，这部分原文只有一段说明。
 
 :::back
 Energy 的计算来自[第 1 站](#pend)，$V=\tfrac12\tilde E^2$ 的 controller 来自[第 2 站](#swing)，$S$ 和 $K$ 的来历见[第 3 站](#lqr)。
 :::
 
 :::from
-Damped pendulum 的 energy 论证、direct method 的三档条件、radially unbounded、LaSalle 与 pendulum 的 invariant set、cart-pole energy shaping 的 $V=\tfrac12\tilde E^2$、sublevel set 与 ROA 的定理、$\dot x=-x+x^3$ 的例子、“LQR 的 $S$ 可以当 candidate”、SDP 与 SOS、S-procedure、cubic 例子的 multiplier 形式、$\rho$ 是 bilinear 所以 line search，来自 [教材第 9 章](https://underactuated.csail.mit.edu/lyapunov.html)；第 9 章 “Regions of attraction and LQR” 那个小节在原文里只有标题和一句话，pendulum 的 $\rho$、ellipse、网格 simulation、$\lambda=2x^2$ 这个具体的 multiplier 和反例的点，是为这一页算的。教材有一个 sampling 的 notebook（`sampling.ipynb`），我没有读它的内容，这里的网格做法是自己写的。
+Damped pendulum 的 energy 论证、direct method 的三档条件、radially unbounded、LaSalle 与 pendulum 的 invariant set、cart-pole energy shaping 的 $V=\tfrac12\tilde E^2$、sublevel set 与 ROA 的定理、$\dot x=-x+x^3$ 的例子、“LQR 的 $S$ 可以当 candidate”、SDP 与 SOS、S-procedure、cubic 例子的 multiplier 形式、$\rho$ 是 bilinear 所以 line search、equality-constrained formulation 与 $(x^\top x)^d$ 的作用、bilinear alternation 与 $\operatorname{tr}P$ 的替代目标、$(s,c,\dot\theta)$ 坐标与 $s^2+c^2=1$ 的 S-procedure、解出来的 $V$ 像 energy 并给出 exponential stability、energy 的 half-angle 二次式与 $-2k\sin\frac\theta2$、rational dynamics 用 implicit form、sampling 加 smoothness 的说法，来自 [教材第 9 章](https://underactuated.csail.mit.edu/lyapunov.html)。第 9 章 “Regions of attraction and LQR” 那个小节在原文里只有两段和一个占位标题，pendulum 的 $\rho$、ellipse、网格 simulation、$\lambda=2x^2$ 和 $\lambda=\tfrac12$ 这两个具体的 multiplier、反例的点、“线段穿过 $\dot V=0$”的论证，是为这一页算的、补的。教材的 `sampling.ipynb` 我读了，它在 $31\times21$ 的网格上用 LP 找 pendulum 的 global Lyapunov function（9 个 basis function，约束 $V(x_i)\ge0$、$\dot V(x_i)\le0$），做的是 global stability，不是 ROA；这里求 $\rho$ 的网格做法是自己写的。
 :::
 
 ## [walk] Walking：hybrid dynamics、Poincaré map 与 rimless wheel
 
 :::skip
-不在快速路线里。做 legged robot 的读；Assignment 8 的 compass gait 与 hopper 依赖这一站。能推出 rimless wheel 的 return map、算出 fixed point 和它的 slope，就可以去第 7 站。
+不在快速路线里。做 legged robot 的读；Assignment 8 的 compass gait、hopper 与 B.1 依赖这一站。能推出 rimless wheel 的 return map、算出 fixed point 和它的 slope，能推出 collision 的 impulse 公式并用它算出 $\cos2\alpha$，就可以去第 7 站。
 :::
 
 ### 不用 motor 也能走
 
-Passive dynamic walker 没有 motor 也没有 controller，放在一个很缓的坡上，只靠 gravity 就能稳定地一步步走下去。它的 gait 是一个 stable 的 limit cycle：被推一下，几步之后回到原来的步态。这里的 stability 不再是“停在一个 fixed point”，而是“回到一条 periodic orbit”。最简单的 model 是 rimless wheel：一个 hub 上均匀装着若干根 rigid leg，mass 全集中在 hub，leg 间的夹角是 $2\alpha$，坡度是 $\gamma$。
+Passive dynamic walker 没有 motor 也没有 controller，放在一个很缓的坡上，只靠 gravity 就能稳定地一步步走下去。它的 gait 是一个 stable 的 limit cycle：被推一下，几步之后回到原来的步态。这里的 stability 不再是“停在一个 fixed point”，而是“回到一条 periodic orbit”。
+
+“回到”要说清楚。教材先看 Van der Pol oscillator $\ddot q+\mu(q^2-1)\dot q+q=0$（$\mu>0$）：$|q|>1$ 时 velocity 项耗散 energy，$|q|<1$ 时注入 energy，phase portrait 上所有 trajectory 都收进同一个 closed orbit。可在 time domain 上看，从不同初始状态出发的 trajectory 并不同步，彼此差一个相位，所以对 orbit 上任何一条具体的 $x^*(t)$，$\lim_{t\to\infty}\|x(t)-x^*(t)\|=0$ 都不成立。合适的距离是到 orbit 上最近一点的距离 $\min_\tau\|x(t)-x^*(\tau)\|$；用它代替 $\|x-x^*\|$，照搬第 1 站 stable i.s.L.、asymptotically stable 的定义，得到的就是 orbital stability。
+
+最简单的 walking model 是 rimless wheel：一个 hub 上均匀装着若干根 rigid leg，mass 全集中在 hub，leg 间的夹角是 $2\alpha$，坡度是 $\gamma$。
 
 假设：leg 着地是 inelastic、瞬时的 collision，只有对着地点的 angular momentum 守恒；stance leg 像 pin joint，不滑；换 leg 是瞬时的，没有 double support。
 
@@ -718,16 +772,56 @@ $$3.0\to2.258\to1.775\to1.474\to1.299\to1.201\to1.149$$
 $\omega_2<\dot\theta^+<\omega_1$ 时 wheel 越不过竖直位置，往回摆，用后面那根 leg 着地，$\dot\theta^+_{n+1}=-\dot\theta^+_n\cos2\alpha$，速度每步缩小直到停下：$\omega=0$ 是另一个 fixed point（$\gamma<\alpha$ 时存在）。$\dot\theta^+=\omega_1$ 恰好时，wheel 停在 leg 竖直的 unstable equilibrium 上，return map 在这一点没有定义。$\gamma>\alpha$ 时 hub 总在 stance foot 的前方，站不住，只剩 rolling 这一个 fixed point。
 :::
 
-### 更复杂的 walker
+### Collision 的一般算法：impulse 把一部分速度投影掉
 
-Compass gait 有两根带 mass 的 leg，swing leg 自己摆动，return map 没有 closed form，fixed point 要靠 numerical 的方法找，stability 由 return map 在 fixed point 处的 Jacobian 的 eigenvalue 是否都在 unit circle 内判断。Assignment 8 的 Exercise 17.1 把找 limit cycle 写成一个 trajectory optimization：初末状态之间的关系由 collision 的 reset map 约束，中间用第 4 站的 direct collocation。
+Rimless wheel 的 $\cos2\alpha$ 是靠几何算出来的，legs 一旦有了 mass，就算不下去了。附录 B 给了一个通用的算法。Collision 的那一瞬间，contact 处有一个很大的力 $\lambda$，作用时间趋于 0，它的积分 $\Lambda=\int_{t_c^-}^{t_c^+}\lambda\,dt$ 有限。把 dynamics 写成 $M\dot v=\tau+J^\top\lambda$，$v=\dot q$，$J$ 是 contact 点位置对 $q$ 的 Jacobian。两边在这一瞬间积分：$M$、$J$ 来不及变，$\tau$（gravity、Coriolis、motor）有限，积分为 0，
+
+$$M(v^+-v^-)=J^\top\Lambda$$
+
+Inelastic 且不打滑，collision 之后 contact 点停住：$Jv^+=0$。第一式两边左乘 $JM^{-1}$：
+
+$$Jv^+-Jv^-=JM^{-1}J^\top\Lambda\quad\Longrightarrow\quad\Lambda=-\big(JM^{-1}J^\top\big)^{-1}Jv^-$$
+
+代回第一式，$v^+=v^-+M^{-1}J^\top\Lambda$：
+
+$$v^+=\Big[I-M^{-1}J^\top\big(JM^{-1}J^\top\big)^{-1}J\Big]v^-$$
+
+方括号里的矩阵把 $v^-$ 里“会让 contact 点继续动”的那部分去掉，其余原样保留。附录 B 的版本还带 coefficient of restitution $e$ 和 friction；walking 用的是 $e=0$ 的这一种。
+
+拿 rimless wheel 检验。Mass 全在 hub，legs 没有 mass，collision 时只需要 hub 的 velocity $v\in\mathbb R^2$，$M=mI$。新 leg 着地后 hub 必须绕新着地点转，也就是 hub 到新着地点的距离保持 $l$。这个距离对 hub 位置的 gradient 是沿新 leg 的 unit vector $n$（从新着地点指向 hub），所以 $J=n^\top$，$JM^{-1}J^\top=\tfrac1m$，
+
+$$M^{-1}J^\top\big(JM^{-1}J^\top\big)^{-1}J=\tfrac1m\,n\,\Big(\tfrac1m\Big)^{-1}n^\top=nn^\top,\qquad v^+=\big(I-nn^\top\big)v^-$$
+
+就是把 $v^-$ 沿新 leg 的分量去掉。$v^-$ 垂直于旧 leg，旧 leg 和新 leg 夹 $2\alpha$，所以 $v^-$ 沿新 leg 的分量大小是 $|v^-|\sin2\alpha$（指向新着地点，hub 正往地上压），垂直于新 leg 的分量是 $|v^-|\cos2\alpha$。去掉前者，$|v^+|=|v^-|\cos2\alpha$，和 angular momentum 算出的 $\dot\theta^+=\dot\theta^-\cos2\alpha$ 一致。$\alpha=\pi/8$ 时两个分量都是 $0.707|v^-|$，速度平方各占一半，这正是上面 slope $=0.5$ 的来历。
+
+::fig[m6821-impact] Hub 着地前的速度 $v^-$ 垂直于旧 leg（灰），新 leg（黑）着地后速度必须垂直于新 leg。虚线是沿新 leg 的那部分，被 impulse 去掉；彩色是留下的 $v^+$。
+
+### Compass gait：两根有 mass 的 leg
+
+Rimless wheel 假设下一根 leg 总是正好在位置上。去掉多余的 spoke，只留两根 leg，在 hip 处装一个 pin joint，每根 leg 上加一个 point mass，就是 compass gait：hip mass $m_h$，每根 leg 的 mass $m$ 在离 foot $a$、离 hip $b$ 的地方，$l=a+b$。另加一条假设：swing leg 经过 stance leg 时会缩一下让开地面，但不改变它的 mass 分布。
+
+::fig[m6821-compass] Heel strike 的那一刻：stance foot（实心）在后，swing foot（空心）刚落到坡上。两个角都从竖直的虚线量起。
+
+State 是 $(\theta_{st},\theta_{sw},\dot\theta_{st},\dot\theta_{sw})$，两个角都是相对竖直方向的绝对角。取 $q=(\theta_{st},\theta_{sw})$，dynamics 是 manipulator equation $M(q)\ddot q+C(q,\dot q)\dot q=\tau_g(q)+Bu$，记 $\Delta=\theta_{st}-\theta_{sw}$：
+
+$$M=\begin{pmatrix}(m_h+m)l^2+ma^2&-mlb\cos\Delta\\-mlb\cos\Delta&mb^2\end{pmatrix},\qquad C=\begin{pmatrix}0&-mlb\sin\Delta\,\dot\theta_{sw}\\mlb\sin\Delta\,\dot\theta_{st}&0\end{pmatrix}$$
+
+$$\tau_g=\begin{pmatrix}(m_hl+ma+ml)\,g\sin\theta_{st}\\-mbg\sin\theta_{sw}\end{pmatrix},\qquad B=\begin{pmatrix}-1\\1\end{pmatrix}$$
+
+$\tau_g$ 的第一个分量和 $\sin\theta_{st}$ 同号：stance leg 是一根倒立的 pendulum，偏离竖直就被 gravity 推得更远。第二个分量和 $\sin\theta_{sw}$ 反号：swing leg 是挂在 hip 下面的 pendulum，被拉回竖直。$B=(-1,1)^\top$ 说的是 hip 的 motor 给两根 leg 大小相等、方向相反的 torque。Swing 的 dynamics 因此和 acrobot 是同一类（坐标不同）。教材先看 passive 的情形，$u=0$。
+
+Heel strike 用上一节的公式，分四步。在 collision 前的 stance foot 处加一个 floating base $(x,y)$，$q_{fb}=(x,y,\theta_{st},\theta_{sw})$：collision 之后旧 stance foot 要离地，它的位置必须是自由的 coordinate。算出这个系统的 $M_{fb}$。把 swing foot 的位置写成 $\phi(q_{fb})$，$J=\partial\phi/\partial q_{fb}$。代入 $v^+=[I-M_{fb}^{-1}J^\top(JM_{fb}^{-1}J^\top)^{-1}J]v^-$，其中 $\dot x^-=\dot y^-=0$，只取结果的后两个分量；最后把 stance 和 swing 的角度、角速度对调。
+
+Return map 没有 closed form，fixed point 只能 numerically 找，stability 看 return map 在 fixed point 处 Jacobian 的 eigenvalue 是否都在 unit circle 内。如果在原来 4 维的坐标里算 Jacobian，总会多一个 0 eigenvalue，对应沿 orbit 方向的扰动：它只让 trajectory 早到或晚到，不改变下一次穿过 section 时的 state。教材用 $m=5$ kg、$m_h=10$ kg、$a=b=0.5$ m、坡度 $\phi=0.0525$ rad、$x(0)=(0,0,0.4,-2.0)$ 找到了一个 stable limit cycle：stance 的那段 phase portrait 像 rimless wheel 的 pendulum，换 leg 后作为 swing leg 绕一大圈再回到 stance，每次 heel strike 速度跳变、变小。和 rimless wheel 不同，它的 basin of attraction 只是 limit cycle 周围窄窄的一条带，教材作者说找到能让它稳定走下去的初始状态花了一番功夫，这也是它难以做成实物的原因。
+
+Assignment 8 的 Exercise 17.1 换了一套坐标重新找这个 limit cycle：floating base 的 $q=(x,y,\theta_1,\theta_2)$，$\theta_1$ 是 stance leg 的绝对角，$\theta_2$ 是 swing leg 相对 stance leg 的角，这样大部分 constraint 都是 linear 的。具体见作业一节。
 
 :::back
-Stance 时的 dynamics 是[第 1 站](#pend)倒过来的 pendulum，phase portrait 以 upright 为中心。Limit cycle 的 trajectory optimization 用[第 4 站](#trajopt)。
+Stance 时的 dynamics 是[第 1 站](#pend)倒过来的 pendulum，phase portrait 以 upright 为中心。Compass gait 的 manipulator equation 和 acrobot 同类，$M$、$C$、$\tau_g$ 怎样由 Lagrange equations 得出见 [RB2202](../courses/RB2202.html)。Limit cycle 的 trajectory optimization 用[第 4 站](#trajopt)的 transcription 思路。
 :::
 
 :::from
-Passive walker 与 limit cycle 的引入、rimless wheel 的假设、stance dynamics、$\omega_1$、energy 守恒给出的 $\dot\theta^-$、angular momentum 给出的 $\cos2\alpha$、return map 的分段形式、$\omega^*_{roll}$、$\gamma$ 变化时 fixed point 的出现与消失、教材的参数 $\alpha=\pi/8$、$\gamma=0.08$，来自 [教材第 4 章](https://underactuated.csail.mit.edu/simple_legs.html)。Slope $\cos^22\alpha$ 的推导、cobweb 的数、“collision loss 是 stability 的来源”这条 :::wrong，是我自己推的、为这一页算的；hub 下降 $2l\sin\alpha\sin\gamma$ 和垂直分量的 $\cos2\alpha$ 是我补的几何步骤。Compass gait 只看了标题和 Exercise 17.1 notebook 的说明。
+Passive walker 与 limit cycle 的引入、Van der Pol 的例子与 orbital stability 的定义、Poincaré map 与 eigenvalue 判据（包括原坐标下多出的 0 eigenvalue）、rimless wheel 的假设、stance dynamics、$\omega_1$、energy 守恒给出的 $\dot\theta^-$、angular momentum 给出的 $\cos2\alpha$、return map 的分段形式、$\omega^*_{roll}$、$\gamma$ 变化时 fixed point 的出现与消失、教材的参数 $\alpha=\pi/8$、$\gamma=0.08$，以及 compass gait 的 model、$M$、$C$、$\tau_g$、$B$、与 acrobot 的关系、floating base 的 heel strike 四步、教材的参数与窄的 basin，来自 [教材第 4 章](https://underactuated.csail.mit.edu/simple_legs.html)，读的是 HTML 全文到 kneed walker 为止（SLIP 与 running 没有读）。Impulse 公式及其推导来自 [附录 B 的 Impulsive Collisions](https://underactuated.csail.mit.edu/multibody.html)。Slope $\cos^22\alpha$ 的推导、cobweb 的数、“collision loss 是 stability 的来源”这条 :::wrong、用 impulse 公式回推 rimless wheel 的 $\cos2\alpha$，是我自己推的、为这一页算的；hub 下降 $2l\sin\alpha\sin\gamma$ 和垂直分量的 $\cos2\alpha$ 是我补的几何步骤，$\tau_g$ 两个分量的符号解释也是我补的。Compass gait 图里的姿态（$\theta_{st}=0.32$、swing foot 恰好落在坡上）是为画图取的，不是 limit cycle 上的点。
 :::
 
 ## [policy] Policy search：把 controller 的参数直接拿来 optimize
@@ -772,9 +866,15 @@ Stabilizing 的 $K$ 组成的 set 可以不 convex。教材给的例子是 discr
 
 $$K_1=\begin{pmatrix}1&0&-10\\-1&1&0\\0&0&1\end{pmatrix},\qquad K_2=\begin{pmatrix}1&-10&0\\0&1&0\\-1&0&1\end{pmatrix}$$
 
-$I-K_1=\begin{pmatrix}0&0&10\\1&0&0\\0&0&0\end{pmatrix}$，它的 characteristic polynomial 是 $\lambda^3$，三个 eigenvalue 都是 0，在 unit circle 内；$K_2$ 同理。取平均，$I-\tfrac12(K_1+K_2)=\begin{pmatrix}0&5&5\\0.5&0&0\\0.5&0&0\end{pmatrix}$，characteristic polynomial 是 $\lambda^3-5\lambda$，eigenvalue 是 $0,\pm\sqrt5=\pm2.236$，在 unit circle 外。两个 stabilizing 的 $K$ 连线的中点不 stabilizing，所以 set 不 convex，$J(K)$ 也不 convex。
+$I-K_1=\begin{pmatrix}0&0&10\\1&0&0\\0&0&0\end{pmatrix}$，它的 characteristic polynomial 是 $\lambda^3$，三个 eigenvalue 都是 0，在 unit circle 内；$K_2$ 同理。取平均，$I-\tfrac12(K_1+K_2)=\begin{pmatrix}0&5&5\\0.5&0&0\\0.5&0&0\end{pmatrix}$，characteristic polynomial 是 $\lambda^3-5\lambda$，eigenvalue 是 $0,\pm\sqrt5=\pm2.236$，在 unit circle 外。两个 stabilizing 的 $K$ 连线的中点不 stabilizing，所以 set 不 convex，$J(K)$ 也不 convex。（换一组变量它是 convex 的：令 $Y=KX$，objective 和 Lyapunov equation 都能写成 $(X,Y)$ 上的 SDP，多用一个 Schur complement。但 policy search 关心的是直接在 $K$ 上搜。）
 
-但 convex 只是“没有 bad local minimum”的充分条件。Fazel 等人证明了这个 LQR objective 的所有 local minimum 都是 global 的；后来的工作用 Polyak–Łojasiewicz inequality 给出了更简单的证明和收敛速度：在 cost 的每个 sublevel set 上，$\tfrac12\|\nabla J\|^2\ge\mu\,(J-J^*)$。gradient 为 0 的点左边为 0，于是右边也为 0，$J=J^*$。
+但 convex 只是“没有 bad local minimum”的充分条件。Fazel 等人证明了这个 LQR objective 的所有 local minimum 都是 global 的；后来的工作用 Polyak–Łojasiewicz（PL）inequality 给出了更简单的证明和收敛速度。PL 说的是：$f$ 的 gradient Lipschitz，并且存在 $\mu>0$，
+
+$$\tfrac12\|\nabla f(x)\|^2\ge\mu\,\big(f(x)-f^*\big)\quad\text{对所有 }x$$
+
+gradient 为 0 的点左边为 0，于是右边也为 0，$f=f^*$：每个 stationary point 都是 global minimum。它度量的是 $f$ 的差，不是 $x$ 的距离，所以不要求 minimum 唯一。
+
+教材用一维的 $f(x)=x^2+3\sin^2x$ 说明 nonconvex 和 PL 可以同时成立。取 $a=\pi/4$、$b=3\pi/4$：$f\big(\tfrac{a+b}2\big)=f\big(\tfrac\pi2\big)=\tfrac{\pi^2}4+3=5.467$，而 $f(a)=\tfrac{\pi^2}{16}+\tfrac32$、$f(b)=\tfrac{9\pi^2}{16}+\tfrac32$，平均是 $\tfrac{5\pi^2}{16}+\tfrac32=4.584$。中点高于两端的平均，不 convex。$f'(x)=2x+6\sin x\cos x$，在 $x\to0$ 时 $f\approx4x^2$、$f'\approx8x$，$\tfrac12f'^2/f\to8$；$|x|\to\infty$ 时 $f\approx x^2$、$f'\approx2x$，比值 $\to2$；比值最小的地方在 $x=\pm2.20$ 附近，约 0.1755。所以 $\mu=0.175$ 成立（教材用 dReal 证明了它，我在 $[-20,20]$ 的网格上核对过），$f'=0$ 只发生在 $f=0$ 的地方，也就是 $x=0$。Gradient 的 Lipschitz 常数是 $L=8$：$|f'(b)-f'(a)|=|2(b-a)+3(\sin2b-\sin2a)|\le2|b-a|+6|b-a|$。对 LQR，后来的工作证明了 $J(K)$ 在每个 sublevel set 上满足 PL。
 
 True gradient 也能算：
 
@@ -804,6 +904,32 @@ $$\Delta\alpha=-\frac{\eta}{\sigma^2}\,g(\alpha+\beta)\,\beta$$
 
 正是 $b=0$ 的 weight perturbation。它平均来说沿 gradient 走，但 variance 很大，所以实际要用很多 sample 和好的 baseline。
 
+### 每一步有多吵：signal-to-noise ratio
+
+:::skip
+跳过这一节，会少掉“参数越多，每一步越吵”的定量说法。
+:::
+
+图里灰色的路径很抖。抖多少可以算出来。教材把一步 update 拆成 signal $-\eta\nabla J$ 加 noise，定义
+
+$$\text{SNR}=\frac{\|\eta\nabla J\|^2}{\mathbb E\big[\|\Delta\alpha+\eta\nabla J\|^2\big]}$$
+
+记 $g=\nabla J$，$N$ 是参数个数。用 first-order Taylor，$\Delta\alpha\approx-\frac{\eta}{\sigma^2}(g^\top\beta)\,\beta$，于是
+
+$$\mathbb E\|\Delta\alpha\|^2=\frac{\eta^2}{\sigma^4}\,\mathbb E\Big[\Big(\sum_ig_i\beta_i\Big)\Big(\sum_jg_j\beta_j\Big)\Big(\sum_k\beta_k^2\Big)\Big]=\frac{\eta^2}{\sigma^4}\sum_{i,j,k}g_ig_j\,\mathbb E\big[\beta_i\beta_j\beta_k^2\big]$$
+
+$\beta$ 的各分量独立、mean 0：$i\neq j$ 时期望为 0；$i=j\neq k$ 时是 $\sigma^2\cdot\sigma^2=\sigma^4$；$i=j=k$ 时是 fourth moment $\mu_4=\mathbb E[\beta_i^4]$。对每个 $i$，$k\neq i$ 有 $N-1$ 个，所以
+
+$$\mathbb E\|\Delta\alpha\|^2=\eta^2\Big(N-1+\frac{\mu_4}{\sigma^4}\Big)\|g\|^2$$
+
+Update 是 unbiased 的，$\mathbb E[\Delta\alpha]=-\eta g$，分母等于 $\mathbb E\|\Delta\alpha\|^2-\|\eta g\|^2=\eta^2\big(N-2+\mu_4/\sigma^4\big)\|g\|^2$，
+
+$$\text{SNR}=\frac{1}{N-2+\mu_4/\sigma^4}$$
+
+Gaussian 的 $\mu_4=3\sigma^4$，SNR $=\frac1{N+1}$；$[-a,a]$ 上的 uniform 有 $\sigma^2=\frac{a^2}3$、$\mu_4=\frac{a^4}5=\frac95\sigma^4$，SNR $=\frac1{N-1/5}$。参数很少时 uniform 略好，参数多时没有差别。
+
+拿上面的例子检验。$N=2$、Gaussian，SNR 应当是 $\tfrac13$：noise 的平均 power 是 signal 的 3 倍。在 $K=(1,1)$、$\sigma=0.01$ 上取 40 万个 $\beta$ 实测，SNR $=0.330$。在图里的起点 $(0.4,4)$、$\sigma=0.05$ 上实测只有 0.253，update 的平均值也比 $-\eta g$ 长了约 5%（第一个分量 13.61 对 12.93，取 $\eta=1$）：那里 $k_1$ 小，$J$ 弯得厉害，first-order Taylor 已经不准。教材也指出 cost 不是 linear 时，higher-order 项会让 $\sigma$ 的大小影响 SNR，没有展开推导。一个有 100 个参数的 policy，按这个公式 SNR 只有 $\frac1{101}$，这就是 REINFORCE 要靠很多 sample 和好的 baseline 的定量原因。
+
 :::wrong Objective 不 convex，gradient descent 就会卡在 local minimum
 LQR 是反例：stabilizing 的 set 都不 convex，却没有 bad local minimum。反过来也不能乐观：教材指出 static output feedback（policy 只能看到部分 state）就是已知的、在原参数里 nonconvex 且没有 smooth 的变量替换能变 convex 的情形，还有一个只有两个 state 的 MDP 反例。Deep network 的 policy 属于哪一类，教材列为开放问题。判断一个 policy search 问题好不好做，要看 landscape 有没有 PL 这样的性质，convex 与否说明不了。
 :::
@@ -813,108 +939,176 @@ $S$、$K=(1,\sqrt3)$ 与 Lyapunov equation 来自[第 3 站](#lqr)和[第 5 站]
 :::
 
 :::from
-Problem formulation、对初始状态取 expectation 的理由、$J(K)=\operatorname{tr}((Q+K^\top RK)X)$ 与 Lyapunov equation、Fazel 的 3 维例子、“all local optima are global”与 PL inequality、true gradient 的公式、“model 已知时用 Riccati 更好”，来自 [教材第 11 章](https://underactuated.csail.mit.edu/policy_search.html)；static output feedback 与两状态 MDP 反例也在这一章。Finite difference 的代价、weight perturbation 的 update 与 expectation、baseline 不改变 expectation、REINFORCE 等于 $b=0$ 的 weight perturbation，来自 [第 20 章](https://underactuated.csail.mit.edu/rl_policy_search.html)。Double integrator 的 $J(k_1,k_2)$ closed form、两个检验、eigenvalue 的手算、两条路径的数，是我推的、为这一页算的。
+Problem formulation、对初始状态取 expectation 的理由、$J(K)=\operatorname{tr}((Q+K^\top RK)X)$ 与 Lyapunov equation、Fazel 的 3 维例子、$Y=KX$ 的变量替换、“all local optima are global”与 PL inequality 的定义、$x^2+3\sin^2x$ 的例子与 $\mu=0.175$、$L=8$、true gradient 的公式、“model 已知时用 Riccati 更好”，来自 [教材第 11 章](https://underactuated.csail.mit.edu/policy_search.html)；static output feedback 与两状态 MDP 反例也在这一章。Finite difference 的代价、weight perturbation 的 update 与 expectation、baseline 不改变 expectation、REINFORCE 等于 $b=0$ 的 weight perturbation、SNR 的定义与推导、Gaussian 与 uniform 两种情形，来自 [第 20 章](https://underactuated.csail.mit.edu/rl_policy_search.html)，两章都读了全文。Double integrator 的 $J(k_1,k_2)$ closed form、两个检验、eigenvalue 的手算、两条路径的数、PL 比值的网格核对、$L=8$ 那一行的写法（原文那一行把 $3(\sin2b-\sin2a)$ 写成了 $6\sin(b-a)$，漏了一个 $\cos(a+b)$ factor，不影响结论）、SNR 的实测数，是我推的、为这一页算的。
 :::
 
 ## 作业
 
-Spring 2024 有 10 份 assignment，每份由教材的章末 exercise 组成，在 Gradescope 上交：written 部分交一个 PDF，coding 部分交 notebook（`.ipynb`，不要压缩），notebook 末尾有 autograding cell，Gradescope 大约一分钟出分，截止前可以无限次重交（来源：各 set 页面）。我读到了 set 1、2、3、4、5、8、9、10，set 6、7 的页面没有找到；按题号推断，第 10 章的几个编程 exercise 应该在这两份里，下面单列。题号按 Spring 2024 的编号；第 2、3、10 章的题目内容和教材现在的编号对得上，第 9 章是按现在教材里 exercise 的顺序推断的，没有逐题核对。
+Spring 2024 有 10 份 assignment，每份由教材的章末 exercise 组成，另有 1 分的匿名 feedback survey（交了会拿到一个 keyword，写在 written 部分的末尾）。在 Gradescope 上交两样：written 部分一个 PDF（LaTeX、Word 或清楚的手写都行），coding 部分是 notebook（`.ipynb`，不要压缩，文件名和扩展名必须和页面上一致）。Notebook 末尾的 autograding cell 只是方便自查，不能代替 Gradescope 上的提交；Gradescope 大约一分钟出分，截止前可以无限次重交（来源：各 set 页面）。10 份 set 的页面都读了，WebFetch 给的是逐项的结构化提取，不是逐字原文。题号和教材现在的编号对得上：每道题的 notebook 文件名、小题的数目都和仓库里现在的 exercise 一致，只有 9.11 不同（2024 年批改的是 (a)(b)(f)，现在的版本只有 (a) 到 (e)）。
 
-所有 notebook 都在 CPU 上跑，不需要 GPU。2024 年课程用 Deepnote；现在仓库里的 notebook 第一个 cell 会在 Colab 上 `pip install "underactuated[all]>=2026.9.8"`，免费 Colab 够用。时间都是我的估计，handout 没有给。
+所有 notebook 都在 CPU 上跑，不需要 GPU。2024 年课程用 Deepnote；现在仓库里的 notebook 第一个 cell 会在 Colab 上 `pip install "underactuated[all]>=2026.9.8"`，免费 Colab 够用。时间都是我的估计，页面没有给。
 
 **环境。**
 - Colab 上的 Meshcat：运行 `StartMeshcat()` 之后点 “Open Meshcat in a separate window”，notebook 要一直开着；想嵌在 cell 旁边用 `DisplayMeshcat(meshcat)`。（来源：教材附录 A。）
 - 本地安装：`python -m pip install "underactuated[all]" jupyterlab`，只支持 Mac 和 Ubuntu 的最近两个版本、系统默认的 Python；Windows 要用 WSL。（来源：附录 A；WSL 一条见 [MIT 6.4210 页的环境说明](../courses/MIT-6.4210.html)。）
 - Notebook 跑不起来先查教材仓库的 GitHub issues。（来源：附录 A。）
-- Notebook 的文件名必须和 handout 一致，autograder 按名字找。（来源：set 1 页面。）
+- 几个 notebook 都把 `MathematicalProgram` 拆在多个 cell 里写。改了任何 constraint，都要从初始化 `MathematicalProgram` 的那个 cell 重跑，否则同一个 constraint 会被加两次。（来源：`orbital_transfer.ipynb`、`compass_gait_limit_cycle.ipynb` 的 Troubleshooting。）
+
+:::note 第 7 章和第 5 章
+Assignment 2、3、4 里有 6 道第 7 章（dynamic programming）的题，共 56 分；Assignment 9、10 的 5.2、5.3 是第 5 章（humanoids）。这一页没有为这两章设站。离散 state 上的 value iteration 与 contraction 见 [CS4246 第 2 站](../courses/CS4246.html#dp)；continuous state 上的 HJB、mesh 上的 value iteration、minimum-time 的 bang-bang 解、ZMP，下面只写到做题需要的程度，出处是教材第 7 章和第 5 章。
+:::
 
 ### Assignment 1：Drake 入门、stability 与 feedback cancellation（先做）
 
-**要做什么。** Exercise 1.2、1.3（written，第 1 章）；1.5（`drake_systems.ipynb`，用 Drake 的 `System` 写一个 dynamical system）；2.4 Attractivity vs Stability（一个二维 system，找 equilibrium 并判断 attractive 和 stable i.s.L.，再说出它是本章哪个 system 的近亲）；2.5 Pendulum with Vibrating Base（先给一个唯一 equilibrium 在 $q=1$ 且 stable 的 $\dot q=f(q)$，再用 feedback cancellation 让 base 水平振动的 pendulum 以 $\dot\theta=1$ 匀速转，在 `vibrating_pendulum.ipynb` 里实现）。共 35 分。
+**要做什么。** 截止 2024 年 2 月 14 日，35 分。
+- 1.2 Trajectory Tracking in State Space（7 分，written）：fully actuated 的 robot 能不能从对的初始状态出发，精确跟踪任意二次可微的 $q_{des}(t)$；double integrator $m\ddot q=u$ 能不能沿直线从 $x(0)=(2,0.5)$ 走到原点，换成 $(2,-0.5)$ 呢；写成 first-order 的 $\dot x=f(x,t)$ 之后，能不能跟踪任意的 $x_{des}(t)$。
+- 1.3 Task-Space Control of the Double Pendulum（4 分，written）：不用两个 joint motor，改成直接在第二个 link 的末端施加力 $u=(u_1,u_2)$，$B$ 变成依赖 $q$ 的矩阵；问它是不是在所有 state 上 fully actuated，不是的话在哪些 state 上 underactuated。
+- 1.5 Drake Systems（3 分，`drake_systems.ipynb`）：用 Drake 写第一个 `System`。
+- 2.4 Attractivity vs Stability（7 分，written）：一个二维 system，找所有 equilibrium，判断 attractive 和 stable i.s.L.，再说出它是本章哪个 system 的近亲。配套的 `attractivity_vs_stability.ipynb` 用来分析，不用交。
+- 2.5 Pendulum with Vibrating Base（13 分，(c) 在 `vibrating_pendulum.ipynb` 里）：先给一个唯一 equilibrium 在 $q=1$ 且 stable 的 $\dot q=f(q)$；再对 base 按 $h\sin\omega t$ 水平振动的 pendulum $ml^2\ddot\theta+mgl\sin\theta=ml\omega^2h\sin(\omega t)\cos\theta+u$，用 feedback cancellation 设计 $u=\pi(\theta,\dot\theta,t)$，让 closed loop 变成 $\ddot\theta=f(\dot\theta)$，使 pendulum 以 $\dot\theta=1$ 匀速转。
 
 **做完会什么。** 第 1 站全部，以及 Drake 的 `LeafSystem`、`DiagramBuilder`、`Simulator` 这一套写法，后面每份作业都建立在上面。
 
 **时间与算力。** 估计 5 到 8 小时，一半花在 Drake 的写法上。CPU。
 
 **提示。**
+- 1.2、1.3 的判据都是第 1 站的 rank 条件；1.3 要找 $B(q)$ 在哪些 configuration 上掉秩。（来源：第 1 章的定义；“找掉秩”是经验。）
 - 2.4 那个 system 的形式看起来复杂，先换成 polar 坐标再看，再用 notebook 从你找到的 equilibrium 出发 simulate 核对。（来源：前半是经验，后半是题面的要求。）
-- 2.5 的 equation of motion 里 kinetic energy 显含时间，handout 提醒自己用 Lagrangian 推一遍时要小心；feedback cancellation 的写法照第 1 章 double pendulum 那个例子，把 base 振动的项和 gravity 一起消掉，再接上 (a) 里的 $f$。（来源：Exercise 2.5 题面与第 1 章。）
-- 2.5 的 notebook 被 handout 称为“以后做 Drake project 的好起点”，值得读懂它的结构。（来源：Exercise 2.5 题面。）
+- 2.5 的 equation of motion 里 kinetic energy 显含时间，题面提醒自己用 Lagrangian 推一遍时要小心；feedback cancellation 的写法照第 1 章 double pendulum 那个例子，把 base 振动的项和 gravity 一起消掉，再接上 (a) 里的 $f$。（来源：Exercise 2.5 题面与第 1 章。）
+- 2.5 的 notebook 被题面称为“以后做 Drake project 的好起点”，值得读懂它的结构。（来源：Exercise 2.5 题面。）
 
 ### Assignment 2：Dynamic programming 与 LQR on a Drake Diagram（值得做）
 
-**要做什么。** 第 7 章 dynamic programming 的 7.4、7.5、7.8（written）、7.5(c) `minimum_time.ipynb`、7.6 `lp_dp.ipynb`；第 8 章的 8.1 `drake_diagrams.ipynb`：搭一个 double integrator 加 low-pass filter actuator 的 Diagram，在 $q_0=1.2$ 这个 fixed point 处设计 LQR。共 43 分。第 7 章这一页没有讲，我也没有读那一章。
+**要做什么。** 截止 2024 年 2 月 21 日，43 分。
+- 7.4 A Linear System with Quadratic Cost（9 分，written）：$\dot x=x+u$，$J=\int_0^\infty(3x^2+u^2)\,dt$，猜 $J^*=Sx^2$。(a) 解 HJB 得到 $S\le0$ 该不该警觉；(b) 用 HJB sufficiency theorem 求 $S$ 和 $K$；(c) 用 time step $h$ 把 dynamics 和 cost 离散成 $\frac{x[n+1]-x[n]}h=x[n]+u[n]$、$h\sum(3x^2+u^2)$，不解 discrete-time HJB，从给出的三个候选里认出正确的 $J_h^*$。
+- 7.5 Value Iteration for Minimum-Time Problems（12 分，(c) 在 `minimum_time.ipynb` 里）：看 value iteration 给 double integrator 的 closed loop 是不是沿理论上的 parabolic arc 走、control 是不是只取 $\{-1,0,1\}$，解释原因；加密 mesh 能不能解决；最后实现理论上的 bang-bang policy 并验证。
+- 7.6 Linear Program for Dynamic Programming（6 分，`lp_dp.ipynb`）：在 grid world 上写一个 LP 求 optimal cost-to-go。
+- 7.8 Ordering of the Value Iteration Updates（11 分，written）：在一个 DAG 上算 batched value iteration 直到收敛的表和 Bellman update 的总次数；找出让 asynchronous value iteration 次数最少的 update 顺序，推广到有一个 start、一个 goal 的任意 DAG；再问 graph 有 cycle 时 optimal policy 能不能带 cycle。
+- 8.1 LQR on a Drake Diagram（4 分，`drake_diagrams.ipynb`）：搭一个 double integrator 加 low-pass filter actuator 的 Diagram，在 $q_0=1.2$ 这个 fixed point 处设计 LQR。
 
-**做完会什么。** 8.1 让你在 Drake 里对任意 Diagram 调 `LinearQuadraticRegulator`，后面 cart-pole 和 trajectory stabilization 都这样做。
+**做完会什么。** 8.1 让你在 Drake 里对任意 Diagram 调 `LinearQuadraticRegulator`，后面 cart-pole 和 trajectory stabilization 都这样做。第 7 章的几题让你看到 continuous state 上做 value iteration 的代价：mesh 的分辨率决定了 policy 能有多准。
 
-**时间与算力。** 8.1 估计 2 到 3 小时；第 7 章的题我没读，估不了。CPU。
+**时间与算力。** 8.1 估计 2 到 3 小时；7.4、7.8 是手算，各约 1 到 2 小时；7.5、7.6 各约 2 小时。CPU。
 
 **提示。**
-- 整个 Diagram 要在一个 cell 里搭：System 加进 Diagram 之后归 Diagram 所有，不能再加进另一个 Diagram。用 `AddNamedSystem` 命名，`plot_system_graphviz` 画出来检查连线。（来源：`drake_diagrams.ipynb`。）
-- Nominal state 必须是 fixed point，通过设置 Diagram 的 `Context` 传给 `LinearQuadraticRegulator`；actuator 的 state 也要设（$x_0=0$）。（来源：同上。）
-- Autograder 检查 `double_integrator`、`actuator_model`、`diagram`、`diagram_context`、`controller` 这几个变量名，不要改名。（来源：同上。）
+- 7.4 (b) 照第 7 章 “HJB for the Double Integrator” 的步骤：把 $J=Sx^2$ 代进 HJB，方括号里是 $u$ 的 convex quadratic，令对 $u$ 的 derivative 为 0 求出 $u^*$，代回去得到 $S$ 满足的 equation。第 3 站从 HJB 推 Riccati equation 是同一个计算的 matrix 版本。(c) 题面说不必解 discrete-time HJB：想想 $h\to0$ 时 discrete 问题应当退回什么。（来源：第 7 章；(c) 是经验。）
+- 7.5 的理论解在第 7 章 minimum-time 一节：$u=-1$ 时 trajectory 是 parabola $q=-\tfrac12\dot q^2+c_-$，$u=+1$ 时是 $q=\tfrac12\dot q^2+c_+$；经过原点的那两段 parabola 组成 switching surface，一侧全力加速、另一侧全力刹车。Notebook 里判断 $x=0$ 要用 `numpy.isclose`，不要写 `x == 0`；input 的上下限保持 $\pm1$，因为 closed-form 解是按这个推的。（来源：第 7 章；`minimum_time.ipynb`。）
+- 7.6 的 LP 在第 7 章 “Linear Programming Dynamic Programming”：$J$ 当 decision variable，对每个 action 要求 $J\le\ell(a)+T(a)J$（逐个分量），最大化 $c^\top J$，$c$ 是任意正向量，最优解就是 $J^*$。（来源：第 7 章。）
+- 7.8 (a)(b) 只数到收敛为止的 update，检查收敛的那一轮不算。（来源：题面。）
+- 8.1：整个 Diagram 要在一个 cell 里搭，System 加进 Diagram 之后归 Diagram 所有，不能再加进另一个 Diagram。用 `AddNamedSystem` 命名，`plot_system_graphviz` 画出来检查连线。（来源：`drake_diagrams.ipynb`。）
+- 8.1 的 nominal state 必须是 fixed point，通过设置 Diagram 的 `Context` 传给 `LinearQuadraticRegulator`；actuator 的 state 也要设（$x_0=0$）。Autograder 检查 `double_integrator`、`actuator_model`、`diagram`、`diagram_context`、`controller` 这几个变量名，不要改名。（来源：同上。）
 
 ### Assignment 3：Cart-pole 的 linearization、URDF 与 controllability（先做）
 
-**要做什么。** 7.1（written）；3.1 `cartpole_balancing.ipynb`：写出 cart-pole 的 state-space dynamics，在 upright linearize，比较六个 state 上的 linearization error，判断 LQR 能从哪几个 state 回来；3.2 `cartpoles_urdf.ipynb`：写 single cart-pole 的 URDF，再扩展成 double pendulum 的 cart-pole 并用 LQR 控制；3.3 Controllability：discrete double integrator 的 grid world，以及四对 $(A,B)$ 的 controllability 与 underactuation。共 49 分。
+**要做什么。** 截止 2024 年 2 月 28 日，49 分。
+- 7.1 Discounting and the Convergence of Value Iteration（8 分，written）：证明 $\hat J^*=J^*+c$（$c$ 是任意常数）也是 value iteration update 的 fixed point，此时 controller 是否仍然 optimal；加上 discount factor $\gamma<1$ 之后，它还是不是 fixed point。
+- 3.1 Cart-Pole: Linearization and Balancing（13 分，`cartpole_balancing.ipynb`）：写出 cart-pole 的 state-space dynamics，在 upright linearize，比较六组 state 与 input 上的 linearization error，判断其中哪些 state 能被 LQR 拉回 upright。
+- 3.2 Cart-Poles: Writing URDFs and balancing with LQR（12 分，`cartpoles_urdf.ipynb`）：写 single cart-pole 的 URDF，再扩展成 double pendulum 的 cart-pole，用 LQR 控制。
+- 3.3 Controllability of Discrete and Continuous LTI Systems（15 分，written）：整数 grid 上的 discrete double integrator $x[n+1]=(x_1+x_2,\ x_2+u)$，画出 $u=-1,0,1$ 的 transition，求从 $s_{0,0}$ 到任意 $j>i>0$ 的 $s_{i,j}$ 的最少步数并证明它最少，再推广到任意起点；然后判断四对 $(A,B)$ 的 controllability，以及其中两对是不是 underactuated。
 
 **做完会什么。** 第 3 站全部，外加自己写 URDF 让 Drake 读进来。
 
 **时间与算力。** 估计 6 到 10 小时，3.2 的 URDF 最花时间。CPU。
 
 **提示。**
+- 7.1 第一问：把 $J^*+c$ 代进 update 的两边，看常数 $c$ 怎样穿过 $\min$。（来源：经验。）
 - 3.1 的参数是 $m_c=m_p=l=1$、$g=9.81$，不要改也不要四舍五入，否则 autograder 报错；$\pi$ 一律写 `np.pi`，不要写 3.14。（来源：`cartpole_balancing.ipynb`。）
 - 3.1 的 $A_{lin}$、$B_{lin}$ 按第 3 站的公式算；做完可以用 notebook 里藏着的 `cartpole_lin.A()`、`cartpole_lin.B()`（Drake 的 `Linearize` 给的）核对。（来源：同上。）
 - Notebook 里有几个不计分的问题，例如“为什么 $0.9\pi$ 加 $u=-10$ 的 error 比 $0.85\pi$ 不加 $u$ 的还大”，答案就在 linearization 对 $u$ 的依赖里，值得想清楚再判断哪些 state 能回来。（来源：同上；“值得想”是经验。）
-- 3.3 判断 controllability 只需要定义；第 3 章有一节可展开的通用工具，handout 说对第四对 $(A_4,B_4)$ 特别有用。判断 underactuated 时要把 system 理解成 $x=(q,\dot q)$ 的 second-order system。（来源：Exercise 3.3 题面。）
+- 3.3 判断 controllability 只需要定义；第 3 章有一节可展开的通用工具，题面说对第四对 $(A_4,B_4)$ 特别有用。判断 underactuated 时要把 system 理解成 $x=(q,\dot q)$ 的 second-order system。（来源：Exercise 3.3 题面。）
 
-### Assignment 4、5：Lyapunov 分析与 SOS（有余力再做，做 verification 的先做）
+### Assignment 4、5 与 Assignment 6 的 9.9：Lyapunov 分析与 SOS（有余力再做，做 verification 的先做）
 
-**要做什么。** Assignment 4：7.7 `pendulum_cvi.ipynb`（第 7 章，没读），9.1、9.3、9.5、9.6（written）：global stability 的 Lyapunov function、Lyapunov function 是否唯一、instability 与 barrier function、converse theorem。共 23 分。Assignment 5：9.2 invariant set 与 ROA 的判断题、9.4 证明 global asymptotic stability、9.10 用 SOS 估计 time-reversed Van der Pol 的 ROA（`van_der_pol.ipynb`，三种 formulation：带 line search 的、一次 SOS 直接最大化面积的、减少 constraint 的改进版）、9.11 pendulum energy shaping 的 robustness。共 36 分。
+**要做什么。** Assignment 4 截止 2024 年 3 月 6 日，页面写的上限是 23 分（各题分值加起来是 24）：
+- 7.7 Continuous Fitted Value Iteration for Pendulum Swingup（10 分，`pendulum_cvi.ipynb`）：用 Drake 的 MLP（两个 hidden layer、ReLU）近似 value function，在 continuous state、continuous action 上做 fitted value iteration，让 pendulum swing up。要写 batch 的 quadratic cost、给定 $\partial J/\partial x$ 时的 optimal input、整个 iteration 的循环。
+- 9.1 Valid Lyapunov Function for Global Stability（2 分）：给定 $V=\frac{x_1^2}{1+x_1^2}+x_2^2$，并告诉你 $\dot V$ 在全空间 negative definite，问它能不能证明 global asymptotic stability。
+- 9.3 Are Lyapunov Functions Unique?（1 分）；9.5 Lyapunov Instability Theorem and Barrier functions（4 分）；9.6 Converse Lyapunov Theorem for global exponential stability（6 分）。
+
+Assignment 5 截止 2024 年 3 月 13 日，36 分：
+- 9.2 Invariant Sets and Regions of Attraction（4 分）：给定一个 ball $B_r$ 上的 $V$，判断 $B_r$ 是不是 invariant set、是不是在 ROA 里。
+- 9.4 Proving Global Asymptotic Stability（5 分）：$\dot x_1=x_2-x_1^3$、$\dot x_2=-x_1-x_2^3$，用 $V=x_1^2+x_2^2$ 证明。
+- 9.10 ROA Estimation for the Time-Reversed Van der Pol Oscillator（15 分，`van_der_pol.ipynb`）：$\dot x_1=-x_2$、$\dot x_2=x_1+(x_1^2-1)x_2$，原点 locally asymptotically stable，ROA 的边界是一条 unstable periodic orbit。三种 SOS formulation：带 line search 的、一次 SOS 直接最大化 $\rho$ 的、去掉多余 SOS constraint 的改进版。
+- 9.11 Lyapunov Analysis for Robustness of Pendulum Swing-up Controllers（11 分）：用 $V=\tfrac12\tilde E^2$ 和 LaSalle 证明 energy shaping 让 upright attractive，再看 $m$ 估错、$m$ 和 $l$ 都估错、加上 $g$ 也估错但 small-oscillation period 测准了、damping 估错这几种情形。
+
+Assignment 6 截止 2024 年 3 月 22 日，23 分，其中 9.9 SOS Polynomials in Lyapunov Analysis 占 7 分：(a) 在 `sos_and_psd.ipynb` 里判断 $f_1=x^2y^4+x^4y^2+1-3x^2y^2$、$f_2=x^4+3y^4-2xy^3$、$f_3=z^6+x^2y^2(x^2+y^2-3\lambda z^2)$（$0<\lambda\le1$）是不是 SOS、是不是 PSD；(b) 一个 fixed point 没有 SOS Lyapunov function，能推出它的 stability 什么；(c) optimal cost-to-go 不能写成 SOS 时，还能不能有 SOS Lyapunov function。Assignment 6 的另一题 10.2 见下一节。
 
 **做完会什么。** 第 5 站全部，以及把 Lyapunov 条件写成 SOS program 交给 solver。
 
-**时间与算力。** 两份合计估计 10 到 15 小时，written 题的证明占大头。CPU；SOS program 用 Drake 的 `MathematicalProgram` 写。
+**时间与算力。** Assignment 4、5 合计估计 10 到 15 小时，written 题的证明占大头，7.7 约 3 小时；9.9 约 2 小时。CPU；SOS program 用 Drake 的 `MathematicalProgram` 写。
 
 **提示。**
-- 9.10 第一种 formulation 对 $\rho$ 做 line search，原因是 $\rho$ 和 multiplier 的系数相乘是 bilinear 的，固定 $\rho$ 才是 convex。（来源：第 9 章。）
-- 9.11 是第 2 站“不需要知道 mass”那一节的严格版本。先把 controller 里的 $\tilde E$ 用估计的参数 $m_i,l_i,g_i$ 写出来，再算 $V=\tfrac12\tilde E^2$ 的 $\dot V$，看哪些 factor 消得掉；(d) 给的 small-oscillation period 正好固定了 $l/g$。（来源：经验，依据第 2 章的 robustness 讨论与题面。）
-- 9.2 这类判断题，把题目给的条件和第 5 站 sublevel set 那个定理的条件逐条对照，看缺了哪一条。（来源：经验。）
+- 7.7 的 optimal input 有 closed form：dynamics control-affine，$f=f_1(x)+f_2(x)u$，cost 是 $\ell_1(x)+u^\top Ru$ 时，$u^*=-\tfrac12R^{-1}f_2^\top(x)\frac{\partial J}{\partial x}^\top$。Notebook 要你对整个 batch 一次算出来，而且 batch 维度放在最后。（来源：第 7 章 “Solving for the minimizing control”；`pendulum_cvi.ipynb`。）
+- 9.1 对照第 5 站 direct method 里“要 global 的结论还要求 radially unbounded”那一句，看这个 $V$ 在 $x_1\to\infty$ 时的样子。9.2 这类判断题也一样，把题目给的条件和第 5 站 sublevel set 那个定理的条件逐条对照，看缺了哪一条。（来源：经验。）
+- 9.10 先在 notebook 里手画：$Q=I$ 解 Lyapunov equation 得到 $V=x^\top Px$，画 $V$ 和 $\dot V$ 的 contour，最大的 $\rho$ 约是 2.3，后面三种方法都拿它对照。第一种的 line search 从 $\rho=0$ 开始、每步加 0.01；它要 line search，是因为 $\rho$ 和 multiplier 的系数相乘是 bilinear 的。第二种如果不乘 $x^\top x$，原点处条件变成 $-\rho\ge0$，$\rho$ 永远是 0，notebook 先让你发现这一点再加上这个 factor。第三种就是第 5 站的 equality-constrained formulation，$\lambda$ 用 `NewFreePolynomial` 而不是 `NewSosPolynomial`，结果应当和第二种很接近。（来源：`van_der_pol.ipynb`；第 9 章。）
+- 9.11 是第 2 站“不需要知道 mass”那一节的严格版本。先把 controller 里的 $\tilde E$ 用估计的参数 $m_i,l_i,g_i$ 写出来，再算 $V=\tfrac12\tilde E^2$ 的 $\dot V$，看哪些 factor 消得掉；small-oscillation period $T=2\pi\sqrt{l/g}$ 测准，正好固定了 $l/g$。Damping 那一问要你说明 $V=\tfrac12\tilde E^2$ 证不出 attractivity；第 2 章正文说这个 controller 对 damping 的估计误差也相当 robust，两句话并不矛盾，一个 Lyapunov function 证不出来，不等于结论不成立。（来源：第 2 章的 robustness 讨论与题面；解释是经验。）
+- 9.9 (a) 对 $f_3$，notebook 提示只要对某一个特定的 $\lambda$ 检查，就够覆盖所有 $0<\lambda\le1$；判断 PSD 时如果用画图，要说明为什么画的范围够用。Notebook 最后还用 $f-\gamma$ 是 SOS 来找 lower bound $\gamma$，不计分。（来源：`sos_and_psd.ipynb`。）
 
-### 第 10 章的编程 exercise：shooting vs transcription、orbital transfer、iLQR（先做）
+### 第 10 章：Assignment 6 的 10.2、Assignment 7、Assignment 10 的 10.5 与教材的 10.1（先做）
 
-**要做什么。** 10.1 `shooting_vs_transcription.ipynb`：分析 direct shooting 的 conditioning，补完 direct transcription，验证它的 cost-to-go 随 horizon 收敛到 LQR，再实现 Riccati recursion 来解 transcription 底下的 linear algebra。10.2 `orbital_transfer.ipynb`：用 nonlinear trajectory optimization 让火箭从地球到火星，加 thrust、velocity 上限和小行星的 collision constraint，以 fuel 为 objective。10.3 读 Nganga 2021 的前两节回答 iLQR 的概念题。10.4 `ilqr_driving.ipynb`：从零实现 iLQR，在一辆车绕圆的轨迹上测试。Spring 2024 的 set 10 还有 10.5（differential flatness，这一页没讲）。
+**要做什么。**
+- 10.1 Direct Shooting vs Direct Transcription（`shooting_vs_transcription.ipynb`）：Spring 2024 没有布置，是教材的 exercise；第 4 站 shooting 与 transcription 一节就是它的内容，值得做。分析 direct shooting 的 conditioning，补完 direct transcription，验证它的 cost-to-go 随 horizon 收敛到 LQR，分析 transcription 的 conditioning，再实现 Riccati recursion 来解 transcription 底下的 linear algebra。
+- 10.2 Orbital Transfer via Trajectory Optimization（Assignment 6，15 分，`orbital_transfer.ipynb`）：2D 的宇宙里，用 nonlinear trajectory optimization 让火箭从地球到火星，补上 thrust 上限、velocity 上限、避开小行星周围的 danger area，以 fuel 为 objective。
+- Assignment 7 截止 2024 年 4 月 5 日，31 分：10.3 Iterative Linear Quadratic Regulator: Theory（12 分，6 问各 2 分）：读 Nganga 2021 的第 1、2 节，每问用 1 到 3 句回答：iLQR 解的是什么 optimization、输出什么；backward pass 和 forward pass 各做什么；两者怎样交替、会不会收敛；DDP 和 iLQR 的区别；dynamics 不光滑但有 closed form 时还能不能用。10.4 Iterative Linear Quadratic Regulator: Implementation（18 分，`ilqr_driving.ipynb`）：从零写 Euler integrator、rollout、总 cost、$Q$ function 的各个系数、gain、value function 的 backward update、forward pass 与 backward pass，在一辆车绕圆的问题上测试。
+- 10.5 Differential Flatness（Assignment 10，9 分，written）：planar rigid body 受作用在 body 上一点 $P$ 的力 $F_1$、$F_2$，$m\ddot x=F_1\cos\theta+F_2\sin\theta$、$m\ddot y=F_1\sin\theta-F_2\cos\theta-mg$、$I\ddot\theta=rF_1$。证明它对 center of oscillation $z=\big(x-\frac{I}{mr}\sin\theta,\ y+\frac{I}{mr}\cos\theta\big)$ differentially flat；讨论用 flat output 规划经过一串 waypoint 的 trajectory，两种坐标下的 formulation 是否 convex、哪个好解；再加上 $|F_i|\le F_{max}$ 之后呢。这一页没有讲 differential flatness。
 
 **做完会什么。** 第 4 站全部。做 legged、manipulation 的 MPC 时，底下就是这几样东西。
 
-**时间与算力。** 10.1 估计 3 到 4 小时，10.4 估计 4 到 6 小时，10.2 估计 3 小时。CPU。
+**时间与算力。** 10.1 估计 3 到 4 小时，10.2 估计 3 小时，10.3 约 2 小时（含读论文），10.4 估计 4 到 6 小时，10.5 约 2 小时。CPU。
 
 **提示。**
-- 10.1 的 benchmark 是 $h=0.5$ 的 Euler 离散 inverted pendulum，要你交 `N_max = 45` 个 $\log_2\operatorname{cond}$；第 4 站用的是 $h=0.1$，数字不同，但增长率的来源一样：每步约 $2\log_2$ 乘以 $A$ 的最大 eigenvalue 的绝对值。（来源：notebook；增长率的解释是经验。）
-- 10.1 的 KKT matrix 是 banded 的，用 `scipy.sparse` 和 `spsolve` 解；Riccati recursion 那部分就是第 3 站的 discrete-time 公式。（来源：notebook。）
-- 10.4 先在 linear dynamics 加 quadratic cost 上测：这时 backward pass 就是 LQR，$\alpha=1$ 的一次 iteration 应该直接到最优，否则就说明 backward pass 有 bug。（来源：经验。）
-- 10.4 的 notebook 给了 expected cost reduction 的公式，用它和实际下降量比较，判断 quadratic approximation 准不准、要不要调 regularization；cost 不降时拒绝这一步并增大 $Q_{uu}$ 上的 regularization，降了就减小。（来源：notebook 的 Main Loop 一节。）
-- 10.4 的收敛图应该是 superlinear 的；开着 regularization 时前几个 iteration 会慢一些，这是正常的。（来源：notebook 的 Convergence Analysis。）
+- 10.1 的 benchmark 是 $h=0.5$ 的 Euler 离散 inverted pendulum，$Q=\operatorname{diag}(1,0)$、$R=1$、$Q_N=\operatorname{diag}(3,2)$、$x_0=(1,1)$，shooting 要你交 `N_max = 45` 个 $\log_2\operatorname{cond}$，transcription 要交 100 个，Riccati recursion 的那张图把 horizon 推到 500。第 4 站用的是 $h=0.1$，数字不同，增长率的来源一样：每步约 $2\log_2$ 乘以 $A$ 的最大 eigenvalue 的绝对值。这里 $A$ 的 eigenvalue 是 1.5 和 0.5，每步约 1.17 bit，我算出 $N=45$ 时约 51 bit，几乎用完 double 的 52 bit mantissa。Notebook 画的 “Bits of your machine” 那条线在 64，那是 `sys.maxsize` 的位数，不是 double 的精度。（来源：notebook；增长率、51 bit 与 52 bit 的说明是经验和我算的。）
+- 10.1 的 KKT matrix 是 banded 的，用 `scipy.sparse` 和 `spsolve` 解；Riccati recursion 那部分就是第 3 站的 discrete-time 公式，从 $S[N]=Q_N$ 往回走。（来源：notebook。）
+- 10.2：notebook 一开始就强调单位的选择，选错了 solver 会有 numerical 的麻烦；thrust 和 velocity 的上限故意定得很小，计划 50 年到火星。默认用 SNOPT，自己从 source 编译 Drake、没有 SNOPT license 时换成 `IpoptSolver`。（来源：`orbital_transfer.ipynb`。）
+- 10.3 的 backward pass、forward pass 见第 4 站 iLQR 一节；DDP 与 iLQR 的区别教材一句话说清：DDP 多用了 dynamics 的二阶 approximation，通常不值得多算。（来源：第 10 章。）
+- 10.4 车的 model：state 是位置 $(x,y)$、heading、speed、steering angle，input 是 acceleration 和 steering velocity；Euler 离散，$dt=0.1$；cost 让车以 2 m/s 沿半径 2 的圆走，$N=50$。（来源：`ilqr_driving.ipynb`。）
+- 10.4 的 `V_terms` 不要用 $k=-Q_{uu}^{-1}Q_u$、$K=-Q_{uu}^{-1}Q_{ux}$ 去化简 $V_x$、$V_{xx}$，notebook 用大写特意提醒。从 `backward_pass` 的写法看得出原因：gain 用的是加了 regularization 的 $Q_{uu}$，`V_terms` 收到的是没加的，化简后的式子不再成立。第 4 站给的 $V_x\leftarrow Q_x+K^\top Q_{uu}k+K^\top Q_u+Q_{ux}^\top k$ 就是没化简的形式。（来源：notebook；原因是我的推断。）
+- 10.4 的 main loop：cost 降了就接受新 trajectory，regularization 乘 0.7；没降就拒绝，regularization 乘 2；夹在 0.01 到 10000 之间，初值 100。Forward pass 不做 line search，直接用 $u=\bar u+k+K(x-\bar x)$，步子由 regularization 控制；第 4 站的例子用的是 $\alpha$ 减半的 line search，两种都常见。（来源：notebook 的 Main Loop。）
+- 10.4 的 notebook 给了 expected cost reduction 的公式 $-Q_u^\top k-\tfrac12k^\top Q_{uu}k$，拿实际下降量和它比，比值接近 1 说明 quadratic approximation 准，明显小于 1 就该加大 regularization。收敛图应当是 superlinear 的（notebook 说接近 second order），开着 regularization 时前几个 iteration 会慢一些。（来源：notebook 的 Convergence Analysis。）
+- 10.4 调 backward pass 时，先把 regularization 关掉，在 linear dynamics 加 quadratic cost 上测：这时 backward pass 就是 LQR，一次 iteration 应该直接到最优，否则就是 backward pass 有 bug。（来源：经验。）
+- 10.5 的模板是第 10 章 differential flatness 一节的 planar quadrotor：由 $\ddot x$、$\ddot y$ 解出 $\tan\theta$，再求导两次得到 $\ddot\theta$，代回解出 input；题面提示把 $\ddot z_1$、$\ddot z_2$ 代进 $\ddot x$、$\ddot y$ 的式子。（来源：题面与第 10 章。）
 
-### Assignment 8：Hopper、compass gait 的 limit cycle（做 legged 的先做）
+### Assignment 8：Hopper、compass gait 的 limit cycle 与 time-stepping contact（做 legged 的先做）
 
-**要做什么。** 4.1 `one_d_hopper.ipynb`：照 Raibert 的思路实现一维 hopper，写 total mechanical energy 和一个 `LeafSystem` controller，每次读 state、给出 spring 的 preload，让它跳到指定高度；17.1 `compass_gait_limit_cycle.ipynb`：把找 passive compass gait 的 limit cycle 写成 trajectory optimization；B.1（附录，written）。共 40 分。
+**要做什么。** 截止 2024 年 4 月 12 日，40 分。
+- 4.1 One-Dimensional Hopper（13 分，`one_d_hopper.ipynb`）：照 Raibert 的思路实现一维 hopper：写一个 function 返回 hopper 的 total mechanical energy，再写一个 `LeafSystem` controller，每次读 state、给出 spring 的 preload，让它跳到指定高度。
+- 17.1 Finding the compass gait limit cycle（13 分，`compass_gait_limit_cycle.ipynb`）：在 floating-base 坐标 $q=(x,y,\theta_1,\theta_2)$ 下（$\theta_1$ 是 stance leg 的绝对角，$\theta_2$ 是 swing leg 相对 stance leg 的角），把找 passive compass gait 的 limit cycle 写成 trajectory optimization。没有 input，也没有 cost，只找一个初始 state，使走一步之后镜像回原来的 state。你要补五组 constraint：stance foot 始终在地上；$t=0$ 时 swing foot 在地上；swing foot 不穿进地面；stance foot 的 contact force 在 friction cone 里；heel strike 的 impulse 在 friction cone 里。
+- B.1 Time-stepping LCP dynamics for block collision（13 分，written，附录 B）：两个宽 1、mass 1 的 block 在无摩擦的面上，A 的 (位置, 速度) 是 $(-2,3)$，B 静止在原点。用 implicit Euler、$h=1$ 手算第 1、2、3 步的位置、速度和 contact force；解释为什么 $q^{(A)}_{1,x}$ 不是 $-1$；再和 continuous time 里 perfectly inelastic collision 加动量守恒的结果比较。
 
-**做完会什么。** 第 6 站，加上在 Drake 里写带 contact constraint 的 `MathematicalProgram`。
+**做完会什么。** 第 6 站，加上在 Drake 里写带 contact constraint 的 `MathematicalProgram`，以及 time-stepping 的 contact 是怎么算的。
 
 **时间与算力。** 估计 8 到 12 小时，17.1 的调试最费时。CPU。
 
 **提示。**
-- 17.1 修改了任何 constraint，都要从初始化 `MathematicalProgram` 的那个 cell 开始重跑，否则同一个 constraint 会被加两次。（来源：notebook 的 Troubleshooting。）
+- 4.1：touchdown 和 lift off 两次 inelastic impact 各损失一次 energy，controller 的任务是加大 spring 的 preload，把 energy 补回去，让 hopping 高度正好是指定值；推导 notebook 里都给了。Spring 在 notebook 里是用 body 和 leg 之间的一个 actuator 模拟的，这样 preload 好写。（来源：`one_d_hopper.ipynb`。）
+- 17.1 的 transcription notebook 已经写好：相邻 break point 之间用 implicit Euler 连起来，`qdd` 也是 decision variable，$T=50$ 段，每段 $h$ 在 0.005 到 0.05 之间可变；heel strike 的速度跳变用第 6 站那个 impulse 公式的 implicit form；镜像与 periodicity 的 constraint 也给了：初末 configuration 互为相反数，$\dot x(0)=\dot y(0)=0$，$\dot\theta_1(0)=\dot\theta_1(t_c^+)+\dot\theta_2(t_c^+)$，$\dot\theta_2(0)=-\dot\theta_2(t_c^+)$。Friction coefficient 是 0.2；friction cone 的条件是 normal 分量非负、tangential 分量的绝对值不超过 0.2 倍 normal 分量，每个时刻写成三个 `LinearConstraint`。（来源：notebook。）
+- 17.1 的 constraint 按 notebook 给的顺序加：nonlinear solver 很敏感，换个顺序可能得到不同的解。（来源：notebook 的 Troubleshooting。）
 - Decision variable 是 `symbolic.Variable`，不能直接传给 `MultibodyPlant` 的 `CalcMassMatrix` 之类的函数；要写一个接受 float 或 `AutoDiffXd` 的 Python function，再把它作为 constraint 加进去。（来源：notebook。）
-- Initial guess：time step 取上限 `h_max`，configuration 在 `q0_guess` 和 `-q0_guess` 之间线性插值；求完先看 `result.is_success()`。（来源：notebook。）
-- 这个 notebook 不用 `MultibodyPlant` 做 simulation：swing foot 在地面高度滑动时，任何好的 simulator 都会检测到 collision 并加 friction（scuffing）。（来源：notebook。）
+- Initial guess：time step 取上限 `h_max`，configuration 在 `q0_guess` 和 `-q0_guess` 之间线性插值，velocity 和 acceleration 由它求导，stance foot 的 normal force 取 robot 的总重量；求完先看 `result.is_success()`。（来源：notebook。）
+- 这个 notebook 不用 `MultibodyPlant` 做 simulation：swing foot 在地面高度滑动时，任何好的 simulator 都会检测到 collision 并加 friction（scuffing），compass gait 必然绊倒。（来源：notebook。）
+- B.1 的模板是附录 B 的 Example B.4，一个 cart 撞墙的 LCP，用的是 semi-implicit Euler；implicit Euler 的差别是 position 和 velocity 都用 backward difference。题面提示 time-stepping LCP 给出的是 perfectly inelastic collision，想想这对 collision 时的 signed distance 意味着什么。（来源：题面与附录 B。）
 
-### Assignment 9、10：Footstep planning（有余力再做）
+### Assignment 9、10：ZMP 与 footstep planning（有余力再做）
 
-**要做什么。** Set 9 是 5.2（26 分，written PDF）；set 10 是 5.3 加 10.5，notebook 是 `footstep_planning_gcs.ipynb`。第 5 章（humanoids）这一页没讲，我也没有读，只知道 notebook 用 Graphs of Convex Sets 做 footstep planning。
+**要做什么。** Assignment 9 截止 2024 年 4 月 17 日，27 分，只有一题，只交 written PDF：
+- 5.2 Understanding the zero-moment point（26 分）：一个抽象的 legged robot，foot（heel H、toe T、高 $h$，ankle 的位置由 $L_1$、$L_2$ 描述）和长 $l$ 的 leg 都没有 mass，body 是 leg 顶端的 point mass $m$，foot 与 leg 在 P 处 pin joint。先在 ankle 没有 actuator 的情况下画 bob、leg、foot 各自的 free body diagram（ground reaction 只作用在 heel 和 toe），问 $\theta=\pi/2+10^{-3}$ 时是否 stable，求 ZMP 随 $\theta$ 的表达式、ZMP 到达 toe 时和 heel 开始离地时的 $\theta$；再在 ankle 加一个正好抵消 bob 的 gravity torque 的 actuator（$\ddot\theta=0$），问快倒时 heel 和 toe 的 reaction force 怎样、不倒能维持的 $\theta$ 范围；最后从“能维持的姿态范围最大”和“只往前走、heel 容易离地”两个目标，讨论 foot 该高还是扁、长还是短、ankle 放在哪。
 
-**时间与算力。** 无法估计。CPU。
+Assignment 10 截止 2024 年 5 月 1 日，26 分：
+- 5.3 Footstep Planning via Graph of Convex Sets（16 分，`footstep_planning_gcs.ipynb`）：把 footstep planning 写成 graph of convex sets 上的 shortest path problem，解它的 convex relaxation（一个 LP）。你要写：由 stepping stone 建 vertex，包括一块 stone 要建几个 copy 才能在上面落几步；建合法的 edge；在每条 edge 上加 kinematic constraint $\|x_u-x_v\|_\infty\le d/2$（$d$ 是 step span）；加 constant 的 edge cost，让总步数最少。
+- 10.5（9 分）见上面第 10 章一节。
+
+**做完会什么。** 5.2 让 ZMP 这个常被说糊涂的概念落到一个能手算的 model 上；5.3 是 GCS 在 planning 上最简单的一个完整例子。
+
+**时间与算力。** 5.2 估计 3 到 4 小时，主要是受力和 moment 的手推；5.3 估计 3 到 4 小时。CPU。
 
 **提示。**
-- 我没有读到这两份的具体提示。GCS 的思路见 [MIT 6.4210 第 5 站](../courses/MIT-6.4210.html#plan)。
+- 5.2 用第 5 章 CoP 与 ZMP 一节的两条事实：flat terrain 上 CoP 是各 contact 点按 normal force 加权的平均位置，所以它必然落在 contact 点的 convex hull 里；robot 只能推地、不能拉地，所以每个 normal force 都非负。把这两条和题目每一问的条件对照着用。（来源：第 5 章；“对照着用”是经验。）
+- 5.3 的 edge 只需要沿 copy 的固定顺序 `xi_0 -> xi_1 -> ...` 连；从别的 stone 进来的 edge 只连到 `xi_0`；source 只出不进，target 只进不出。一块 stone 的 copy 数，notebook 给的规则是 stone 横向长度除以 step span 取整再加 2。Edge cost 取常数时 SNOPT 就能解；换成 $x_u-x_v$ 的 L2 norm 一类的 cost，要 Mosek、Gurobi 这类商业 solver 才可靠。Relaxation 在这个问题上是 tight 的，flow variable 解出来只取 0 和 1。（来源：notebook。）
+- GCS 的思路见 [MIT 6.4210 第 5 站](../courses/MIT-6.4210.html#plan)。
+
+### Final project
+
+**要做什么。** Spring 2024 的最后 4 到 5 周做 final project，按课程主页占总分 35%。一个人做，或者 2 到 3 人一组，人越多期望越高，proposal 里要写明。Proposal 约一页，不超过约 500 词：写清 deliverable、为什么有意思、用到课上哪些内容、相关的已有工作、每次 progress update 的具体目标。两次 progress update，除了一段总的进展，还要说 simulation 搭到了哪一步：搭好了就附图并描述 dynamics 和环境，没搭好就写计划和预计的技术障碍。最后交一段 presentation video（1 人不超过 3 分钟，2 人 4 分钟，3 人 5 分钟，传到 YouTube）和一篇 IEEE conference 格式的 report：abstract、introduction、results（部分结果也可以）、discussion 与 next steps，长度不限，页面说 3 到 8 页都合理；组队的要写清各人的贡献。（来源：project 页面与课程主页。）
+
+**选题的要求。** 有一个带 dynamics 的 system，用算法去分析或控制它；要加深对课上某个 topic 的掌握，不要求 novelty，复现已发表的工作、把已发表的 algorithm 用到课上的 model system 上都可以；和自己 research 或别的课重叠的，要说清哪部分是为这门课做的、离开这门课不会做的；可以用开源代码，但要遵守 license、分清自己的贡献；Drake 不强制。（来源：project 页面。）
+
+Midterm 占 25% 或 30%，它的范围、形式和往年题在公开页面上都没有，读不到。
