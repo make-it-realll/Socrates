@@ -83,26 +83,40 @@ function moth() {
   return svg(560, 282, o, 'Majerus 实验 2002 到 2007 年每年 typica 和 carbonaria 被鸟吃掉的比例；六年里有五年 carbonaria 被吃得更多，但后几年 carbonaria 的样本只有十几个到几十个');
 }
 
-// 第 3 站：breeder's equation 的几何：parent–offspring regression 的 slope 就是 h²
+// 第 3 站：breeder's equation。左：Boag 1976 年 20 对 midparent–offspring（Stratton 教材从 Boag 1983 图 1 取数），slope 就是 h²；
+// 右：1977 年 drought 的 S，以及用这个 h² 预测的 R 和实测的 R
 function breeder() {
-  const sx = lin(8.6, 10.4, 80, 400), sy = lin(8.6, 10.4, 240, 30);
-  let o = axes({ sx, sy, x0: 8.6, x1: 10.4, y0: 8.6, y1: 10.4, xt: [9, 9.5, 10], yt: [9, 9.5, 10] });
-  const h2 = 0.5 / 0.7;
-  const f = (x) => 9.2 + h2 * (x - 9.2);
-  o += line(sx(8.6), sy(8.6), sx(10.4), sy(10.4), 'grid');
-  o += line(sx(8.6), sy(f(8.6)), sx(10.4), sy(f(10.4)), 'ln');
-  o += line(sx(9.2), sy(8.6), sx(9.2), sy(9.2), 'dash') + line(sx(9.9), sy(8.6), sx(9.9), sy(9.7), 'dash');
-  o += line(sx(8.6), sy(9.2), sx(9.2), sy(9.2), 'dash') + line(sx(8.6), sy(9.7), sx(9.9), sy(9.7), 'dash');
-  o += circle(sx(9.2), sy(9.2), 5, 'ink-f') + circle(sx(9.9), sy(9.7), 5, 'ln-f');
-  o += text(sx(9.2) + 8, sy(9.2) + 18, '全体 1977 parent', 'ts') + text(sx(9.9) + 8, sy(9.7) + 22, 'survivor', 'tl');
-  // S 和 R 的标注
-  o += line(sx(9.2), 214, sx(9.9), 214, 'ink-b') + text((sx(9.2) + sx(9.9)) / 2, 208, 'S = 0.7', 'tb', 'middle');
-  o += line(100, sy(9.2), 100, sy(9.7), 'ink-b') + text(106, (sy(9.2) + sy(9.7)) / 2 + 4, 'R = 0.5', 'tb');
-  o += text(sx(10.35), sy(10.35) - 8, 'slope 1', 'ts', 'end') + text(sx(10.4), sy(f(10.4)) + 18, 'slope h² ≈ 0.71', 'tl', 'end');
-  o += text(420, 50, 'Offspring 的 mean', 't') + text(420, 68, '只追回了 parent 被', 't') + text(420, 86, 'selection 推动的', 't') + text(420, 104, '那段距离的 h²。', 't');
-  o += text(420, 138, 'R = h² S', 'tbig');
-  o += text(400, 276, 'parent 的 beak depth（mm）', 'ts', 'end') + text(80, 18, 'offspring 的 beak depth（mm）', 'ts');
-  return svg(560, 284, o, '横轴是 parent 的 beak depth，纵轴是 offspring 的 beak depth；全体 parent 的 mean 是 9.2 毫米，survivor 的 mean 是 9.9 毫米，它们的 offspring 的 mean 是 9.7 毫米；连接两点的 regression line slope 约 0.71，就是 heritability');
+  const mp = [8.2, 8.3, 8.4, 9.3, 8.9, 8.8, 9.9, 10.9, 9.1, 9.1, 9.3, 9.2, 9.7, 9.4, 9.7, 9.9, 10.4, 10.0, 10.2, 10.7];
+  const of = [8.0, 7.8, 8.2, 7.8, 8.3, 8.6, 8.7, 8.8, 8.9, 9.0, 9.2, 9.5, 9.2, 9.7, 9.7, 9.6, 9.8, 9.9, 10.1, 10.9];
+  const n = mp.length, mx = mp.reduce((a, b) => a + b) / n, my = of.reduce((a, b) => a + b) / n;
+  let sxy = 0, sxx = 0;
+  for (let i = 0; i < n; i++) { sxy += (mp[i] - mx) * (of[i] - my); sxx += (mp[i] - mx) ** 2; }
+  const h2 = sxy / sxx, b0 = my - h2 * mx;
+  const sx = lin(7.8, 11.2, 60, 290), sy = lin(7.6, 11.2, 230, 40);
+  let o = axes({ sx, sy, x0: 7.8, x1: 11.2, y0: 7.6, y1: 11.2, xt: [8, 9, 10, 11], yt: [8, 9, 10, 11], grid: true });
+  o += line(sx(8), sy(b0 + h2 * 8), sx(11), sy(b0 + h2 * 11), 'ln');
+  for (let i = 0; i < n; i++) o += circle(sx(mp[i]), sy(of[i]), 3.4, 'ink-f');
+  o += text(sx(7.95), sy(10.75), 'regression：slope ≈ ' + h2.toFixed(2), 'tl') + text(sx(7.95), sy(10.75) + 16, '这就是 h²', 'ts');
+  o += text(60, 14, '1976：offspring 对 midparent（20 个家庭）', 'tb') + text(56, 34, 'offspring 的 beak depth（mm）', 'ts');
+  o += text(290, 266, 'midparent 的 beak depth（mm）', 'ts', 'end');
+  // 右边：一条 beak depth 的数轴
+  const H = 0.78, all = 9.31, surv = 9.84, obs = 9.70, pred = all + H * (surv - all);
+  const ty = lin(9.2, 9.95, 228, 48), cA = 372, cB = 470;
+  o += line(330, 14, 330, 262, 'grid');
+  o += text(348, 30, '1977 年 drought 的 selection（mm）', 'tb');
+  o += line(cA, ty(9.25), cA, ty(9.9), 'axis') + line(cB, ty(9.25), cB, ty(9.9), 'axis');
+  o += line(cA, ty(all), cB + 10, ty(all), 'dash');
+  o += circle(cA, ty(all), 5, 'ink-f') + circle(cA, ty(surv), 5, 'ln-f');
+  o += text(cA + 10, ty(all) + 16, '全体 ' + all.toFixed(2), 'ts') + text(cA + 10, ty(surv) + 4, 'survivor ' + surv.toFixed(2), 'tl');
+  o += line(cA - 16, ty(all), cA - 16, ty(surv), 'ink-b') + line(cA - 20, ty(all), cA - 12, ty(all), 'ink') + line(cA - 20, ty(surv), cA - 12, ty(surv), 'ink');
+  o += text(cA - 22, (ty(all) + ty(surv)) / 2 + 4, 'S = ' + (surv - all).toFixed(2), 'tb', 'end');
+  o += circle(cB, ty(pred), 5, 'paper') + circle(cB, ty(obs), 5, 'solid');
+  o += text(cB + 10, ty(pred) - 6, '预测 ' + pred.toFixed(2), 'ts') + text(cB + 10, ty(obs) + 15, '实测 ' + obs.toFixed(2), 'tl');
+  o += line(cB - 16, ty(all), cB - 16, ty(obs), 'ink-b') + line(cB - 20, ty(all), cB - 12, ty(all), 'ink') + line(cB - 20, ty(obs), cB - 12, ty(obs), 'ink');
+  o += text(cB - 22, (ty(all) + ty(obs)) / 2 + 4, 'R = ' + (obs - all).toFixed(2), 'tb', 'end');
+  o += text(cA - 6, 246, 'parent', 'ts', 'middle') + text(cB, 246, '1978 offspring', 'ts', 'middle');
+  o += text(348, 266, '预测 R = h²S = 0.78 × ' + (surv - all).toFixed(2) + ' ≈ ' + (H * (surv - all)).toFixed(2), 'ts');
+  return svg(560, 274, o, '左边是 1976 年 20 个家庭的 offspring 对 midparent 的 beak depth，regression 的 slope 约 0.78，就是 heritability；右边是 1977 年 drought：全体 9.31 毫米、survivor 9.84 毫米，S 等于 0.53；按 h² 预测 1978 年 offspring 是 9.72 毫米，实测 9.70 毫米');
 }
 
 // 第 4 站：Wright–Fisher drift，20 个 population，N = 20（2N = 40 个 gene copy），seed 固定
@@ -375,35 +389,84 @@ function paths() {
   return svg(560, 272, o, 'Cousin 之间 relatedness 的算法：从 me 到 parent、到 grandparent、到 aunt 或 uncle、到 cousin，每一步 probability 二分之一，共四步；两个共同 grandparent 各给一条这样的路，所以 r 等于 2 乘以二分之一的四次方，即八分之一。Full sibling 的 r 是二分之一');
 }
 
-// Human、Neanderthal、Denisovan
+// Human、Neanderthal、Denisovan：分开时间按 Prüfer 等 2014 在 μ = 0.5e-9 下的区间画
 function hominin() {
   let o = '';
-  const sx = lin(450, 0, 70, 430);
-  const yH = 70, yN = 150, yD = 196;
-  o += line(sx(450), yH, sx(15), yH, 'ln');
-  o += line(sx(400), yH, sx(400), 170, 'ink') + line(sx(400), 170, sx(300), 170, 'ink');
-  o += line(sx(300), yN, sx(300), yD, 'ink') + line(sx(300), yN, sx(40), yN, 'ink') + line(sx(300), yD, sx(40), yD, 'ink');
+  const sx = lin(800, 0, 60, 430);
+  const yH = 70, yA = 168, yN = 146, yD = 192;
+  const sp1 = [550, 765], sp2 = [381, 473], m1 = (sp1[0] + sp1[1]) / 2, m2 = (sp2[0] + sp2[1]) / 2;
+  o += line(sx(800), yH, sx(15), yH, 'ln');
+  o += line(sx(m1), yH, sx(m1), yA, 'ink') + line(sx(m1), yA, sx(m2), yA, 'ink');
+  o += line(sx(m2), yN, sx(m2), yD, 'ink') + line(sx(m2), yN, sx(40), yN, 'ink') + line(sx(m2), yD, sx(40), yD, 'ink');
+  o += rect(sx(sp1[1]), 96, sx(sp1[0]) - sx(sp1[1]), 7, 'wash-strong', 2);
+  o += text(sx(m1) + 6, 120, '分开：' + sp1[0] / 10 + '–' + Math.round(sp1[1] / 10) + ' 万年前', 'ts');
+  o += rect(sx(sp2[1]), 204, sx(sp2[0]) - sx(sp2[1]), 7, 'wash-strong', 2);
+  o += text(sx(m2), 226, Math.floor(sp2[0] / 10) + '–' + Math.round(sp2[1] / 10) + ' 万年前', 'ts', 'middle');
   o += text(sx(40) + 6, yN + 5, 'Neanderthal', 'tb') + text(sx(40) + 6, yD + 5, 'Denisovan', 'tb');
   const tips = [['African', 44], ['non-African', 70], ['Oceanian', 96]];
-  o += line(sx(15), yH, sx(15), 96, 'ln') + line(sx(15), 44, sx(15), yH, 'ln');
+  o += line(sx(15), 44, sx(15), 96, 'ln');
   for (const [t, y] of tips) o += line(sx(15), y, sx(0), y, 'ln') + text(sx(0) + 6, y + 5, t, 'tb');
-  o += arrow(sx(55), yN - 4, sx(10), 74, 'ink');
-  o += text(sx(70), 118, '1.5–2.1%', 'ts', 'end');
-  o += arrow(sx(55), yD - 4, sx(5), 100, 'ink');
-  o += text(sx(60), 186, '约 6%', 'ts', 'end');
-  for (const [k, lab, dy] of [[315, 'Jebel Irhoud，约 315', -14], [196, '', 0], [160, '', 0]]) {
-    o += circle(sx(k), yH, 5, 'paper ink-s');
-    if (lab) o += text(sx(k), yH + dy, lab, 'ts', 'middle');
-  }
-  o += text((sx(196) + sx(160)) / 2, yH - 14, 'Ethiopia', 'ts', 'middle');
-  o += text(sx(250), 30, 'H. sapiens 的 fossil', 'tl', 'middle');
-  const ya = 232;
-  o += line(sx(450), ya, sx(0), ya, 'axis');
-  for (const k of [400, 300, 196, 160, 0]) o += line(sx(k), ya, sx(k), ya + 4, 'axis') + text(sx(k), ya + 17, k === 0 ? '今天' : String(k), 'ts', 'middle');
-  o += text(sx(450), ya + 34, '千年前', 'ts');
-  o += text(sx(450), 216, '← chimpanzee 与 bonobo：6–12 million 年前分开（远在轴外）', 'ts');
-  o += text(sx(0) + 6, ya + 34, '混合的位置是示意', 'ts', 'middle');
-  return svg(560, 274, o, '现代人、Neanderthal 与 Denisovan 的关系：后两者的共同 ancestor 约 40 万年前与现代人的 lineage 分开，两者约 30 万年前分开；H. sapiens 最早的 fossil 是 Morocco 的 Jebel Irhoud，约 31.5 万年，Ethiopia 的约 19.6 万年和 16 万年；non-African 的 genome 有 1.5% 到 2.1% 来自 Neanderthal，Oceanian 约 6% 来自 Denisovan');
+  o += arrow(sx(55), yN - 4, sx(10), 74, 'ink') + text(sx(66), 124, '1.5–2.1%', 'ts', 'end');
+  o += arrow(sx(55), yD - 4, sx(5), 100, 'ink') + text(sx(66), 176, '3–6%', 'ts', 'end');
+  for (const k of [315, 195, 160]) o += circle(sx(k), yH, 5, 'paper');
+  o += text(sx(315), yH - 12, 'Jebel Irhoud 315', 'ts', 'middle');
+  o += text((sx(195) + sx(160)) / 2, yH + 20, 'Omo 195、Herto 160', 'ts', 'middle');
+  o += text(sx(250), 40, 'H. sapiens 的 fossil（千年前）', 'tl', 'middle');
+  const ya = 244;
+  o += line(sx(800), ya, sx(0), ya, 'axis');
+  for (const k of [800, 600, 400, 200, 0]) o += line(sx(k), ya, sx(k), ya + 4, 'axis') + text(sx(k), ya + 17, k === 0 ? '今天' : String(k), 'ts', 'middle');
+  o += text(sx(800), ya + 34, '千年前。分开时间按 μ = 0.5 × 10⁻⁹ per site per year；用 1.0 × 10⁻⁹ 则都减半', 'ts');
+  o += text(sx(800), 12, '← chimpanzee 与 bonobo：6–12 million 年前（远在轴外）', 'ts');
+  return svg(560, 284, o, '现代人、Neanderthal 与 Denisovan 的关系：按每年每个位点 0.5 乘 10 的负 9 次方的 mutation rate，现代人与两者的共同 ancestor 在 55 万到 77 万年前分开，Neanderthal 与 Denisovan 在 38 万到 47 万年前分开；H. sapiens 最早的 fossil 是 Morocco 的 Jebel Irhoud，约 31.5 万年，Ethiopia 的 Omo 约 19.5 万年、Herto 约 16 万年；non-African 的 genome 有 1.5% 到 2.1% 来自 Neanderthal，Oceanian 有 3% 到 6% 来自 Denisovan');
+}
+
+// 第 7 站：parsimony。同一张 character matrix 放在三棵 rooted tree 上，数最少要几次 change
+function parsimony() {
+  const M = { O: [0, 0, 0, 0, 0, 0], A: [0, 0, 0, 0, 0, 1], B: [1, 1, 0, 0, 0, 1], C: [1, 1, 1, 1, 1, 0] };
+  // Fitch 的算法：每个 character 在一棵 tree 上最少几次 change
+  const fitch = (t, c) => {
+    if (typeof t === 'string') return [new Set([M[t][c]]), 0];
+    const [l, cl] = fitch(t[0], c), [r, cr] = fitch(t[1], c);
+    const inter = new Set([...l].filter((v) => r.has(v)));
+    return inter.size ? [inter, cl + cr] : [new Set([...l, ...r]), cl + cr + 1];
+  };
+  // 每棵 tree：pair、第三个 taxon，以及每条 branch 上画出的 change（一种最省的放法）
+  const trees = [
+    { pair: ['A', 'B'], third: 'C', marks: { A: '', B: '1 2', C: '1 2 3 4 5', stem: '6' } },
+    { pair: ['B', 'C'], third: 'A', marks: { B: '6', C: '3 4 5', A: '6', stem: '1 2' } },
+    { pair: ['A', 'C'], third: 'B', marks: { A: '6', C: '1 2 3 4 5', B: '1 2 6', stem: '' } },
+  ];
+  const totals = trees.map(({ pair, third }) => [0, 1, 2, 3, 4, 5].reduce((acc, c) => acc + fitch(['O', [[pair[0], pair[1]], third]], c)[1], 0));
+  const best = Math.min(...totals);
+  trees.forEach(({ marks }, k) => { const m = Object.values(marks).join(' ').split(' ').filter(Boolean).length; if (m !== totals[k]) throw new Error('parsimony 图的标注和 Fitch 的次数不一致'); });
+  let o = '';
+  trees.forEach(({ pair, third, marks }, k) => {
+    const x0 = 6 + k * 186, ys = { [pair[0]]: 64, [pair[1]]: 98, [third]: 132, O: 166 };
+    const xr = x0 + 12, xi = x0 + 40, xp = x0 + 82, xt = x0 + 156;
+    if (totals[k] === best) o += rect(x0 - 2, 14, 180, 214, 'wash', 8);
+    o += text(x0 + 88, 34, '((' + pair[0] + ',' + pair[1] + '),' + third + ')', 'tb', 'middle');
+    const yp = (ys[pair[0]] + ys[pair[1]]) / 2, yi = (yp + ys[third]) / 2, yr = (yi + ys.O) / 2;
+    const seg = (x1, x2, y, lab) => {
+      o += line(x1, y, x2, y, 'ink');
+      if (lab) {
+        const n = lab.split(' ').length, mid = (x1 + x2) / 2;
+        for (let q = 0; q < n; q++) { const tx = mid + (q - (n - 1) / 2) * 6; o += line(tx, y - 4, tx, y + 4, 'ln'); }
+        o += text(mid, y - 8, lab, 'tl', 'middle');
+      }
+    };
+    o += line(xr, yi, xr, ys.O, 'ink') + line(xi, yp, xi, ys[third], 'ink') + line(xp, ys[pair[0]], xp, ys[pair[1]], 'ink');
+    o += line(xr - 8, yr, xr, yr, 'ink');
+    seg(xr, xi, yi, '');
+    seg(xi, xp, yp, marks.stem);
+    seg(xp, xt, ys[pair[0]], marks[pair[0]]);
+    seg(xp, xt, ys[pair[1]], marks[pair[1]]);
+    seg(xi, xt, ys[third], marks[third]);
+    seg(xr, xt, ys.O, '');
+    for (const t of [pair[0], pair[1], third, 'O']) o += text(xt + 6, ys[t] + 5, t, 'tb');
+    o += text(x0 + 88, 204, '共 ' + totals[k] + ' 次 change', totals[k] === best ? 'tl' : 't', 'middle');
+  });
+  o += text(280, 248, 'O 是 outgroup，它的 state 当作 ancestral；短竖线一条代表一次 change。', 'ts', 'middle');
+  return svg(560, 256, o, '同一张六个 character 的 matrix 放在三棵可能的 rooted tree 上：A 和 B 为 sister 的 tree 需要 8 次 change，B 和 C 为 sister 的需要 7 次，A 和 C 为 sister 的需要 9 次；parsimony 选 7 次的那棵，代价是 character 6 在 A 和 B 上各变了一次');
 }
 
 export default {
@@ -425,4 +488,5 @@ export default {
   'lsm2107-tree': tree,
   'lsm2107-paths': paths,
   'lsm2107-hominin': hominin,
+  'lsm2107-parsimony': parsimony,
 };

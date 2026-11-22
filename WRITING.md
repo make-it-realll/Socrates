@@ -33,7 +33,7 @@ node tools/preview.mjs <CODE>
 
 每一站固定包含：`:::skip`（什么情况可以跳过）、按“问题 → 推导 → 例子”展开的若干 `###` 小节、至少一个 `:::wrong`（一个看起来对的错想法，说清它错在哪，最好用数字说话）、需要时的 `:::edge`（边界情况）、`:::back`（依赖前面哪几站，可选）、`:::from`（讲法来源，必须有）。
 
-规模参考样板：5 到 8 站，每站 3 到 6 个小节，全文 6 万到 9 万字节，8 到 12 张图。
+站数、小节数、篇幅、图数都不设上下限：课程讲了什么就写什么，讲完整为准。不要为了“篇幅合适”删掉课程里有的内容，也不要为了凑长度写可有可无的话（第 5 条）。
 
 ## 语言
 
@@ -222,7 +222,7 @@ export default {
 - **逐门课走过去**，每一处都说清三件事：这门课里它叫什么、记号是什么（用表格把各课的名字和记号对齐）；这门课往骨架上加了什么（新的约束、新的问题、新的算法）；具体链接到哪一站（`../courses/CODE.html#站id`）。先读那一站的正文，链接和说法要对得上，不要凭标题猜。
 - **讲出课程页里没有的桥**：例如 Kalman gain 就是 recursive least squares 的增益；PageRank 就是 stationary distribution，就是 power iteration 求 dominant eigenvector；distance-vector routing 就是 Bellman–Ford，就是 value iteration 的一个特例。每座桥都要给出具体的对应（哪个量对应哪个量），最好用同一个小例子在两边各算一遍。
 - **顺序**由浅入深，按读者可能的学习顺序排；还没写页面的课只用文字提一句，不放链接（preview 会检查链接）。
-- 篇幅通常 25–50 KB；图照课程页的标准（画东西本身、过程做动图），放在 src/figures/thread-<slug>.mjs，图 id 以 `thread-<slug>-` 开头。
+- 篇幅不设上下限，骨架推完整、桥讲清楚为准；图照课程页的标准（画东西本身、过程做动图），放在 src/figures/thread-<slug>.mjs，图 id 以 `thread-<slug>-` 开头。
 - frontmatter：`title`（中文短名）、`lead`（一句话：这条线串起什么）、`line`（主要所属的线路 id）。
 - 检查：`node tools/preview.mjs thread:<slug>`。
 
