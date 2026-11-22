@@ -16,7 +16,7 @@ const slug = isThread ? code.slice(7).toLowerCase() : '';
 const out = isThread ? `/tmp/socrates-thread-${slug}` : `/tmp/socrates-${code.toLowerCase()}`;
 const NP = [path.join(ROOT, 'node_modules'), '/opt/npm-tools/node_modules', ...(process.env.NODE_PATH || '').split(':')].filter((d) => d && fs.existsSync(path.join(d, 'markdown-it'))).concat(['/opt/npm-tools/node_modules'])[0];
 try {
-  console.log(execFileSync('node', ['src/build.mjs'], { cwd: ROOT, env: { ...process.env, NODE_PATH: NP, SOCRATES_OUT: out, ONLY: isThread ? '__NONE__' : code }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim());
+  console.log(execFileSync('node', ['src/build.mjs'], { cwd: ROOT, env: { ...process.env, NODE_PATH: NP, SOCRATES_OUT: out, ONLY: isThread ? '__NONE__' : code, ...(isThread ? { THREAD_ONLY: slug } : { NO_THREADS: '1' }) }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim());
 } catch (e) { console.error('构建失败：\n' + (e.stdout || '') + (e.stderr || '')); process.exit(1); }
 
 const require = createRequire(NP + '/');

@@ -238,11 +238,13 @@ function ganA() {
   o += line(px(-3.2), py(0), px(3.2), py(0), 'axis') + line(px(0), py(-3.2), px(0), py(3.2), 'axis');
   o += text(px(3.2), py(0) - 6, 'θ', 'ts', 'end') + text(px(0) + 6, py(3.2) + 10, 'ψ', 'ts', 'start');
   { let a = 1, b = 0; const fine = [[a, b]]; for (let k = 1; k <= n; k++) { const s1 = sg(a * b); const na = a + h * b * s1, nb = b - h * a * s1; a = na; b = nb; fine.push([a, b]); } o += path(d(fine.map(([t, p]) => [px(t), py(p)])), 'mute'); }
+  // 加了 R1 penalty（γ = 0.3）的同一个更新：ψ 多一项 −hγψ
+  { const g = 0.3; let a = 1, b = 0; const rr = [[a, b]]; for (let k = 1; k <= 400; k++) { const s1 = sg(a * b); const na = a + h * b * s1, nb = b - h * (a * s1 + g * b); a = na; b = nb; rr.push([a, b]); } o += path(d(rr.map(([t, p]) => [px(t), py(p)])), 'ln-dash'); o += line(348, 282, 372, 282, 'ln-dash') + text(378, 286, `加 R₁（γ = ${g}）：转进 equilibrium`, 'ts', 'start'); }
   o += circle(px(0), py(0), 3.5, 'ink-f') + line(px(0), py(0), px(-2.6), py(-2.75), 'mute') + text(px(-3.2), py(-2.75) + 14, 'equilibrium', 'ts', 'start');
   o += acircle(traj.map(([t]) => px(t)), traj.map(([, p]) => py(p)), kt, T, 5, 'ln-f');
   o += text(439, 252, `simultaneous GD，step 0.1：1000 步后`, 'ts', 'middle');
   o += text(439, 268, `离 equilibrium 的距离从 1 变成 ${rEnd.toFixed(2)}`, 'ts', 'middle');
-  return svgA(560, 276, o, '动图：data 是 0 处的一个点，generator 是 θ 处的一个点，discriminator 是 sigmoid 曲线；同时做 gradient 更新时，generator 的点在 0 两侧来回越摆越远，参数平面上的轨迹向外螺旋');
+  return svgA(560, 296, o, '动图：data 是 0 处的一个点，generator 是 θ 处的一个点，discriminator 是 sigmoid 曲线；同时做 gradient 更新时，generator 的点在 0 两侧来回越摆越远，参数平面上的轨迹向外螺旋；加了 R1 penalty 的轨迹（虚线）转进 equilibrium');
 }
 
 // ---------- 第 5 站：Langevin 找不到 mixture weight ----------
@@ -253,6 +255,15 @@ function langevin() {
   const X = []; for (let i = 0; i < M; i++) X.push(-4 + 8 * r.u());
   for (let k = 0; k < steps; k++) for (let i = 0; i < M; i++) X[i] += eps * eps / 2 * score(X[i]) + eps * r.g();
   const right = X.filter((x) => x > 0).length / M;
+  // annealed Langevin（Song & Ermon 的 Algorithm 1）：σ 从 4 到 0.1 的 10 个 geometric level，每个 level 100 步，α_i = ε σ_i² / σ_L²
+  const scoreS = (x, s2) => { const vv = v + s2, a = w[0] * N(x, mu[0], vv), b = w[1] * N(x, mu[1], vv); return (a * (mu[0] - x) + b * (mu[1] - x)) / vv / (a + b); };
+  const r2 = rng(5), L = 10, s1 = 4, sL = 0.1, Ts = 100, eA = 0.005;
+  const Y = []; for (let i = 0; i < M; i++) Y.push(-4 + 8 * r2.u());
+  for (let l = 0; l < L; l++) {
+    const s = s1 * Math.pow(sL / s1, l / (L - 1)), al = eA * s * s / (sL * sL);
+    for (let k = 0; k < Ts; k++) for (let i = 0; i < M; i++) Y[i] += al / 2 * scoreS(Y[i], s * s) + Math.sqrt(al) * r2.g();
+  }
+  const rightA = Y.filter((x) => x > 0).length / M;
   const p = (x) => w[0] * N(x, mu[0], v) + w[1] * N(x, mu[1], v);
   const sx = lin(-4, 4, 40, 520), sy = lin(0, 0.9, 210, 40);
   let o = '';
@@ -265,9 +276,11 @@ function langevin() {
   o += text(sx(-2), sy(0.74) - 10, '真实 weight 0.8', 't', 'middle');
   o += text(sx(2), sy(0.74) - 10, '真实 weight 0.2', 't', 'middle');
   o += text(sx(-2), 236, 'Langevin：' + pct(1 - right), 'tl', 'middle') + text(sx(2), 236, 'Langevin：' + pct(right), 'tl', 'middle');
-  o += text(280, 256, `${M} 条 chain 从 [−4, 4] 均匀出发，用 exact score、ε = 0.1 走 ${steps} 步。`, 'ts', 'middle');
-  o += text(280, 272, '柱子是终点的 histogram，曲线是真正的 p。', 'ts', 'middle');
-  return { s: svg(560, 280, o, '0.8 和 0.2 两个 weight 的 mixture；用 exact score 跑 Langevin 之后，两边的 sample 比例接近一半一半，而不是 0.8 比 0.2'), right };
+  o += text(sx(-2), 254, 'annealed：' + pct(1 - rightA), 't', 'middle') + text(sx(2), 254, 'annealed：' + pct(rightA), 't', 'middle');
+  o += text(280, 278, `${M} 条 chain 从 [−4, 4] 均匀出发，用 exact score、ε = 0.1 走 ${steps} 步。`, 'ts', 'middle');
+  o += text(280, 294, '柱子是这些 chain 终点的 histogram，曲线是真正的 p。', 'ts', 'middle');
+  o += text(280, 310, `annealed：同样的起点，σ 从 ${s1} 到 ${sL} 取 ${L} 个 level，每个 level ${Ts} 步。`, 'ts', 'middle');
+  return { s: svg(560, 318, o, '0.8 和 0.2 两个 weight 的 mixture；用 exact score 跑 Langevin 之后，两边的 sample 比例接近一半一半，而不是 0.8 比 0.2；annealed Langevin 的比例接近 0.8 比 0.2'), right, rightA };
 }
 
 // ---------- 第 6 站：forward process 的 marginal ----------
@@ -400,6 +413,7 @@ function bc() {
 
 const L = langevin();
 export const langevinRight = L.right;
+export const langevinRightA = L.rightA;
 
 export default {
   'cs5788-fit': fit,

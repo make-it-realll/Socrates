@@ -401,7 +401,8 @@ fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 
 const cdir = path.join(ROOT, 'content/courses'), tdir = path.join(ROOT, 'content/threads');
 const built = fs.readdirSync(cdir).filter((f) => f.endsWith('.md') && (!ONLY || ONLY.includes(f.replace(/\.md$/, '').toUpperCase()))).sort().map((f) => buildCourse(path.join(cdir, f)));
-const threads = fs.readdirSync(tdir).filter((f) => f.endsWith('.md')).sort().map((f) => buildThread(path.join(tdir, f)));
+// 预览时：NO_THREADS=1 不构建概念线；THREAD_ONLY=slug 只构建这一条（别的 session 正在写的概念线不会影响预览）
+const threads = process.env.NO_THREADS ? [] : fs.readdirSync(tdir).filter((f) => f.endsWith('.md') && (!process.env.THREAD_ONLY || f === process.env.THREAD_ONLY + '.md')).sort().map((f) => buildThread(path.join(tdir, f)));
 buildHome(built, threads);
 {
   const builtCodes = new Set(built.map((x) => x.code));
