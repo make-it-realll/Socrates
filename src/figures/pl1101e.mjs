@@ -186,31 +186,69 @@ function milgram() {
   return svg(560, 300, o, 'Milgram 各个 variation 里一直按到 450 伏的比例：peer 代按开关时 92.5%，baseline 65%，搬到 Bridgeport 办公楼 47.5%，learner 在同一房间 40%，要亲手按住 learner 的手 30%，experimenter 用电话下指令 21%，learner 是朋友或亲属 15%，两个 peer 拒绝继续时 10%');
 }
 
+// 两组各 n 人、真实 d 时，two-sided t-test（α = 0.05）的 power 与 significant 结果里 observed d 的 mean。
+// 对 pooled SD 的分布（s² = W/ν，W ~ χ²_ν，ν = 2n − 2）做数值积分，在给定 s 时对 M1 − M2 ~ N(d, 2/n) 用 normal 的闭式解。
+const erf = (x) => {
+  const s = Math.sign(x), z = Math.abs(x), t = 1 / (1 + 0.3275911 * z);
+  return s * (1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-z * z));
+};
+const Phi = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+const phiN = (x) => Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+const lgamma = (x) => {
+  const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let y = x, tmp = x + 5.5, ser = 1.000000000190015;
+  tmp -= (x + 0.5) * Math.log(tmp);
+  for (const v of c) ser += v / ++y;
+  return -tmp + Math.log((2.5066282746310005 * ser) / x);
+};
+function tTest(n, dTrue, tc) {
+  const nu = 2 * n - 2, sx = Math.sqrt(2 / n), K = 4000;
+  const w1 = nu + 14 * Math.sqrt(2 * nu), h = w1 / K, lc = -(nu / 2) * Math.log(2) - lgamma(nu / 2);
+  let P = 0, E = 0;
+  for (let k = 1; k <= K; k++) {
+    const w = k * h, wt = (k === K ? 1 : k % 2 ? 4 : 2) * (h / 3);
+    const dens = Math.exp(lc + (nu / 2 - 1) * Math.log(w) - w / 2);
+    const s = Math.sqrt(w / nu), A = tc * s * sx;
+    const za = (A - dTrue) / sx, zb = (-A - dTrue) / sx;
+    P += wt * dens * (1 - Phi(za) + Phi(zb));
+    E += wt * dens * (dTrue * (1 - Phi(za)) + sx * phiN(za) + dTrue * Phi(zb) - sx * phiN(zb)) / s;
+  }
+  return { power: P, meanD: E / P };
+}
+function tCrit(n) {
+  let lo = 1.5, hi = 3;
+  for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; if (tTest(n, 0, m).power > 0.05) lo = m; else hi = m; }
+  return (lo + hi) / 2;
+}
+
 // 每组 21 人与每组 100 人：observed d 的 sampling distribution（真实 d = 0.2）
 function power() {
   let o = '';
   const sx = lin(-1, 1.2, 40, 400);
   const phi = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2);
-  const panel = (base, n, thr, pct, mean) => {
+  const panel = (base, n) => {
+    const tc = tCrit(n), thrV = tc / Math.sqrt(n / 2), { power: pw, meanD } = tTest(n, 0.2, tc);
+    const thr = thrV.toFixed(2), pct = (pw < 0.1 ? (100 * pw).toFixed(1) : Math.round(100 * pw)) + '%', mean = meanD.toFixed(2);
     const se = Math.sqrt(2 / n);
     const sy = lin(0, 1, base, base - 76);
     const f = (x) => phi(x, 0.2, se);
-    o += path(area(f, thr, 1.2, sx, sy), 'wash-strong') + path(area(f, -1, -thr, sx, sy), 'wash-strong');
+    o += path(area(f, thrV, 1.2, sx, sy), 'wash-strong') + path(area(f, -1, -thrV, sx, sy), 'wash-strong');
     o += path(curve(f, -1, 1.2, sx, sy), 'ln');
     o += line(sx(-1), base, sx(1.2), base, 'axis');
-    for (const v of [-thr, thr]) o += line(sx(v), base, sx(v), base - 84, 'mute');
+    for (const v of [-thrV, thrV]) o += line(sx(v), base, sx(v), base - 84, 'mute');
     o += line(sx(0.2), base, sx(0.2), base - 80, 'dash');
-    for (const [v, s] of [[-thr, '−' + thr], [0, '0'], [thr, String(thr)], [1, '1.0']]) o += line(sx(v), base, sx(v), base + 4, 'axis') + text(sx(v), base + 17, s, 'ts', 'middle');
+    for (const [v, s] of [[-thrV, '−' + thr], [0, '0'], [thrV, thr], [1, '1.0']]) o += line(sx(v), base, sx(v), base + 4, 'axis') + text(sx(v), base + 17, s, 'ts', 'middle');
     o += text(sx(0.2), base - 86, 'true d = 0.2', 'ts', 'middle');
     o += text(416, base - 62, '每组 ' + n + ' 人', 'tb');
     o += text(416, base - 42, 'significant：|d| > ' + thr, 'ts');
     o += text(416, base - 22, '比例 ' + pct + '（阴影）', 'tl');
     o += text(416, base - 4, '这些结果的 mean d = ' + mean, 'ts');
+    return [n, thr, pct, mean];
   };
-  panel(122, 21, 0.62, '9.8%', '0.71');
-  panel(262, 100, 0.28, '29%', '0.37');
-  o += text(280, 296, '横轴是一次 study 观察到的 d。曲线按 normal 近似画（SE = √(2/n)），', 'ts', 'middle') + text(280, 313, '百分比和 mean 取自正文的 simulation。', 'ts', 'middle');
-  return svg(560, 322, o, '真实 effect 为 d 等于 0.2 时，一次 study 观察到的 d 的分布：每组 21 人时分布很宽，只有超过 0.62 的那一小截尾巴才 significant，比例 9.8%，平均报告 0.71；每组 100 人时分布窄得多，门槛 0.28，比例 29%，平均报告 0.37');
+  const r = [panel(122, 21), panel(262, 100)];
+  o += text(280, 296, '横轴是一次 study 观察到的 d。曲线按 normal 近似画（SE = √(2/n)），', 'ts', 'middle') + text(280, 313, '百分比和 mean 按 t-test 精确算出，与正文的 simulation 一致。', 'ts', 'middle');
+  const desc = r.map(([n, thr, pct, mean]) => `每组 ${n} 人时门槛是 ${thr}，significant 的比例 ${pct}，这些结果平均报告 ${mean}`).join('；');
+  return svg(560, 322, o, '真实 effect 为 d 等于 0.2 时，一次 study 观察到的 d 的分布：' + desc + '。人少时分布宽，只有远超真实值的那一截尾巴才 significant');
 }
 
 // Split-brain：两侧 visual field 各送到对侧 hemisphere
@@ -238,7 +276,7 @@ function split() {
 function sperling() {
   let o = '';
   const L = [['R', 'G', 'T', 'F'], ['Q', 'L', 'X', 'B'], ['S', 'N', 'K', 'P']];
-  o += text(100, 22, '屏幕闪现几十分之一秒', 'tb', 'middle');
+  o += text(100, 22, '屏幕只闪现一瞬间', 'tb', 'middle');
   o += rect(20, 34, 160, 104, 'paper', 6);
   L.forEach((r, i) => r.forEach((c, j) => { o += text(48 + j * 35, 66 + i * 30, c, 'tb', 'middle'); }));
   const tones = ['high tone → 报上一行', 'middle tone → 报中间一行', 'low tone → 报下一行'];
