@@ -648,7 +648,190 @@ function mitm() {
   return svg(560, 268, o, '上面一行：Trudy 把 Bob 发给 Alice 的 public key 换成自己的，Alice 无从察觉；下面一行：Bob 发的是 CA signed certificate，Trudy 换掉 key 后 signature 验证失败');
 }
 
+// ---------- 第 2 站：机构的 web cache 与 access link 的 utilization ----------
+function cache() {
+  const reqRate = 15, objBits = 100e3, access = 1.54e6, lan = 1e9, hit = 0.4, rtt = 2.01;
+  const load = reqRate * objBits; // 1.5 Mbps
+  const rows = [
+    { title: '没有 cache：全部 request 都走 access link', u: load / access, cache: false },
+    { title: `装 web cache，hit rate ${hit}：${Math.round((1 - hit) * 100)}% 的 request 才走 access link`, u: (1 - hit) * load / access, cache: true },
+  ];
+  let o = '';
+  const rh = 150;
+  rows.forEach((r, i) => {
+    const y0 = 18 + i * rh;
+    o += text(10, y0, r.title, 'tb', 'start');
+    // 机构网络
+    const bx = 10, by = y0 + 14, bw = 196, bh = 92;
+    o += rect(bx, by, bw, bh, 'paper', 6) + text(bx + 8, by + 17, `机构 LAN：${lan / 1e9} Gbps`, 'ts', 'start');
+    for (let k = 0; k < 3; k++) o += rect(bx + 12, by + 28 + k * 20, 46, 14, 'wash', 2) + text(bx + 35, by + 39 + k * 20, 'browser', 'ts', 'middle');
+    if (r.cache) o += rect(bx + 96, by + 40, 88, 34, 'wash-strong', 4) + text(bx + 140, by + 55, 'web cache', 'tb', 'middle') + text(bx + 140, by + 69, `命中 ${hit * 100}%`, 'ts', 'middle');
+    else o += text(bx + 132, by + 54, 'LAN utilization', 'ts', 'middle') + text(bx + 132, by + 70, (load / lan).toFixed(4), 'ts', 'middle');
+    // router
+    const rx = 226, ry = by + bh / 2;
+    o += line(bx + bw, ry, rx - 12, ry, 'ink') + circle(rx, ry, 12, 'paper') + text(rx, ry + 4, 'R', 'tb', 'middle');
+    // access link：灰条 + 按 utilization 填色
+    const lx0 = rx + 16, lx1 = 420, lw = lx1 - lx0, lh = 16;
+    o += rect(lx0, ry - lh / 2, lw, lh, 'wash2', 2) + rect(lx0, ry - lh / 2, lw * r.u, lh, 'solid', 2) + rect(lx0, ry - lh / 2, lw, lh, 'frame', 2);
+    o += text((lx0 + lx1) / 2, ry - 16, `access link ${access / 1e6} Mbps`, 'ts', 'middle');
+    o += text((lx0 + lx1) / 2, ry + 26, `${(r.u * access / 1e6).toFixed(1)} Mbps / ${access / 1e6} Mbps = ${r.u.toFixed(2)}`, 'tl', 'middle');
+    // Internet
+    const ix = 430, iw = 126;
+    o += rect(ix, by + 8, iw, bh - 16, 'paper', 6) + text(ix + iw / 2, by + 32, 'Internet', 'tb', 'middle') + text(ix + iw / 2, by + 50, 'origin servers', 'ts', 'middle') + text(ix + iw / 2, by + 68, 'RTT 2 s', 'ts', 'middle');
+    const avg = r.cache ? (1 - hit) * rtt : null;
+    o += text(10, by + bh + 22, r.cache
+      ? `queue 变短；平均 delay ≈ ${1 - hit} × ${rtt} s + ${hit} × 几 ms ≈ ${avg.toFixed(1)} s`
+      : `每秒 ${reqRate} 个 × ${objBits / 1e3} Kbit = ${load / 1e6} Mbps；utilization 接近 1，access link 上排队要几分钟`, 'ts', 'start');
+  });
+  return svg(560, 18 + 2 * rh - 4, o, '同一个机构的两种情形：没有 cache 时 1.5 Mbps 全部压在 1.54 Mbps 的 access link 上，utilization 0.97；装了 hit rate 0.4 的 web cache 后只有 0.9 Mbps 经过 access link，utilization 0.58，平均 delay 约 1.2 s');
+}
+
+// ---------- 第 4 站：receiver 什么时候回 ACK（delayed ACK 与 duplicate ACK） ----------
+function delack() {
+  const xs = 118, xr = 300, y0 = 44, u = 21;
+  const Y = (t) => y0 + t * u;
+  const D = 4;
+  // [Seq, 发送时刻, 到达时刻]
+  const segs = [[1000, 0, 0 + D], [1100, 1, 9], [1200, 2, 2 + D], [1300, 3.5, 3.5 + D], [1400, 6, 6 + D]];
+  const tEnd = 10 + 3 + D + 1;
+  let o = '';
+  o += text(xs, 24, 'sender', 'tb', 'middle') + text(xr, 24, 'receiver', 'tb', 'middle');
+  o += line(xs, 32, xs, Y(tEnd), 'axis') + line(xr, 32, xr, Y(tEnd), 'axis');
+  for (const [s, t0, t1] of segs) {
+    const late = s === 1100;
+    o += arrow(xs, Y(t0), xr, Y(t1), late ? 'ln' : 'ink', 5);
+    o += text(xs - 6, Y(t0) + 4, `Seq = ${s}`, late ? 'tl' : 'ts', 'end');
+  }
+  // receiver 在每个到达时刻的动作：[到达时刻, 说明, 回 ACK 的时刻或 null, ACK 号]
+  const acts = [
+    [4, '1000 按顺序：先压着，最多等 500 ms', null],
+    [6, '1200 出现缺口：立刻 ACK 1100', 6, 1100, ''],
+    [7.5, '1300 缺口还在：再 ACK 1100（duplicate）', 7.5, 1100, '（dup）'],
+    [9, '1100 补上缺口：立刻 ACK 1400', 9, 1400, ''],
+    [10, '1400 按顺序：先压着，等满 500 ms 才 ACK 1500', 13, 1500, ''],
+  ];
+  for (const [t, s, ta, a, tag] of acts) {
+    o += circle(xr, Y(t), 3, 'ink-f') + text(xr + 8, Y(t) + 4, s, 'ts', 'start');
+    if (ta !== null) {
+      o += arrow(xr, Y(ta), xs, Y(ta + D), 'mute', 5);
+      o += text(xs - 6, Y(ta + D) + 4, `ACK = ${a}${tag}`, 'ts', 'end');
+    }
+  }
+  // 压着不发的时段：虚线
+  o += line(xr - 6, Y(4), xr - 6, Y(6), 'dash') + line(xr - 6, Y(10), xr - 6, Y(13), 'dash');
+  o += text(xr + 8, Y(11.6) + 4, '（500 ms 内没有下一个 segment）', 'ts', 'start');
+  return svg(560, Y(tEnd) + 6, o, 'TCP receiver 的 ACK 规则：五个 100 byte 的 segment 按 1000、1200、1300、1100、1400 的顺序到达；1000 和 1400 按顺序到达时先压着 ACK，1200 和 1300 制造缺口时立刻回 ACK 1100，1100 补上缺口时立刻回 ACK 1400');
+}
+
+// ---------- 第 6 站：AY13/14 期末第 10 题的设定 ----------
+function q10() {
+  let o = '';
+  const P = { x: [70, 128], w: [210, 50], z: [210, 206], y: [350, 206] };
+  o += line(...P.x, ...P.w, 'ink') + line(...P.x, ...P.z, 'ink');
+  o += text((P.x[0] + P.w[0]) / 2 - 10, (P.x[1] + P.w[1]) / 2 - 4, 'c(x, w) = 4', 'tb', 'end');
+  o += text((P.x[0] + P.z[0]) / 2 - 10, (P.x[1] + P.z[1]) / 2 + 16, 'c(x, z) = 10', 'tb', 'end');
+  // 看不见的 least-cost path：虚线弧
+  const arc = (a, b, bend) => {
+    const [x1, y1] = a, [x2, y2] = b, mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+    return `<path d="M${f1(x1)} ${f1(y1)}Q${f1(mx + nx * bend)} ${f1(my + ny * bend)} ${f1(x2)} ${f1(y2)}" class="dash"/>`;
+  };
+  o += arc(P.w, P.z, -46) + text(P.w[0] + 44, (P.w[1] + P.z[1]) / 2 + 4, `D${sub('w')}(z) = ?`, 'ts', 'start');
+  o += arc(P.z, P.y, -30) + text((P.z[0] + P.y[0]) / 2, P.z[1] - 22, `D${sub('z')}(y) = ?`, 'ts', 'middle');
+  for (const [k, [x, y]] of Object.entries(P)) o += circle(x, y, 15, 'paper') + text(x, y + 5, k, 'tb', 'middle');
+  // x 的表
+  const tx = 404, ty = 52, cw = [36, 48, 64];
+  o += text(tx, ty - 12, 'x 收敛后的表', 'tb', 'start');
+  const rowsT = [['dest', 'cost', 'next hop'], ['w', '4', 'w'], ['y', 'α', 'z'], ['z', 'β', 'w']];
+  rowsT.forEach((r, i) => {
+    let cx = tx;
+    r.forEach((c, j) => {
+      o += rect(cx, ty + i * 24, cw[j], 24, i === 0 ? 'wash2' : 'frame') + rect(cx, ty + i * 24, cw[j], 24, 'frame');
+      o += text(cx + cw[j] / 2, ty + i * 24 + 16, c, i === 0 ? 'ts' : (j === 1 && i > 1 ? 'tl' : 't'), 'middle');
+      cx += cw[j];
+    });
+  });
+  o += text(tx, ty + 4 * 24 + 22, 'link cost 都是正整数', 'ts', 'start');
+  return svg(560, 236, o, 'AY13/14 期末第 10 题：node x 的两个邻居 w 和 z，link cost 分别是 4 和 10；x 收敛后的表里去 w 是 4 经 w，去 y 是 α 经 z，去 z 是 β 经 w；w 到 z、z 到 y 的 least cost 未知');
+}
+
+// ---------- 第 8 站：secure email 的发送和接收 ----------
+function email() {
+  let o = '';
+  const KA_ = `K${sub('A')}⁻`, KA = `K${sub('A')}⁺`, KB = `K${sub('B')}⁺`, KB_ = `K${sub('B')}⁻`, KS = `K${sub('S')}`;
+  const box = (x, y, w, lab) => rect(x, y - 13, w, 26, 'wash-strong', 4) + text(x + w / 2, y + 5, lab, 'tb', 'middle');
+  const val = (x, y, s, anc = 'middle') => text(x, y + 4, s, 't', anc);
+  // ---- Alice ----
+  let y1 = 46, y2 = 92, y3 = 138;
+  o += text(8, 20, 'Alice 发送', 'tb', 'start');
+  o += val(22, y1, 'm', 'middle');
+  o += arrow(32, y1, 58, y1, 'ink', 5) + box(60, y1, 30, 'H') + arrow(90, y1, 112, y1, 'ink', 5) + val(136, y1, 'H(m)');
+  o += arrow(160, y1, 180, y1, 'ink', 5) + box(182, y1, 34, KA_) + arrow(216, y1, 236, y1, 'ink', 5) + val(278, y1, `${KA_}(H(m))`);
+  // m 和 signature 接在一起
+  o += line(22, y1 + 10, 22, y2, 'mute') + arrow(22, y2, 236, y2, 'mute', 5);
+  o += line(278, y1 + 12, 278, y2 - 22, 'mute') + arrow(278, y2 - 22, 272, y2 - 14, 'mute', 5);
+  o += box(238, y2, 60, `用 ${KS}`) + arrow(298, y2, 318, y2, 'ink', 5) + val(392, y2, `${KS}(m, ${KA_}(H(m)))`);
+  o += val(130, y2 - 10, '接在一起', 'middle');
+  // 随机的 session key
+  o += val(150, y3, `随机生成的 ${KS}`) + arrow(204, y3, 236, y3, 'ink', 5) + box(238, y3, 34, KB) + arrow(272, y3, 318, y3, 'ink', 5) + val(360, y3, `${KB}(${KS})`);
+  o += line(225, y3, 225, y2 + 13, 'mute') + arrow(225, y2 + 13, 238, y2 + 6, 'mute', 5);
+  o += line(470, y2, 496, y2, 'ln') + line(400, y3, 496, y3, 'ln') + line(496, y2, 496, y3, 'ln') + arrow(496, (y2 + y3) / 2, 518, (y2 + y3) / 2, 'ln', 6);
+  o += text(524, (y2 + y3) / 2 - 3, '发给', 'tl', 'start') + text(524, (y2 + y3) / 2 + 13, 'Bob', 'tl', 'start');
+  // ---- Bob ----
+  const b0 = 186, c1 = b0 + 30, c2 = b0 + 76, c3 = b0 + 122;
+  o += line(8, b0 - 12, 552, b0 - 12, 'grid');
+  o += text(8, b0 + 4, 'Bob 接收', 'tb', 'start');
+  o += val(58, c1, `${KB}(${KS})`) + arrow(98, c1, 118, c1, 'ink', 5) + box(120, c1, 34, KB_) + arrow(154, c1, 172, c1, 'ink', 5) + val(184, c1, KS);
+  o += val(58, c2, `${KS}(m, …)`) + arrow(98, c2, 118, c2, 'ink', 5) + box(120, c2, 60, `用 ${KS}`) + line(184, c1 + 10, 184, c2 - 20, 'mute') + arrow(184, c2 - 20, 172, c2 - 14, 'mute', 5);
+  o += arrow(180, c2, 204, c2 - 20, 'ink', 5) + val(214, c2 - 26, 'm', 'middle') + arrow(180, c2, 204, c2 + 20, 'ink', 5) + text(210, c2 + 30, `${KA_}(H(m))`, 't', 'start');
+  // m → H
+  o += arrow(224, c2 - 26, 262, c2 - 26, 'ink', 5) + box(264, c2 - 26, 30, 'H') + arrow(294, c2 - 26, 368, c2 - 26, 'ink', 5) + val(392, c2 - 26, 'H(m)');
+  // signature → K_A^+
+  o += arrow(292, c2 + 26, 310, c2 + 26, 'ink', 5) + box(312, c2 + 26, 34, KA) + arrow(346, c2 + 26, 368, c2 + 26, 'ink', 5) + val(392, c2 + 26, 'H(m)');
+  // 比较
+  o += line(416, c2 - 26, 438, c2 - 26, 'ink') + line(416, c2 + 26, 438, c2 + 26, 'ink') + line(438, c2 - 26, 438, c2 + 26, 'ink');
+  o += arrow(438, c2, 456, c2, 'ink', 5) + rect(458, c2 - 15, 94, 30, 'paper', 6) + text(505, c2 + 5, '相同 → 接受', 'tb', 'middle');
+  o += text(8, c3 + 26, `只有 Bob 有 ${KB_}，所以只有他拿得到 ${KS}；只有 Alice 有 ${KA_}，所以只有她签得出 ${KA_}(H(m))。`, 'ts', 'start');
+  return svg(560, c3 + 34, o, 'Secure email：Alice 对 m 做 hash 并用自己的 private key 签名，把 m 和 signature 用随机的 session key 加密，再用 Bob 的 public key 加密 session key，两部分一起发出；Bob 用 private key 取回 session key，解出 m 和 signature，用 Alice 的 public key 打开 signature，和自己算的 H(m) 比较');
+}
+
+// ---------- 综合走读：AY13/14 期末第 11 题 ----------
+function q11() {
+  let o = '';
+  // 两个 subnet 的底色
+  o += rect(10, 22, 362, 150, 'wash', 10) + rect(392, 22, 158, 150, 'wash', 10);
+  o += text(20, 40, 'subnet 1', 'ts', 'start') + text(540, 40, 'subnet 2', 'ts', 'end');
+  const dev = (x, y, w, name, cls = 'paper') => rect(x - w / 2, y - 16, w, 32, cls, 6) + text(x, y + 5, name, 'tb', 'middle');
+  const A = [60, 70], B = [60, 140], S = [190, 105], R = [382, 105], C = [480, 105];
+  o += line(A[0] + 26, A[1], S[0] - 30, S[1] - 6, 'ink') + line(B[0] + 26, B[1], S[0] - 30, S[1] + 6, 'ink');
+  o += line(S[0] + 30, S[1], R[0] - 34, R[1], 'ink') + line(R[0] + 34, R[1], C[0] - 26, C[1], 'ink');
+  o += dev(...A, 52, 'A') + dev(...B, 52, 'B') + dev(...S, 60, 'switch S', 'wash2') + dev(...C, 52, 'C');
+  o += rect(R[0] - 34, R[1] - 18, 68, 36, 'paper', 18) + text(R[0], R[1] + 5, 'router R', 'tb', 'middle');
+  // interface 上的 IP：小圆点
+  const ip = (x, y) => circle(x, y, 4, 'ln-f');
+  o += ip(A[0] + 26, A[1]) + ip(B[0] + 26, B[1]) + ip(R[0] - 34, R[1]) + ip(R[0] + 34, R[1]) + ip(C[0] - 26, C[1]);
+  o += text(S[0] + 6, S[1] + 34, '没有 IP 地址', 'ts', 'middle');
+  o += text(S[0] - 36, S[1] - 14, '1', 'ts', 'middle') + text(S[0] - 40, S[1] + 18, '2', 'ts', 'middle') + text(S[0] + 36, S[1] - 6, '3', 'ts', 'middle');
+  o += text(R[0] - 40, R[1] - 24, '左 interface', 'ts', 'end') + text(R[0] + 40, R[1] - 24, '右 interface', 'ts', 'start');
+  // 各张表
+  const table = (x, y, w, title, rows) => {
+    let q = text(x, y, title, 'tb', 'start');
+    rows.forEach((r, i) => { q += rect(x, y + 8 + i * 22, w, 22, 'frame') + text(x + 8, y + 23 + i * 22, r, 'ts', 'start'); });
+    return q;
+  };
+  o += table(10, 196, 182, '(a) S 的 switch table', ['A 的 MAC → port 1', 'B 的 MAC → port 2', 'R 左 interface 的 MAC → port 3']);
+  o += table(204, 196, 170, '(b) A 的 ARP table', ['B 的 IP → B 的 MAC', 'R 左 interface 的 IP → MAC']);
+  o += table(386, 196, 164, '(c) C 的 ARP table', ['R 右 interface 的 IP → MAC']);
+  o += circle(210, 288, 4, 'ln-f') + text(220, 292, '(d) 实心圆点是 IP 地址：A、B、C 各一个，R 两个，共 5 个', 'ts', 'start');
+  return svg(560, 300, o, 'AY13/14 期末第 11 题的网络：A、B 经 switch S 连到 router R 的左 interface，C 连在 R 的右 interface；S 的 switch table 有 A、B、R 三项，A 的 ARP table 有 B、R 两项，C 的 ARP table 只有 R 一项，IP 地址共 5 个');
+}
+
 export default {
+  'cs2105-cache': cache,
+  'cs2105-delack': delack,
+  'cs2105-q10': q10,
+  'cs2105-email': email,
+  'cs2105-q11': q11,
   'cs2105-delay': delay,
   'cs2105-encap': encapA,
   'cs2105-http': http,
