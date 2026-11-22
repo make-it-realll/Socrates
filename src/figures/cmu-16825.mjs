@@ -150,14 +150,17 @@ function soft() {
   o += text(300, 22, 'pixel 3 的值', 'tb', 'start');
   const hard = [[sx(1.5), sy(0)], [sx(2.5), sy(0)], [sx(2.5), sy(1)], [sx(3.5), sy(1)]];
   o += path(d(hard), 'ink-b');
-  const sg = 0.12, sig = (e2) => 1 / (1 + Math.exp(-(e2 - 2.5) / sg));
-  const pts = []; for (let k = 0; k <= 200; k++) { const v = 1.5 + 2 * k / 200; pts.push([sx(v), sy(sig(v))]); }
+  // SoftRas Eq. 1：D = sigmoid(δ d² / σ)，d 是 center 到 edge 的距离，δ = +1 表示 center 在 triangle 里
+  const sg = 0.05, sig = (e2) => { const dd = e2 - 2.5; return 1 / (1 + Math.exp(-Math.sign(dd) * dd * dd / sg)); };
+  const pts = []; for (let k = 0; k <= 400; k++) { const v = 1.5 + 2 * k / 400; pts.push([sx(v), sy(sig(v))]); }
   o += path(d(pts), 'ln');
-  o += text(sx(1.62), sy(0) - 8, 'hard：0 或 1', 'ts', 'start');
-  o += text(sx(2.6), sy(0.42), 'soft（σ = 0.12）', 'tl', 'start');
+  // gradient 大于 0.1 的范围（由公式算）
+  let dmax = 0; for (let k = 0; k <= 10000; k++) { const dd = k / 10000, D = sig(2.5 + dd), g = D * (1 - D) * 2 * dd / sg; if (g > 0.1) dmax = dd; }
+  o += text(sx(1.6), sy(0.85), 'hard：0 或 1', 'ts', 'start');
+  o += text(sx(2.62), sy(0.4), 'SoftRas（σ = 0.05）', 'tl', 'start');
   o += text(420, 228, 'hard 的 derivative 处处是 0（跳变点除外）；', 'ts', 'middle');
-  o += text(420, 244, 'soft 在 edge 离 center 约 0.5 pixel 内都有 gradient', 'ts', 'middle');
-  return svg(560, 252, o, '左边五个 pixel 和一个 triangle 的 edge；右边 pixel 3 的值随 edge 位置变化：hard rasterization 是阶跃，soft 是 sigmoid');
+  o += text(420, 244, `SoftRas 在 edge 离 center ${dmax.toFixed(1)} pixel 以内都有 gradient`, 'ts', 'middle');
+  return svg(560, 252, o, '左边五个 pixel 和一个 triangle 的 edge；右边 pixel 3 的值随 edge 位置变化：hard rasterization 是阶跃，SoftRas 是距离平方的 sigmoid');
 }
 
 // ---------- 第 3 站：沿着 ray 积分（动图） ----------
