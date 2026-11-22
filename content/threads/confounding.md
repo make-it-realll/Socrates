@@ -202,7 +202,7 @@ $$E[Y_{\text{after}}(0)\mid Y_{\text{before}}=x]=50+0.5\,(x-50)$$
 
 [SC1101E 第 2 站](../courses/SC1101E.html#method)里 Durkheim 要分开 religion 和 education 两个 cause：Protestant 比 Catholic 受教育多，suicide rate 也高，只看这两个 group，两个 cause 永远一起出现。Prussia 的 Jew 的 illiteracy 和 Protestant 差不多，religion 却不同；他的 Table XVIII 里 Jew 在每一组都低于 Protestant。在骨架里这是取 $S$=education，在 education 相近的那一层里比 $A$=religion。Szelényi 说这就是今天 multivariate analysis 的逻辑，下面 ST3131 一节会看到 multiple regression 怎样把它做成公式。它只用了一层，而且 religion 本身不是可以分配的 treatment，所以它支持的是“education 解释不了这个差别”，不是 religion 的 effect 有多大。
 
-[SC1101E 第 7 站](../courses/SC1101E.html#deviance)的 Pager audit study 把两个前提用 design 做了出来。四个 tester 按外貌、谈吐配成同 race 的两对，每一对里第一周由抽签定谁扮演“有 criminal record”的人，之后每周轮换，两个人扮演的次数一样多；每一对每周去哪 15 家雇主也是随机分的。取 $S$ 为“哪一对”，每一层里两个人各有一半的时间带着 record：positivity 由 design 保证，tester 自己的差别在两种身份之间抵消，雇主的差别由随机分配抵消。Callback 从 34% 降到 17%（white）、从 14% 降到 5%（Black）就是 record 这个 label 的 effect。Race 的比较没有这个保证：white 和 Black 的结果来自两对不同的人，Pager 自己列的限度“两对之间没量到的差别”正是没有被硬币消掉的 selection bias。
+[SC1101E 第 10 站](../courses/SC1101E.html#deviance)的 Pager audit study 把两个前提用 design 做了出来。四个 tester 按外貌、谈吐配成同 race 的两对，每一对里第一周由抽签定谁扮演“有 criminal record”的人，之后每周轮换，两个人扮演的次数一样多；每一对每周去哪 15 家雇主也是随机分的。取 $S$ 为“哪一对”，每一层里两个人各有一半的时间带着 record：positivity 由 design 保证，tester 自己的差别在两种身份之间抵消，雇主的差别由随机分配抵消。Callback 从 34% 降到 17%（white）、从 14% 降到 5%（Black）就是 record 这个 label 的 effect。Race 的比较没有这个保证：white 和 Black 的结果来自两对不同的人，Pager 自己列的限度“两对之间没量到的差别”正是没有被硬币消掉的 selection bias。
 
 ## HY2259：只有一个 unit 的时候
 
@@ -297,7 +297,7 @@ Tabular、$\hat\pi_\beta$ 取 log 里的比例时两者恒等，和 kidney stone
 
 State fully observed 时，behavior policy 只根据 $s$（加上它自己的 randomness）选 $a$，所以给定 $s$，$a$ 和之后会发生什么 independent：$E[r\mid s,a]=E[r(a)\mid s]$。$Q(s,a)$ 是 conditional on $s$ 的，自动就做了 adjustment，这是 Q-learning 从 offline data 学的时候不用另外处理 confounding 的原因。
 
-坏在 operator 看到的比 log 记下的多。假如 log 只存了 camera image，满的和空的 bottle 看上去一样，operator 拿起来之前就知道哪个是满的。Log 里的 $s$ 不含 weight，$Q(\text{image},a)$ 学到的就是 crude 的 85% 和 75%，policy 学会一律 pinch，data 越多只是越准确地学错。这时 log 里的 $s$ 只是 [CS4246 第 3 站](../courses/CS4246.html#pomdp)的 observation，不是 Markov state。补救要么是把 operator 用到的信息记下来（加一个 weight sensor），要么是让一部分 grasp 随机选 primitive，用 design 换来 exchangeability 和 positivity。
+坏在 operator 看到的比 log 记下的多。假如 log 只存了 camera image，满的和空的 bottle 看上去一样，operator 拿起来之前就知道哪个是满的。Log 里的 $s$ 不含 weight，$Q(\text{image},a)$ 学到的就是 crude 的 85% 和 75%，policy 学会一律 pinch，data 越多只是越准确地学错。这时 log 里的 $s$ 只是 [CS4246 第 4 站](../courses/CS4246.html#pomdp)的 observation，不是 Markov state。补救要么是把 operator 用到的信息记下来（加一个 weight sensor），要么是让一部分 grasp 随机选 primitive，用 design 换来 exchangeability 和 positivity。
 
 ### 放进 input 的东西多了，也会坏
 

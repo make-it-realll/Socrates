@@ -107,7 +107,7 @@ $$\|\nabla f(x)\|^2\ge2\mu\big(f(x)-f^\star\big)$$
 
 $$f(x^+)-f^\star\le f(x)-f^\star-\frac1{2L}\cdot2\mu\big(f(x)-f^\star\big)=\Big(1-\frac\mu L\Big)\big(f(x)-f^\star\big)$$
 
-每步乘一个固定的 factor，即 linear convergence。$\mu$-strongly convex 的 function 一定满足 PL：strong convexity 的 inequality $f(z)\ge f(x)+g^\top(z-x)+\tfrac\mu2\|z-x\|^2$ 两边对 $z$ 取 minimum，左边是 $f^\star$，右边在 $z=x-g/\mu$ 取到 $f(x)-\tfrac1{2\mu}\|g\|^2$，移项就是 PL（[CS3264 第 4 站](../courses/CS3264.html#opt)就是这样证 linear rate 的）。
+每步乘一个固定的 factor，即 linear convergence。$\mu$-strongly convex 的 function 一定满足 PL：strong convexity 的 inequality $f(z)\ge f(x)+g^\top(z-x)+\tfrac\mu2\|z-x\|^2$ 两边对 $z$ 取 minimum，左边是 $f^\star$，右边在 $z=x-g/\mu$ 取到 $f(x)-\tfrac1{2\mu}\|g\|^2$，移项就是 PL（[CS3264 第 8 站](../courses/CS3264.html#opt)就是这样证 linear rate 的）。
 
 这个 proof 没有用 convexity。[MIT-6.8210 第 7 站](../courses/MIT-6.8210.html#policy)的 LQR policy search 是一个例子：double integrator 的 cost $J(k_1,k_2)$ 在起点 $K=(0.4,4)$ 处的 Hessian 有 negative eigenvalue（$-0.051$），那里不 convex；那一站引用的结论是这个 $J$ 在 sublevel set 上满足 PL。按那一站的设定（step 0.03）重跑 gradient descent：
 
@@ -158,7 +158,7 @@ $t$ 在 DSA3102、CS3264 的 GD 部分是 step size，在 CMU-10714、CS336 是�
 
 **DSA3102。** 骨架的完整版本在这里：[第 3 站](../courses/DSA3102.html#gd)的 descent lemma、$O(1/k)$ 和 linear rate、不知道 $L$ 时的 backtracking，以及 nonsmooth 时的 subgradient method 和它对 step size 的要求 $\sum t_k=\infty$、$\sum t_k^2<\infty$；[第 4 站](../courses/DSA3102.html#prox)把 constraint 和 nonsmooth term 放进 prox，并用 Nesterov momentum 把 $1/k$ 变成 $1/k^2$；[第 5 站](../courses/DSA3102.html#scd)算出 fixed step size 的 SGD 停在多大的 noise 里；[第 6、7 站](../courses/DSA3102.html#admm)对 dual 做 gradient ascent，multiplier 的 step size 就是 augmented Lagrangian 的 $\rho$。
 
-**CS3264。** [第 4 站](../courses/CS3264.html#opt)用同样的 proof 证 GD 的 rate（strongly convex 时用 PL 形式的 inequality），然后问一个 optimization 课不问的问题：要优化到多准。SGD 每步抽新 sample 时直接最小化 true risk $L_{\mathcal D}$，optimization error 压到 statistical error 以下就没有意义了。
+**CS3264。** [第 8 站](../courses/CS3264.html#opt)用同样的 proof 证 GD 的 rate（strongly convex 时用 PL 形式的 inequality），然后问一个 optimization 课不问的问题：要优化到多准。SGD 每步抽新 sample 时直接最小化 true risk $L_{\mathcal D}$，optimization error 压到 statistical error 以下就没有意义了。
 
 **CS3244 与 KARPATHY-Z2H。** 到了 neural network，gradient 本身要靠 backpropagation 算。[CS3244 第 6 站](../courses/CS3244.html#nn)推出 matrix 形式的 backward recursion，并说明 gradient 的 scale 每层乘 $\tfrac{nv}2$，所以 initialization 决定 gradient descent 一开始动不动得了。[KARPATHY-Z2H 第 1 站](../courses/KARPATHY-Z2H.html#micrograd)把一步写成 `zero_grad`、`backward`、update 三行；[第 2 站](../courses/KARPATHY-Z2H.html#lm)用从 $10^{-3}$ 扫到 1 的 learning rate 挑 `lr`，再用 0.1 到 0.01 的 step decay；[第 3 站](../courses/KARPATHY-Z2H.html#stats)用 update:data ratio（约 $10^{-3}$）同时监控 learning rate 和 weight 的 scale，并推出 BatchNorm 之后 weight 大 $\lambda$ 倍等于 learning rate 小 $\lambda^2$ 倍。
 
@@ -168,7 +168,7 @@ $t$ 在 DSA3102、CS3264 的 GD 部分是 step size，在 CMU-10714、CS336 是�
 
 **MIT-6.8210。** [第 4 站](../courses/MIT-6.8210.html#trajopt)的 decision variable 是一整条 control sequence。Shooting 的 Hessian 的 condition number 按 $1.1^{2N}$ 增长；iLQR 每步沿 trajectory 解一次 time-varying LQR，用 $\alpha$ 减半做 line search。[第 7 站](../courses/MIT-6.8210.html#policy)直接对 feedback gain $K$ 做 gradient descent，没有 model 时用 weight perturbation 估计 gradient，它的 expectation 是 $-\eta\nabla J$，和 REINFORCE 是同一件事。
 
-**BERKELEY-CS285。** [第 5 站](../courses/BERKELEY-CS285.html#trpo)把“一小步”的“小”改用 KL divergence 量，推出 $P=F$ 的 natural gradient。那里的 $F$ 是 diagonal 的（$F_{kk}=109$，$F_{\sigma\sigma}=2000$），natural gradient 就是按 coordinate 重新 scale 的 gradient，即下一节的主题。
+**BERKELEY-CS285。** [第 6 站](../courses/BERKELEY-CS285.html#trpo)把“一小步”的“小”改用 KL divergence 量，推出 $P=F$ 的 natural gradient。那里的 $F$ 是 diagonal 的（$F_{kk}=109$，$F_{\sigma\sigma}=2000$），natural gradient 就是按 coordinate 重新 scale 的 gradient，即下一节的主题。
 
 ## 桥一：diagonal 的 $P$：Jacobi、feature scaling、Levenberg–Marquardt 与 Adam
 

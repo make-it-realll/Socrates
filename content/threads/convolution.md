@@ -139,7 +139,7 @@ Zhang 的 $z=(0,0,1,1,0,0,1,1)$ 的起伏在 $\tfrac\pi2$，取完之后落在 o
 | [MA2214 第 4 站](../courses/MA2214.html#gf) | sequence 的 convolution | $a_k$，$b_k$ | $\sum_ka_kb_{n-k}$ | 翻 |
 | [EE2023 第 1、3、7 站](../courses/EE2023.html#lti) | LTI system | $x(t)$，$h(t)$ | $\int x(\tau)h(t-\tau)\,d\tau$ | 翻 |
 | [CS4243 第 1 站](../courses/CS4243.html#filter) | correlation $\otimes$ | $I$，kernel $H$ | $\sum H(i,j)\,I(x+i,y+j)$ | 不翻 |
-| [CS2109S 第 8 站](../courses/CS2109S.html#nn) | convolution layer | image，filter | 逐个 entry 相乘再求和 | 不翻 |
+| [CS2109S 第 9 站](../courses/CS2109S.html#nn) | convolution layer | image，filter | 逐个 entry 相乘再求和 | 不翻 |
 | [CS231N 第 2、3 站](../courses/STANFORD-CS231N.html#conv) | conv layer | $X$，$W_k$ | $\sum W_k[u][v][c]\,X[Si+u][Sj+v][c]$ | 不翻 |
 | [Z2H 第 5 站](../courses/KARPATHY-Z2H.html#wavenet) | dilated causal convolution | $(B,T,C)$，Linear | 相邻两组拼起来乘 weight | 不翻 |
 | [CMU-10714 第 6 站](../courses/CMU-10714.html#models) | conv op | $Z$，$W$ | im2col 之后一次 matmul | backward 翻 |
@@ -201,7 +201,7 @@ Magnitude 不变，phase 反号。Gaussian 这种 symmetric kernel 的 $H$ 是 r
 
 ## CS2109S 与 CS231N：conv layer、stride 与 receptive field
 
-[CS2109S 第 8 站](../courses/CS2109S.html#nn)从 parameter 的个数讲起：200×200 的彩色 image，一个 fully connected 的 hidden unit 就要 120,000 个 weight，local connectivity 加 parameter sharing 之后，16 个 3×3 的 filter 只要 448 个。[CS231N 第 2 站](../courses/STANFORD-CS231N.html#conv)加上 stride、padding 和 channel，[第 3 站](../courses/STANFORD-CS231N.html#arch)加上 receptive field 和 ResNet。
+[CS2109S 第 9 站](../courses/CS2109S.html#nn)从 parameter 的个数讲起：200×200 的彩色 image，一个 fully connected 的 hidden unit 就要 120,000 个 weight，local connectivity 加 parameter sharing 之后，16 个 3×3 的 filter 只要 448 个。[CS231N 第 2 站](../courses/STANFORD-CS231N.html#conv)加上 stride、padding 和 channel，[第 3 站](../courses/STANFORD-CS231N.html#arch)加上 receptive field 和 ResNet。
 
 **Stride 是先按 stride 1 算，再隔 $S$ 个取一个。** CS231N 的 $\text{out}[i]=\sum_uW[u]\,X[Si+u]$ 恰好是 stride 1 时第 $Si$ 个 output。所以 stride 2 的 conv 是 conv 加隔一个取一个，骨架的最后一节整个适用；那一站的 translation equivariance 是在 stride 1 下说的。Max pooling 同样可以拆开：Zhang 把 $\text{MaxPool}$ 写成 stride 1 的 max 再 subsample，前一半对 shift 一视同仁，破坏 equivariance 的是后一半。他的 Figure 4：$z=(0,0,1,1,0,0,1,1)$ 做 2×2、stride 2 的 max pooling 得 $(0,1,0,1)$，挪一格之后得 $(1,1,1,1)$。拆开做：stride 1 的 max 是 $m=(0,1,1,1,0,1,1,1)$，过 Tri-3 是 $(0.5,0.75,1,0.75,0.5,0.75,1,0.75)$，取 index 为 even 的位置得 $(0.5,1,0.5,1)$；挪一格的那个得 $(0.75,0.75,0.75,0.75)$。论文只说过了一个 low-pass filter，用 Tri-3 正好算出它的这两组数。两者仍不相同（$z$ 的起伏在 $\tfrac\pi2$，见上面的 edge），但近了很多。为什么 blur 要放在 max 之后：$z$ 本身没有 $\omega=\pi$ 的成分，$\sum_n(-1)^nz_n=0$；max 是 nonlinear 的，$\sum_n(-1)^nm_n=-2$，它造出了一个 $\omega=\pi$ 的成分，subsampling 时正好折到 0，这就是 max pooling 的 output 从 $(0,1,0,1)$ 跳到 $(1,1,1,1)$ 的来源。Tri-3 的 $H(\pi)=0$ 把它压掉：过完 Tri-3 的那一行 $b=(0.5,0.75,1,0.75,\dots)$ 满足 $\sum_n(-1)^nb_n=0$。
 

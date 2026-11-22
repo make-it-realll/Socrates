@@ -182,7 +182,7 @@ $q_i^\ell$、$k_j^\ell$、$v_j^\ell$ 是 $h_i^\ell$、$h_j^\ell$ 的 function，
 | [EE4706 第 2 站](../courses/EE4706.html#percep) | CLIP | image embedding $I_i$ | text embedding $T_j$；value 是 label | $S_{ij}$；logit scale $s$ |
 | [CS231N 第 7 站](../courses/STANFORD-CS231N.html#ssl) | InfoNCE、SimCLR、MoCo | 一个 view | positive 与 negative 的 view | $\mathrm{sim}(z_i,z_k)$；$\tau$ |
 | [RB4301 第 7 站](../courses/RB4301.html#chunk) | ACT 的 decoder | $k$ 个固定的 position embedding | 1202 个 observation token | $k\times512$ |
-| [RB4301 第 8 站](../courses/RB4301.html#vla)、[LeRobot 第 4 站](../courses/HF-LEROBOT.html#vla) | action expert、cross-attention | action token | VLM 的 prefix 和 action token | prefix 在 KV cache 里 |
+| [RB4301 第 8 站](../courses/RB4301.html#vla)、[LeRobot 第 5 站](../courses/HF-LEROBOT.html#vla) | action expert、cross-attention | action token | VLM 的 prefix 和 action token | prefix 在 KV cache 里 |
 
 同一个字母在不同课里指不同的东西。CS336 的 KV cache 公式里 $K$ 是 KV head 的个数、$H$ 是 head dimension；MIT-6.5940 的 $H$ 是 head 的个数，head dimension 叫 $d_h$。CS4248 第 5 站的 $s$ 是 decoder state，CLIP 的 $s$ 是 logit scale，这一页的 $s_j$ 是 score。CS231N 的单 head 写法除以 $\sqrt D$，$D$ 是 token 的维数，多 head 时换成每个 head 的 $d_k$。π0 论文里的 $\tau$ 是 flow matching 的时间，和上面的 temperature 无关。
 
@@ -317,7 +317,7 @@ EE4706 那一站说 cosine 的绝对值本身没有意义、相对大小才有�
 放进同一个 sequence 不等于互相都能看见。Block-causal mask 让 prefix 看不到 noisy action，prefix 的 key、value 在 10 步里不变，只算一次。如果 prefix 也能看见 action，每一步 noisy action 一变，prefix 在第 1 层以上的 hidden state 全都跟着变，32 ms 的 observation forward 就得做 10 遍：$14+10\times(32+2.7)\approx361$ ms，而现在是 73 ms。
 :::
 
-[HF-LEROBOT 第 4 站](../courses/HF-LEROBOT.html#vla)的 SmolVLA 把同一件事拆成两种 layer：cross-attention layer 里 action token 是 query，key 和 value 来自 VLM；self-attention layer 里 action token 互相看，用 causal mask。论文在 LIBERO 上的 ablation：只用 cross-attention 79.0%，只用 self-attention 74.5%，交替 85.5%；self-attention 用 causal 74.5%，bidirectional 67.5%。那一站的图画了它的 inference：3 个 camera 时 prefix 最多 $3\times64+48+1=241$ 个 token，过一遍 VLM 存成 KV cache，10 步 Euler integration 每步只过 action expert，读同一份 cache。
+[HF-LEROBOT 第 5 站](../courses/HF-LEROBOT.html#vla)的 SmolVLA 把同一件事拆成两种 layer：cross-attention layer 里 action token 是 query，key 和 value 来自 VLM；self-attention layer 里 action token 互相看，用 causal mask。论文在 LIBERO 上的 ablation：只用 cross-attention 79.0%，只用 self-attention 74.5%，交替 85.5%；self-attention 用 causal 74.5%，bidirectional 67.5%。那一站的图画了它的 inference：3 个 camera 时 prefix 最多 $3\times64+48+1=241$ 个 token，过一遍 VLM 存成 KV cache，10 步 Euler integration 每步只过 action expert，读同一份 cache。
 
 两个对照可以帮助记住这个设计。MIT-6.S184 第 7 站的 DiT 每个 denoising step 都要重算全部 token 的 attention，因为那里被 denoise 的就是所有 image token 本身，每一步都在变；π0 的 prefix 是 condition，不被 denoise，所以能 cache。[MIT-6.S978 第 4 站](../courses/MIT-6.S978.html#tok)的 VAR 用的是同一种 block-causal mask：同一个 scale 内部互相看见，只看见更粗的 scale，每生成一个 scale，前面的 scale 的 key、value 都可以留在 cache 里。
 

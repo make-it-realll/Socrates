@@ -192,7 +192,7 @@ Pendulum 的 upright 和 toggle switch 中间那个 fixed point 几何上完全�
 
 ### LSM2234：Jacobian 的 eigenvalue
 
-[LSM2234 第 1 站](../courses/LSM2234.html#growth)的 $f'(N^*)$ 是一维的 eigenvalue：logistic 在 $K$ 处是 $-r$，扰动以 rate $r$ 消失；同一站的 Euler 分析得到 step 每步把 error 乘 $1-h$，这是骨架里的 $1+h\lambda$。[第 4 站](../courses/LSM2234.html#switch)在二维里用 Jacobian：$\alpha=3$ 时对角线上的 fixed point 的 eigenvalue 是 $0.191$ 和 $-2.191$，saddle；stable 的那个 eigenvector 是 $(1,1)$，它的 span（对角线）就是 separatrix。
+[LSM2234 第 10 站](../courses/LSM2234.html#growth)的 $f'(N^*)$ 是一维的 eigenvalue：logistic 在 $K$ 处是 $-r$，扰动以 rate $r$ 消失；同一站的 Euler 分析得到 step 每步把 error 乘 $1-h$，这是骨架里的 $1+h\lambda$。[第 12 站](../courses/LSM2234.html#switch)在二维里用 Jacobian：$\alpha=3$ 时对角线上的 fixed point 的 eigenvalue 是 $0.191$ 和 $-2.191$，saddle；stable 的那个 eigenvector 是 $(1,1)$，它的 span（对角线）就是 separatrix。
 
 ### CS3244、CS4243、MIT-6.4210：matrix 拿来量
 

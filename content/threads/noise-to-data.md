@@ -10,7 +10,7 @@ line: ml
 
 ::fig[thread-noise-to-data-fail] 动图：灰线是 demonstration，彩色的 gripper 走 MSE 给出的 path，描边的 gripper 走其中一条 demonstration。右边是 200 条 demonstration 在 obstacle 处的 $y$，mean 落在 obstacle 的范围里。
 
-**第二次失败。** 那就学一个 density。单个 Gaussian 只有一个 bump，MLE 给出 $N(0,4.25)$，它有 37.2% 的 sample 落在 $|y|<1$（[CS5788 第 1 站](../courses/CORNELL-CS5788.html#mle)）。让 network 输出任意的 energy $E_\theta(y)$、令 $p_\theta=e^{-E_\theta}/Z(\theta)$，形状不再受限，可是 $Z$ 是对整个 action space 的 integral。SmolVLA 在 SO-101 上的 action 是 50 步、每步 6 个 dimension 的 chunk（[HF-LEROBOT 第 4 站](../courses/HF-LEROBOT.html#vla)），300 维，每维只取 100 个 grid point，算一次 $Z$ 就要 $10^{600}$ 次 network evaluation。不需要 $Z$ 的量是 score：$\nabla_y\log p_\theta=-\nabla_yE_\theta-\nabla_y\log Z=-\nabla_yE_\theta$。有了 score 就能用 Langevin dynamics sample（[CS5788 第 5 站](../courses/CORNELL-CS5788.html#ebm)）：$y_{k+1}=y_k+\tfrac{\varepsilon^2}{2}\nabla\log p(y_k)+\varepsilon z_k$。它为什么不改变 $p$、step size 带来多大的 bias、怎样用 Metropolis 修正，在[随机模拟那条线的桥 2](../threads/monte-carlo.html)里讲过，这里不重复。
+**第二次失败。** 那就学一个 density。单个 Gaussian 只有一个 bump，MLE 给出 $N(0,4.25)$，它有 37.2% 的 sample 落在 $|y|<1$（[CS5788 第 1 站](../courses/CORNELL-CS5788.html#mle)）。让 network 输出任意的 energy $E_\theta(y)$、令 $p_\theta=e^{-E_\theta}/Z(\theta)$，形状不再受限，可是 $Z$ 是对整个 action space 的 integral。SmolVLA 在 SO-101 上的 action 是 50 步、每步 6 个 dimension 的 chunk（[HF-LEROBOT 第 5 站](../courses/HF-LEROBOT.html#vla)），300 维，每维只取 100 个 grid point，算一次 $Z$ 就要 $10^{600}$ 次 network evaluation。不需要 $Z$ 的量是 score：$\nabla_y\log p_\theta=-\nabla_yE_\theta-\nabla_y\log Z=-\nabla_yE_\theta$。有了 score 就能用 Langevin dynamics sample（[CS5788 第 5 站](../courses/CORNELL-CS5788.html#ebm)）：$y_{k+1}=y_k+\tfrac{\varepsilon^2}{2}\nabla\log p(y_k)+\varepsilon z_k$。它为什么不改变 $p$、step size 带来多大的 bias、怎样用 Metropolis 修正，在[随机模拟那条线的桥 2](../threads/monte-carlo.html)里讲过，这里不重复。
 
 **第三次失败。** 把 weight 改成 0.8 和 0.2：80% 的人从下面绕。CS5788 第 5 站用 exact score 跑 Langevin，4000 条 chain 从 $[-4,4]$ 均匀出发，$\varepsilon=0.1$，2000 步之后右边有 47.4%，应该是 20%。0.5/0.5 时同样的设置给出 50.8%（numpy `default_rng(0)`），对了，只是因为起点本来就一半在右边。原因在 score 本身：在左边的 bump 附近，右边那个 component 的贡献小到可以忽略，$\nabla\log p\approx-(y+2)/0.25$，和 weight 无关。两组 weight 的 score 只在 $|y|<1$ 那片 density 极低的地方不同，chain 几乎不去那里。每条 chain 落进离起点最近的 bump，终点的比例约等于起点在 density 最低点 0.092 右边的比例，$(4-0.092)/8=48.8\%$。
 
@@ -96,7 +96,7 @@ CondOT 下 $a_t=\dfrac{(1-t)^2}{t}+(1-t)=\dfrac{1-t}{t}$，例子里 $\dfrac{0.6
 
 ### 加 noise 也行：diffusion equation 与一族 SDE
 
-[LSM2234 第 6 站](../courses/LSM2234.html#diffusion)从 random walk 推出 $\partial_tP=D\,\partial_y^2P$。因为 $p\,\partial_y\log p=\partial_yp$，
+[LSM2234 第 3 站](../courses/LSM2234.html#diffusion)从 random walk 推出 $\partial_tP=D\,\partial_y^2P$。因为 $p\,\partial_y\log p=\partial_yp$，
 
 $$D\,\partial_y^2p=\partial_y\big(D\,p\,\partial_y\log p\big)=-\partial_y\big(p\cdot(-D\,\partial_y\log p)\big)$$
 
@@ -142,14 +142,14 @@ $$y_{t+h}=y+h\,u_t(y)=y+\frac{h}{1-t}\big(D_t(y)-y\big)$$
 | 课与站 | 在那里叫 | 记号 | data 在哪一端 | 换成本页 |
 |---|---|---|---|---|
 | [ST2131 第 3 站](../courses/ST2131.html#dist)、[第 6 站](../courses/ST2131.html#transform) | normal、convolution | $\varphi'=-z\varphi$；$f_{X+Y}=f_X*f_Y$ | 没有时间 | $-z$ 是 $N(0,1)$ 的 score；$p_t$ 是一个 convolution |
-| [LSM2234 第 6 站](../courses/LSM2234.html#diffusion) | random walk、diffusion equation | $P(x,t)$，$D$，$\langle x^2\rangle=2Dt$ | physical time 从 data 走向 noise | $\alpha=1$，$\sigma^2=2Dt$ |
+| [LSM2234 第 3 站](../courses/LSM2234.html#diffusion) | random walk、diffusion equation | $P(x,t)$，$D$，$\langle x^2\rangle=2Dt$ | physical time 从 data 走向 noise | $\alpha=1$，$\sigma^2=2Dt$ |
 | [CS5788 第 5 站](../courses/CORNELL-CS5788.html#ebm) | EBM、Langevin、denoising score matching | $E_\theta$，$Z(\theta)$，$\tilde x=x+\sigma\varepsilon$，$\sigma_1>\dots>\sigma_L$ | $\sigma$ 越小越接近 data | $\alpha=1$；$s_\theta(\tilde x,\sigma)$ 是 $s_t$ |
 | [CS5788 第 6 站](../courses/CORNELL-CS5788.html#diff) | DDPM | $x_0$，$x_T$，$\bar\alpha_t$，$\varepsilon_\theta(x_t,t)$，$T=1000$ | $t=0$ | $\alpha=\sqrt{\bar\alpha_t}$，$\sigma=\sqrt{1-\bar\alpha_t}$；$\varepsilon_\theta$ 是 $\hat\varepsilon$ |
 | [6.S184 第 2](../courses/MIT-6.S184.html#path)、[3](../courses/MIT-6.S184.html#fm)、[4](../courses/MIT-6.S184.html#score)、[5 站](../courses/MIT-6.S184.html#dsm) | flow matching、score、SDE | $z$ 是 data，$x=\alpha_tz+\beta_t\varepsilon$，$u^\theta_t$，$D_t$ | $t=1$ | 相同，$\beta_t$ 就是 $\sigma_t$ |
 | [6.S978 第 6](../courses/MIT-6.S978.html#diff)、[8 站](../courses/MIT-6.S978.html#fast)，[CS231N 第 8 站](../courses/STANFORD-CS231N.html#gen) | rectified flow、$v$-prediction、MeanFlow | $x_t=(1-t)x+t\varepsilon$，$v=\varepsilon-x$ | $t=0$ | 本页的 $t$ 是那里的 $1-t$，velocity 反号 |
 | [RB4301 第 6 站](../courses/RB4301.html#gen) | diffusion policy；π0 的 flow matching | $A^k$，$k=1,\dots,K$；$A^\tau=\tau A+(1-\tau)\varepsilon$ | DDPM 部分 $k=0$；π0 部分 $\tau=1$ | data 换成 $p(A\mid O)$ |
 | [CS285 第 1 站](../courses/BERKELEY-CS285.html#il) | flow matching policy | $A_{t,\tau}=\tau A_t+(1-\tau)A_{t,0}$，$v_\theta(o_t,A_{t,\tau},\tau)$ | $\tau=1$ | 相同；下标 $t$ 是 control step，$\tau$ 才是这里的 $t$ |
-| [HF-LEROBOT 第 4 站](../courses/HF-LEROBOT.html#vla) | `NOISE_AT_ONE` | $x_t=t\varepsilon+(1-t)a$，$u=\varepsilon-a$，$dt=-0.1$ | $t=0$ | 同 6.S978 |
+| [HF-LEROBOT 第 5 站](../courses/HF-LEROBOT.html#vla) | `NOISE_AT_ONE` | $x_t=t\varepsilon+(1-t)a$，$u=\varepsilon-a$，$dt=-0.1$ | $t=0$ | 同 6.S978 |
 | [EE4706 第 7 站](../courses/EE4706.html#sys) | real-time chunking（RTC） | $A^\tau$，$\hat A^1$，$W$，$r_\tau$，$\beta$，$H$，$s$，$d$ | $\tau=1$ | $\hat A^1$ 是 $D_\tau$ |
 
 ## 逐门课：每一门往骨架上加了什么
@@ -162,7 +162,7 @@ $$y_{t+h}=y+h\,u_t(y)=y+\frac{h}{1-t}\big(D_t(y)-y\big)$$
 
 ### LSM2234：forward process 是一次真的 diffusion
 
-[第 6 站](../courses/LSM2234.html#diffusion)从 random walk 推出 $\langle x^2\rangle=2Dt$，从一点出发的 solution 是 variance $2Dt$ 的 Gaussian。放进骨架：一群 molecule 自由 diffuse $t$ 秒，就是 $\alpha=1$、$\sigma=\sqrt{2Dt}$ 的 corruption，concentration 是初始 concentration 和这个 Gaussian 的 convolution。LSM2234 的 $D=L^2/(2\Delta t)$ 也说明了 Euler–Maruyama 的 noise 为什么乘 $\sqrt h$：每步走 $L=\sqrt{2D\Delta t}$，正比于 $\sqrt{\Delta t}$，[6.S184 第 1 站](../courses/MIT-6.S184.html#ode)专门讲了乘 $h$ 为什么错。LSM2234 只往一个方向走，concentration 只会摊平。往回走要什么，见桥 1。
+[第 3 站](../courses/LSM2234.html#diffusion)从 random walk 推出 $\langle x^2\rangle=2Dt$，从一点出发的 solution 是 variance $2Dt$ 的 Gaussian。放进骨架：一群 molecule 自由 diffuse $t$ 秒，就是 $\alpha=1$、$\sigma=\sqrt{2Dt}$ 的 corruption，concentration 是初始 concentration 和这个 Gaussian 的 convolution。LSM2234 的 $D=L^2/(2\Delta t)$ 也说明了 Euler–Maruyama 的 noise 为什么乘 $\sqrt h$：每步走 $L=\sqrt{2D\Delta t}$，正比于 $\sqrt{\Delta t}$，[6.S184 第 1 站](../courses/MIT-6.S184.html#ode)专门讲了乘 $h$ 为什么错。LSM2234 只往一个方向走，concentration 只会摊平。往回走要什么，见桥 1。
 
 ### CS5788：score、DDPM 与 likelihood
 
@@ -194,7 +194,7 @@ $$u_t(x\mid y)=u_t(x)+a_t\,\nabla_x\log p_t(y\mid x)$$
 
 ### HF-LEROBOT：代码里的 convention
 
-[第 4 站](../courses/HF-LEROBOT.html#vla)把骨架落到 SmolVLA 和 π0 的代码上。一次 inference 先把 image、文字、state 的 prefix 过一遍 VLM 存成 KV cache，然后 10 步 Euler 每一步只过 action expert：骨架里的 $n$ 次 $u_t$ evaluation 只碰那个小 network。它的 convention 是 openpi 的 `NOISE_AT_ONE`，$t=1$ 是 noise，sampling 时 $dt=-0.1$，写反了不会报任何错。Training 时 $t$ 取自 $\mathrm{Beta}(1.5,1)$，偏向 $t=1$ 那一端，也就是 noise 多的一端；π0 论文用自己的 $\tau$（$\tau=0$ 是 noise）说同一件事：beta distribution 强调“lower (noisier) timesteps”。两种写法方向相反，强调的是同一端。
+[第 5 站](../courses/HF-LEROBOT.html#vla)把骨架落到 SmolVLA 和 π0 的代码上。一次 inference 先把 image、文字、state 的 prefix 过一遍 VLM 存成 KV cache，然后 10 步 Euler 每一步只过 action expert：骨架里的 $n$ 次 $u_t$ evaluation 只碰那个小 network。它的 convention 是 openpi 的 `NOISE_AT_ONE`，$t=1$ 是 noise，sampling 时 $dt=-0.1$，写反了不会报任何错。Training 时 $t$ 取自 $\mathrm{Beta}(1.5,1)$，偏向 $t=1$ 那一端，也就是 noise 多的一端；π0 论文用自己的 $\tau$（$\tau=0$ 是 noise）说同一件事：beta distribution 强调“lower (noisier) timesteps”。两种写法方向相反，强调的是同一端。
 
 ### EE4706：sampling 要赶上 controller
 

@@ -553,7 +553,7 @@ $\phi$ 是共享部分。Head $g$ 的参数只从 goal 为 $g$ 的 sample 拿到
 
 1/5 比例的真车上，branched 一次路口都没走错，command input 错过了 11.1% 的路口。
 
-现在的 robot policy 普遍用同一个思路，只是 command 换成了 language instruction 或 goal image，作为 token 进入 transformer（[RB4301 第 8 站](../courses/RB4301.html#vla)；用 LeRobot fine-tune SmolVLA 时 instruction 怎样进 model，见 [HF-LEROBOT 第 4 站](../courses/HF-LEROBOT.html#vla)）。
+现在的 robot policy 普遍用同一个思路，只是 command 换成了 language instruction 或 goal image，作为 token 进入 transformer（[RB4301 第 8 站](../courses/RB4301.html#vla)；用 LeRobot fine-tune SmolVLA 时 instruction 怎样进 model，见 [HF-LEROBOT 第 5 站](../courses/HF-LEROBOT.html#vla)）。
 
 ### 输出一个 distribution：Gaussian policy
 

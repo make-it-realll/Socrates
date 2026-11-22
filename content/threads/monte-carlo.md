@@ -6,7 +6,7 @@ line: prob
 
 一条 2R arm 装在 origin，两根 link 长 1 和 0.8（各有 0.04 的 half-width），旁边有两个 disk obstacle：A 的 center 在 $(0.9,0.6)$，radius 0.35；B 的 center 在 $(-0.7,-0.9)$，radius 0.4。两个 joint angle 都可以取 $[-180^\circ,180^\circ)$ 里的任何值。问：这个 square 形状的 configuration space 里，有多大比例的 configuration 不碰任何 obstacle？
 
-这个数是确定的，它是 $C_{\text{free}}$ 的 area 除以 $360^\circ\times360^\circ$。它也有用：PRM 和 RRT 每一步都在 C-space 里随机抽一个 configuration（[NW-MODERNROBOTICS 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)），free 的比例越小，浪费在 collision 上的 sample 越多。两个 joint 时可以老老实实地铺 grid：$4000\times4000$ 个 grid point 逐个做 collision check，free 的比例是 0.6597。7 个 joint 的 arm 就不行了：每个 joint 取 100 个值是 $10^{14}$ 个 cell，[CS4278 第 5 站](../courses/CS4278.html#motion)算过，每个 cell 只花 1 μs 也要查 3 年。
+这个数是确定的，它是 $C_{\text{free}}$ 的 area 除以 $360^\circ\times360^\circ$。它也有用：PRM 和 RRT 每一步都在 C-space 里随机抽一个 configuration（[NW-MODERNROBOTICS 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)），free 的比例越小，浪费在 collision 上的 sample 越多。两个 joint 时可以老老实实地铺 grid：$4000\times4000$ 个 grid point 逐个做 collision check，free 的比例是 0.6597。7 个 joint 的 arm 就不行了：每个 joint 取 100 个值是 $10^{14}$ 个 cell，[CS4278 第 5 站](../courses/CS4278.html#motion)算过，每个 cell 只花 1 μs 也要查 3 年。
 
 另一个办法是随机抽 $n$ 个 configuration，每个做一次 collision check，数 free 的比例。下面的动图抽了 120 个，72 个 free，比例 0.600。这个 0.600 离真值有多远？如果手里没有 grid 给的 0.6597，单凭这 120 个点能不能说出 error 有多大？要多少个点才能准到 0.01？这三个问题的答案，是这条线上每一门课共用的骨架。
 
@@ -58,7 +58,7 @@ $$\hat\mu_n\pm1.96\,\frac{s}{\sqrt n}.$$
 
 ::fig[thread-monte-carlo-funnel] 同一个 arm，5 次 independent 地撒点到 $10^4$ 个。每条线都在 $\mu\pm1.96\sigma/\sqrt n$ 的漏斗里晃，晃的幅度按 $1/\sqrt n$ 缩小；$n=10^4$ 时五次的 $\hat\mu$ 是 0.667、0.661、0.656、0.665、0.660。
 
-**Hoeffding。** CLT 是 $n\to\infty$ 时的近似。$f$ 取值在 $[0,1]$ 里时，[CS3264 第 1 站](../courses/CS3264.html#pac)的 Hoeffding inequality 对每个 $n$ 都成立：
+**Hoeffding。** CLT 是 $n\to\infty$ 时的近似。$f$ 取值在 $[0,1]$ 里时，[CS3264 第 5 站](../courses/CS3264.html#bv)的 Hoeffding inequality 对每个 $n$ 都成立：
 
 $$P\big(|\hat\mu_n-\mu|\ge\varepsilon\big)\le2e^{-2n\varepsilon^2}.$$
 
@@ -93,7 +93,7 @@ $$P(X\le x)=P\big(F^{-1}(U)\le x\big)=P\big(U\le F(x)\big)=F(x).$$
 
 第二个等号是因为 $F$ increasing，inequality 两边同时作用 $F$ 不改变方向。这条线上反复用到两种情形。
 
-**Exponential waiting time。** Rate 为 $R$ 时 $P(\tau>t)=e^{-Rt}$，$F(t)=1-e^{-Rt}$，$F^{-1}(u)=-\ln(1-u)/R$。$1-U$ 也是 uniform，所以直接写 $\tau=-\ln(U)/R$。[LSM2234 第 5 站](../courses/LSM2234.html#noise) Gillespie 的第 1 步：$R=2$，$u_1=0.2468$，$\tau=-\ln0.2468/2=0.700$。
+**Exponential waiting time。** Rate 为 $R$ 时 $P(\tau>t)=e^{-Rt}$，$F(t)=1-e^{-Rt}$，$F^{-1}(u)=-\ln(1-u)/R$。$1-U$ 也是 uniform，所以直接写 $\tau=-\ln(U)/R$。[LSM2234 第 6 站](../courses/LSM2234.html#noise) Gillespie 的第 1 步：$R=2$，$u_1=0.2468$，$\tau=-\ln0.2468/2=0.700$。
 
 **有限个选项。** Probability 是 $w_1,\dots,w_K$，cumulative 是 $c_j=w_1+\cdots+w_j$，$F^{-1}(u)$ 就是满足 $c_{j-1}<u\le c_j$ 的 $j$：把 $[0,1]$ 按 probability 切成 $K$ 段，$u$ 落在哪段就选哪个。[CS4278 第 3 站](../courses/CS4278.html#pf)的 resampling 和 Gillespie 选 reaction 都是它。Gillespie 1977 年的原文写的正是这个 inequality：选使 $\sum_{\nu<\mu}a_\nu<r_2a_0\le\sum_{\nu\le\mu}a_\nu$ 的 $\mu$，$a_0$ 是所有 rate 之和。
 
@@ -110,15 +110,15 @@ Systematic resampling 只改了一处：$N$ 个 $u$ 不再 independent 地抽，
 | [ST2131 第 7 站](../courses/ST2131.html#limit) | weak law、CLT | $\mu=\mathbb E[X]$ | i.i.d. 的 $X_i$ | $\bar X_n$，$S_n$，$\sigma^2/n$ |
 | [ST2132 第 6 站](../courses/ST2132.html#ci) | coverage 的 simulation | interval 盖住 $\mu$ 的 probability | 重复整个 experiment | $\bar X$，$S$，$1-\alpha$ |
 | [MA3270 第 4 站](../courses/MA3270.html#sample) | Monte Carlo、importance sampling、MCMC | $\mathbb E_p[f(X)]$ | $p$、proposal $q$ 或 chain | $\hat\mu_n$，$w=p/q$，$\tilde p$ |
-| [CS3264 第 1 站](../courses/CS3264.html#pac) | training error | true error $L_{\mathcal D}(h)$ | training set $S\sim\mathcal D^m$ | $L_S(h)$，$m$，$\varepsilon$，$\delta$ |
-| [CS4246 第 5 站](../courses/CS4246.html#td) | Monte Carlo prediction | $v_\pi(s)=\mathbb E[G_t\mid S_t=s]$ | episode | $G_t$，$V(S_t)$ |
-| [BERKELEY-CS285 第 5 站](../courses/BERKELEY-CS285.html#trpo) | importance-sampled objective | 新 policy 的 $J(\theta')$ | 旧 policy 的 trajectory | $\prod_t\pi_{\theta'}/\pi_\theta$ |
+| [CS3264 第 6 站](../courses/CS3264.html#pac) | training error | true error $L_{\mathcal D}(h)$ | training set $S\sim\mathcal D^m$ | $L_S(h)$，$m$，$\varepsilon$，$\delta$ |
+| [CS4246 第 6 站](../courses/CS4246.html#td) | Monte Carlo prediction | $v_\pi(s)=\mathbb E[G_t\mid S_t=s]$ | episode | $G_t$，$V(S_t)$ |
+| [BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#trpo) | importance-sampled objective | 新 policy 的 $J(\theta')$ | 旧 policy 的 trajectory | $\prod_t\pi_{\theta'}/\pi_\theta$ |
 | [CS4278 第 3 站](../courses/CS4278.html#pf)、[RB3302 第 5 站](../courses/RB3302.html#loc) | particle filter、MCL | $\mathrm{bel}(x_t)$ 下的 expectation | motion model | $x^{[i]}$，$w^{[i]}$，$N$（RB3302 用 $M$） |
-| [NW-MODERNROBOTICS 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)、[CS4278 第 5 站](../courses/CS4278.html#motion)、[RB3302 第 2 站](../courses/RB3302.html#sample) | PRM、RRT | 有没有 path | C-space 上 uniform | $x_{\text{samp}}$；$q$，$q_{\text{near}}$ |
+| [NW-MODERNROBOTICS 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)、[CS4278 第 5 站](../courses/CS4278.html#motion)、[RB3302 第 2 站](../courses/RB3302.html#sample) | PRM、RRT | 有没有 path | C-space 上 uniform | $x_{\text{samp}}$；$q$，$q_{\text{near}}$ |
 | [CS4278 第 6 站](../courses/CS4278.html#pomdp) | scenario、DESPOT | policy 的 value | $K$ 个 scenario | $\phi$，$K$，$\hat V$ |
 | [MIT-6.S184 第 4 站](../courses/MIT-6.S184.html#score) | Euler–Maruyama、Langevin dynamics | $p_{\text{data}}$ 的 sample 本身 | $X_0\sim N(0,I)$ | $h$，$\sigma_t$，$\nabla\log p_t$ |
 | [CORNELL-CS5788 第 5 站](../courses/CORNELL-CS5788.html#ebm) | Langevin dynamics | $p_\theta=e^{-E_\theta}/Z$ 的 sample | chain | $\varepsilon$，$z_k$ |
-| [LSM2234 第 5 站](../courses/LSM2234.html#noise) | Gillespie algorithm | $P_n(t)$ | 一条条 trajectory | $R$，$\tau$，$u_1$，$u_2$ |
+| [LSM2234 第 6 站](../courses/LSM2234.html#noise) | Gillespie algorithm | $P_n(t)$ | 一条条 trajectory | $R$，$\tau$，$u_1$，$u_2$ |
 | [MA3238 第 4 站](../courses/MA3238.html#ctmc) | holding time 与 jump chain | $p_{ij}(t)$ | 同上 | $q_i$，$\hat P$，$Q$ |
 | [DSE4211 第 6 站](../courses/DSE4211.html#amm) | path simulation | LVR 的 expected 值 | price path | $\ell$，$V$ |
 
@@ -152,15 +152,15 @@ ST2132 还加了一条和撒点直接相关的提醒。那一站算过，$p$ 小
 
 ### CS3264：有限 $m$ 的保证，和同时估计很多个
 
-[CS3264 第 1 站](../courses/CS3264.html#pac)的 training error $L_S(h)$ 就是 $\hat\mu_m$：$f$ 是 0-1 loss，$p$ 是 data distribution $\mathcal D$，$m$ 个 example 是 $m$ 个 sample。它往骨架上加了两样东西：Hoeffding 给出对每个 $m$ 都成立的 $m\ge\ln(2/\delta)/(2\varepsilon^2)$；union bound 处理“同时估计 $|H|$ 个量、要它们全都准”。后一件事在 learning 之外同样要紧，见第 4、5 座桥。
+[CS3264 第 6 站](../courses/CS3264.html#pac)的 training error $L_S(h)$ 就是 $\hat\mu_m$：$f$ 是 0-1 loss，$p$ 是 data distribution $\mathcal D$，$m$ 个 example 是 $m$ 个 sample。它往骨架上加了两样东西：Hoeffding 给出对每个 $m$ 都成立的 $m\ge\ln(2/\delta)/(2\varepsilon^2)$；union bound 处理“同时估计 $|H|$ 个量、要它们全都准”。后一件事在 learning 之外同样要紧，见第 4、5 座桥。
 
 ### CS4246 与 CS285：value 是 return 的 expectation
 
-[CS4246 第 5 站](../courses/CS4246.html#td)的 Monte Carlo prediction 就是骨架：$v_\pi(s)=\mathbb E[G_t\mid S_t=s]$，从 $s$ 出发跑很多个 episode，平均 return。那一站跑了 100,000 次，return 的 standard deviation 是 1.09，error bar 是 $\pm1.96\times1.09/\sqrt{100000}=\pm0.0068$，18.350 与 true value 18.349 吻合在意料之中。TD 用 bootstrapped target 代替 $G_t$，variance 变小、引入 bias，这是骨架之外的取舍。
+[CS4246 第 6 站](../courses/CS4246.html#td)的 Monte Carlo prediction 就是骨架：$v_\pi(s)=\mathbb E[G_t\mid S_t=s]$，从 $s$ 出发跑很多个 episode，平均 return。那一站跑了 100,000 次，return 的 standard deviation 是 1.09，error bar 是 $\pm1.96\times1.09/\sqrt{100000}=\pm0.0068$，18.350 与 true value 18.349 吻合在意料之中。TD 用 bootstrapped target 代替 $G_t$，variance 变小、引入 bias，这是骨架之外的取舍。
 
-[第 8 站](../courses/CS4246.html#mcts)的 flat Monte Carlo search 是一个反例：$K=1000$ 次 rollout 把 a 估成 0.58、b 估成 0.60，而 a 才是对的。Error bar 没有问题，问题在 $f$：random rollout 估计的是“第二步随机走”的 value 0.55，要的却是第二步选对之后的 0.9。$n$ 再大，$\hat\mu_n$ 也只会 converge 到写下的那个 expectation。
+[第 9 站](../courses/CS4246.html#mcts)的 flat Monte Carlo search 是一个反例：$K=1000$ 次 rollout 把 a 估成 0.58、b 估成 0.60，而 a 才是对的。Error bar 没有问题，问题在 $f$：random rollout 估计的是“第二步随机走”的 value 0.55，要的却是第二步选对之后的 0.9。$n$ 再大，$\hat\mu_n$ 也只会 converge 到写下的那个 expectation。
 
-[BERKELEY-CS285 第 5 站](../courses/BERKELEY-CS285.html#trpo)用旧 policy 的 trajectory 估计新 policy 的 return，weight 是每一步 action ratio 的连乘，$\mathbb E[W^2]=1.04^T$。这是 importance sampling 在 sequence 上的样子，和 particle filter 的 weight 是同一个现象，见第 1 座桥。
+[BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#trpo)用旧 policy 的 trajectory 估计新 policy 的 return，weight 是每一步 action ratio 的连乘，$\mathbb E[W^2]=1.04^T$。这是 importance sampling 在 sequence 上的样子，和 particle filter 的 weight 是同一个现象，见第 1 座桥。
 
 ### CS4278 与 RB3302：particle filter
 
@@ -168,7 +168,7 @@ ST2132 还加了一条和撒点直接相关的提醒。那一站算过，$p$ 小
 
 ### NW-MODERNROBOTICS、CS4278 与 RB3302：sampling-based planning
 
-PRM 和 RRT 撒点的目的是在 $C_{\text{free}}$ 里找到一条连通的路，不估计任何 expectation。[NW-MODERNROBOTICS 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)给出 PRM 和 RRT 的步骤与 collision check；[CS4278 第 5 站](../courses/CS4278.html#motion)量了 gap 变窄时 RRT 所需 sample 数的增长；[RB3302 第 2 站](../courses/RB3302.html#sample)讲 RRT* 为什么 asymptotically optimal，并估了 narrow passage 的 volume $w^{d-1}$。它们和骨架共用的是 sample 的 probability：probabilistic completeness 说的是，一个 probability mass 为 $p$ 的区域在 $n$ 次 uniform sample 之后仍然空着的 probability $(1-p)^n$ 趋于 0。Kavraki 与 Latombe 对 PRM 的分析给出的失败 probability 同样随 $n$ 指数下降。这个式子在 CS3264 里出现过，见第 4 座桥。
+PRM 和 RRT 撒点的目的是在 $C_{\text{free}}$ 里找到一条连通的路，不估计任何 expectation。[NW-MODERNROBOTICS 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)给出 PRM 和 RRT 的步骤与 collision check；[CS4278 第 5 站](../courses/CS4278.html#motion)量了 gap 变窄时 RRT 所需 sample 数的增长；[RB3302 第 2 站](../courses/RB3302.html#sample)讲 RRT* 为什么 asymptotically optimal，并估了 narrow passage 的 volume $w^{d-1}$。它们和骨架共用的是 sample 的 probability：probabilistic completeness 说的是，一个 probability mass 为 $p$ 的区域在 $n$ 次 uniform sample 之后仍然空着的 probability $(1-p)^n$ 趋于 0。Kavraki 与 Latombe 对 PRM 的分析给出的失败 probability 同样随 $n$ 指数下降。这个式子在 CS3264 里出现过，见第 4 座桥。
 
 [CS4278 第 6 站](../courses/CS4278.html#pomdp)的 DESPOT 把 randomness 先固定成 $K$ 个 scenario，所有 policy 在同一批 scenario 上比较。两个方案用同一批 random number 评估，各自的 error 有很大一部分相同，在差值里抵消，比较更准；代价是挑出来的 policy 会过度贴合这几个 scenario，见第 5 座桥。
 
@@ -184,7 +184,7 @@ PRM 和 RRT 撒点的目的是在 $C_{\text{free}}$ 里找到一条连通的路�
 
 ### LSM2234 与 MA3238：模拟一个连续时间的 process
 
-[LSM2234 第 5 站](../courses/LSM2234.html#noise)的 Gillespie algorithm 每步抽两个 uniform：$u_1$ 经 inverse transform 给出 waiting time，$u_2$ 选 reaction。[MA3238 第 4 站](../courses/MA3238.html#ctmc)从另一头描述同一个对象：continuous-time Markov chain 由 holding rate $q_i$ 和 jump chain $\hat P$ 决定。它们加到骨架上的是：一个 sample 是一整条 trajectory，没有 time step，也就没有 discretization error；要的 $P_n(t)$ 是很多条 trajectory 的平均。两边的对应在第 3 座桥里逐项写出。
+[LSM2234 第 6 站](../courses/LSM2234.html#noise)的 Gillespie algorithm 每步抽两个 uniform：$u_1$ 经 inverse transform 给出 waiting time，$u_2$ 选 reaction。[MA3238 第 4 站](../courses/MA3238.html#ctmc)从另一头描述同一个对象：continuous-time Markov chain 由 holding rate $q_i$ 和 jump chain $\hat P$ 决定。它们加到骨架上的是：一个 sample 是一整条 trajectory，没有 time step，也就没有 discretization error；要的 $P_n(t)$ 是很多条 trajectory 的平均。两边的对应在第 3 座桥里逐项写出。
 
 ### DSE4211：拿 simulation 核对 formula，以及 moment 不存在的时候
 
@@ -313,7 +313,7 @@ Dimension 只通过 $p$ 进来。RB3302 的 passage 在 $d=6$ 时 $p=0.05^5=3.1\
 
 三门课各自碰到一个“estimate 偏高”的现象：
 
-- [CS3264 第 1 站](../courses/CS3264.html#pac)：1000 个瞎猜的 classifier，true error 都是 0.5，$m=100$，training error 最小的那个平均是 0.339。
+- [CS3264 第 6 站](../courses/CS3264.html#pac)：1000 个瞎猜的 classifier，true error 都是 0.5，$m=100$，training error 最小的那个平均是 0.339。
 - [DSE4211 第 9 站](../courses/DSE4211.html#behav)：100 个没有预测力的 signal，各 backtest 两年，最好的 Sharpe 平均 1.78。
 - [CS4278 第 6 站](../courses/CS4278.html#pomdp)：DESPOT 在 4 个 scenario 上挑出的 policy，empirical value 是 6.5，比 optimal value 1.933 还高。
 

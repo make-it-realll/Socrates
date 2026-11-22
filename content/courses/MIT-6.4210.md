@@ -501,7 +501,7 @@ $$\tau_g(q)=-\sum_iJ_i^\top(q)F^{c_i}$$
 
 $$\sqrt{f_{C_x}^2+f_{C_y}^2}\le\mu f_{C_z}$$
 
-Cone 是“允许的 force”的集合。如果 cone 里没有一个 force 能挡住运动，物体就滑动，此时 friction 取 cone 边界上和 sliding velocity 相反的那个（maximal dissipation）。Friction cone 怎样组成 force closure、几根 finger 够用，[Modern Robotics 第 7 站](../courses/NW-MODERNROBOTICS.html#grasp)已经讲过；这里看 6.4210 强调的另外两件事。
+Cone 是“允许的 force”的集合。如果 cone 里没有一个 force 能挡住运动，物体就滑动，此时 friction 取 cone 边界上和 sliding velocity 相反的那个（maximal dissipation）。Friction cone 怎样组成 force closure、几根 finger 够用，[Modern Robotics 第 11 站](../courses/NW-MODERNROBOTICS.html#grasp)已经讲过；这里看 6.4210 强调的另外两件事。
 
 ps4 Problem 1 把常用的 contact model 按“能传什么 wrench”排了一下：
 
@@ -588,7 +588,7 @@ $$\text{cost}=-\sum_i\big(n^i_{G_x}\big)^2\;-\;\alpha\,[0\ 0\ {-1}]\,R^G\,[0\ 1\
 教材自己列出了这套办法的 corner case：pregrasp 的 configuration 没有做 collision check（加一项 cost 就能补上）；物体卡在 bin 的角落时找不到 grasp，系统改用一个 pushing 动作把点往 bin 中间推；系统没有“物体”的概念，两个挨着的物体会被一起抓起来；重的物体应当在 center of mass 附近抓，它却可能抓 hammer 柄的最远端。教材的结论是这些要靠从经验里学 grasp metric（第 10 章）。
 
 :::back
-Friction cone、force closure 与 form closure 见 [Modern Robotics 第 7 站](../courses/NW-MODERNROBOTICS.html#grasp)；eigenvalue 与 Rayleigh quotient 见 [DSA2102 第 5 站](../courses/DSA2102.html#eig)。
+Friction cone、force closure 与 form closure 见 [Modern Robotics 第 11 站](../courses/NW-MODERNROBOTICS.html#grasp)；eigenvalue 与 Rayleigh quotient 见 [DSA2102 第 5 站](../courses/DSA2102.html#eig)。
 :::
 
 :::from
@@ -624,7 +624,7 @@ ps3 的开门题把 IK 用在一串 keyframe 上：每个 keyframe 一次 IK，p
 
 ### 一个能证明 segment 安全的条件
 
-回到开头的第二次失败。Sampling-based planner（RRT、PRM，见 [Modern Robotics 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)）把两个 configuration 连成直线之前，要确认这段 segment 不碰。开头的例子里 post 中心离 base $r=1.5$ m、在 45° 方向，半径 0.08 m。Arm 伸直、方向是 $\theta$ 时，post 中心到 arm 的距离是 $1.5\sin|\theta-45°|$（垂足离 base $1.5\cos|\theta-45°|<2$，在 arm 上），小于 0.08 就碰。所以 collision 的区间是 $|\theta-45°|<\arcsin(0.08/1.5)=3.06°$，即 41.94° 到 48.06°。每 10° 一个 sample 正好跨过去。
+回到开头的第二次失败。Sampling-based planner（RRT、PRM，见 [Modern Robotics 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)）把两个 configuration 连成直线之前，要确认这段 segment 不碰。开头的例子里 post 中心离 base $r=1.5$ m、在 45° 方向，半径 0.08 m。Arm 伸直、方向是 $\theta$ 时，post 中心到 arm 的距离是 $1.5\sin|\theta-45°|$（垂足离 base $1.5\cos|\theta-45°|<2$，在 arm 上），小于 0.08 就碰。所以 collision 的区间是 $|\theta-45°|<\arcsin(0.08/1.5)=3.06°$，即 41.94° 到 48.06°。每 10° 一个 sample 正好跨过去。
 
 ps3 Problem 17（6.4212）给出一个可以证明的条件。记 $\eta(q)$ 为 configuration $q$ 的 clearance（arm 到 obstacle 的 signed distance），$\rho$ 为 motion bound：joint 走 $\|\Delta q\|$ 时，arm 上任何一点在 workspace 里走过的路程不超过 $\rho\|\Delta q\|$。
 
@@ -718,7 +718,7 @@ GCS 把 collision-free 的 configuration space 事先切成若干个 convex regi
 Convex region 从哪里来是另一个问题：IRIS 交替找 separating hyperplane 和最大体积的 ellipsoid 来“长”一个 region，适合 mobile robot 这类 configuration space 本来就近似 Euclidean 的情形；arm 的 configuration space obstacle 不是 convex 的，要用 IRIS-NP（nonlinear solver 加随机 sample，probabilistically sound，不保证 region 完全 collision-free；新的 IRIS-NP2 快几个数量级、region 更大、面更少）或 IRIS-ZO（只用 sample 的 zeroth-order 版本，region 稍小但容易并行），或者用 sums-of-squares 给出严格证明（更慢，而且 region 是在 stereographic projection 的 coordinate 里求的）。iiwa 的例子先用 IK 在感兴趣的区域做 sampling，用包住这些 sample 的最小 ellipsoid 当 `starting_ellipse`，跑一次 IRIS。
 
 :::back
-Configuration space、RRT 与 PRM 的基本做法见 [Modern Robotics 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)；IK 的 branch 跳变见 [RB2202 第 5 站](../courses/RB2202.html#ik)；time scaling 见 [RB2202 第 7 站](../courses/RB2202.html#traj)。
+Configuration space、RRT 与 PRM 的基本做法见 [Modern Robotics 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)；IK 的 branch 跳变见 [RB2202 第 5 站](../courses/RB2202.html#ik)；time scaling 见 [RB2202 第 7 站](../courses/RB2202.html#traj)。
 :::
 
 :::from

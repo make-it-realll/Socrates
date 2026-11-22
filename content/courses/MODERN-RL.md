@@ -359,7 +359,7 @@ MuJoCo 上的默认 hyperparameter：1 个 environment、每轮 2048 步、32 �
 :::
 
 :::back
-这一站接着 CS4246 的[第 7 站](../courses/CS4246.html#pg)：baseline 不改变 expectation、actor-critic 用 TD error 当 weight。GAE 里 $\lambda$ 的 bias-variance 交换，就是 CS4246 [第 5 站](../courses/CS4246.html#td)MC 与 TD 的交换。
+这一站接着 CS4246 的[第 8 站](../courses/CS4246.html#pg)：baseline 不改变 expectation、actor-critic 用 TD error 当 weight。GAE 里 $\lambda$ 的 bias-variance 交换，就是 CS4246 [第 6 站](../courses/CS4246.html#td)MC 与 TD 的交换。
 :::
 
 :::from
@@ -749,7 +749,7 @@ Smith 等人的结论几乎相反：A1 在 20 分钟内学会走，“not enable
 :::
 
 :::back
-Clipped double Q 的 overestimation 问题是 CS4246 [第 6 站](../courses/CS4246.html#fa) deadly triad 的延续。“只有 demonstration、不能再采”的极端情形是[第 5 站](#offline)。SERL 那种 success classifier 当 reward 会被 policy 钻空子、VICE 怎么补救，见 [CS224R 的 reward 站](../courses/STANFORD-CS224R.html#reward)；Dyna 式的 model-based RL 见 [CS224R 的 mbrl 站](../courses/STANFORD-CS224R.html#mbrl)。
+Clipped double Q 的 overestimation 问题是 CS4246 [第 7 站](../courses/CS4246.html#fa) deadly triad 的延续。“只有 demonstration、不能再采”的极端情形是[第 5 站](#offline)。SERL 那种 success classifier 当 reward 会被 policy 钻空子、VICE 怎么补救，见 [CS224R 的 reward 站](../courses/STANFORD-CS224R.html#reward)；Dyna 式的 model-based RL 见 [CS224R 的 mbrl 站](../courses/STANFORD-CS224R.html#mbrl)。
 :::
 
 :::from

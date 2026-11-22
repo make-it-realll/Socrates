@@ -150,7 +150,7 @@ $D=I$ 是 Levenberg 的写法，$D=\mathrm{diag}(J^\top J)$ 是 Marquardt 的。
 | [MA2101 第 8 站](../courses/MA2101.html#inner) | orthogonal projection、best approximation | $u\in U$ | $U$ 的 basis $f_j$ | $v$ | inner product 自带 | Gram matrix $\langle f_j,f_k\rangle$ |
 | [ST3131 第 3 站](../courses/ST3131.html#mlr) | OLS、hat matrix | $\beta$ | design matrix $X$ | $y$ | $I$（noise 是 $\sigma^2I$） | $X^\top X$，$\sigma^2(X^\top X)^{-1}=\text{Cov}(\hat\beta)$ |
 | [CS3244 第 3 站](../courses/CS3244.html#reg) | MLE、MAP、ridge、lasso | $w$ | $X$ 下面叠 $\sqrt\lambda I$ | $y$ 下面叠 0 | $I$ | $X^\top X+\lambda I$ |
-| [CS3264 第 6 站](../courses/CS3264.html#kernel) | kernel ridge regression | $\alpha$，$w=\sum_i\alpha_i\phi(x_i)$ | Gram matrix $K$ | $y$ | $I$ | 解 $\alpha$ 用 $K+\lambda mI$ |
+| [CS3264 第 16 站](../courses/CS3264.html#kernel) | kernel ridge regression | $\alpha$，$w=\sum_i\alpha_i\phi(x_i)$ | Gram matrix $K$ | $y$ | $I$ | 解 $\alpha$ 用 $K+\lambda mI$ |
 | [CS4278 第 2 站](../courses/CS4278.html#kf)、[RB3302 第 5 站](../courses/RB3302.html#loc) | Kalman filter、EKF | state $x$，记 mean $\mu$ | $C$；EKF 里是 Jacobian $H$ | $z$ | $R^{-1}$，prior 的 row 是 $\bar P^{-1}$ | $P^{-1}=\bar P^{-1}+C^\top R^{-1}C$ |
 | [CS4278 第 4 站](../courses/CS4278.html#slam)、[RB3302 第 6 站](../courses/RB3302.html#map) | graph SLAM、pose graph | 所有 pose | $J_{ij}$ | $-e_{ij}$ | information $\Omega_{ij}$ | $H=\sum J_{ij}^\top\Omega_{ij}J_{ij}$ |
 | [CS4277 第 7 站](../courses/CS4277.html#ba) | bundle adjustment | camera pose 与 3D 点 | $J=\partial r/\partial x$ | $-r$ | 通常是 $I$ | $J^\top J=\begin{pmatrix}U&W\\W^\top&V\end{pmatrix}$ |
@@ -238,7 +238,7 @@ $$\hat x=\frac1{24}\begin{pmatrix}15&-6\\-6&4\end{pmatrix}\begin{pmatrix}5\\11\e
 $C$ 从 0.667 缩到 0.375，$D$ 却从 0.5 涨到 0.583。缩小的是 norm 的 square：0.694 变成 0.481。$A$ 的两个 column $\mathbf 1$ 和 $t$ 不 perpendicular，$C$ 被压低之后，line 要靠更大的 slope 去够那几个点。只有 $A^\top A$ 是 diagonal 时，每个 coordinate 才按同一个比例缩小（CS3244 那一站 orthonormal 的情形 $z/(1+\lambda)$）。实际做 regression 时通常不 penalize intercept：先减去 mean 消掉 $C$，只对 $D$ 加 penalty，$D=S_{ty}/(S_{tt}+\lambda)=1/3$，这才是往 0 缩。
 :::
 
-[CS3264 第 6 站](../courses/CS3264.html#kernel)的 kernel ridge regression 解的是 $\alpha=(K+\lambda mI)^{-1}y$，$m$ 个 unknown，不管 feature space 有多少个 dimension。它和 ridge 的关系是一个 identity。对任意 $A$ 和 $\lambda>0$，
+[CS3264 第 16 站](../courses/CS3264.html#kernel)的 kernel ridge regression 解的是 $\alpha=(K+\lambda mI)^{-1}y$，$m$ 个 unknown，不管 feature space 有多少个 dimension。它和 ridge 的关系是一个 identity。对任意 $A$ 和 $\lambda>0$，
 
 $$(A^\top A+\lambda I)A^\top=A^\top AA^\top+\lambda A^\top=A^\top(AA^\top+\lambda I)$$
 
@@ -280,7 +280,7 @@ $$K=Pc^\top(cPc^\top+R)^{-1}$$
 
 最后，$P_{\text{new}}=P_{\text{new}}P^{-1}P=(I-Kc)P$。CS4278 的三个 formula（gain、mean 的 update、$P=(I-KC)\bar P$）就是多了一个 row 的 normal equations，一次只解多出来的那一部分。State 不随时间变的时候，Kalman filter 就是 recursive least squares。
 
-在两边各算一遍。**先用 CS3264 的数。** [CS3264 第 7 站](../courses/CS3264.html#prob)对 $x=(1,2,3)$、$y=(1,2,2)$、prior $w\sim N(0,1)$、$\sigma^2=0.25$ 一次算出 posterior：precision 57，mean $\tfrac{44}{57}=0.7719$。现在把三个 row 一个一个喂给 Kalman filter：
+在两边各算一遍。**先用 CS3264 的数。** [CS3264 第 2 站](../courses/CS3264.html#prob)对 $x=(1,2,3)$、$y=(1,2,2)$、prior $w\sim N(0,1)$、$\sigma^2=0.25$ 一次算出 posterior：precision 57，mean $\tfrac{44}{57}=0.7719$。现在把三个 row 一个一个喂给 Kalman filter：
 
 | 第几个 row | $x_i$ | $S=x_i^2P+0.25$ | $K=x_iP/S$ | innovation $y_i-x_i\mu$ | $\mu$ | $P$ | $1/P$ |
 |---|---|---|---|---|---|---|---|

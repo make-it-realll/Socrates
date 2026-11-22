@@ -219,7 +219,7 @@ Linearization 只管 equilibrium 附近。离得远时 $F$ 可能已经饱和、
 
 ### LSM2234 与 LSM2213：cell 和 hormone 里的 loop
 
-[LSM2234 第 3 站](../courses/LSM2234.html#gene)：没有 regulation 时 protein 的 response time 只由 dilution rate $\alpha$ 决定，强 promoter 也快不了；自己 repress 自己以后，$t_{1/2}$ 从 $0.693/\alpha$ 缩到 $0.147/\alpha$。[第 4 站](../courses/LSM2234.html#switch)的 toggle switch 是两个 repression 串成的 loop，两个负号相乘，是 positive feedback。[LSM2213 第 7 站](../courses/LSM2213.html#emotion)的 HPA model $\tau\dot g=s-(1+k)g$ 一字不差就是骨架：level 是 $s/(1+k)$，time constant 是 $\tau/(1+k)$，$k$ 就是 $L$；glucocorticoid cascade hypothesis 说长期的高 cortisol 让 $k$ 变小，是一个更慢的 positive feedback 在侵蚀 negative feedback。[第 2 站](../courses/LSM2213.html#spike)的 threshold 来自 $\mathrm{Na^+}$ 的 positive feedback：depolarization 打开 channel，channel 让 depolarization 更大。三处的对应在[桥一](#bridge1)和[桥二](#bridge2)。
+[LSM2234 第 11 站](../courses/LSM2234.html#gene)：没有 regulation 时 protein 的 response time 只由 dilution rate $\alpha$ 决定，强 promoter 也快不了；自己 repress 自己以后，$t_{1/2}$ 从 $0.693/\alpha$ 缩到 $0.147/\alpha$。[第 12 站](../courses/LSM2234.html#switch)的 toggle switch 是两个 repression 串成的 loop，两个负号相乘，是 positive feedback。[LSM2213 第 7 站](../courses/LSM2213.html#emotion)的 HPA model $\tau\dot g=s-(1+k)g$ 一字不差就是骨架：level 是 $s/(1+k)$，time constant 是 $\tau/(1+k)$，$k$ 就是 $L$；glucocorticoid cascade hypothesis 说长期的高 cortisol 让 $k$ 变小，是一个更慢的 positive feedback 在侵蚀 negative feedback。[第 2 站](../courses/LSM2213.html#spike)的 threshold 来自 $\mathrm{Na^+}$ 的 positive feedback：depolarization 打开 channel，channel 让 depolarization 更大。三处的对应在[桥一](#bridge1)和[桥二](#bridge2)。
 
 ### EC1101E 与 GE1101E：market 的 integrator 与 positive feedback
 

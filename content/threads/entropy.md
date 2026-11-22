@@ -110,7 +110,7 @@ $$\mathbb E_q[f]-D(q\|p_0)=\ln Z-D(q\|q^*)$$
 
 $$\mathbb E_q[r]-\beta D(q\|\pi_{\text{ref}})=\beta\ln Z-\beta D(q\|\pi^*),\qquad\pi^*=\frac{\pi_{\text{ref}}\,e^{r/\beta}}{Z}$$
 
-这是 RLHF 的 objective 和它的 optimal policy，[CS4248 第 8 站](../courses/CS4248.html#post)、[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)、[BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#llm)各推了一遍。
+这是 RLHF 的 objective 和它的 optimal policy，[CS4248 第 8 站](../courses/CS4248.html#post)、[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)、[BERKELEY-CS285 第 10 站](../courses/BERKELEY-CS285.html#llm)各推了一遍。
 
 **Likelihood。** 把 $x$ 换成 latent $z$，$p_0=p(z)$ 是 prior，$f(z)=\ln p(x\mid z)$。于是 $Z=\sum_zp(z)\,p(x\mid z)=p(x)$ 是 evidence，$q^*(z)=p(z)\,p(x\mid z)/p(x)=p(z\mid x)$ 是 posterior，identity 变成
 
@@ -146,9 +146,9 @@ Penalty 是 reverse 方向的 $D(\pi\|\pi_{\text{ref}})$，它不阻止 $\pi$ �
 | [CS3244 第 7 站](../courses/CS3244.html#em) | ELBO（用 Jensen 推出） | $\mathcal F(q,\theta)$，$r_{nj}$ | $e$ | 骨架二；桥 3 |
 | [CORNELL-CS5788 第 1、2 站](../courses/CORNELL-CS5788.html#vae)、[MIT-6.S978 第 2 站](../courses/MIT-6.S978.html#vae) | forward 与 reverse KL、ELBO | $D_{\text{KL}}(p^*\Vert p_\theta)$，$q(z\mid x)$ | $e$ | 骨架一、二 |
 | [MIT-6.S184 第 7 站](../courses/MIT-6.S184.html#arch) | VAE 的 KL term、rate–distortion | $\beta\,D_{\text{KL}}(q_\phi\Vert N(0,I))$ | $e$ | 桥 4 |
-| [CS4248 第 8 站](../courses/CS4248.html#post)、[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)、[BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#llm) | KL penalty、KL-regularized objective | $\beta\,\mathrm{KL}(\pi\Vert\pi_{\text{ref}})$，$\pi^*$，$Z$ | $e$ | 骨架二；桥 5 |
-| [BERKELEY-CS285 第 5 站](../courses/BERKELEY-CS285.html#trpo) | KL constraint、Fisher information matrix | $\mathrm{KL}\le\epsilon$，$F$ | $e$ | 桥 2 |
-| [BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#llm)、[MODERN-RL 第 7 站](../courses/MODERN-RL.html#debug) | KL estimator、approx_kl | $k_1$，$k_3$；$\Delta$，$\rho$ | $e$ | 桥 6 |
+| [CS4248 第 8 站](../courses/CS4248.html#post)、[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)、[BERKELEY-CS285 第 10 站](../courses/BERKELEY-CS285.html#llm) | KL penalty、KL-regularized objective | $\beta\,\mathrm{KL}(\pi\Vert\pi_{\text{ref}})$，$\pi^*$，$Z$ | $e$ | 骨架二；桥 5 |
+| [BERKELEY-CS285 第 6 站](../courses/BERKELEY-CS285.html#trpo) | KL constraint、Fisher information matrix | $\mathrm{KL}\le\epsilon$，$F$ | $e$ | 桥 2 |
+| [BERKELEY-CS285 第 10 站](../courses/BERKELEY-CS285.html#llm)、[MODERN-RL 第 7 站](../courses/MODERN-RL.html#debug) | KL estimator、approx_kl | $k_1$，$k_3$；$\Delta$，$\rho$ | $e$ | 桥 6 |
 | [NYU-REASONERS 第 6 站](../courses/NYU-REASONERS.html#distill) | distillation、SFT on teacher traces | $H(q)+\mathrm{KL}(q\Vert\pi_\theta)$ | $e$ | 骨架一，teacher 是 $p$ |
 
 同一个字母在不同课里指不同的东西。$q$ 在 CS3236 和这一页是 model（code），在 CS5788、6.S978、6.S184 是 encoder 给出的 approximate posterior，在 NYU-REASONERS 是 teacher。$p$ 在 CS3244 第 6 站是 softmax 的 output，也就是这一页的 $q$。$H$ 在 CS2109S 是 binary entropy function $H(p)$，argument 是一堆邮件里 + 的比例；在 CS3236 写成 random variable 的 $H(X)$。
@@ -183,7 +183,7 @@ Penalty 是 reverse 方向的 $D(\pi\|\pi_{\text{ref}})$，它不阻止 $\pi$ �
 
 CS4248、MODERN-RL、CS285 都推出了 $\pi^*\propto\pi_{\text{ref}}e^{r/\beta}$。DPO 把它倒过来：$r=\beta\ln\frac{\pi^*}{\pi_{\text{ref}}}+\beta\ln Z$。用 Bayes 的读法，这一行是 Bayes' rule 倒过来写：likelihood 等于 evidence 乘 posterior 再除以 prior，$\ln Z$ 是 log evidence（差一个 constant $r_{\max}/\beta$）。Bradley–Terry 只看两个回答的 reward 之差，evidence 在差里消掉，所以 DPO 不需要算 $Z$。[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)引的 InstructGPT 把 KL penalty 拆到每个 token 上当 negative reward，依据是 $\ln\pi(y\mid x)=\sum_t\ln\pi(y_t\mid x,y_{<t})$：整条回答的 log-ratio 是每个 token 的 log-ratio 之和，对 $\pi$ 取 expectation 就是 KL 的 chain rule，和 [CS3236 第 3 站](../courses/CS3236.html#mi)的 entropy chain rule 一样逐项拆开。
 
-[CS285 第 5 站](../courses/BERKELEY-CS285.html#trpo)用 KL 约束一次 update 的大小，并由 KL 的 second-order expansion 得到 Fisher matrix，第 2 座桥把它接到 ST2132。[CS285 第 8 站](../courses/BERKELEY-CS285.html#offline)的 AWR 是骨架二把 $r$ 换成 advantage $A$、把 $\pi_{\text{ref}}$ 换成 behavior policy $\pi_\beta$；它接着用 forward KL 把 $\pi^*$ project 到 parametric policy 上，这一步是骨架一：weighted MLE。[RB4301 第 2 站](../courses/RB4301.html#ac)的 SAC 把 policy 推向 $\exp(Q/\alpha)/Z$，是骨架二取 $p_0$ 为 uniform：最大化 $\mathbb E_\pi[Q]+\alpha\mathcal H(\pi)$，最大值是 soft value $\alpha\log\sum_a\exp(Q/\alpha)$，也就是 $\alpha\ln Z$ 加上 constant $\alpha\ln|\mathcal A|$。[STANFORD-CS336 第 10 站](../courses/STANFORD-CS336.html#align)的 A5 不加 KL，只在 lecture 16 的 PPO 里出现按 token 计的 penalty。[NYU-REASONERS 第 6 站](../courses/NYU-REASONERS.html#distill)指出 SFT on teacher traces 在 minimize forward 的 $\mathrm{KL}(q\|\pi_\theta)$：teacher 是骨架一里的 $p$，student 必须盖住 teacher 会写的每一种 trace；RL 的 KL penalty 是 reverse 方向，允许 policy 放弃一部分。
+[CS285 第 6 站](../courses/BERKELEY-CS285.html#trpo)用 KL 约束一次 update 的大小，并由 KL 的 second-order expansion 得到 Fisher matrix，第 2 座桥把它接到 ST2132。[CS285 第 12 站](../courses/BERKELEY-CS285.html#offline)的 AWR 是骨架二把 $r$ 换成 advantage $A$、把 $\pi_{\text{ref}}$ 换成 behavior policy $\pi_\beta$；它接着用 forward KL 把 $\pi^*$ project 到 parametric policy 上，这一步是骨架一：weighted MLE。[RB4301 第 2 站](../courses/RB4301.html#ac)的 SAC 把 policy 推向 $\exp(Q/\alpha)/Z$，是骨架二取 $p_0$ 为 uniform：最大化 $\mathbb E_\pi[Q]+\alpha\mathcal H(\pi)$，最大值是 soft value $\alpha\log\sum_a\exp(Q/\alpha)$，也就是 $\alpha\ln Z$ 加上 constant $\alpha\ln|\mathcal A|$。[STANFORD-CS336 第 10 站](../courses/STANFORD-CS336.html#align)的 A5 不加 KL，只在 lecture 16 的 PPO 里出现按 token 计的 penalty。[NYU-REASONERS 第 6 站](../courses/NYU-REASONERS.html#distill)指出 SFT on teacher traces 在 minimize forward 的 $\mathrm{KL}(q\|\pi_\theta)$：teacher 是骨架一里的 $p$，student 必须盖住 teacher 会写的每一种 trace；RL 的 KL penalty 是 reverse 方向，允许 policy 放弃一部分。
 
 ## 课程页里没有写的六座桥
 
@@ -213,7 +213,7 @@ Mendel 的 556 粒豌豆：$D=0.000556$ nat，乘 $2n=1112$ 得 0.618，就是�
 
 $$D\big(p_{\hat\theta}\,\|\,p_{\theta_0}\big)\approx\tfrac12\,I(\theta_0)\,(\hat\theta-\theta_0)^2$$
 
-Bernoulli 在 0.5 处 $I=4$，$\tfrac12\times4\times0.1452^2=0.0421$，乘 248 得 10.45。[CS285 第 5 站](../courses/BERKELEY-CS285.html#trpo)推 natural gradient 时写的 $\mathrm{KL}(\pi_\theta\|\pi_{\theta+\Delta})\approx\tfrac12\Delta^\top F\Delta$ 是同一个 expansion，只是 parameter 是一个很长的 vector，$F$ 是 Fisher information matrix。Pearson 的 $X^2$ 是同一件事的另一种 second-order approximation：$D(\hat p\|p)\approx\tfrac12\sum_j(\hat p_j-p_j)^2/p_j=X^2/(2n)$，Mendel 的 $X^2=0.604$ 对 $-2\ln\Lambda=0.618$。
+Bernoulli 在 0.5 处 $I=4$，$\tfrac12\times4\times0.1452^2=0.0421$，乘 248 得 10.45。[CS285 第 6 站](../courses/BERKELEY-CS285.html#trpo)推 natural gradient 时写的 $\mathrm{KL}(\pi_\theta\|\pi_{\theta+\Delta})\approx\tfrac12\Delta^\top F\Delta$ 是同一个 expansion，只是 parameter 是一个很长的 vector，$F$ 是 Fisher information matrix。Pearson 的 $X^2$ 是同一件事的另一种 second-order approximation：$D(\hat p\|p)\approx\tfrac12\sum_j(\hat p_j-p_j)^2/p_j=X^2/(2n)$，Mendel 的 $X^2=0.604$ 对 $-2\ln\Lambda=0.618$。
 
 ::fig[thread-entropy-kiss] $\hat p$ 离 0.5 越远，second-order expansion 低估得越多；在 kiss data 的 0.645 处只差 1.4%。
 
@@ -249,7 +249,7 @@ $$\mathbb E_x\,D\big(q(z\mid x)\|p(z)\big)=\mathbb E_x\sum_zq(z\mid x)\Big[\ln\f
 
 ### 桥 5：KL-regularized RL 是一次 Bayes update，KL 是成功的 self-information
 
-[CS285 第 6 站](../courses/BERKELEY-CS285.html#llm)的例子：三个 completion，$\pi_{\text{ref}}=(0.7,0.2,0.1)$，reward $(0,1,1)$。那一站观察到 $\beta\to0$ 时 KL 趋于 $-\ln0.3=1.204$，“把 $\pi_{\text{ref}}$ 在 reward 为 1 的那部分放大成全部”。
+[CS285 第 10 站](../courses/BERKELEY-CS285.html#llm)的例子：三个 completion，$\pi_{\text{ref}}=(0.7,0.2,0.1)$，reward $(0,1,1)$。那一站观察到 $\beta\to0$ 时 KL 趋于 $-\ln0.3=1.204$，“把 $\pi_{\text{ref}}$ 在 reward 为 1 的那部分放大成全部”。
 
 按骨架二的 likelihood 读法：$p(O=1\mid y)=e^{(r(y)-1)/\beta}$，$\beta\to0$ 时它变成“reward 为 1”这个 event 的 indicator，posterior 就是 $\pi_{\text{ref}}$ 在 event $A=\{r=1\}$ 上的 conditional distribution $(0,\tfrac23,\tfrac13)$。对一个 event 做 conditioning，KL 是
 
@@ -267,7 +267,7 @@ $$\frac{d\,\mathbb E_{\pi^*}[r]}{d\,\mathrm{KL}}=\frac{A''(\lambda)}{\lambda A''
 
 ### 桥 6：k3 estimator 是 Gibbs inequality proof 里的 slack
 
-[CS285 第 6 站](../courses/BERKELEY-CS285.html#llm)和 [MODERN-RL 第 7 站](../courses/MODERN-RL.html#debug)用 sample 估 $\mathrm{KL}(\pi_\theta\|\pi_{\text{ref}})$：$a\sim\pi_\theta$，$\rho=\pi_{\text{ref}}(a)/\pi_\theta(a)$，$k_1=-\ln\rho$，$k_3=(\rho-1)-\ln\rho$。（MODERN-RL 估的是新旧 policy 之间的 KL，sample 来自旧 policy，$\rho$ 是新比旧，结构相同。）两站的理由是 $\mathbb E[\rho]=1$，所以 $k_3$ 和 $k_1$ 的 mean 相同，而 $\ln\rho\le\rho-1$ 让 $k_3\ge0$。
+[CS285 第 10 站](../courses/BERKELEY-CS285.html#llm)和 [MODERN-RL 第 7 站](../courses/MODERN-RL.html#debug)用 sample 估 $\mathrm{KL}(\pi_\theta\|\pi_{\text{ref}})$：$a\sim\pi_\theta$，$\rho=\pi_{\text{ref}}(a)/\pi_\theta(a)$，$k_1=-\ln\rho$，$k_3=(\rho-1)-\ln\rho$。（MODERN-RL 估的是新旧 policy 之间的 KL，sample 来自旧 policy，$\rho$ 是新比旧，结构相同。）两站的理由是 $\mathbb E[\rho]=1$，所以 $k_3$ 和 $k_1$ 的 mean 相同，而 $\ln\rho\le\rho-1$ 让 $k_3\ge0$。
 
 把骨架一的 Gibbs proof 用在 $p=\pi_\theta$、$q=\pi_{\text{ref}}$ 上。第一个 $\le$ 逐项用的正是 $\ln\rho\le\rho-1$，每一项的 slack $\pi_\theta(a)\big[(\rho-1)-\ln\rho\big]$ 就是 $k_3$ 乘上它被 sample 到的 probability；第二个 $\le$ 的 slack 是 $1-\sum_{a\in S}\pi_{\text{ref}}(a)$，$S$ 是 $\pi_\theta$ 的 support。$D$ 等于两个 slack 之和，所以
 

@@ -107,9 +107,9 @@ $$\overline{\mathrm{bel}}(x_t)=\sum_{x_{t-1}}P(x_t\mid x_{t-1},z_{0:t-1})\,P(x_{
 
 $$P(x_2,z_{0:2})=\sum_{x_1}\sum_{x_0}P(x_0)\,p(z_0\mid x_0)\,p(x_1\mid x_0)\,p(z_1\mid x_1)\,p(x_2\mid x_1)\,p(z_2\mid x_2)$$
 
-只有前三个 factor 含 $x_0$，先对 $x_0$ 求和：$\sum_{x_0}P(x_0)\,p(z_0\mid x_0)\,p(x_1\mid x_0)$ 是 $x_1$ 的 function，正比于 $\overline{\mathrm{bel}}(x_1)$，这是第一次 predict；乘上 $p(z_1\mid x_1)$ 是 update；再对 $x_1$ 求和是下一次 predict。Bayes filter 就是把这个 nested sum 从里往外做，每次只消掉一个 variable，也就是 [CS3263 第 5 站](../courses/CS3263.html#ve)的 variable elimination。Corridor 上每一步的 predict 对每格加 3 项，update 乘 10 次，与 $t$ 无关。8 步做完，第 8 格是 0.5631；把 65,610 条 path 逐条算出来再加，得到同一个数。
+只有前三个 factor 含 $x_0$，先对 $x_0$ 求和：$\sum_{x_0}P(x_0)\,p(z_0\mid x_0)\,p(x_1\mid x_0)$ 是 $x_1$ 的 function，正比于 $\overline{\mathrm{bel}}(x_1)$，这是第一次 predict；乘上 $p(z_1\mid x_1)$ 是 update；再对 $x_1$ 求和是下一次 predict。Bayes filter 就是把这个 nested sum 从里往外做，每次只消掉一个 variable，也就是 [CS3263 第 6 站](../courses/CS3263.html#ve)的 variable elimination。Corridor 上每一步的 predict 对每格加 3 项，update 乘 10 次，与 $t$ 无关。8 步做完，第 8 格是 0.5631；把 65,610 条 path 逐条算出来再加，得到同一个数。
 
-Predict 和 update 对 belief 的作用相反。Predict 里每个 $\overline{\mathrm{bel}}(x_t)$ 是若干个 $\mathrm{bel}(x_{t-1})$ 的 weighted average，不会超过其中最大的那个，所以 belief 只会变平：corridor 第一次读数后最高是 0.1875，predict 之后降到 0.175。一直 predict 而不 update，belief 走向 motion model 的 stationary distribution，原来知道的全部忘掉（[CS3263 第 6 站](../courses/CS3263.html#hmm)的天气，几天之后只剩“八成下雨”）。Update 乘 likelihood，让 belief 变尖。后面 DSE4211 和 EE4706 两节会看到，predict 的这种遗忘正是那两门课各自用别的办法补上的东西。
+Predict 和 update 对 belief 的作用相反。Predict 里每个 $\overline{\mathrm{bel}}(x_t)$ 是若干个 $\mathrm{bel}(x_{t-1})$ 的 weighted average，不会超过其中最大的那个，所以 belief 只会变平：corridor 第一次读数后最高是 0.1875，predict 之后降到 0.175。一直 predict 而不 update，belief 走向 motion model 的 stationary distribution，原来知道的全部忘掉（[CS3263 第 9 站](../courses/CS3263.html#hmm)的天气，几天之后只剩“八成下雨”）。Update 乘 likelihood，让 belief 变尖。后面 DSE4211 和 EE4706 两节会看到，predict 的这种遗忘正是那两门课各自用别的办法补上的东西。
 
 ### Belief 存成什么
 
@@ -132,11 +132,11 @@ Recursion 有了，可 $\mathrm{bel}$ 是整个 distribution。怎么存它，�
 | [MIH1101 第 3 站](../courses/MIH1101.html#confound) | crude rate、standardization | age group | $\sum_kw_kr_k$ | 只用到 denominator 那一步 |
 | [LSM2105 第 3 站](../courses/LSM2105.html#mendel)、[LSM2107 第 2 站](../courses/LSM2107.html#hw) | pedigree、carrier probability | genotype | $P(\text{II-2 是 }Aa)=\tfrac23$ | likelihood 只取 0 和 1；prior 来自 Hardy–Weinberg |
 | [ST2132 第 7 站](../courses/ST2132.html#test)、[PL1101E 第 1 站](../courses/PL1101E.html#method) | p-value、power、$P(H_0\mid\text{data})$ | effect 是否存在 | $\pi=P(H_0)$、$\alpha$、power | evidence 是一次 test 的结论 |
-| [CS3264 第 7 站](../courses/CS3264.html#prob)、[CS3236 第 7 站](../courses/CS3236.html#codes) | MAP、Bayesian prediction、ML decoding | parameter $\theta$；codeword $x$ | $p(\theta\mid S)$；$P(x\mid y)\propto p(y\mid x)$ | 拿 posterior 做 decision |
-| [CS3263 第 5 站](../courses/CS3263.html#ve)、[第 6 站](../courses/CS3263.html#hmm) | forward algorithm、time elapse、observation update、likelihood weighting | $W_t$ | $B(W_t)$、$B'(W_t)$ | Bayesian network 的结构；sampling |
+| [CS3264 第 2 站](../courses/CS3264.html#prob)、[CS3236 第 8 站](../courses/CS3236.html#codes) | MAP、Bayesian prediction、ML decoding | parameter $\theta$；codeword $x$ | $p(\theta\mid S)$；$P(x\mid y)\propto p(y\mid x)$ | 拿 posterior 做 decision |
+| [CS3263 第 6 站](../courses/CS3263.html#ve)、[第 9 站](../courses/CS3263.html#hmm) | forward algorithm、time elapse、observation update、likelihood weighting | $W_t$ | $B(W_t)$、$B'(W_t)$ | Bayesian network 的结构；sampling |
 | [CS4278 第 1–3 站](../courses/CS4278.html#bayes)、[RB3302 第 5 站](../courses/RB3302.html#loc) | Bayes filter、histogram / Kalman / particle filter、Markov localization | pose $x_t$ | $\mathrm{bel}$、$\overline{\mathrm{bel}}$、$\eta$、$K$、$\bar P$、$Q$、$R$ | 三种存法；EKF；resampling |
 | [EE4706 第 3 站](../courses/EE4706.html#nav)、[CS4278 第 4 站](../courses/CS4278.html#slam) | occupancy grid、binary Bayes filter、inverse sensor model | cell 是否 occupied | $l_t$ 或 $\ell_t$、$l_0$ | log-odds；clamping |
-| [CS4246 第 3 站](../courses/CS4246.html#pomdp)、[CS4278 第 6 站](../courses/CS4278.html#pomdp) | belief state、belief MDP、DESPOT | state $s$ | $b(s)$、$O(o\mid s',a)$ | action 决定能看到什么 |
+| [CS4246 第 4 站](../courses/CS4246.html#pomdp)、[CS4278 第 6 站](../courses/CS4278.html#pomdp) | belief state、belief MDP、DESPOT | state $s$ | $b(s)$、$O(o\mid s',a)$ | action 决定能看到什么 |
 | [STANFORD-CS237B 第 5 站](../courses/STANFORD-CS237B.html#pref)、[第 7 站](../courses/STANFORD-CS237B.html#shared) | Bayesian update、intent inference | reward weight $w$；goal $g$ | $p(w\mid\text{answers})$；$P(g\mid o,a)$ | evidence 来自人的回答和动作 |
 | [DSE4211 第 2 站](../courses/DSE4211.html#garch) | EWMA、GARCH(1,1) | 今天的 variance | $\tilde\sigma_t^2$、$\sigma_t^2$、$\lambda$ | 课程页没有写成 filter，下面补上 |
 | [MA3270 第 4 站](../courses/MA3270.html#sample) | MCMC、Metropolis | parameter | $\tilde p$、$Z$ | normalizer 算不出来 |
@@ -227,9 +227,9 @@ Ioannidis 2005 年那篇 “Why most published research findings are false” �
 
 Posterior 有了，还要从中拿出一个答案。
 
-[CS3236 第 7 站](../courses/CS3236.html#codes)在 BSC 上 decode：要 error probability 最小，就选 posterior $P(x\mid y)$ 最大的 codeword（MAP）。Message uniform 时 prior 是 constant，MAP 就是 maximum likelihood，BSC 上又等于 minimum distance。Prior 不 uniform 时，log posterior 是 $\ln P(x)+\ln p(y\mid x)$，出发点不同，结论会变，和 breathalyzer 一样。
+[CS3236 第 8 站](../courses/CS3236.html#codes)在 BSC 上 decode：要 error probability 最小，就选 posterior $P(x\mid y)$ 最大的 codeword（MAP）。Message uniform 时 prior 是 constant，MAP 就是 maximum likelihood，BSC 上又等于 minimum distance。Prior 不 uniform 时，log posterior 是 $\ln P(x)+\ln p(y\mid x)$，出发点不同，结论会变，和 breathalyzer 一样。
 
-[CS3264 第 7 站](../courses/CS3264.html#prob)对比两种用法。MAP 取 posterior 的 mode，uniform prior 下就是 MLE，一直看到 0 时给出 $\hat\theta=0$。Bayesian prediction 对 posterior 平均，得到 $(k+1)/(m+2)$，即 Laplace smoothing，和 ST2131 里 Beta$(1,1)$ 看到 4 次里 3 次 head 之后的 $\tfrac46$ 是同一个式子。同一站的 LDA 是 odds 形式的另一个用法：两个 class 共用 covariance 时 $\ln\text{LR}=w^\top x+b$ 是 $x$ 的 linear function，posterior 的 log-odds 也就是 linear 的，换回 probability 正好是 logistic regression。
+[CS3264 第 4 站](../courses/CS3264.html#nb)对比两种用法。MAP 取 posterior 的 mode，uniform prior 下就是 MLE，一直看到 0 时给出 $\hat\theta=0$。Bayesian prediction 对 posterior 平均，得到 $(k+1)/(m+2)$，即 Laplace smoothing，和 ST2131 里 Beta$(1,1)$ 看到 4 次里 3 次 head 之后的 $\tfrac46$ 是同一个式子。同一站的 LDA 是 odds 形式的另一个用法：两个 class 共用 covariance 时 $\ln\text{LR}=w^\top x+b$ 是 $x$ 的 linear function，posterior 的 log-odds 也就是 linear 的，换回 probability 正好是 logistic regression。
 
 ## CS4278 与 RB3302：Kalman gain 就是 Beta 的 weight
 
@@ -275,9 +275,9 @@ Gain 是 data 占的份额，取决于 prior 已经有多少 information。ST213
 
 ## CS3263：particle filter 是带 resampling 的 likelihood weighting
 
-[CS3263 第 6 站](../courses/CS3263.html#hmm)的 forward algorithm 就是 Bayes filter，换了名字：time elapse $B'(W_{t+1})=\sum_wP(W_{t+1}\mid w)\,B(w)$ 是 predict，observation update $B(W_{t+1})\propto P(f_{t+1}\mid W_{t+1})\,B'(W_{t+1})$ 是 update。CS4278 的 histogram filter 是 state 有 10 个的 HMM。CS3263 还把 HMM 画成一个按时间展开的 Bayesian network：$W_0\to W_1\to W_2\to\cdots$，每个 $W_t$ 下面挂一个 evidence $F_t$。
+[CS3263 第 9 站](../courses/CS3263.html#hmm)的 forward algorithm 就是 Bayes filter，换了名字：time elapse $B'(W_{t+1})=\sum_wP(W_{t+1}\mid w)\,B(w)$ 是 predict，observation update $B(W_{t+1})\propto P(f_{t+1}\mid W_{t+1})\,B'(W_{t+1})$ 是 update。CS4278 的 histogram filter 是 state 有 10 个的 HMM。CS3263 还把 HMM 画成一个按时间展开的 Bayesian network：$W_0\to W_1\to W_2\to\cdots$，每个 $W_t$ 下面挂一个 evidence $F_t$。
 
-[CS3263 第 5 站](../courses/CS3263.html#ve)的 likelihood weighting 用在这个展开的 network 上：按 topological order 从 CPT 抽 non-evidence variable，即从 $P(W_t\mid W_{t-1})$ 抽 $W_t$，这正是 particle 的 predict；evidence 固定为观测到的值，weight 是每个 evidence 的 CPT 在 sample 上的值之积，$F_t$ 的 parent 只有 $W_t$，所以
+[CS3263 第 6 站](../courses/CS3263.html#ve)的 likelihood weighting 用在这个展开的 network 上：按 topological order 从 CPT 抽 non-evidence variable，即从 $P(W_t\mid W_{t-1})$ 抽 $W_t$，这正是 particle 的 predict；evidence 固定为观测到的值，weight 是每个 evidence 的 CPT 在 sample 上的值之积，$F_t$ 的 parent 只有 $W_t$，所以
 
 $$w=\prod_{t}P(f_t\mid w_t)$$
 
@@ -303,7 +303,7 @@ $$l_t=l_{t-1}+l\big(p(m\mid z_t)\big)-l_0$$
 
 这里 likelihood ratio 是用 inverse sensor model 换出来的：$\dfrac{p(z_t\mid m)}{p(z_t\mid\neg m)}=\dfrac{p(m\mid z_t)}{p(\neg m\mid z_t)}\cdot\dfrac{p(\neg m)}{p(m)}$，取 log 就是后两项。Hit 一次 step 是 $\ln\tfrac{0.7}{0.3}=0.847$，miss 一次是 $\ln\tfrac{0.4}{0.6}=-0.405$。
 
-[CS4246 第 3 站](../courses/CS4246.html#pomdp)的 Tiger 也是一个 binary 的 hidden variable（老虎在左或右），listen 一次听对的 probability 0.85。那一站发现 belief 只取决于“听到左”和“听到右”的次数之差，在 log-odds 上一目了然：每听一次走 $\pm\ln\tfrac{0.85}{0.15}=\pm1.735$。开右门的 threshold $b\ge0.9475$ 换成 log-odds 是 $\ln\tfrac{0.9475}{0.0525}=2.893$，在一步（1.735）和两步（3.469）之间，所以次数之差到 2 才开门，那时 $b=0.9698$。
+[CS4246 第 4 站](../courses/CS4246.html#pomdp)的 Tiger 也是一个 binary 的 hidden variable（老虎在左或右），listen 一次听对的 probability 0.85。那一站发现 belief 只取决于“听到左”和“听到右”的次数之差，在 log-odds 上一目了然：每听一次走 $\pm\ln\tfrac{0.85}{0.15}=\pm1.735$。开右门的 threshold $b\ge0.9475$ 换成 log-odds 是 $\ln\tfrac{0.9475}{0.0525}=2.893$，在一步（1.735）和两步（3.469）之间，所以次数之差到 2 才开门，那时 $b=0.9698$。
 
 ::fig[thread-bayes-update-logodds] 同一条 log-odds 的 line，上面标着对应的 probability。三行分别是 breathalyzer、Tiger 的 listen 和 occupancy cell 的 hit 与 miss：每一份 evidence 是一段固定长度的 step，prior 是出发点。
 
@@ -358,7 +358,7 @@ GARCH(1,1) 是 $\sigma_{t+1}^2=\omega+\alpha r_t^2+\beta\sigma_t^2=\omega+(\alph
 
 ## CS4246 与 CS4278：belief 成了 state
 
-前面的课里 evidence 是被动来的。[CS4246 第 3 站](../courses/CS4246.html#pomdp)让 action 决定能看到什么：listen 花 1，换来一次 $\pm1.735$ 的 step；开门拿 reward，同时把 belief 送回 0.5。Belief update 是带 action 的 Bayes filter，
+前面的课里 evidence 是被动来的。[CS4246 第 4 站](../courses/CS4246.html#pomdp)让 action 决定能看到什么：listen 花 1，换来一次 $\pm1.735$ 的 step；开门拿 reward，同时把 belief 送回 0.5。Belief update 是带 action 的 Bayes filter，
 
 $$b'(s')\ \propto\ O(o\mid s',a)\sum_sP(s'\mid s,a)\,b(s)$$
 

@@ -94,7 +94,7 @@ $$f(n')-f(n)=c(n,n')-h(n)+h(n')\ \ge\ 0$$
 
 $$h^*(n)=\min_{n\to n'}\big[c(n,n')+h^*(n')\big],\qquad h^*(\text{goal})=0$$
 
-这是 [CS4246 第 1 站](../courses/CS4246.html#mdp)的 Bellman optimality equation 在 deterministic、$\gamma=1$、cost 取 min 时的样子。解法也是 [CS4246 第 2 站](../courses/CS4246.html#dp)的 value iteration：$V_0(\text{goal})=0$、其余是 $\infty$，反复做 $V_{k+1}=TV_k$，其中 $(TV)(n)=\min_{n'}[c(n,n')+V(n')]$。
+这是 [CS4246 第 2 站](../courses/CS4246.html#mdp)的 Bellman optimality equation 在 deterministic、$\gamma=1$、cost 取 min 时的样子。解法也是 [CS4246 第 3 站](../courses/CS4246.html#dp)的 value iteration：$V_0(\text{goal})=0$、其余是 $\infty$，反复做 $V_{k+1}=TV_k$，其中 $(TV)(n)=\min_{n'}[c(n,n')+V(n')]$。
 
 ::fig[thread-search-vi] 动图，从 G 往回做 value iteration。第一帧是 converge 之后的 $h^*$；之后从第 0 轮重放，粗线是这一轮每个 state 取到 min 的 edge。
 
@@ -128,11 +128,11 @@ $h=h^*$ 时 A\* 一步冤枉路都不走。可是上面算 $h^*$ 用了 4 轮，
 | [CS2109S 第 2 站](../courses/CS2109S.html#astar) | A\* | node；$g$、$h$、$h^*$ | 同上 | $f=g+h$ | pop 出 goal |
 | [CS2109S 第 3 站](../courses/CS2109S.html#adv) | alpha-beta | game state | 轮流的 move | $\alpha$、$\beta$ | DFS 走完 |
 | [MA3252 第 8 站](../courses/MA3252.html#ip) | branch and bound | subproblem | 在 fractional 的 $x_j$ 上分两支 | LP relaxation 的 value | 没有 bound 超过 incumbent |
-| [CS3263 第 3 站](../courses/CS3263.html#csp) | backtracking | partial assignment | 给下一个 variable 一个 value | 没有，只判断还能不能完成 | 得到 complete assignment |
+| [CS3263 第 4 站](../courses/CS3263.html#csp) | backtracking | partial assignment | 给下一个 variable 一个 value | 没有，只判断还能不能完成 | 得到 complete assignment |
 | [RB3302 第 1 站](../courses/RB3302.html#search) | A\*、weighted A\* | cell $s$；OPEN、CLOSED | 8 个 neighbor | $g(s)+\varepsilon\,h_{\text{oct}}(s)$ | pop 出 goal |
 | [RB3302 第 8 站](../courses/RB3302.html#multi) | CBS 的 high level | CT node：一组 constraint | 一个 conflict 分两支 | sum of costs | pop 出没有 conflict 的 node |
-| [NW-MODERNROBOTICS 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)、[RB3302 第 2 站](../courses/RB3302.html#sample) | RRT、RRT\* | configuration；$c(x)$ | 朝 $x_{\text{samp}}$ 走一步 | 没有，由 sample 决定 extend 谁 | 到达 goal，或 sample 用完 |
-| [CS4246 第 8 站](../courses/CS4246.html#mcts) | MCTS、UCT | tree node；$N$、$W$ | 每次 expand 一个 action | UCT index | budget 用完 |
+| [NW-MODERNROBOTICS 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)、[RB3302 第 2 站](../courses/RB3302.html#sample) | RRT、RRT\* | configuration；$c(x)$ | 朝 $x_{\text{samp}}$ 走一步 | 没有，由 sample 决定 extend 谁 | 到达 goal，或 sample 用完 |
+| [CS4246 第 9 站](../courses/CS4246.html#mcts) | MCTS、UCT | tree node；$N$、$W$ | 每次 expand 一个 action | UCT index | budget 用完 |
 | [NYU-REASONERS 第 3、4 站](../courses/NYU-REASONERS.html#verify) | best-of-N、beam search | 完整的解，或 prefix | LLM sample | verifier $v$、PRM | 写出答案；budget 用完 |
 | [CS3231 第 6、7 站](../courses/CS3231.html#tm) | NTM 的 simulation、dovetailing | ID | $\delta$ 给的 move | depth | accept；可能永远不停 |
 
@@ -249,7 +249,7 @@ Floor 大于 21 的恰好四个：root、$x_3=1$、$x_3=1$ 且 $x_4=1$、$x_3=0$
 
 **Alpha-beta 也是这一种 prune。** [CS2109S 第 3 站](../courses/CS2109S.html#adv)的 $\alpha$ 是 MAX 已经保证拿得到的 value，相当于 incumbent；一个 MIN node 看到第一个 leaf 2 之后，它的 value 不会超过 2，这是这个 subtree 的 bound。$2\le\alpha=3$，subtree 里不可能有比 incumbent 更好的东西，剪掉 4 和 6。区别在于 game tree 里的 bound 来自已经算出的 leaf，而 knapsack 的 bound 来自一个 relaxation。
 
-**Backtracking 是 bound 只有“能”和“不能”两个值的 branch and bound。** [CS3263 第 3 站](../courses/CS3263.html#csp)的 node 是 partial assignment，prune 的条件是它已经不可能完成。Plain backtracking 只有在一个 constraint 两端的 variable 都有了 value 时才发现 conflict，相当于一个很松的 bound；forward checking 和 AC-3 更早发现某个 domain 被删空，相当于更紧的 bound。WA = R、Q = G 那个注定失败的 partial assignment，plain backtracking 要试 111 次 value 才放弃，forward checking 24 次，forward checking 加上 MRV 1 次，AC-3 在第三个 variable 有 value 之前就发现了。这和 CS2109S 里 8-puzzle 的 $h=0$、$h_1$、$h_2$ 要 expand 47,875、3,666、282 个 state 是同一个规律：bound 越紧，剪得越早。
+**Backtracking 是 bound 只有“能”和“不能”两个值的 branch and bound。** [CS3263 第 4 站](../courses/CS3263.html#csp)的 node 是 partial assignment，prune 的条件是它已经不可能完成。Plain backtracking 只有在一个 constraint 两端的 variable 都有了 value 时才发现 conflict，相当于一个很松的 bound；forward checking 和 AC-3 更早发现某个 domain 被删空，相当于更紧的 bound。WA = R、Q = G 那个注定失败的 partial assignment，plain backtracking 要试 111 次 value 才放弃，forward checking 24 次，forward checking 加上 MRV 1 次，AC-3 在第三个 variable 有 value 之前就发现了。这和 CS2109S 里 8-puzzle 的 $h=0$、$h_1$、$h_2$ 要 expand 47,875、3,666、282 个 state 是同一个规律：bound 越紧，剪得越早。
 
 :::from
 Branch and bound 的一般形式、A\* 作为它的特例（Corollary C.2.1）、同一个 tip node 的 path 之间的 dominance 就是 duplicate elimination，来自 [Nau、Kumar、Kanal 1984](https://www.cs.umd.edu/~nau/papers/nau1984general.pdf)（WebFetch 转述）。两列的对照表、knapsack 上 $g$ 与 $h$ 的拆法、17 个 node 的完整 tree 和“floor 大于 21 的恰好四个”是我做的，tree 用分数精确地算过；knapsack 的数据和 MA3252 的 9 个 node 取自 MA3252 页面，alpha-beta、backtracking、8-puzzle 的数字取自 CS2109S 和 CS3263 页面。
@@ -265,7 +265,7 @@ Branch and bound 的一般形式、A\* 作为它的特例（Corollary C.2.1）�
 
 CT node 的 cost 为什么是 lower bound：它是每个 agent 在自己的 constraint 下各走最短 path 的总和，它们忽略了彼此，相当于把“不许撞”这条限制去掉的 relaxed problem。
 
-**Graph 大到列不出来时，successor 只能 sample。** RB3302 算过，7-dof arm 每个 joint 2° 一格是 $180^7=6.1\times10^{15}$ 个 cell。[NW-MODERNROBOTICS 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)的 RRT 改的是 loop 的第 (3) 行和第 (1) 行：successor 是从一个 node 朝随机的 $x_{\text{samp}}$ 走一步 $d$；extend 哪个 node 不由 priority 决定，由“谁离 $x_{\text{samp}}$ 最近”决定，被选中的 probability 正比于它的 Voronoi region 的面积。没有 $f$，P1 无从谈起，所以没有 certificate；tree 只盖住 space 的一部分，P2 也只在 sample 数趋于无穷时以 probability 1 成立，这就是 probabilistically complete。
+**Graph 大到列不出来时，successor 只能 sample。** RB3302 算过，7-dof arm 每个 joint 2° 一格是 $180^7=6.1\times10^{15}$ 个 cell。[NW-MODERNROBOTICS 第 7 站](../courses/NW-MODERNROBOTICS.html#plan)的 RRT 改的是 loop 的第 (3) 行和第 (1) 行：successor 是从一个 node 朝随机的 $x_{\text{samp}}$ 走一步 $d$；extend 哪个 node 不由 priority 决定，由“谁离 $x_{\text{samp}}$ 最近”决定，被选中的 probability 正比于它的 Voronoi region 的面积。没有 $f$，P1 无从谈起，所以没有 certificate；tree 只盖住 space 的一部分，P2 也只在 sample 数趋于无穷时以 probability 1 成立，这就是 probabilistically complete。
 
 **RRT\* 的 choose parent 和 rewire 就是 relax。** [RB3302 第 2 站](../courses/RB3302.html#sample)说 RRT 的 path 跑到第 1000 个 sample 还是 13.48，因为一个 node 加进 tree 时定下 parent 以后就不再改。用 CS2040 的话说：RRT 的 parent 像 BFS 的 $p[v]$，第一次写下、以后不动。BFS 这样做是对的，因为 edge 没有 weight，第一次发现就是最少的 edge 数；有了 weight，就必须 relax。RRT\* 补上的就是 relax：
 
@@ -289,7 +289,7 @@ CBS 的 CT node cost、Lemma 1、Lemma 2 的陈述和 induction、Theorem 1 的�
 
 ## CS4246：只在 probability 意义下成立的 bound
 
-**Admissible 和 UCB 是同一种 optimism。** [CS4246 第 4 站](../courses/CS4246.html#bandit)的 UCB1 和 A\* 在做同一件事：手里有一组 candidate，每个配一个 optimistic estimate，总选看起来最好的那个。差别只在估计从哪里来。
+**Admissible 和 UCB 是同一种 optimism。** [CS4246 第 5 站](../courses/CS4246.html#bandit)的 UCB1 和 A\* 在做同一件事：手里有一组 candidate，每个配一个 optimistic estimate，总选看起来最好的那个。差别只在估计从哪里来。
 
 | | A\*（CS2109S 第 2 站） | UCB1（CS4246 第 4 站） |
 |---|---|---|
@@ -303,7 +303,7 @@ CBS 的 CT node cost、Lemma 1、Lemma 2 的陈述和 induction、Theorem 1 的�
 
 两边的数：A\* 在开头那张 graph 上，S-C（$f=9$）、S-A-B（9）、S-D（11）的 optimistic estimate 都比 $C^*=8$ 差，一次也没被 pop。CS4246 的 3-armed bandit 跑到 $T=20000$，bound 给出 arm 1（$\Delta=0.4$）至多 $8\ln20000/0.16=495$ 次、arm 2（$\Delta=0.2$）至多 1981 次，实测是 107 次和 368 次。Bandit 必须把差的 arm 拉很多次，是因为它的估计只能一次一次变准；A\* 的 $h$ 一开始就给定，不会因为看得多而变紧。
 
-**MCTS 把两者合在一棵 tree 上。** [CS4246 第 8 站](../courses/CS4246.html#mcts)的 UCT 在每个 node 上放一个 bandit，选 child 用 UCB。代价是 P1 只以 probability 成立，而且一个 node 下面的 mean 本身还在变（它下面的 bandit 在学），所以没有“pop 出 goal 就停”的 certificate：只能按 budget 停，最后选被访问次数 $N$ 最大的 child。Coquelin 和 Munos 2007 年指出，UCT 在有些 tree 上“太 optimistic”，worst case 的 regret 是 $O(\exp(\exp(D)))$，$D$ 是 tree 的 depth；他们给的改进之一利用 reward 的 smoothness，以 high confidence 剪掉 suboptimal 的 branch，也就是用统计的 bound 做 branch and bound。
+**MCTS 把两者合在一棵 tree 上。** [CS4246 第 9 站](../courses/CS4246.html#mcts)的 UCT 在每个 node 上放一个 bandit，选 child 用 UCB。代价是 P1 只以 probability 成立，而且一个 node 下面的 mean 本身还在变（它下面的 bandit 在学），所以没有“pop 出 goal 就停”的 certificate：只能按 budget 停，最后选被访问次数 $N$ 最大的 child。Coquelin 和 Munos 2007 年指出，UCT 在有些 tree 上“太 optimistic”，worst case 的 regret 是 $O(\exp(\exp(D)))$，$D$ 是 tree 的 depth；他们给的改进之一利用 reward 的 smoothness，以 high confidence 剪掉 suboptimal 的 branch，也就是用统计的 bound 做 branch and bound。
 
 [CS4278 第 6 站](../courses/CS4278.html#pomdp)的 DESPOT 把 bound 明着写了出来：每个 belief node 维护 upper bound $\mu(b)$ 和 lower bound $\ell(b)$，往下走时选 upper bound 最大的 action，这是 optimism；root 的 gap $\mu(b_0)-\ell(b_0)$ 小于 $\varepsilon_0$ 就停，这是 branch and bound 里“最好的 bound 和 incumbent 之差”。MA3252 的 knapsack 在找到 21 之后，最好的 bound 是 22（floor），gap 是 1；把四个必须 branch 的 node 处理完，gap 变成 0，停。
 
@@ -323,7 +323,7 @@ UCB1 的 index、$N_a\le8\ln t/\Delta_a^2$、bandit 的数字和 UCT 的写法�
 
 **Beam search 是故意丢掉 P2 的 BFS。** [NYU-REASONERS 第 4 站](../courses/NYU-REASONERS.html#search)的 step-level beam search 一层一层往下，每层只留 PRM 分数最高的 $B$ 个 prefix。$B=\infty$ 就是 BFS；$B=1$ 是 greedy，每层只留眼前最好的一个，和 CS2109S 第 3 站的 hill climbing 一样，走错一步就回不来。被丢掉的 prefix 下面的 solution 不再被盖住，所以没有任何保证，好坏全看 PRM 的分数排得对不对。
 
-**Math-Shepherd 的 soft label 就是 flat Monte Carlo。** NYU 第 3 站的 PRM label 是：从第 $t$ 步的 prefix 出发，用一个 completer policy 往下写 $N$ 个 completion，数最终答案对的比例。[CS4246 第 8 站](../courses/CS4246.html#mcts)的 flat Monte Carlo search 是：从 root 的每个 action 出发，用 rollout policy 往下走 $K$ 次，取平均 return。两者是同一个 estimator，估的都是“从这里起、按这个 policy 走下去”的 value；“从这里起、走得最好”的 value 是另一个量，两者只在 policy 已经 optimal 时相等。CS4246 的两层例子可以直接读成两步 reasoning：
+**Math-Shepherd 的 soft label 就是 flat Monte Carlo。** NYU 第 3 站的 PRM label 是：从第 $t$ 步的 prefix 出发，用一个 completer policy 往下写 $N$ 个 completion，数最终答案对的比例。[CS4246 第 9 站](../courses/CS4246.html#mcts)的 flat Monte Carlo search 是：从 root 的每个 action 出发，用 rollout policy 往下走 $K$ 次，取平均 return。两者是同一个 estimator，估的都是“从这里起、按这个 policy 走下去”的 value；“从这里起、走得最好”的 value 是另一个量，两者只在 policy 已经 optimal 时相等。CS4246 的两层例子可以直接读成两步 reasoning：
 
 ::fig[thread-search-twolayer] CS4246 的两层例子，当作“第一步写 a 或 b，第二步再写一步，然后给出答案”。每个中间 node 旁有两个分数。
 

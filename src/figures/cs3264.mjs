@@ -145,8 +145,8 @@ function gd() {
     o += text(X0 + W / 2, 18, title, 'tb', 'middle') + text(X0 + W / 2, 34, note, 'ts', 'middle');
     o += text(X0 + W, Y0 + H + 16, 'x₁', 'ts', 'end') + text(sx(0) + 5, Y0 + 12, 'x₂', 'ts');
   };
-  panel(30, 2 / 11, 24, 't = 2/11：zigzag 地 converge', 'x₁ 每步乘 −9/11，x₂ 每步乘 9/11');
-  panel(290, 0.21, 6, 't = 0.21：diverge', 'x₁ 每步乘 −1.1，越弹越远');
+  panel(30, 2 / 11, 24, 'η = 2/11：zigzag 地 converge', 'x₁ 每步乘 −9/11，x₂ 每步乘 9/11');
+  panel(290, 0.21, 6, 'η = 0.21：diverge', 'x₁ 每步乘 −1.1，越弹越远');
   o += text(280, 268, '灰色 ellipse 是 f 的 contour；实心点是 x₀ = (1, 1)，空心点是 minimum (0, 0)', 'ts', 'middle');
   return svg(560, 278, o, '在一个 ill-conditioned 的 quadratic function 上做 gradient descent：step size 为 2/11 时路径来回穿过谷底并 converge，step size 为 0.21 时来回的幅度越来越大');
 }
@@ -354,8 +354,8 @@ function beta() {
   o += line(sx(1 / 12), sy(0), sx(1 / 12), sy(dens(10)(1 / 12)), 'dash');
   o += text(sx(1 / 52) + 6, sy(23), 'mean 1/52', 'tl') + text(sx(1 / 12) + 6, sy(7.5), 'mean 1/12', 't');
   o += text(sx(0.006), sy(47), 'mode 与 MLE 都在 0', 'ts');
-  o += text(520, 264, 'θ', 'ts', 'end') + text(70, 18, 'posterior density', 'ts');
-  return svg(560, 272, o, '一直观察到 0 时 theta 的 posterior：随着观察增多，density 集中到 0 附近，mode 一直在 0，而 mean 分别是 1/12 和 1/52，始终为正');
+  o += text(520, 264, 'μ', 'ts', 'end') + text(70, 18, 'posterior density', 'ts');
+  return svg(560, 272, o, '一直观察到 0 时 mu 的 posterior：随着观察增多，density 集中到 0 附近，mode 一直在 0，而 mean 分别是 1/12 和 1/52，始终为正');
 }
 
 // 第 7 站：LDA，共用 covariance 的两个 Gaussian，boundary 是 x₁ = 1
@@ -498,8 +498,8 @@ function gdA() {
       o += `<text x="${X0}" y="${Y0 + H + 16}" class="ts" text-anchor="start" opacity="${k === 0 ? 1 : 0}">${s}${ashow(idx.map((j) => j === k), kt, T)}</text>`;
     }
   };
-  panel(30, 2 / 11, 24, 't = 2/11：zigzag 地 converge', 'x₁ 每步乘 −9/11，x₂ 每步乘 9/11', '');
-  panel(290, 0.21, 6, 't = 0.21：diverge', 'x₁ 每步乘 −1.1，越弹越远', 'k = 7 起 |x₁| > 1.9，跑出框外');
+  panel(30, 2 / 11, 24, 'η = 2/11：zigzag 地 converge', 'x₁ 每步乘 −9/11，x₂ 每步乘 9/11', '');
+  panel(290, 0.21, 6, 'η = 0.21：diverge', 'x₁ 每步乘 −1.1，越弹越远', 'k = 7 起 |x₁| > 1.9，跑出框外');
   o += text(280, 268, '灰色 ellipse 是 f 的 contour；实心小点是 x₀ = (1, 1)，空心点是 minimum (0, 0)', 'ts', 'middle');
   return svgA(560, 278, o, '动图：在 ill-conditioned 的 quadratic function 上一步一步做 gradient descent；step size 为 2/11 时点来回穿过谷底并 converge，step size 为 0.21 时来回的幅度越来越大，第 7 步跑出画面');
 }
@@ -580,8 +580,386 @@ function percA() {
   return svgA(560, 278, o, '动图：Perceptron 在四个点上一次一次更新：每一帧圈出犯错的点，weight vector 加上 y 乘 x，从 (1, 2) 经 (−1, 3)、(2, 4) 转到 (0, 5)，浅色半平面和 boundary 跟着转，最后四个点全部分对');
 }
 
+// ---------- 第 1 到 12 站（跟 AY26/27 的 11 讲）的图 ----------
+
+// 小工具：seeded RNG 与 Gaussian
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => { s = (s + 0x6d2b79f5) | 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function gauss(r) { const u = Math.max(r(), 1e-12), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const vand = (x, M) => Array.from({ length: M }, (_, j) => x ** j);
+// (ΦᵀΦ + λI) w = Φᵀt；M 等于点数且 λ = 0 时直接解 Φw = t
+function polyfit(xs, ts, M, lam = 0) {
+  if (M === xs.length && lam === 0) return solve(xs.map((x) => vand(x, M)), ts);
+  const P = xs.map((x) => vand(x, M));
+  const A = Array.from({ length: M }, (_, i) => Array.from({ length: M }, (_, j) => P.reduce((a, r) => a + r[i] * r[j], 0) + (i === j ? lam : 0)));
+  const b = Array.from({ length: M }, (_, i) => P.reduce((a, r, n) => a + r[i] * ts[n], 0));
+  return solve(A, b);
+}
+const peval = (w, x) => w.reduce((a, c, j) => a + c * x ** j, 0);
+// 第 1 站的 data：seed 3264 由 python 抽出，取三位小数
+const PX = [0, 0.111, 0.222, 0.333, 0.444, 0.556, 0.667, 0.778, 0.889, 1];
+const PT = [-0.062, 0.39, 1.168, 0.414, 0.469, -0.566, -0.791, -1.35, -0.214, 0.396];
+const sin2 = (x) => Math.sin(2 * Math.PI * x);
+function testMSE(w) { let s = 0; const n = 4000; for (let i = 0; i <= n; i++) { const x = i / n, e = peval(w, x) - sin2(x); s += (i === 0 || i === n ? 0.5 : 1) * e * e; } return s / n + 0.09; }
+
+// 第 1 站：polynomial 的 overfitting 与 ridge
+function polyfig() {
+  let o = '';
+  const sx = lin(0, 1, 40, 290), sy = lin(-2.4, 2.4, 250, 30), box = [40, 30, 290, 250];
+  o += rect(40, 30, 250, 220, 'frame');
+  o += line(40, sy(0), 290, sy(0), 'grid');
+  const pts = (w) => { const p = []; for (let i = 0; i <= 600; i++) { const x = i / 600; p.push([sx(x), sy(peval(w, x))]); } return p; };
+  o += path(curve(sin2, 0, 1, sx, sy), 'dash');
+  const w2 = polyfit(PX, PT, 2), w4 = polyfit(PX, PT, 4), w10 = polyfit(PX, PT, 10), wr = polyfit(PX, PT, 10, 1e-3);
+  o += clipped(pts(w2), box, 'mute') + clipped(pts(w4), box, 'ink') + clipped(pts(w10), box, 'ink-b') + clipped(pts(wr), box, 'ln');
+  PX.forEach((x, i) => { o += circle(sx(x), sy(PT[i]), 3.5, 'ink-f'); });
+  o += text(165, 20, 'data 与四条拟合曲线', 'tb', 'middle');
+  o += text(sx(0.86), sy(1.95), 'M = 10', 'tb', 'middle');
+  o += text(sx(0.75), sy(peval(w2, 0.75)) - 9, 'M = 2', 't', 'middle');
+  o += text(sx(0.36), sy(peval(w4, 0.36) + 0.62), 'M = 4', 't', 'middle') + line(sx(0.36), sy(peval(w4, 0.36) + 0.5), sx(0.36), sy(peval(w4, 0.36)) - 3, 'mute');
+  o += text(sx(0.42), sy(-1.95), 'M = 10，λ = 10⁻³', 'tl');
+  o += text(290, 266, 'x', 'ts', 'end');
+  // 右：training / test MSE
+  const X0 = 345, X1 = 545, ty = lin(0, 0.8, 250, 30), tx = lin(1, 10, X0, X1);
+  const tr = [], te = [];
+  for (let M = 1; M <= 10; M++) {
+    const w = polyfit(PX, PT, M);
+    tr.push(PX.reduce((a, x, i) => a + (peval(w, x) - PT[i]) ** 2, 0) / PX.length);
+    te.push(testMSE(w));
+  }
+  o += axes({ sx: tx, sy: ty, x0: 1, x1: 10, y0: 0, y1: 0.8, xt: [1, 2, 4, 6, 8, 10], yt: [0.2, 0.4, 0.6, 0.8], grid: true });
+  o += path(d(tr.map((v, i) => [tx(i + 1), ty(v)])), 'ink');
+  const teC = te.map((v, i) => [tx(i + 1), ty(Math.min(v, 0.8))]);
+  o += path(d(teC.slice(0, 9)), 'ln') + line(teC[8][0], teC[8][1], teC[9][0], ty(0.8), 'ln');
+  tr.forEach((v, i) => { o += circle(tx(i + 1), ty(v), 2.5, 'ink-f'); });
+  te.forEach((v, i) => { if (v <= 0.8) o += circle(tx(i + 1), ty(v), 2.5, 'ln-f'); });
+  o += arrow(tx(10), ty(0.7), tx(10), ty(0.8) - 2, 'ln', 5) + text(tx(10) - 6, ty(0.66), te[9].toFixed(2) + ' ↑', 'tl', 'end');
+  o += text(tx(2.4), ty(0.47), 'test', 'tl') + text(tx(6.2), ty(0.07), 'training', 't');
+  o += text((X0 + X1) / 2, 20, 'MSE 随 M 的变化', 'tb', 'middle') + text(X1, 282, 'M', 'ts', 'end');
+  return svg(560, 288, o, '左：10 个点上 M 等于 2、4、10 的 polynomial 拟合和加了 ridge 的 M 等于 10 的拟合，M 等于 10 时曲线穿过所有点并剧烈振荡；右：training MSE 随 M 单调下降到 0，test MSE 先降后升，M 等于 10 时升到 2.08');
+}
+
+// 第 2 站：四个点的 Bayesian linear regression，posterior predictive 的两层带
+function blr() {
+  const XD = [0, 1, 2, 3], TD = [1, 3, 2, 5], al = 1, be = 2;
+  const A = [[al + be * 4, be * 6], [be * 6, al + be * 14]], det = A[0][0] * A[1][1] - A[0][1] ** 2;
+  const S = [[A[1][1] / det, -A[0][1] / det], [-A[0][1] / det, A[0][0] / det]];
+  const r = [be * 11, be * 22], m = [S[0][0] * r[0] + S[0][1] * r[1], S[1][0] * r[0] + S[1][1] * r[1]];
+  const mean = (x) => m[0] + m[1] * x, epi = (x) => S[0][0] + 2 * S[0][1] * x + S[1][1] * x * x;
+  const sx = lin(-3, 10, 60, 520), sy = lin(-8, 18, 240, 24);
+  let o = axes({ sx, sy, x0: -3, x1: 10, y0: -8, y1: 18, xt: [[-2, '−2'], 0, 2, 4, 6, 8, 10], yt: [[-5, '−5'], 0, 5, 10, 15], grid: true, xAt: -8, yAt: -3 });
+  const band = (f) => { const up = [], dn = []; for (let i = 0; i <= 200; i++) { const x = -3 + (13 * i) / 200, s = Math.sqrt(f(x)); up.push([sx(x), sy(mean(x) + s)]); dn.push([sx(x), sy(mean(x) - s)]); } return path(d(up.concat(dn.reverse())) + 'Z', ''); };
+  o += band((x) => epi(x) + 1 / be).replace('class=""', 'class="wash"');
+  o += band(epi).replace('class=""', 'class="wash-strong"');
+  o += path(curve(mean, -3, 10, sx, sy), 'ln');
+  XD.forEach((x, i) => { o += circle(sx(x), sy(TD[i]), 4, 'ink-f'); });
+  const lab = (x, s, dy) => text(sx(x), sy(mean(x) + Math.sqrt(epi(x) + 0.5)) + dy, s, 'ts', 'middle');
+  o += lab(1.5, 'x = 1.5：σ² = 0.613', -10) + lab(9, 'x = 10：σ² = 6.39', -12);
+  o += text(sx(5.2), sy(-4.2), '深色：epistemic 的 ±1 sd', 't') + text(sx(5.2), sy(-6.1), '浅色：再加 aleatoric（β⁻¹ = 0.5）', 't');
+  o += text(520, 268, 'x', 'ts', 'end') + text(60, 14, 't', 'ts');
+  return svg(560, 276, o, '四个点的 Bayesian linear regression：posterior mean 是一条 line，epistemic 的带在 data 中间最窄，离开 data 越远越宽；加上 aleatoric 后的外层带有一个不会消失的最小宽度');
+}
+
+// 第 3 站：least squares 当 classifier 与 logistic regression
+function lsq() {
+  const X6 = [1, 2, 3, 5, 6, 7], T6 = [-1, -1, -1, 1, 1, 1], X9 = X6.concat([18, 19, 20]), T9 = T6.concat([1, 1, 1]);
+  const ls = (xs, ts) => polyfit(xs, ts, 2);
+  const lg = (xs, ts, a) => {
+    let w = [0, 0];
+    for (let it = 0; it < 60; it++) {
+      const g = [a * w[0], a * w[1]], H = [[a, 0], [0, a]];
+      xs.forEach((x, i) => { const y = 1 / (1 + Math.exp(-(w[0] + w[1] * x))), t = (ts[i] + 1) / 2; g[0] += y - t; g[1] += (y - t) * x; const c = y * (1 - y); H[0][0] += c; H[0][1] += c * x; H[1][1] += c * x * x; });
+      H[1][0] = H[0][1];
+      const dt = H[0][0] * H[1][1] - H[0][1] ** 2;
+      w = [w[0] - (H[1][1] * g[0] - H[0][1] * g[1]) / dt, w[1] - (-H[1][0] * g[0] + H[0][0] * g[1]) / dt];
+    }
+    return w;
+  };
+  const a6 = ls(X6, T6), a9 = ls(X9, T9), l6 = lg(X6, T6, 0.01), l9 = lg(X9, T9, 0.01);
+  const sx = lin(0, 21, 60, 530);
+  let o = '';
+  // 上
+  const sy = lin(-2.6, 3.2, 130, 22);
+  o += line(60, sy(0), 530, sy(0), 'axis');
+  for (const v of [-1, 1]) o += line(60, sy(v), 530, sy(v), 'grid') + text(54, sy(v) + 4, v < 0 ? '−1' : '1', 'ts', 'end');
+  o += text(54, sy(0) + 4, '0', 'ts', 'end');
+  const box = [60, 22, 530, 130];
+  const lp = (w) => { const p = []; for (let i = 0; i <= 100; i++) { const x = (21 * i) / 100; p.push([sx(x), sy(w[0] + w[1] * x)]); } return p; };
+  o += clipped(lp(a6), box, 'dash') + clipped(lp(a9), box, 'ln');
+  X9.forEach((x, i) => { o += circle(sx(x), sy(T9[i]), 4, i >= 6 ? 'ln-f' : T9[i] > 0 ? 'ink-f' : 'ink paper-f'); });
+  const b6 = -a6[0] / a6[1], b9 = -a9[0] / a9[1];
+  o += line(sx(b6), sy(0) - 6, sx(b6), sy(0) + 6, 'ink-b') + text(sx(b6), sy(0) + 20, String(+b6.toFixed(2)), 'ts', 'middle');
+  o += line(sx(b9), sy(0) - 6, sx(b9), sy(0) + 6, 'ln') + text(sx(b9) + 4, sy(0) + 20, b9.toFixed(2), 'tl', 'start');
+  o += text(530, sy(-2.25), 'least squares：虚线是 6 个点，实线加上 x = 18, 19, 20', 't', 'end');
+  o += text(sx(18.5), sy(-1) - 8, '三个新点', 'tl', 'middle');
+  // 下
+  const sy2 = lin(0, 1, 250, 160);
+  o += line(60, sy2(0), 530, sy2(0), 'axis') + line(60, sy2(1), 530, sy2(1), 'grid') + line(60, sy2(0.5), 530, sy2(0.5), 'grid');
+  for (const v of [0, 0.5, 1]) o += text(54, sy2(v) + 4, String(v), 'ts', 'end');
+  const sg = (w) => (x) => 1 / (1 + Math.exp(-(w[0] + w[1] * x)));
+  o += path(curve(sg(l9), 0, 21, sx, sy2), 'ln') + path(curve(sg(l6), 0, 21, sx, sy2), 'ink dash');
+  const c6 = -l6[0] / l6[1];
+  o += line(sx(c6), sy2(0) - 6, sx(c6), sy2(0) + 6, 'ink-b') + text(sx(c6), sy2(0) + 18, c6.toFixed(2), 'ts', 'middle');
+  o += text(530, sy2(0.62), 'logistic regression 的 p(t = 1 | x)：两条 curve 重合', 't', 'end');
+  for (const x of [0, 5, 10, 15, 20]) o += text(sx(x), 286, String(x), 'ts', 'middle');
+  o += text(530, 300, 'x', 'ts', 'end');
+  return svg(560, 304, o, '上：把 label 当数的 least squares，加入三个远处的正例后 boundary 从 4 移到 5.19；下：logistic regression 的 probability curve 在两种 data 上重合，boundary 都在 3.85');
+}
+
+// 第 5 站：bias 与 variance，重抽 20 次 noise
+function bvfig() {
+  const H = PX.map(sin2);
+  let o = '';
+  const panel = (X0, M, title, seed) => {
+    const W = 245, sx = lin(0, 1, X0, X0 + W), sy = lin(-2.6, 2.6, 240, 30), box = [X0, 30, X0 + W, 240];
+    o += rect(X0, 30, W, 210, 'frame') + line(X0, sy(0), X0 + W, sy(0), 'grid');
+    const r = rng(seed);
+    for (let k = 0; k < 20; k++) {
+      const ts = H.map((h) => h + 0.3 * gauss(r));
+      const w = polyfit(PX, ts, M), p = [];
+      for (let i = 0; i <= 150; i++) { const x = i / 150; p.push([sx(x), sy(peval(w, x))]); }
+      o += clipped(p, box, 'mute');
+    }
+    const wb = polyfit(PX, H, M), p = [];
+    for (let i = 0; i <= 300; i++) { const x = i / 300; p.push([sx(x), sy(peval(wb, x))]); }
+    o += path(curve(sin2, 0, 1, sx, sy), 'dash') + clipped(p, box, 'ln');
+    o += text(X0 + W / 2, 18, title, 'tb', 'middle');
+  };
+  panel(20, 2, 'M = 2：high bias、low variance', 11);
+  panel(295, 10, 'M = 10：low bias、high variance', 12);
+  o += text(280, 262, '细灰线：20 组 data 各自的 fit；彩色：ȳ(x)；虚线：sin 2πx；横轴是 x ∈ [0, 1]', 'ts', 'middle');
+  return svg(560, 270, o, '左边 M 等于 2 的 20 条拟合 line 挤在一起但整体偏离 sin 曲线；右边 M 等于 10 的平均曲线几乎与 sin 重合，但 20 条拟合曲线四处乱飞');
+}
+
+// 第 7 站：讲义的 MLP 例子，forward 与 backward 的数
+function mlp() {
+  const x = [1, -1];
+  const W1 = [[1, 0.5], [-0.5, 1], [1, -1]], b2 = [0, 0.5, -1], W2 = [[1, -1, 0.5], [-0.5, 0.5, 1]], b3 = [0, -0.25], W3 = [[1.2, -0.8]], b4 = [0.1];
+  const mv = (W, v, b) => W.map((r, j) => r.reduce((a, w, i) => a + w * v[i], 0) + b[j]);
+  const relu = (v) => v.map((a) => Math.max(0, a));
+  const a2 = mv(W1, x, b2), z2 = relu(a2), a3 = mv(W2, z2, b3), z3 = relu(a3), y = mv(W3, z3, b4)[0];
+  const d4 = [y - 1], d3 = a3.map((a, j) => (a > 0 ? 1 : 0) * W3[0][j] * d4[0]), d2 = a2.map((a, j) => (a > 0 ? 1 : 0) * W2.reduce((s, r, k) => s + r[j] * d3[k], 0));
+  const L = [[x, null, null], [z2, a2, d2], [z3, a3, d3], [[y], [y], d4]];
+  const XS = [70, 215, 360, 495], ys = (n) => (n === 1 ? [140] : n === 2 ? [95, 185] : [60, 140, 220]);
+  const pos = L.map((l, k) => ys(l[0].length).map((yy) => [XS[k], yy]));
+  const fmt = (v) => (Math.abs(v) < 1e-12 ? '0' : (v < 0 ? '−' : '') + String(+Math.abs(v).toFixed(3)));
+  let o = '';
+  const Ws = [W1, W2, W3];
+  Ws.forEach((W, l) => {
+    W.forEach((row, j) => row.forEach((w, i) => {
+      const [x1, y1] = pos[l][i], [x2, y2] = pos[l + 1][j];
+      o += line(x1 + 18, y1, x2 - 18, y2, 'mute');
+    }));
+  });
+  Ws.forEach((W, l) => {
+    W.forEach((row, j) => row.forEach((w, i) => {
+      const [x1, y1] = pos[l][i], [x2, y2] = pos[l + 1][j], f = l === 0 ? [0.25, 0.6][i] : l === 1 ? [0.22, 0.5, 0.22][i] : 0.4;
+      const tx = x1 + 18 + f * (x2 - x1 - 36), ty = y1 + f * (y2 - y1);
+      o += rect(tx - 14, ty - 8, 28, 14, 'paper', 3) + text(tx, ty + 3, fmt(w), 'ts', 'middle');
+    }));
+  });
+  L.forEach(([z, a, dl], k) => {
+    z.forEach((v, j) => {
+      const [cx, cy] = pos[k][j], off = a && a[j] <= 0 && k < 3;
+      o += circle(cx, cy, 18, off ? 'wash2' : k === 3 ? 'wash-strong' : 'wash') + circle(cx, cy, 18, 'ink');
+      o += text(cx, cy + 4, fmt(v), 'tb', 'middle');
+      if (a) o += text(cx, cy - 24, 'a = ' + fmt(a[j]), 'ts', 'middle');
+      if (dl) o += text(cx, cy + 34, 'δ = ' + fmt(dl[j]), 'tl', 'middle');
+    });
+  });
+  o += text(70, 22, 'input x', 'tb', 'middle') + text(215, 22, 'ReLU', 'tb', 'middle') + text(360, 22, 'ReLU', 'tb', 'middle') + text(495, 22, 'linear', 'tb', 'middle');
+  o += text(280, 270, '圆里是 unit 的输出 z（灰色：被 ReLU 置 0），上方是 pre-activation a，下方是 t = 1 时的 error signal δ', 'ts', 'middle');
+  return svg(560, 278, o, '讲义的 MLP 例子：input (1, −1)，两个 ReLU hidden layer，输出 0.9；每个 unit 标出 pre-activation、输出和 target 为 1 时的 error signal，被 ReLU 置 0 的 unit 的 error signal 是 0');
+}
+
+// 第 7 站：universal approximation 的 staircase 与 sigmoid 之和
+function uat() {
+  const f = (x) => 0.5 + 0.4 * sin2(x), M = 8, k = 60;
+  const c = Array.from({ length: M }, (_, j) => f((j + 0.5) / M));
+  const sx = lin(0, 1, 60, 520), sy = lin(0, 1, 240, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 1, xt: [0, 0.25, 0.5, 0.75, 1], yt: [0.2, 0.4, 0.6, 0.8, 1], grid: true });
+  const st = [];
+  for (let j = 0; j < M; j++) { st.push([sx(j / M), sy(c[j])], [sx((j + 1) / M), sy(c[j])]); }
+  o += path(d(st), 'mute');
+  const s = (x) => c[0] + c.slice(1).reduce((a, cj, j) => a + (cj - c[j]) / (1 + Math.exp(-k * (x - (j + 1) / M))), 0);
+  o += path(curve(f, 0, 1, sx, sy), 'dash') + path(curve(s, 0, 1, sx, sy, 600), 'ln');
+  let mx = 0; for (let i = 0; i <= 4000; i++) { const x = i / 4000; mx = Math.max(mx, Math.abs(s(x) - f(x))); }
+  o += text(sx(0.02), sy(0.36), '虚线：f(x) = 0.5 + 0.4 sin 2πx', 't');
+  o += text(sx(0.02), sy(0.29), '灰：8 段 staircase', 't');
+  o += text(sx(0.02), sy(0.22), `彩色：7 个 sigmoid 之和（k = ${k}）`, 'tl');
+  o += text(sx(0.02), sy(0.15), `最大误差 ${mx.toFixed(3)}`, 'tl');
+  o += text(520, 268, 'x', 'ts', 'end');
+  return svg(560, 276, o, '用 8 段 staircase 逼近 0.5 加 0.4 sin 2 pi x，再把每个 jump 换成一个 sigmoid unit，7 个 sigmoid 之和与 staircase 几乎重合');
+}
+
+// 第 8 站：两个 target 的 SGD
+function sgd() {
+  const eta = 0.1, Ts = 150, V = eta / (1 * (2 - eta));
+  const sx = lin(0, Ts, 60, 520), sy = lin(-1.1, 2.1, 240, 30);
+  let o = '';
+  o += rect(sx(0), sy(Math.sqrt(V)), sx(Ts) - sx(0), sy(-Math.sqrt(V)) - sy(Math.sqrt(V)), 'wash');
+  o += axes({ sx, sy, x0: 0, x1: Ts, y0: -1.1, y1: 2.1, xt: [0, 50, 100, 150], yt: [[-1, '−1'], 0, 1, 2], grid: true, xAt: -1.1 });
+  o += line(sx(0), sy(0), sx(Ts), sy(0), 'axis');
+  const run = (B, seed) => { const r = rng(seed); let th = 2; const p = [[sx(0), sy(th)]]; for (let s = 1; s <= Ts; s++) { let tb = 0; for (let b = 0; b < B; b++) tb += r() < 0.5 ? 1 : -1; th = (1 - eta) * th + eta * (tb / B); p.push([sx(s), sy(th)]); } return p; };
+  o += path(d(Array.from({ length: Ts + 1 }, (_, s) => [sx(s), sy(2 * (1 - eta) ** s)])), 'mute');
+  o += path(d(run(1, 31)), 'ln') + path(d(run(4, 32)), 'ink');
+  o += text(sx(13), sy(1.6), 'full gradient：θₛ = 2 × 0.9ˢ', 't');
+  o += text(sx(150), sy(-Math.sqrt(V)) + 16, `浅色带：±√V = ±${Math.sqrt(V).toFixed(3)}（B = 1）`, 'tl', 'end');
+  o += text(sx(4), sy(-0.85), '彩色：B = 1；深色细线：B = 4', 't');
+  o += text(520, 270, 'step s', 'ts', 'end') + text(60, 18, 'θ', 'ts');
+  return svg(560, 276, o, '两个 target 的例子：full gradient descent 平滑地趋于 0，SGD 在 0 附近一直波动，B 等于 1 时大致落在正负 0.229 的带里，B 等于 4 时波动更小');
+}
+
+// 第 9 站：一维 convolution 的动图
+function conv() {
+  const X = [0, 0, 0, 1, 0, 1, 1, 1, 0, 0], W = [1, -1, 1];
+  const Y = X.slice(0, 8).map((_, i) => W[0] * X[i] + W[1] * X[i + 1] + W[2] * X[i + 2]);
+  const cw = 44, x0 = 60, yin = 78, yout = 208, fr = Y.length;
+  const step = 1.1, T = step * fr + 1.2;
+  const kt = Array.from({ length: fr }, (_, i) => (step * i) / T);
+  const cx = (i) => x0 + i * cw + cw / 2, ox = (i) => cx(i + 1);
+  const sgn = (v) => (v < 0 ? '−' + Math.abs(v) : String(v));
+  let o = '';
+  o += text(20, yin + 5, 'x', 'tb') + text(20, yout + 5, 'y', 'tb');
+  X.forEach((v, i) => { o += rect(x0 + i * cw, yin - 16, cw, 32, 'paper') + text(cx(i), yin + 5, String(v), 't', 'middle'); });
+  Y.forEach((v, i) => { o += rect(ox(i) - cw / 2, yout - 16, cw, 32, 'paper') + text(ox(i), yout + 5, sgn(v), 'ts', 'middle'); });
+  for (let f = 0; f < fr; f++) {
+    let g = rect(x0 + f * cw, yin - 16, 3 * cw, 32, 'wash-strong');
+    for (let j = 0; j < 3; j++) g += text(cx(f + j), yin + 5, String(X[f + j]), 'tb', 'middle');
+    for (let j = 0; j < 3; j++) {
+      g += line(cx(f + j), yin + 16, ox(f), yout - 16, j === 1 ? 'ln-dash' : 'ln');
+      const mx = cx(f + j) + 0.45 * (ox(f) - cx(f + j)), my = yin + 16 + 0.45 * (yout - yin - 32);
+      g += rect(mx - 13, my - 9, 26, 15, 'paper', 3) + text(mx, my + 3, sgn(W[j]), 'tl', 'middle');
+    }
+    g += rect(ox(f) - cw / 2, yout - 16, cw, 32, 'wash-strong') + text(ox(f), yout + 5, sgn(Y[f]), 'tb', 'middle');
+    const terms = [0, 1, 2].map((j) => `${sgn(W[j])}·${X[f + j]}`).join(' + ');
+    g += text(280, 32, `y${'₁₂₃₄₅₆₇₈'[f]} = ${terms} = ${sgn(Y[f])}`, 'tb', 'middle');
+    o += frameG(kt.map((_, i) => i === f), kt, T, g);
+  }
+  o += text(280, 254, '每个输出只看三个相邻的 input（sparse connection）；', 'ts', 'middle') + text(280, 272, '三条线的 weight 在每个位置都是 1、−1、1（weight sharing）', 'ts', 'middle');
+  return svgA(560, 280, o, '动图：filter 1, −1, 1 在长度为 10 的 input 上逐格滑动，每一帧连出三条带 weight 的线并写出乘加，结果依次是 0, 1, −1, 2, 0, 1, 0, 1');
+}
+
+// 第 10 站：k-means 的三种初始化
+function kmeans() {
+  const P = [[0, 0], [0, 2], [4, 0], [4, 2], [9, 0], [9, 2]];
+  const inits = [[[0, 1], [9, 1]], [[1, 1], [2, 1]], [[4, 0], [4, 2]]];
+  const run = (C0) => {
+    let C = C0.map((c) => c.slice()), r = [];
+    for (let it = 0; it < 20; it++) {
+      r = P.map((p) => { const dd = C.map((c) => (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2); return dd[0] <= dd[1] ? 0 : 1; });
+      C = C.map((c, k) => { const m = P.filter((_, n) => r[n] === k); return m.length ? [m.reduce((a, p) => a + p[0], 0) / m.length, m.reduce((a, p) => a + p[1], 0) / m.length] : c; });
+    }
+    const J = P.reduce((a, p, n) => a + (p[0] - C[r[n]][0]) ** 2 + (p[1] - C[r[n]][1]) ** 2, 0);
+    return { C, r, J };
+  };
+  let o = '';
+  inits.forEach((C0, q) => {
+    const X0 = 18 + q * 180, sx = lin(-1, 10, X0, X0 + 165), sy = lin(-1.2, 3.2, 200, 52);
+    o += rect(X0, 52, 165, 148, 'frame');
+    const { C, r, J } = run(C0);
+    P.forEach((p, n) => { o += circle(sx(p[0]), sy(p[1]), 5.5, r[n] === 0 ? 'ink-f' : 'ink paper-f'); });
+    C0.forEach((c) => { o += circle(sx(c[0]), sy(c[1]), 8, 'ln'); });
+    C.forEach((c) => { const u = sx(c[0]), v = sy(c[1]); o += line(u - 6, v - 6, u + 6, v + 6, 'ink-b') + line(u - 6, v + 6, u + 6, v - 6, 'ink-b'); });
+    const f = (v) => String(+v.toFixed(2));
+    o += text(X0 + 82, 22, `初始 (${C0[0]})、(${C0[1]})`, 'ts', 'middle');
+    o += text(X0 + 82, 40, `收敛后 J = ${f(J)}`, J < 25 ? 'tl' : 'tb', 'middle');
+    o += text(X0 + 82, 222, `centre (${f(C[0][0])}, ${f(C[0][1])})、(${f(C[1][0])}, ${f(C[1][1])})`, 'ts', 'middle');
+  });
+  o += text(280, 250, '空心彩色圆：初始 centre；十字：收敛后的 centre；实心与空心的点：两个 cluster', 'ts', 'middle');
+  return svg(560, 258, o, '同样六个点用三种初始 centre 跑 k-means：分别收敛到 J 等于 22、31 和 81.33，第三种把 data 横着切成上下两行');
+}
+
+// 第 10 站：四个点上的三条 line 与 PCA 方向
+function pca() {
+  const P = [[2, 1], [1, 1], [-1, -1], [-2, -1]];
+  const Sxx = P.reduce((a, p) => a + p[0] * p[0], 0) / 4, Sxy = P.reduce((a, p) => a + p[0] * p[1], 0) / 4, Syy = P.reduce((a, p) => a + p[1] * p[1], 0) / 4;
+  const lam = (Sxx + Syy) / 2 + Math.sqrt(((Sxx - Syy) / 2) ** 2 + Sxy ** 2);
+  let u = [Sxy, lam - Sxx]; const nu = Math.hypot(...u); u = [u[0] / nu, u[1] / nu];
+  const dirs = [[[0, 1], '(0, 1)'], [[1, 0], '(1, 0)'], [[0.8, 0.6], '(0.8, 0.6)'], [u, `PCA (${u[0].toFixed(3)}, ${u[1].toFixed(3)})`]];
+  let o = '';
+  dirs.forEach(([w, name], q) => {
+    const X0 = 12 + q * 137, W = 125, sx = lin(-2.6, 2.6, X0, X0 + W), sy = lin(-2.6, 2.6, 190, 190 - W);
+    o += rect(X0, 190 - W, W, W, 'frame');
+    o += line(sx(-2.6), sy(0), sx(2.6), sy(0), 'grid') + line(sx(0), sy(-2.6), sx(0), sy(2.6), 'grid');
+    const L = 2.55 / Math.max(Math.abs(w[0]), Math.abs(w[1]));
+    o += line(sx(-L * w[0]), sy(-L * w[1]), sx(L * w[0]), sy(L * w[1]), q === 3 ? 'ln' : 'ink-b');
+    let err = 0;
+    P.forEach((p) => { const z = p[0] * w[0] + p[1] * w[1], r = [z * w[0], z * w[1]]; err += (p[0] - r[0]) ** 2 + (p[1] - r[1]) ** 2; o += line(sx(p[0]), sy(p[1]), sx(r[0]), sy(r[1]), 'dash') + circle(sx(r[0]), sy(r[1]), 2.5, q === 3 ? 'ln-f' : 'mute-f'); });
+    P.forEach((p) => { o += circle(sx(p[0]), sy(p[1]), 4, 'ink-f'); });
+    o += text(X0 + W / 2, 50, name, q === 3 ? 'tl' : 't', 'middle');
+    o += text(X0 + W / 2, 210, `平均 error ${(err / 4).toFixed(3)}`, q === 3 ? 'tl' : 'ts', 'middle');
+  });
+  o += text(280, 234, '实心点是 data，小点是它在 line 上的 reconstruction，虚线是 residual', 'ts', 'middle');
+  return svg(560, 242, o, '四个点分别投影到竖直、水平、斜率 0.75 的 line 和 PCA 方向上，平均 reconstruction error 依次是 2.5、1.0、0.1 和 0.073');
+}
+
+// 第 11 站：energy sensor 的 posterior 与两种 KL 拟合
+function vifig() {
+  const tau = 0.2, x = 1;
+  const lj = (z) => -z * z / 2 - (x - z * z) ** 2 / (2 * tau * tau);
+  const n = 8000, z0 = -2.5, z1 = 2.5, dz = (z1 - z0) / n;
+  let Z = 0, m2 = 0;
+  for (let i = 0; i <= n; i++) { const z = z0 + i * dz, p = Math.exp(lj(z)); Z += p * dz; m2 += z * z * p * dz; }
+  const post = (z) => Math.exp(lj(z)) / Z, sF = Math.sqrt(m2 / Z);
+  const elbo = (mu, s) => -((x - mu * mu - s * s) ** 2 + 4 * mu * mu * s * s + 2 * s ** 4) / (2 * tau * tau) - 0.5 * (mu * mu + s * s - 1 - Math.log(s * s));
+  let best = [-Infinity, 0, 0];
+  for (let i = 0; i <= 400; i++) for (let j = 0; j <= 400; j++) { const mu = 0.8 + (0.3 * i) / 400, s = 0.05 + (0.15 * j) / 400, e = elbo(mu, s); if (e > best[0]) best = [e, mu, s]; }
+  const [, muR, sR] = best;
+  const N = (mu, s) => (z) => Math.exp(-((z - mu) ** 2) / (2 * s * s)) / (s * Math.sqrt(2 * Math.PI));
+  const sx = lin(-2, 2, 60, 520), sy = lin(0, 4.2, 240, 30);
+  let o = axes({ sx, sy, x0: -2, x1: 2, y0: 0, y1: 4.2, xt: [[-2, '−2'], [-1, '−1'], 0, 1, 2], yt: [1, 2, 3, 4], grid: true, yAt: -2 });
+  o += path(area(post, -2, 2, sx, sy, 0, 800), 'wash2') + path(curve(post, -2, 2, sx, sy, 800), 'ink');
+  o += path(curve(N(0, sF), -2, 2, sx, sy), 'dash');
+  o += path(curve(N(-muR, sR), -2, 2, sx, sy, 800), 'mute') + path(curve(N(muR, sR), -2, 2, sx, sy, 800), 'ln');
+  o += text(sx(1.15), sy(3.6), 'reverse KL', 'tl') + text(sx(1.15), sy(3.25), `μ = ${muR.toFixed(3)}`, 'tl') + text(sx(1.15), sy(2.9), `s = ${sR.toFixed(3)}`, 'tl');
+  o += text(sx(0), sy(3.4), '细线：对称的', 'ts', 'middle') + text(sx(0), sy(3.05), '另一个解', 'ts', 'middle');
+  o += text(sx(0), sy(0.62), `forward KL：μ = 0，s = ${sF.toFixed(3)}`, 't', 'middle');
+  o += text(sx(-1.55), sy(1.75), 'posterior', 'tb', 'middle') + line(sx(-1.5), sy(1.62), sx(-1.08), sy(1.25), 'mute');
+  o += text(520, 268, 'z（velocity）', 'ts', 'end') + text(60, 18, 'density', 'ts');
+  return svg(560, 276, o, 'Energy sensor 的 posterior 在正负 1 附近各有一个峰；forward KL 的 Gaussian 很宽、mean 为 0，reverse KL 的 Gaussian 很窄、贴住其中一个峰');
+}
+
+// 第 12 站：linear schedule 的 a_t、b_t 与两点 data 的 q_t(z)
+function diffig() {
+  const T = 1000, ab = [1];
+  for (let t = 1; t <= T; t++) { const be = 1e-4 + ((0.02 - 1e-4) * (t - 1)) / (T - 1); ab.push(ab[t - 1] * (1 - be)); }
+  const a = (t) => Math.sqrt(ab[t]), b = (t) => Math.sqrt(1 - ab[t]);
+  let o = '';
+  const sx = lin(0, 1000, 50, 250), sy = lin(0, 1, 230, 40);
+  o += axes({ sx, sy, x0: 0, x1: 1000, y0: 0, y1: 1, xt: [0, 500, 1000], yt: [0.5, 1], grid: true });
+  o += path(d(Array.from({ length: 101 }, (_, i) => [sx(10 * i), sy(a(10 * i))])), 'ln') + path(d(Array.from({ length: 101 }, (_, i) => [sx(10 * i), sy(b(10 * i))])), 'ink');
+  let th = 1; while (ab[th] > 0.5) th++;
+  o += line(sx(th), sy(0), sx(th), sy(a(th)), 'dash') + text(sx(th) + 4, sy(0.08), 'ᾱₜ = 0.5', 'ts');
+  o += text(sx(470), sy(0.55), 'aₜ = √ᾱₜ', 'tl') + text(sx(560), sy(0.86), 'bₜ = √(1 − ᾱₜ)', 't');
+  o += text(150, 20, 'schedule 的两个系数', 'tb', 'middle') + text(250, 262, 't', 'ts', 'end');
+  const zx = lin(-3, 3, 300, 545), zy = lin(0, 0.7, 230, 40);
+  o += axes({ sx: zx, sy: zy, x0: -3, x1: 3, y0: 0, y1: 0.7, xt: [[-2, '−2'], 0, 2], yt: [], grid: false });
+  const q = (t) => (z) => { const A = a(t), B = b(t); return (Math.exp(-((z - A) ** 2) / (2 * B * B)) + Math.exp(-((z + A) ** 2) / (2 * B * B))) / (2 * B * Math.sqrt(2 * Math.PI)); };
+  const cls = { 100: 'ink', 250: 'mute', 1000: 'ln' };
+  for (const t of [100, 250, 1000]) o += path(curve(q(t), -3, 3, zx, zy, 400), cls[t]);
+  o += text(zx(1.08), zy(q(100)(a(100))) - 4, 't = 100', 't') + text(zx(1.85), zy(0.33), 't = 250', 'ts');
+  o += text(zx(0), zy(q(1000)(0)) - 10, 't = 1000', 'tl', 'middle');
+  o += text(422, 20, 'x₀ = ±1 时的 qₜ(z)', 'tb', 'middle') + text(545, 262, 'z', 'ts', 'end');
+  return svg(560, 270, o, '左：linear schedule 下图像系数 a_t 从 1 降到接近 0，noise 系数 b_t 从 0 升到接近 1，两者在 t 约 259 处相等；右：data 只有正负 1 时，q_t 的两个峰随 t 增大变宽并合并成 standard normal');
+}
+
 export default {
   'cs3264-pick': pick,
+  'cs3264-poly': polyfig,
+  'cs3264-blr': blr,
+  'cs3264-lsq': lsq,
+  'cs3264-bv': bvfig,
+  'cs3264-mlp': mlp,
+  'cs3264-uat': uat,
+  'cs3264-sgd': sgd,
+  'cs3264-conv': conv,
+  'cs3264-kmeans': kmeans,
+  'cs3264-pca': pca,
+  'cs3264-vi': vifig,
+  'cs3264-diff': diffig,
   'cs3264-tail': tail,
   'cs3264-sandwich': sandwich,
   'cs3264-krr3': krr3,

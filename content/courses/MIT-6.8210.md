@@ -955,7 +955,7 @@ Spring 2024 有 10 份 assignment，每份由教材的章末 exercise 组成，�
 - 几个 notebook 都把 `MathematicalProgram` 拆在多个 cell 里写。改了任何 constraint，都要从初始化 `MathematicalProgram` 的那个 cell 重跑，否则同一个 constraint 会被加两次。（来源：`orbital_transfer.ipynb`、`compass_gait_limit_cycle.ipynb` 的 Troubleshooting。）
 
 :::note 第 7 章和第 5 章
-Assignment 2、3、4 里有 6 道第 7 章（dynamic programming）的题，共 56 分；Assignment 9、10 的 5.2、5.3 是第 5 章（humanoids）。这一页没有为这两章设站。离散 state 上的 value iteration 与 contraction 见 [CS4246 第 2 站](../courses/CS4246.html#dp)；continuous state 上的 HJB、mesh 上的 value iteration、minimum-time 的 bang-bang 解、ZMP，下面只写到做题需要的程度，出处是教材第 7 章和第 5 章。
+Assignment 2、3、4 里有 6 道第 7 章（dynamic programming）的题，共 56 分；Assignment 9、10 的 5.2、5.3 是第 5 章（humanoids）。这一页没有为这两章设站。离散 state 上的 value iteration 与 contraction 见 [CS4246 第 3 站](../courses/CS4246.html#dp)；continuous state 上的 HJB、mesh 上的 value iteration、minimum-time 的 bang-bang 解、ZMP，下面只写到做题需要的程度，出处是教材第 7 章和第 5 章。
 :::
 
 ### Assignment 1：Drake 入门、stability 与 feedback cancellation（先做）

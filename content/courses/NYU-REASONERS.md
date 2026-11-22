@@ -382,7 +382,7 @@ SE 是 soft estimation，HE 是 hard estimation。Snell 等人的 PRM 也是这�
 
 这里 completion 恰好能穷举，soft label 是精确值。一般只能采 $N$ 个，soft label 是一个 binomial 比例的估计：真值为 $1/3$、$N=8$ 时，它的 standard error 是 $\sqrt{(1/3)(2/3)/8}=0.167$。Hard label 在 $N=8$ 时有 $1-(2/3)^8=96\%$ 的 probability 是 1，几乎分不出 $1/3$ 和 1 的 prefix。Math-Shepherd 自己也注意到了：$N$ 越大，hard label 越容易出 false positive。他们用 160 个人工标注的 GSM8K 步骤核对，$N=4$ 时 hard label 的 accuracy 是 86%。
 
-Soft label 估计的量有一个名字。Reward 只在结尾给、对为 1 错为 0 时，“从这个 prefix 出发、按这个 policy 走下去最终成功的 probability”就是 RL 里的 value function $V^\pi(s)$（定义见 [CS4246 第 1 站](../courses/CS4246.html#mdp)）。Snell 的 slides 也是这样说的：Math-Shepherd 式的 PRM 学的是一个 value function。
+Soft label 估计的量有一个名字。Reward 只在结尾给、对为 1 错为 0 时，“从这个 prefix 出发、按这个 policy 走下去最终成功的 probability”就是 RL 里的 value function $V^\pi(s)$（定义见 [CS4246 第 2 站](../courses/CS4246.html#mdp)）。Snell 的 slides 也是这样说的：Math-Shepherd 式的 PRM 学的是一个 value function。
 
 ### 把每一步的分数合成一个分数
 
@@ -492,7 +492,7 @@ JHU 的 slides 说 OpenAI 的方法细节不公开，但从现象推断：RL 训
 每一步的运算都很简单，难在 8K token 的 trace 里不丢失状态。Slides 的结论是：评测时最好的那些 model，在输出只有 0.5K 到 8K token、整个任务并不算长的情况下，long CoT 的生成也会失败。第 1 站说的 sequential 的成本，除了 FLOPs 和 latency，还有这一项。
 
 :::from
-Step-level beam search 的定义、OpenAI 不做显式 search 的推断、Stream of Search 的提法来自 [JHU 的 slides](https://self-supervised.cs.jhu.edu/sp2025/files/slides/15-16.inference-scaling.pdf)（转述），Stream of Search 的 25% 和 36% 来自 [它的摘要](https://arxiv.org/abs/2404.03683)；beam search 的 $N/M$ 写法、lookahead 的定义与成本、PaLM 2-S* 与 MATH 的划分、两种难度、各难度上的比较、4 倍、revision、FLOPs 互换的式子和三个 $R$、两条结论，来自 [Snell 等人的论文](https://arxiv.org/abs/2408.03314)（WebFetch 读正文）和 [guest lecture](https://faculty.cc.gatech.edu/~zk15/teaching/AY2025_cs7643_spring/assets/L25_Charlie_Snell_Scaling_TestTime_Compute.pdf)；R1 的“没有成功的尝试”来自 [Lecture 7](https://gregdurrett.github.io/courses/sp2026/lec-pdfs/lec7.pdf) 第 32 页的截图和 [R1 报告](https://arxiv.org/abs/2501.12948) v2 附录 G.2；revision 的训练数据构造和 38% 来自 Snell 等人论文的正文；long CoT 与 long context 的关系、Countdown 的 search procedure 和四个 model 的 accuracy 来自 [Lecture 10](https://gregdurrett.github.io/courses/sp2026/lec-pdfs/lec10-xi.pdf) 第 30 到 35 页（表里的数是从 slide 的热力图上读的）。Countdown 上的 beam search、步数表、26 条的计算、互换式的推导步骤和三个 $c$ 是我做的。MCTS 本身（UCT 的 selection、expansion、rollout、backup）在 [CS4246 第 8 站](../courses/CS4246.html#mcts)。
+Step-level beam search 的定义、OpenAI 不做显式 search 的推断、Stream of Search 的提法来自 [JHU 的 slides](https://self-supervised.cs.jhu.edu/sp2025/files/slides/15-16.inference-scaling.pdf)（转述），Stream of Search 的 25% 和 36% 来自 [它的摘要](https://arxiv.org/abs/2404.03683)；beam search 的 $N/M$ 写法、lookahead 的定义与成本、PaLM 2-S* 与 MATH 的划分、两种难度、各难度上的比较、4 倍、revision、FLOPs 互换的式子和三个 $R$、两条结论，来自 [Snell 等人的论文](https://arxiv.org/abs/2408.03314)（WebFetch 读正文）和 [guest lecture](https://faculty.cc.gatech.edu/~zk15/teaching/AY2025_cs7643_spring/assets/L25_Charlie_Snell_Scaling_TestTime_Compute.pdf)；R1 的“没有成功的尝试”来自 [Lecture 7](https://gregdurrett.github.io/courses/sp2026/lec-pdfs/lec7.pdf) 第 32 页的截图和 [R1 报告](https://arxiv.org/abs/2501.12948) v2 附录 G.2；revision 的训练数据构造和 38% 来自 Snell 等人论文的正文；long CoT 与 long context 的关系、Countdown 的 search procedure 和四个 model 的 accuracy 来自 [Lecture 10](https://gregdurrett.github.io/courses/sp2026/lec-pdfs/lec10-xi.pdf) 第 30 到 35 页（表里的数是从 slide 的热力图上读的）。Countdown 上的 beam search、步数表、26 条的计算、互换式的推导步骤和三个 $c$ 是我做的。MCTS 本身（UCT 的 selection、expansion、rollout、backup）在 [CS4246 第 9 站](../courses/CS4246.html#mcts)。
 :::
 
 ## [rlvr] RLVR：从 expert iteration 到 GRPO 的配方

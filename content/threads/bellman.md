@@ -43,7 +43,7 @@ $$\sum_{i=0}^{k-1}c(x_i,x_{i+1})=V^*(x_0)-V^*(x_k)=V^*(x)$$
 每一步只看一步，整条 path 却是 optimal 的，前提是用来比较的是 $V^*$。后面会用到这里的两个量：$\arg\min$ 是 policy；$c(x,x')+V^*(x')-V^*(x)$ 由 Bellman equation 保证 $\ge0$，等于 0 的 arc 正好是 $\mu$ 选的那些，它在 LP 里叫 reduced cost。
 
 :::wrong 只要 cost 是一段一段加起来的，Bellman equation 就成立
-证明的第一个方向用到了“后半段不受前半段限制”。要求 path 不许重复经过 node（simple path），这一条就断了。取 [CS2040 第 8 站](../courses/CS2040.html#sssp)讲 negative cycle 时的 graph：s→a（2），s→b（5），b→a（−4），a→c（1），c→b（1），求从 $s$ 出发的最便宜的 simple path。到 $c$ 最便宜的是 $s\to b\to a\to c$，cost 2；它的前一段 $s\to b$ cost 5，可到 $b$ 最便宜的 simple path 是 $s\to a\to c\to b$，cost 4。后者接上 $b\to a\to c$ 会重复经过 $a$ 和 $c$，不是 simple path。从 $b$ 往后能走哪些 node，取决于之前用掉了哪些，“optimal solution 的前一段也是 optimal 的”不再成立。要恢复 Bellman equation，只能把“用过哪些 node”也放进 state，state 的个数随之变成 exponential，TSP 的 Held–Karp DP 就是这样做的。[CS4246 第 1 站](../courses/CS4246.html#mdp)要求 state 是 Markov 的，说的是同一件事。
+证明的第一个方向用到了“后半段不受前半段限制”。要求 path 不许重复经过 node（simple path），这一条就断了。取 [CS2040 第 8 站](../courses/CS2040.html#sssp)讲 negative cycle 时的 graph：s→a（2），s→b（5），b→a（−4），a→c（1），c→b（1），求从 $s$ 出发的最便宜的 simple path。到 $c$ 最便宜的是 $s\to b\to a\to c$，cost 2；它的前一段 $s\to b$ cost 5，可到 $b$ 最便宜的 simple path 是 $s\to a\to c\to b$，cost 4。后者接上 $b\to a\to c$ 会重复经过 $a$ 和 $c$，不是 simple path。从 $b$ 往后能走哪些 node，取决于之前用掉了哪些，“optimal solution 的前一段也是 optimal 的”不再成立。要恢复 Bellman equation，只能把“用过哪些 node”也放进 state，state 的个数随之变成 exponential，TSP 的 Held–Karp DP 就是这样做的。[CS4246 第 2 站](../courses/CS4246.html#mdp)要求 state 是 Markov 的，说的是同一件事。
 :::
 
 ### 下一步是 random 的时候
@@ -56,7 +56,7 @@ $$V^*(x)=\min_u\Big[c(x,u)+\sum_{x'}P(x'\mid x,u)\,V^*(x')\Big]$$
 
 $$V^*(x)=\min_u\Big[c(x,u)+\gamma\sum_{x'}P(x'\mid x,u)\,V^*(x')\Big]$$
 
-无穷多步时 optimal policy 的存在和“展开 $k$ 次”的严格 proof 在 [CS4246 第 1 站](../courses/CS4246.html#mdp)。后面每门课的 equation 都是这个式子的特例：
+无穷多步时 optimal policy 的存在和“展开 $k$ 次”的严格 proof 在 [CS4246 第 2 站](../courses/CS4246.html#mdp)。后面每门课的 equation 都是这个式子的特例：
 
 - 每个 $u$ 只通向一个 $x'$、$\gamma=1$：shortest path，就是上一小节。
 - 每个 state 只有一个 action，没有 min：first-step analysis，或者固定 policy 时的 policy evaluation。
@@ -97,7 +97,7 @@ $T$ 有一条性质：若 $U(x)\le V(x)$ 对所有 $x$ 成立，则 $TU\le TV$�
 
 从 0 出发的 $V_k(x)$ 是只算前 $k$ 步、之后当作免费时的最小 cost。左边一列在 $k=3$ 停下，因为 optimal path 最多 3 条 arc；右边一列要等所有“走了 $k$ 步还没到 $t$”的 walk 都比 optimal 贵才停，等多久取决于 cost 的大小。到 CS2105 那一节，这个差别会变成 47 轮对 2 轮。
 
-加上 randomness 和 $\gamma$ 之后，$T$ 照样是 monotone 的（$P\ge0$）。$\gamma<1$ 时 [CS4246 第 2 站](../courses/CS4246.html#dp)还证明了 $T$ 是 $\infty$-norm 下的 $\gamma$-contraction：fixed point 唯一，从哪里出发都 converge，error 至少按 $\gamma^k$ 缩小。$\gamma=1$ 时没有 contraction，converge 靠 graph 的结构（没有 cycle、cost 为正、迟早会被 absorb），而且从哪里出发会影响结果，后面 CS2105 和 MA3238 两节各给一个例子。
+加上 randomness 和 $\gamma$ 之后，$T$ 照样是 monotone 的（$P\ge0$）。$\gamma<1$ 时 [CS4246 第 3 站](../courses/CS4246.html#dp)还证明了 $T$ 是 $\infty$-norm 下的 $\gamma$-contraction：fixed point 唯一，从哪里出发都 converge，error 至少按 $\gamma^k$ 缩小。$\gamma=1$ 时没有 contraction，converge 靠 graph 的结构（没有 cycle、cost 为正、迟早会被 absorb），而且从哪里出发会影响结果，后面 CS2105 和 MA3238 两节各给一个例子。
 
 ## 各门课里的名字和记号
 
@@ -110,8 +110,8 @@ $T$ 有一条性质：若 $U(x)\le V(x)$ 对所有 $x$ 成立，则 $TU\le TV$�
 | [MA3238 第 1 站](../courses/MA3238.html#hit) | minimal nonnegative solution | $h^A_i$、$k^A_i$ | $k^A_i=1+\sum_{j\notin A}p_{ij}k^A_j$ | infinite state 时 solution 不唯一 |
 | [MA3252 第 6 站](../courses/MA3252.html#path) | shortest path LP 的 dual、node potential | $d(i)$、$\pi_i$ | $\pi_j-\pi_i\le c_{ij}$ | equation 放宽成 inequality；complementary slackness |
 | [RB3302 第 1 站](../courses/RB3302.html#search)、[第 7 站](../courses/RB3302.html#nav) | consistent heuristic、cost-to-goal、D* Lite | $g(s)$、$h(s)$、rhs | $h(s)\le c(s,s')+h(s')$ | 只关心一个 start；heuristic 是 $V^*$ 的 lower bound；map 会变 |
-| [CS4246 第 1 站](../courses/CS4246.html#mdp)、[第 2 站](../courses/CS4246.html#dp) | Bellman expectation / optimality equation、value iteration、policy iteration | $v_\pi$、$v^*$、$q^*$、$T^*$ | $v^*(s)=\max_a[r(s,a)+\gamma\sum_{s'}P(s'\mid s,a)v^*(s')]$ | randomness、discount、contraction |
-| [CS4246 第 5 站](../courses/CS4246.html#td)、[CS285 第 4 站](../courses/BERKELEY-CS285.html#q)、[MODERN-RL 第 4 站](../courses/MODERN-RL.html#offpolicy) | TD target、Q-learning、fitted Q-iteration | $Q(s,a)$、$Q_\phi$、$y$ | $y=r+\gamma\max_{a'}Q_{\phi'}(s',a')$ | expectation 换成 sample；function approximation |
+| [CS4246 第 2 站](../courses/CS4246.html#mdp)、[第 3 站](../courses/CS4246.html#dp) | Bellman expectation / optimality equation、value iteration、policy iteration | $v_\pi$、$v^*$、$q^*$、$T^*$ | $v^*(s)=\max_a[r(s,a)+\gamma\sum_{s'}P(s'\mid s,a)v^*(s')]$ | randomness、discount、contraction |
+| [CS4246 第 6 站](../courses/CS4246.html#td)、[CS285 第 5 站](../courses/BERKELEY-CS285.html#q)、[MODERN-RL 第 4 站](../courses/MODERN-RL.html#offpolicy) | TD target、Q-learning、fitted Q-iteration | $Q(s,a)$、$Q_\phi$、$y$ | $y=r+\gamma\max_{a'}Q_{\phi'}(s',a')$ | expectation 换成 sample；function approximation |
 | [MIT 6.8210 第 3 站](../courses/MIT-6.8210.html#lqr)、[第 4 站](../courses/MIT-6.8210.html#trajopt)、[RB2203 第 4 站](../courses/RB2203.html#ss) | LQR、Riccati equation、HJB、iLQR | $J^*(x)=x^\top Sx$、$S[n]$；iLQR 的 $V_x$、$Q_{uu}$ | $S[n-1]=Q+A^\top S[n]A-\cdots$ | state 连续；$V$ 恰好是 quadratic |
 
 CS2040、CS3230 和 MA3252 的 $d$ 是从 source 往前算的 cost-to-arrive，对 predecessor 取 min；其余是往 destination 算的 cost-to-go，对 successor 取 min。把所有 arc 反向，两者互换。D* Lite 的论文就是这样从 LPA* 得到 D* Lite 的：交换 start 和 goal，把 pseudo code 里所有 edge 反向。
@@ -127,11 +127,11 @@ CS2040、CS3230 和 MA3252 的 $d$ 是从 source 往前算的 cost-to-arrive，�
 
 ## CS2040：Bellman–Ford 就是 deterministic 的 value iteration
 
-[CS2040 第 8 站](../courses/CS2040.html#sssp)证明 Bellman–Ford 的那句 induction，“第 $i$ 轮之后，shortest path 不超过 $i$ 条 edge 的 vertex 都对了”，和上一节的“$V_k$ 是不超过 $k$ 条 arc 的最小 cost”是同一个 statement，也和 [CS4246 第 2 站](../courses/CS4246.html#dp)的“$V_k(s)$ 正好是只剩 $k$ 步可走时的 optimal value”是同一个。三门课各自证了一遍。
+[CS2040 第 8 站](../courses/CS2040.html#sssp)证明 Bellman–Ford 的那句 induction，“第 $i$ 轮之后，shortest path 不超过 $i$ 条 edge 的 vertex 都对了”，和上一节的“$V_k$ 是不超过 $k$ 条 arc 的最小 cost”是同一个 statement，也和 [CS4246 第 3 站](../courses/CS4246.html#dp)的“$V_k(s)$ 正好是只剩 $k$ 步可走时的 optimal value”是同一个。三门课各自证了一遍。
 
 两边有一处不同。CS2040 的 code 一算出 `D[e.v]` 就覆盖原值，同一轮里后面的 edge 用的已经是新值（一个 array）；CS4246 的表用整个 $V_k$ 算 $V_{k+1}$（两个 array）。前者叫 in-place，Edinburgh 的 RL 课说它 converge 得更快，快多少取决于次序。在本页的 network 上，in-place 按 $t,d,c,a,b,s$ 的次序 sweep，1 个 sweep 就到 $V^*$，因为这就是 DAG 的逆 topological order；按 $s,b,a,c,d,t$ 的次序要 3 个 sweep，和两个 array 一样，因为每个 node 用到的 successor 都还没更新。CS2040 的例子三轮一轮都省不掉，也是因为 edge list 的次序和 path 的方向相反。次序可以任意，只要每个 state 都会被反复更新，这叫 asynchronous DP；后面的 distance vector 和 D* Lite 都是它。
 
-Negative cycle 在 CS4246 里也出现过，只是换了符号。把 [CS4246 第 1 站](../courses/CS4246.html#mdp)两个 state 的 MDP 的 reward 改写成 cost $c=-r$：A 的 self-loop（stay）cost 是 $-1$，B 留在 B 的 cost 是 $-2$，都是 negative cycle。CS4246 说两个 policy 的 reward sum“都是 infinity”，就是 Bellman–Ford 会报告的“shortest path 没有定义”。两门课的处理不同：CS2040 多做一轮把它检测出来；CS4246 改问题，给第 $k$ 步乘上 $\gamma^k$，一直在 A 绕圈的 cost 变成 $-(1+0.9+0.81+\cdots)=-10$，有限了，而且 $T$ 成了 contraction。
+Negative cycle 在 CS4246 里也出现过，只是换了符号。把 [CS4246 第 2 站](../courses/CS4246.html#mdp)两个 state 的 MDP 的 reward 改写成 cost $c=-r$：A 的 self-loop（stay）cost 是 $-1$，B 留在 B 的 cost 是 $-2$，都是 negative cycle。CS4246 说两个 policy 的 reward sum“都是 infinity”，就是 Bellman–Ford 会报告的“shortest path 没有定义”。两门课的处理不同：CS2040 多做一轮把它检测出来；CS4246 改问题，给第 $k$ 步乘上 $\gamma^k$，一直在 A 绕圈的 cost 变成 $-(1+0.9+0.81+\cdots)=-10$，有限了，而且 $T$ 成了 contraction。
 
 ## CS3230：每张 DP table 底下都有一个 DAG
 
@@ -274,7 +274,7 @@ $$\text{rhs}(s)=\min_{s'\in\text{Succ}(s)}\big[c(s,s')+g(s')\big]$$
 
 ## CS4246：contraction、policy iteration 与 LP
 
-[CS4246 第 1 站](../courses/CS4246.html#mdp)和[第 2 站](../courses/CS4246.html#dp)在骨架上加了三样：$\gamma$ 和 contraction（fixed point 唯一、从哪里出发都 converge、能算出何时停）；$q^*(s,a)$，即 max 里面的那一项，也就是 distance vector 按 neighbor 分列的那张表；policy iteration，交替解一个没有 max 的 linear system（ST3236 那种）和做一次 improvement。
+[CS4246 第 2 站](../courses/CS4246.html#mdp)和[第 3 站](../courses/CS4246.html#dp)在骨架上加了三样：$\gamma$ 和 contraction（fixed point 唯一、从哪里出发都 converge、能算出何时停）；$q^*(s,a)$，即 max 里面的那一项，也就是 distance vector 按 neighbor 分列的那张表；policy iteration，交替解一个没有 max 的 linear system（ST3236 那种）和做一次 improvement。
 
 骨架的 LP 读法在这里也成立，而且把 MA3252 和 ST3236 连起来。Reward 求 max 时 inequality 反过来：若 $v\ge T^*v$，由 monotone，$v\ge T^*v\ge(T^*)^2v\ge\cdots$，而 contraction 保证 $(T^*)^kv\to v^*$，所以 $v\ge v^*$。$v^*$ 是满足 $v\ge T^*v$ 的最小的 $v$，于是
 
@@ -300,12 +300,12 @@ Policy iteration 也有 LP 的读法。Ye 证明了 policy iteration（包括 si
 
 ## CS285 与 MODERN-RL：expectation 换成 sample
 
-[CS4246 第 5 站](../courses/CS4246.html#td)已经把 Q-learning 写成了带 noise 的 value iteration：target $R+\gamma\max_{a'}Q(S',a')$ 的 conditional expectation 是 $(T^*Q)(s,a)$，每次只更新一个 entry、只走一小步。
+[CS4246 第 6 站](../courses/CS4246.html#td)已经把 Q-learning 写成了带 noise 的 value iteration：target $R+\gamma\max_{a'}Q(S',a')$ 的 conditional expectation 是 $(T^*Q)(s,a)$，每次只更新一个 entry、只走一小步。
 
-[CS285 第 4 站](../courses/BERKELEY-CS285.html#q)的 fitted Q-iteration 是同一件事的 batch 版本：(2) 对 dataset 里每条 transition 用 target parameter $\phi'$ 算 $y=r+\gamma\max_{a'}Q_{\phi'}(s',a')$；(3) 对 $Q_\phi\approx y$ 做 regression。如果 $Q$ 是一张 table、regression 做到底，每个 $(s,a)$ 的 $Q_\phi$ 就等于它那些 sample 的 $y$ 的平均，一个外层 iteration 正好是一次 value iteration 的 sweep，只是 $\sum_{s'}P(s'\mid s,a)$ 换成了 sample 平均。$\phi'$ 是旧的 array，$\phi$ 是新的：两个 array 的 synchronous 版本。DQN 每 10,000 步才更新一次 target，每一段近似做一次 $T$；online Q-learning 令 $\phi'=\phi$，是 in-place 的版本。
+[CS285 第 5 站](../courses/BERKELEY-CS285.html#q)的 fitted Q-iteration 是同一件事的 batch 版本：(2) 对 dataset 里每条 transition 用 target parameter $\phi'$ 算 $y=r+\gamma\max_{a'}Q_{\phi'}(s',a')$；(3) 对 $Q_\phi\approx y$ 做 regression。如果 $Q$ 是一张 table、regression 做到底，每个 $(s,a)$ 的 $Q_\phi$ 就等于它那些 sample 的 $y$ 的平均，一个外层 iteration 正好是一次 value iteration 的 sweep，只是 $\sum_{s'}P(s'\mid s,a)$ 换成了 sample 平均。$\phi'$ 是旧的 array，$\phi$ 是新的：两个 array 的 synchronous 版本。DQN 每 10,000 步才更新一次 target，每一段近似做一次 $T$；online Q-learning 令 $\phi'=\phi$，是 in-place 的版本。
 
 :::wrong Target network 是为了让 value 传得更快
-Table 上恰好相反。Edinburgh 的 RL 课说 in-place 比两个 array converge 得快；本页的 network 上，in-place 按好的次序 1 个 sweep 到 $V^*$，两个 array 要 3 个。Target network 要解决的是 function approximation 带来的问题：更新 $\phi$ 会同时改变所有 $(s,a)$ 的 $Q$，包括 target 里的 $s'$，CS285 说 regression 的目标“一直在跑”；冻住 $\phi'$，每一段就是一个 well-defined 的 regression，近似地做一次 $T$。近似的 $T$ 不一定是 contraction，这是 [CS4246 第 6 站](../courses/CS4246.html#fa) deadly triad 的内容。
+Table 上恰好相反。Edinburgh 的 RL 课说 in-place 比两个 array converge 得快；本页的 network 上，in-place 按好的次序 1 个 sweep 到 $V^*$，两个 array 要 3 个。Target network 要解决的是 function approximation 带来的问题：更新 $\phi$ 会同时改变所有 $(s,a)$ 的 $Q$，包括 target 里的 $s'$，CS285 说 regression 的目标“一直在跑”；冻住 $\phi'$，每一段就是一个 well-defined 的 regression，近似地做一次 $T$。近似的 $T$ 不一定是 contraction，这是 [CS4246 第 7 站](../courses/CS4246.html#fa) deadly triad 的内容。
 :::
 
 这两门课还换了 $T$ 本身，换了 operator，fixed point 就跟着换：

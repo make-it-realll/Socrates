@@ -132,7 +132,7 @@ $$\tilde u_i=10c_i-2C-18c_i,\qquad\tilde u_i-W=10c_i-2C-18c_i+10C=8C-8c_i=8C_{-i
 | [PS1101E 第 8 站](../courses/PS1101E.html#ir) | security dilemma、stag hunt、bargaining range | $r$、$k$；$p$、$c_A$、$c_B$ | $r>\frac12$；$p-c_A\le x\le p+c_B$ | 多个 equilibrium；war 是谈不拢 |
 | [LC1002A 第 6 站](../courses/LC1002A.html#econ) | Coase theorem、transaction cost、Hand formula | 牛的头数、$p$；$B$、$P$、$L$ | $p\in[1.5,3]$；$B<PL$ | legal rule 决定谈不拢时停在哪 |
 | [GE1101E 第 6 站](../courses/GE1101E.html#commons) | tragedy of the commons、Pigouvian tax、cap-and-trade | $t$；$MC_A$、$MC_B$ | $t=18$；$MC_A=MC_B=150$ | price 和 quantity 两种工具 |
-| [CS3263 第 8 站](../courses/CS3263.html#game) | Nash equilibrium、minimax | $\pi_A$、$\pi_B$、$V_A$ | $V_A(\pi_A^*,\pi_B^*)\ge V_A(\pi_A,\pi_B^*)$ | zero-sum 时 value 唯一 |
+| [CS3263 第 11 站](../courses/CS3263.html#game) | Nash equilibrium、minimax | $\pi_A$、$\pi_B$、$V_A$ | $V_A(\pi_A^*,\pi_B^*)\ge V_A(\pi_A,\pi_B^*)$ | zero-sum 时 value 唯一 |
 | [IS4302 第 2、3、6 站](../courses/IS4302.html#pow) | Nakamoto consensus、slashing、arbitrage | $\beta$、$q$、$z$；stake；$x$、$y$、$k$ | 按 protocol 走是 best response；$y/x=P_{\text{ext}}$ | protocol 自己就是 payoff |
 | [DSE4211 第 6、7 站](../courses/DSE4211.html#amm) | LVR、liquidation bonus、adverse selection | $\sigma$、$V$；$L$、$D$ | $\ell=\sigma^2V/8$；$P\ge0.8715L$ | surplus 被谁拿走 |
 | [STANFORD-CS237B 第 6 站](../courses/STANFORD-CS237B.html#game) | interaction-aware planning、Stackelberg、implicit gradient | $u_R$、$u_H$；$R_R$、$R_H$ | $u_R^*=\arg\max R_R\big(u_R,u_H^*(u_R)\big)$ | 对 follower 的 best response 求 derivative |
@@ -206,7 +206,7 @@ EC1101E 和 EC2101 都讲了 first-degree price discrimination 消除 deadweight
 
 ### 两个 equilibrium：选哪一个
 
-[PS1101E 第 8 站](../courses/PS1101E.html#ir)的 stag hunt、[MA4264 第 2 站](../courses/MA4264.html#ne)的 partnership game、[CS3263 第 8 站](../courses/CS3263.html#game)的 collaborative Morra 是另一种情形：好的结果本身就是 equilibrium，在那里 $e_i$ 不造成偏离，不需要 tax。问题是坏的结果也是 equilibrium。Stag hunt 里我 Restrain 当且仅当我认为对方 Restrain 的 probability $r>\tfrac12$；collaborative Morra 两人利益完全一致，仍有 value 为 4、2、$-\tfrac1{12}$ 的三个 equilibrium。改 payoff 的四类办法在这里用不上，要改的是 expectation。[BERKELEY-AGENTIC 第 6 站](../courses/BERKELEY-AGENTIC.html#multi) Brown 的论点落在同一处：general-sum game 里 self-play 会收敛到某一套约定，人用的可能是另一套，要知道人用哪一套只能看 human data。
+[PS1101E 第 8 站](../courses/PS1101E.html#ir)的 stag hunt、[MA4264 第 2 站](../courses/MA4264.html#ne)的 partnership game、[CS3263 第 11 站](../courses/CS3263.html#game)的 collaborative Morra 是另一种情形：好的结果本身就是 equilibrium，在那里 $e_i$ 不造成偏离，不需要 tax。问题是坏的结果也是 equilibrium。Stag hunt 里我 Restrain 当且仅当我认为对方 Restrain 的 probability $r>\tfrac12$；collaborative Morra 两人利益完全一致，仍有 value 为 4、2、$-\tfrac1{12}$ 的三个 equilibrium。改 payoff 的四类办法在这里用不上，要改的是 expectation。[BERKELEY-AGENTIC 第 6 站](../courses/BERKELEY-AGENTIC.html#multi) Brown 的论点落在同一处：general-sum game 里 self-play 会收敛到某一套约定，人用的可能是另一套，要知道人用哪一套只能看 human data。
 
 ## LC1002A、GE1101E 与 PS1101E：Coase 是一次 bargaining
 

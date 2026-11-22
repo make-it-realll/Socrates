@@ -125,7 +125,7 @@ sources:
 | 6 | 从零写 GPT | 7 | ng-video-lecture、nanoGPT |
 | 7 | GPT tokenizer | 8 | minbpe |
 
-已有页面讲过的部分这里只给链接：chain rule 在一个 2-2-1 network 上的逐个 weight 推导在 [CS2109S 第 8 站](../courses/CS2109S.html#nn)；matrix 形式的 backward、softmax 加 cross-entropy 的 gradient 是 $p-y$、ReLU 的 $2/n$ initialization 在 [CS3244 第 6 站](../courses/CS3244.html#nn)；perplexity 和 n-gram 的 smoothing 在 [CS4248 第 2 站](../courses/CS4248.html#ngram)；attention 的 formula、$\sqrt{d_k}$ 的来历、Transformer block 的 parameter 数在 [CS4248 第 6 站](../courses/CS4248.html#attn)；BPE training 的增量实现和 tie-breaking 在 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)。这一页的篇幅留给这门课自己的东西：从零写出来的每一行 code 在做什么，以及怎样知道它写对了。
+已有页面讲过的部分这里只给链接：chain rule 在一个 2-2-1 network 上的逐个 weight 推导在 [CS2109S 第 9 站](../courses/CS2109S.html#nn)；matrix 形式的 backward、softmax 加 cross-entropy 的 gradient 是 $p-y$、ReLU 的 $2/n$ initialization 在 [CS3244 第 6 站](../courses/CS3244.html#nn)；perplexity 和 n-gram 的 smoothing 在 [CS4248 第 2 站](../courses/CS4248.html#ngram)；attention 的 formula、$\sqrt{d_k}$ 的来历、Transformer block 的 parameter 数在 [CS4248 第 6 站](../courses/CS4248.html#attn)；BPE training 的增量实现和 tie-breaking 在 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)。这一页的篇幅留给这门课自己的东西：从零写出来的每一行 code 在做什么，以及怎样知道它写对了。
 
 只有十几个小时时的路线：第 6、7 站必读，第 3 站必读；backprop 还不熟练时加上第 1 站。第 2 站的 bigram 部分和第 5 站可以先跳，每站开头写了跳过的代价。
 
@@ -151,7 +151,7 @@ $f'(x)=6x-4$ 在 $x=3$ 是 14，实验和 formula 对得上。Notebook 接着在
 | $a\to a+h$ | $4-3h$ | $-3=b$ | 乘法对 $a$ 的 local derivative 是另一个因子 $b$ |
 | $b\to b+h$ | $4+2h$ | $2=a$ | 对 $b$ 的是 $a$ |
 
-这两条就是后面全部 backward 的原料。用这种实验去求 gradient 有一个代价：有 $P$ 个 parameter，就要多做 $P$ 次 forward。GPT-2 有上亿个 parameter，每走一步都要做上亿次 forward，这条路走不通。[CS2109S 第 8 站](../courses/CS2109S.html#nn)具体数过两种做法的运算次数；Cornell CS4787 的讲义把 reverse mode 的结论说成：对一个 scalar loss，所有 parameter 的 gradient 只比一次 forward 多一个常数倍的代价。
+这两条就是后面全部 backward 的原料。用这种实验去求 gradient 有一个代价：有 $P$ 个 parameter，就要多做 $P$ 次 forward。GPT-2 有上亿个 parameter，每走一步都要做上亿次 forward，这条路走不通。[CS2109S 第 9 站](../courses/CS2109S.html#nn)具体数过两种做法的运算次数；Cornell CS4787 的讲义把 reverse mode 的结论说成：对一个 scalar loss，所有 parameter 的 gradient 只比一次 forward 多一个常数倍的代价。
 
 ### 把每一步运算记下来
 
