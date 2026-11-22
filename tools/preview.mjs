@@ -33,7 +33,10 @@ for (const w of [1180, 390]) {
     // 图里的文字有没有伸出画布
     const clipped = [];
     document.querySelectorAll('svg.fig-svg').forEach((s, i) => { const vb = s.viewBox.baseVal; s.querySelectorAll('text').forEach((t) => { const bb = t.getBBox(); if (bb.x < vb.x - 1 || bb.y < vb.y - 1 || bb.x + bb.width > vb.x + vb.width + 1 || bb.y + bb.height > vb.y + vb.height + 1) clipped.push(`图 ${i + 1}: “${t.textContent.slice(0, 30)}”`); }); });
-    return { docW: document.documentElement.scrollWidth, katexErr: document.querySelectorAll('.katex-error').length, wide, clipped, figs: document.querySelectorAll('svg.fig-svg').length, stations: document.querySelectorAll('.stop-h').length, chars: document.querySelector('main').innerText.length };
+    // 动图的 keyTimes：必须从 0 开始、不减、个数和 values 一样；linear 的最后一个必须是 1，否则浏览器整段忽略
+    const badAnim = [];
+    document.querySelectorAll('svg.fig-svg').forEach((s, i) => { s.querySelectorAll('animate, animateTransform').forEach((a) => { const kt = a.getAttribute('keyTimes'), vs = a.getAttribute('values'); if (!kt || !vs) return; const k = kt.split(';').map(Number), n = vs.split(';').length, disc = a.getAttribute('calcMode') === 'discrete'; let ok = k.length === n && Math.abs(k[0]) < 1e-9 && k.every((x, j) => j === 0 || x >= k[j - 1]) && (disc ? k[k.length - 1] <= 1 + 1e-9 : Math.abs(k[k.length - 1] - 1) < 1e-9); if (!ok && !badAnim.includes(i + 1)) badAnim.push(i + 1); }); });
+    return { badAnim, docW: document.documentElement.scrollWidth, katexErr: document.querySelectorAll('.katex-error').length, wide, clipped, figs: document.querySelectorAll('svg.fig-svg').length, stations: document.querySelectorAll('.stop-h').length, chars: document.querySelector('main').innerText.length };
   });
   const issues = [];
   if (r.docW > w + 1) issues.push(`页面比视口宽（${r.docW} > ${w}），有东西撑破了版面`);
@@ -41,6 +44,7 @@ for (const w of [1180, 390]) {
   if (r.wide.length) issues.push('公式超宽：' + r.wide.join(' | '));
   if (w === 1180 && r.clipped.length) issues.push('图里的文字伸出了画布：' + r.clipped.join('；'));
   if (errs.length) issues.push('脚本错误：' + errs.join(' | '));
+  if (w === 1180 && r.badAnim.length) issues.push('动图的 keyTimes 不合法（浏览器会不播放），图：' + r.badAnim.join(', '));
   console.log(`[${w}px] ${r.stations} 站，${r.figs} 张图，正文约 ${r.chars} 字` + (issues.length ? '\n  问题：\n  - ' + issues.join('\n  - ') : '，没有发现版面问题'));
   bad += issues.length;
   if (w === 1180) {
