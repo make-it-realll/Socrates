@@ -1,4 +1,4 @@
-import { svg, path, line, rect, circle, text, arrow } from '../lib/svg.mjs';
+import { svg, path, line, rect, circle, text, arrow, lin, d, axes } from '../lib/svg.mjs';
 
 // 一个带圆角的卡片，里面若干行居中的字
 function card(x, y, w, h, lines, cls = 'paper') {
@@ -21,22 +21,26 @@ function argmap() {
   return svg(560, 240, o, '两条 premise 汇合后经过一步 inference 得到 conclusion；可以反对的地方是某条 premise 或者这一步 inference');
 }
 
-// 第 2 站：logical problem of evil 的四条实质 premise，受攻击最多的是 P4
+// 第 2 站：Mackie 的三句话加两条 quasi-logical rule，受攻击最多的是 M4
 function evil() {
-  let o = rect(10, 8, 540, 172, 'frame', 8);
-  const box = (x, y, t1, t2, t3, hot) => {
-    let s = hot ? rect(x, y, 250, 72, 'wash', 6) + rect(x, y, 250, 72, 'ln', 6) : rect(x, y, 250, 72, 'paper', 6);
-    s += text(x + 125, y + 22, t1, 'tb', 'middle') + text(x + 125, y + 42, t2, 't', 'middle') + text(x + 125, y + 60, t3, hot ? 'tl' : 'ts', 'middle');
+  let o = rect(6, 8, 548, 196, 'frame', 8);
+  o += text(20, 28, 'Theist 相信的三句话', 'ts');
+  const top = (x, t1, t2) => rect(x, 36, 166, 52, 'paper', 6) + text(x + 83, 58, t1, 'tb', 'middle') + text(x + 83, 77, t2, 'ts', 'middle');
+  o += top(20, '(a)  Omnipotent', 'God is omnipotent');
+  o += top(197, '(b)  Wholly good', 'God is wholly good');
+  o += top(374, '(c)  Evil exists', '否认它的代价最大');
+  o += text(20, 110, 'Mackie 加的两条 quasi-logical rule', 'ts');
+  const rule = (x, t1, t2, t3, t4, hot) => {
+    let s = hot ? rect(x, 118, 256, 78, 'wash', 6) + rect(x, 118, 256, 78, 'ln', 6) : rect(x, 118, 256, 78, 'paper', 6);
+    s += text(x + 12, 138, t1, 'tb') + text(x + 12, 156, t2, 't') + text(x + 12, 172, t3, 't') + text(x + 12, 189, t4, hot ? 'tl' : 'ts');
     return s;
   };
-  o += box(20, 16, 'P2  Omnipotent', '有 power 消除一切 evil', '通常限定为 logically possible 的事');
-  o += box(290, 16, 'P3  Omniscient', '知道 evil 何时存在', '很少有人否认');
-  o += box(20, 98, 'P4  Morally perfect', '有 desire 消除一切 evil', 'Theodicy 与 free will defence 否认它', true);
-  o += box(290, 98, 'P5  Evil exists', 'World 里确实有 evil', '否认它的代价最大');
-  o += arrow(280, 180, 280, 212, 'ink');
-  o += text(294, 201, '四条合起来（加上 P1、P6）', 'ts');
-  o += rect(160, 214, 240, 42, 'paper', 6) + text(280, 240, 'C  这样的 God 不存在', 'tb', 'middle');
-  return svg(560, 266, o, 'Logical problem of evil 的四条 premise 共同推出 God 不存在；其中 morally perfect 的 being 想消除一切 evil 这一条是主要的攻击对象');
+  o += rule(20, 'M4', 'A good thing always eliminates', 'evil as far as it can.', 'BB 与 free will defence 否认它', true);
+  o += rule(284, 'M5', 'There are no limits to what an', 'omnipotent thing can do.', '限定为 logically possible，双方都接受');
+  o += arrow(280, 204, 280, 234, 'ink');
+  o += text(294, 224, '五句合起来（第 6 至 10 步）', 'ts');
+  o += rect(120, 236, 320, 44, 'paper', 6) + text(280, 263, 'God 不是 wholly good，和 (b) 矛盾', 'tb', 'middle');
+  return svg(560, 290, o, 'Mackie 的 logical problem of evil：theist 相信的三句话 God omnipotent、God wholly good、evil exists，加上两条 quasi-logical rule，一起推出 God 不是 wholly good 的矛盾；其中 good 总会尽其所能消除 evil 这一条是主要的攻击对象');
 }
 
 // 第 3 站：三句话不能同时为真，各方各弃一句
@@ -163,7 +167,7 @@ function williams() {
   };
   o += path('M452 140L452 150L145 150L145 174', 'mute') + path('M415 150L415 174', 'mute');
   o += text(280, 167, '你是 A。对这同一个结果，有两种问法', 'ts', 'middle');
-  o += card(20, '讲法一：先让你分配', ['一个拿 100,000 美元，一个受酷刑，', '你出于自私来指定。多数人：钱给', 'B 的 body，酷刑给 A 的 body。'], '跟着 memory 走：personality theory');
+  o += card(20, '讲法一：先让你分配', ['一个拿 100,000 美元，一个受酷刑，', '你出于自私来指定。Williams：A 会', '把钱给 B 的 body，酷刑给 A 的 body。'], '跟着 memory 走：personality theory');
   o += card(290, '讲法二：一条一条往上加', ['明天你受酷刑；先抹掉 memory，再', '改 personality……加完第 6 条，', '怕的仍是 A 的 body 受刑。'], '留在这个 body 里：body theory');
   return svg(560, 314, o, 'Williams 的 case：机器把 A 和 B 的 brain 信息互换，A 的 body 带着 B 的 memory，B 的 body 带着 A 的；先问怎样分配奖惩时多数人站在 personality theory 一边，一条条加条件时人们又站在 body theory 一边');
 }
@@ -186,6 +190,32 @@ function frankfurt() {
   return svg(560, 318, o, 'Frankfurt case 的两条路：实际上 Jones 没有反悔，出于自己的理由开枪；假如他露出反悔的迹象，Black 会介入操纵他照样开枪。两条路都通向开枪，所以 Jones 没有 alternative，却仍然负 moral responsibility');
 }
 
+// 第 7 站：Norcross 的 threshold 模型。数字按他的假设算：每人每年 25 只，产业每 10,000 人才反应一次
+function threshold() {
+  const PER = 25, STEP = 10000, X1 = 32000, Y1 = 800000;
+  const sx = lin(0, X1, 80, 520), sy = lin(0, Y1, 220, 30);
+  let o = axes({ sx, sy, x0: 0, x1: X1, y0: 0, y1: Y1,
+    xt: [[0, '0'], [10000, '10,000'], [20000, '20,000'], [30000, '30,000']],
+    yt: [[0, '0'], [250000, '250,000'], [500000, '500,000'], [750000, '750,000']],
+    xl: '戒鸡的人数', yl: '每年少养的鸡（只）', grid: true });
+  // 实际的减产：阶梯
+  const pts = [];
+  for (let k = 0; k * STEP < X1; k++) {
+    const y = k * STEP * PER;
+    pts.push([sx(k * STEP), sy(y)], [sx(Math.min((k + 1) * STEP, X1)), sy(y)]);
+    if ((k + 1) * STEP <= X1) pts.push([sx((k + 1) * STEP), sy((k + 1) * STEP * PER)]);
+  }
+  o += path(d(pts), 'ln');
+  // 平均：每人 25 只的直线
+  o += line(sx(0), sy(0), sx(X1), sy(X1 * PER), 'dash');
+  o += circle(sx(STEP), sy(STEP * PER), 3.5, 'ln-f');
+  o += text(sx(STEP) + 8, 198, '第 10,000 个人戒鸡：减产 ' + (STEP * PER).toLocaleString('en-US') + ' 只', 'ts');
+  o += text(sx(20500), 128, '实际减产：每凑满', 'ts') + text(sx(20500), 144, STEP.toLocaleString('en-US') + ' 人才跳一级', 'ts');
+  o += text(sx(25000), 50, '平均到每个人：' + PER + ' 只', 'tl', 'end');
+  o += text(sx(25000), 66, '= ' + (STEP * PER).toLocaleString('en-US') + ' × 1/' + STEP.toLocaleString('en-US'), 'ts', 'end');
+  return svg(560, 256, o, 'Norcross 的 threshold 模型：横轴是戒鸡的人数，纵轴是每年少养的鸡。实际减产是阶梯，每满 10,000 人跳 250,000 只；虚线是平均每人 25 只的直线，阶梯的每个拐角都落在这条线上');
+}
+
 export default {
   'gex1015-williams': williams,
   'gex1015-frankfurt': frankfurt,
@@ -196,4 +226,5 @@ export default {
   'gex1015-fission': fission,
   'gex1015-freemap': freemap,
   'gex1015-trolley': trolley,
+  'gex1015-threshold': threshold,
 };
