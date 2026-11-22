@@ -1,7 +1,7 @@
 ---
 code: NW-MODERNROBOTICS
 evidence: syllabus
-evidenceNote: "前沿公开课，不是 NUS 课。期次：Lynch 与 Park 的教材 Modern Robotics v2（2019 年 12 月版 preprint），配套的 Coursera 六门课 Specialization，以及 Northwestern ME 449 Fall 2026。教材这次读的是全文：Northwestern 的 PDF 地址被代理拒绝，改从 GitHub 上一个学习笔记仓库里的同版大字版 PDF（MR-largefont-v2.pdf，2020 年 1 月生成）抽出全文，第 2 到 6、9 到 13 章和附录 C 逐段对过；抽文字时 minus sign 会丢，所以涉及符号的例子（Example 3.23、3.26、3.28、4.1、4.5、6.1、12.7、13.2 节的 H(0)、13.4 节的 odometry、C.1）又把那几页渲染成图片逐个核对。第 7、8 章和 9.3、9.4 节读过但这一页没有写（见各站 :::skip）。Video lectures 没有看。作业部分读了 ME 449 Fall 2026 课程页和 Assignment 1 到 5 全部 handout、Fall 2025 存档页、capstone、A*、sampling-based planning、form closure、stability of an assembly 五份 wiki handout、CoppeliaSim Introduction 与安装页、MR code library 的 README 和 user manual。Coursera 只读到了 Course 2、3 的课程页；Specialization 总页面的权限请求超时，Course 1、4、5、6 的课程页没有去抓。Course 2、3 的 project handout 不在 wiki 上：Course 2 的内容与 ME 449 Assignment 3 Part 1 相同（读了后者），Course 3 的题面只读到一份学生仓库里转抄的版本。"
+evidenceNote: "前沿公开课，不是 NUS 课。期次：Lynch 与 Park 的教材 Modern Robotics v2（2019 年 12 月版 preprint），配套的 Coursera 六门课 Specialization，以及 Northwestern ME 449 Fall 2026。教材这次读的是全文：Northwestern 的 PDF 地址被代理拒绝，改从 GitHub 上一个学习笔记仓库里的同版大字版 PDF（MR-largefont-v2.pdf，2020 年 1 月生成）抽出全文，第 2 到 13 章和附录 C 逐段对过；抽文字时 minus sign 会丢，所以涉及符号的例子（Example 3.23、3.26、3.28、4.1、4.5、6.1、12.7、13.2 节的 H(0)、13.4 节的 odometry、C.1）又把那几页渲染成图片逐个核对；第 7、8 章、9.3 与 9.4 节、11.5 到 11.7 节、12.1.6 与 12.2.2 节、13.3 节这次补成了第 5、6、9、10、13 站和第 11 站的两个小节，书上的 Example（8.5、13.5、Figure 13.17 等）用 MR code library 的 Python 版或自己写的 Python 重算过，Figure 7.5 与 11.51、11.52 式那两页也渲染成图片核对；第 7 章、9.4 节和 11.5 到 11.7 节书上没有数值例子，那几站的例子是自己构造的。Video lectures 没有看。作业部分读了 ME 449 Fall 2026 课程页和 Assignment 1 到 5 全部 handout、Fall 2025 存档页、capstone、A*、sampling-based planning、form closure、stability of an assembly 五份 wiki handout、CoppeliaSim Introduction 与安装页、MR code library 的 README 和 user manual。Coursera 只读到了 Course 2、3 的课程页（Course 2 第 4 个 module 就是第 7 章，这次又读了一遍它的结构）；Specialization 总页面的权限请求超时，Course 1、4、5、6 的课程页没有去抓。Course 2、3 的 project handout 不在 wiki 上：Course 2 的内容与 ME 449 Assignment 3 Part 1 相同（读了后者），Course 3 的题面只读到一份学生仓库里转抄的版本。"
 exam: "Coursera：每章一个 graded quiz 加每段视频一个 Lecture Comprehension quiz（Course 2、3 课程页列出的结构），project 由同学互评。ME 449 Fall 2026：Coursera 成绩 25%，Coursera 之外的 5 个 assignment 25%，Quiz 1（第 2 到 5 章）25%，Quiz 2 25%（来源：ME 449 Fall 2026 课程页）。"
 subskills:
   - id: cspace
@@ -24,6 +24,16 @@ subskills:
     l3: "能对一条 open chain 写出 space Jacobian 的每个 column，并用 $\\tau=J^\\top\\mathcal F$ 算 joint torque。"
     l4: "能独立算出 body Jacobian，验证 $J_s=[\\mathrm{Ad}_{T_{sb}}]J_b$，并用 body twist 作 error 做 Newton–Raphson IK。"
     l5: "能解释 IK 的 error 为什么必须是 $\\log(T_{sb}^{-1}T_{sd})$ 而不是两个 matrix 之差，以及 Jacobian 和 wrench 必须配同一个 frame 的理由。"
+  - id: closed
+    name: Closed chain：parallel mechanism 的 kinematics 与 singularity
+    l3: "能写出 3×RPR 或 Stewart platform 的 IK，并说出为什么 parallel mechanism 的 FK 有多个解。"
+    l4: "能独立用 statics 求出 Stewart 类 mechanism 的 $J_s^{-1}$，对一般 parallel mechanism 写出 $H_a\\dot q_a+H_p\\dot q_p=0$ 并求出 $J_a$。"
+    l5: "能用 five-bar 的具体 configuration 讲清 actuator singularity、configuration space singularity 和 end-effector singularity 的区别，以及哪种能靠挪 actuator 消除。"
+  - id: dyn
+    name: Dynamics：Lagrangian、Newton–Euler 与 mass matrix
+    l3: "能对 2R arm 用 Lagrangian 推出 $M(\\theta)$、$c(\\theta,\\dot\\theta)$、$g(\\theta)$，并算出给定 state 的 joint torque。"
+    l4: "能独立手算 Newton–Euler inverse dynamics 的 forward 与 backward iteration，用 $n$ 次 inverse dynamics 拼出 $M$，写出 forward dynamics 的 Euler integration。"
+    l5: "能解释 $\\ddot\\theta=0$ 为什么仍要 torque、end-effector mass matrix 为什么随方向变、explicit Euler 为什么让 energy 越积越多。"
   - id: plan
     name: Motion planning：C-obstacle 与 sampling-based planner
     l3: "能判断一个 configuration 在不在 C-obstacle 里，并按步骤手算 RRT 的一轮扩展。"
@@ -34,6 +44,16 @@ subskills:
     l3: "能写出 velocity-controlled joint 的 feedforward 加 PI 控制律，并由 $K_p$、$K_i$ 算出 $\\zeta$ 和 $\\omega_n$。"
     l4: "能独立写出 task-space 的控制律 $\\mathcal V=[\\mathrm{Ad}_{X^{-1}X_d}]\\mathcal V_d+K_pX_{\\mathrm{err}}+K_i\\int X_{\\mathrm{err}}$，并核对 capstone 的测试数值；能在 screw path 和 Cartesian path 之间做选择。"
     l5: "能解释为什么 PI 在 $\\zeta\\ge1$ 时 error 仍会越过零，以及 feedforward 缺了 $[\\mathrm{Ad}]$ 或缺了 feedback 各会怎样失败。"
+  - id: timeopt
+    name: Via point 与 time-optimal time scaling
+    l3: "能由 via point 的位置和 velocity 求出每段 cubic 的 coefficient，并对给定的 $(s,\\dot s)$ 算出 $L$ 和 $U$。"
+    l4: "能独立在 phase plane 上画出 motion cone 与 velocity limit curve，按 time-scaling algorithm 找出全部 switch。"
+    l5: "能说明 time-optimal 解为什么永远在 $U$ 或 $L$ 上、为什么只能和 velocity limit curve 相切，以及实际中为什么很少原样使用它。"
+  - id: force
+    name: Force control、hybrid motion–force control 与 impedance control
+    l3: "能写出 $\\tau=\\tilde g+J^\\top\\mathcal F_d$ 与带 F/T sensor 的 PI force control，并说出 natural constraint 与 artificial constraint。"
+    l4: "能独立算出 hybrid control 的 projection $P$，写出 impedance control 与 admittance control 的 control law。"
+    l5: "能用数字说明按坐标轴分 motion/force 为什么错，以及 impedance control 为什么难以 render 很硬的环境。"
   - id: grasp
     name: Grasping：form closure 与 force closure
     l3: "能写出 planar contact 的 wrench，并用 linear program 判断 form closure。"
@@ -44,6 +64,11 @@ subskills:
     l3: "能写出 youBot 的 $H(0)$，由 wheel speed 算出 chassis 的 body twist。"
     l4: "能独立写出 odometry 的 exact integration 和 $J_e=[J_{\\mathrm{base}}\\ J_{\\mathrm{arm}}]$，复现 capstone 的测试数值。"
     l5: "能解释 mecanum wheel 的 roller 为什么让 chassis omnidirectional，以及 pseudoinverse 的 minimum-norm 解为什么会把 arm 拉向 singularity。"
+  - id: nonholo
+    name: Nonholonomic mobile robot：controllability、shortest path 与 tracking
+    l3: "能写出 unicycle、diff-drive、car 的 kinematic model 并换成 canonical model，算出两个 vector field 的 Lie bracket。"
+    l4: "能独立判断 STLA 与 STLC，枚举 Dubins path 求最短路径，写出 (13.31) 的 tracking control law。"
+    l5: "能解释 nonholonomic robot 为什么 controllable 却不能用 continuous time-invariant feedback 稳到一点，以及只跟踪一个 reference point 为什么可能倒着开。"
 open:
   - label: "Lynch & Park, Modern Robotics: Mechanics, Planning, and Control（v2 preprint，2019 年 12 月）"
     url: "https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf"
@@ -53,7 +78,7 @@ open:
     note: "只用来找各种材料的链接；video lectures 没有看。"
   - label: "ME 449 Robotic Manipulation，Fall 2026 课程页"
     url: "http://hades.mech.northwestern.edu/index.php/ME_449_Robotic_Manipulation"
-    note: "评分比例、进度表（跳过 4.2、8.4、8.7 到 8.9、13.3）和 Assignment 1 到 5 的链接。"
+    note: "评分比例、进度表（跳过 4.2、8.4、8.7 到 8.9、13.3；第 7 章、11.5 到 11.7 节和第 12 章不在进度表里；9.3、9.4 节在 11 月 6 日到 11 日）和 Assignment 1 到 5 的链接。这次读的是 2026 年 11 月 11 日编辑的版本。"
   - label: "ME 449 Fall 2026 Assignment 2、3、4、5（PDF）"
     url: "https://hades.mech.northwestern.edu/images/b/bf/ME449-asst3-2026.pdf"
     note: "四份都读了（另三份是同目录下的 ME449-Asst2-2026.pdf、ME449-asst4-2026.pdf、ME449-asst5-2026.pdf）。Assignment 2、5 主要是书上习题的题号，习题原文在书里。"
@@ -65,7 +90,7 @@ open:
     note: "用来对照上一期的作业安排（Fall 2025 的 Assignment 2 是书上习题 3.16、3.27、4.2、4.5、4.10、5.2）。"
   - label: "Capstone Project：Mobile Manipulation（handout）"
     url: "https://hades.mech.northwestern.edu/index.php/Mobile_Manipulation_Capstone"
-    note: "第 6、8 站的测试数值和“作业”一节的大部分提示。全文分两段读完，这次又按问题逐条核对了一遍。"
+    note: "第 8、12 站的测试数值和“作业”一节的大部分提示。全文分两段读完，这次又按问题逐条核对了一遍。"
   - label: "CoppeliaSim Introduction（Scene 1 到 8 的说明与 CSV 格式）"
     url: "http://hades.mech.northwestern.edu/index.php/CoppeliaSim_Introduction"
     note: "确认了 obstacles.csv 第三列是 diameter、Scene 6 每行 13 个数等格式。"
@@ -80,7 +105,7 @@ open:
     note: "四份 handout 都读了（另三份是同一 wiki 上的 A*_Graph_Search_Project、Sampling-Based_Planning、Evaluating_Form_Closure_Project）。"
   - label: "Coursera：Modern Robotics, Course 2: Robot Kinematics"
     url: "https://www.coursera.org/learn/modernrobotics-course2"
-    note: "课程页：四个 module 的视频、graded quiz 和 project 的名字；project 的题面不在这一页上。"
+    note: "课程页：四个 module 的视频、graded quiz 和 project 的名字；第 4 个 module 是第 7 章（一段 9 分钟视频、一个 Lecture Comprehension、一个 chapter quiz，没有 project），是第 5 站的出处之一。project 的题面不在这一页上。"
   - label: "Coursera：Modern Robotics, Course 3: Robot Dynamics"
     url: "https://www.coursera.org/learn/modernrobotics-course3"
     note: "同上。"
@@ -108,9 +133,9 @@ sources:
 
 **第三次。** Mobile manipulator 的 gripper 要沿一条 reference trajectory 把方块从 $(1,0)$ 搬到 $(0,-1)$。Controller 只用 feedforward：每一步照着 reference 的 velocity 走。Gripper 开始时偏了 40° 和 0.47 m，走完 15 秒，它停在地面以下 0.25 m。
 
-::fig[mr-ffonly] 左边两个 gripper 按 2 倍速重放 15 秒的 kinematic simulation（自己写的，第 6 站会讲），虚线框是 reference 此刻要它在的位置。看左边那个：起点的偏差（低了一截，还歪了 40°）没有谁去拉回来，照着 reference 的 velocity 走只会把它一路带着，最后整个钻到地面以下。右边那个加了 feedback，不到 3 秒就钻进虚线框。右边 plot 上的点与左边同步。
+::fig[mr-ffonly] 左边两个 gripper 按 2 倍速重放 15 秒的 kinematic simulation（自己写的，第 8 站会讲），虚线框是 reference 此刻要它在的位置。看左边那个：起点的偏差（低了一截，还歪了 40°）没有谁去拉回来，照着 reference 的 velocity 走只会把它一路带着，最后整个钻到地面以下。右边那个加了 feedback，不到 3 秒就钻进虚线框。右边 plot 上的点与左边同步。
 
-三件事分别要用到这门课的三样东西：configuration space 的 topology（第 1 站），twist 和它所在的 frame（第 2 站），以及带 feedback 的 task-space control（第 6 站）。
+三件事分别要用到这门课的三样东西：configuration space 的 topology（第 1 站），twist 和它所在的 frame（第 2 站），以及带 feedback 的 task-space control（第 8 站）。
 
 Modern Robotics 和传统 robotics 教材最大的不同，是全书只用一种语言：rigid body 的 velocity 是一个 6-vector twist，force 是一个 6-vector wrench，joint 是一条 screw axis，forward kinematics 是一串 matrix exponential 的乘积。学会这一套，Jacobian、IK、trajectory、control、mobile manipulation 都是同一组运算的组合。全课的终点是 Coursera 的 capstone：自己写 odometry、trajectory generator 和 feedback controller，让 KUKA youBot 在 simulator 里完成一次 pick-and-place。下表是每一站在 capstone 里的位置。
 
@@ -120,13 +145,18 @@ Modern Robotics 和传统 robotics 教材最大的不同，是全书只用一种
 | 2 | twist、screw、wrench、$[\mathrm{Ad}]$ | 所有 error 和 velocity 的表示 |
 | 3 | PoE forward kinematics | 由 $\theta$ 算 $T_{0e}$ |
 | 4 | body Jacobian、numerical IK | $J_{\mathrm{arm}}$ |
-| 5 | motion planning | capstone 不用；Course 4 的两个 project |
-| 6 | trajectory 与 task-space control | TrajectoryGenerator、FeedbackControl |
-| 7 | grasping | gripper 的 standoff 与 grasp pose；Course 5 的两个 project |
-| 8 | mobile manipulation | NextState、$J_{\mathrm{base}}$、$J_e$ |
+| 5 | closed chain：parallel mechanism | capstone 不用；Course 2 第 4 个 module 的 quiz |
+| 6 | dynamics：Lagrangian、Newton–Euler | capstone 不用（velocity 接口）；ME 449 Assignment 4、5，Course 3 的 project |
+| 7 | motion planning | capstone 不用；Course 4 的两个 project |
+| 8 | trajectory 与 task-space control | TrajectoryGenerator、FeedbackControl |
+| 9 | via point、time-optimal time scaling | capstone 不用；ME 449 Assignment 5 |
+| 10 | force、hybrid、impedance control | capstone 不用 |
+| 11 | grasping | gripper 的 standoff 与 grasp pose；Course 5 的两个 project |
+| 12 | mobile manipulation | NextState、$J_{\mathrm{base}}$、$J_e$ |
+| 13 | nonholonomic mobile robot | capstone 不用（youBot 是 omnidirectional） |
 
 :::note 和 RB2202 的分工
-NUS 的 [RB2202](../courses/RB2202.html) 也以这本书为主要讲法，已经详细讲了 rotation 的各种表示（Rodrigues formula、quaternion）、homogeneous transform、2R arm 的 Jacobian 与 singularity、IK 的 analytic solution 和 damped least squares、Lagrangian dynamics、cubic/quintic time scaling，以及 D-H 在相邻 axis 接近 parallel 时的 ill-conditioning。这一页不重复这些，只在用到时指过去，把篇幅留给 Modern Robotics 自己的东西：C-space 的 topology、twist 与 wrench、PoE 与 space/body Jacobian、motion planning、task-space control、grasping 和 mobile manipulation。
+NUS 的 [RB2202](../courses/RB2202.html) 也以这本书为主要讲法，已经详细讲了 rotation 的各种表示（Rodrigues formula、quaternion）、homogeneous transform、2R arm 的 Jacobian 与 singularity、IK 的 analytic solution 和 damped least squares、Lagrangian dynamics、cubic/quintic time scaling，以及 D-H 在相邻 axis 接近 parallel 时的 ill-conditioning。这一页不重复 rotation、Jacobian 的 singularity、analytic IK 和 cubic/quintic，只在用到时指过去，把篇幅留给 Modern Robotics 自己的东西：C-space 的 topology、twist 与 wrench、PoE 与 space/body Jacobian、closed chain、motion planning、task-space control、grasping 和 mobile robot。Dynamics 例外：第 6 站从 Lagrangian 重新推一遍，因为 Newton–Euler、mass matrix、forward dynamics 和后面的 time-optimal、force control 都要用同一个 2R 例子接着算。
 :::
 
 ## [cspace] Configuration space：dof、topology 与 constraint
@@ -190,7 +220,7 @@ $$6(14-1-18)+6\times2+6\times1+6\times3=-30+12+6+18=6$$
 
 把 torus 摊平就是那个 $[-180^\circ,180^\circ)^2$ 的 square，但左右两条边是同一条，上下两条边也是同一条。开头第一次失败就出在这里。
 
-::fig[mr-cspace] 左边是 workspace 里的 arm 和两个圆形 obstacle，右边是同一个问题在 C-space 里的样子，深色区域是让 arm 碰到 obstacle 的 $(\theta_1,\theta_2)$（第 5 站会讲它怎么算）。Arm 沿找到的 path 走时，右边的点同步走：看它走到左边界 $-180^\circ$ 时，从右边界 $180^\circ$ 冒出来接着走，arm 本身的动作是连续的。
+::fig[mr-cspace] 左边是 workspace 里的 arm 和两个圆形 obstacle，右边是同一个问题在 C-space 里的样子，深色区域是让 arm 碰到 obstacle 的 $(\theta_1,\theta_2)$（第 7 站会讲它怎么算）。Arm 沿找到的 path 走时，右边的点同步走：看它走到左边界 $-180^\circ$ 时，从右边界 $180^\circ$ 冒出来接着走，arm 本身的动作是连续的。
 
 Obstacle A 的 center 在 $(0.6,0)$，radius 0.15。Link 1 是从 origin 出发、方向为 $\theta_1$ 的长 1 的 segment，它到 A 的 center 的距离是 $0.6\,|\sin\theta_1|$（center 在 link 1 方向上的 projection $0.6\cos\theta_1$ 落在 segment 内）。小于 0.15 就碰：
 
@@ -200,7 +230,7 @@ $$0.6\,|\sin\theta_1|<0.15\iff|\theta_1|<\sin^{-1}0.25=14.5^\circ$$
 
 图里还有第二个 obstacle B（center $(-0.8,1.2)$，radius 0.3），它在 C-space 里是一块弯曲的区域，path 要绕开它。在 2° 的 grid 上做 breadth-first search，每一步只让一个 joint 动一格：允许跨边时找到的 path 有 178 步（光是 $\theta_1$ 从 $-60^\circ$ 往回转到 $-300^\circ$ 就要 $240/2=120$ 步，其余是 $\theta_2$ 为了绕开 B 来回调整），不允许跨边时找不到。
 
-Planner 的 C-space 必须是 robot 真正的 C-space。对 revolute joint 来说，这意味着 grid 的两端要接上，两个 angle 的距离要按 circle 上较短的 arc 算（第 5 站会再遇到）。
+Planner 的 C-space 必须是 robot 真正的 C-space。对 revolute joint 来说，这意味着 grid 的两端要接上，两个 angle 的距离要按 circle 上较短的 arc 算（第 7 站会再遇到）。
 
 ### 一张 chart 盖不住 sphere
 
@@ -226,7 +256,7 @@ $$\dot x=r\dot\theta\cos\phi,\qquad\dot y=r\dot\theta\sin\phi\qquad\Longleftrigh
 
 两个 constraint。如果它们是 holonomic，coin 就被锁在 C-space 里一个二维的 surface 上。来做一个 maneuver：沿边长为 $a$ 的 square 滚一圈，每到一个角原地转 90°（绕竖直 axis 转不滚动，$x,y,\theta$ 都不变）。回到起点时 $x$、$y$ 不变，$\phi$ 多了 360°，在 $S^1$ 上也等于没变；$\theta$ 却多了 $4a/r$。取 $r=0.05$ m、$a=1$ m，$\theta$ 多了 80 rad。改变 $a$，$\theta$ 就可以落在 circle 上的任何位置，而其余三个 coordinate 原样不变。再加上“原地转向再滚过去”能到达任何 $(x,y)$、原地转能得到任何 $\phi$，四个 coordinate 都能任意指定：能到达的 configuration 是整个 4 维 C-space，不可能落在一个二维 surface 上。所以这两个 constraint 是 nonholonomic 的：它们限制了每一刻能取的 velocity（只有 2 个方向），但不限制最终能到达哪些 configuration（4 维全部能到）。
 
-汽车和 differential-drive robot 是同一回事：不能横着走，但能平行停车。第 8 站的 youBot 用 mecanum wheel 绕开了这个限制。
+汽车和 differential-drive robot 是同一回事：不能横着走，但能平行停车。第 12 站的 youBot 用 mecanum wheel 绕开了这个限制。
 
 :::edge Task space 与 workspace
 Task space 是任务本身描述在其中的 space：用笔在纸上写字，task space 是 $\mathbb R^2$，与 robot 无关。Workspace 是 end-effector 能到达的 configuration 的集合，由 robot 的结构决定。两者都不是 C-space：一个 7-dof arm 的 C-space 是 7 维，它的 end-effector 的 pose 只有 6 维。
@@ -328,7 +358,7 @@ $$G(\theta)v=0.5236\begin{pmatrix}3.366\\-3.366\end{pmatrix}+0.134\begin{pmatrix
 
 $e^{[\mathcal S]\theta}T_{sb}$ 的 translation 是 $Rp_b+G(\theta)v=(-0.134+2.134,\ 2.232-1.232)=(2,1)$，正是 $p_c$。
 
-如果改在 body frame 里描述同一次 displacement，要算 $\log(T_{sb}^{-1}T_{sc})$，结果是 $(0,0,0.524,\ 0,-1.43,0)$：同一条 axis 在 $\{b\}$ 里的 coordinate。第 4 站的 IK 和第 6 站的 controller 用的都是这种“从当前 pose 指向目标 pose 的 body twist”。
+如果改在 body frame 里描述同一次 displacement，要算 $\log(T_{sb}^{-1}T_{sc})$，结果是 $(0,0,0.524,\ 0,-1.43,0)$：同一条 axis 在 $\{b\}$ 里的 coordinate。第 4 站的 IK 和第 8 站的 controller 用的都是这种“从当前 pose 指向目标 pose 的 body twist”。
 
 ### Wrench：force 也是 6 个数
 
@@ -416,7 +446,7 @@ $$T(\theta)=M\,e^{[\mathcal B_1]\theta_1}\cdots e^{[\mathcal B_n]\theta_n}$$
 那样做会得到 $R_M^\top(1,0,0)=(0,0,1)$ 和 $R_M^\top(0,-0.5,0)=(0,-0.5,0)$，即 $(0,0,1,\ 0,-0.5,0)$，描述的是一条离 $\{b\}$ origin 0.5 的 axis。正确的 $[\mathrm{Ad}_{M^{-1}}]$ 在 linear part 里还有一项 $[p]R$，它考虑了两个 frame 的 origin 不同：$v$ 是“经过 frame origin 的那一点”的 velocity，换了 origin，这一点也换了。实算 $[\mathrm{Ad}_{M^{-1}}]\mathcal S_3=(0,0,1,\ 0,0,0)$，和图上读出的一致。
 :::
 
-UR5 也可以拿来核对（书上 Example 4.5）。用书上给的六个 screw axis 和 $M$，取 $\theta_2=-\pi/2$、$\theta_5=\pi/2$、其余为 0，实算 $T(\theta)$ 的 translation 是 $(0.095,0.109,0.988)$，rotation 是绕 $\hat z$ 转 90°，与书上的答案一致。Capstone 的 youBot arm 给的是 body form 的 $\mathcal B_i$，第 8 站要用。
+UR5 也可以拿来核对（书上 Example 4.5）。用书上给的六个 screw axis 和 $M$，取 $\theta_2=-\pi/2$、$\theta_5=\pi/2$、其余为 0，实算 $T(\theta)$ 的 translation 是 $(0.095,0.109,0.988)$，rotation 是绕 $\hat z$ 转 90°，与书上的答案一致。Capstone 的 youBot arm 给的是 body form 的 $\mathcal B_i$，第 12 站要用。
 
 ### 为什么不用 D-H
 
@@ -554,6 +584,484 @@ $J$ 的 rank 下降就是 singularity。Column 是当前的 screw axis，所以 
 $J_s$ 与 $J_b$ 的定义和 column 公式、$J_s=[\mathrm{Ad}_{T_{sb}}]J_b$、$\tau=J^\top\mathcal F$ 由 power 守恒得到、singularity 的几种 axis 配置，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 5.1 到 5.3 节；body twist 作 error 的 Newton–Raphson IK、“不能用 $T_{sd}-T_{sb}$”、Example 6.1 的表格和“$v_{xb}$ 为正”的说明，来自第 6.2 节（全文读过；Example 6.1 的表格对着书页核对过）。第 5.4 节 manipulability 指向了 RB2202，第 6.1 节 analytic IK 和 6.3 节 inverse velocity kinematics 这里没有写。$\dot TT^{-1}$ 三项相消的写法、3R 上的 Jacobian 与 statics 数字、screw center 的计算、youBot arm 的 singular value 是为这一页算的。
 :::
 
+## [closed] Closed chain：parallel mechanism 的 kinematics 与 singularity
+
+:::skip
+快速路线可以跳过整站（书第 7 章，约 1.5 小时）。ME 449 Fall 2026 的进度表不含第 7 章；Coursera Course 2 的第 4 个 module 讲这一章（一段 9 分钟的视频、一个 Lecture Comprehension 和一个 chapter quiz，没有 project）。要用 Delta、Stewart platform 这类 parallel robot，或者想弄清“actuator 全锁住了，mechanism 却还能动”是怎么回事，就读这一站。
+:::
+
+### Open chain 反过来：IK 容易，FK 难
+
+第 1 站用 Grübler's formula 数过 four-bar、Delta robot 和 Stewart–Gough platform。它们都含有 loop，叫 closed chain。最常见的一类是 parallel mechanism：一块固定的 platform 和一块移动的 platform 由几条 leg 连起来，每条 leg 通常只有一个 joint 装 motor（actuated），其余 joint 是 passive 的。和 open chain 比，有两件事不同：不是每个 joint 都能直接指定，joint variable 之间还要满足 loop-closure equation。
+
+先看最简单的一个：planar 3×RPR。三条 leg，每条是 revolute、prismatic、revolute，prismatic joint 装 motor，六个 revolute joint 都是 passive。取一组具体的尺寸：三个 base joint 在 $\{s\}$ 里的位置 $a_1=(0,0)$、$a_2=(2,0)$、$a_3=(1,1.8)$；platform 上的三个 joint 在 platform 的 frame $\{b\}$ 里的位置 $b_1=(-0.3,-0.15)$、$b_2=(0.3,-0.15)$、$b_3=(0,0.25)$。Platform 的 pose 是 $\{b\}$ 的 origin $p$ 和转角 $\phi$。
+
+Leg $i$ 从 $a_i$ 指向 platform 上的 joint，这个 vector 是
+
+$$d_i=p+R(\phi)\,b_i-a_i,\qquad R(\phi)=\begin{pmatrix}\cos\phi&-\sin\phi\\\sin\phi&\cos\phi\end{pmatrix}$$
+
+leg 的长度 $s_i=\|d_i\|$ 就是 actuator 的读数。
+
+**IK：给 pose 求 leg 长度。** 代进去算就行。取 $p=(1,0.7)$、$\phi=10^\circ$，三个长度是 $(0.885,\ 0.909,\ 0.855)$。每条 leg 各算各的，解唯一。
+
+**FK：给 leg 长度求 pose。** 三个 unknown $(p_x,p_y,\phi)$，三个 equation $s_i^2=\|d_i\|^2$，但它们对 $\phi$ 是 trigonometric 的、对 $p$ 是 quadratic 的。先消掉 quadratic 的部分。记 $w_i=R(\phi)b_i-a_i$，展开
+
+$$s_i^2=\|p+w_i\|^2=\|p\|^2+2p^\top w_i+\|w_i\|^2$$
+
+第 2、3 个减去第 1 个，$\|p\|^2$ 消掉：
+
+$$s_i^2-s_1^2=2p^\top(w_i-w_1)+\|w_i\|^2-\|w_1\|^2,\qquad i=2,3$$
+
+$\phi$ 固定时这是 $p$ 的两个 linear equation，解出 $p(\phi)$。再代回第 1 个：
+
+$$r(\phi)=\|p(\phi)+w_1(\phi)\|^2-s_1^2=0$$
+
+只剩一个 unknown。让 $\phi$ 从 $-180^\circ$ 扫到 $180^\circ$，找 $r(\phi)$ 变号的地方，再用 bisection 求 root。
+
+$s=(1,1,1)$ 时找到两个解：$\phi=47.56^\circ$、$p=(1.039,0.642)$，和 $\phi=-47.56^\circ$、$p=(0.961,0.642)$，互为镜像。$s=(1.879,0.419,1.868)$ 时找到四个解，$\phi$ 分别是 $-106.36^\circ$、$-23.31^\circ$、$21.87^\circ$、$99.87^\circ$。书上的做法是用 $t=\tan(\phi/2)$ 代换 $\sin\phi=\frac{2t}{1+t^2}$、$\cos\phi=\frac{1-t^2}{1+t^2}$，把 equation 化成 $t$ 的一个六次 polynomial，所以 3×RPR 至多有 6 个 FK 解。
+
+::fig[mr-rprfk] 同一组 leg 长度对应几个 platform pose。左：$s=(1,1,1)$，两个镜像的解。右：$s=(1.879,0.419,1.868)$，四个解挤在 $a_2$ 附近，每个都把三条 leg 的长度精确对上。
+
+:::wrong 读到每个 actuator 的位置，parallel robot 的 pose 就确定了，和 open chain 的 forward kinematics 一样
+上面 $s=(1,1,1)$ 的两个解，platform 一个转了 $+47.56^\circ$，一个转了 $-47.56^\circ$，actuator 的读数完全相同。Controller 要靠“上一时刻在哪个解附近”来跟踪，开机时 platform 停在哪一支，单靠 encoder 判断不了。Open chain 正好相反：FK 唯一，IK 才有多个解。
+:::
+
+Stewart–Gough platform 是同一回事搬到空间里：六条 SPS leg，spherical joint 都是 passive，prismatic joint 装 motor。$d_i=p+Rb_i-a_i$，$s_i^2=d_i^\top d_i$，$i=1,\dots,6$。IK 照样是代进去算。FK 有六个 equation，unknown 是 $p$ 的 3 个数和 $R$ 的 9 个数，再加上 $R^\top R=I$ 的 6 个 constraint，凑成 12 个 equation、12 个 unknown。书上说一般的 6-6 platform 至多 40 个 FK 解（Raghavan 与 Roth），Husty 给出了求出全部 40 个解的 algorithm。
+
+一般的 parallel mechanism，leg 本身是 open chain。三条 leg 的 forward kinematics 分别是 $T_1(\theta)$、$T_2(\phi)$、$T_3(\psi)$，joint 个数 $m$、$n$、$p$。Loop closure 要求它们都等于 platform 的 pose：
+
+$$T_1(\theta)=T_2(\phi),\qquad T_2(\phi)=T_3(\psi)$$
+
+每个 matrix equation 有 12 个数，其中 rotation 的 9 个只有 3 个独立，所以每个给出 6 个独立的 equation，一共 12 个。Dof 是 $m+n+p-12$。三条 leg 各 5 个 joint 时是 3 个 dof。
+
+### Velocity：先做 statics 更省事
+
+Open chain 的 Jacobian 由 forward kinematics 求 derivative 得到。Stewart platform 的 forward kinematics 写不出 closed form，可 IK 有：$s=g(R,p)$。对它求 derivative 得到 $\dot s=J_s^{-1}\mathcal V_s$ 是可以的，但 algebra 很繁。书上换了一条路：先求 statics，再用 power 守恒反推 velocity。
+
+每条 leg 两端都是不能传 moment 的 joint（spherical 或 revolute），所以 leg 对 platform 的 force 只能沿着 leg 本身。记 leg $i$ 的单位方向为 $\hat n_i$（从 base 指向 platform），actuator 的推力为 $\tau_i$，force 就是 $f_i=\hat n_i\tau_i$。它对 $\{s\}$ origin 的 moment 是 $r_i\times f_i$，$r_i$ 可以取 force 作用线上任何一点。取 base 上那个固定的 joint $q_i=a_i$ 最方便，因为它不随 pose 变。六条（planar 时三条）加起来：
+
+$$\mathcal F_s=\sum_i\begin{pmatrix}q_i\times\hat n_i\\\hat n_i\end{pmatrix}\tau_i=\underbrace{\begin{pmatrix}q_1\times\hat n_1&\cdots\\\hat n_1&\cdots\end{pmatrix}}_{J_s^{-\top}}\tau$$
+
+Actuator 输出的 power 等于 platform 得到的 power：$\tau^\top\dot s=\mathcal F_s^\top\mathcal V_s=\tau^\top J_s^{-1}\mathcal V_s$，对所有 $\tau$ 成立，所以
+
+$$\dot s=J_s^{-1}\mathcal V_s,\qquad J_s^{-1}\text{ 的第 }i\text{ 个 row}=\big((q_i\times\hat n_i)^\top,\ \hat n_i^\top\big)$$
+
+和第 4 站的 $\tau=J^\top\mathcal F$ 是同一个关系，只是这里先得到的是 $J^{-\top}$。
+
+在上面 $s=(1,1,1)$、$\phi=47.56^\circ$ 的那个解上用一次。三个 platform joint 在 $\{s\}$ 里的位置 $B_i=p+Rb_i$ 和 leg 方向是
+
+| leg | $a_i$ | $B_i$ | $\hat n_i$ | $(q_i\times\hat n_i)_z$ |
+|---|---|---|---|---|
+| 1 | $(0,0)$ | $(0.948,0.319)$ | $(0.948,0.319)$ | $0$ |
+| 2 | $(2,0)$ | $(1.353,0.762)$ | $(-0.648,0.762)$ | $2\times0.762=1.524$ |
+| 3 | $(1,1.8)$ | $(0.855,0.811)$ | $(-0.145,-0.989)$ | $1\times(-0.989)-1.8\times(-0.145)=-0.728$ |
+
+（三条 leg 长度都是 1，所以 $\hat n_i=B_i-a_i$。）Planar twist 写成 $(\omega,v_x,v_y)$：
+
+$$J_s^{-1}=\begin{pmatrix}0&0.948&0.319\\1.524&-0.648&0.762\\-0.728&-0.145&-0.989\end{pmatrix}$$
+
+让 platform 以 $\omega=0.5$ rad/s 转、origin 以 $\dot p=(0.1,0)$ m/s 移动。第 2 站说过 spatial twist 的 linear part 不是 $\dot p$：$v_s=\dot p-\omega\hat z\times p=(0.1,0)-0.5\,(-0.642,1.039)=(0.421,-0.520)$。于是
+
+$$\dot s=J_s^{-1}\begin{pmatrix}0.5\\0.421\\-0.520\end{pmatrix}=\begin{pmatrix}0.233\\0.094\\0.089\end{pmatrix}\text{ m/s}$$
+
+拿 IK 做 numerical derivative 核对（pose 沿这个 motion 挪 $10^{-6}$ s），三个数一致。
+
+反过来用 statics。外界在 platform 的 origin 上施加 $(0,-10)$ N，三条 leg 要合起来给出 $\mathcal F_s=(p\times(0,10),\ 0,\ 10)=(10.39,0,10)$。$\tau=J_s^\top\mathcal F_s$，先对上面的 matrix 求 inverse 得 $J_s$，算出
+
+$$\tau=(1.29,\ 3.46,\ -7.02)\text{ N}$$
+
+代回 $J_s^{-\top}\tau$ 得到 $(10.39,0,10)$。Leg 3 是负的：它的 base 在上方，要把 platform 往上拉，受的是 tension。
+
+### 一般的 parallel mechanism：passive joint 的 velocity 也要算
+
+Stewart platform 的每条 leg 是一根直线，force 方向一眼看得出。Leg 是一般的 open chain 时，statics 不再好用，要直接处理 loop closure。
+
+用一个 planar five-bar 来走一遍。Base 上两个 joint $A_1=(0,0)$、$A_2=(1,0)$，四根 link 都长 1。左 leg 的两个 joint 角是 $\theta_1$（actuated）、$\theta_2$（passive），右 leg 是 $\varphi_1$（actuated）、$\varphi_2$（passive），两条 leg 的末端用一个 revolute joint 连在一起，这一点 $P$ 是 end-effector。Loop closure 是两条 leg 算出的 $P$ 相同：
+
+$$p_L(\theta_1,\theta_2)=p_R(\varphi_1,\varphi_2)$$
+
+只有 position 的 2 个 equation，因为 $P$ 处是 revolute joint，两边的 orientation 不必相等。对 time 求 derivative，左右各是一个 2R 的 Jacobian（第 4 站：column $i$ 是 joint $i$ 单独以 1 rad/s 转时 $P$ 的 velocity，即 $\hat z\times(P-\text{joint }i\text{ 的位置})$）：
+
+$$J_1(\theta)\begin{pmatrix}\dot\theta_1\\\dot\theta_2\end{pmatrix}=J_2(\varphi)\begin{pmatrix}\dot\varphi_1\\\dot\varphi_2\end{pmatrix}$$
+
+把四个 joint 重新分成 actuated 的 $q_a=(\theta_1,\varphi_1)$ 和 passive 的 $q_p=(\theta_2,\varphi_2)$，移项：
+
+$$H_a\dot q_a+H_p\dot q_p=0,\qquad H_a=\big[J_{1,1}\ \ {-J_{2,1}}\big],\quad H_p=\big[J_{1,2}\ \ {-J_{2,2}}\big]$$
+
+（$J_{1,1}$ 是 $J_1$ 的第 1 个 column，其余类推。）$H_p$ invertible 时，passive joint 的 velocity 由 actuated joint 决定：
+
+$$\dot q_p=-H_p^{-1}H_a\,\dot q_a$$
+
+End-effector 的 Jacobian 对 actuated joint 写：沿左 leg 算 $P$ 的 velocity，$\dot\theta_1$ 就是 $\dot q_a$ 的第 1 个分量，$\dot\theta_2$ 用上式的第 1 个 row $g_2^\top$ 表示：
+
+$$\dot P=J_1\begin{pmatrix}\dot\theta_1\\\dot\theta_2\end{pmatrix}=J_1\begin{pmatrix}1&0\\&g_2^\top\end{pmatrix}\dot q_a=J_a\,\dot q_a$$
+
+取 $\theta_1=100^\circ$、$\varphi_1=80^\circ$。两个 elbow 在 $E_1=(-0.174,0.985)$、$E_2=(1.174,0.985)$，相距 1.347；$P$ 到两个 elbow 的距离都是 1，所以在两者中垂线上：$P=(0.5,\ 0.985+\sqrt{1-0.674^2})=(0.5,1.724)$。$\theta_2=-52.35^\circ$，$\varphi_2=52.35^\circ$。
+
+$$J_1=\begin{pmatrix}-1.724&-0.739\\0.5&0.674\end{pmatrix},\qquad J_2=\begin{pmatrix}-1.724&-0.739\\-0.5&-0.674\end{pmatrix}$$
+
+例如 $J_1$ 的第 1 个 column：$\hat z\times(P-A_1)=\hat z\times(0.5,1.724)=(-1.724,0.5)$。于是
+
+$$H_a=\begin{pmatrix}-1.724&1.724\\0.5&0.5\end{pmatrix},\quad H_p=\begin{pmatrix}-0.739&0.739\\0.674&0.674\end{pmatrix},\quad -H_p^{-1}H_a=\begin{pmatrix}-1.537&0.795\\0.795&-1.537\end{pmatrix}$$
+
+第 1 个 row 就是 $g_2^\top=(-1.537,\ 0.795)$：
+
+$$J_a=\begin{pmatrix}-1.724&-0.739\\0.5&0.674\end{pmatrix}\begin{pmatrix}1&0\\-1.537&0.795\end{pmatrix}=\begin{pmatrix}-0.588&-0.588\\-0.536&0.536\end{pmatrix}$$
+
+用 FK（两个 circle 求交点）做 numerical derivative，两个 column 一致到第 4 位。两个 actuator 同向转（$\dot q_a=(1,1)$），$P$ 沿 $(-1.18,0)$ 往左平移；反向转（$(1,-1)$），$P$ 沿 $(0,-1.07)$ 往下走。
+
+:::wrong 闭链的 Jacobian 就是拿一条 leg 的 open-chain Jacobian，只留 actuated joint 那一列
+只留左 leg 的第 1 列，等于说 $\dot\theta_1=1$ 时 $P$ 的 velocity 是 $(-1.724,0.5)$。那是 $\theta_2$ 被锁住时的答案。实际上 $\theta_2$ 是 passive 的，它被右 leg 拖着以 $-1.537$ rad/s 转（$\varphi_1$ 不动时），$P$ 的 velocity 是 $J_a$ 的第 1 列 $(-0.588,-0.536)$，大小不到一半（0.80 对 1.79），方向也差了 $59^\circ$。Passive joint 不会自己待着不动，它们的 velocity 必须从 loop closure 解出来。
+:::
+
+### 三种 singularity
+
+Open chain 只有一种 singularity：Jacobian 掉 rank。Closed chain 有三种，分别看 $H_p$、$H$ 和 $J_a$。
+
+**Actuator singularity：$\operatorname{rank}H_p$ 不满。** 让 five-bar 的两个 actuator 对称地往外转：$\theta_1=90^\circ+\alpha$、$\varphi_1=90^\circ-\alpha$。$\dot q_a=(1,-1)$ rad/s 时，passive joint 的 speed 是
+
+| $\alpha$ | $0^\circ$ | $10^\circ$ | $20^\circ$ | $25^\circ$ | $28^\circ$ | $29.5^\circ$ | $30^\circ$ |
+|---|---|---|---|---|---|---|---|
+| $P$ 的高度 | 1.866 | 1.724 | 1.479 | 1.292 | 1.128 | 0.993 | 0.866 |
+| $\lvert\det H_p\rvert$ | 0.866 | 0.996 | 0.908 | 0.712 | 0.475 | 0.244 | 0 |
+| $\lvert\dot\theta_2\rvert=\lvert\dot\varphi_2\rvert$（rad/s） | 2.15 | 2.33 | 2.74 | 3.35 | 4.60 | 8.08 | $\infty$ |
+
+$\alpha=30^\circ$ 时两个 elbow 在 $(-0.5,0.866)$ 和 $(1.5,0.866)$，相距正好 2，两根 distal link 连成一条水平线，$P=(0.5,0.866)$。$H_p$ 的两个 column 是两根 distal link 的垂直方向，此时 parallel，$\det H_p=0$。这时再往外转，两根 link 会被拉断；往里转，$P$ 要么往上鼓、要么往下凹，由不得 actuator。这叫 nondegenerate actuator singularity。另一种是 degenerate 的：$\theta_1=60^\circ$、$\varphi_1=120^\circ$ 时两个 elbow 重合在 $(0.5,0.866)$，两个 actuator 都锁住，$P$ 仍能绕这个共同的 elbow 转一整圈，mechanism 不再是 rigid 的。两种情况都只和“哪两个 joint 装 motor”有关：把其中一个 motor 挪到 passive joint 上，singularity 就没了。
+
+::fig[mr-fivebar] 两个 actuator 对称往外转（左右的彩色弧），$P$ 一路下降。灰色虚线是 $\alpha=30^\circ$ 的 actuator singularity：两根 distal link 拉成一条直线。下方的数字是 $\dot q_a=(1,-1)$ 时 passive joint 的 speed，越接近虚线越大。
+
+**Configuration space singularity：$\operatorname{rank}H$ 不满。** $H=[H_a\ H_p]$ 不分 actuated 与 passive。它掉 rank 时，C-space 这个 surface 自己和自己相交，无论 motor 装在哪个 joint 上，那里都是 actuator singularity。上面这组 five-bar 的长度没有这种点：在整个 C-space 里撒点实算，$H$ 的第二个 singular value 最小是 0.68。它要特殊的 link 长度，书上的例子是 four-bar（Figure 7.5）：左 ground joint 在 $O=(0,0)$，crank 长 $L_1=4$、转角 $\theta$；右 ground joint 在 $(2,0)$，rocker 长 $L_3=2$、转角 $\phi$；coupler 长 $L_2=4$；ground 长 $L_4=2$。Loop closure 只有一个 equation：
+
+$$g(\theta,\phi)=\big\|L_1(\cos\theta,\sin\theta)-(2,0)-L_3(\cos\phi,\sin\phi)\big\|^2-L_2^2=0$$
+
+在 $(\theta,\phi)=(0^\circ,180^\circ)$ 和 $(180^\circ,180^\circ)$，$g=0$ 而且两个 partial derivative 都是 0。看 mechanism 的样子就明白：$\phi=180^\circ$ 时 rocker 的端点落在 $O$ 上，coupler 和 crank 一样长，可以对折贴在 crank 上，端点不动，整个 crank 带着 coupler 绕 $O$ 转。所以 $\phi\equiv180^\circ$ 本身就是 C-space 里的一条 branch，它和另一条 branch 在这两个点相交。Mechanism 走到交点时，可以选任意一条 branch 继续走。
+
+::fig[mr-fourbar] 右：four-bar 的 C-space，两条 branch 在两个 bifurcation point 相交，其中一条就是水平线 $\phi=180^\circ$。左：动图里 mechanism 沿弯曲的 branch 走到 $(0^\circ,180^\circ)$，再沿水平 branch 走开（coupler 对折在 crank 上，rocker 不动）。
+
+**End-effector singularity：$\operatorname{rank}J_a$ 不满。** 不是 actuator singularity（$H_p$ invertible），但 end-effector 在某个方向上动不了。Five-bar 的右 leg 完全伸直时就是：$\varphi_1=120^\circ$、$\varphi_2=0$，$P=A_2+2(\cos120^\circ,\sin120^\circ)=(0,1.732)$，左 leg 取 $\theta_1=120^\circ$。此时 $\det H_p=-0.866$，但
+
+$$J_a=\begin{pmatrix}-0.866&0\\-0.5&0\end{pmatrix}$$
+
+rank 1。$P$ 只能沿 $(0.866,0.5)$ 动，也就是垂直于右 leg 的方向；沿右 leg 的方向（离开或靠近 $A_2$）完全动不了，和 open chain 的 2R 伸直时一样。这种 singularity 只和 end-effector 选在哪里有关，与 motor 装在哪个 joint 无关。
+
+:::edge Grübler's formula 给的 dof 和 actuator 个数相等，也不保证每个 actuator 都能独立动
+Five-bar 的 dof 是 $3(5-1-5)+5=2$，两个 actuator 正好。可在 $\alpha=30^\circ$ 那个 configuration，两个 actuator 已经不能各自随意转（往外转不可能），在 elbow 重合的 configuration，两个都锁住也锁不住 mechanism。Grübler's formula 只数 generic 的情形，singularity 正是不 generic 的地方。
+:::
+
+:::back
+Grübler's formula 与 four-bar 来自[第 1 站](#cspace)，Jacobian 的 column 读法和 $\tau=J^\top\mathcal F$ 来自[第 4 站](#jac)。
+:::
+
+:::from
+Closed chain 与 parallel mechanism 的定义、“parallel mechanism 的 IK 容易、FK 难”、3×RPR 的 equation (7.1)、(7.2) 与 tangent half-angle 代换（至多 6 个解）、Stewart–Gough platform 的 12 个 equation 与至多 40 个解、一般 parallel mechanism 的 $m+n+p-12$、Stewart platform 用 statics 求 $J_s^{-1}$ 的推导（$q_i\times\hat n_i$ 的取法）、$H_a\dot q_a+H_p\dot q_p=0$ 与 $J_a$ 的写法（7.12 到 7.21 式）、三种 singularity 的定义、five-bar 的 nondegenerate 与 degenerate actuator singularity、four-bar 的 bifurcation（Figure 7.5 的 $L_1=L_2=4$、$L_3=L_4=2$）、end-effector singularity，都来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 7 章（全文读过，Figure 7.5 那一页渲染成图片核对了 four-bar 的定义）。Coursera Course 2 第 4 个 module 的结构来自 [Course 2 课程页](https://www.coursera.org/learn/modernrobotics-course2)；那段 9 分钟的视频没有看。书上第 7 章没有数值例子：3×RPR 的尺寸与解、“消去 $\|p\|^2$ 再扫 $\phi$”的 FK 解法、statics 的数字、five-bar 的尺寸与 $J_a$、$\det H_p$ 的表、five-bar 没有 configuration space singularity 的实算、four-bar 两个 bifurcation point 的位置与“rocker 端点落在 $O$ 上”的解释，都是为这一页自己构造并用 Python 算的。
+:::
+
+## [dyn] Dynamics：Lagrangian、Newton–Euler 与 mass matrix
+
+:::skip
+快速路线可以跳过整站（书第 8 章，约 4 小时）：capstone 用 velocity 接口，用不到 torque。ME 449 Fall 2026 读 8.1 到 8.3 和 8.5，跳过 8.4、8.7 到 8.9；做 ME 449 Assignment 4、5 或 Coursera Course 3 的 project（UR5 在 gravity 下落下），以及读第 10 站的 force control 之前，要读这一站。站里标了 skip 的两个小节是 ME 449 跳过的内容。
+:::
+
+### 要什么：$\tau=M(\theta)\ddot\theta+h(\theta,\dot\theta)$
+
+第 8 站的 computed torque control 要用 $M(\theta)$ 和 $h(\theta,\dot\theta)$；ME 449 Assignment 4 要在没有真 robot 的情况下，算出 UR5 松开 motor 后怎么落下。两件事都要 robot 的 equations of motion：
+
+$$\tau=M(\theta)\ddot\theta+h(\theta,\dot\theta)$$
+
+$M(\theta)$ 是 $n\times n$ 的 symmetric positive-definite mass matrix，$h$ 把 Coriolis、centripetal、gravity 和 friction 的 torque 合在一起。给 $(\theta,\dot\theta,\ddot\theta)$ 求 $\tau$ 叫 inverse dynamics；给 $(\theta,\dot\theta,\tau)$ 求 $\ddot\theta=M^{-1}(\tau-h)$ 叫 forward dynamics。推导有两条路：从 energy 出发的 Lagrangian formulation，和对每根 link 用 Newton、Euler 定律的 Newton–Euler formulation。两条路给出同一组 equation。
+
+### Lagrangian：一个 2R 从头算到尾
+
+选一组能完整描述 configuration 的独立 coordinate $q$（generalized coordinates），它们决定了 generalized force $f$：$f^\top\dot q$ 是 power。Lagrangian 是 kinetic energy 减 potential energy，$\mathcal L(q,\dot q)=\mathcal K-\mathcal P$，equations of motion 是
+
+$$f=\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q}-\frac{\partial\mathcal L}{\partial q}$$
+
+先拿一个沿竖直线运动的 particle 核对：高度 $x$，向上推力 $f$。$\mathcal L=\tfrac12m\dot x^2-mgx$，$\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot x}=m\ddot x$，$\frac{\partial\mathcal L}{\partial x}=-mg$，所以 $f=m\ddot x+mg$，就是 $f-mg=m\ddot x$。
+
+现在是书上 Figure 8.1 的 planar 2R：在竖直 plane 里，gravity 沿 $-\hat y$，两根 link 的 mass 集中在末端的 point mass 上。全站取 $L_1=L_2=1$ m、$m_1=m_2=1$ kg、$g=9.81$。Generalized coordinate 取 joint angle，generalized force 就是 joint torque。记 $s_1=\sin\theta_1$、$c_{12}=\cos(\theta_1+\theta_2)$，以此类推。
+
+$m_1$ 在 $(L_1c_1,L_1s_1)$，speed 是 $L_1\dot\theta_1$，$\mathcal K_1=\tfrac12m_1L_1^2\dot\theta_1^2$。$m_2$ 在 $(L_1c_1+L_2c_{12},\ L_1s_1+L_2s_{12})$，对 time 求 derivative：
+
+$$\dot x_2=-L_1s_1\dot\theta_1-L_2s_{12}(\dot\theta_1+\dot\theta_2),\qquad\dot y_2=L_1c_1\dot\theta_1+L_2c_{12}(\dot\theta_1+\dot\theta_2)$$
+
+平方相加，交叉项里 $s_1s_{12}+c_1c_{12}=\cos(\theta_{12}-\theta_1)=c_2$：
+
+$$\dot x_2^2+\dot y_2^2=L_1^2\dot\theta_1^2+2L_1L_2c_2\,\dot\theta_1(\dot\theta_1+\dot\theta_2)+L_2^2(\dot\theta_1+\dot\theta_2)^2$$
+
+$\mathcal K_2$ 是它乘 $\tfrac12m_2$。Potential energy 是 $\mathcal P=m_1gL_1s_1+m_2g(L_1s_1+L_2s_{12})$。
+
+**$\tau_2$。** $\mathcal K_1$ 不含 $\dot\theta_2$，
+
+$$\frac{\partial\mathcal L}{\partial\dot\theta_2}=m_2\big[L_1L_2c_2\dot\theta_1+L_2^2(\dot\theta_1+\dot\theta_2)\big]$$
+
+对 time 求 derivative（$c_2$ 也随 time 变，$\dot c_2=-s_2\dot\theta_2$）：
+
+$$\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot\theta_2}=m_2\big[L_1L_2c_2\ddot\theta_1-L_1L_2s_2\dot\theta_1\dot\theta_2+L_2^2(\ddot\theta_1+\ddot\theta_2)\big]$$
+
+$\mathcal K_2$ 通过 $c_2$ 依赖 $\theta_2$，$\mathcal P$ 通过 $s_{12}$ 依赖 $\theta_2$：
+
+$$\frac{\partial\mathcal L}{\partial\theta_2}=-m_2L_1L_2s_2\,\dot\theta_1(\dot\theta_1+\dot\theta_2)-m_2gL_2c_{12}$$
+
+相减，$\dot\theta_1\dot\theta_2$ 的两项抵消：
+
+$$\tau_2=m_2(L_1L_2c_2+L_2^2)\ddot\theta_1+m_2L_2^2\ddot\theta_2+m_2L_1L_2s_2\dot\theta_1^2+m_2gL_2c_{12}$$
+
+**$\tau_1$。** $\dot\theta_1(\dot\theta_1+\dot\theta_2)$ 对 $\dot\theta_1$ 的 derivative 是 $2\dot\theta_1+\dot\theta_2$：
+
+$$\frac{\partial\mathcal L}{\partial\dot\theta_1}=m_1L_1^2\dot\theta_1+m_2\big[L_1^2\dot\theta_1+L_1L_2c_2(2\dot\theta_1+\dot\theta_2)+L_2^2(\dot\theta_1+\dot\theta_2)\big]$$
+
+$$\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot\theta_1}=m_1L_1^2\ddot\theta_1+m_2\big[L_1^2\ddot\theta_1+L_1L_2c_2(2\ddot\theta_1+\ddot\theta_2)-L_1L_2s_2\dot\theta_2(2\dot\theta_1+\dot\theta_2)+L_2^2(\ddot\theta_1+\ddot\theta_2)\big]$$
+
+$\mathcal K$ 不含 $\theta_1$，$\frac{\partial\mathcal L}{\partial\theta_1}=-(m_1+m_2)gL_1c_1-m_2gL_2c_{12}$。相减并按 $\ddot\theta$、velocity、gravity 归类：
+
+$$\tau_1=\big[m_1L_1^2+m_2(L_1^2+2L_1L_2c_2+L_2^2)\big]\ddot\theta_1+m_2(L_1L_2c_2+L_2^2)\ddot\theta_2-m_2L_1L_2s_2(2\dot\theta_1\dot\theta_2+\dot\theta_2^2)+(m_1+m_2)gL_1c_1+m_2gL_2c_{12}$$
+
+两个 equation 合起来写成 $\tau=M(\theta)\ddot\theta+c(\theta,\dot\theta)+g(\theta)$：
+
+$$M=\begin{pmatrix}m_1L_1^2+m_2(L_1^2+2L_1L_2c_2+L_2^2)&m_2(L_1L_2c_2+L_2^2)\\m_2(L_1L_2c_2+L_2^2)&m_2L_2^2\end{pmatrix},\quad c=\begin{pmatrix}-m_2L_1L_2s_2(2\dot\theta_1\dot\theta_2+\dot\theta_2^2)\\m_2L_1L_2s_2\dot\theta_1^2\end{pmatrix},\quad g=\begin{pmatrix}(m_1+m_2)gL_1c_1+m_2gL_2c_{12}\\m_2gL_2c_{12}\end{pmatrix}$$
+
+对 $\ddot\theta$ 是 linear，对 $\dot\theta$ 是 quadratic，对 $\theta$ 是 trigonometric；书上说只含 revolute joint 的 serial chain 都是这样。
+
+代一组数。$\theta=(0^\circ,90^\circ)$、$\dot\theta=(1,1)$ rad/s、$\ddot\theta=(1,0)$ rad/s²：$c_2=0$、$s_2=1$、$c_1=1$、$c_{12}=0$，
+
+$$M=\begin{pmatrix}3&1\\1&1\end{pmatrix},\quad c=\begin{pmatrix}-1\times(2+1)\\1\times1\end{pmatrix}=\begin{pmatrix}-3\\1\end{pmatrix},\quad g=\begin{pmatrix}2\times9.81\\0\end{pmatrix}=\begin{pmatrix}19.62\\0\end{pmatrix}$$
+
+$$\tau=\begin{pmatrix}3\\1\end{pmatrix}+\begin{pmatrix}-3\\1\end{pmatrix}+\begin{pmatrix}19.62\\0\end{pmatrix}=\begin{pmatrix}19.62\\2\end{pmatrix}\text{ N·m}$$
+
+MR code library 的 `InverseDynamics`（把两个 link frame 放在 point mass 上，spatial inertia 取 $\mathrm{diag}(0,0,0,1,1,1)$）给出同样的 $(19.62,2)$；`MassMatrix`、`VelQuadraticForces`、`GravityForces` 分别给出上面的 $M$、$c$、$g$。下面几节一直用这个 2R 和这组数。
+
+### 速度项：$\ddot\theta=0$ 也要 torque
+
+$\theta=(0^\circ,90^\circ)$ 时 $m_1$ 在 $(1,0)$，$m_2$ 在 $(1,1)$。令 $\ddot\theta=0$，对 $m_2$ 的位置求两次 derivative，acceleration 分成三份（书上 Figure 8.2）：
+
+$$\begin{pmatrix}\ddot x_2\\\ddot y_2\end{pmatrix}=\underbrace{\begin{pmatrix}-L_1\dot\theta_1^2\\-L_2\dot\theta_1^2\end{pmatrix}}_{a_{\mathrm{cent1}}}+\underbrace{\begin{pmatrix}0\\-L_2\dot\theta_2^2\end{pmatrix}}_{a_{\mathrm{cent2}}}+\underbrace{\begin{pmatrix}0\\-2L_2\dot\theta_1\dot\theta_2\end{pmatrix}}_{a_{\mathrm{cor}}}$$
+
+含 $\dot\theta_i^2$ 的叫 centripetal term，含 $\dot\theta_i\dot\theta_j$（$i\ne j$）的叫 Coriolis term。$a_{\mathrm{cent1}}=(-1,-1)$ 指向 joint 1，$a_{\mathrm{cent2}}=(0,-1)$ 指向 joint 2：要让 $m_2$ 绕那个 joint 走 circle，就得有指向 center 的 force，它的作用线穿过那个 joint，对那个 joint 不产生 moment。$a_{\mathrm{cor}}=(0,-2)$ 穿过 joint 2，对 joint 1 却有 moment。
+
+$\dot\theta=(1,1)$ 时 $m_2$ 的 acceleration 合计 $(-1,-4)$，需要的 force 是 $m_2$ 乘它。$m_1$ 的 acceleration 是 $(-L_1\dot\theta_1^2,0)=(-1,0)$，沿着 link 1 指向 joint 1。对 joint 1 取 moment（$r\times f$ 的 $z$ component，$r_{12}=(1,1)$）：
+
+$$\tau_1=\underbrace{(1,0)\times(-1,0)}_{0}+(1,1)\times(-1,-4)=1\times(-4)-1\times(-1)=-3$$
+
+对 joint 2（$r_{22}=(0,1)$）：$(0,1)\times(-1,-4)=0\times(-4)-1\times(-1)=1$。正是 $c=(-3,1)$。
+
+$\tau_1$ 为什么是负的：joint 2 往正向转，把 $m_2$ 拉向 joint 1，它对 joint 1 的 moment of inertia 在变小。Joint 1 要保持 $\dot\theta_1=1$ 不加速，就得往回拉；不拉的话 $\dot\theta_1$ 会像花样滑冰收拢手臂时那样自己变快。
+
+::fig[mr-coriolis] $\theta=(0^\circ,90^\circ)$、$\dot\theta=(1,1)$、$\ddot\theta=0$ 时 $m_2$ 的三份 acceleration。两条 centripetal 分别指向 joint 1、joint 2；Coriolis 那条竖直向下，穿过 joint 2，从 joint 1 看是顺时针的 moment。
+
+:::wrong Joint 以 constant speed 转、$\ddot\theta=0$，不计 gravity 就不需要 torque
+只让 joint 1 以 1 rad/s 匀速转（$\dot\theta=(1,0)$），$\theta_2=90^\circ$。$c=(0,\ m_2L_1L_2s_2\dot\theta_1^2)=(0,1)$：joint 2 要一直出 1 N·m。$m_2$ 绕 joint 1 走 circle，需要指向 joint 1 的 centripetal force $(-1,-1)$；这个 force 的作用线不穿过 joint 2，对 joint 2 的 moment 是 $(0,1)\times(-1,-1)=1$。Link 2 是靠 joint 2 的 torque 才保持住 $90^\circ$ 的。“joint space 里不加速”不等于“mass 不加速”，因为 joint angle 不是 inertial frame 里的 coordinate。
+:::
+
+### Christoffel symbol：速度项全由 $M(\theta)$ 决定
+
+一般的 $n$-joint open chain，kinetic energy 总能写成 $\mathcal K=\tfrac12\dot\theta^\top M(\theta)\dot\theta$（下面 Newton–Euler 那节会给出 $M$ 的构造）。代进 Euler–Lagrange equation：
+
+$$\tau_i=\sum_jm_{ij}(\theta)\ddot\theta_j+\sum_{j,k}\Gamma_{ijk}(\theta)\dot\theta_j\dot\theta_k+\frac{\partial\mathcal P}{\partial\theta_i},\qquad\Gamma_{ijk}=\frac12\Big(\frac{\partial m_{ij}}{\partial\theta_k}+\frac{\partial m_{ik}}{\partial\theta_j}-\frac{\partial m_{jk}}{\partial\theta_i}\Big)$$
+
+$\Gamma_{ijk}$ 叫 Christoffel symbols of the first kind。2R 上验证（取全站的单位数值，$M=\begin{pmatrix}3+2c_2&1+c_2\\1+c_2&1\end{pmatrix}$）：只有对 $\theta_2$ 的 derivative 不为零，$\partial m_{11}/\partial\theta_2=-2s_2$，$\partial m_{12}/\partial\theta_2=-s_2$。
+
+$$\Gamma_{112}=\Gamma_{121}=\tfrac12\frac{\partial m_{11}}{\partial\theta_2}=-s_2,\quad\Gamma_{122}=\frac{\partial m_{12}}{\partial\theta_2}-\tfrac12\frac{\partial m_{22}}{\partial\theta_1}=-s_2,\quad\Gamma_{211}=-\tfrac12\frac{\partial m_{11}}{\partial\theta_2}=s_2$$
+
+其余（$\Gamma_{111}$、$\Gamma_{212}$、$\Gamma_{221}$、$\Gamma_{222}$）是 0，例如 $\Gamma_{212}=\tfrac12(-s_2+0+s_2)=0$。于是 $c_1=\Gamma_{112}\dot\theta_1\dot\theta_2+\Gamma_{121}\dot\theta_2\dot\theta_1+\Gamma_{122}\dot\theta_2^2=-s_2(2\dot\theta_1\dot\theta_2+\dot\theta_2^2)$，$c_2=\Gamma_{211}\dot\theta_1^2=s_2\dot\theta_1^2$，和直接推的一样。
+
+也常写成 $\tau=M\ddot\theta+C(\theta,\dot\theta)\dot\theta+g$，Coriolis matrix 的 entry 是 $c_{ij}=\sum_k\Gamma_{ijk}\dot\theta_k$。书上 Proposition 8.1：$\dot M-2C$ 是 skew-symmetric（第 8 站之后的 stability 证明要用）。2R 上：$C=\begin{pmatrix}-s_2\dot\theta_2&-s_2(\dot\theta_1+\dot\theta_2)\\s_2\dot\theta_1&0\end{pmatrix}$，$\dot M=\begin{pmatrix}-2s_2\dot\theta_2&-s_2\dot\theta_2\\-s_2\dot\theta_2&0\end{pmatrix}$，
+
+$$\dot M-2C=\begin{pmatrix}0&s_2(2\dot\theta_1+\dot\theta_2)\\-s_2(2\dot\theta_1+\dot\theta_2)&0\end{pmatrix}$$
+
+### Mass matrix 长什么样
+
+Point mass 的 $f=ma$ 里，force 和 acceleration 同方向。$M(\theta)$ 不同：同样大小的 $\ddot\theta$，方向不同，要的 torque 大小不同，$\ddot\theta$ 一般也不平行于 $\tau$。把 unit circle $\{\ddot\theta:\|\ddot\theta\|=1\}$ 经 $M$ 映过去得到一个 ellipse，principal axis 沿 $M$ 的 eigenvector，半轴长是 eigenvalue。$\theta_2=90^\circ$ 时 $M=\begin{pmatrix}3&1\\1&1\end{pmatrix}$，eigenvalue 3.41 和 0.59；$\theta_2=150^\circ$ 时 $M=\begin{pmatrix}1.27&0.13\\0.13&1\end{pmatrix}$。
+
+拿手握住 end-effector 推，感觉到的是 end-effector 处的 mass。Kinetic energy 和用什么 coordinate 写无关：$\tfrac12\dot\theta^\top M\dot\theta=\tfrac12\mathcal V^\top\Lambda\mathcal V$。代 $\dot\theta=J^{-1}\mathcal V$：
+
+$$\mathcal V^\top\Lambda\mathcal V=(J^{-1}\mathcal V)^\top M(J^{-1}\mathcal V)\quad\Rightarrow\quad\Lambda(\theta)=J^{-\top}M(\theta)J^{-1}$$
+
+$\theta=(0^\circ,90^\circ)$，tip velocity 的 Jacobian 是 $J=\begin{pmatrix}-s_1-s_{12}&-s_{12}\\c_1+c_{12}&c_{12}\end{pmatrix}=\begin{pmatrix}-1&-1\\1&0\end{pmatrix}$，实算 $\Lambda=\begin{pmatrix}1&0\\0&2\end{pmatrix}$。可以直接看出来：tip 沿 $\hat y$ 以 $v$ 动，解 $J\dot\theta=(0,v)$ 得 $\dot\theta=(v,-v)$，$m_1$ 也以 $v$ 沿 $\hat y$ 动，两个 mass 都要推，2 kg；tip 沿 $\hat x$ 动，$\dot\theta=(0,-v)$，$m_1$ 不动，只推 $m_2$，1 kg。$\theta_2=150^\circ$ 时
+
+$$\Lambda=\begin{pmatrix}4&-1.73\\-1.73&2\end{pmatrix},\qquad\Lambda^{-1}=\begin{pmatrix}0.4&0.35\\0.35&0.8\end{pmatrix}$$
+
+在 tip 上沿 $\hat x$ 推 1 N，tip 的 acceleration 是 $\Lambda^{-1}(1,0)=(0.4,0.35)$ m/s²，偏离 force 方向 $41^\circ$。这些 ellipse 只在 $\dot\theta=0$ 时有这个意义，动起来还有速度项。
+
+::fig[mr-massell] 同一个 2R 在 $\theta_2=90^\circ$ 和 $150^\circ$。Tip 上的 ellipse 是 $\Lambda$ 把 unit acceleration 映成的 force：长轴方向推起来最“重”。右边那个，沿 $\hat x$ 推 1 N（黑色箭头），tip 朝 $(0.4,0.35)$ 加速（彩色箭头）。
+
+### 一个 rigid body：Newton 加 Euler
+
+Newton–Euler formulation 从单个 rigid body 开始。Body 由 point mass $m_i$ 组成，frame $\{b\}$ 放在 center of mass，$m_i$ 在 $\{b\}$ 里的位置 $r_i$ 满足 $\sum_im_ir_i=0$。Body 以 body twist $\mathcal V_b=(\omega_b,v_b)$ 运动。把 $\{b\}$ 此刻的位置当作一个 inertial frame，$m_i$ 的位置 $p_i(t)$ 此刻等于 $r_i$，
+
+$$\dot p_i=v_b+\omega_b\times p_i,\qquad\ddot p_i=\dot v_b+\dot\omega_b\times p_i+\omega_b\times(v_b+\omega_b\times p_i)$$
+
+代 $p_i=r_i$，用 skew-symmetric 记号：$\ddot p_i=\dot v_b+[\dot\omega_b]r_i+[\omega_b]v_b+[\omega_b]^2r_i$。
+
+**Force。** $f_b=\sum_im_i\ddot p_i$。含 $r_i$ 的两项求和后是 $[\dot\omega_b]\sum m_ir_i$ 和 $[\omega_b]^2\sum m_ir_i$，都是 0：
+
+$$f_b=m(\dot v_b+[\omega_b]v_b)$$
+
+$v_b$ 是写在 body frame 里的 velocity。Body 转着时，$v_b$ 不变意味着 inertial frame 里的 velocity 在转向。例：3 kg 的 body 以 $v_b=(1,0,0)$ m/s、$\omega_b=(0,0,2)$ rad/s 运动，$\dot v_b=0$，$f_b=3\,(0,0,2)\times(1,0,0)=(0,6,0)$ N。它在走半径 $v/\omega=0.5$ m 的 circle，centripetal force $mv^2/r=3\times1/0.5=6$。
+
+**Moment。** $m_b=\sum_i[r_i]m_i\ddot p_i$。含 $\dot v_b$ 和 $[\omega_b]v_b$ 的项提出 $\sum m_i[r_i]=0$，消掉。剩下 $\sum m_i[r_i]([\dot\omega_b]r_i+[\omega_b]^2r_i)$。用 $[a]b=-[b]a$ 把 $[\dot\omega_b]r_i$ 改写成 $-[r_i]\dot\omega_b$；第二项用书上的 identity $[r_i][\omega_b]^2r_i=-[\omega_b][r_i]^2\omega_b$。记 rotational inertia matrix $\mathcal I_b=-\sum_im_i[r_i]^2$：
+
+$$m_b=\mathcal I_b\dot\omega_b+[\omega_b]\mathcal I_b\omega_b$$
+
+这是 Euler's equation。$\mathcal I_b$ 的 entry 是 $I_{xx}=\sum m_i(y_i^2+z_i^2)$、$I_{xy}=-\sum m_ix_iy_i$ 等，连续 body 换成 volume integral。Frame 的 axis 沿 principal axes of inertia（$\mathcal I_b$ 的 eigenvector）时 $\mathcal I_b$ 是 diagonal，Euler's equation 写开是
+
+$$m_b=\begin{pmatrix}I_{xx}\dot\omega_x+(I_{zz}-I_{yy})\omega_y\omega_z\\I_{yy}\dot\omega_y+(I_{xx}-I_{zz})\omega_x\omega_z\\I_{zz}\dot\omega_z+(I_{yy}-I_{xx})\omega_x\omega_y\end{pmatrix}$$
+
+例：一块均匀的长方体，3 kg，沿 $\hat x_b,\hat y_b,\hat z_b$ 的边长 0.4、0.2、0.1 m。书上 Figure 8.5 的公式给出 $I_{xx}=m(w^2+h^2)/12=3\times0.05/12=0.0125$，$I_{yy}=3\times0.17/12=0.0425$，$I_{zz}=3\times0.2/12=0.05$（kg·m²）。让它绕 $(1,0,1)$ 方向以 constant $\omega_b=(3,0,3)$ rad/s 转，$\dot\omega_b=0$：
+
+$$m_b=\begin{pmatrix}0\\(0.0125-0.05)\times3\times3\\0\end{pmatrix}=\begin{pmatrix}0\\-0.3375\\0\end{pmatrix}\text{ N·m}$$
+
+角速度不变，却要一直施加 0.34 N·m 的 moment，而且这个 moment 跟着 body 一起转。原因是 $\mathcal I_b\omega_b=(0.0375,0,0.15)$ 和 $\omega_b$ 不平行：angular momentum 不在转轴上，随 body 转着，moment 就是它的变化率。绕 principal axis 转（比如 $\omega_b=(0,0,3)$）时 $[\omega_b]\mathcal I_b\omega_b=0$，不需要 moment。
+
+::fig[mr-box] 长方体绕对角方向的 $\omega_b$ 匀速转（动图）。黑色箭头是 angular momentum $\mathcal I_b\omega_b$，偏向 $\hat z_b$；彩色箭头是必须施加的 moment $m_b$，沿 $-\hat y_b$，跟着 body 转。
+
+**合成 6 维。** 两式拼起来，利用 $[v]v=0$ 和 $[v]^\top=-[v]$ 改写：
+
+$$\begin{pmatrix}m_b\\f_b\end{pmatrix}=\begin{pmatrix}\mathcal I_b&0\\0&mI\end{pmatrix}\begin{pmatrix}\dot\omega_b\\\dot v_b\end{pmatrix}-\begin{pmatrix}[\omega_b]&0\\{[v_b]}&[\omega_b]\end{pmatrix}^{\!\top}\begin{pmatrix}\mathcal I_b&0\\0&mI\end{pmatrix}\begin{pmatrix}\omega_b\\v_b\end{pmatrix}$$
+
+（第二项的 linear part 是 $-[\omega_b]^\top mv_b=m[\omega_b]v_b$；angular part 是 $-[\omega_b]^\top\mathcal I_b\omega_b-[v_b]^\top mv_b=[\omega_b]\mathcal I_b\omega_b+m[v_b]v_b$，后一项为 0。）记 spatial inertia matrix $\mathcal G_b=\mathrm{diag}(\mathcal I_b,mI)$、spatial momentum $\mathcal P_b=\mathcal G_b\mathcal V_b$，以及
+
+$$[\mathrm{ad}_{\mathcal V}]=\begin{pmatrix}[\omega]&0\\{[v]}&[\omega]\end{pmatrix}$$
+
+就是
+
+$$\mathcal F_b=\mathcal G_b\dot{\mathcal V}_b-[\mathrm{ad}_{\mathcal V_b}]^\top\mathcal G_b\mathcal V_b$$
+
+$[\mathrm{ad}_{\mathcal V_1}]\mathcal V_2$ 叫两个 twist 的 Lie bracket，它是 $[\mathcal V_1][\mathcal V_2]-[\mathcal V_2][\mathcal V_1]$ 这个 $4\times4$ matrix 对应的 6-vector，是 cross product $[\omega_1][\omega_2]-[\omega_2][\omega_1]=[\omega_1\times\omega_2]$ 在 twist 上的推广。拿上面那个 3 kg 的 body 核对，$\mathcal V_b=(0,0,2,\ 1,0,0)$：实算 $-[\mathrm{ad}_{\mathcal V_b}]^\top\mathcal G_b\mathcal V_b=(0,0,0,\ 0,6,0)$，正是 centripetal force。Kinetic energy 是 $\tfrac12\mathcal V_b^\top\mathcal G_b\mathcal V_b$；换到另一个 frame $\{a\}$，由 energy 不变得 $\mathcal G_a=[\mathrm{Ad}_{T_{ba}}]^\top\mathcal G_b[\mathrm{Ad}_{T_{ba}}]$，这是 parallel-axis theorem（Steiner's theorem，$\mathcal I_q=\mathcal I_b+m(q^\top qI-qq^\top)$）的推广。
+
+### Newton–Euler inverse dynamics：往外传 velocity，往里传 force
+
+每根 link $i$ 的 center of mass 上放一个 frame $\{i\}$，base 是 $\{0\}$，end-effector 是 $\{n+1\}$。Home configuration 时 $\{i-1\}$ 在 $\{i\}$ 里的 pose 记 $M_{i,i-1}$；joint $i$ 的 screw axis 写在 $\{i\}$ 里记 $\mathcal A_i=[\mathrm{Ad}_{M_i^{-1}}]\mathcal S_i$。Joint $i$ 转了 $\theta_i$ 后，$T_{i,i-1}=e^{-[\mathcal A_i]\theta_i}M_{i,i-1}$。
+
+**Twist。** Link $i$ 的 twist 是 link $i-1$ 的 twist（换到 $\{i\}$ 里写）加上 joint $i$ 自己带来的：
+
+$$\mathcal V_i=[\mathrm{Ad}_{T_{i,i-1}}]\mathcal V_{i-1}+\mathcal A_i\dot\theta_i$$
+
+**Acceleration。** 对上式求 derivative，多出一项 $\frac{d}{dt}[\mathrm{Ad}_{T_{i,i-1}}]\,\mathcal V_{i-1}$。算它：$[\mathrm{Ad}_T]\mathcal V$ 对应 $T[\mathcal V]T^{-1}$，$\mathcal V$ 固定时对 time 求 derivative，
+
+$$\frac{d}{dt}\big(T[\mathcal V]T^{-1}\big)=\dot TT^{-1}\,T[\mathcal V]T^{-1}-T[\mathcal V]T^{-1}\,\dot TT^{-1}$$
+
+右边正是 Lie bracket 的形式：$\frac{d}{dt}[\mathrm{Ad}_T]\mathcal V=[\mathrm{ad}_{\mathcal W}][\mathrm{Ad}_T]\mathcal V$，$[\mathcal W]=\dot TT^{-1}$。这里 $T=T_{i,i-1}=e^{-[\mathcal A_i]\theta_i}M_{i,i-1}$，$\dot TT^{-1}=-[\mathcal A_i]\dot\theta_i$。所以
+
+$$\frac{d}{dt}[\mathrm{Ad}_{T_{i,i-1}}]\mathcal V_{i-1}=-[\mathrm{ad}_{\mathcal A_i\dot\theta_i}]\big(\mathcal V_i-\mathcal A_i\dot\theta_i\big)=-[\mathrm{ad}_{\mathcal A_i\dot\theta_i}]\mathcal V_i=[\mathrm{ad}_{\mathcal V_i}]\mathcal A_i\dot\theta_i$$
+
+（第二步用 $[\mathrm{ad}_{\mathcal A}]\mathcal A=0$，第三步用 Lie bracket 的反对称 $[\mathrm{ad}_{\mathcal V_1}]\mathcal V_2=-[\mathrm{ad}_{\mathcal V_2}]\mathcal V_1$。书上走的是把 $[\mathrm{Ad}]$ 拆成 $R$、$p$ 再用 Jacobi identity 的路，结论相同。）于是
+
+$$\dot{\mathcal V}_i=[\mathrm{Ad}_{T_{i,i-1}}]\dot{\mathcal V}_{i-1}+[\mathrm{ad}_{\mathcal V_i}]\mathcal A_i\dot\theta_i+\mathcal A_i\ddot\theta_i$$
+
+三项依次是：前一根 link 的 acceleration 换到 $\{i\}$ 里写；joint 带着 link $i$ 相对一个本身在动的 link $i-1$ 转所产生的 velocity-product 项；joint 自己的 acceleration。
+
+**Wrench。** 作用在 link $i$ 上的总 wrench 等于 rigid-body dynamics 要的那个。它来自两处：joint $i$ 传进来的 $\mathcal F_i$，和 link $i+1$ 通过 joint $i+1$ 施加的反作用 $-[\mathrm{Ad}_{T_{i+1,i}}]^\top\mathcal F_{i+1}$。从末端往回解：
+
+$$\mathcal F_i=[\mathrm{Ad}_{T_{i+1,i}}]^\top\mathcal F_{i+1}+\mathcal G_i\dot{\mathcal V}_i-[\mathrm{ad}_{\mathcal V_i}]^\top\mathcal G_i\mathcal V_i,\qquad\tau_i=\mathcal F_i^\top\mathcal A_i$$
+
+$\mathcal F_{n+1}=\mathcal F_{\mathrm{tip}}$ 是 end-effector 对环境施加的 wrench。Joint 只有一个自由度，$\mathcal F_i$ 的另外五个方向由 joint 的结构承担，motor 只出沿 screw axis 的那一份。Gravity 不必单独处理：令 base 以 $\dot{\mathcal V}_0=(0,-\mathfrak g)$ 加速（$\mathfrak g$ 是 gravity vector），等于让每根 link 都“感到” gravity。
+
+手算 2R 那组数：$\theta=(0^\circ,90^\circ)$、$\dot\theta=(1,1)$、$\ddot\theta=(1,0)$。$\{1\}$ 在 $m_1$、$\{2\}$ 在 $m_2$，home 时 $M_1=\mathrm{Trans}(1,0,0)$、$M_2=\mathrm{Trans}(2,0,0)$。两个 joint 的 axis 都在各自 frame 后方 1 m 处，$\mathcal A_1=\mathcal A_2=(0,0,1,\ 0,1,0)$。$\dot{\mathcal V}_0=(0,0,0,\ 0,9.81,0)$。$\{2\}$ 此刻转了 $90^\circ$：$\hat x_2$ 指向世界的 $+\hat y$，$\hat y_2$ 指向 $-\hat x$。
+
+| 量 | 值 | 读法 |
+|---|---|---|
+| $\mathcal V_1$ | $(0,0,1,\ 0,1,0)$ | $m_1$ 以 1 m/s 向上 |
+| $\dot{\mathcal V}_1$ | $(0,0,0,\ 0,9.81,0)+0+(0,0,1,\ 0,1,0)=(0,0,1,\ 0,10.81,0)$ | gravity 加 $\ddot\theta_1$ 带来的 1 m/s² |
+| $\mathcal V_2$ | $(0,0,1,\ 1,1,0)+(0,0,1,\ 0,1,0)=(0,0,2,\ 1,2,0)$ | 世界里 $m_2$ 的 velocity $(-2,1)$，写在 $\{2\}$ 里是 $(1,2)$ |
+| $\dot{\mathcal V}_2$ | $(0,0,1,\ 10.81,1,0)+(0,0,0,\ 0,-1,0)+0=(0,0,1,\ 10.81,0,0)$ | 中间那项是 velocity-product 项 |
+| $\mathcal F_2$ | $0+(0,0,0,\ 10.81,0,0)+(0,0,0,\ -4,2,0)=(0,0,0,\ 6.81,2,0)$ | 第三项是 $m[\omega]v$：$2\hat z\times(1,2)=(-4,2)$ |
+| $\tau_2$ | $\mathcal F_2^\top\mathcal A_2=0+2=2$ | |
+| $\mathcal F_1$ | $(0,0,2,\ -2,6.81,0)+(0,0,0,\ 0,10.81,0)+(0,0,0,\ -1,0,0)=(0,0,2,\ -3,17.62,0)$ | 第一项是 $\mathcal F_2$ 搬到 $\{1\}$ |
+| $\tau_1$ | $\mathcal F_1^\top\mathcal A_1=2+17.62=19.62$ | |
+
+和 Lagrangian 的 $(19.62,2)$ 一致。几处可以对着物理看：$\mathcal F_2$ 的 force $(6.81,2)$ 换回世界是 $(-2,6.81)$，减掉“假想的” gravity 9.81，$m_2$ 的真实 acceleration 是 $(-2,-3)$；而 Lagrangian 那边 $\ddot\theta=(1,0)$ 带来 $(-1,1)$，加上前面算的速度项 $(-1,-4)$，也是 $(-2,-3)$。$[\mathrm{Ad}_{T_{21}}]^\top\mathcal F_2$ 的 moment 2 就是这个 force 对 $m_1$ 所在点的 moment：$(0,1)\times(-2,6.81)=2$。
+
+### Forward dynamics：$M$ 用 $n$ 次 inverse dynamics 拼出来
+
+Kinetic energy 是每根 link 的和：$\mathcal K=\tfrac12\sum_i\mathcal V_i^\top\mathcal G_i\mathcal V_i$。$\mathcal V_i=J_{ib}(\theta)\dot\theta$，$J_{ib}$ 是 $\{i\}$ 的 body Jacobian（后面补 0 凑成 $n$ 列），所以
+
+$$M(\theta)=\sum_iJ_{ib}^\top(\theta)\,\mathcal G_iJ_{ib}(\theta)$$
+
+这就是前面说的“$\mathcal K$ 总能写成 $\tfrac12\dot\theta^\top M\dot\theta$”的构造。2R 在 $\theta_2=90^\circ$：$J_{1b}$ 的列是 $(0,0,1,\ 0,1,0)$ 和 0，$J_{2b}$ 的列是 $(0,0,1,\ 1,1,0)$ 和 $(0,0,1,\ 0,1,0)$，$\mathcal G_i$ 只取 linear part，$J_{1b}^\top\mathcal G_1J_{1b}=\begin{pmatrix}1&0\\0&0\end{pmatrix}$，$J_{2b}^\top\mathcal G_2J_{2b}=\begin{pmatrix}2&1\\1&1\end{pmatrix}$，和是 $\begin{pmatrix}3&1\\1&1\end{pmatrix}$。
+
+实际程序里更省事的办法是调用 inverse dynamics：令 $\mathfrak g=0$、$\dot\theta=0$、$\mathcal F_{\mathrm{tip}}=0$、$\ddot\theta=e_i$（第 $i$ 个分量为 1），返回的 $\tau$ 就是 $M$ 的第 $i$ 列；$h(\theta,\dot\theta)$ 是 $\ddot\theta=0$ 时的 inverse dynamics。然后解
+
+$$M(\theta)\ddot\theta=\tau-h(\theta,\dot\theta)-J^\top(\theta)\mathcal F_{\mathrm{tip}}$$
+
+MR library 的 `ForwardDynamics` 就是这样写的。
+
+把 2R 摆到水平（$\theta=(0,0)$），静止，松开 motor（$\tau=0$）：
+
+$$M=\begin{pmatrix}5&2\\2&1\end{pmatrix},\quad M^{-1}=\begin{pmatrix}1&-2\\-2&5\end{pmatrix},\quad h=g(\theta)=\begin{pmatrix}29.43\\9.81\end{pmatrix},\quad\ddot\theta=-M^{-1}h=\begin{pmatrix}-9.81\\9.81\end{pmatrix}$$
+
+$\ddot\theta_1+\ddot\theta_2=0$：link 2 一开始不转，只是被 link 1 带着往下掉。Tip 的 acceleration 是 $J\ddot\theta$（$\dot\theta=0$ 时没有 $\dot J\dot\theta$），$J=\begin{pmatrix}0&0\\2&1\end{pmatrix}$，得 $(0,-9.81)$：$m_2$ 正好在 free fall。原因是 joint 2 不出 torque，massless 的 link 2 只能沿自己的方向（此刻水平）推拉 $m_2$，竖直方向上 $m_2$ 只受 gravity。
+
+往后要做 numerical integration。最简单的是 first-order Euler：
+
+$$\theta[k+1]=\theta[k]+\dot\theta[k]\,\Delta t,\qquad\dot\theta[k+1]=\dot\theta[k]+\ddot\theta[k]\,\Delta t$$
+
+（MR library 的 `EulerStep`。）2R 落 3 秒，检查 total energy $E=\tfrac12\dot\theta^\top M\dot\theta+\mathcal P$，开始时是 0，应当一直是 0：
+
+| $t$（s） | 0.5 | 1 | 1.5 | 2 | 2.5 | 3 |
+|---|---|---|---|---|---|---|
+| $E$，$\Delta t=0.01$（J） | 0.57 | 1.61 | 2.18 | 2.73 | 3.84 | 4.59 |
+| $E$，$\Delta t=0.001$（J） | 0.06 | 0.15 | 0.21 | 0.27 | 0.38 | 0.44 |
+
+Energy 一直往上涨，$\Delta t$ 小十倍，涨得大约小十倍。为什么总是涨，看一个最简单的振荡：$\ddot x=-\omega^2x$。Euler step 是
+
+$$\begin{pmatrix}x\\\dot x\end{pmatrix}_{k+1}=\begin{pmatrix}1&\Delta t\\-\omega^2\Delta t&1\end{pmatrix}\begin{pmatrix}x\\\dot x\end{pmatrix}_k$$
+
+这个 matrix 的两个 eigenvalue 是 $1\pm j\omega\Delta t$，绝对值 $\sqrt{1+\omega^2\Delta t^2}>1$：每一步振幅都放大一点。没有 damping 的系统用 explicit Euler，energy 必然漂上去。书上建议用 fourth-order Runge–Kutta 这类 higher-order 的方法，同样的计算量误差小得多。
+
+::fig[mr-falling] 左：2R 从水平松开后 3 秒的 motion（高精度 integration 算出，按真实时间播放）。右：两种 $\Delta t$ 的 Euler integration 算出的 total energy，本该是一条在 0 的水平线。
+
+### Task space 的 dynamics
+
+有时候想直接在 end-effector 的 coordinate 里写 dynamics（第 10 站的 force control 和 impedance control 要用）。$\mathcal V=J\dot\theta$，$\dot{\mathcal V}=\dot J\dot\theta+J\ddot\theta$。$J$ invertible 时 $\dot\theta=J^{-1}\mathcal V$、$\ddot\theta=J^{-1}\dot{\mathcal V}-J^{-1}\dot JJ^{-1}\mathcal V$，代进 $\tau=M\ddot\theta+h$，两边左乘 $J^{-\top}$，记 $\mathcal F=J^{-\top}\tau$：
+
+$$\mathcal F=\Lambda(\theta)\dot{\mathcal V}+\eta(\theta,\mathcal V),\qquad\Lambda=J^{-\top}MJ^{-1},\qquad\eta=J^{-\top}h(\theta,J^{-1}\mathcal V)-\Lambda\dot JJ^{-1}\mathcal V$$
+
+$\Lambda$ 就是上面的 end-effector mass matrix。它依赖 $\theta$ 而不只依赖 end-effector 的 pose：同一个 tip 位置可能对应几组 joint angle（elbow up、elbow down），dynamics 不同。例：2R 在 $\theta=(0^\circ,-90^\circ)$，tip 在 $(1,-1)$，静止。$J=\begin{pmatrix}1&1\\1&0\end{pmatrix}$，$\Lambda=\begin{pmatrix}1&0\\0&2\end{pmatrix}$，$\eta=J^{-\top}g(\theta)=\begin{pmatrix}0&1\\1&-1\end{pmatrix}\begin{pmatrix}19.62\\0\end{pmatrix}=\begin{pmatrix}0\\19.62\end{pmatrix}$：在 tip 上看，要用 19.62 N 向上托住两个 mass 的 weight。第 10 站会接着用这个 configuration。
+
+### Constrained dynamics
+
+:::skip
+ME 449 跳过这一节（书 8.7 节）。跳过它，第 10 站的 hybrid motion–force control 里 projection matrix $P$ 的来历就要直接接受。
+:::
+
+Robot 的 end-effector 被环境约束时，比如握着门把手、拿笔在纸上写字，joint velocity 满足 $k$ 个 Pfaffian constraint $A(\theta)\dot\theta=0$（第 1 站）。假设 constraint 不做功（笔和纸之间没有 friction），constraint 施加的 generalized force $\tau_{\mathrm{con}}$ 对所有允许的 $\dot\theta$ 都有 $\tau_{\mathrm{con}}^\top\dot\theta=0$，所以它是 $A^\top$ 的 column 的 linear combination，$\tau_{\mathrm{con}}=A^\top\lambda$。Equations of motion 加上它：
+
+$$\tau=M\ddot\theta+h+A^\top\lambda,\qquad A\dot\theta=0$$
+
+$\lambda$ 是 Lagrange multiplier，$A^\top\lambda$ 是 robot 顶着 constraint 用掉的 joint torque。Constraint 时时成立，对 time 求 derivative：$\dot A\dot\theta+A\ddot\theta=0$。由第一式 $\ddot\theta=M^{-1}(\tau-h-A^\top\lambda)$，代入：
+
+$$\dot A\dot\theta+AM^{-1}(\tau-h-A^\top\lambda)=0\quad\Rightarrow\quad\lambda=(AM^{-1}A^\top)^{-1}\big(AM^{-1}(\tau-h)+\dot A\dot\theta\big)$$
+
+书上 Example 8.5：同一个 2R，$\mathfrak g=0$，tip 被约束在 $x=1$ 的一条无摩擦 channel 里。$x=c_1+c_{12}=1$，求 derivative 得 $A=\big(-s_1-s_{12},\ -s_{12}\big)$，$\dot A=\big(-\dot\theta_1c_1-(\dot\theta_1+\dot\theta_2)c_{12},\ -(\dot\theta_1+\dot\theta_2)c_{12}\big)$。此刻 $\theta=(-60^\circ,120^\circ)$，tip 以 $(0,1)$ m/s 往上走，即 $\dot\theta=(1,0)$：
+
+$$A=(0,\ -0.866),\quad\dot A=(-1,\ -0.5),\quad M=\begin{pmatrix}2&0.5\\0.5&1\end{pmatrix},\quad h=\begin{pmatrix}0\\0.866\end{pmatrix}$$
+
+代进去：
+
+$$\lambda=0.289\tau_1-1.155\tau_2-0.167,\qquad\ddot\theta_1=0.5\tau_1+0.289,\qquad\ddot\theta_2=-1.155$$
+
+$\ddot\theta_2$ 不管 $\tau$ 怎样都是 $-1.155$：channel 只留一个自由度，$\ddot\theta_2$ 被 $\ddot\theta_1$ 和 constraint 一起定死了，而此刻 $A$ 的第 1 个 entry 为 0，$\ddot\theta_2$ 恰好与 $\ddot\theta_1$ 无关。$\tau_2$ 只影响 $\lambda$，不影响 motion；满足 $0.289\tau_1-1.155\tau_2=0$ 的 $\tau$ 不影响 $\lambda$。任何 $\tau$ 都能拆成“只管 motion”和“只管 constraint force”两份：
+
+$$P=I-A^\top(AM^{-1}A^\top)^{-1}AM^{-1}=\begin{pmatrix}1&0\\0.25&0\end{pmatrix},\qquad I-P=\begin{pmatrix}0&0\\-0.25&1\end{pmatrix}$$
+
+$P\tau$ 是沿 constraint 的那一份，$(I-P)\tau$ 是顶着 constraint 的那一份。Tip 对 channel 的 force 由 $J^\top\mathcal F_{\mathrm{tip}}=A^\top\lambda$ 得 $\mathcal F_{\mathrm{tip}}=J^{-\top}A^\top\lambda=(\lambda,0)$，只有 $x$ 方向，符合 channel 只能挡 $x$ 方向的直觉。$\tau=0$ 时 $\lambda=-0.167$：tip 往左压 channel，没有 channel 的话 tip 会往左加速。
+
+反过来做 constrained inverse dynamics：想让 tip 沿 channel 以某个 $\ddot\theta_1=a$ 运动、同时以 $f$ 顶 channel，
+
+$$\tau_1=2a-0.577,\qquad\tau_2=0.5a-0.866f-0.289$$
+
+$a$ 由 motion controller 定，$f$ 由 force controller 定。这就是第 10 站 hybrid control 的雏形。
+
+::fig[mr-channel] Example 8.5：tip 被关在 $x=1$ 的 channel 里，以 1 m/s 往上走。$\tau=0$ 时 tip 压向 channel 左壁的 force 是 0.167 N（彩色箭头）。
+
+:::back
+Twist、$[\mathrm{Ad}]$ 来自[第 2 站](#twist)，body Jacobian 来自[第 4 站](#jac)，Pfaffian constraint 来自[第 1 站](#cspace)。
+:::
+
+:::from
+$\tau=M\ddot\theta+h$ 与 forward/inverse dynamics 的区分、Euler–Lagrange equation、竖直 particle 的例子、2R point-mass arm 的 Lagrangian 推导与 (8.9)、(8.10) 式、centripetal 与 Coriolis 的分解和 Figure 8.2 的解释（花样滑冰的比喻是书上的）、Christoffel symbols 与 Proposition 8.1、mass matrix ellipsoid 与 $\Lambda=J^{-\top}MJ^{-1}$（Figure 8.3、8.4 的四个 matrix 和 $(0.4,0.35)$）、单个 rigid body 的推导（8.22 到 8.25 式）、Figure 8.5 的长方体公式、spatial inertia、Lie bracket、$\mathcal G_a$ 与 Steiner's theorem、Newton–Euler 的 forward 与 backward iteration（8.50 到 8.54 式）、gravity 当作 base acceleration、$M=\sum J_{ib}^\top\mathcal G_iJ_{ib}$、用 $n$ 次 inverse dynamics 拼 $M$、Euler integration 与 Runge–Kutta 的建议、task-space dynamics（8.89 到 8.91 式）、constrained dynamics 与 Example 8.5 的全部数值，都来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 8.1 到 8.7 节（全文读过；Example 8.5 的 $\lambda$、$\ddot\theta$、$P$、$\tau$ 用 Python 重算过一遍）。2R 的 $\tau_1$、$\tau_2$ 书上说“omit the detailed calculations”，这里逐步补全；$\theta=(0^\circ,90^\circ)$ 的数值例子、$c$ 用 $r\times f$ 的核对、constant speed 也要 torque 的反例、Christoffel symbol 与 $\dot M-2C$ 在 2R 上的验证、长方体的数字与 3 kg body 的 centripetal 例子、$\frac{d}{dt}[\mathrm{Ad}_T]$ 用 Lie bracket 的推法（书上走 $R$、$p$ 拆开的路）、Newton–Euler 的手算表、$M$ 的 $\sum J^\top\mathcal G J$ 核对、水平松开时 $m_2$ free fall 的分析、energy drift 的表与 $\sqrt{1+\omega^2\Delta t^2}$ 的解释、$\theta=(0,-90^\circ)$ 的 $\Lambda$ 与 $\eta$，是为这一页算的或自己推的，数值都用 MR library（`InverseDynamics`、`MassMatrix`、`ForwardDynamics`、`EulerStep`）核对过。书上 8.4 节的 stacked closed form（$\mathcal W$、$\mathcal L$ matrix）、8.8 节 URDF 的 inertial element、8.9 节 motor、gearing、apparent inertia 与 friction 没有写，ME 449 也跳过这几节。
+:::
+
 ## [plan] Motion planning：C-obstacle 与 sampling-based planner
 
 :::skip
@@ -653,7 +1161,7 @@ $\mathcal C_{\mathrm{free}}$ 与 $\mathcal C_{\mathrm{obs}}$ 的定义（joint l
 ## [control] Trajectory generation 与 task-space control
 
 :::skip
-快速路线必读（书第 9.1、9.2 节与第 11.1 到 11.3 节，约 3 小时）。能写出 feedforward 加 PI 的控制律并由 gain 算出 $\zeta$，知道 PI 的 error 为什么在 $\zeta\ge1$ 时也会越过零，能写出 task-space 控制律并复现 capstone 的测试数值，就可以去第 7 站。Cubic、quintic、trapezoidal time scaling 见 [RB2202](../courses/RB2202.html) 第 7 站。书上 9.3 节的 via point trajectory、9.4 节的 time-optimal time scaling（ME 449 有专门的 quiz 和 Assignment 5 的题），以及第 11.5 到 11.7 节的 force control、hybrid motion–force control、impedance control，这一页没有写。
+快速路线必读（书第 9.1、9.2 节与第 11.1 到 11.3 节，约 3 小时）。能写出 feedforward 加 PI 的控制律并由 gain 算出 $\zeta$，知道 PI 的 error 为什么在 $\zeta\ge1$ 时也会越过零，能写出 task-space 控制律并复现 capstone 的测试数值，就可以去第 9 站。Cubic、quintic、trapezoidal time scaling 见 [RB2202](../courses/RB2202.html) 第 7 站。书上 9.3 节的 via point trajectory 和 9.4 节的 time-optimal time scaling 在[第 9 站](#timeopt)，第 11.5 到 11.7 节的 force control、hybrid motion–force control、impedance control 在[第 10 站](#force)。
 :::
 
 ### Reference 从哪里来：path 加 time scaling
@@ -747,7 +1255,7 @@ $$X_{\mathrm{err}}=(0,\ 0.171,\ 0,\ 0.080,\ 0,\ 0.107)$$
 
 $$\begin{pmatrix}20\cos0.171+10\sin0.171\\0\\-20\sin0.171+10\cos0.171\end{pmatrix}=\begin{pmatrix}19.71+1.70\\0\\-3.40+9.85\end{pmatrix}=\begin{pmatrix}21.41\\0\\6.45\end{pmatrix}$$
 
-$K_p=K_i=0$ 时 $\mathcal V=(0,0,0,\ 21.409,0,6.455)$；$K_p=I$ 时再加上 $X_{\mathrm{err}}$，$\mathcal V=(0,0.171,0,\ 21.488,0,6.562)$。两个都和 handout 给的数一致。第 8 站把它换成 wheel 和 joint 的 speed。
+$K_p=K_i=0$ 时 $\mathcal V=(0,0,0,\ 21.409,0,6.455)$；$K_p=I$ 时再加上 $X_{\mathrm{err}}$，$\mathcal V=(0,0.171,0,\ 21.488,0,6.562)$。两个都和 handout 给的数一致。第 12 站把它换成 wheel 和 joint 的 speed。
 
 :::wrong Feedforward 就是 $\mathcal V_d$，不用乘 $[\mathrm{Ad}]$
 不乘就是把 $(0,0,0,20,0,10)$ 当成 $\{e\}$ 里的 velocity 执行。它和正确的 $(21.41,0,6.45)$ 方向差 $\tan^{-1}\frac{10}{20}-\tan^{-1}\frac{6.455}{21.409}=26.6^\circ-16.8^\circ=9.8^\circ$，正好是两个 frame 之间的 angle。Feedback 会把由此产生的 error 慢慢拉回来，所以程序“大致能用”，但 error plot 一直消不干净。Handout 要求先只用 feedforward 跑通再加 feedback，就是为了把这类错误暴露出来。
@@ -758,7 +1266,7 @@ $K_p=K_i=0$ 时 $\mathcal V=(0,0,0,\ 21.409,0,6.455)$；$K_p=I$ 时再加上 $X_
 ### Torque control：computed torque
 
 :::skip
-跳过它会少掉 torque 层面的控制。Capstone 和多数 learning-based manipulation 用 velocity 或 position 接口，用不到；做力控、impedance control 时要回来读书上第 8 章和 11.4 到 11.6 节。
+跳过它会少掉 torque 层面的控制。Capstone 和多数 learning-based manipulation 用 velocity 或 position 接口，用不到；需要它的 dynamics 在[第 6 站](#dyn)，force control 与 impedance control 在[第 10 站](#force)。
 :::
 
 如果 joint 接受的是 torque，就要面对 dynamics。书上的单 joint 例子：$\tau=M\ddot\theta+mgr\cos\theta+b\dot\theta$，$M=0.5$ kg·m²，$m=1$ kg，$r=0.1$ m，$b=0.1$ N·m·s/rad。PD control $\tau=K_p\theta_e+K_d\dot\theta_e$，忽略 gravity，error dynamics 是
@@ -777,7 +1285,7 @@ $K_i$ 有上限，太大系统就 unstable。书上的 PID 例子取 $K_i=1$：s
 
 $$\tau=\tilde M(\theta)\Big(\ddot\theta_d+K_p\theta_e+K_i\int\theta_e\,dt+K_d\dot\theta_e\Big)+\tilde h(\theta,\dot\theta)$$
 
-Model 准确时，代进 $\tau=M\ddot\theta+h$，$M$ 和 $h$ 两边消掉，剩下 $\ddot\theta_e+K_d\dot\theta_e+K_p\theta_e+K_i\int\theta_e=0$：和 robot 的 dynamics 无关的 linear error dynamics。这叫 computed torque control。$M(\theta)$、$h(\theta,\dot\theta)$ 怎么算见 [RB2202](../courses/RB2202.html) 第 6 站。
+Model 准确时，代进 $\tau=M\ddot\theta+h$，$M$ 和 $h$ 两边消掉，剩下 $\ddot\theta_e+K_d\dot\theta_e+K_p\theta_e+K_i\int\theta_e=0$：和 robot 的 dynamics 无关的 linear error dynamics。这叫 computed torque control。$M(\theta)$、$h(\theta,\dot\theta)$ 怎么算见[第 6 站](#dyn)。
 
 :::back
 $X_{\mathrm{err}}$ 和 $[\mathrm{Ad}]$ 来自[第 2 站](#twist)，$J_b$ 和 pseudoinverse 来自[第 4 站](#jac)。
@@ -785,6 +1293,268 @@ $X_{\mathrm{err}}$ 和 $[\mathrm{Ad}]$ 来自[第 2 站](#twist)，$J_b$ 和 pse
 
 :::from
 Path 与 time scaling 的拆分、quintic 的 peak velocity、screw path 与 decoupled path 的两个 formula 来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 9.1、9.2 节；feedforward、P、PI 的 error dynamics，$\omega_n=\sqrt{K_i}$、$\zeta=K_p/(2\sqrt{K_i})$，$K_p=20$ 配三个 $K_i$ 的例子，task-space 控制律，单 joint 的 PD 与 computed torque（$K_d=2$、$K_p=2.205$），来自第 11.1 到 11.4 节（全文读过；root locus 的叙述、Figure 11.7 的 initial condition、PID 的 stability 条件与 $K_i=1$ 的例子也来自这里）。测试数值来自 [capstone handout](https://hades.mech.northwestern.edu/index.php/Mobile_Manipulation_Capstone)。$\dot\theta_e(0)=-K_p\theta_e(0)$ 导致越过零的分析（与书上 Figure 11.7 的 initial condition 不同，正文已说明）、velocity bias 的例子、gravity 下 23° 的 steady-state error、screw path 的中点、$[\mathrm{Ad}]$ 的手算、kinematic simulation 的结果，是为这一页算的。
+:::
+
+## [timeopt] Via point 与 time-optimal time scaling
+
+:::skip
+快速路线可以跳过整站（书第 9.3、9.4 节，约 2 小时）。ME 449 Fall 2026 在 11 月 6 日到 11 日讲这两节，Coursera 上有“第 9 章至 9.3 节”和“9.4 节”两个 quiz，Assignment 5 有三道题（习题 9.2、9.3、9.22）加一道改编自 2025 年 Quiz 2 的 phase plane 题，都对着这一站。只做 capstone 的话，第 8 站的 quintic time scaling 已经够用。
+:::
+
+### Via point：经过几个点，路径形状不管
+
+第 8 站的 trajectory 先定 path 再定 time scaling。有时任务只要求 robot 在指定时刻经过几个 via point（再加上 start 和 end），中间走什么形状无所谓。这时可以跳过 path，直接对每个 joint 做 polynomial interpolation。
+
+对一个 joint（记它的值为 $\beta$），用户给出 $k$ 个 via point：时刻 $T_i$、位置 $\beta_i$、velocity $\dot\beta_i$，$T_1=0$，$T_k=T$。相邻两个 via point 之间是一段 cubic，段 $j$ 的时长 $\Delta T_j=T_{j+1}-T_j$，用段内经过的时间 $\Delta t$ 写：
+
+$$\beta(T_j+\Delta t)=a_{j0}+a_{j1}\Delta t+a_{j2}\Delta t^2+a_{j3}\Delta t^3,\qquad0\le\Delta t\le\Delta T_j$$
+
+两端的位置、velocity 共 4 个条件。$\Delta t=0$ 时直接给出 $a_{j0}=\beta_j$、$a_{j1}=\dot\beta_j$。$\Delta t=\Delta T_j$（下面简写 $\Delta T$）时：
+
+$$a_{j2}\Delta T^2+a_{j3}\Delta T^3=\beta_{j+1}-\beta_j-\dot\beta_j\Delta T,\qquad2a_{j2}\Delta T+3a_{j3}\Delta T^2=\dot\beta_{j+1}-\dot\beta_j$$
+
+第二式乘 $\Delta T/3$ 再从第一式减去，$a_{j3}$ 消掉，$\tfrac13a_{j2}\Delta T^2=\beta_{j+1}-\beta_j-\dot\beta_j\Delta T-\tfrac13(\dot\beta_{j+1}-\dot\beta_j)\Delta T$，整理：
+
+$$a_{j2}=\frac{3\beta_{j+1}-3\beta_j-2\dot\beta_j\Delta T-\dot\beta_{j+1}\Delta T}{\Delta T^2},\qquad a_{j3}=\frac{2\beta_j+(\dot\beta_j+\dot\beta_{j+1})\Delta T-2\beta_{j+1}}{\Delta T^3}$$
+
+（$a_{j3}$ 由第一式减去 $a_{j2}\Delta T^2$ 得到。）书上 Figure 9.7(a) 的例子：$(x,y)$ 两个 coordinate，via point 在 $T=0,1,2,3$ 时刻依次是 $(0,0)$、$(0,1)$、$(1,1)$、$(1,0)$，velocity 依次是 $(0,0)$、$(1,0)$、$(0,-1)$、$(0,0)$。每段 $\Delta T=1$，代公式：
+
+| 段 | $x$：$(a_0,a_1,a_2,a_3)$ | $y$：$(a_0,a_1,a_2,a_3)$ |
+|---|---|---|
+| 1（$t\in[0,1]$） | $(0,0,-1,1)$ | $(0,0,3,-2)$ |
+| 2（$t\in[1,2]$） | $(0,1,1,-1)$ | $(1,0,1,-1)$ |
+| 3（$t\in[2,3]$） | $(1,0,0,0)$ | $(1,-1,-1,1)$ |
+
+例如段 1 的 $x$：$a_2=(3\times0-0-0-1\times1)/1=-1$，$a_3=(0+(0+1)\times1-0)/1=1$。第 1 段 $x(t)=-t^2+t^3$ 在 $t=2/3$ 时最小，$x=-4/27=-0.148$：path 跑到了 $x<0$ 的地方，虽然所有 via point 的 $x$ 都 $\ge0$。这种 cubic interpolation 不保证 path 待在 via point 的 convex hull 里；B-spline interpolation 能保证（代价是 path 不一定精确经过 via point），joint limit 或 obstacle 在附近时要考虑这一点。
+
+::fig[mr-via] 左：四个 via point 和插值出的 path，短箭头是指定的 via velocity，点按 $t$ 移动。右：$x(t)$、$y(t)$，竖虚线是 via point 的时刻。
+
+:::wrong 每段都是光滑的 cubic，整条 trajectory 的 acceleration 就是连续的
+在 via 2（$t=1$）比较两边。段 1 末端的 acceleration 是 $2a_2+6a_3\Delta T=(2\times(-1)+6,\ 2\times3-12)=(4,-6)$；段 2 开头是 $2a_2=(2,2)$。Acceleration 从 $(4,-6)$ 一下跳到 $(2,2)$，jerk 是 impulse。Cubic interpolation 只保证 position 和 velocity 连续。要 acceleration 也连续，就在每个 via point 再指定 acceleration，换成 quintic（每段 6 个 coefficient 对 6 个条件）。
+:::
+
+只有 start 和 end 两个点、两端 velocity 为 0 时，这个方法退化成第 8 站的 straight-line cubic time scaling。
+
+### Time-optimal：path 已经定了，最快能多快
+
+Path planner 给出了一条 path $\theta(s)$，$s\in[0,1]$，剩下的只有 time scaling $s(t)$。第 8 站的 quintic 是随手选的形状；要 robot 的生产率最高，就要在 actuator 的能力范围内走得最快。Trapezoidal profile 在“constant 的最大 acceleration、最大 velocity”假设下是 optimal 的，但真实 robot 的 dynamics 随 configuration 变，能用的 acceleration 沿 path 处处不同。Actuator 的限制写成
+
+$$\tau_i^{\min}(\theta,\dot\theta)\le\tau_i\le\tau_i^{\max}(\theta,\dot\theta)$$
+
+**把 dynamics 写成 $s$ 的函数。** 沿 path，$\dot\theta=\theta'\dot s$，$\ddot\theta=\theta'\ddot s+\theta''\dot s^2$（$'$ 表示对 $s$ 求 derivative）。代进 $M\ddot\theta+c(\theta,\dot\theta)+g=\tau$，速度项 $c=\dot\theta^\top\Gamma\dot\theta=\dot s^2\,\theta'^\top\Gamma\theta'$：
+
+$$\underbrace{M\theta'}_{m(s)}\ddot s+\underbrace{\big(M\theta''+\theta'^\top\Gamma\theta'\big)}_{c(s)}\dot s^2+\underbrace{g(\theta(s))}_{g(s)}=\tau$$
+
+$n$ 个 actuator 的限制变成 $n$ 个关于 $\ddot s$ 的 inequality：$\tau_i^{\min}\le m_i\ddot s+c_i\dot s^2+g_i\le\tau_i^{\max}$。解出 $\ddot s$ 的范围 $[L_i,U_i]$：
+
+$$m_i>0:\ L_i=\frac{\tau_i^{\min}-c_i\dot s^2-g_i}{m_i},\ U_i=\frac{\tau_i^{\max}-c_i\dot s^2-g_i}{m_i};\qquad m_i<0:\ \text{两者对调}$$
+
+（除以负数，inequality 反向。）$m_i=0$ 的点叫 zero-inertia point，这个 actuator 不影响 $\ddot s$，它的限制直接变成对 $\dot s$ 的限制。所有 actuator 都要满足，所以
+
+$$L(s,\dot s)=\max_iL_i\ \le\ \ddot s\ \le\ U(s,\dot s)=\min_iU_i$$
+
+**例子：gantry 绕过 obstacle。** 书上 Figure 9.9：两个 prismatic joint 的 robot（水平放置，没有 gravity），path planner 给出一条半径 $R$ 的半圆绕过 obstacle，$x(s)=R\cos s\pi$，$y(s)=-R\sin s\pi$。取 $R=0.5$ m。$x$ joint 搬动整个 gantry，$m_x=2$ kg；$y$ joint 只搬 tool，$m_y=1$ kg；force 限制 $|f_x|\le4$ N、$|f_y|\le2$ N。$M=\mathrm{diag}(m_x,m_y)$ 是 constant，$\Gamma=0$：
+
+$$\theta'=\begin{pmatrix}-R\pi\sin s\pi\\-R\pi\cos s\pi\end{pmatrix},\quad\theta''=\begin{pmatrix}-R\pi^2\cos s\pi\\R\pi^2\sin s\pi\end{pmatrix},\quad m(s)=\begin{pmatrix}m_x\theta'_x\\m_y\theta'_y\end{pmatrix},\quad c(s)=\begin{pmatrix}m_x\theta''_x\\m_y\theta''_y\end{pmatrix}$$
+
+在 $(s,\dot s)=(0.25,0.5)$：$m=(-2.221,-1.111)$，$c=(-6.979,3.489)$。$x$ joint：$-4\le-2.221\ddot s-6.979\times0.25\le4$，$m_x<0$，解出 $-2.586\le\ddot s\le1.015$。$y$ joint：$-2\le-1.111\ddot s+3.489\times0.25\le2$，解出 $-1.015\le\ddot s\le2.586$。合起来 $L=-1.015$、$U=1.015$。同一个 $s$，$\dot s$ 提到 0.8：$x$ joint 要求 $\ddot s\le-0.21$，$y$ joint 要求 $\ddot s\ge0.21$，$L=0.21>U=-0.21$，没有任何 $\ddot s$ 可行：速度太快，两个 actuator 合起来也提供不了沿着半圆拐弯所需的 force。
+
+### $(s,\dot s)$ phase plane
+
+$s(t)$ 单调增加，所以一个 time scaling 就是 $(s,\dot s)$ plane 里从 $(0,0)$ 到 $(1,0)$、$\dot s\ge0$ 的一条曲线。在每个 state，可行的 motion 方向是一个 cone：水平分量是 $\dot s$（$s$ 往右走的快慢），竖直分量在 $L$ 和 $U$ 之间。$L>U$ 的 state 是 inadmissible 的。对每个 $s$，通常有一个 $\dot s_{\lim}(s)$，比它快就 inadmissible，这条曲线叫 velocity limit curve，在它上面 $L=U$，cone 缩成一条线。曲线要可行，它在每一点的切线都要落在那一点的 cone 里。
+
+Gantry 的 velocity limit curve 在 $s=0.5$（半圆最底部）最低。那里 $m_y=-m_yR\pi\cos(\pi/2)=0$，是 $y$ joint 的 zero-inertia point：$y$ 方向的 force 全部用来提供 centripetal force，$f_y=c_y\dot s^2=m_yR\pi^2\dot s^2\le2$，所以 $\dot s\le\sqrt{2/(0.5\pi^2)}=0.637$，此时 tool 的 speed 是 $R\pi\dot s=1.0$ m/s，centripetal acceleration $1.0^2/0.5=2$ m/s² 正好是 $f_y$ 的上限除以 $m_y$。$s=0$ 和 1 是 $x$ joint 的 zero-inertia point，限制也是 0.637；$s=0.25$ 时是 0.757。
+
+**最快就是让 $\dot s$ 处处最大。** Total time
+
+$$T=\int_0^T1\,dt=\int_0^1\frac{dt}{ds}\,ds=\int_0^1\frac{1}{\dot s(s)}\,ds$$
+
+要 $T$ 最小，$\dot s(s)$ 在每个 $s$ 都要在满足 acceleration constraint 和两端条件的前提下尽量大。于是 time scaling 永远在 $U$ 或 $L$ 上，只能选在哪里切换。最简单的是 bang-bang：从 $(0,0)$ 用 $\ddot s=U$ 往前 integrate，从 $(1,0)$ 用 $\ddot s=L$ 往回 integrate，两条曲线的交点就是从加速切到减速的 switch。
+
+Gantry 上这样做行不通：往前的曲线在 $s=0.353$、$\dot s=0.737$ 撞上 velocity limit curve，往回的曲线对称地在 $s=0.647$ 撞上，两条曲线在可行区域里没有交点。需要书上的 time-scaling algorithm 来找多个 switch。
+
+### Time-scaling algorithm
+
+1. Switch 的 list $S$ 为空，$i=0$，$(s_0,\dot s_0)=(0,0)$。
+2. 从 $(1,0)$ 用 $\ddot s=L$ 往回 integrate，直到穿过 velocity limit curve 或 $s=0$。这条曲线叫 $F$。
+3. 从 $(s_i,\dot s_i)$ 用 $\ddot s=U$ 往前 integrate，直到和 $F$ 相交，或者穿过 velocity limit curve。记这条为 $A_i$。和 $F$ 相交：交点是最后一个 switch（加速转减速），加进 $S$，结束。穿过 velocity limit curve：记穿过点为 $(s_{\lim},\dot s_{\lim})$，进入第 4 步。
+4. 在 $[0,\dot s_{\lim}]$ 上对 $\dot s$ 做 binary search：从 $(s_{\lim},\dot s_{\mathrm{test}})$ 用 $\ddot s=L$ 往前 integrate，穿过 velocity limit curve 就把 $\dot s_{\mathrm{test}}$ 调低，撞到 $\dot s=0$ 就调高。收敛后这条曲线刚好擦着 velocity limit curve，切点记作 $(s_{\tan},\dot s_{\tan})$，那里的 cone 只剩一个方向，与 velocity limit curve 相切。
+5. 从 $(s_{\tan},\dot s_{\tan})$ 用 $\ddot s=L$ 往回 integrate，直到和 $A_i$ 相交。交点是一个加速转减速的 switch，加进 $S$。
+6. $(s_{\tan},\dot s_{\tan})$ 是一个减速转加速的 switch，加进 $S$，令它为新的 $(s_i,\dot s_i)$，回到第 3 步。
+
+Gantry 上跑一遍（$s$ 方向步长 $2\times10^{-4}$ 的 Runge–Kutta）：
+
+- 第 2、3 步：$F$ 和 $A_0$ 分别在 $s=0.647$、$0.353$ 撞上 velocity limit curve。
+- 第 4 步：从 $s=0.353$ 出发的减速曲线，binary search 收敛到正好擦过 $(0.5,\ 0.637)$，也就是 zero-inertia point 处 velocity limit curve 的尖底。
+- 第 5 步：从 $(0.5,0.637)$ 用 $L$ 往回，在 $s_1=0.269$（$\dot s=0.681$）碰上 $A_0$：第一个 switch，加速转减速。
+- 第 6 步：$s_2=0.5$，减速转加速。
+- 回到第 3 步：从 $(0.5,0.637)$ 用 $U$ 往前，在 $s_3=0.731$（$\dot s=0.681$）和 $F$ 相交，结束。
+
+$S=\{0.269,\ 0.5,\ 0.731\}$，total time 2.04 s。同一条 path 若用 quintic time scaling，把 $T$ 缩到刚好不超 force 限制，最短是 2.95 s。沿 optimal 的 trajectory，$f_x$、$f_y$ 至少有一个顶在上限：这正是“永远在 $U$ 或 $L$ 上”的意思。
+
+::fig[mr-topt] 左：gantry 的 tool（彩色点）沿半圆绕过 obstacle，按 time-optimal time scaling 实时播放，下面两根 bar 是 $f_x$、$f_y$，碰到边框就是顶到限制。右：phase plane。灰底是 inadmissible 区域，它的下边缘是 velocity limit curve；虚线是第 2、3 步的 $F$ 和 $A_0$，在可行区域里不相交；粗线是 optimal time scaling，三个圆点是 switch。几个小三角是 motion cone。
+
+**书上的变体。** Velocity limit curve 上能属于 optimal 解的点，只有 cone 的那个唯一方向与曲线相切的点。所以第 4 步的 binary search 可以换成：先把 velocity limit curve 显式算出来，再沿它找满足相切条件的点。Gantry 的 velocity limit curve 在 $s=0.5$ 不光滑（zero-inertia point 处的尖底），切点就落在尖底上。
+
+:::wrong Time-optimal time scaling 就是先用最大 acceleration、再用最大 deceleration，只切换一次
+单次 switch 只在 $U$ 曲线和 $L$ 曲线在可行区域里相交时成立。Gantry 的两条曲线各自在 $\dot s=0.737$ 撞上 velocity limit curve，若无视它、硬让两条曲线在 $s=0.5$ 相交，那一刻 tool 要以超过 1.0 m/s 的 speed 过弯，$f_y$ 要超过 2 N，robot 会偏离 path。正确的解在 $s=0.5$ 前先减速，擦着 velocity limit curve 过弯，再加速，一共三次 switch。
+:::
+
+### 前提和代价
+
+书上 9.4.4 节列了 algorithm 的三个假设。**Static posture maintenance**：任何 $(s,0)$ 处 robot 都能靠 actuator 静止撑住，于是至少存在“无限慢”的可行解；actuator 太弱、要靠 momentum 冲过某段 path 时要改 algorithm。**Inadmissible state**：每个 $s$ 有唯一的 $\dot s_{\lim}(s)$，下面全可行、上面全不可行；有些 actuator 或 friction model 会在中间出现孤立的不可行“岛”。**Zero-inertia point**：algorithm 假设没有 $m_i(s)=0$ 的点；有的话 velocity limit curve 由两部分的较小者决定：zero-inertia 的 actuator 给出的 velocity 限制，和其余 actuator 的 $L_i=U_i$。Velocity limit curve 上整段都是 zero-inertia point（singular arc）时，按 algorithm 会在 $U$ 和 $L$ 之间快速来回切换（chattering）；这时取一个落在 $L$、$U$ 之间、与 velocity limit curve 相切的 acceleration，仍然 optimal。Gantry 的 zero-inertia point 是孤立的点，没有这个问题。
+
+就算前提都满足，也很少把 time-optimal 的结果原样送给 robot：acceleration 不连续会激起 vibration；inertia 和 friction 的 model 总有误差；最致命的是每一刻至少有一个 actuator 已经用满，robot 一旦偏离 trajectory，feedback controller 没有余量去纠正。书上的评价是：它给出了 robot 沿一条 path 真正的能力上限。
+
+:::back
+Path 与 time scaling 的拆分、quintic 来自[第 8 站](#control)；$M$、$c$、$\Gamma$ 来自[第 6 站](#dyn)。
+:::
+
+:::from
+Via point 的 cubic interpolation（9.26 到 9.29 式）、Figure 9.7(a) 的四个 via point 与 velocity、“cubic 只保证 velocity 连续”、改用 quintic、B-spline 与 convex hull，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 9.3 节；time-optimal 的问题提法、(9.32) 到 (9.37) 式、$L_i$ 与 $U_i$ 的三种情况、phase plane 与 motion cone、velocity limit curve、$T=\int\dot s^{-1}ds$、bang-bang、time-scaling algorithm 的六步、9.4.3 节的变体、9.4.4 节的三个假设与缺点、Figure 9.9 的半圆 path，来自第 9.4 节（都是全文读过）。ME 449 的进度与 Assignment 5 的题目来自 [ME 449 课程页](https://hades.mech.northwestern.edu/index.php/ME_449_Robotic_Manipulation) 和 [Assignment 5 handout](https://hades.mech.northwestern.edu/images/8/8a/ME449-asst5-2026.pdf)。$a_{j2}$、$a_{j3}$ 的消元步骤、via point 的 coefficient 表与 $x=-0.148$、acceleration 的跳变，是为这一页算的；gantry 的 mass、force 限制与半径，cone、velocity limit curve、algorithm 的每一步、switch 位置、2.04 s 与 quintic 的 2.95 s，是自己设定并用 Python 数值求出的（Runge–Kutta 加 binary search）。
+:::
+
+## [force] Force control、hybrid motion–force control 与 impedance control
+
+:::skip
+快速路线可以跳过整站（书第 11.5 到 11.7 节，约 2 小时）。ME 449 Fall 2026 的第 11 章只讲到 11.4 节，这一站不在它的进度表和作业里（Assignment 4 Part 3、4 的 spring 是最简单的 impedance，可以对照着看）。要让 robot 擦桌子、插 peg、开门，或者读 diffusion policy、ACT 这类 learning 论文里“impedance controller 跑在底层”的说法之前，读这一站。依赖[第 6 站](#dyn)的 task-space dynamics。
+:::
+
+### Force control：要的是 force，不是 position
+
+第 8 站的 controller 都在控制 motion：外界推 robot 一下，controller 把它拉回 reference，好的 motion controller 对 force disturbance 不敏感。擦桌子、打磨这类任务要的是另一件事：以指定的 force 压住环境，环境在哪里由不得 robot。理想的 force control 对 motion disturbance 不敏感，和 motion control 正好对偶。纯粹的 force control 只在环境每个方向都有阻力时才有意义（end-effector 埋在 concrete 里，或者被 spring 从各个方向拉住）；实际上 robot 总有能自由动的方向，这就引出后面的 hybrid control。
+
+Robot 对环境施加 wrench $\mathcal F_{\mathrm{tip}}$ 时，dynamics 是
+
+$$M(\theta)\ddot\theta+c(\theta,\dot\theta)+g(\theta)+b(\dot\theta)+J^\top(\theta)\mathcal F_{\mathrm{tip}}=\tau$$
+
+（$b$ 是 friction。）Force control 时 robot 几乎不动，去掉 acceleration 和 velocity 的项：$g(\theta)+J^\top\mathcal F_{\mathrm{tip}}=\tau$。所以只用 joint 的 encoder，就能下 control law
+
+$$\tau=\tilde g(\theta)+J^\top(\theta)\mathcal F_d$$
+
+$\tilde g$ 是 gravity 的 model，$\mathcal F_d$ 是想要施加的 wrench。
+
+用第 6 站的 2R（point mass，竖直 plane）。$\theta=(0^\circ,-90^\circ)$，tip 在 $(1,-1)$，正好碰到 $y=-1$ 处一张水平的桌面，要向下压 5 N：$\mathcal F_d=(0,-5)$。第 6 站算过 $g(\theta)=(19.62,0)$，$J=\begin{pmatrix}1&1\\1&0\end{pmatrix}$：
+
+$$\tau=\begin{pmatrix}19.62\\0\end{pmatrix}+\begin{pmatrix}1&1\\1&0\end{pmatrix}\begin{pmatrix}0\\-5\end{pmatrix}=\begin{pmatrix}14.62\\0\end{pmatrix}\text{ N·m}$$
+
+$\tau_2=0$：link 2 竖直，桌面的反作用力沿着它，穿过 joint 2。Joint 1 少出 5 N·m：桌面以 5 N 往上托 tip，力臂 1 m。MR library 的 `InverseDynamics`（$\dot\theta=\ddot\theta=0$，`Ftip` 写在 end-effector frame 里是 $(0,0,0,\ 5,0,0)$）给出同样的 $(14.62,0)$。
+
+**Model 不准时。** 设 controller 以为 $m_2=0.8$ kg（实际 1 kg）。$\tilde g$ 少算了 $\delta g=(1.962,0)$。静止时 $g+J^\top\mathcal F_{\mathrm{tip}}=\tilde g+J^\top\mathcal F_d$，所以
+
+$$\mathcal F_{\mathrm{tip}}=\mathcal F_d-J^{-\top}\delta g=\begin{pmatrix}0\\-5\end{pmatrix}-\begin{pmatrix}0&1\\1&-1\end{pmatrix}\begin{pmatrix}1.962\\0\end{pmatrix}=\begin{pmatrix}0\\-6.96\end{pmatrix}$$
+
+Robot 没算到的那 0.2 kg 的 weight 也压在了桌上。把桌面建模成 5000 N/m 的 stiff spring 加 damping、对整个 2R 做 dynamic simulation，压力稳定在 6.96 N，和这个静态的结论一致。
+
+**加一个 force-torque sensor 做 PI。** 在 wrist 上装 six-axis force-torque sensor，直接读 $\mathcal F_{\mathrm{tip}}$，令 $\mathcal F_e=\mathcal F_d-\mathcal F_{\mathrm{tip}}$：
+
+$$\tau=\tilde g(\theta)+J^\top(\theta)\Big(\mathcal F_d+K_{fp}\mathcal F_e+K_{fi}\int\mathcal F_e(t)\,dt\Big)$$
+
+不用 D：force 的读数噪声大，求 derivative 没有意义；而且在这个 model 里 torque 直接变成 tip 的 force，中间没有一个需要 damping 的 integrator。代进静止的 dynamics，$g$ 与 $\tilde g$ 差 $\delta g$：
+
+$$J^\top\mathcal F_{\mathrm{tip}}=J^\top\Big(\mathcal F_d+K_{fp}\mathcal F_e+K_{fi}\int\mathcal F_e\Big)-\delta g\quad\Rightarrow\quad(I+K_{fp})\mathcal F_e+K_{fi}\int\mathcal F_e=J^{-\top}\delta g$$
+
+（左边的 $I$ 来自 $\mathcal F_{\mathrm{tip}}=\mathcal F_d-\mathcal F_e$；书上 11.52 式写的是 $K_{fp}\mathcal F_e+K_{fi}\int\mathcal F_e=0$，少了这个 $I$，对结论没有影响。）右边是 constant，对 time 求一次 derivative：$(I+K_{fp})\dot{\mathcal F}_e+K_{fi}\mathcal F_e=0$，$\mathcal F_e$ 以 time constant $(1+k_{fp})/k_{fi}$ 衰减到 0。取 $K_{fp}=0.5I$、$K_{fi}=20I$，time constant 0.075 s。Simulation 里 tip 从刚好碰到桌面开始压，压力在 0.1 s 时 3.46 N、0.2 s 时 4.54 N、0.3 s 时 4.86 N、0.4 s 时 4.96 N，最后是 5.00 N；integral 项替 model 补上了 1.96 N。
+
+::fig[mr-table] 左：2R 的 tip 压在桌面上，箭头是桌面给 tip 的力。右：压力随 time 变化。只用 $\tilde g+J^\top\mathcal F_d$ 时停在 6.96 N（model 少算了 0.2 kg）；加 sensor 的 PI 后回到 5 N。
+
+:::wrong Force control law 写好了，什么时候打开都一样
+桌子被拿走（或者 tip 还没碰到桌面）时打开同一个 law：$\tau=g+J^\top\mathcal F_d$ 相当于在 tip 上施加一个向下 5 N 的外力，没有东西顶住，tip 就往下加速。第 6 站算过这个 configuration 下 $\Lambda=\mathrm{diag}(1,2)$，竖直方向的 effective mass 是 2 kg，acceleration 是 $5/2=2.5$ m/s²；simulation 里 0.3 s 后 tip 已经掉了 0.112 m。Force control 本身不限制 motion，PI 的 integral 还会越积越大。书上的办法是加 velocity damping：
+
+$$\tau=\tilde g+J^\top\Big(\mathcal F_d+K_{fp}\mathcal F_e+K_{fi}\int\mathcal F_e-K_{\mathrm{damp}}\mathcal V\Big)$$
+
+$K_{\mathrm{damp}}=30$ 时 tip 的 speed 上限是 $5/30=0.17$ m/s，0.3 s 后只掉了 0.039 m。
+:::
+
+### Hybrid motion–force control
+
+擦桌子要同时做两件事：沿桌面以 0.1 m/s 移动，同时以 5 N 往下压。Task space 是 $n$ 维时，$n$ 个 motion 和 $n$ 个 force 里只能自己指定 $n$ 个，其余由环境决定；而且不能在“同一个方向”上既指定 force 又指定 motion。书上的例子：环境是一个 damper，$f=B_{\mathrm{env}}v$，
+
+$$B_{\mathrm{env}}=\begin{pmatrix}2&1\\1&1\end{pmatrix},\qquad f_1=2v_1+v_2,\quad f_2=v_1+v_2$$
+
+指定 $f_1$ 和 $v_1$ 是可以的（$B_{\mathrm{env}}$ 不是 diagonal，两者独立），$v_2=f_1-2v_1$、$f_2=f_1-v_1$ 随之确定；指定 $f_1$ 和 $2v_1+v_2$ 不行，按环境的规律它们是同一个量。
+
+**Natural constraint 与 artificial constraint。** 环境在 $k$ 个方向上是 rigid 的、在其余 $n-k$ 个方向上不管时，选择由环境做出：rigid 的方向只能控制 force，自由的方向只能控制 motion。书上的例子是擦黑板。板擦 $\{b\}$ 的 $\hat z_b$ 垂直于黑板，贴着黑板要求 $\omega_x=\omega_y=0$、$v_z=0$（$k=3$）；无摩擦的黑板给不出 $m_z$、$f_x$、$f_y$。这 6 个由环境决定的叫 natural constraint；剩下 6 个由任务指定，叫 artificial constraint：
+
+| natural constraint | artificial constraint |
+|---|---|
+| $\omega_x=0$ | $m_x=0$ |
+| $\omega_y=0$ | $m_y=0$ |
+| $m_z=0$ | $\omega_z=0$ |
+| $f_x=0$ | $v_x=k_1$ |
+| $f_y=0$ | $v_y=0$ |
+| $v_z=0$ | $f_z=k_2<0$ |
+
+板擦沿 $\hat x_b$ 以 $k_1$ 滑动，同时以 $|k_2|$ 压着黑板。2R 擦桌子是它的 planar 版本：natural constraint 是 $v_y=0$、$f_x=0$，artificial constraint 是 $v_x=0.1$、$f_y=-5$。
+
+**Controller。** Rigid 环境的 $k$ 个 natural constraint 写成 task space 的 Pfaffian constraint $A(\theta)\mathcal V=0$。和第 6 站 constrained dynamics 一样推（只是换到 task space，$M$ 换成 $\Lambda$）：
+
+$$\mathcal F=\Lambda\dot{\mathcal V}+\eta+A^\top\lambda,\qquad\lambda=(A\Lambda^{-1}A^\top)^{-1}\big(A\Lambda^{-1}(\mathcal F-\eta)-A\dot{\mathcal V}\big)$$
+
+$A^\top\lambda$ 是 robot 顶着 constraint 的 wrench。Projection
+
+$$P=I-A^\top(A\Lambda^{-1}A^\top)^{-1}A\Lambda^{-1}$$
+
+把任意 wrench 分成两份：$P\mathcal F$ 只产生沿 constraint 的 motion，不改变 $\lambda$；$(I-P)\mathcal F$ 只改变 $\lambda$，不产生 motion。Hybrid controller 是第 8 站的 task-space computed torque 和上面的 force controller 各投影到自己那一份再相加：
+
+$$\tau=J_b^\top\Big(P\big(\tilde\Lambda(\tfrac{d}{dt}([\mathrm{Ad}_{X^{-1}X_d}]\mathcal V_d)+K_pX_e+K_i\textstyle\int X_e+K_d\mathcal V_e)\big)+(I-P)\big(\mathcal F_d+K_{fp}\mathcal F_e+K_{fi}\textstyle\int\mathcal F_e\big)+\tilde\eta\Big)$$
+
+两部分在各自的 subspace 里工作，各自的 error dynamics 和 stability 分析照搬。
+
+在桌面上 $A=(0\ \ 1)$（$\mathcal V=(\dot x,\dot y)$，$\dot y=0$）。Tip 在 $(1,-1)$ 时 $\Lambda=\mathrm{diag}(1,2)$，$P=\mathrm{diag}(1,0)$，就是“$x$ 归 motion、$y$ 归 force”。Tip 滑到 $(1.5,-1)$（$\theta=(-8.03^\circ,-51.32^\circ)$，同一个 elbow 方向）时：
+
+$$\Lambda=\begin{pmatrix}1.427&-0.720\\-0.720&2.215\end{pmatrix},\quad\Lambda^{-1}=\begin{pmatrix}0.839&0.273\\0.273&0.540\end{pmatrix},\quad P=I-\begin{pmatrix}0\\1\end{pmatrix}\frac{1}{0.540}\begin{pmatrix}0.273&0.540\end{pmatrix}=\begin{pmatrix}1&0\\-0.505&0\end{pmatrix}$$
+
+$\lambda$ 对 $\mathcal F$ 的依赖是 $(A\Lambda^{-1}A^\top)^{-1}A\Lambda^{-1}=(0.505,\ 1)$：沿 $x$ 推 1 N，压桌子的力也变 0.505 N。
+
+::fig[mr-hybrid] Tip 在 $(1.5,-1)$ 擦桌子。Motion controller 想要沿桌面的 4 N（黑色），$P$ 把它改成 $(4,-2.02)$（彩色）：多出来的 $-2.02$ N 正好抵消 $\Lambda$ 的耦合，压力保持 5 N。
+
+:::wrong Hybrid control 就是用 $\mathrm{diag}(1,0)$ 把 wrench 的 $y$ component 砍掉交给 force controller，$x$ component 交给 motion controller
+在 $(1.5,-1)$，motion controller 为了沿桌面加速要求 $(4,0)$ N。只按坐标轴分，$\lambda$ 改变 $0.505\times4=2.02$：force controller 要求的 $-5$ N 变成了 $-2.98$ N。Motion 本身没错，两种做法 tip 都以 $\Lambda^{-1}$ 给出的 $(2.80,0)$ m/s² 沿桌面加速（constraint 把 $y$ 方向吃掉了）；错的是 force。用 $P$：$P(4,0)=(4,-2.02)$，$\lambda$ 改变 $0.505\times4+1\times(-2.02)=0$。“哪个方向属于 motion”要按 $\Lambda$ 的 inner product 分，只有 $\Lambda$ 是 diagonal 时才和坐标轴对齐。
+:::
+
+实际用起来最难的是知道 $A(\theta)$：哪些方向此刻是 rigid 的，model 总有误差。书上提了三条路：用 force feedback 实时估计 constraint 的方向；把 gain 调低，让 motion controller 软一点、force controller 对误差宽容一点；或者在 robot 结构里做 passive compliance。Joint 和 link 本身的 flexibility 也让一些 compliance 无法避免。
+
+### Impedance control 与 admittance control
+
+Hybrid control 在 rigid 环境里要求两个极端：motion 方向 impedance 无限高（force 推不动它），force 方向 impedance 无限低（motion 不改变 force）。很多时候想要的是中间：让 end-effector 表现得像一个指定的 mass–spring–damper。Haptic 手术模拟器要模拟组织的软硬；robot 和人一起搬东西，要被人推得动。
+
+一维时，robot 要 render 的 behavior 是
+
+$$m\ddot x+b\dot x+kx=f$$
+
+$f$ 是用户施加的 force。令 $x=Xe^{j\omega t}$（频率 $\omega$ 的正弦），$f=Fe^{j\omega t}$，代进去：$F=(k+jb\omega-m\omega^2)X$。$Z=F/X$ 叫 impedance：低频时由 spring 主导（$|Z|\approx k$），高频时由 mass 主导（$|Z|\approx m\omega^2$）。它的 inverse $Y=X/F$ 叫 admittance。好的 motion controller impedance 高（$\Delta X=Y\Delta F$，$Y$ 小，force disturbance 只引起很小的 motion），好的 force controller impedance 低（$\Delta F=Z\Delta X$，$Z$ 小）。多维时写成 $M\ddot x+B\dot x+Kx=f_{\mathrm{ext}}$，$M$、$B$、$K$ 是 positive-definite matrix。
+
+实现有两种，区别在 sensor 量什么、controller 输出什么。
+
+**Impedance control**：量 motion，输出 force。用 encoder（和 tachometer）估计 $x$、$\dot x$，算出要 render 的 force，再用第 6 站的 task-space dynamics 抵消 robot 自己的 dynamics：
+
+$$\tau=J^\top(\theta)\Big(\underbrace{\tilde\Lambda(\theta)\ddot x+\tilde\eta(\theta,\dot x)}_{\text{抵消 arm 的 dynamics}}-\underbrace{(M\ddot x+B\dot x+Kx)}_{f_{\mathrm{ext}}}\Big)$$
+
+$\ddot x$ 很难量准，常见的做法是去掉 $\tilde\Lambda\ddot x$ 并令 $M=0$，用户会感到 arm 自己的 mass，所以 impedance-controlled 的 robot 通常做得很轻；velocity 小时 $\tilde\eta$ 也只留 gravity。例：一个 1 dof 的 haptic device，滑块 mass $m_r=0.5$ kg，render $K=200$ N/m、$B=20$ N·s/m、$M=0$。Motor 出 $-(Kx+B\dot x)$，用户推 5 N 时滑块停在 $x=5/200=0.025$ m，用户感到的是 $0.5\ddot x+20\dot x+200x=f$。
+
+**Admittance control**：量 force，输出 motion。Wrist 上的 load cell 量出 $f_{\mathrm{ext}}$，按要 render 的 behavior 算出 end-effector 该有的 acceleration：
+
+$$\ddot x_d=M^{-1}(f_{\mathrm{ext}}-B\dot x-Kx),\qquad\ddot\theta_d=J^\dagger(\theta)\big(\ddot x_d-\dot J\dot\theta\big)$$
+
+再用 inverse dynamics 算 $\tau$。例：$M=2$、$B=20$、$K=200$，此刻 $x=0.01$、$\dot x=0.1$，sensor 读到 5 N：$\ddot x_d=(5-2-2)/2=0.5$ m/s²。Force 读数有噪声，通常先过一个 low-pass filter。
+
+**各自的短处。** Admittance control render 小 mass 很难：$M=0.05$ kg 时，force sensor 上 $\pm0.2$ N 的噪声就变成 $\pm4$ m/s² 的 acceleration 指令，等效 gain 大，容易 unstable；highly geared、本身很“硬”的 robot 用 admittance control 模拟 stiff 的环境很擅长。Impedance control 正好相反，render stiff 的环境（大 $K$）时出问题：encoder 上一点位置变化就要求很大的 force，等效的高 gain 遇上 delay 和 sampling 就会振荡。下面把这句话算出来。
+
+接着那个 haptic device，滑块本身的 physical damping $b=1$ N·s/m，controller 1 kHz（$T=1$ ms），每个 cycle 读一次位置，算出 $-Kx$ 后保持到下一个 cycle（zero-order hold）。Force 是每个 cycle 开头的位置算出来的，相当于平均滞后半个 cycle：$-Kx(t-T/2)\approx-Kx(t)+K\tfrac T2\dot x(t)$。第二项像一个 negative damping，系统的总 damping 是 $b-KT/2$，要大于 0：
+
+$$K<\frac{2b}{T}=2000\text{ N/m}$$
+
+如果算 force 还要用掉一个 cycle（读到的位置下一个 cycle 才用上），平均滞后变成 $3T/2$，界限降到 $2b/(3T)=667$ N/m。把 sampled-data 系统精确离散化、算 closed-loop 的 eigenvalue，两个界限分别是 2000.7 和 667.0 N/m，和这个粗略的估计一致。所以想 render 一堵 10000 N/m 的硬墙，靠提高 $K$ 行不通，要么加大 physical damping，要么提高 control rate。
+
+::fig[mr-impwall] 同一个 haptic device（$m_r=0.5$ kg、$b=1$、1 kHz、算 force 有一个 cycle 的 delay），从 $x=1$ cm 放开。$K=500$ N/m 时振荡慢慢衰减；$K=1000$ N/m 超过了 667 的界限，振幅越来越大。
+
+:::back
+Task-space dynamics $\Lambda$、$\eta$ 与 constrained dynamics 来自[第 6 站](#dyn)，task-space motion control 来自[第 8 站](#control)。
+:::
+
+:::from
+Force control 与 motion control 的对偶、(11.48) 到 (11.54) 式、PI force control 不用 D 的两条理由、“没有东西可推时会加速”与 velocity damping、hybrid control 的“$n$ 个里选 $n$ 个”与 $B_{\mathrm{env}}$ 的例子、natural/artificial constraint 与擦黑板的表、(11.55) 到 (11.61) 式与 $P$ 的意义、实现上知道 $A(\theta)$ 的三条路、impedance 与 admittance 的定义、(11.62) 到 (11.66) 式、两种实现各自擅长与不擅长的环境，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 11.5 到 11.7 节（全文读过；11.51、11.52 式那一页渲染成图片核对，书上 11.52 式确实没有 $I$）。“ME 449 第 11 章只讲到 11.4 节”来自 [ME 449 课程页](https://hades.mech.northwestern.edu/index.php/ME_449_Robotic_Manipulation)。用正弦解释 $Z$ 代替书上的 Laplace transform 是自己的写法。2R 压桌面的全部数字（$\tau$、model error 带来的 6.96 N、PI 的收敛过程、无桌面时的 2.5 m/s² 与 damping 的效果）、$(I+K_{fp})$ 的推导、$(1.5,-1)$ 处的 $\Lambda$、$P$ 与“沿 $x$ 推 1 N 压力变 0.505 N”、haptic device 的例子、“平均滞后 $T/2$ 相当于 negative damping”的估计与 2000/667 N/m 的界限，是为这一页自己设定并用 Python 算的（2R 的 simulation 用 forward dynamics 加 $10^{-4}$ s 的 time step，桌面是 5000 N/m 的 spring 加 50 N·s/m 的 damper；界限用 zero-order hold 的精确离散化求 eigenvalue）。Haptic rendering 的 stability 界限这类结果文献里有专门的分析（如 Colgate 的 passivity 条件），这里没有去读原文。
 :::
 
 ## [grasp] Grasping：form closure 与 force closure
@@ -825,7 +1595,7 @@ $$F=\begin{pmatrix}-0.25&0.75&0.25&-0.75\\1&-1&0&0\\0&0&1&-1\end{pmatrix}$$
 
 ::fig[mr-closure] (a) 左右两个 contact 的 normal 错开，合起来挡住一个方向的转动；上下两个挡住另一个方向。(b) 四条 normal 都穿过 center，谁也挡不住绕 center 的 rotation。
 
-把 (a) 的上边 contact 从 $(0.75,1)$ 挪到 $(0.25,1)$，它的 $m_z$ 从 $-0.75$ 变成 $-0.25$，第 1 个 row 变成 $0.5k_1+0.5k_3=0$，正的 $k$ 不可能满足，LP 无解：只挪了一个 contact，就不是 form closure 了。现在四个 contact 都只挡逆时针方向的转动，顺时针转是可行的 motion。
+把 (a) 的上边 contact 从 $(0.75,1)$ 挪到 $(0.25,1)$，它的 $m_z$ 从 $-0.75$ 变成 $-0.25$，第 1 个 row 变成 $-0.25k_1+0.75k_2+0.25k_3-0.25k_4=0$，代入 $k_1=k_2$、$k_3=k_4$ 得 $0.5k_1=0$，和 $k_1\ge1$ 矛盾，LP 无解：只挪了一个 contact，就不是 form closure 了。剩下的可行 motion 是什么，下面的图解法一眼就能看出来。
 
 :::wrong LP 有解就是 form closure
 看 (b)：contact 在四条边的 midpoint，normal 都过 center。
@@ -847,6 +1617,33 @@ $$F=\begin{pmatrix}0&0&0&2\\-1&0&1&0\\0&-1&0&1\end{pmatrix}$$
 
 书上还提醒，这一套是 first-order analysis：它判为 form closure 的，考虑 curvature 等 higher-order 效应后仍是 form closure；它判为“只能 roll 或 slide”的，higher-order 分析下可能其实被卡住（Figure 12.14 里两根 finger 夹住一个曲面 body 的例子）。
 
+### 图解法：把 twist 画成 rotation center
+
+:::skip
+跳过它会少掉 planar 问题的图解法（书 12.1.6 节）。Course 5 的 form closure project 要求对非 form closure 的那组 contact 画出可行的 rotation center 区域，做那个 project 时回来读。
+:::
+
+Planar 时 twist 只有三个数 $(\omega_z,v_x,v_y)$，可以画在 plane 里。$\omega_z\ne0$ 的 planar motion 是绕某一点的 rotation，这一点叫 center of rotation（CoR）。它的 velocity 为 0：$v+\omega_z\hat z\times c=0$，即 $(v_x-\omega_zc_y,\ v_y+\omega_zc_x)=0$，
+
+$$c=\Big(-\frac{v_y}{\omega_z},\ \frac{v_x}{\omega_z}\Big)$$
+
+Speed 不重要时，只在 CoR 旁边标 '+'（逆时针）或 '−'（顺时针）；$\omega_z=0$ 的 translation 是“无穷远处的 CoR”。
+
+一个静止的 contact 允许哪些 CoR？Contact 在 $p$、inward normal $\hat n$（指向 body），body 上那一点的 velocity 是 $\omega_z\hat z\times(p-c)$，不能穿透要求它沿 $\hat n$ 的 component $\ge0$：
+
+$$\omega_z\,\hat n\cdot\big(\hat z\times(p-c)\big)=\omega_z\big((p-c)\times\hat n\big)_z\ \ge\ 0$$
+
+$\omega_z>0$ 时要 $(p-c)\times\hat n\ge0$，就是 $c$ 在 normal 那条线的左侧（顺着 $\hat n$ 看）；$\omega_z<0$ 时 $c$ 在右侧。所以规则是：normal 线左边的点标 '+'，右边标 '−'，线上标 '±'。几个 contact 同时存在时，只保留每个 contact 都给了同样符号的点：剩下的区域就是 body 还能做的全部 motion。它总是 convex 的（经过无穷远的那部分要当作接起来看）。
+
+拿上面 unit square 的例子画。先只放左、右、下三个 contact。左边 $(0,0.25)$ 向右：'+' 要 $c_y\ge0.25$。右边 $(1,0.75)$ 向左：'+' 要 $c_y\le0.75$。下边 $(0.25,0)$ 向上：'+' 要 $c_x\le0.25$。三条都满足的 '+' 区域是 $c_x\le0.25$、$0.25\le c_y\le0.75$ 的一条半无限的 strip；'−' 要 $c_y\le0.25$ 且 $c_y\ge0.75$，空。再加上边那个 contact：
+
+- 放在 $(0.25,1)$ 向下，'+' 要 $c_x\ge0.25$。和 strip 一交，只剩线段 $c_x=0.25$、$0.25\le c_y\le0.75$：body 还能绕这条线段上的点逆时针转。以 $(0.25,0.5)$ 为 CoR 核对：左、右两个 contact 的 velocity 沿 normal 的 component 是 $0.25\omega_z>0$，分开；上、下两个 contact 正好在 CoR 的正上方和正下方，velocity 沿 tangent，滑动。这就是前面 LP 无解的那个例子：它不是 form closure，可行的 motion 只有这一种。
+- 放在 $(0.75,1)$ 向下，'+' 要 $c_x\ge0.75$，和 strip（$c_x\le0.25$）不相交：没有任何可行的 CoR，form closure。
+
+::fig[mr-cor] 彩色区域是还允许的 '+' CoR。左：三个 contact，允许整条 strip。中：第四个 contact 在 $(0.25,1)$，只剩一条线段（粗线），绕它逆时针转时上下两个 contact 沿桌面滑。右：第四个 contact 挪到 $(0.75,1)$，区域消失，form closure。
+
+每个可行的 CoR 还可以按每个 contact 的状态贴 label：分开（B）、滑动（S，再按滑向哪一侧分 $S_l$、$S_r$）、或者 rolling（R，CoR 恰好在 contact 点上）。书上 Example 12.5 的提醒值得记住：这是 first-order 的结果，它说可行的某些 roll–slide motion，考虑 contact 处的 curvature 后可能其实会穿透；反过来，first-order 判定为 breaking 或 penetrating 的，higher-order 分析不会推翻。
+
 ### Friction：两根 finger 就够
 
 实际的 finger 有 friction。Coulomb friction 说 tangential force 不超过 $\mu$ 乘 normal force：$|f_t|\le\mu f_n$。能施加的 force 可以偏离 $\hat n$，范围是一个以 $\hat n$ 为 axis、half-angle 为 $\alpha=\tan^{-1}\mu$ 的 cone，叫 friction cone。$\mu$ 常见在 0.1 到 1 之间。
@@ -866,6 +1663,26 @@ $$\mu\ge\tan30^\circ=0.577$$
 :::edge 不能用 point contact 做 form closure 的形状
 Circular disk 和 sphere 的每条 contact normal 都穿过 center，对 center 取的 moment 全是 0，绕 center 的 rotation 永远挡不住。书上把这类 body 叫作 exceptional（还包括 ellipsoid 等 surface of revolution），无论用多少个 point contact 都不能 form closure，只能靠 friction。
 :::
+
+### 图解法：moment labeling
+
+:::skip
+跳过它会少掉 wrench cone 的图解法（书 12.2.2 节），force closure 照样可以用上面的 LP 判断。
+:::
+
+Wrench 也能画。Planar wrench $\mathcal F=(m_z,f_x,f_y)$ 只要 force 不为 0，就是 plane 里的一支箭头：沿 force 方向，长度是 $\|f\|$，作用线到 origin 的 moment 等于 $m_z$。作用线上离 origin 最近的点是
+
+$$(x,y)=\frac{1}{f_x^2+f_y^2}\big(m_zf_y,\ -m_zf_x\big)$$
+
+（核对：$(x,y)\times f=\frac{m_z}{\|f\|^2}(f_y\cdot f_y-(-f_x)\cdot f_x)=m_z$。）书上的例子 $(2.5,-1,2)$：$\|f\|^2=5$，箭头从 $(1,0.5)$ 画到 $(0,2.5)$。箭头沿作用线滑动不改变 wrench；两个 wrench 相加，就把两支箭头沿各自的线滑到尾部重合，再按 parallelogram 相加。
+
+Contact 的 normal force 可以任意大，要表示的是“$k\mathcal F$，$k\ge0$”这一整条 ray。办法是 moment labeling：作用线左边的点标 '+'（正的 $k\mathcal F$ 对这些点产生正 moment），右边标 '−'，线上标 '±'。几个 wrench 的 nonnegative combination（wrench cone）用“每个 wrench 都给同样符号”的点表示；符号不一致的点不标。和上面的 CoR 区域是同一套几何：上面的“$(p-c)\times\hat n\ge0$”正是“contact force 对 $c$ 的 moment $\ge0$”。
+
+Force closure 的条件变成：**没有任何一点被一致地标上 '+' 或 '−'**。若某点 $c$ 被一致地标了 '+'，contact 能产生的每个 wrench 对 $c$ 的 moment 都 $\ge0$，那么对 $c$ 的 moment 为负的 wrench（比如一个顺时针的 pure moment，它对每一点的 moment 都是负的）就造不出来，contact 抵不住外界反方向的那一个。
+
+拿 friction 那一节的 equilateral triangle 看。两个 contact 在左右两条边上、高度 0.3：$p_l=(0.173,0.3)$、$p_r=(0.827,0.3)$，inward normal $(0.866,-0.5)$ 和 $(-0.866,-0.5)$。每个 friction cone 有两条 edge $\hat n\pm\mu\hat t$，一共四条作用线。$\mu=0.25$ 时，四条线都给 '+' 的点组成右边一个 wedge，顶点附近是 $(0.68,0.16)$ 和 $p_r$；都给 '−' 的点组成左边对称的一个 wedge。两个 wedge 都非空，不是 force closure：例如对右边 wedge 里的点，contact 给不出负 moment，triangle 被一个逆时针的 twist 拧一下就会转出去。$\mu=1$ 时四条线把 plane 切得每一点都有正有负，没有一致的标记，force closure，和前面 LP 给出的边界 $\mu\ge0.577$ 一致。
+
+::fig[mr-moment] 四条线是两个 friction cone 的 edge（作用线）。左：$\mu=0.25$，两侧各有一块一致标记的区域（'+' 浅色、'−' 深色）。右：$\mu=1$，没有一致标记的点。
 
 ### 一堆 body 叠在一起能不能站住
 
@@ -898,7 +1715,7 @@ Contact 3 的 normal 指向左板，edge 加到左板的 equation 里，表示�
 :::
 
 :::from
-First-order contact 的 inequality、contact wrench、form closure 的定义、planar 4 个 / spatial 7 个、rank 加 LP 的检验与 $k_i\ge1$ 的写法、不能 form closure 的形状、Coulomb friction 与 friction cone、force closure、两指 line of sight 判据与 equilateral triangle 的 $\mu\ge\tan30^\circ$，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 12.1、12.2 节；Example 12.7 的两个 $F$、$k=(2,1,2,1)$ 与 MATLAB 的 `linprog` 写法、first-order 与 higher-order analysis 的关系、exceptional body，也来自 12.1.7 节；“$\mathbb R^n$ 至少要 $n+1$ 个 vector 才能 positively span”是书上本章开头列出的 fact 2；assembly 的 rolling contact mode 检验来自 12.3 节的 Example 12.11（都是全文读过，Example 12.7 的符号对着书上的 MATLAB code 核对）。Assembly 的输入格式、$k\ge0$ 而不是 $\ge1$ 的说明来自 [Stability of an Assembly](https://hades.mech.northwestern.edu/index.php/Stability_of_an_Assembly_Project) handout。Unit square 的三组 contact、LP 结果、$\mu=0.57/0.58$ 的边界核对、A 字形木板的例子与它的手算和 LP 结果、符号错误的后果，是为这一页算的。书上 12.1.6、12.2.2 节的 planar graphical method（rotation center 区域、moment label）和 12.2.4 节以后的 manipulation 例子没有写。
+First-order contact 的 inequality、contact wrench、form closure 的定义、planar 4 个 / spatial 7 个、rank 加 LP 的检验与 $k_i\ge1$ 的写法、不能 form closure 的形状、Coulomb friction 与 friction cone、force closure、两指 line of sight 判据与 equilateral triangle 的 $\mu\ge\tan30^\circ$，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 12.1、12.2 节；Example 12.7 的两个 $F$、$k=(2,1,2,1)$ 与 MATLAB 的 `linprog` 写法、first-order 与 higher-order analysis 的关系、exceptional body，也来自 12.1.7 节；“$\mathbb R^n$ 至少要 $n+1$ 个 vector 才能 positively span”是书上本章开头列出的 fact 2；assembly 的 rolling contact mode 检验来自 12.3 节的 Example 12.11（都是全文读过，Example 12.7 的符号对着书上的 MATLAB code 核对）。Assembly 的输入格式、$k\ge0$ 而不是 $\ge1$ 的说明来自 [Stability of an Assembly](https://hades.mech.northwestern.edu/index.php/Stability_of_an_Assembly_Project) handout。Unit square 的三组 contact、LP 结果、$\mu=0.57/0.58$ 的边界核对、A 字形木板的例子与它的手算和 LP 结果、符号错误的后果，是为这一页算的。12.1.6 节的 CoR 图解法与 12.2.2 节的 moment labeling（wrench 箭头的画法、$(2.5,-1,2)$ 的例子、force closure 等价于没有一致标记的点）来自书上这两节（全文读过）；unit square 三步加 contact 的 CoR 区域、它对前面 LP 例子的解释、equilateral triangle 在 $\mu=0.25$ 与 1 时的标记区域，是为这一页用 half-plane 求交实算的。12.2.4 节以后的 manipulation 例子没有写。
 :::
 
 ## [mobile] Wheeled mobile robot 与 mobile manipulation
@@ -971,7 +1788,7 @@ $$J_{\mathrm{base}}(\theta)=\big[\mathrm{Ad}_{T_{0e}^{-1}(\theta)T_{b0}^{-1}}\bi
 
 $J_e$ 与 chassis 在哪里无关，只依赖 arm 的 $\theta$。
 
-接着第 6 站的测试。Robot 的 configuration 是 $(\phi,x,y)=0$、$\theta=(0,0,0.2,-1.6,0)$，由它算出的 $X$ 正是测试里给的那个 matrix。实算 $J_e$ 的前两个 column（wheel 1、2）：
+接着第 8 站的测试。Robot 的 configuration 是 $(\phi,x,y)=0$、$\theta=(0,0,0.2,-1.6,0)$，由它算出的 $X$ 正是测试里给的那个 matrix。实算 $J_e$ 的前两个 column（wheel 1、2）：
 
 $$J_e=\begin{pmatrix}0.030&-0.030&\cdots\\0&0&\cdots\\-0.005&0.005&\cdots\\0.002&0.002&\cdots\\-0.024&0.024&\cdots\\0.012&0.012&\cdots\end{pmatrix}$$
 
@@ -988,24 +1805,150 @@ $J_e$ 是 $6\times9$ 的，$J_e^\dagger\mathcal V$ 在所有能产生 $\mathcal 
 在上面那次 kinematic simulation（$K_p=1.5I$）里，$\theta_3$ 在 $-0.72$ 到 $0.48$ 之间变化，中途穿过 0，也就是第 4 站说的三条 parallel axis 共面的 singularity。不加 joint limit 时它确实会走到那里。
 
 :::back
-Nonholonomic 的概念来自[第 1 站](#cspace)，$[\mathrm{Ad}]$ 来自[第 2 站](#twist)，$J_b$ 和 youBot arm 的 singularity 来自[第 4 站](#jac)，控制律来自[第 6 站](#control)。
+Nonholonomic 的概念来自[第 1 站](#cspace)，$[\mathrm{Ad}]$ 来自[第 2 站](#twist)，$J_b$ 和 youBot arm 的 singularity 来自[第 4 站](#jac)，控制律来自[第 8 站](#control)。
 :::
 
 :::from
-Mecanum wheel 的 $h_i(\phi)$ formula、youBot 的 $H(0)$、“rank 3、多余的 wheel 会打滑”、odometry 的三种情形与转到 $\{s\}$ 的步骤、$T_{se}=T_{sb}T_{b0}T_{0e}$、$J_e=[J_{\mathrm{base}}\ J_{\mathrm{arm}}]$ 与 $J_{\mathrm{base}}$ 的 formula、task-space 控制律配 $J_e^\dagger$，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 13.2、13.4、13.5 节（全文读过；$H(0)$（13.10 式）、$F$（13.33 式）、odometry（13.35、13.36 式）对着书页核对过）。youBot 的尺寸、$T_{b0}$、$M_{0e}$、$\mathcal B_i$、NextState 与 FeedbackControl 的测试数值、pseudoinverse tolerance、speed limit、joint limit、weighted pseudoinverse 与 wheel radius 的问题，来自 [capstone handout](https://hades.mech.northwestern.edu/index.php/Mobile_Manipulation_Capstone)。$u_1$ 的推导、$F$ 为什么这么简单的验证、odometry 的 0.28 m 例子、“minimum norm 偏爱 arm”的解释、wheel radius 问题的回答和 simulation 中 $\theta_3$ 的范围，是为这一页算的或凭自己的知识写的。书上 13.3 节的 nonholonomic robot（unicycle、diff-drive、car 的 controllability 与 motion planning）没有写，ME 449 也跳过这一节。
+Mecanum wheel 的 $h_i(\phi)$ formula、youBot 的 $H(0)$、“rank 3、多余的 wheel 会打滑”、odometry 的三种情形与转到 $\{s\}$ 的步骤、$T_{se}=T_{sb}T_{b0}T_{0e}$、$J_e=[J_{\mathrm{base}}\ J_{\mathrm{arm}}]$ 与 $J_{\mathrm{base}}$ 的 formula、task-space 控制律配 $J_e^\dagger$，来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 13.2、13.4、13.5 节（全文读过；$H(0)$（13.10 式）、$F$（13.33 式）、odometry（13.35、13.36 式）对着书页核对过）。youBot 的尺寸、$T_{b0}$、$M_{0e}$、$\mathcal B_i$、NextState 与 FeedbackControl 的测试数值、pseudoinverse tolerance、speed limit、joint limit、weighted pseudoinverse 与 wheel radius 的问题，来自 [capstone handout](https://hades.mech.northwestern.edu/index.php/Mobile_Manipulation_Capstone)。$u_1$ 的推导、$F$ 为什么这么简单的验证、odometry 的 0.28 m 例子、“minimum norm 偏爱 arm”的解释、wheel radius 问题的回答和 simulation 中 $\theta_3$ 的范围，是为这一页算的或凭自己的知识写的。书上 13.3 节的 nonholonomic robot 在[第 13 站](#nonholo)。
+:::
+
+## [nonholo] Nonholonomic mobile robot：controllability、shortest path 与 tracking
+
+:::skip
+快速路线可以跳过整站（书第 13.3 节，约 2.5 小时）。ME 449 Fall 2026 明确跳过 13.3 节，capstone 的 youBot 是 omnidirectional 的，也用不到。做 differential-drive 或 car-like robot（扫地机、AGV、自动驾驶）的 planning 和 control 时读这一站。
+:::
+
+### 四种 model，一个 canonical form
+
+第 1 站的 rolling coin 就是 unicycle：竖直滚动的 wheel，半径 $r$，configuration $q=(\phi,x,y,\theta)$（朝向、contact 点、wheel 转过的角）。不打滑的条件不写成“哪些方向不能动”，而写成“能动的方向的 linear combination”，系数就是能用的 control：
+
+$$\dot q=\begin{pmatrix}0&1\\r\cos\phi&0\\r\sin\phi&0\\1&0\end{pmatrix}\begin{pmatrix}u_1\\u_2\end{pmatrix}=G(q)u=g_1(q)u_1+g_2(q)u_2$$
+
+$u_1$ 是 wheel 的转速，$u_2$ 是转向的角速度。$g_i(q)$ 叫 tangent vector field（control vector field）。这类 model 有三个特点：没有 drift（$u=0$ 时 $\dot q=0$），vector field 随 $q$ 变，$\dot q$ 对 $u$ 是 linear 的。通常不关心 wheel 转过的角，去掉最后一行，只留 chassis 的 $(\phi,x,y)$。
+
+**Differential drive**：两个独立驱动、同轴的 wheel（半径 $r$，间距 $2d$），加 caster。$(x,y)$ 取两 wheel 中点，$u_L$、$u_R$ 是左右 wheel 的转速：
+
+$$\begin{pmatrix}\dot\phi\\\dot x\\\dot y\end{pmatrix}=\begin{pmatrix}-r/2d&r/2d\\\frac r2\cos\phi&\frac r2\cos\phi\\\frac r2\sin\phi&\frac r2\sin\phi\end{pmatrix}\begin{pmatrix}u_L\\u_R\end{pmatrix}$$
+
+**Car**：前轮用 Ackermann steering，所有 wheel 都绕同一个 CoR 滚，CoR 在后轴的延长线上。$(x,y)$ 取后轴中点，wheelbase $\ell$，steering angle $\psi$。Steering 可以近似瞬间改变时，以 forward speed $v$ 和转动角速度 $\omega=v\tan\psi/\ell$ 为 control。
+
+三种车（unicycle、diff-drive、car）都可以通过 control 的换算写成同一个 canonical model：
+
+$$\dot q=\begin{pmatrix}\dot\phi\\\dot x\\\dot y\end{pmatrix}=\begin{pmatrix}0&1\\\cos\phi&0\\\sin\phi&0\end{pmatrix}\begin{pmatrix}v\\\omega\end{pmatrix}$$
+
+Unicycle 用 $u_1=v/r$、$u_2=\omega$；diff-drive 用 $u_L=(v-\omega d)/r$、$u_R=(v+\omega d)/r$（代进上面的 matrix：$\dot\phi=\frac{r}{2d}(u_R-u_L)=\frac{r}{2d}\cdot\frac{2\omega d}{r}=\omega$，$\dot x=\frac r2(u_L+u_R)\cos\phi=v\cos\phi$）。从 $\dot x=v\cos\phi$、$\dot y=v\sin\phi$ 消去 $v$，得到 Pfaffian constraint $\dot x\sin\phi-\dot y\cos\phi=0$：不能横着走。
+
+几种车的区别只剩 $(v,\omega)$ 的可行集。Diff-drive 的 wheel 转速上限 $u_{\max}$ 给出 $|u_L|,|u_R|\le u_{\max}$，换到 $(v,\omega)$ 是一个 diamond；取 $r=0.05$ m、$d=0.2$ m、$u_{\max}=10$ rad/s，四个顶点在 $v=\pm0.5$ m/s（$\omega=0$）和 $\omega=\pm2.5$ rad/s（$v=0$）。Car 的 steering 有上限 $\psi_{\max}$，转弯半径不小于 $r_{\min}=\ell/\tan\psi_{\max}$，即 $|\omega|\le|v|/r_{\min}$，可行集是一个 bowtie，$v=0$ 时 $\omega$ 只能是 0：不能原地转。取 $\ell=2.5$ m、$\psi_{\max}=30^\circ$，$r_{\min}=4.33$ m。没有倒挡的 car 只有 bowtie 的右半边。
+
+::fig[mr-ctrlsets] 四种车的 $(v,\omega)$ 可行集。Unicycle 是 rectangle，diff-drive 是 diamond，car 是 bowtie（斜边的斜率 $1/r_{\min}$），没有倒挡的 car 只剩右半边。
+
+Chassis 上一点 $P$（在 $\{b\}$ 里位于 $(x_r,y_r)$）的 velocity 能用 $(v,\omega)$ 任意指定吗？$P$ 在世界里的位置对 time 求 derivative，代 $\dot\phi=\omega$、$(\dot x,\dot y)=v(\cos\phi,\sin\phi)$：
+
+$$\begin{pmatrix}\dot x_P\\\dot y_P\end{pmatrix}=\underbrace{\begin{pmatrix}\cos\phi&-x_r\sin\phi-y_r\cos\phi\\\sin\phi&x_r\cos\phi-y_r\sin\phi\end{pmatrix}}_{J(q)}\begin{pmatrix}v\\\omega\end{pmatrix},\qquad\det J=x_r$$
+
+$x_r\ne0$ 时可以反解出 $(v,\omega)$；$x_r=0$ 的点（diff-drive 两 wheel 的中点、car 后轴中点）只能沿 heading 方向动。
+
+### Controllability：不能横着走，为什么还能到处走
+
+Omnidirectional robot 想回到 origin，用 $\dot q=-Kq$ 就行。Canonical model 不行，而且不是 gain 没选好：书上 Theorem 13.1 说，$\dot q=G(q)u$ 若 $\operatorname{rank}G(0)<\dim q$，就没有任何 continuous、time-invariant 的 feedback law 能把它稳到 $q=0$。Canonical model 的 $G$ 处处 rank 2，chassis configuration 是 3 维。
+
+可它明明能平行停车。书上用三个 controllability 的定义来说清楚：**controllable**（任何 $q_{\mathrm{goal}}$ 都能在有限时间到达）；**small-time locally accessible**（STLA：给任意短的时间、任意小的 neighborhood $W$，不离开 $W$ 能到达的 configuration 是一个满维的集合）；**small-time locally controllable**（STLC：上述集合还包含 $q$ 周围的一个 neighborhood）。没有倒挡的 car 是 STLA 但不是 STLC：困在很小的空间里，它到不了正后方的 configuration；有倒挡的 car 是 STLC。障碍物是包含边界的 closed set、free space 是 open set 时，STLC 的车能到达它所在的那个 connected component 里的任何 configuration：车比车位短，就能停进去，哪怕要很久。
+
+**Lie bracket。** 能产生“横着走”，是因为沿两个 vector field 交替走、顺序不同结果不同。从 $q$ 出发沿 $g_i$ 走时间 $\epsilon$，Taylor 展开到 $\epsilon^2$（$\ddot q=\frac{\partial g_i}{\partial q}\dot q=\frac{\partial g_i}{\partial q}g_i$）：
+
+$$q(\epsilon)=q+\epsilon g_i+\tfrac12\epsilon^2\frac{\partial g_i}{\partial q}g_i+O(\epsilon^3)$$
+
+接着沿 $g_j$ 走 $\epsilon$，$g_j$ 在 $q(\epsilon)$ 处的值展开为 $g_j(q)+\epsilon\frac{\partial g_j}{\partial q}g_i$：
+
+$$q(2\epsilon)=q+\epsilon g_i+\epsilon g_j+\tfrac12\epsilon^2\frac{\partial g_i}{\partial q}g_i+\epsilon^2\frac{\partial g_j}{\partial q}g_i+\tfrac12\epsilon^2\frac{\partial g_j}{\partial q}g_j+O(\epsilon^3)$$
+
+只有 $\epsilon^2\frac{\partial g_j}{\partial q}g_i$ 依赖顺序。先 $g_j$ 后 $g_i$ 的结果把它换成 $\epsilon^2\frac{\partial g_i}{\partial q}g_j$，两者相减：
+
+$$\Delta q=\epsilon^2\Big(\frac{\partial g_j}{\partial q}g_i-\frac{\partial g_i}{\partial q}g_j\Big)+O(\epsilon^3)=\epsilon^2[g_i,g_j]+O(\epsilon^3)$$
+
+$[g_i,g_j]$ 叫两个 vector field 的 Lie bracket，它也是依次沿 $g_i$、$g_j$、$-g_i$、$-g_j$ 各走 $\epsilon$ 后的净位移（到 $\epsilon^2$）。和第 6 站两个 twist 的 Lie bracket 是同一个东西，那边是固定时刻的两个 twist，这里是两个随 $q$ 变的 vector field。
+
+Canonical model：$g_1=(0,\cos\phi,\sin\phi)$（前进），$g_2=(1,0,0)$（原地转）。$g_2$ 是 constant，$\frac{\partial g_2}{\partial q}=0$；$g_1$ 只依赖 $\phi$：
+
+$$[g_1,g_2]=0-\begin{pmatrix}0&0&0\\-\sin\phi&0&0\\\cos\phi&0&0\end{pmatrix}\begin{pmatrix}1\\0\\0\end{pmatrix}=\begin{pmatrix}0\\\sin\phi\\-\cos\phi\end{pmatrix}$$
+
+垂直于 heading 的方向。用 $\phi=0$ 的车实际走一遍：前进 $\epsilon$，到 $(0,\epsilon,0)$；左转 $\epsilon$；后退 $\epsilon$，$x$ 减 $\epsilon\cos\epsilon$、$y$ 减 $\epsilon\sin\epsilon$；右转 $\epsilon$ 回到 $\phi=0$。净位移精确是 $(0,\ \epsilon(1-\cos\epsilon),\ -\epsilon\sin\epsilon)$。$\epsilon=0.1$ 时是 $(0,0.0005,-0.0100)$：侧向 $-\epsilon^2=-0.01$ 正是 $\epsilon^2[g_1,g_2]$，前后的 0.0005 是 $\epsilon^3/2$ 那一阶。每个动作走 0.1，侧移只有 0.01：平行停车慢，就慢在这个 $\epsilon^2$。
+
+::fig[mr-liebracket] $\epsilon=0.5$（为了看得清）的四步 maneuver：前进、左转、后退、右转。车回到原来的朝向，向右平移了 $0.5\sin0.5=0.24$，同时向前多出 $0.5(1-\cos0.5)=0.06$。
+
+**Controllability 的判据。** 所有 vector field 和它们任意层的 Lie bracket 张成的 linear span 叫 Lie algebra $\mathrm{Lie}(G)$。书上 Theorem 13.7：$\dim\mathrm{Lie}(G)(q)=\dim q$ 且 control set 的 linear span 是 $\mathbb R^m$ 时 STLA；control set 的 positive span 也是 $\mathbb R^m$ 时 STLC。Canonical model：
+
+$$\det\big[g_1\ g_2\ [g_1,g_2]\big]=\det\begin{pmatrix}0&1&0\\\cos\phi&0&\sin\phi\\\sin\phi&0&-\cos\phi\end{pmatrix}=\cos^2\phi+\sin^2\phi=1$$
+
+处处满秩。Unicycle、diff-drive、有倒挡的 car 的可行集 positive span 都是 $\mathbb R^2$，所以 STLC；没有倒挡的 car 只有 STLA。两者在没有障碍的 plane 里都 controllable。Velocity constraint 有没有被“积分”成 configuration constraint，也由这个判据回答：STLA 的系统，reachable set 满维，constraint 就是 nonholonomic 的。
+
+把 wheel 的转角也算进 configuration 再看一次。Unicycle 的 $q=(\phi,x,y,\theta)$，$g_1=(0,r\cos\phi,r\sin\phi,1)$，$g_2=(1,0,0,0)$；$g_3=[g_1,g_2]=(0,r\sin\phi,-r\cos\phi,0)$（横移），$g_4=[g_2,g_3]=(0,r\cos\phi,r\sin\phi,0)$（前进但 wheel 不转）。$\det[g_1\ g_2\ g_3\ g_4]=-r^2\ne0$，4 维满秩：这就是第 1 站 rolling coin 的结论，用 Lie bracket 再证一次。Diff-drive 带上两个 wheel 角 $q=(\phi,x,y,\theta_L,\theta_R)$ 就不行了：怎么取 bracket 都只有 4 维。原因是由上面的 model，$\dot\phi=\frac{r}{2d}(\dot\theta_R-\dot\theta_L)$，积分出 $\phi=\frac{r}{2d}(\theta_R-\theta_L)+\text{const}$，一个 holonomic constraint。三个 velocity constraint 里两个 nonholonomic、一个 holonomic。
+
+:::wrong Nonholonomic robot 也能横着走，那么像 omnidirectional robot 一样用 $\dot q=-Kq$ 那样的 feedback 就能把它稳到 origin
+能到达任何 configuration（controllable）和能用 continuous time-invariant feedback 稳住（stabilizable）是两回事。Theorem 13.1 说 canonical model 后者做不到：横向的 error 只能靠 Lie bracket 方向的来回 maneuver 消除，这需要 time-varying 或 discontinuous 的 feedback。下面的 tracking 问题不受这个 theorem 限制，因为 reference 一直在动。
+:::
+
+### Motion planning：最短路径只由几种片段拼成
+
+没有障碍时，任意两个 configuration 都连得起来，有意思的是最优的那条。
+
+**Unicycle 和 diff-drive 的 shortest path**：原地转向目标、直走、再原地转到目标朝向，长度就是直线距离。
+
+**Dubins car（没有倒挡）的 shortest path**：书上 Theorem 13.11，只由最小转弯半径的 arc（C）和直线（S）组成，而且是 CSC 或 $CC_\alpha C$（中间那段 arc 的角度 $\alpha>\pi$）两类之一。按左转（L）右转（R）细分，有 LSL、LSR、RSL、RSR、RLR、LRL 六种，逐一算出长度取最短的。
+
+例：$r_{\min}=1$，从 $(x,y,\phi)=(0,0,0)$ 到 $(3,2,90^\circ)$。LSL：起点的左转 circle 圆心在 $(0,1)$，终点朝 $+y$，它的左转 circle 圆心在 $(3,2)+(-1,0)=(2,2)$。两个圆半径相同，外公切线平行于圆心连线，直线段长就是圆心距 $\sqrt{2^2+1^2}=2.236$，方向 $\tan^{-1}(1/2)=26.57^\circ$。第一段 arc 从 $0^\circ$ 左转到 $26.57^\circ$，0.464 rad；最后一段从 $26.57^\circ$ 左转到 $90^\circ$，1.107 rad。总长 $0.464+2.236+1.107=3.807$。其余几种实算是 LSR 9.82、RSL 10.06、LRL 11.76、RSR 16.00，LSL 最短。终点改成 $(1,1,180^\circ)$，离得太近，最短的是 RLR，5.78，中间那段 arc 转了 4.46 rad（$256^\circ$）。
+
+::fig[mr-dubins] 左：到 $(3,2,90^\circ)$ 的最短路径 LSL，虚线是两个 turning circle。右：到 $(1,1,180^\circ)$ 的最短路径 RLR，中间那段左转超过半圈。
+
+**Reeds–Shepp car（有倒挡）**：Theorem 13.12，shortest path 属于九类之一，如 $C|C|C$、$CC|C$、$CSC$、$C|C_{\pi/2}SC_{\pi/2}|C$（“|”是倒挡切换的 cusp），按左右转和前进后退细分共 48 种。
+
+**Diff-drive 的 minimum-time motion**：Theorem 13.13，只用最大 speed 的直行（F、B）和最大角速度的原地转（L、R），共 40 种。“转、直走、转”总能到，但不一定最快。书上的例子：$v_{\max}=\omega_{\max}=1$，从 $q_0=0$ 到 $q_{\mathrm{goal}}=(\phi,x,y)=(-7\pi/8,\ 1.924,\ 0.383)$。LFR：先左转 $\tan^{-1}(0.383/1.924)=\pi/16$ 对准目标，直走 $\sqrt{1.924^2+0.383^2}=1.962$，再右转 $15\pi/16$ 到 $-7\pi/8$，共 $\pi/16+1.962+15\pi/16=5.103$。FRB：先直走 1 到 $(1,0)$，右转 $7\pi/8$，朝向变成 $-7\pi/8$，再后退 1，位移是 $-(\cos(-7\pi/8),\sin(-7\pi/8))=(0.924,0.383)$，正好到 $(1.924,0.383)$，共 $1+7\pi/8+1=4.749$，更快。
+
+::fig[mr-diffopt] 同一个目标，两种走法。左：LFR，5.103。右：FRB，4.749，经过 $(1,0)$ 这个“via point”。
+
+**有障碍时**：第 7 站的 grid 和 RRT 可以直接用，把 control set 离散成几个极端的 control（最大 speed 前进后退、方向盘打满），因为最短路径本来就只用这些；PRM 和 RRT 的 local planner 可以用上面的 shortest path。对有倒挡的 car 还有一个办法：先用不管 motion constraint 的 planner 找一条 path $q(s)$，试着用 Reeds–Shepp path 直接连 $q(0)$ 和 $q(1)$；碰到障碍就把 path 对半分，分别连 $q(0)\to q(1/2)$、$q(1/2)\to q(1)$，再碰就再分。车是 STLC、path 在 open 的 free space 里，这个过程一定会结束。
+
+### Feedback control：跟踪一条 trajectory
+
+三种问题：稳到一个 configuration（Theorem 13.1 说没有 continuous time-invariant 的解）；跟踪 trajectory $q_d(t)$；跟踪 path（不管时间）。后两个有 continuous time-invariant 的解。下面做 trajectory tracking，reference 的 nominal control $(v_d,\omega_d)$ 要在可行集的内部，留出纠错的余量，所以 reference 不能是 time-optimal 的。
+
+**第一个想法：只控制一个点。** 选 chassis 上一点 $P$（$x_r\ne0$），对它做 P control $\dot x_P=k_p(x_{Pd}-x_P)$、$\dot y_P=k_p(y_{Pd}-y_P)$，再用上面 $J(q)^{-1}$ 换成 $(v,\omega)$。$P$ 一定会跟上 reference，希望 chassis 的朝向也随之对齐。问题在于 control law 里没有任何东西管朝向。
+
+例：reference 沿 $x$ 轴以 $v_d=0.5$ m/s 直行，$\phi_d=0$。Robot 从 $(x,y)=(-0.3,0.4)$、$\phi=0$ 出发，$k_p=1$。$P$ 取在 wheel 轴后方 0.2 m（$x_r=-0.2$，比如装在车尾的 sensor）。Simulation：0.8 s 时 $\phi$ 已转到 $1.72$ rad，最后 $\phi=\pi$，$v=-0.5$：$P$ 精确地跟着 reference，可 robot 是倒着开的。道理是：向前开时 $P$ 在后面，像推着一辆手推车，朝向不稳定，转过来让 $P$ 在前面才稳。同样的设定取 $x_r=+0.2$，robot 正着开。
+
+**把朝向 error 写进 control law。** 用 reference frame $\{d\}$ 表示 error：
+
+$$q_e=\begin{pmatrix}\phi_e\\x_e\\y_e\end{pmatrix}=\begin{pmatrix}1&0&0\\0&\cos\phi_d&\sin\phi_d\\0&-\sin\phi_d&\cos\phi_d\end{pmatrix}\begin{pmatrix}\phi-\phi_d\\x-x_d\\y-y_d\end{pmatrix}$$
+
+$(x_e,y_e)$ 是 $\{s\}$ 里的位置 error 写在 $\{d\}$ 里。书上的 feedforward 加 nonlinear feedback：
+
+$$v=\frac{v_d-k_1|v_d|(x_e+y_e\tan\phi_e)}{\cos\phi_e},\qquad\omega=\omega_d-\big(k_2v_dy_e+k_3|v_d|\tan\phi_e\big)\cos^2\phi_e$$
+
+Error 为 0 时就是 nominal control。$v$ 的第二项让 robot 追上或等 reference（减小 $x_e$），第三项用前进后退中影响 $y_e$ 的那一部分减小 $y_e$；$\omega$ 的第二项把车头转向 reference 以便将来减小 $y_e$，第三项减小朝向 error。$\phi_e\to\pm\pi/2$ 时 control 无界，所以假设跟踪中 $|\phi_e|<\pi/2$；它还要求 $v_d\ne0$，不适合 diff-drive 原地转的 reference。Stability 的证明超出了书的范围；gain 要大到能有效纠错，又不能大到让 control 在可行集边界上来回 chatter。
+
+同一个例子，$k_1=1$、$k_2=4$、$k_3=2$：$\phi$ 最多偏到 $-0.38$ rad，2 s 时 $y$ 的 error 降到 0.02 m，12 s 时位置和朝向的 error 都小于 0.005，$v$ 回到 0.5，始终正着开。
+
+::fig[mr-track] 同一个起点、同一条 reference（虚线，沿 $x$ 轴以 0.5 m/s 前进）。上：只控制车尾的点 $P$，robot 掉头，最后倒着开。下：(13.31) 的 control law，robot 正着贴上 reference。小三角是车头方向，彩色点是 $P$ 或 reference 的当前位置。
+
+:::back
+Pfaffian constraint 与 rolling coin 来自[第 1 站](#cspace)，twist 的 Lie bracket 来自[第 6 站](#dyn)，grid 与 sampling-based planner 来自[第 7 站](#plan)，feedforward 加 feedback 的思路来自[第 8 站](#control)。
+:::
+
+:::from
+Unicycle、diff-drive、car 的 model（13.12 到 13.18 式）、canonical model 与 control 的换算、Pfaffian constraint、Figure 13.11 的四种 control set、点 $P$ 的 Jacobian（13.21 式）与 $x_r=0$ 的 singularity、Theorem 13.1、STLA 与 STLC 的定义及 car 的例子、parallel parking 的讨论、Lie bracket 的 Taylor 展开推导（13.26 到 13.28 式）、Example 13.5、Lie algebra、Theorem 13.7、Example 13.8 到 13.10（$\det=1$、$-r^2$、diff-drive 只有 4 维）、Dubins 与 Reeds–Shepp 的 shortest path 定理、diff-drive 的 40 种 minimum-time motion 与 Figure 13.17 的 LFR/FRB 例子、有障碍时的三种做法、三类 feedback 问题、点 $P$ 的 control law（13.29 式）及其“可能选反朝向”的缺陷、error coordinate（13.30 式）与 control law（13.31 式）及各项的解释，都来自 [Modern Robotics](https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf) 第 13.3 节（全文读过）。ME 449 跳过 13.3 节来自 [ME 449 课程页](https://hades.mech.northwestern.edu/index.php/ME_449_Robotic_Manipulation)。Diff-drive 与 car 的具体尺寸和 control set 数字、diff-drive 的换算验证、$\epsilon$ maneuver 的精确位移、Dubins 的两个例子（LSL 的手算与六种路径的长度，用自己写的 Dubins solver 算出）、FRB 例子的逐步核对、diff-drive 的 holonomic constraint 的积分式、两个 tracking simulation（$x_r=\mp0.2$ 时 robot 的朝向结果，以及“推手推车”的解释）、gain 的取值，是为这一页算的或自己的解释；书上 Figure 13.19 只说 point tracking 可能得到相反的朝向，没有说和 $P$ 在 wheel 轴前后有关，这一点是 simulation 看出来的。
 :::
 
 ## 作业
 
-两套作业。Coursera Specialization 的六门课，每章有一个 graded quiz、每段视频有一个 Lecture Comprehension quiz（需注册，题目没有读到），另有 peer-graded project：Course 2 一个（numerical IK）、Course 3 一个（UR5 在 gravity 下落下）、Course 4 两个（A*、sampling-based planning）、Course 5 两个（form closure、assembly 的 stability）、Course 6 就是 capstone。Course 4 到 6 的 handout 在课程 wiki 上公开；Course 2、3 的 handout 只在 Coursera 里，下面分别用内容相同的 ME 449 Assignment 3 和一份学生转抄的题面代替。Northwestern ME 449 Fall 2026 有自己的 Assignment 1 到 5（课程页的进度表把 Coursera 的 quiz 也排进去，每次上课前交），五份 handout 都读了。
+两套作业。Coursera Specialization 的六门课，每章有一个 graded quiz、每段视频有一个 Lecture Comprehension quiz（需注册，题目没有读到），另有 peer-graded project：Course 2 一个（numerical IK；它的第 4 个 module 是第 7 章 closed chain，只有 quiz、没有 project）、Course 3 一个（UR5 在 gravity 下落下）、Course 4 两个（A*、sampling-based planning）、Course 5 两个（form closure、assembly 的 stability）、Course 6 就是 capstone。Course 4 到 6 的 handout 在课程 wiki 上公开；Course 2、3 的 handout 只在 Coursera 里，下面分别用内容相同的 ME 449 Assignment 3 和一份学生转抄的题面代替。Northwestern ME 449 Fall 2026 有自己的 Assignment 1 到 5（课程页的进度表把 Coursera 的 quiz 也排进去，每次上课前交），五份 handout 都读了。
 
 所有作业共用两样工具。**MR code library**：Python、MATLAB、Mathematica 三个版本，在 GitHub 的 NxRLab/ModernRobotics，function 按书的章节分组，每个 function 的 comment 里带一个 example 和期望的 output；README 说它为了好读，既没有为效率也没有为 robustness 做优化。**CoppeliaSim edu**：免费，课程的 scene 是一包 `.ttt` 文件，也兼容 V-REP 3.4 以后的版本。全部作业用笔记本 CPU 就够，不需要 GPU。
 
 ### Capstone：Mobile Manipulation（先做）
 
-**要从零写什么。** 三个 function 和一个把它们串起来的 program。`NextState`：给定当前 12 维 configuration（chassis 3 个、arm 5 个、wheel 4 个）、9 个 speed、$\Delta t$ 和 speed 上限，arm 和 wheel 用 first-order Euler step，chassis 用第 8 站的 odometry。`TrajectoryGenerator`：给定 gripper 初始 pose、方块的初始与目标 pose、grasp 与 standoff 时 gripper 相对方块的 pose，生成八段 reference（到方块上方、下降、合上 gripper、上升、移到目标上方、下降、张开 gripper、上升）。`FeedbackControl`：第 6 站的控制律加 $J_e^\dagger$。主程序每 0.01 s 循环一次，输出给 CoppeliaSim 的 CSV（每行 13 个数：chassis 3、arm 5、wheel 4、gripper 状态）和 $X_{\mathrm{err}}$ 的记录。
+**要从零写什么。** 三个 function 和一个把它们串起来的 program。`NextState`：给定当前 12 维 configuration（chassis 3 个、arm 5 个、wheel 4 个）、9 个 speed、$\Delta t$ 和 speed 上限，arm 和 wheel 用 first-order Euler step，chassis 用第 12 站的 odometry。`TrajectoryGenerator`：给定 gripper 初始 pose、方块的初始与目标 pose、grasp 与 standoff 时 gripper 相对方块的 pose，生成八段 reference（到方块上方、下降、合上 gripper、上升、移到目标上方、下降、张开 gripper、上升）。`FeedbackControl`：第 8 站的控制律加 $J_e^\dagger$。主程序每 0.01 s 循环一次，输出给 CoppeliaSim 的 CSV（每行 13 个数：chassis 3、arm 5、wheel 4、gripper 状态）和 $X_{\mathrm{err}}$ 的记录。
 
-**做完会什么。** 第 2、3、4、6、8 站的内容在一个真实的 mobile manipulator 上用一遍；之后读到任何“end-effector delta pose action”“whole-body controller”都知道它底下在算什么。
+**做完会什么。** 第 2、3、4、8、12 站的内容在一个真实的 mobile manipulator 上用一遍；之后读到任何“end-effector delta pose action”“whole-body controller”都知道它底下在算什么。
 
 **时间与算力。** Handout 估计约 20 小时（三个 milestone 加最终提交）。笔记本 CPU。
 
@@ -1015,13 +1958,13 @@ Mecanum wheel 的 $h_i(\phi)$ formula、youBot 的 $H(0)$、“rank 3、多余�
 
 **提示。**
 
-- **每个 milestone 都先对 handout 的数值。** NextState：$u=(10,10,10,10)$ 跑 1 秒前进 0.475 m，$(-10,10,-10,10)$ 横移 0.475 m，$(-10,10,10,-10)$ 逆时针转 1.234 rad，speed 上限设 5 时都减半。FeedbackControl：$K_p=K_i=0$ 时 $\mathcal V_d=(0,0,0,20,0,10)$、$[\mathrm{Ad}]\mathcal V_d=(0,0,0,21.409,0,6.455)$、$X_{\mathrm{err}}=(0,0.171,0,0.080,0,0.107)$，speed 是 $(157.2,\dots,-745.7,0)$；$K_p=I$ 时 $\mathcal V=(0,0.171,0,21.488,0,6.562)$。Handout 原话的意思是：对不上就先修程序，别往下走。（来源：handout；第 6、8 站逐个复现过。）
+- **每个 milestone 都先对 handout 的数值。** NextState：$u=(10,10,10,10)$ 跑 1 秒前进 0.475 m，$(-10,10,-10,10)$ 横移 0.475 m，$(-10,10,10,-10)$ 逆时针转 1.234 rad，speed 上限设 5 时都减半。FeedbackControl：$K_p=K_i=0$ 时 $\mathcal V_d=(0,0,0,20,0,10)$、$[\mathrm{Ad}]\mathcal V_d=(0,0,0,21.409,0,6.455)$、$X_{\mathrm{err}}=(0,0.171,0,0.080,0,0.107)$，speed 是 $(157.2,\dots,-745.7,0)$；$K_p=I$ 时 $\mathcal V=(0,0.171,0,21.488,0,6.562)$。Handout 原话的意思是：对不上就先修程序，别往下走。（来源：handout；第 8、12 站逐个复现过。）
 - **调 gain 的顺序。** 先 $K_p=K_i=0$，只用 feedforward，并且让 robot 从 reference 的起点出发，确认 Scene 6 里能大致完成 pick-and-place；再加小的 diagonal $K_p$；$K_p$ 表现正常之后才加 $K_i$。Feedforward 不对时加 feedback 只会把问题盖住。$\mathcal V_d$ 别漏了 $1/\Delta t$，否则 feedforward 小 100 倍。（来源：handout。）
 - **初始 error 有硬性要求。** Robot 的初始 end-effector pose 与 reference 的第一个 pose 至少差 30° 和 0.2 m。默认方块从 $(1,0,0)$ 搬到 $(0,-1,-\pi/2)$，reference 从 $\begin{pmatrix}0&0&1&0\\0&1&0&0\\-1&0&0&0.5\\0&0&0&1\end{pmatrix}$ 开始。（来源：handout。）
-- **Overshoot 的那组比想象中好调。** PI 在 $t=0$ 时 $\dot X_{\mathrm{err}}=-K_pX_{\mathrm{err}}$，即使 $\zeta\ge1$ 也会越过零（第 6 站），所以 `overshoot` 不需要把 $\zeta$ 压得很低；上图 $K_p=2$、$K_i=6$ 就有约 36%。`best` 用纯 P 最省事。（来源：第 6 站的分析与上面的 simulation；kinematic simulation 没有 physics，在 Scene 6 里的数会有出入。）
+- **Overshoot 的那组比想象中好调。** PI 在 $t=0$ 时 $\dot X_{\mathrm{err}}=-K_pX_{\mathrm{err}}$，即使 $\zeta\ge1$ 也会越过零（第 8 站），所以 `overshoot` 不需要把 $\zeta$ 压得很低；上图 $K_p=2$、$K_i=6$ 就有约 36%。`best` 用纯 P 最省事。（来源：第 8 站的分析与上面的 simulation；kinematic simulation 没有 physics，在 Scene 6 里的数会有出入。）
 - **Gripper 要停够 63 行。** Gripper 合上、张开最多要 0.625 s，CSV 里同一 gripper 状态至少连续 63 行，这期间 $\{e\}$ 保持不动。Standoff 放在方块上方几厘米。（来源：handout。）
 - **Pseudoinverse 的 tolerance 有两种约定。** Handout 用 MATLAB 的 `pinv(M, tol)`：例子里写 `pinv(M, 1e-4)`（小于 0.0001 的 singular value 当 0），并建议再试 1e-3、1e-2；这是 singular value 的绝对门槛。NumPy 的 `np.linalg.pinv(a, rcond)` 是相对门槛：小于 `rcond` 乘最大 singular value 的才被当 0。上面测试里 $J_e$ 最大的 singular value 是 1.79，`rcond=1e-2` 相当于绝对门槛 0.018，会把第 6 个 singular value（0.0117）砍掉，测试数值就对不上了。照抄 handout 的数字之前先换算。（来源：handout 与 NumPy 的约定；数值是实算。）
-- **Joint limit 这个 enhancement 值得做。** 写 `testJointLimits(θ)`，joint 3、4 限制在约 $-0.2$ rad 以下（可以在 Scene 3 里拖 slider 找不自撞的范围）；下一步会越限时，把 $J_e$ 对应的 column 置 0 再算 speed。初始 configuration 本身要满足 limit。（来源：handout；不加 limit 时 $\theta_3$ 会穿过 0，见第 8 站。）
+- **Joint limit 这个 enhancement 值得做。** 写 `testJointLimits(θ)`，joint 3、4 限制在约 $-0.2$ rad 以下（可以在 Scene 3 里拖 slider 找不自撞的范围）；下一步会越限时，把 $J_e$ 对应的 column 置 0 再算 speed。初始 configuration 本身要满足 limit。（来源：handout；不加 limit 时 $\theta_3$ 会穿过 0，见第 12 站。）
 - **Scene 6 保持默认的 ODE engine 和 10 ms 的 timestep。** Handout 说 ODE 在抓方块时结果最好、最好理解；timestep 改了，CSV 的一行就不再是 0.01 s。方块在 gripper 里打滑是 contact simulation 的近似，handout 没有给修法，只能把 grasp 对准。第一次跑一个 CSV 时，开头几分之一秒 gripper 的 finger 会怪异地自己复位，不想看到就把同一个 CSV 再跑一次。（来源：handout。）
 - **Reference 的每一段怎么排时间。** 每段时长取 0.01 s 的整数倍；一个办法是取“距离除以最大 linear speed”和“转角除以最大 angular speed”中较大的那个。第 2、4、6、8 段是上下移动，用 cubic 或 quintic time scaling 约 1 秒即可；第 1、5 段用 `ScrewTrajectory` 或 `CartesianTrajectory` 加三次或五次的 time scaling。`TrajectoryGenerator` 的参数 $k$ 是每 0.01 s 生成几个 reference（$k=1$ 就够），输出到 Scene 8 检查时每行 13 个数：$T_{se}$ 前三行的 9 个 rotation entry、3 个 position、gripper 状态。（来源：handout 与 CoppeliaSim Introduction 页面。）
 - **Speed limit 挡住了 reference 时**，要么去掉 limit，要么把 trajectory 拉长。Feedforward 跟不上 reference 时，查 Jacobian、pseudoinverse 和 milestone 2 的 reference。（来源：handout。）
@@ -1053,7 +1996,7 @@ Mecanum wheel 的 $h_i(\phi)$ formula、youBot 的 $H(0)$、“rank 3、多余�
 **提示。**
 
 - 第 5 题 (e) 的乘法顺序 handout 说是“故意的”：右乘的 exponential 把 twist 当成写在 $\{b\}$ 里，而 $\mathcal S_s$ 是写在 $\{s\}$ 里的，结果对应一条“错位”的 screw axis。先按第 2 站的规则判断每个乘积里的 twist 被当成写在哪个 frame，再去算。（来源：handout 的原题；解释是第 2 站的内容。）
-- 第 6 题不需要知道 twist 的数值：constant twist 走 5 秒到 $T_{cd}$，走 2 秒就是同一个 exponential 乘 $2/5$，即 $\exp\big(\tfrac25\log T_{cd}\big)$，和第 6 站 screw path 的 $X(s)$ 是同一个 formula。（来源：第 2、6 站的推导。）
+- 第 6 题不需要知道 twist 的数值：constant twist 走 5 秒到 $T_{cd}$，走 2 秒就是同一个 exponential 乘 $2/5$，即 $\exp\big(\tfrac25\log T_{cd}\big)$，和第 8 站 screw path 的 $X(s)$ 是同一个 formula。（来源：第 2、8 站的推导。）
 - 第 7 题用第 2 站的 $\mathcal F_c=[\mathrm{Ad}_{T_{ac}}]^\top\mathcal F_a$，这里 $T_{ac}=e^{[\mathcal S]\theta}$。（来源：书 3.4 节。）
 - 第 10 题的 home configuration 下，$J_s$ 的 column 就是 $\mathcal S_i$，$J_b$ 的 column 就是 $\mathcal B_i$（第 4 站），不用再算 adjoint。（来源：书 5.1 节。）
 
@@ -1075,20 +2018,21 @@ $$T_{sd}=\begin{pmatrix}0&0&-1&0\\0&-1&0&0.5\\-1&0&0&0.5\\0&0&0&1\end{pmatrix}$$
 - Newton step 用 body Jacobian 的 pseudoinverse，和 `IKinBody` 一样；$\mathcal V_b$ 用 `MatrixLog6` 和 `se3ToVec` 算（第 4 站的 $\log(T_{sb}^{-1}T_{sd})$）。（来源：handout。）
 - 先用第 4 站 Example 6.1 的 2R 测试你的 `IKinBodyIterates`：应当打印出那张表的四行。（来源：书；表是为这一页实算的。）
 - Long 的初始猜测可以在 Scene 1 里拖 slider 找：让 arm 处在和目标 pose“翻过来”的姿态，或者靠近 singularity（例如 joint 3 接近 0，arm 伸直）。（来源：handout 建议用 slider；“伸直”的建议来自第 4 站的 singularity 分析。）
-- Part 2 (b)：constant body twist 是 $[\mathcal V_b]=\frac{1}{t_f}\log(T_0^{-1}T_{sd})$；$t=0$ 时 $\dot\theta=J_b^\dagger(\theta_0)\mathcal V_b$，$t_f/2$ 时 end-effector 在 $T_0e^{[\mathcal V_b]t_f/2}$，要先求出这个 pose 对应的 $\theta$（又是一次 IK），再在那里算 $J_b^\dagger$。(c) 要比较 end-effector 是否走直线、joint speed 是否有界、会不会经过 singularity、会不会越过 joint limit。（来源：handout 的 hints；具体式子是第 4、6 站的内容。）
+- Part 2 (b)：constant body twist 是 $[\mathcal V_b]=\frac{1}{t_f}\log(T_0^{-1}T_{sd})$；$t=0$ 时 $\dot\theta=J_b^\dagger(\theta_0)\mathcal V_b$，$t_f/2$ 时 end-effector 在 $T_0e^{[\mathcal V_b]t_f/2}$，要先求出这个 pose 对应的 $\theta$（又是一次 IK），再在那里算 $J_b^\dagger$。(c) 要比较 end-effector 是否走直线、joint speed 是否有界、会不会经过 singularity、会不会越过 joint limit。（来源：handout 的 hints；具体式子是第 4、8 站的内容。）
 
 ### ME 449 Assignment 4 与 Coursera Course 3 project：UR5 在 gravity 下落下（有余力再做）
 
 **要做什么。** Coursera Course 3 的 project：给定初始 configuration、初速为 0、joint torque 全为 0，用 MR library 的 forward dynamics 模拟 UR5 在 gravity（$g=9.81$，沿 $-z$）下落，每秒至少 100 个 integration step，把每一步的六个 joint angle 写成 CSV，在 Scene 2 里放 video。两段：从 home configuration 落 3 秒；joint 2 在 $-1$ rad、其余为 0，落 5 秒。（题面来源是一个学生仓库里转抄的版本，Coursera 课程页把它标为 150 分钟。）ME 449 Fall 2026 的 Assignment 4（“Puppet on a String”）把它扩成四部分：写 `Puppet(thetalist, dthetalist, g, Mlist, Slist, Glist, t, dt, damping, stiffness, restLength)`，每一步算 spring 对 end-effector 的 wrench、调用 `ForwardDynamics`、用 `EulerStep` 更新。Part 1 无 damping 无 spring 落 10 秒，交两个 $dt$：一个能让 total energy 基本守恒，一个太大、energy 明显漂移；Part 2 加 joint damping $\tau=-(\text{damping})\dot\theta$，一个正值让 robot 10 秒内几乎停下，一个负值让它越摆越猛；Part 3 去掉 gravity，加一根 rest length 为 0 的 spring 把 $\{b\}$ 的 origin 拉向 $(0.5,0,1)$，先无 damping（10 秒内振荡几次），再加 damping；Part 4 让 spring 的一端在 $(0.5,-1,1)$ 和 $(0.5,1,1)$ 之间正弦往返两次，就是一个最简单的 impedance control。原定 11 月 13 日、后改到 11 月 16 日交。
 
-**做完会什么。** 书上第 8 章（这一页没有展开，Lagrangian 部分见 [RB2202](../courses/RB2202.html) 第 6 站）在一个真实的 6R arm 上跑起来，并亲眼看到 Euler integration 的 energy drift。
+**做完会什么。** [第 6 站](#dyn)的 forward dynamics 在一个真实的 6R arm 上跑起来，亲眼看到 Euler integration 的 energy drift；Part 3、4 的 spring 是[第 10 站](#force) impedance control 最简单的形式（只 render 一个 $K$，$M=B=0$）。
 
 **时间与算力。** Handout 没有写；估计 Course 3 的版本 3 到 4 小时，ME 449 的版本 8 到 10 小时（估计）。纯 Python 的 `ForwardDynamics` 每步要做一次 inverse dynamics 和 mass matrix，10 秒、$dt=0.001$ 是一万步，笔记本 CPU 上要跑几分钟。
 
 **提示。**
 
 - Energy 的检查：kinetic energy 是 $\tfrac12\dot\theta^\top M(\theta)\dot\theta$（`MassMatrix`），potential energy 是各 link center of mass 的 $-m_ig^\top p_i$ 之和（位置由 forward kinematics 求，质量从 `Glist` 读），有 spring 时再加 $\tfrac12k(d-\text{restLength})^2$。画 total energy 对 time 的曲线，守恒的那组应当几乎是平的。（来源：handout。）
-- 调 $dt$ 时，“够小”的意思是再减半 energy 曲线也不再明显变化。Euler step 对这种无 damping 的振荡系统会持续注入 energy，所以 $dt$ 太大时 robot 会越摆越高，而不是停下。（来源：handout 要求展示 drift；“注入 energy”是 explicit Euler 的一般性质，凭自己的知识写。）
+- 调 $dt$ 时，“够小”的意思是再减半 energy 曲线也不再明显变化。Euler step 对这种无 damping 的振荡系统会持续注入 energy，所以 $dt$ 太大时 robot 会越摆越高，而不是停下。（来源：handout 要求展示 drift；“注入 energy”的原因见第 6 站 forward dynamics 一节：explicit Euler 每步把振幅放大 $\sqrt{1+\omega^2\Delta t^2}$ 倍。）
+- 写好的 `Puppet` 先拿第 6 站的 2R 自测：两个 point mass 的 `Glist` 取 $\mathrm{diag}(0,0,0,1,1,1)$，从水平静止松开，第一步的 $\ddot\theta$ 应当是 $(-9.81,9.81)$；$\Delta t=0.01$ 跑 3 秒，energy 应当漂到约 4.6 J，$\Delta t=0.001$ 约 0.44 J。（来源：第 6 站，用 MR library 的 `ForwardDynamics` 和 `EulerStep` 实算。）
 - `ForwardDynamics` 的参数 `Ftip` 是 end-effector **对外**施加的 wrench，写在 $\{n+1\}$（end-effector frame）里。Spring 拉 end-effector 的力 $f$ 是外界对 robot 的作用，传进去时要取 $-f$，并且先用 $R_{sb}^\top$ 转到 $\{b\}$；作用点在 $\{b\}$ 的 origin，moment 为 0。（来源：MR library user manual 对 `Ftip` 的定义；handout 提醒去查这个约定。）
 - Video 用 Scene 2，调 Time Multiplier 让每段在约 10 秒的真实时间里放完。（来源：handout。）
 
@@ -1096,27 +2040,32 @@ $$T_{sd}=\begin{pmatrix}0&0&-1&0\\0&-1&0&0.5\\-1&0&0&0.5\\0&0&0&1\end{pmatrix}$$
 
 **要做什么。** 11 月 25 日交。习题 6.7（手画一个有两个 root 的 $f(\theta)$，让 Newton–Raphson 越过近的 root 收敛到远的那个，最多画三步）、6.8（用 Newton–Raphson 对 $g(x,y)=(x^2-4,\ y^2-9)$ 从 $(1,1)$ 出发手算两步，并列出全部 root）、8.2（铸铁 dumbbell 的 rotational inertia 和 spatial inertia matrix）；一个两 joint robot 的 Lagrangian 中某一项对 $\tau_1$、$\tau_2$ 的贡献，归到 mass matrix、Coriolis/centripetal 或 gravity 的哪个 entry；用白话解释 Newton–Euler inverse dynamics 的三条 forward iteration 和两条 backward iteration 中每一项为什么出现；习题 9.2（给定 path 与 time scaling 求 $\dot X$、$\ddot X$）、9.3（constant screw path 上的 twist 与 acceleration）、9.22（time-optimal time scaling 算法的正确性）、11.6（mass–spring–damper 的 P、D、PD 控制）；最后是 2025 年 Quiz 2 的一道 time-optimal time scaling 题。
 
-**做完会什么。** 第 4 站 Newton 法的几何、第 6 站的 time scaling 和 error dynamics 用题目过一遍。第 8 章和 9.4 节这一页没有写，做相应的题要读书。
+**做完会什么。** 第 4 站 Newton 法的几何、[第 6 站](#dyn)的 Lagrangian 与 Newton–Euler、[第 9 站](#timeopt)的 phase plane、第 8 站的 error dynamics 用题目过一遍。
 
 **时间与算力。** Handout 没有写；估计 6 到 8 小时（估计）。纸笔为主。
 
 **提示。**
 
-- 习题 9.3：constant screw path 是 $X(s)=X_{\mathrm{start}}e^{[\mathcal S]s}$，其中 $[\mathcal S]=\log(X_{\mathrm{start}}^{-1}X_{\mathrm{end}})$。对 time 求 derivative，body twist 就是 $\mathcal S\dot s$，acceleration 是 $\mathcal S\ddot s$（screw axis 不变）。（来源：第 6 站 screw path 的 formula；推导凭自己的知识写。）
-- 习题 11.6 的套路就是第 6 站：写出 error dynamics，和 $\ddot x_e+2\zeta\omega_n\dot x_e+\omega_n^2x_e=0$ 对照读出 $\zeta$、$\omega_n$。（来源：书 11.2 节。）
+- 习题 9.3：constant screw path 是 $X(s)=X_{\mathrm{start}}e^{[\mathcal S]s}$，其中 $[\mathcal S]=\log(X_{\mathrm{start}}^{-1}X_{\mathrm{end}})$。对 time 求 derivative，body twist 就是 $\mathcal S\dot s$，acceleration 是 $\mathcal S\ddot s$（screw axis 不变）。（来源：第 8 站 screw path 的 formula；推导凭自己的知识写。）
+- 习题 11.6 的套路就是第 8 站：写出 error dynamics，和 $\ddot x_e+2\zeta\omega_n\dot x_e+\omega_n^2x_e=0$ 对照读出 $\zeta$、$\omega_n$。（来源：书 11.2 节。）
+- Lagrangian 那一题：对给出的那一项分别算 $\frac{d}{dt}\frac{\partial}{\partial\dot\theta_i}-\frac{\partial}{\partial\theta_i}$，$i=1,2$。$\frac{d}{dt}$ 要连同 $\sin\theta_1$ 这类 configuration 的函数一起求（第 6 站推 $\tau_2$ 时 $\dot c_2=-s_2\dot\theta_2$ 那一步）。结果里含 $\ddot\theta_j$ 的归 $M_{ij}$；含 $\dot\theta_j^2$ 的是 centripetal、含 $\dot\theta_j\dot\theta_k$（$j\ne k$）的是 Coriolis，都归 $c_i$；不含 velocity 也不含 acceleration、来自 potential energy 的归 $g_i$。（来源：书 8.1 节；分类规则是第 6 站的内容。）
+- Newton–Euler 用白话解释那一题：第 6 站 Newton–Euler 一节对 $\dot{\mathcal V}_i$ 的三项和 $\mathcal F_i$ 的三项各给了一句话，2R 的手算表每一行也写了物理读法，可以对照着检查自己的说法。（来源：书 8.3 节；读法是第 6 站自己写的。）
+- 习题 9.2：chain rule，$\dot X=\frac{dX}{ds}\dot s$，$\ddot X=\frac{dX}{ds}\ddot s+\frac{d^2X}{ds^2}\dot s^2$，和第 9 站推 $m(s)$、$c(s)$ 时对 $\theta(s)$ 做的一样。（来源：书 9.4 节的推导。）
+- 习题 9.22：(a) 想一想 $F$ 本身是哪个 ODE 的 integral curve，再想同一个 ODE 的两条 integral curve 能不能相交；(b)、(c) 看 velocity limit curve 上的 motion cone 只剩一个方向这件事。第 9 站 gantry 的切点落在 zero-inertia point 的尖底，是这个论证的一个特殊情形。（来源：书 9.4.2、9.4.3 节；提示的写法是自己的。）
+- 2025 年 Quiz 2 那道 phase plane 题：判断一个 state 能不能停留在 path 上，就是比较 $L=\max_iL_i$ 和 $U=\min_iU_i$（第 9 站 $(0.25,0.8)$ 的例子）；motion cone 的两条边是 $(\dot s,L)$ 和 $(\dot s,U)$ 这两个方向，$\dot s=0$ 处 cone 是竖直的；time-optimal 解永远在 $U$ 或 $L$ 上，至少一个 actuator 饱和（第 9 站动图里的两根 force bar）。（来源：书 9.4 节与 [Assignment 5 handout](https://hades.mech.northwestern.edu/images/8/8a/ME449-asst5-2026.pdf)。）
 
 ### Course 4：A* graph search 与 sampling-based planning（值得做）
 
 **要做什么。** 第一个 project 实现 A* search：读 `nodes.csv`、`edges.csv`，node 1 是 start、node $N$ 是 goal，输出 `path.csv`（一行 node ID，从 1 到 $N$；找不到时只写 `1`），交上去的 `edges.csv` 要删掉 node 4 与 node 7 之间的那一条 edge（只删这一条）。第二个 project 在 $[-0.5,0.5]^2$ 里为一个 point robot 实现 RRT 或 PRM（二选一），obstacle 是 `obstacles.csv` 里的 circle，start 在左下角、goal 在右上角，local planner 走 straight line，collision check 自己写，输出 nodes、edges、path 三个 CSV，在 CoppeliaSim 的 Scene 5（kilobot）里显示。
 
-**做完会什么。** 第 5 站的 RRT 或 PRM 从零跑通一次；PRM 那条路线还会把 A* 再用一遍。
+**做完会什么。** 第 7 站的 RRT 或 PRM 从零跑通一次；PRM 那条路线还会把 A* 再用一遍。
 
 **时间与算力。** Handout 没有写；估计各 3 到 5 小时（估计）。笔记本 CPU。
 
 **提示。**
 
 - 先把示例 scene 跑起来，确认 graph、obstacle 和 kilobot 的 path 都能显示，再写 code。（来源：A* handout。）
-- Collision check 先解 line 与 circle 的交点（0、1 或 2 个），再确认交点落在 segment 内；漏掉第二步是最常见的错（第 5 站的例子）。也可以沿 segment 密集取点检查，handout 认为次之。（来源：sampling-based planning handout。）
+- Collision check 先解 line 与 circle 的交点（0、1 或 2 个），再确认交点落在 segment 内；漏掉第二步是最常见的错（第 7 站的例子）。也可以沿 segment 密集取点检查，handout 认为次之。（来源：sampling-based planning handout。）
 - RRT 取 goal 当 sample 的比例 handout 建议 10% 左右；PRM 记得把 start 和 goal 也当成 sample，node 数和 $k$ 要大到 start 与 goal 大概率落在同一个 connected component 里。（来源：handout。）
 - 截图要和交上去的 CSV 对应。效率不评分，清晰才评分。（来源：handout。）
 - `obstacles.csv` 每行 `x, y, diameter`：第三个数是 **diameter**，不是 radius。Sampling-based planning 的 handout 正文只说 obstacle 的 radius 是 $R$，没有说明这一列；Scene 5 的说明和 obstacles.csv 文件自己的注释行都写明是 diameter。写 collision check 时先除以 2，robot 有半径 $r$ 时再加上 $r$。`nodes.csv` 每行 `ID, x, y, heuristic-cost-to-go`，`edges.csv` 每行 `ID1, ID2, cost`。（来源：CoppeliaSim Introduction 页面的 Scene 5；一个学生仓库里原样保留的 obstacles.csv。）
@@ -1125,28 +2074,29 @@ $$T_{sd}=\begin{pmatrix}0&0&-1&0\\0&-1&0&0.5\\-1&0&0&0.5\\0&0&0&1\end{pmatrix}$$
 
 **要做什么。** 写一个 planar form closure 的检验 program：每个 contact 给出 body 上的 $(x,y)$ 和 inward normal 的 angle，输出 “form closure” 或 “not form closure”，是的话再给出一个 $k$。交两组自己设计的 contact（最好只差一个 contact 的位置或 normal），各附一张图，非 form closure 的那组还要用书上 12.1 节的图解法画出可行的 rotation center 区域。
 
-**做完会什么。** 第 7 站的 rank 加 LP 检验，以及 contact 怎样一个一个地挡住 motion。
+**做完会什么。** 第 11 站的 rank 加 LP 检验，以及 contact 怎样一个一个地挡住 motion。
 
 **时间与算力。** Handout 没有写；估计 2 到 4 小时（估计）。笔记本 CPU。
 
 **提示。**
 
-- Python 用 `scipy.optimize.linprog`。$Fk=0$ 本身总有 $k=0$ 这个解，所以约束要写成 $k_i\ge1$（第 7 站）。（来源：handout 提醒先读书上 12.1.7 节的写法；书。）
-- 别忘了 rank 条件：LP 有解但 rank 不足的情况见第 7 站的 (b)。（来源：书；例子是为这一页算的。）
-- Handout 提到 equality constraint 的 matrix 不是 full rank 时 simplex method 可能报错，可以改用 `method='interior-point'`。新版 SciPy 的 `linprog` 默认用 HiGHS，在 SciPy 1.18 里调用 `interior-point` 会给出 deprecation warning；直接用默认的 method 即可，第 7 站的例子就是用 HiGHS 算的。（来源：handout；warning 是在 SciPy 1.18.1 上实际跑出来的。）
+- Python 用 `scipy.optimize.linprog`。$Fk=0$ 本身总有 $k=0$ 这个解，所以约束要写成 $k_i\ge1$（第 11 站）。（来源：handout 提醒先读书上 12.1.7 节的写法；书。）
+- 别忘了 rank 条件：LP 有解但 rank 不足的情况见第 11 站的 (b)。（来源：书；例子是为这一页算的。）
+- Handout 提到 equality constraint 的 matrix 不是 full rank 时 simplex method 可能报错，可以改用 `method='interior-point'`。新版 SciPy 的 `linprog` 默认用 HiGHS，在 SciPy 1.18 里调用 `interior-point` 会给出 deprecation warning；直接用默认的 method 即可，第 11 站的例子就是用 HiGHS 算的。（来源：handout；warning 是在 SciPy 1.18.1 上实际跑出来的。）
 - 用自己的例子，不要交 handout 上那个六边形；那个例子只用来自测。（来源：handout。）
+- 非 form closure 那组要画的可行 rotation center 区域，按第 11 站图解法一节的规则画：每个 contact 的 normal 线左侧标 '+'、右侧标 '−'，取所有 contact 一致的部分。用程序画时，每个 contact 是一个 half-plane，依次把一个大方框按 half-plane 裁剪（每次裁剪就是 polygon 和一条直线求交），第 11 站的图就是这样算出来的。（来源：书 12.1.6 节；做法是自己的。）
 
 ### Course 5：Stability of an assembly（有余力再做）
 
-**要做什么。** 写一个 program 判断一组 planar rigid body 互相靠着、在 gravity（沿 $-y$）下能否静止。输入：每个 body 的 center of mass $(x,y)$ 和 mass；每个 contact 的两个 body 编号（0 是地面）、位置 $(x,y)$、指向第一个 body 的 normal angle、friction coefficient $\mu$，例如 $(1,2,60,60,3.1416,0.5)$。输出“能站住”或“会倒”，能站住时最好给出一组 $k$。方法是书上 12.3 节 Example 12.11 的 $Fk+F_{\mathrm{ext}}=0$、$k\ge0$（第 7 站最后一节）。Handout 给了一个两 body 的测试：$m_1=2$、$m_2=5$、body 1 与地面之间 $\mu=0.1$、其余 0.5 时会倒；$m_1=2$、$m_2=10$、四个 contact 都是 0.5 时能站。交 code、两个测试的 log，以及一个至少两个 body 的自己设计的 assembly（可以照书上 Figure 12.27 的三块石头的 arch），给出一组让它倒和一组让它站的 $\mu$，并解释；选做：三块石头一样时，能站住的最小 $\mu$。
+**要做什么。** 写一个 program 判断一组 planar rigid body 互相靠着、在 gravity（沿 $-y$）下能否静止。输入：每个 body 的 center of mass $(x,y)$ 和 mass；每个 contact 的两个 body 编号（0 是地面）、位置 $(x,y)$、指向第一个 body 的 normal angle、friction coefficient $\mu$，例如 $(1,2,60,60,3.1416,0.5)$。输出“能站住”或“会倒”，能站住时最好给出一组 $k$。方法是书上 12.3 节 Example 12.11 的 $Fk+F_{\mathrm{ext}}=0$、$k\ge0$（第 11 站最后一节）。Handout 给了一个两 body 的测试：$m_1=2$、$m_2=5$、body 1 与地面之间 $\mu=0.1$、其余 0.5 时会倒；$m_1=2$、$m_2=10$、四个 contact 都是 0.5 时能站。交 code、两个测试的 log，以及一个至少两个 body 的自己设计的 assembly（可以照书上 Figure 12.27 的三块石头的 arch），给出一组让它倒和一组让它站的 $\mu$，并解释；选做：三块石头一样时，能站住的最小 $\mu$。
 
-**做完会什么。** 第 7 站的 LP 从“一个 body 被 finger 卡住”推广到“几个 body 互相支撑”，学会正确处理内部 contact 的作用力与反作用力。
+**做完会什么。** 第 11 站的 LP 从“一个 body 被 finger 卡住”推广到“几个 body 互相支撑”，学会正确处理内部 contact 的作用力与反作用力。
 
 **时间与算力。** Handout 没有写；估计 3 到 5 小时（估计）。笔记本 CPU。
 
 **提示。**
 
 - 每个 contact 两条 friction cone edge，$n$ 个 contact 就是 $2n$ 个未知数；$m$ 个 body 是 $3m$ 个 equation。$k$ 只要求 $\ge0$，不要照抄 form closure 的 $k_i\ge1$。（来源：handout。）
-- 内部 contact 的 edge 在第二个 body 的 equation 里要取相反数；程序对明显能站的 assembly 也报“会倒”时，先查这里（第 7 站的 :::wrong）。（来源：书 Example 12.11 的说明；症状是为这一页实算的。）
-- 先用第 7 站的 A 字形木板自测：$\mu_g=0.37$ 应当倒，$0.38$ 应当站。（来源：为这一页实算的例子。）
+- 内部 contact 的 edge 在第二个 body 的 equation 里要取相反数；程序对明显能站的 assembly 也报“会倒”时，先查这里（第 11 站的 :::wrong）。（来源：书 Example 12.11 的说明；症状是为这一页实算的。）
+- 先用第 11 站的 A 字形木板自测：$\mu_g=0.37$ 应当倒，$0.38$ 应当站。（来源：为这一页实算的例子。）
 - 和 form closure 的 project 一样，旧版 SciPy 的 simplex 在 equality matrix 不 full rank 时会出错，handout 建议 `method='interior-point'`；新版直接用默认的 HiGHS。（来源：handout；SciPy 的现状见上一个 project 的提示。）

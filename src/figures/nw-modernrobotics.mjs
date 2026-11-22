@@ -708,7 +708,745 @@ function aframe() {
   return svg(560, 330, o, 'A 字形的两块木板：各重 10 牛，顶端互相顶住。对左板 foot 取 moment 得顶端推力 3.75 牛，地面 force 为 (3.75, 10)，正好落在 mu 等于 0.375 的 friction cone 边上');
 }
 
+// ====================== 第 5、6、9、10、13 站与第 11 站图解法的图 ======================
+// time-optimal 的数据：/tmp/mrw3/topt2.py、topt4.py（Python，Runge–Kutta 加 binary search）算出
+const TOPT = {"vl":[[0.0,0.6366],[0.01,0.6464],[0.02,0.6557],[0.03,0.6646],[0.04,0.673],[0.05,0.681],[0.06,0.6885],[0.07,0.6957],[0.08,0.7024],[0.09,0.7087],[0.1,0.7146],[0.11,0.7201],[0.12,0.7253],[0.13,0.73],[0.14,0.7344],[0.15,0.7383],[0.16,0.7419],[0.17,0.7451],[0.18,0.7479],[0.19,0.7503],[0.2,0.7524],[0.21,0.7541],[0.22,0.7554],[0.23,0.7563],[0.24,0.7569],[0.25,0.7571],[0.26,0.7569],[0.27,0.7563],[0.28,0.7554],[0.29,0.7541],[0.3,0.7524],[0.31,0.7503],[0.32,0.7479],[0.33,0.7451],[0.34,0.7419],[0.35,0.7383],[0.36,0.7344],[0.37,0.73],[0.38,0.7253],[0.39,0.7201],[0.4,0.7146],[0.41,0.7087],[0.42,0.7024],[0.43,0.6957],[0.44,0.6885],[0.45,0.681],[0.46,0.673],[0.47,0.6646],[0.48,0.6557],[0.49,0.6464],[0.5,0.6366],[0.51,0.6464],[0.52,0.6557],[0.53,0.6646],[0.54,0.673],[0.55,0.681],[0.56,0.6885],[0.57,0.6957],[0.58,0.7024],[0.59,0.7087],[0.6,0.7146],[0.61,0.7201],[0.62,0.7253],[0.63,0.73],[0.64,0.7344],[0.65,0.7383],[0.66,0.7419],[0.67,0.7451],[0.68,0.7479],[0.69,0.7503],[0.7,0.7524],[0.71,0.7541],[0.72,0.7554],[0.73,0.7563],[0.74,0.7569],[0.75,0.7571],[0.76,0.7569],[0.77,0.7563],[0.78,0.7554],[0.79,0.7541],[0.8,0.7524],[0.81,0.7503],[0.82,0.7479],[0.83,0.7451],[0.84,0.7419],[0.85,0.7383],[0.86,0.7344],[0.87,0.73],[0.88,0.7253],[0.89,0.7201],[0.9,0.7146],[0.91,0.7087],[0.92,0.7024],[0.93,0.6957],[0.94,0.6885],[0.95,0.681],[0.96,0.673],[0.97,0.6646],[0.98,0.6557],[0.99,0.6464],[1.0,0.6366]],"opt":[[0.0,0.0],[0.005,0.1128],[0.01,0.1596],[0.015,0.1956],[0.02,0.226],[0.025,0.253],[0.03,0.2774],[0.035,0.3001],[0.04,0.3213],[0.045,0.3414],[0.05,0.3605],[0.055,0.379],[0.06,0.3968],[0.065,0.414],[0.07,0.4309],[0.075,0.4474],[0.08,0.4635],[0.085,0.4795],[0.09,0.4952],[0.095,0.5108],[0.1,0.5257],[0.105,0.5384],[0.11,0.5494],[0.115,0.559],[0.12,0.5674],[0.125,0.575],[0.13,0.5817],[0.135,0.5879],[0.14,0.5935],[0.145,0.5987],[0.15,0.6035],[0.155,0.608],[0.16,0.6122],[0.165,0.6162],[0.17,0.62],[0.175,0.6236],[0.18,0.6271],[0.185,0.6304],[0.19,0.6337],[0.195,0.6369],[0.2,0.64],[0.205,0.6431],[0.21,0.6461],[0.215,0.6491],[0.22,0.652],[0.225,0.6549],[0.23,0.6579],[0.235,0.6608],[0.24,0.6637],[0.245,0.6666],[0.25,0.6695],[0.255,0.6725],[0.26,0.6754],[0.265,0.6784],[0.2698,0.6806],[0.2748,0.6786],[0.2798,0.6767],[0.2848,0.6748],[0.2898,0.673],[0.2948,0.6712],[0.2998,0.6695],[0.3048,0.6678],[0.3098,0.6661],[0.3148,0.6645],[0.3198,0.663],[0.3248,0.6615],[0.3298,0.6601],[0.3348,0.6587],[0.3398,0.6573],[0.3448,0.656],[0.3498,0.6548],[0.3548,0.6535],[0.3598,0.6524],[0.3648,0.6513],[0.3698,0.6502],[0.3748,0.6491],[0.3798,0.6481],[0.3848,0.6472],[0.3898,0.6463],[0.3948,0.6454],[0.3998,0.6446],[0.4048,0.6438],[0.4098,0.6431],[0.4148,0.6424],[0.4198,0.6417],[0.4248,0.6411],[0.4298,0.6405],[0.4348,0.64],[0.4398,0.6395],[0.4448,0.639],[0.4498,0.6386],[0.4548,0.6382],[0.4598,0.6379],[0.4648,0.6376],[0.4698,0.6373],[0.4748,0.6371],[0.4798,0.6369],[0.4848,0.6368],[0.4898,0.6367],[0.4948,0.6366],[0.4998,0.6364],[0.5046,0.6366],[0.5096,0.6367],[0.5146,0.6368],[0.5196,0.6369],[0.5246,0.6371],[0.5296,0.6373],[0.5346,0.6376],[0.5396,0.6379],[0.5446,0.6382],[0.5496,0.6386],[0.5546,0.639],[0.5596,0.6394],[0.5646,0.6399],[0.5696,0.6404],[0.5746,0.641],[0.5796,0.6416],[0.5846,0.6423],[0.5896,0.643],[0.5946,0.6437],[0.5996,0.6445],[0.6046,0.6453],[0.6096,0.6462],[0.6146,0.6471],[0.6196,0.648],[0.6246,0.649],[0.6296,0.65],[0.6346,0.6511],[0.6396,0.6522],[0.6446,0.6534],[0.6496,0.6546],[0.6546,0.6559],[0.6596,0.6572],[0.6646,0.6585],[0.6696,0.6599],[0.6746,0.6613],[0.6796,0.6628],[0.6846,0.6644],[0.6896,0.6659],[0.6946,0.6676],[0.6996,0.6692],[0.7046,0.671],[0.7096,0.6728],[0.7146,0.6746],[0.7196,0.6765],[0.7246,0.6784],[0.7296,0.6804],[0.7344,0.6787],[0.7394,0.6758],[0.7444,0.6728],[0.7494,0.6699],[0.7544,0.6669],[0.7594,0.664],[0.7644,0.6611],[0.7694,0.6582],[0.7744,0.6553],[0.7794,0.6524],[0.7844,0.6494],[0.7894,0.6464],[0.7944,0.6434],[0.7994,0.6404],[0.8044,0.6373],[0.8094,0.6341],[0.8144,0.6308],[0.8194,0.6275],[0.8244,0.624],[0.8294,0.6204],[0.8344,0.6166],[0.8394,0.6127],[0.8444,0.6085],[0.8494,0.604],[0.8544,0.5993],[0.8594,0.5941],[0.8644,0.5886],[0.8694,0.5825],[0.8744,0.5758],[0.8794,0.5684],[0.8844,0.5601],[0.8894,0.5506],[0.8944,0.5398],[0.8994,0.5273],[0.9044,0.5126],[0.9094,0.4971],[0.9144,0.4814],[0.9194,0.4655],[0.9244,0.4493],[0.9294,0.4329],[0.9344,0.4161],[0.9394,0.3989],[0.9444,0.3811],[0.9494,0.3628],[0.9544,0.3437],[0.9594,0.3237],[0.9644,0.3027],[0.9694,0.2802],[0.9744,0.256],[0.9794,0.2294],[0.9844,0.1995],[0.9894,0.1644],[0.9944,0.1194],[0.9994,0.0391]],"A0":[[0.0,0.0],[0.005,0.1128],[0.01,0.1596],[0.015,0.1956],[0.02,0.226],[0.025,0.253],[0.03,0.2774],[0.035,0.3001],[0.04,0.3213],[0.045,0.3414],[0.05,0.3605],[0.055,0.379],[0.06,0.3968],[0.065,0.414],[0.07,0.4309],[0.075,0.4474],[0.08,0.4635],[0.085,0.4795],[0.09,0.4952],[0.095,0.5108],[0.1,0.5257],[0.105,0.5384],[0.11,0.5494],[0.115,0.559],[0.12,0.5674],[0.125,0.575],[0.13,0.5817],[0.135,0.5879],[0.14,0.5935],[0.145,0.5987],[0.15,0.6035],[0.155,0.608],[0.16,0.6122],[0.165,0.6162],[0.17,0.62],[0.175,0.6236],[0.18,0.6271],[0.185,0.6304],[0.19,0.6337],[0.195,0.6369],[0.2,0.64],[0.205,0.6431],[0.21,0.6461],[0.215,0.6491],[0.22,0.652],[0.225,0.6549],[0.23,0.6579],[0.235,0.6608],[0.24,0.6637],[0.245,0.6666],[0.25,0.6695],[0.255,0.6725],[0.26,0.6754],[0.265,0.6784],[0.27,0.6814],[0.275,0.6844],[0.28,0.6875],[0.285,0.6906],[0.29,0.6937],[0.295,0.6969],[0.3,0.7001],[0.305,0.7034],[0.31,0.7067],[0.315,0.7101],[0.32,0.7135],[0.325,0.717],[0.33,0.7206],[0.335,0.7242],[0.34,0.7278],[0.345,0.7316],[0.35,0.7354]],"F":[[0.647,0.7374],[0.652,0.7335],[0.657,0.7298],[0.662,0.7261],[0.667,0.7224],[0.672,0.7189],[0.677,0.7153],[0.682,0.7119],[0.687,0.7085],[0.692,0.7051],[0.697,0.7018],[0.702,0.6986],[0.707,0.6954],[0.712,0.6922],[0.717,0.6891],[0.722,0.686],[0.727,0.683],[0.732,0.6799],[0.737,0.677],[0.742,0.674],[0.747,0.671],[0.752,0.6681],[0.757,0.6652],[0.762,0.6623],[0.767,0.6594],[0.772,0.6565],[0.777,0.6535],[0.782,0.6506],[0.787,0.6476],[0.792,0.6446],[0.797,0.6416],[0.802,0.6385],[0.807,0.6354],[0.812,0.6322],[0.817,0.6288],[0.822,0.6254],[0.827,0.6219],[0.832,0.6182],[0.837,0.6143],[0.842,0.6102],[0.847,0.6058],[0.852,0.6012],[0.857,0.5962],[0.862,0.5909],[0.867,0.585],[0.872,0.5786],[0.877,0.5715],[0.882,0.5635],[0.887,0.5545],[0.892,0.5443],[0.897,0.5325],[0.902,0.5188],[0.907,0.5033],[0.912,0.4877],[0.917,0.4719],[0.922,0.4558],[0.927,0.4395],[0.932,0.4228],[0.937,0.4058],[0.942,0.3883],[0.947,0.3702],[0.952,0.3514],[0.957,0.3318],[0.962,0.3112],[0.967,0.2894],[0.972,0.2659],[0.977,0.2404],[0.982,0.212],[0.987,0.1792],[0.992,0.1391],[0.997,0.0814]],"traj":[[0.0,0.0,0.0,-0.0,-2.0],[0.04,0.001,0.055,-0.045,-2.0],[0.08,0.004,0.103,-0.158,-2.0],[0.12,0.009,0.153,-0.347,-2.0],[0.16,0.016,0.205,-0.62,-2.0],[0.2,0.026,0.256,-0.971,-2.0],[0.24,0.037,0.308,-1.406,-2.0],[0.28,0.05,0.361,-1.941,-2.0],[0.32,0.066,0.417,-2.59,-2.0],[0.36,0.084,0.475,-3.382,-2.0],[0.4,0.104,0.535,-4.0,-1.496],[0.44,0.126,0.577,-4.0,-0.528],[0.48,0.15,0.603,-4.0,0.03],[0.52,0.174,0.623,-4.0,0.401],[0.56,0.2,0.64,-4.0,0.682],[0.6,0.226,0.655,-4.0,0.923],[0.64,0.252,0.671,-4.0,1.145],[0.68,0.279,0.677,-2.263,2.0],[0.72,0.306,0.667,-1.949,2.0],[0.76,0.333,0.659,-1.654,2.0],[0.8,0.359,0.653,-1.376,2.0],[0.84,0.385,0.647,-1.11,2.0],[0.88,0.411,0.643,-0.854,2.0],[0.92,0.436,0.64,-0.603,2.0],[0.96,0.462,0.638,-0.361,2.0],[1.0,0.487,0.637,-0.119,2.0],[1.04,0.513,0.637,0.121,2.0],[1.08,0.538,0.638,0.363,2.0],[1.12,0.564,0.64,0.605,2.0],[1.16,0.59,0.643,0.856,2.0],[1.2,0.615,0.647,1.112,2.0],[1.24,0.641,0.653,1.378,2.0],[1.281,0.668,0.659,1.656,2.0],[1.321,0.694,0.667,1.952,2.0],[1.361,0.721,0.677,2.266,2.0],[1.401,0.748,0.671,4.0,1.143],[1.441,0.775,0.655,4.0,0.921],[1.481,0.801,0.64,4.0,0.68],[1.521,0.826,0.623,4.0,0.399],[1.561,0.85,0.603,4.0,0.026],[1.601,0.874,0.576,4.0,-0.534],[1.641,0.896,0.535,4.0,-1.509],[1.681,0.917,0.474,3.372,-2.0],[1.721,0.934,0.416,2.582,-2.0],[1.761,0.95,0.36,1.932,-2.0],[1.801,0.963,0.307,1.398,-2.0],[1.841,0.975,0.255,0.964,-2.0],[1.881,0.984,0.203,0.612,-2.0],[1.921,0.991,0.151,0.34,-2.0],[1.961,0.996,0.101,0.151,-2.0],[2.001,0.999,0.051,0.038,-2.0],[2.041,1.0,0.0,0.0,-2.0]],"s1":0.269,"s3":0.731,"T":2.041};
+const V2 = { add: (a, b) => [a[0] + b[0], a[1] + b[1]], sub: (a, b) => [a[0] - b[0], a[1] - b[1]], mul: (a, k) => [a[0] * k, a[1] * k], rot: (a, [x, y]) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)], norm: (a) => Math.hypot(a[0], a[1]) };
+const u2 = (a) => [Math.cos(a), Math.sin(a)];
+function groundMark(x, y, w = 18) {
+  let o = line(x - w / 2, y, x + w / 2, y, 'ink');
+  for (let k = 0; k < 4; k++) { const xx = x - w / 2 + 3 + k * (w - 6) / 3; o += line(xx, y, xx - 5, y + 6, 'mute'); }
+  return o;
+}
+const fmt = (v, n = 2) => v.toFixed(n).replace('-', '−');
+// 2R point-mass arm（第 6 站的数值）：L1 = L2 = m1 = m2 = 1
+const G0 = 9.81;
+function dyn2R(th, dth, g = G0) {
+  const [t1, t2] = th, [d1, d2] = dth, c2 = Math.cos(t2), s2 = Math.sin(t2);
+  const M = [[3 + 2 * c2, 1 + c2], [1 + c2, 1]];
+  const c = [-s2 * (2 * d1 * d2 + d2 * d2), s2 * d1 * d1];
+  const gv = [2 * g * Math.cos(t1) + g * Math.cos(t1 + t2), g * Math.cos(t1 + t2)];
+  return { M, c, gv };
+}
+const solve2 = (M, b) => { const det = M[0][0] * M[1][1] - M[0][1] * M[1][0]; return [(b[0] * M[1][1] - M[0][1] * b[1]) / det, (M[0][0] * b[1] - M[1][0] * b[0]) / det]; };
+const fk2R = (th) => { const e = u2(th[0]); return [[0, 0], e, V2.add(e, u2(th[0] + th[1]))]; };
+const jac2R = (th) => { const s1 = Math.sin(th[0]), c1 = Math.cos(th[0]), s12 = Math.sin(th[0] + th[1]), c12 = Math.cos(th[0] + th[1]); return [[-s1 - s12, -s12], [c1 + c12, c12]]; };
+function drawArm(P, cls = 'ink-b', mass = true) { // P: 屏幕坐标的 [joint1, m1/joint2, tip]
+  let o = path(d(P), cls) + circle(P[0][0], P[0][1], 4.5, 'paper');
+  if (mass) o += circle(P[1][0], P[1][1], 7, 'solid2') + circle(P[2][0], P[2][1], 7, 'solid2');
+  else o += circle(P[1][0], P[1][1], 4, 'paper');
+  return o;
+}
+
+// ---------- 第 5 站：3×RPR 的 FK 有多个解 ----------
+const RPR = { a: [[0, 0], [2, 0], [1, 1.8]], b: [[-0.3, -0.15], [0.3, -0.15], [0, 0.25]] };
+function rprFK(s) {
+  const { a, b } = RPR;
+  const pfor = (f) => {
+    const w = [0, 1, 2].map((i) => V2.sub(V2.rot(f, b[i]), a[i]));
+    const A = [[2 * (w[1][0] - w[0][0]), 2 * (w[1][1] - w[0][1])], [2 * (w[2][0] - w[0][0]), 2 * (w[2][1] - w[0][1])]];
+    const n2 = (v) => v[0] * v[0] + v[1] * v[1];
+    const p = solve2(A, [s[1] ** 2 - s[0] ** 2 - (n2(w[1]) - n2(w[0])), s[2] ** 2 - s[0] ** 2 - (n2(w[2]) - n2(w[0]))]);
+    return [p, n2(V2.add(p, w[0])) - s[0] ** 2];
+  };
+  const N = 4000, sols = [];
+  let f0 = -Math.PI, r0 = pfor(f0)[1];
+  for (let k = 1; k <= N; k++) {
+    const f1 = -Math.PI + 2 * Math.PI * k / N, r1 = pfor(f1)[1];
+    if (Math.sign(r0) !== Math.sign(r1) && Math.abs(r0) < 10 && Math.abs(r1) < 10) {
+      let lo = f0, hi = f1, rl = r0;
+      for (let it = 0; it < 60; it++) { const m = (lo + hi) / 2, rm = pfor(m)[1]; if (Math.sign(rm) === Math.sign(rl)) { lo = m; rl = rm; } else hi = m; }
+      const f = (lo + hi) / 2, p = pfor(f)[0];
+      const ok = [0, 1, 2].every((i) => Math.abs(V2.norm(V2.sub(V2.add(p, V2.rot(f, RPR.b[i])), RPR.a[i])) - s[i]) < 1e-6);
+      if (ok) sols.push([f, p]);
+    }
+    f0 = f1; r0 = r1;
+  }
+  return sols;
+}
+function rprfk() {
+  let o = '';
+  const panel = (x0, s, title, clsList) => {
+    const sx = lin(-0.35, 2.65, x0, x0 + 255), sy = lin(-0.55, 2.05, 262, 36), P = ([x, y]) => [sx(x), sy(y)];
+    let q = text(x0 + 128, 18, title, 'tb', 'middle');
+    const sols = rprFK(s);
+    sols.forEach(([f, p], k) => {
+      const cls = clsList[k % clsList.length];
+      const B = RPR.b.map((bb) => V2.add(p, V2.rot(f, bb)));
+      q += poly(B.map(P), k === 0 ? 'wash' : 'paper');
+      B.forEach((bb, i) => { q += line(...P(RPR.a[i]), ...P(bb), cls); });
+      q += path(d([...B, B[0]].map(P)), cls);
+      B.forEach((bb) => { q += circle(...P(bb), 2.5, 'ink-f'); });
+    });
+    RPR.a.forEach((aa, i) => { q += groundMark(...P(aa).map((v, j) => v + (j ? 4 : 0))) + circle(...P(aa), 4, 'paper') + text(sx(aa[0]) + (i === 1 ? 10 : -8), sy(aa[1]) + (i === 1 ? 22 : -8), 'a' + sub(String(i + 1)), 'ts', i === 1 ? 'start' : 'end'); });
+    return [q, sols];
+  };
+  const [qa, sa] = panel(10, [1, 1, 1], 's = (1, 1, 1)：两个解', ['ln', 'dash']);
+  const [qb, sb] = panel(295, [1.879, 0.419, 1.868], 's = (1.879, 0.419, 1.868)：四个解', ['ln', 'dash', 'ink', 'ln-dash']);
+  o += qa + qb;
+  o += text(140, 286, 'φ = ' + sa.map(([f]) => fmt(f * R2D, 1) + '°').join('，'), 'ts', 'middle');
+  o += text(420, 286, 'φ = ' + sb.map(([f]) => fmt(f * R2D, 1) + '°').join('，'), 'ts', 'middle');
+  o += text(280, 306, '彩色实线是第一个解（浅色填充），其余用虚线和黑线。每个解的三条 leg 长度都精确等于 s。', 'ts', 'middle');
+  return svg(560, 314, o, '3×RPR parallel mechanism：左边 leg 长度都是 1 时有两个互为镜像的 platform pose；右边一组 leg 长度对应四个 pose，挤在第二个 base joint 附近');
+}
+
+// ---------- 第 5 站：five-bar 走向 actuator singularity ----------
+function fivebarState(al) {
+  const t1 = (90 + al) * D2R, f1 = (90 - al) * D2R;
+  const E1 = u2(t1), E2 = V2.add([1, 0], u2(f1)), dd = V2.norm(V2.sub(E2, E1));
+  const m = V2.mul(V2.add(E1, E2), 0.5), h = Math.sqrt(Math.max(0, 1 - dd * dd / 4));
+  const P = [m[0], m[1] + h];
+  // passive speeds for qa_dot = (1, -1)
+  const z = (v) => [-v[1], v[0]];
+  const J1 = [z(P), z(V2.sub(P, E1))], J2 = [z(V2.sub(P, [1, 0])), z(V2.sub(P, E2))];
+  const Ha = [[J1[0][0], -J2[0][0]], [J1[0][1], -J2[0][1]]], Hp = [[J1[1][0], -J2[1][0]], [J1[1][1], -J2[1][1]]];
+  const b = [Ha[0][0] * 1 + Ha[0][1] * -1, Ha[1][0] * 1 + Ha[1][1] * -1];
+  const qp = solve2(Hp, [-b[0], -b[1]]);
+  return { E1, E2, P, qp: Math.abs(qp[0]) };
+}
+function fivebar() {
+  const sx = lin(-0.75, 1.75, 30, 330), sy = lin(-0.2, 2.05, 290, 20), W = ([x, y]) => [sx(x), sy(y)];
+  const als = []; for (let a = 0; a <= 29.5 + 1e-9; a += 0.5) als.push(a);
+  const pre = 0.8, mv = 4, hold = 1.6, T = pre + mv + hold;
+  const ts = [0, ...als.map((_, k) => pre + mv * k / (als.length - 1)), T], kt = ts.map((t) => t / T);
+  const st = [als[0], ...als, als[als.length - 1]].map(fivebarState);
+  let o = '';
+  o += groundMark(sx(0), sy(0) + 5) + groundMark(sx(1), sy(0) + 5);
+  // 奇异的 configuration（虚线）
+  const S = fivebarState(30);
+  o += path(d([[0, 0], S.E1, S.P, S.E2, [1, 0]].map(W)), 'dash');
+  o += text(sx(-0.72), sy(1.75), '虚线：α = 30°，', 'ts', 'start') + text(sx(-0.72), sy(1.75) + 16, 'distal link 拉成一条直线', 'ts', 'start');
+  // 动的 mechanism
+  o += apath(st.map((q) => d([[0, 0], q.E1, q.P, q.E2, [1, 0]].map(W))), kt, T, 'ink-b');
+  o += acircle(st.map((q) => sx(q.E1[0])), st.map((q) => sy(q.E1[1])), kt, T, 4, 'paper') + acircle(st.map((q) => sx(q.E2[0])), st.map((q) => sy(q.E2[1])), kt, T, 4, 'paper');
+  o += acircle(st.map((q) => sx(q.P[0])), st.map((q) => sy(q.P[1])), kt, T, 5, 'ln-f');
+  o += circle(sx(0), sy(0), 5, 'solid') + circle(sx(1), sy(0), 5, 'solid');
+  o += text(sx(0) - 10, sy(0) + 4, 'A' + sub('1'), 't', 'end') + text(sx(1) + 10, sy(0) + 4, 'A' + sub('2'), 't', 'start');
+  // actuator 转向
+  const arc = (c, a0, a1) => { const pts = []; for (let k = 0; k <= 20; k++) { const a = (a0 + (a1 - a0) * k / 20) * D2R; pts.push(W(V2.add(c, V2.mul(u2(a), 0.3)))); } return path(d(pts), 'ln') + arrow(pts[17][0], pts[17][1], pts[20][0], pts[20][1], 'ln'); };
+  o += arc([0, 0], 95, 125) + arc([1, 0], 85, 55);
+  o += text(sx(0.5), 306, '彩色实心：actuated joint', 'ts', 'middle');
+  // 右侧读数
+  const rx = 360;
+  o += text(rx, 50, '两个 actuator 对称往外转 α', 'tb', 'start');
+  o += text(rx, 70, 'q̇' + sub('a') + ' = (1, −1) rad/s 时', 'ts', 'start') + text(rx, 86, 'passive joint 的 speed：', 'ts', 'start');
+  const marks = [0, 10, 20, 25, 28, 29.5];
+  const ph = marks.map((a) => { const k = als.indexOf(a); const q = fivebarState(a); return [(k <= 0 ? 0 : (pre + mv * k / (als.length - 1)) / T), 'α = ' + a + '°：' + q.qp.toFixed(2) + ' rad/s', a >= 28 ? 'tl' : 't']; });
+  o += phases(ph, T, rx, 116, 'start');
+  o += text(rx, 150, '|θ̇' + sub('2') + '| 随 α → 30° 趋于 ∞', 'ts', 'start');
+  // 柱状条：log 刻度
+  const bx = lin(0, Math.log10(10), rx, rx + 180);
+  o += rect(rx, 170, 180, 14, 'frame');
+  o += apath(st.map((q) => `M${f1(rx)} 170h${f1(Math.max(1, bx(Math.log10(Math.min(q.qp, 10))) - rx))}v14h${f1(-Math.max(1, bx(Math.log10(Math.min(q.qp, 10))) - rx))}Z`), kt, T, 'solid');
+  [1, 2, 5, 10].forEach((v) => { o += line(bx(Math.log10(v)), 184, bx(Math.log10(v)), 189, 'axis') + text(bx(Math.log10(v)), 202, String(v), 'ts', 'middle'); });
+  o += text(rx + 90, 222, 'rad/s（log 刻度）', 'ts', 'middle');
+  return svgA(560, 314, o, '动图：five-bar 的两个 actuator 对称往外转，end-effector P 下降；接近虚线所示的 actuator singularity 时，passive joint 的 speed 从 2.15 增到 8 rad/s 以上');
+}
+
+// ---------- 第 5 站：four-bar 的 bifurcation ----------
+function fourbarPhi(th) { // 返回非 π 的那一支 φ（0..2π）
+  const D = [4 * Math.cos(th) - 2, 4 * Math.sin(th)], nD = V2.norm(D), del = Math.atan2(D[1], D[0]);
+  const cg = (nD * nD - 12) / (4 * nD); if (Math.abs(cg) > 1) return null;
+  const g = Math.acos(cg), c1 = del + g, c2 = del - g;
+  const m = (a) => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const dpi = (a) => Math.abs(Math.cos(a) + 1) + Math.abs(Math.sin(a));
+  return m(dpi(c1) > dpi(c2) ? c1 : c2);
+}
+function fourbar() {
+  let o = '';
+  // 右：C-space
+  const px = lin(-90, 270, 320, 540), py = lin(0, 360, 250, 40);
+  o += axes({ sx: px, sy: py, x0: -90, x1: 270, y0: 0, y1: 360, xt: [-90, 0, 90, 180, 270].map((v) => [v, v + '°']), yt: [0, 90, 180, 270, 360].map((v) => [v, v + '°']), xl: 'θ', yl: 'φ' });
+  o += line(px(-90), py(180), px(270), py(180), 'ln');
+  const br = []; for (let t = -90; t <= 270; t += 1) { const f = fourbarPhi(t * D2R); if (f !== null) br.push([t, f * R2D]); }
+  let seg = [], segs = []; br.forEach((p, k) => { if (k && Math.abs(p[1] - br[k - 1][1]) > 90) { segs.push(seg); seg = []; } seg.push(p); }); segs.push(seg);
+  segs.forEach((sg) => { o += path(d(sg.map(([a, b]) => [px(a), py(b)])), 'ink-b'); });
+  o += circle(px(0), py(180), 5, 'ln-f') + circle(px(180), py(180), 5, 'ln-f');
+  o += text(px(0) - 6, py(180) - 9, '(0°, 180°)', 'ts', 'end') + text(px(180) + 10, py(180) + 20, '(180°, 180°)', 'ts', 'start');
+  o += text(px(-55), py(180) - 8, 'φ ≡ 180°', 'tl', 'middle');
+  // 左：mechanism
+  const sx = lin(-4.6, 6.4, 14, 290), sy = lin(-4.6, 4.6, 270, 40), W = ([x, y]) => [sx(x), sy(y)];
+  // 路线：θ 从 −50° 沿弯曲的一支到 0°，再沿 φ = 180° 到 120°
+  const path1 = []; for (let t = -50; t <= 0; t += 1) path1.push([t, fourbarPhi(t * D2R) * R2D]);
+  const path2 = []; for (let t = 2; t <= 120; t += 2) path2.push([t, 180]);
+  const route = [...path1, ...path2];
+  const pre = 0.6, mv = 5, post = 1.2, T = pre + mv + post;
+  const ts = [0, ...route.map((_, k) => pre + mv * k / (route.length - 1)), T], kt = ts.map((t) => t / T);
+  const RR = [route[0], ...route, route[route.length - 1]];
+  const geo = ([t, f]) => { const A = V2.mul(u2(t * D2R), 4), B = V2.add([2, 0], V2.mul(u2(f * D2R), 2)); return [A, B]; };
+  o += groundMark(sx(0), sy(0) + 5) + groundMark(sx(2), sy(0) + 5);
+  o += apath(RR.map((r) => { const [A, B] = geo(r); return d([[0, 0], A].map(W)); }), kt, T, 'ink-b');
+  o += apath(RR.map((r) => { const [A, B] = geo(r); return d([A, B].map(W)); }), kt, T, 'ln');
+  o += apath(RR.map((r) => { const [A, B] = geo(r); return d([[2, 0], B].map(W)); }), kt, T, 'ink-b');
+  o += acircle(RR.map((r) => sx(geo(r)[0][0])), RR.map((r) => sy(geo(r)[0][1])), kt, T, 4, 'paper') + acircle(RR.map((r) => sx(geo(r)[1][0])), RR.map((r) => sy(geo(r)[1][1])), kt, T, 4, 'paper');
+  o += circle(sx(0), sy(0), 4.5, 'paper') + circle(sx(2), sy(0), 4.5, 'paper');
+  o += text(sx(0) - 9, sy(0) - 6, 'O', 't', 'end') + text(sx(2) + 6, sy(0) + 20, '(2, 0)', 'ts', 'start');
+  o += text(150, 18, 'crank 4、coupler 4（彩色）、rocker 2', 'ts', 'middle');
+  // C-space 上的点同步
+  o += acircle(RR.map((r) => px(r[0])), RR.map((r) => py(r[1])), kt, T, 4.5, 'ink-f');
+  o += phases([[0, '沿弯曲的一支走……', 'ts'], [(pre + mv * (path1.length - 1) / (route.length - 1)) / T, '到 bifurcation point，换到 φ = 180° 那一支', 'tl'], [(pre + mv) / T, 'rocker 不动，coupler 对折贴在 crank 上一起转', 'ts']], T, 280, 296);
+  return svgA(560, 304, o, '动图：four-bar（crank 4、coupler 4、rocker 2、ground 2）。右边是它的 C-space，两条 branch 在 (0°,180°) 和 (180°,180°) 相交。左边 mechanism 沿弯曲的 branch 走到 bifurcation，再沿 φ=180° 的水平 branch 走开');
+}
+
+// ---------- 第 6 站：centripetal 与 Coriolis ----------
+function coriolis() {
+  let o = '';
+  const th = [0, Math.PI / 2], P = fk2R(th);
+  const items = [
+    ['a' + sub('cent1') + ' = (−1, −1)', [[-1, -1]], '只转 joint 1：指向 joint 1'],
+    ['a' + sub('cent2') + ' = (0, −1)', [[0, -1]], '只转 joint 2：指向 joint 2'],
+    ['a' + sub('cor') + ' = (0, −2)', [[0, -2]], '两个都转：多出的这一项'],
+  ];
+  items.forEach(([lab, vs, note], k) => {
+    const x0 = 12 + k * 184, sx = lin(-0.55, 1.75, x0, x0 + 170), sy = lin(-1.45, 1.35, 250, 40), W = (p) => [sx(p[0]), sy(p[1])];
+    o += drawArm(P.map(W));
+    o += text(sx(0) - 6, sy(0) + 18, 'joint 1', 'ts', 'middle') + text(sx(1) + 10, sy(0) + 14, 'joint 2', 'ts', 'start');
+    const s = 0.45;
+    vs.forEach((v) => { const e = V2.add(P[2], V2.mul(v, s)); o += arrow(...W(P[2]), ...W(e), 'ln'); });
+    // 作用线（虚线）延长，看它穿过哪个 joint
+    const v = vs[0], far = V2.add(P[2], V2.mul(v, k === 0 ? 1.02 : k === 1 ? 1.3 : 0.7)), back = V2.add(P[2], V2.mul(v, -0.35));
+    o += line(...W(back), ...W(far), 'dash');
+    o += text(x0 + 85, 22, lab, 'tl', 'middle') + text(x0 + 85, 276, note, 'ts', 'middle');
+  });
+  o += text(280, 300, 'θ = (0°, 90°)，θ̇ = (1, 1) rad/s，θ̈ = 0。虚线是 m' + sub('2') + ' 所受 force 的作用线：穿过哪个 joint，就对它没有 moment。', 'ts', 'middle');
+  return svg(560, 308, o, '三个小图：2R 在 θ=(0,90°)，m2 的 centripetal acceleration 分别指向 joint 1 和 joint 2，Coriolis acceleration 竖直向下穿过 joint 2，对 joint 1 产生顺时针 moment');
+}
+
+// ---------- 第 6 站：mass ellipse 与 end-effector mass ----------
+function massell() {
+  let o = '';
+  const panel = (x0, t2deg, title) => {
+    const th = [0, t2deg * D2R], P = fk2R(th);
+    const sx = lin(-0.45, 1.65, x0, x0 + 260), sy = lin(-0.55, 1.45, 270, 22), W = (p) => [sx(p[0]), sy(p[1])];
+    const { M } = dyn2R(th, [0, 0]), J = jac2R(th);
+    const dj = J[0][0] * J[1][1] - J[0][1] * J[1][0], Ji = [[J[1][1] / dj, -J[0][1] / dj], [-J[1][0] / dj, J[0][0] / dj]];
+    const mm = (A, B) => [[A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]], [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]];
+    const JiT = [[Ji[0][0], Ji[1][0]], [Ji[0][1], Ji[1][1]]];
+    const L = mm(mm(JiT, M), Ji);
+    let q = text(x0 + 130, 14, title, 'tb', 'middle');
+    q += drawArm(P.map(W));
+    const sc = 0.1, ell = [];
+    for (let k = 0; k <= 72; k++) { const a = u2(2 * Math.PI * k / 72); ell.push(W(V2.add(P[2], V2.mul([L[0][0] * a[0] + L[0][1] * a[1], L[1][0] * a[0] + L[1][1] * a[1]], sc)))); }
+    q += path(d(ell), 'ln') ;
+    q += text(sx(-0.4), sy(-0.3), 'Λ = [' + fmt(L[0][0], 2) + ', ' + fmt(L[0][1], 2) + '; ' + fmt(L[1][0], 2) + ', ' + fmt(L[1][1], 2) + ']', 'ts', 'start');
+    return [q, P, W, L];
+  };
+  const [qa, Pa, Wa] = panel(8, 90, 'θ₂ = 90°：沿 x̂ 1 kg，沿 ŷ 2 kg');
+  const [qb, Pb, Wb, Lb] = panel(290, 150, 'θ₂ = 150°：推 x̂，加速却斜着');
+  o += qa + qb;
+  // 右图：force (1,0) 与 acceleration Λ^-1 f
+  const det = Lb[0][0] * Lb[1][1] - Lb[0][1] * Lb[1][0], acc = [Lb[1][1] / det, -Lb[1][0] / det], s = 0.55;
+  o += arrow(...Wb(Pb[2]), ...Wb(V2.add(Pb[2], [s, 0])), 'ink-b') + text(Wb(V2.add(Pb[2], [s, 0]))[0] + 4, Wb(Pb[2])[1] + 16, 'f = (1, 0)', 'ts', 'start');
+  o += arrow(...Wb(Pb[2]), ...Wb(V2.add(Pb[2], V2.mul(acc, s))), 'ln') + text(Wb(V2.add(Pb[2], V2.mul(acc, s)))[0] + 4, Wb(V2.add(Pb[2], V2.mul(acc, s)))[1] - 4, 'a = (' + fmt(acc[0], 2) + ', ' + fmt(acc[1], 2) + ')', 'tl', 'start');
+  o += text(280, 300, '彩色 ellipse：unit acceleration 经 Λ 映成的 force（每 1 N 画 0.1 m）。', 'ts', 'middle');
+  return svg(560, 308, o, '同一个 2R 在 θ2=90° 和 150°。Tip 上的 ellipse 显示不同方向的 effective mass；150° 时沿 x 推 1 N，tip 朝 (0.4,0.35) 加速');
+}
+
+// ---------- 第 6 站：长方体绕非 principal axis 匀速转 ----------
+function box() {
+  const I = [0.0125, 0.0425, 0.05], wb = [3, 0, 3];
+  const Lb = [I[0] * wb[0], I[1] * wb[1], I[2] * wb[2]];
+  const cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const mb = cr(wb, Lb);
+  // R0：把 body 的 (1,0,1)/√2 转到 world 的 ẑ（绕 body ŷ 转 −45°）
+  const c = Math.SQRT1_2;
+  const R0 = (v) => [c * v[0] - c * v[2], v[1], c * v[0] + c * v[2]];
+  const Rz = (a, v) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a), v[2]];
+  const S = 330, ox = 170, oy = 175;
+  const proj = ([x, y, z]) => [ox + (x - y) * 0.866 * S, oy + (x + y) * 0.5 * S - z * S];
+  const hx = 0.2, hy = 0.1, hz = 0.05, V = [];
+  for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) V.push([sx * hx, sy * hy, sz * hz]);
+  const E = []; for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) { const dd = [0, 1, 2].filter((k) => V[i][k] !== V[j][k]).length; if (dd === 1) E.push([i, j]); }
+  const T = 4, N = 48, kt = [], frames = [];
+  for (let k = 0; k <= N; k++) { kt.push(k / N); frames.push(2 * Math.PI * k / N); }
+  const xf = (a, v) => Rz(a, R0(v));
+  let o = '';
+  // ω axis
+  o += arrow(...proj([0, 0, -0.17]), ...proj([0, 0, 0.30]), 'ink') + text(proj([0, 0, 0.30])[0] + 8, proj([0, 0, 0.30])[1] + 4, 'ω' + sub('b') + ' = (3, 0, 3)', 't', 'start');
+  o += apath(frames.map((a) => E.map(([i, j]) => 'M' + proj(xf(a, V[i])).map(f1).join(' ') + 'L' + proj(xf(a, V[j])).map(f1).join(' ')).join('')), kt, T, 'ink');
+  // body x̂ 轴标记（看出在转）
+  o += apath(frames.map((a) => d([proj(xf(a, [0, 0, 0])), proj(xf(a, [0.26, 0, 0]))])), kt, T, 'mute');
+  const sL = 1.3, sM = 0.55;
+  o += apath(frames.map((a) => { const e = proj(xf(a, Lb.map((v) => v * sL))), s0 = proj([0, 0, 0]); return `M${f1(s0[0])} ${f1(s0[1])}L${f1(e[0])} ${f1(e[1])}`; }), kt, T, 'ink-b');
+  o += acircle(frames.map((a) => proj(xf(a, Lb.map((v) => v * sL)))[0]), frames.map((a) => proj(xf(a, Lb.map((v) => v * sL)))[1]), kt, T, 4, 'ink-f');
+  o += apath(frames.map((a) => { const e = proj(xf(a, mb.map((v) => v * sM))), s0 = proj([0, 0, 0]); return `M${f1(s0[0])} ${f1(s0[1])}L${f1(e[0])} ${f1(e[1])}`; }), kt, T, 'ln');
+  o += acircle(frames.map((a) => proj(xf(a, mb.map((v) => v * sM)))[0]), frames.map((a) => proj(xf(a, mb.map((v) => v * sM)))[1]), kt, T, 4, 'ln-f');
+  const rx = 345;
+  o += text(rx, 50, '0.4 × 0.2 × 0.1 m，3 kg', 'tb', 'start');
+  o += text(rx, 72, 'I' + sub('b') + ' = diag(0.0125, 0.0425, 0.05)', 'ts', 'start');
+  o += text(rx, 100, '黑：angular momentum', 'ts', 'start') + text(rx, 116, 'I' + sub('b') + 'ω' + sub('b') + ' = (0.0375, 0, 0.15)', 'ts', 'start');
+  o += text(rx, 144, '彩色：要施加的 moment', 'tl', 'start') + text(rx, 160, 'm' + sub('b') + ' = ω × Iω = (0, −0.34, 0) N·m', 'ts', 'start');
+  o += text(rx, 188, 'I' + sub('b') + 'ω' + sub('b') + ' 不平行于 ω' + sub('b') + '，跟着 body 绕', 'ts', 'start') + text(rx, 204, 'ω 转，m' + sub('b') + ' 就是它的变化率', 'ts', 'start');
+  o += text(rx, 232, '动图放慢：实际一圈 1.48 s，这里 4 s', 'ts', 'start');
+  return svgA(560, 290, o, '动图：长方体绕竖直的 ω 轴匀速转。黑色箭头 angular momentum 偏离转轴，跟着 body 绕圈；彩色箭头是维持匀速转动所需的 moment，水平并跟着转');
+}
+
+// ---------- 第 6 站：2R 从水平松开 + Euler 的 energy drift ----------
+function falling() {
+  const acc = (th, dth) => { const { M, c, gv } = dyn2R(th, dth); return solve2(M, [-c[0] - gv[0], -c[1] - gv[1]]); };
+  const En = (th, dth) => { const { M } = dyn2R(th, dth); const y1 = Math.sin(th[0]), y2 = y1 + Math.sin(th[0] + th[1]); return 0.5 * (dth[0] * (M[0][0] * dth[0] + M[0][1] * dth[1]) + dth[1] * (M[1][0] * dth[0] + M[1][1] * dth[1])) + G0 * (y1 + y2); };
+  // RK4 reference, h = 1e-3, 3 s
+  const f = (y) => { const a = acc([y[0], y[1]], [y[2], y[3]]); return [y[2], y[3], a[0], a[1]]; };
+  let y = [0, 0, 0, 0]; const h = 1e-3, ref = [y.slice()];
+  for (let k = 1; k <= 3000; k++) {
+    const k1 = f(y), k2 = f(y.map((v, i) => v + h / 2 * k1[i])), k3 = f(y.map((v, i) => v + h / 2 * k2[i])), k4 = f(y.map((v, i) => v + h * k3[i]));
+    y = y.map((v, i) => v + h / 6 * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); if (k % 30 === 0) ref.push(y.slice());
+  }
+  const euler = (dt) => { let th = [0, 0], dth = [0, 0]; const out = [[0, 0]]; const n = Math.round(3 / dt), every = Math.max(1, Math.round(0.03 / dt)); for (let k = 1; k <= n; k++) { const a = acc(th, dth); th = [th[0] + dth[0] * dt, th[1] + dth[1] * dt]; dth = [dth[0] + a[0] * dt, dth[1] + a[1] * dt]; if (k % every === 0) out.push([k * dt, En(th, dth)]); } return out; };
+  const e1 = euler(0.01), e2 = euler(0.001);
+  let o = '';
+  const sx = lin(-2.1, 2.1, 10, 250), sy = lin(-2.15, 0.6, 260, 40), W = (p) => [sx(p[0]), sy(p[1])];
+  o += line(sx(-2.1), sy(0), sx(2.1), sy(0), 'grid') + groundMark(sx(0), sy(0) + 6);
+  const pre = 0.5, play = 3, post = 1.2, T = pre + play + post;
+  const ts = [0, ...ref.map((_, k) => pre + play * k / (ref.length - 1)), T], kt = ts.map((t) => t / T), RR = [ref[0], ...ref, ref[ref.length - 1]];
+  o += path(d(fk2R([0, 0]).map(W)), 'dash');
+  o += apath(RR.map((r) => d(fk2R([r[0], r[1]]).map(W))), kt, T, 'ink-b');
+  o += acircle(RR.map((r) => W(fk2R([r[0], r[1]])[1])[0]), RR.map((r) => W(fk2R([r[0], r[1]])[1])[1]), kt, T, 7, 'solid2');
+  o += acircle(RR.map((r) => W(fk2R([r[0], r[1]])[2])[0]), RR.map((r) => W(fk2R([r[0], r[1]])[2])[1]), kt, T, 7, 'solid2');
+  o += circle(sx(0), sy(0), 4.5, 'paper');
+  o += text(130, 22, '从水平静止松开（τ = 0）', 'tb', 'middle');
+  // energy plot
+  const px = lin(0, 3, 320, 540), py = lin(-0.3, 5, 250, 40);
+  o += axes({ sx: px, sy: py, x0: 0, x1: 3, y0: -0.3, y1: 5, xAt: 0, xt: [0, 1, 2, 3], yt: [0, 1, 2, 3, 4, 5], xl: 't (s)', yl: 'total energy (J)' });
+  o += path(d(e1.map(([t, e]) => [px(t), py(e)])), 'ln') + path(d(e2.map(([t, e]) => [px(t), py(e)])), 'ink');
+  o += text(px(2.95), py(e1[e1.length - 1][1]) - 8, 'Δt = 0.01', 'tl', 'end') + text(px(2.95), py(e2[e2.length - 1][1]) - 8, 'Δt = 0.001', 't', 'end');
+  o += text(px(0.1), py(4.6), '应当一直是 0', 'ts', 'start');
+  o += apath(ts.map((t) => { const tt = Math.min(3, Math.max(0, t - pre)); return `M${f1(px(tt))} ${f1(py(5))}L${f1(px(tt))} ${f1(py(-0.3))}`; }), kt, T, 'grid');
+  o += text(280, 296, '左边是 Runge–Kutta（h = 0.001 s）算出的真实 motion；右边是同一个初始条件用 explicit Euler 算的 energy。', 'ts', 'middle');
+  return svgA(560, 304, o, '动图：2R 从水平松开后 3 秒的 motion；右图是两种步长的 Euler integration 算出的 total energy，Δt=0.01 漂到约 4.6 J，Δt=0.001 漂到约 0.44 J');
+}
+
+// ---------- 第 6 站：Example 8.5，tip 在 channel 里 ----------
+function channel() {
+  const th = [-60 * D2R, 120 * D2R], P = fk2R(th);
+  const sx = lin(-0.4, 1.9, 40, 340), sy = lin(-1.1, 0.95, 290, 22), W = (p) => [sx(p[0]), sy(p[1])];
+  let o = '';
+  o += rect(sx(1.05), sy(0.9), sx(1.3) - sx(1.05), sy(-1.0) - sy(0.9), 'wash2') + rect(sx(0.7), sy(0.9), sx(0.95) - sx(0.7), sy(-1.0) - sy(0.9), 'wash2');
+  o += line(sx(1.05), sy(0.9), sx(1.05), sy(-1.0), 'ink') + line(sx(0.95), sy(0.9), sx(0.95), sy(-1.0), 'ink');
+  o += text(sx(1.18), sy(0.9) - 6, 'channel x = 1', 'ts', 'middle');
+  o += drawArm(P.map(W)) + groundMark(sx(0), sy(0) + 6);
+  o += arrow(...W(P[2]), ...W([1, 0.45]), 'ink') + text(sx(1.07), sy(0.4), 'tip velocity (0, 1)', 'ts', 'start');
+  o += arrow(...W(P[2]), sx(1) - 62, sy(0), 'ln') + text(sx(1) - 66, sy(0) - 10, '0.167 N', 'tl', 'end');
+  o += text(sx(-0.35), sy(0.75), 'θ = (−60°, 120°)，θ̇ = (1, 0)', 'ts', 'start');
+  const rx = 372;
+  o += text(rx, 60, 'λ = 0.289τ' + sub('1') + ' − 1.155τ' + sub('2') + ' − 0.167', 't', 'start');
+  o += text(rx, 84, 'θ̈' + sub('1') + ' = 0.5τ' + sub('1') + ' + 0.289', 't', 'start');
+  o += text(rx, 108, 'θ̈' + sub('2') + ' = −1.155', 't', 'start');
+  o += text(rx, 140, 'τ = 0 时 λ = −0.167：', 'ts', 'start') + text(rx, 156, 'tip 压向 channel 左壁', 'ts', 'start');
+  o += text(rx, 188, 'τ' + sub('2') + ' 只改变 λ，不改变 motion', 'ts', 'start');
+  return svg(560, 300, o, 'Example 8.5：2R 的 tip 被约束在 x=1 的无摩擦 channel 里，以 1 m/s 向上运动；τ=0 时 tip 以 0.167 N 压向 channel 左壁');
+}
+
+// ---------- 第 9 站：via point 的 cubic interpolation ----------
+function viaTraj(t) {
+  const P = [[0, 0], [0, 1], [1, 1], [1, 0]], Vv = [[0, 0], [1, 0], [0, -1], [0, 0]];
+  const j = Math.min(2, Math.floor(t)), dt = t - j;
+  return [0, 1].map((c) => { const b0 = P[j][c], b1 = P[j + 1][c], v0 = Vv[j][c], v1 = Vv[j + 1][c];
+    const a2 = 3 * b1 - 3 * b0 - 2 * v0 - v1, a3 = 2 * b0 + v0 + v1 - 2 * b1; return b0 + v0 * dt + a2 * dt * dt + a3 * dt ** 3; });
+}
+function via() {
+  const P = [[0, 0], [0, 1], [1, 1], [1, 0]], Vv = [[0, 0], [1, 0], [0, -1], [0, 0]];
+  const sx = lin(-0.35, 1.3, 30, 250), sy = lin(-0.2, 1.3, 260, 50), W = (p) => [sx(p[0]), sy(p[1])];
+  let o = '';
+  o += rect(sx(0), sy(1), sx(1) - sx(0), sy(0) - sy(1), 'wash2');
+  const pts = []; for (let k = 0; k <= 300; k++) pts.push(viaTraj(3 * k / 300));
+  o += path(d(pts.map(W)), 'ln');
+  P.forEach((p, i) => { o += circle(...W(p), 5, 'ink-f') + text(W(p)[0] + (i < 2 ? -9 : 9), W(p)[1] + (i % 3 === 0 ? 18 : -9), 'T = ' + i, 'ts', i < 2 ? 'end' : 'start'); if (Vv[i][0] || Vv[i][1]) o += arrow(...W(p), ...W(V2.add(p, V2.mul(Vv[i], 0.3))), 'ink'); });
+  const xm = viaTraj(2 / 3); o += arrow(sx(xm[0]) + 40, sy(xm[1]), sx(xm[0]) + 6, sy(xm[1]), 'mute') + text(sx(xm[0]) + 44, sy(xm[1]) + 4, 'x = −0.148', 'ts', 'start');
+  o += text(140, 30, '(x, y) 平面；灰底是 via point 的 convex hull', 'ts', 'middle');
+  // 右：x(t)、y(t)
+  const px = lin(0, 3, 320, 540), py = lin(-0.25, 1.25, 250, 50);
+  o += axes({ sx: px, sy: py, x0: 0, x1: 3, y0: -0.25, y1: 1.25, xAt: 0, xt: [0, 1, 2, 3], yt: [0, 0.5, 1], xl: 't', yl: '' });
+  [1, 2].forEach((t) => { o += line(px(t), py(1.25), px(t), py(-0.25), 'dash'); });
+  o += path(d(pts.map((p, k) => [px(3 * k / 300), py(p[0])])), 'ln') + path(d(pts.map((p, k) => [px(3 * k / 300), py(p[1])])), 'ink');
+  o += text(px(2.55), py(1) - 8, 'x(t)', 'tl', 'middle') + text(px(1.75), py(1.17) - 6, 'y(t)', 't', 'middle');
+  const pre = 0.5, play = 3, post = 1, T = pre + play + post, N = 90;
+  const ts = [0, ...Array.from({ length: N + 1 }, (_, k) => pre + play * k / N), T], kt = ts.map((t) => t / T);
+  const tt = ts.map((t) => Math.min(3, Math.max(0, t - pre)));
+  o += acircle(tt.map((t) => W(viaTraj(t))[0]), tt.map((t) => W(viaTraj(t))[1]), kt, T, 6, 'ln-f');
+  o += apath(tt.map((t) => `M${f1(px(t))} ${f1(py(1.25))}L${f1(px(t))} ${f1(py(-0.25))}`), kt, T, 'grid');
+  o += acircle(tt.map((t) => px(t)), tt.map((t) => py(viaTraj(t)[0])), kt, T, 4, 'ln-f') + acircle(tt.map((t) => px(t)), tt.map((t) => py(viaTraj(t)[1])), kt, T, 4, 'ink-f');
+  return svgA(560, 290, o, '动图：四个 via point 的 cubic interpolation。左边 path 在第一段跑到 x 小于 0 的地方；右边是 x(t)、y(t)，竖虚线是 via point 的时刻');
+}
+
+// ---------- 第 9 站：gantry 的 time-optimal time scaling ----------
+function toptLU(s, sd) {
+  const R = 0.5, mx = 2, my = 1, lim = [4, 2];
+  const th1 = [-R * Math.PI * Math.sin(s * Math.PI), -R * Math.PI * Math.cos(s * Math.PI)];
+  const th2 = [-R * Math.PI ** 2 * Math.cos(s * Math.PI), R * Math.PI ** 2 * Math.sin(s * Math.PI)];
+  const m = [mx * th1[0], my * th1[1]], c = [mx * th2[0], my * th2[1]];
+  let L = -Infinity, U = Infinity;
+  for (let i = 0; i < 2; i++) { if (Math.abs(m[i]) < 1e-12) continue; let a = (-lim[i] - c[i] * sd * sd) / m[i], b = (lim[i] - c[i] * sd * sd) / m[i]; if (m[i] < 0) [a, b] = [b, a]; L = Math.max(L, a); U = Math.min(U, b); }
+  return [L, U];
+}
+function topt() {
+  const R = 0.5;
+  let o = '';
+  // 左：gantry
+  const gx = lin(-0.85, 0.85, 20, 270), gy = lin(-0.75, 0.55, 205, 40), W = (p) => [gx(p[0]), gy(p[1])];
+  o += circle(gx(0), gy(0), 0.3 * (gx(1) - gx(0)), 'wash2') + text(gx(0), gy(0) + 4, 'obstacle', 'ts', 'middle');
+  const arcPts = []; for (let k = 0; k <= 60; k++) { const s = k / 60; arcPts.push(W([R * Math.cos(s * Math.PI), -R * Math.sin(s * Math.PI)])); }
+  o += path(d(arcPts), 'ln-dash');
+  o += line(gx(-0.82), gy(0.5), gx(0.82), gy(0.5), 'ink-b') + text(gx(0.82), gy(0.5) - 8, 'x rail', 'ts', 'end');
+  o += text(gx(0.5) + 8, gy(0) + 16, 's = 0', 'ts', 'start') + text(gx(-0.5) - 8, gy(0) + 16, 's = 1', 'ts', 'end');
+  const tr = TOPT.traj, Tm = TOPT.T, pre = 0.6, post = 1.4, T = pre + Tm + post;
+  const ts = [0, ...tr.map((r) => pre + r[0]), T], kt = ts.map((t) => t / T), TR = [tr[0], ...tr, tr[tr.length - 1]];
+  const pos = (s) => [R * Math.cos(s * Math.PI), -R * Math.sin(s * Math.PI)];
+  o += apath(TR.map((r) => { const x = gx(pos(r[1])[0]); return `M${f1(x - 14)} ${f1(gy(0.5) - 7)}h28v14h-28Z`; }), kt, T, 'solid2');
+  o += apath(TR.map((r) => { const p = W(pos(r[1])); return `M${f1(p[0])} ${f1(gy(0.5))}L${f1(p[0])} ${f1(p[1])}`; }), kt, T, 'ink');
+  o += acircle(TR.map((r) => W(pos(r[1]))[0]), TR.map((r) => W(pos(r[1]))[1]), kt, T, 6, 'ln-f');
+  // force bars
+  const bar = (y, lab, lim, idx) => {
+    const bx = lin(-lim, lim, 60, 260);
+    let q = rect(60, y, 200, 14, 'frame') + line(bx(0), y - 3, bx(0), y + 17, 'axis') + text(52, y + 11, lab, 't', 'end');
+    q += text(60, y + 28, '−' + lim + ' N', 'ts', 'middle') + text(260, y + 28, lim + ' N', 'ts', 'middle');
+    q += apath(TR.map((r) => { const v = r[idx], a = bx(Math.min(0, v)), b = bx(Math.max(0, v)); return `M${f1(a)} ${f1(y)}h${f1(Math.max(0.5, b - a))}v14h${f1(-Math.max(0.5, b - a))}Z`; }), kt, T, 'solid');
+    return q;
+  };
+  o += bar(232, 'f' + sub('x'), 4, 3) + bar(276, 'f' + sub('y'), 2, 4);
+  // 右：phase plane
+  const px = lin(0, 1, 330, 545), py = lin(0, 0.9, 270, 40);
+  const vl = TOPT.vl;
+  o += path(d([[px(0), py(0.9)], ...vl.map(([s, v]) => [px(s), py(Math.min(0.9, v))]), [px(1), py(0.9)]]) + 'Z', 'wash2');
+  o += path(d(vl.map(([s, v]) => [px(s), py(v)])), 'ink');
+  o += axes({ sx: px, sy: py, x0: 0, x1: 1, y0: 0, y1: 0.9, xt: [0, 0.5, 1], yt: [0, 0.3, 0.6, 0.9].map((v) => [v, String(v)]), xl: 's', yl: 'ṡ' });
+  o += text(px(0.5), py(0.86), 'inadmissible', 'ts', 'middle');
+  o += path(d(TOPT.A0.map(([s, v]) => [px(s), py(v)])), 'dash') + path(d(TOPT.F.map(([s, v]) => [px(s), py(v)])), 'dash');
+  o += text(px(0.22), py(0.79), 'A' + sub('0'), 'ts', 'middle') + text(px(0.78), py(0.79), 'F', 'ts', 'middle');
+  o += path(d(TOPT.opt.map(([s, v]) => [px(s), py(v)])), 'ln');
+  const sw = [[TOPT.s1, 0.681], [0.5, 0.6366], [TOPT.s3, 0.681]];
+  sw.forEach(([s, v]) => { o += circle(px(s), py(v), 4.5, 'ink-f'); });
+  o += text(px(TOPT.s1), py(0.681) + 18, 's' + sub('1'), 'ts', 'middle') + text(px(0.5), py(0.6366) + 18, 's' + sub('2'), 'ts', 'middle') + text(px(TOPT.s3), py(0.681) + 18, 's' + sub('3'), 'ts', 'middle');
+  // motion cones
+  [[0.1, 0.25], [0.15, 0.55], [0.85, 0.4]].forEach(([s, v]) => {
+    const [L, U] = toptLU(s, v), k = 0.12;
+    const ray = (a) => { const dx = v, dy = a, n = Math.hypot(dx * (px(1) - px(0)), dy * (py(0) - py(1))); const sc = 26 / n; return [px(s) + dx * (px(1) - px(0)) * sc, py(v) - dy * (py(0) - py(1)) * sc]; };
+    const a = ray(L), b = ray(U);
+    o += poly([[px(s), py(v)], a, b], 'wash-strong') + circle(px(s), py(v), 2.5, 'ink-f');
+  });
+  o += acircle(TR.map((r) => px(r[1])), TR.map((r) => py(r[2])), kt, T, 5, 'ink-f');
+  o += text(437, 20, '(s, ṡ) phase plane', 'tb', 'middle');
+  o += text(145, 20, 'gantry：m' + sub('x') + ' = 2 kg，m' + sub('y') + ' = 1 kg，R = 0.5 m', 'ts', 'middle');
+  o += text(280, 324, '实时播放，全程 ' + Tm.toFixed(2) + ' s。三个黑点是 switch：加速 → 减速（s₁）→ 加速（s₂ = 0.5）→ 减速（s₃）。', 'ts', 'middle');
+  return svgA(560, 332, o, '动图：gantry 的 tool 沿半圆绕过 obstacle，按 time-optimal time scaling 运动，fx 和 fy 至少一个顶在上限。右边 phase plane 里 optimal 曲线有三个 switch，在 s=0.5 擦过 velocity limit curve');
+}
+
+// ---------- 第 10 站：2R 压桌面，feedforward 与 PI ----------
+function tableSim(Kfp, Kfi, m2hat) {
+  const dt = 1e-4, n = 10000, kw = 5000, bw = 50, Fd = [0, -5];
+  let th = [0, -Math.PI / 2], dth = [0, 0], I = [0, 0]; const out = [];
+  for (let k = 0; k < n; k++) {
+    const P = fk2R(th)[2], J = jac2R(th), v = [J[0][0] * dth[0] + J[0][1] * dth[1], J[1][0] * dth[0] + J[1][1] * dth[1]];
+    let Ft = [0, 0]; if (P[1] < -1) Ft[1] = -Math.max(kw * (-1 - P[1]) - bw * v[1], 0);
+    const Fe = [Fd[0] - Ft[0], Fd[1] - Ft[1]]; I = [I[0] + Fe[0] * dt, I[1] + Fe[1] * dt];
+    const F = [Fd[0] + Kfp * Fe[0] + Kfi * I[0], Fd[1] + Kfp * Fe[1] + Kfi * I[1]];
+    const gm = [(1 + m2hat) * G0 * Math.cos(th[0]) + m2hat * G0 * Math.cos(th[0] + th[1]), m2hat * G0 * Math.cos(th[0] + th[1])];
+    const tau = [gm[0] + J[0][0] * F[0] + J[1][0] * F[1], gm[1] + J[0][1] * F[0] + J[1][1] * F[1]];
+    const { M, c, gv } = dyn2R(th, dth);
+    const a = solve2(M, [tau[0] - c[0] - gv[0] - (J[0][0] * Ft[0] + J[1][0] * Ft[1]), tau[1] - c[1] - gv[1] - (J[0][1] * Ft[0] + J[1][1] * Ft[1])]);
+    dth = [dth[0] + a[0] * dt, dth[1] + a[1] * dt]; th = [th[0] + dth[0] * dt, th[1] + dth[1] * dt];
+    if (k % 100 === 0) out.push([k * dt, -Ft[1]]);
+  }
+  return out;
+}
+function table() {
+  let o = '';
+  const sx = lin(-0.4, 1.6, 20, 220), sy = lin(-1.35, 0.45, 250, 70), W = (p) => [sx(p[0]), sy(p[1])];
+  o += rect(sx(0.55), sy(-1), sx(1.55) - sx(0.55), sy(-1.25) - sy(-1), 'wash2') + line(sx(0.55), sy(-1), sx(1.55), sy(-1), 'ink') + text(sx(1.45), sy(-1.25) - 6, 'table', 'ts', 'end');
+  o += drawArm(fk2R([0, -Math.PI / 2]).map(W)) + groundMark(sx(0), sy(0) + 6);
+  o += arrow(...W([1, -1]), ...W([1, -0.55]), 'ln') + text(sx(1) + 8, sy(-0.62), '桌面托 tip', 'tl', 'start') + text(sx(1) + 8, sy(-0.62) + 15, '（要它是 5 N）', 'ts', 'start');
+  o += text(sx(-0.3), sy(0.3), 'θ = (0°, −90°)', 'ts', 'start');
+  const a = tableSim(0, 0, 0.8), b = tableSim(0.5, 20, 0.8);
+  const px = lin(0, 1, 300, 540), py = lin(0, 11, 250, 40);
+  o += axes({ sx: px, sy: py, x0: 0, x1: 1, y0: 0, y1: 11, xt: [0, 0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, String(v)]), yt: [0, 5, 7, 10], xl: 't (s)', yl: '' });
+  o += text(292, 30, '压力 (N)', 'ts', 'end');
+  o += line(px(0), py(5), px(1), py(5), 'dash');
+  o += path(d(a.map(([t, f]) => [px(t), py(f)])), 'ink') + path(d(b.map(([t, f]) => [px(t), py(f)])), 'ln');
+  o += text(px(0.98), py(a[a.length - 1][1]) - 8, 'g̃ + Jᵀ F' + sub('d') + '：6.96 N', 't', 'end');
+  o += text(px(0.98), py(5) + 18, '+ PI（K' + sub('fp') + ' = 0.5，K' + sub('fi') + ' = 20）：5 N', 'tl', 'end');
+  o += text(280, 290, 'Controller 以为 m' + sub('2') + ' = 0.8 kg（实际 1 kg）。桌面建模成 5000 N/m 的 spring 加 damper。', 'ts', 'middle');
+  return svg(560, 298, o, '2R 的 tip 压在桌面上要求 5 N。只用 gravity model 加 J 转置乘 Fd 时，由于 model 少算 0.2 kg，压力停在 6.96 N；加上 force sensor 的 PI 后回到 5 N');
+}
+
+// ---------- 第 10 站：hybrid control 的 projection ----------
+function hybrid() {
+  const th = [-8.03 * D2R, -51.32 * D2R], P = fk2R(th);
+  const sx = lin(-0.3, 2.2, 20, 360), sy = lin(-1.45, 0.4, 260, 20), W = (p) => [sx(p[0]), sy(p[1])];
+  let o = '';
+  o += rect(sx(0.4), sy(-1), sx(2.15) - sx(0.4), sy(-1.3) - sy(-1), 'wash2') + line(sx(0.4), sy(-1), sx(2.15), sy(-1), 'ink') + text(sx(0.45), sy(-1.3) - 6, 'table', 'ts', 'start');
+  o += drawArm(P.map(W)) + groundMark(sx(0), sy(0) + 6);
+  const s = 0.11, tip = P[2];
+  o += arrow(...W(tip), ...W(V2.add(tip, [4 * s, 0])), 'ink-b') + text(W(V2.add(tip, [4 * s, 0]))[0] + 6, W(tip)[1] - 8, '(4, 0)', 't', 'start');
+  o += arrow(...W(tip), ...W(V2.add(tip, [4 * s, -2.02 * s])), 'ln') + text(W(V2.add(tip, [4 * s, -2.02 * s]))[0] + 6, W(V2.add(tip, [4 * s, -2.02 * s]))[1] + 14, 'P(4, 0) = (4, −2.02)', 'tl', 'start');
+  o += text(sx(1.5), sy(-1) + 34, 'tip (1.5, −1)', 'ts', 'middle');
+  const rx = 375;
+  o += text(rx, 40, 'Λ = [1.427, −0.720; −0.720, 2.215]', 'ts', 'start');
+  o += text(rx, 62, 'P = [1, 0; −0.505, 0]', 'ts', 'start');
+  o += text(rx, 94, '按坐标轴分：(4, 0)', 'tb', 'start') + text(rx, 110, '压力 5 N → 2.98 N', 'ts', 'start');
+  o += text(rx, 138, '用 P：(4, −2.02)', 'tl', 'start') + text(rx, 154, '压力保持 5 N', 'ts', 'start');
+  o += text(rx, 182, '两种做法沿桌面的', 'ts', 'start') + text(rx, 198, 'acceleration 都是 2.80 m/s²', 'ts', 'start');
+  return svg(560, 270, o, '2R 的 tip 在 (1.5,-1) 擦桌子。Motion controller 要沿桌面 4 N；projection P 把它改成 (4,-2.02)，抵消 Λ 的耦合，压力保持 5 N');
+}
+
+// ---------- 第 10 站：impedance control render 一堵墙，delay 让它不稳 ----------
+function impwall() {
+  const sim = (K) => { const m = 0.5, b = 1, T = 1e-3, sub_ = 50, h = T / sub_; let x = 0.01, v = 0, fprev = 0; const out = [];
+    for (let k = 0; k < 2000; k++) { const f = fprev; fprev = -K * x; for (let j = 0; j < sub_; j++) { const a = (f - b * v) / m; v += a * h; x += v * h; } if (k % 4 === 0) out.push([k * T, x]); } return out; };
+  const A = sim(500), B = sim(1000);
+  let o = '';
+  // 左：示意
+  o += rect(20, 128, 160, 6, 'ink-f');
+  o += rect(70, 92, 50, 36, 'solid2') + text(95, 115, 'm' + sub('r'), 'tw', 'middle');
+  o += path('M20 110h10l4-8l8 16l8-16l8 16l8-16l4 8h0', 'ln') + text(46, 86, 'virtual K', 'tl', 'middle');
+  o += line(20, 70, 20, 134, 'ink-b');
+  o += arrow(150, 110, 122, 110, 'ink') + text(152, 114, 'user', 'ts', 'start');
+  o += text(100, 160, '0.5 kg，b = 1 N·s/m', 'ts', 'middle') + text(100, 176, '1 kHz，force 晚一个 cycle', 'ts', 'middle') + text(100, 192, '稳定界限：K < 667 N/m', 'tb', 'middle');
+  const px = lin(0, 2, 250, 545);
+  const plot = (data, y0, y1, lab, cls) => {
+    const py = lin(-0.03, 0.03, y1, y0);
+    let q = axes({ sx: px, sy: py, x0: 0, x1: 2, y0: -0.03, y1: 0.03, xt: y1 > 200 ? [0, 0.5, 1, 1.5, 2].map((v) => [v, String(v)]) : [], yt: [[-0.02, '−2'], [0, '0'], [0.02, '2']], xl: y1 > 200 ? 't (s)' : '', yl: '' });
+    q += path(d(data.map(([t, x]) => [px(t), py(Math.max(-0.03, Math.min(0.03, x)))])), cls);
+    q += text(px(2), y0 + 2, lab, cls === 'ln' ? 'tl' : 't', 'end');
+    return q;
+  };
+  o += plot(A, 30, 130, 'K = 500 N/m：振荡衰减', 'ink') + plot(B, 160, 260, 'K = 1000 N/m：振幅变大', 'ln');
+  o += text(250, 24, 'x（cm）', 'ts', 'start');
+  return svg(560, 296, o, '1 dof haptic device render 虚拟 spring：K=500 N/m 时振荡逐渐衰减，K=1000 N/m 超过 667 N/m 的界限，振幅越来越大');
+}
+
+// ---------- 半平面裁剪：CoR 区域与 moment labeling 共用 ----------
+function clipHalf(polyPts, a, b, c) { // 保留 a x + b y <= c
+  const out = [];
+  for (let i = 0; i < polyPts.length; i++) {
+    const P = polyPts[i], Q = polyPts[(i + 1) % polyPts.length];
+    const fp = a * P[0] + b * P[1] - c, fq = a * Q[0] + b * Q[1] - c;
+    if (fp <= 1e-12) out.push(P);
+    if (fp * fq < 0) { const t = fp / (fp - fq); out.push([P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])]); }
+  }
+  return out;
+}
+function lineInBox(p, dir, [xa, xb, ya, yb]) { // 过 p、方向 dir 的直线在方框内的那一段
+  let t0 = -1e9, t1 = 1e9;
+  for (const [pc, dc, lo, hi] of [[p[0], dir[0], xa, xb], [p[1], dir[1], ya, yb]]) {
+    if (Math.abs(dc) < 1e-12) { if (pc < lo || pc > hi) return null; continue; }
+    let a = (lo - pc) / dc, b = (hi - pc) / dc; if (a > b) [a, b] = [b, a]; t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+  }
+  return t0 < t1 ? [V2.add(p, V2.mul(dir, t0)), V2.add(p, V2.mul(dir, t1))] : null;
+}
+function momentRegion(wr, sign, box) { // wr: [[p, f]]，sign = +1：每个 wrench 对点的 moment ≥ 0
+  let pg = box.slice();
+  for (const [p, f] of wr) {
+    const pf = p[0] * f[1] - p[1] * f[0];
+    pg = sign > 0 ? clipHalf(pg, f[1], -f[0], pf) : clipHalf(pg, -f[1], f[0], -pf);
+    if (pg.length < 2) return [];
+  }
+  return pg;
+}
+
+// ---------- 第 11 站：unit square 的 CoR 区域 ----------
+function cor() {
+  let o = '';
+  const base = [[[0, 0.25], [1, 0]], [[1, 0.75], [-1, 0]], [[0.25, 0], [0, 1]]];
+  const cases = [['三个 contact', base], ['第四个在 (0.25, 1)', [...base, [[0.25, 1], [0, -1]]]], ['第四个在 (0.75, 1)', [...base, [[0.75, 1], [0, -1]]]]];
+  cases.forEach(([title, C], k) => {
+    const x0 = 8 + k * 185, sx = lin(-0.95, 1.35, x0, x0 + 172), sy = lin(-0.35, 1.35, 230, 40), W = (p) => [sx(p[0]), sy(p[1])];
+    const box = [[-0.95, -0.35], [1.35, -0.35], [1.35, 1.35], [-0.95, 1.35]];
+    const R = momentRegion(C, 1, box);
+    if (R.length >= 3) { const area = Math.abs(R.reduce((s, p, i) => s + p[0] * R[(i + 1) % R.length][1] - R[(i + 1) % R.length][0] * p[1], 0)); if (area > 1e-6) o += poly(R.map(W), 'wash-strong'); }
+    o += path(d([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]].map(W)), 'ink');
+    if (R.length >= 2) { const area = R.length >= 3 ? Math.abs(R.reduce((s, p, i) => s + p[0] * R[(i + 1) % R.length][1] - R[(i + 1) % R.length][0] * p[1], 0)) : 0; if (area <= 1e-6) { const ys = R.map((p) => p[1]); o += line(sx(0.25), sy(Math.min(...ys)), sx(0.25), sy(Math.max(...ys)), 'ln') + line(sx(0.25) - 0.5, sy(Math.min(...ys)), sx(0.25) + 0.5, sy(Math.max(...ys)), 'ln'); } }
+    C.forEach(([p, n]) => { const tail = V2.sub(p, V2.mul(n, 0.28)); o += arrow(...W(tail), ...W(p), 'ink-b'); const sg = lineInBox(p, n, [-0.95, 1.35, -0.35, 1.35]); if (sg) o += line(...W(sg[0]), ...W(sg[1]), 'grid'); });
+    o += text(x0 + 86, 22, title, 'tb', 'middle');
+    o += text(x0 + 86, 254, R.length >= 3 && k === 0 ? '+ 区域：一条 strip' : (k === 1 ? '只剩线段 x = 0.25' : '没有可行的 CoR'), k === 2 ? 'tl' : 'ts', 'middle');
+  });
+  o += text(280, 280, '彩色区域/粗线：允许的 \'+\'（逆时针）CoR；\'−\' 的区域三种情况都是空的。细线是各 contact 的 normal 线。', 'ts', 'middle');
+  return svg(560, 288, o, 'Unit square 的 contact 与可行的 rotation center。三个 contact 时允许一条 strip，加上 (0.25,1) 的 contact 只剩一条线段，加上 (0.75,1) 的 contact 后没有可行 CoR，form closure');
+}
+
+// ---------- 第 11 站：equilateral triangle 的 moment labeling ----------
+function moment() {
+  let o = '';
+  const h = 0.3, pl = [h / Math.sqrt(3), h], pr = [1 - h / Math.sqrt(3), h];
+  const nl = u2(-30 * D2R), nr = [-nl[0], nl[1]], tl = [-nl[1], nl[0]], tr = [-nr[1], nr[0]];
+  [0.25, 1].forEach((mu, k) => {
+    const x0 = 10 + k * 280, sx = lin(-0.75, 1.75, x0, x0 + 260), sy = lin(-0.75, 1.15, 250, 40), W = (p) => [sx(p[0]), sy(p[1])];
+    const box = [[-0.75, -0.75], [1.75, -0.75], [1.75, 1.15], [-0.75, 1.15]];
+    const wr = [[pl, V2.add(nl, V2.mul(tl, mu))], [pl, V2.sub(nl, V2.mul(tl, mu))], [pr, V2.add(nr, V2.mul(tr, mu))], [pr, V2.sub(nr, V2.mul(tr, mu))]];
+    const Rp = momentRegion(wr, 1, box), Rm = momentRegion(wr, -1, box);
+    if (Rp.length >= 3) o += poly(Rp.map(W), 'wash-strong');
+    if (Rm.length >= 3) o += poly(Rm.map(W), 'solid2');
+    o += poly([[0, 0], [1, 0], [0.5, Math.sqrt(3) / 2]].map(W), 'paper');
+    wr.forEach(([p, f]) => { const fn = V2.mul(f, 1 / V2.norm(f)); const sg = lineInBox(p, fn, [-0.75, 1.75, -0.75, 1.15]); if (sg) o += line(...W(sg[0]), ...W(sg[1]), 'mute'); o += arrow(...W(p), ...W(V2.add(p, V2.mul(fn, 0.32))), 'ln'); });
+    o += circle(...W(pl), 3.5, 'ink-f') + circle(...W(pr), 3.5, 'ink-f');
+    o += text(x0 + 130, 22, 'μ = ' + mu + (mu < 0.5 ? '：不是 force closure' : '：force closure'), 'tb', 'middle');
+    if (Rp.length >= 3) { o += text(sx(1.45), sy(0.2), '+', 'tbig', 'middle') + text(sx(-0.45), sy(0.2), '−', 'tbig', 'middle'); }
+  });
+  o += text(280, 280, '细线是两个 friction cone 的四条 edge 的作用线，彩色箭头是 edge 的方向。', 'ts', 'middle');
+  return svg(560, 288, o, '两根 finger 夹 equilateral triangle。μ=0.25 时左右两侧各有一块一致标记的区域，不是 force closure；μ=1 时没有一致标记的点，force closure');
+}
+
+// ---------- 第 13 站：四种车的 (v, ω) 可行集 ----------
+function ctrlsets() {
+  let o = '';
+  const sets = [
+    ['unicycle', [[1, 1], [-1, 1], [-1, -1], [1, -1]]],
+    ['diff-drive', [[1, 0], [0, 1], [-1, 0], [0, -1]]],
+    ['car', [[1, 0.6], [1, -0.6], [0, 0], [-1, 0.6], [-1, -0.6], [0, 0]]],
+    ['car（无倒挡）', [[0, 0], [1, 0.6], [1, -0.6]]],
+  ];
+  sets.forEach(([name, pts], k) => {
+    const x0 = 12 + k * 137, cx = x0 + 62, cy = 120, s = 46, P = ([v, w]) => [cx + v * s, cy - w * s];
+    o += line(cx - 58, cy, cx + 58, cy, 'axis') + line(cx, cy - 58, cx, cy + 58, 'axis');
+    o += text(cx + 61, cy + 4, 'v', 'ts', 'start') + text(cx + 4, cy - 61, 'ω', 'ts', 'start');
+    if (name === 'car') { o += poly([[1, 0.6], [1, -0.6], [0, 0]].map(P), 'wash-strong') + poly([[-1, 0.6], [-1, -0.6], [0, 0]].map(P), 'wash-strong'); o += path(d([[1, 0.6], [1, -0.6], [-1, 0.6], [-1, -0.6], [1, 0.6]].map(P)), 'ln'); }
+    else o += poly(pts.map(P), 'wash-strong') + path(d([...pts, pts[0]].map(P)), 'ln');
+    o += text(cx, 30, name, 'tb', 'middle');
+  });
+  const d0 = 12 + 137 + 62;
+  o += text(d0 + 46, 136, '0.5', 'ts', 'middle') + text(d0 - 6, 120 - 40, '2.5', 'ts', 'end');
+  o += text(12 + 2 * 137 + 62, 196, '斜边斜率 1/r' + sub('min'), 'ts', 'middle');
+  o += text(280, 222, 'Diff-drive 取 r = 0.05 m、d = 0.2 m、u' + sub('max') + ' = 10 rad/s：v 最大 0.5 m/s，ω 最大 2.5 rad/s。', 'ts', 'middle');
+  o += text(280, 240, 'Car 在 v = 0 时 ω 只能是 0：不能原地转。', 'ts', 'middle');
+  return svg(560, 250, o, '四种 nonholonomic 车的 (v,ω) 可行集：unicycle 是 rectangle，diff-drive 是 diamond，car 是 bowtie，没有倒挡的 car 只有 bowtie 的右半');
+}
+
+// ---------- 第 13 站：Lie bracket 的四步 maneuver ----------
+function carShape(q, S, W, cls) { // q = (φ, x, y)
+  const [ph, x, y] = q, R = (p) => V2.add([x, y], V2.rot(ph, p));
+  const body = [[-0.12, -0.08], [0.16, -0.08], [0.22, 0], [0.16, 0.08], [-0.12, 0.08]].map(R).map(W);
+  return body;
+}
+function liebracket() {
+  const eps = 0.5;
+  const sx = lin(-0.35, 0.95, 30, 330), sy = lin(-0.45, 0.45, 260, 40), W = (p) => [sx(p[0]), sy(p[1])];
+  const seq = []; let q = [0, 0, 0];
+  const steps = [['前进 ε', (t) => [0, eps * t, 0]], ['左转 ε', (t) => [eps * t, 0, 0]], ['后退 ε', (t) => [0, -eps * t, 0]], ['右转 ε', (t) => [-eps * t, 0, 0]]];
+  const N = 20; seq.push(q.slice());
+  steps.forEach(([_, fn]) => { const q0 = q.slice(); for (let k = 1; k <= N; k++) { const t = k / N, dq = fn(t); if (dq[0] !== 0 || dq[1] === 0) q = [q0[0] + dq[0], q0[1], q0[2]]; if (dq[1] !== 0) q = [q0[0], q0[1] + dq[1] * Math.cos(q0[0]), q0[2] + dq[1] * Math.sin(q0[0])]; seq.push(q.slice()); } });
+  const pre = 0.6, mv = 4, post = 1.6, T = pre + mv + post;
+  const ts = [0, ...seq.map((_, k) => pre + mv * k / (seq.length - 1)), T], kt = ts.map((t) => t / T), QQ = [seq[0], ...seq, seq[seq.length - 1]];
+  let o = '';
+  o += line(sx(-0.3), sy(0), sx(0.9), sy(0), 'grid');
+  o += poly(carShape([0, 0, 0], 1, W), 'paper') + text(sx(0), sy(0) + 30, '起点', 'ts', 'middle');
+  const fin = seq[seq.length - 1];
+  o += poly(carShape(fin, 1, W), 'wash') + path(d([...carShape(fin, 1, W), carShape(fin, 1, W)[0]]), 'dash');
+  o += path(d(seq.map((qq) => W([qq[1], qq[2]]))), 'ln-dash');
+  o += apath(QQ.map((qq) => d([...carShape(qq, 1, W), carShape(qq, 1, W)[0]]) + 'Z'), kt, T, 'solid');
+  o += acircle(QQ.map((qq) => W([qq[1], qq[2]])[0]), QQ.map((qq) => W([qq[1], qq[2]])[1]), kt, T, 3, 'ink-f');
+  o += text(sx(fin[1]) + 20, sy(fin[2]) + 34, '终点：(φ, x, y) = (0, ' + fmt(fin[1], 3) + ', ' + fmt(fin[2], 3) + ')', 'tl', 'start');
+  o += phases([[0, '四步：前进、左转、后退、右转', 'ts']].concat(steps.map(([lab], k) => [(pre + mv * k / 4) / T, (k + 1) + '. ' + lab, 't']).concat([[(pre + mv) / T, '净位移 ≈ ε²[g₁, g₂] = (0, 0, −0.25)', 'tl']])), T, 450, 70);
+  o += text(450, 100, 'ε = 0.5（放大以便看清）', 'ts', 'middle');
+  o += text(450, 132, 'ε = 0.1 时：侧移 0.0100，', 'ts', 'middle') + text(450, 148, '前后只有 0.0005', 'ts', 'middle');
+  return svgA(560, 290, o, '动图：canonical nonholonomic 车依次前进、左转、后退、右转各 0.5，最后朝向不变、向右平移约 0.24，这是 Lie bracket 方向');
+}
+
+// ---------- 第 13 站：Dubins 的两个例子 ----------
+function dubinsPath(q0, word, segs, r = 1) {
+  let [x, y, h] = q0; const pts = [[x, y]];
+  word.split('').forEach((c, i) => { const n = 60, L = segs[i] * r; for (let k = 0; k < n; k++) { const ds = L / n; if (c === 'S') { x += ds * Math.cos(h); y += ds * Math.sin(h); } else { const kk = c === 'L' ? 1 : -1; const h1 = h + kk * ds / r; x += r * kk * (Math.sin(h1) - Math.sin(h)); y += -r * kk * (Math.cos(h1) - Math.cos(h)); h = h1; } pts.push([x, y]); } });
+  return pts;
+}
+function dubins() {
+  let o = '';
+  const cases = [['到 (3, 2, 90°)：LSL，3.807', 'LSL', [0.46365, 2.23607, 1.10715], [3, 2, Math.PI / 2], [[0, 1], [2, 2]], [-1.2, 4.2, -0.6, 3.2]],
+    ['到 (1, 1, 180°)：RLR，5.778', 'RLR', [0.98081, 4.45971, 0.33731], [1, 1, Math.PI], null, [-1.6, 2.9, -2.15, 3.05]]];
+  cases.forEach(([title, word, segs, goal, centers, [xa, xb, ya, yb]], k) => {
+    const x0 = 10 + k * 280, sc = Math.min(250 / (xb - xa), 230 / (yb - ya));
+    const sx = (x) => x0 + (x - xa) * sc, sy = (y) => 266 - (y - ya) * sc, W = (p) => [sx(p[0]), sy(p[1])];
+    const pts = dubinsPath([0, 0, 0], word, segs);
+    if (centers) centers.forEach((c) => { o += circle(...W(c), sc, 'dash'); });
+    else { // RLR 的三个圆心
+      const c1 = [0, -1], h1 = -segs[0], p1 = [Math.sin(-h1) * 1 + 0, 0];
+      const q1 = pts[60], c2 = V2.add(q1, V2.rot(h1, [0, 1])); const q2 = pts[120], h2 = h1 + segs[1], c3 = V2.add(q2, V2.rot(h2, [0, -1]));
+      [c1, c2, c3].forEach((c) => { o += circle(...W(c), sc, 'dash'); });
+    }
+    o += path(d(pts.map(W)), 'ln');
+    const car = (q, cls) => { const R = (p) => V2.add([q[0], q[1]], V2.rot(q[2], p)); return poly([[-0.18, -0.12], [0.25, 0], [-0.18, 0.12]].map(R).map(W), cls); };
+    o += car([0, 0, 0], 'ink-f') + car(goal, 'ln-f');
+    o += text(sx(0) - 4, sy(0) + 22, 'start', 'ts', 'middle') + (k === 0 ? text(sx(goal[0]) + 14, sy(goal[1]) + 4, 'goal', 'tl', 'start') : text(sx(goal[0]) - 22, sy(goal[1]) + 4, 'goal', 'tl', 'end'));
+    [60, 120].forEach((i) => { o += circle(...W(pts[i]), 3, 'ink-f'); });
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+  });
+  o += text(280, 290, 'r' + sub('min') + ' = 1。虚线圆是各段 arc 所在的 turning circle，黑点是 C 与 S（或 C 与 C）的分界。', 'ts', 'middle');
+  return svg(560, 298, o, 'Dubins car 的两个最短路径：到 (3,2,90°) 是 LSL，长 3.807；到 (1,1,180°) 是 RLR，长 5.778，中间那段左转超过半圈');
+}
+
+// ---------- 第 13 站：diff-drive 的两种走法 ----------
+function diffopt() {
+  let o = '';
+  const goal = [-7 * Math.PI / 8, 1.924, 0.383];
+  const robot = (q, W, cls) => { const R = (p) => V2.add([q[1], q[2]], V2.rot(q[0], p)); return poly([[-0.14, -0.1], [0.2, 0], [-0.14, 0.1]].map(R).map(W), cls); };
+  const panels = [['LFR：5.103', [[0, 0, 0], [Math.PI / 16, 0, 0], [Math.PI / 16, 1.924, 0.383], goal], ['左转 π/16', '前进 1.962', '右转 15π/16']],
+    ['FRB：4.749', [[0, 0, 0], [0, 1, 0], [goal[0], 1, 0], goal], ['前进 1', '右转 7π/8', '后退 1']]];
+  panels.forEach(([title, Q, labs], k) => {
+    const x0 = 14 + k * 280, sx = lin(-0.4, 2.3, x0, x0 + 255), sy = lin(-0.55, 0.95, 220, 60), W = (p) => [sx(p[0]), sy(p[1])];
+    o += path(d(Q.map((q) => W([q[1], q[2]]))), 'ln');
+    Q.forEach((q, i) => { o += robot(q, W, i === 0 ? 'ink-f' : i === Q.length - 1 ? 'ln-f' : 'paper'); });
+    o += text(x0 + 128, 30, title, 'tb', 'middle');
+    labs.forEach((l, i) => { o += text(x0 + 128, 246 + i * 16, (i + 1) + '. ' + l, 'ts', 'middle'); });
+  });
+  o += text(280, 306, 'v' + sub('max') + ' = ω' + sub('max') + ' = 1，目标 (φ, x, y) = (−7π/8, 1.924, 0.383)。彩色三角是目标 pose。', 'ts', 'middle');
+  return svg(560, 314, o, 'Diff-drive 从原点到 (-7π/8, 1.924, 0.383)：先转再直走再转的 LFR 用 5.103，先前进、原地右转、再后退的 FRB 只用 4.749');
+}
+
+// ---------- 第 13 站：tracking，只控制车尾一点 vs (13.31) ----------
+function trackSim(mode) {
+  const dt = 1e-3, Tt = 12; let q = [0, -0.3, 0.4]; const out = [];
+  for (let k = 0; k <= Tt / dt; k++) {
+    const t = k * dt, xd = 0.5 * t, vd = 0.5; const ph = q[0];
+    let v, w;
+    if (mode === 'P') { const xr = -0.2, P = [q[1] + Math.cos(ph) * xr, q[2] + Math.sin(ph) * xr], Pd = [xd + xr, 0], u = [Pd[0] - P[0], Pd[1] - P[1]];
+      v = (xr * Math.cos(ph) * u[0] + xr * Math.sin(ph) * u[1]) / xr; w = (-Math.sin(ph) * u[0] + Math.cos(ph) * u[1]) / xr; }
+    else { const e = [ph, q[1] - xd, q[2]]; v = (vd - 1 * Math.abs(vd) * (e[1] + e[2] * Math.tan(e[0]))) / Math.cos(e[0]); w = -(4 * vd * e[2] + 2 * Math.abs(vd) * Math.tan(e[0])) * Math.cos(e[0]) ** 2; }
+    if (k % 100 === 0) out.push([t, ...q]);
+    q = [q[0] + w * dt, q[1] + v * Math.cos(ph) * dt, q[2] + v * Math.sin(ph) * dt];
+  }
+  return out;
+}
+function track() {
+  const A = trackSim('P'), B = trackSim('NL');
+  const pre = 0.5, play = 6, post = 1.2, T = pre + play + post;
+  const ts = [0, ...A.map((_, k) => pre + play * k / (A.length - 1)), T], kt = ts.map((t) => t / T);
+  let o = '';
+  const panel = (data, y0, title, showP) => {
+    const sx = lin(-0.6, 6.2, 20, 545), sy = lin(-0.45, 0.75, y0 + 110, y0), W = (p) => [sx(p[0]), sy(p[1])];
+    let q = line(sx(-0.5), sy(0), sx(6.1), sy(0), 'dash') + text(30, y0 - 6, title, 'tb', 'start');
+    q += path(d(data.map((r) => W([r[2], r[3]]))), 'ln');
+    const DD = [data[0], ...data, data[data.length - 1]];
+    const tri = (r) => { const R = (p) => V2.add([r[2], r[3]], V2.rot(r[1], p)); return d([[-0.12, -0.09], [0.16, 0], [-0.12, 0.09], [-0.12, -0.09]].map(R).map(W)) + 'Z'; };
+    q += apath(DD.map(tri), kt, T, 'solid');
+    q += acircle(DD.map((r) => sx(0.5 * r[0] + (showP ? -0.2 : 0))), DD.map(() => sy(0)), kt, T, 4, 'ln-f');
+    if (showP) q += acircle(DD.map((r) => sx(r[2] - 0.2 * Math.cos(r[1]))), DD.map((r) => sy(r[3] - 0.2 * Math.sin(r[1]))), kt, T, 3, 'ink-f');
+    q += poly([[-0.12, -0.09], [0.16, 0], [-0.12, 0.09]].map((p) => W(V2.add([-0.3, 0.4], p))), 'paper');
+    return q;
+  };
+  o += panel(A, 40, '只控制车尾 0.2 m 处的点 P（黑点）：P 跟上了 reference（彩色点），车却掉头倒着开', true);
+  o += panel(B, 200, '(13.31)：k₁ = 1，k₂ = 4，k₃ = 2，车正着贴上 reference', false);
+  o += text(280, 336, '2 倍速播放 12 s。虚线是 reference 走的直线，空心三角是起点 (−0.3, 0.4)、朝 +x。', 'ts', 'middle');
+  return svgA(560, 344, o, '动图：两种 tracking controller 跟踪沿 x 轴前进的 reference。只控制车尾一点时车掉头倒着开；用 13.31 的 control law 时车正着跟上');
+}
+
 export default {
+  'mr-rprfk': rprfk,
+  'mr-fivebar': fivebar,
+  'mr-fourbar': fourbar,
+  'mr-coriolis': coriolis,
+  'mr-massell': massell,
+  'mr-box': box,
+  'mr-falling': falling,
+  'mr-channel': channel,
+  'mr-via': via,
+  'mr-topt': topt,
+  'mr-table': table,
+  'mr-hybrid': hybrid,
+  'mr-impwall': impwall,
+  'mr-cor': cor,
+  'mr-moment': moment,
+  'mr-ctrlsets': ctrlsets,
+  'mr-liebracket': liebracket,
+  'mr-dubins': dubins,
+  'mr-diffopt': diffopt,
+  'mr-track': track,
   'mr-potential': potential,
   'mr-aframe': aframe,
   'mr-pillar': pillar,
