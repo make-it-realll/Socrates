@@ -362,6 +362,39 @@ function kink() {
   return svg(560, 270, o, 'Aave USDC 的 interest rate curve：utilization 低于 90% 时斜率平缓，超过 90% 后急剧变陡；U 等于 80% 时 3.56%，95% 时 34%');
 }
 
+// Stiglitz–Weiss：lender 的 expected repayment 随 loan rate 不单调
+function sw() {
+  const B = 100, C = 5;
+  const types = [
+    { name: 'safe', pg: 0.98, good: 112, bad: 12 },
+    { name: 'risky', pg: 0.88, good: 125, bad: 0 },
+  ];
+  // borrower 的 expected profit ≥ 0 才借；lender 收到 min(D, R + C)
+  const profit = (t, D) => t.pg * Math.max(t.good - D, -C) + (1 - t.pg) * Math.max(t.bad - D, -C);
+  const repay = (t, D) => t.pg * Math.min(D, t.good + C) + (1 - t.pg) * Math.min(D, t.bad + C);
+  const Dmax = types.map((t) => { let lo = B, hi = 200; for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (profit(t, m) >= 0) lo = m; else hi = m; } return lo; });
+  const bank = (r) => { const D = B * (1 + r); const act = types.filter((t, i) => D <= Dmax[i]); return act.length ? act.reduce((s, t) => s + repay(t, D), 0) / act.length : NaN; };
+  const rS = Dmax[0] / B - 1, rR = Dmax[1] / B - 1;
+  const sx = lin(0, 0.28, 60, 530), sy = lin(92, 112, 250, 70);
+  let o = axes({ sx, sy, x0: 0, x1: 0.28, y0: 92, y1: 112, xt: [[0, '0'], [0.05, '5%'], [0.1, '10%'], [0.15, '15%'], [0.2, '20%'], [0.25, '25%']], yt: [[95, '95'], [100, '100'], [105, '105'], [110, '110']], grid: true, xl: 'loan rate r' });
+  o += text(64, 64, '每借出 100，lender 收回的 expected value', 'ts', 'start');
+  // 谁在借：顶上三段
+  const band = (a, b, cls, s) => rect(sx(a), 30, sx(b) - sx(a), 20, cls, 3) + text((sx(a) + sx(b)) / 2, 44, s, 'ts', 'middle');
+  o += band(0, rS, 'wash', 'safe 和 risky 都借') + band(rS, rR, 'wash-strong', '只剩 risky') + band(rR, 0.28, 'wash2', '没人借');
+  o += line(sx(0), sy(104), sx(0.28), sy(104), 'dash') + text(sx(0.28) - 4, sy(104) + 16, 'funding cost：104', 'ts', 'end');
+  o += path(curve(bank, 0, rS - 1e-6, sx, sy, 200), 'ln') + path(curve(bank, rS + 1e-6, rR, sx, sy, 200), 'ln');
+  const yTop = bank(rS - 1e-9), yLow = bank(rS + 1e-9), yEnd = bank(rR);
+  o += line(sx(rS), sy(yTop), sx(rS), sy(yLow), 'ln-dash');
+  o += circle(sx(rS), sy(yTop), 4, 'ln-f') + circle(sx(rS), sy(yLow), 4, 'paper') + circle(sx(rR), sy(yEnd), 4, 'ln-f');
+  let lo = 0, hi = rS - 1e-9; for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (bank(m) < 104) lo = m; else hi = m; }
+  const rBE = lo;
+  o += circle(sx(rBE), sy(104), 3.5, 'ink-f') + text(sx(0.015), sy(107.6), '两类都借、刚好打平：r = ' + (rBE * 100).toFixed(2) + '%', 'ts', 'start') + line(sx(0.07), sy(107.2), sx(rBE) - 3, sy(104) - 3, 'mute');
+  o += text(sx(rS) + 8, sy(yTop) - 8, (rS * 100).toFixed(2) + '%：' + yTop.toFixed(2), 'tl', 'start');
+  o += text(sx(rS) + 8, sy(yLow) + 16, 'safe 退出：掉到 ' + yLow.toFixed(2), 'tl', 'start');
+  o += text(sx(rR) - 6, sy(yEnd) - 10, (rR * 100).toFixed(2) + '%：' + yEnd.toFixed(1), 'ts', 'end');
+  return svg(560, 290, o, 'Stiglitz–Weiss 的数值例子：loan rate 升到 ' + (rS * 100).toFixed(1) + '% 以上时 safe borrower 退出，lender 每借出 100 收回的 expected value 从 ' + yTop.toFixed(2) + ' 掉到 ' + yLow.toFixed(2));
+}
+
 function cascadeA() {
   const run = (exo) => {
     let x = 2000, y = 6e6; const P = () => y / x; const sell = (dx) => { const kk = x * y; x += dx; y = kk / x; };
@@ -453,6 +486,7 @@ export default {
   'dse4211-smile': smile,
   'dse4211-lvr': lvrA,
   'dse4211-kink': kink,
+  'dse4211-sw': sw,
   'dse4211-cascade': cascadeA,
   'dse4211-peg': peg,
   'dse4211-pt': pt,
