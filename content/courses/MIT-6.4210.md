@@ -1,7 +1,7 @@
 ---
 code: MIT-6.4210
 evidence: syllabus
-evidenceNote: "前沿公开课，不是 NUS 课。期次：MIT 6.4210/6.4212 Fall 2026（Tomás Lozano-Pérez、Leslie Kaelbling、Russ Tedrake）。讲法以 Tedrake 的在线教材 Robotic Manipulation（manipulation.mit.edu）为准：第 3、4、5、6、8 章用 WebFetch 读取，拿到的是工具按我的问题给出的详细摘要和其中的公式、数字，不是逐字全文；第 2、7、9、10、11、12 章只看了目录。作业部分读了 Fall 2026 的 ps1 到 ps6（PDF 里题目和解答在一起，同样是摘要）和 handout 仓库的 README；ps7 的 PDF 抓取失败。Fall 2026 的录像只对注册学生开放，Fall 2023 的 YouTube 录像没有看。"
+evidenceNote: "前沿公开课，不是 NUS 课。期次：MIT 6.4210/6.4212 Fall 2026（Tomás Lozano-Pérez、Leslie Kaelbling、Russ Tedrake）。讲法以 Tedrake 的在线教材 Robotic Manipulation 为准。这一版修订把教材的源码仓库 RussTedrake/manipulation（2026-11-21 的版本）clone 下来，逐字读了第 3、4、5、6、8 章的 HTML 原文和第 3 章 notebook 里的 keyframe 代码；第 2、7、9 到 12 章没有读（ps7 指定的第 11 章 model-based 部分也没有读），imitation learning 一章（visuomotor policies）在仓库里只是一个空的 draft。作业部分 clone 了 handout 仓库 tlpmit/6.4210-2-fall26-handouts，ps1 到 ps7 的题目 PDF（不含解答）逐字读了全文，README 也读了。课程网站上带解答的 PDF 这次请求访问没有得到批准，所以页面上凡是只有解答里才有的数（某些 test 的输出、Gradescope 答案）沿用上一版从解答摘要里抄的数，没有能再核对，正文里逐处注明。Schedule 页只有 midterm 复习用的 PDF 链接，没有讲次表；project 页没有读到。Fall 2026 的录像只对注册学生开放，Fall 2023 的 YouTube 录像没有看。"
 exam: "无考试意义上的期末；Fall 2026 的 6.4210 按课程主页：assignments 5%，两次 midterm（10 月 14 日、11 月 16 日）共 35%，journal club 与 peer review 5%，CI-M 写作相关 5%，project proposal 10%、report 30%、video 10%。6.4212 是 assignments 5%、midterms 45%、project 合计 50%。Gradescope 评分不对外，自学时以 problem set 为主。"
 subskills:
   - id: pick
@@ -32,7 +32,7 @@ subskills:
   - id: force
     name: Force control 与 hybrid position/force control
     l3: "能说出 point finger 在 position control 与 force control 下碰到桌面时各会发生什么。"
-    l4: "能独立为一个擦桌面的任务选择每个方向用 position 还是 force，并算出接触 force。"
+    l4: "能独立为一个擦桌面的任务选择每个方向用 position 还是 force，算出接触 force，并推出拖书、翻 box 时各个 contact 不打滑的 friction 条件。"
     l5: "能解释 stiffness control 为什么也是一种 force control，以及 iiwa 上为什么用 joint impedance 加 $\\tau_{ff}$ 来做 Cartesian force。"
   - id: policy
     name: Imitation learning 的工程选择：action 的表示与评估
@@ -42,36 +42,38 @@ subskills:
 open:
   - label: "MIT 6.4210 Fall 2026 课程主页与 schedule"
     url: "https://manipulation.csail.mit.edu/Fall2026/index.html"
-    note: "评分方式、日期、problem set 列表。Schedule 页的讲次表没有读到（页面里只有 PDF 链接）。"
+    note: "评分方式、日期。Schedule 页这次读到了：上课时间地点和 midterm 复习用的 PDF 链接，页面上没有讲次表。"
   - label: "Robotic Manipulation 第 3 章：Basic Pick and Place"
     url: "https://manipulation.mit.edu/pick.html"
-    note: "第 1、2 站的讲法来源（WebFetch 摘要）。"
+    note: "第 1、2 站的讲法来源。逐字读了源码仓库里的 HTML 和 pick.ipynb 的 keyframe 代码。"
   - label: "Robotic Manipulation 第 4 章：Geometric Pose Estimation"
     url: "https://manipulation.mit.edu/pose.html"
-    note: "第 3 站的讲法来源（WebFetch 摘要）。"
+    note: "第 3 站的讲法来源，逐字读了全文和 exercises。"
   - label: "Robotic Manipulation 第 5 章：Bin Picking"
     url: "https://manipulation.mit.edu/clutter.html"
-    note: "第 4 站的讲法来源（WebFetch 摘要）。"
+    note: "第 4 站的讲法来源，逐字读了 contact、normal、grasp 三部分。"
   - label: "Robotic Manipulation 第 6 章：Motion Planning"
     url: "https://manipulation.mit.edu/trajectories.html"
-    note: "第 5 站的讲法来源（WebFetch 摘要）。"
+    note: "第 5 站的讲法来源，逐字读了 IK、trajectory optimization、GCS、IRIS、time-optimal path parameterization 各节。"
   - label: "Robotic Manipulation 第 8 章：Manipulator Control"
     url: "https://manipulation.mit.edu/force.html"
-    note: "第 6 站的讲法来源（WebFetch 摘要）。"
-  - label: "6.4210 Fall 2026 Problem Set 2、3、4、5（题目与解答）"
-    url: "https://manipulation.csail.mit.edu/Fall2026/ps3.pdf"
-    note: "第 1、2、4、5、7 站的许多例子和数字来自 ps2 到 ps5；作业一节的内容。另三份是 ps2.pdf、ps4.pdf、ps5.pdf，同一目录。"
-  - label: "6.4210 Fall 2026 Problem Set 1、6"
-    url: "https://manipulation.csail.mit.edu/Fall2026/ps6.pdf"
-    note: "作业一节；ps1 只读了环境说明和每题的一句话摘要。"
-  - label: "Handout 仓库 tlpmit/6.4210-2-fall26-handouts 的 README"
+    note: "第 6 站的讲法来源，逐字读了全文和 exercises。"
+  - label: "教材源码仓库 RussTedrake/manipulation"
+    url: "https://github.com/RussTedrake/manipulation"
+    note: "上面五章的 HTML 原文和 notebook 都从这里读。"
+  - label: "Handout 仓库 tlpmit/6.4210-2-fall26-handouts（README 与 ps1 到 ps7 的题目 PDF）"
     url: "https://github.com/tlpmit/6.4210-2-fall26-handouts"
-    note: "环境配置与 Colab 流程。"
+    note: "环境配置；七份 problem set 的题目全文（不含解答）；ps7 的 hybrid force control 代码。第 1、2、4 到 7 站的许多例子来自这里。"
+  - label: "6.4210 Fall 2026 Problem Set 2 到 6 的带解答 PDF"
+    url: "https://manipulation.csail.mit.edu/Fall2026/ps3.pdf"
+    note: "上一版读的是 WebFetch 给的解答摘要；这次请求访问没有得到批准，解答里的数没能再核对。"
 sources:
   - label: "6.4210 Fall 2026 schedule（problem set 与 midterm practice 的 PDF 链接）"
     url: "https://manipulation.csail.mit.edu/Fall2026/schedule.html"
   - label: "Robotic Manipulation 在线教材目录"
     url: "https://manipulation.mit.edu/"
+  - label: "Zhou et al., On the Continuity of Rotation Representations in Neural Networks（CVPR 2019；ps5 列为背景阅读，只核对了题目和出处）"
+    url: "https://arxiv.org/abs/1812.07035v2"
 ---
 
 先看两次失败。两次都发生在“算法本身没有错”的地方。
@@ -93,8 +95,8 @@ sources:
 | 3 | point cloud registration、ICP | 第 4 章 | 没有对应的题 |
 | 4 | contact、normal、antipodal grasp | 第 5 章 | ps4 |
 | 5 | IK as optimization、collision check、trajectory optimization | 第 6 章 | ps3、ps4 |
-| 6 | force control | 第 8 章 | 没有读到对应的题 |
-| 7 | action 的表示、评估 | imitation learning 讲次 | ps5 |
+| 6 | force control | 第 8 章 | ps7 Problem 2 到 5 |
+| 7 | action 的表示、评估 | imitation learning 讲次（教材这一章还是空的 draft） | ps5 |
 
 :::note 和站内其他页面的分工
 Rotation 的各种表示（Euler angles 的 gimbal lock、quaternion 与 slerp）、homogeneous transform、2R arm 的 Jacobian 与 singularity、damped least squares 在 [RB2202](../courses/RB2202.html) 里；twist、wrench、PoE、RRT 与 PRM、form closure 与 force closure 在 [Modern Robotics](../courses/NW-MODERNROBOTICS.html) 里；gravity 造成的 $mg/k_p$ steady-state error、joint impedance、Cartesian stiffness 在 [RB2203](../courses/RB2203.html) 里；behavior cloning、DAgger、diffusion policy、action chunking 在 [RB4301](../courses/RB4301.html) 里；ps6 的 REINFORCE 与 PPO 在 [Berkeley CS285](../courses/BERKELEY-CS285.html) 和 [现代强化学习实践](../courses/MODERN-RL.html) 里。这一页只在用到时指过去，篇幅留给 6.4210 自己的东西。
@@ -164,6 +166,12 @@ $${}^A\mathrm v^C_F={}^A\mathrm v^B_F+{}^B\mathrm v^C_F+{}^A\omega^B_F\times{}^B
 
 多出来的就是 $\omega\times p$。拿一个转盘检验：frame $B$ 固定在转盘上，转盘绕 $z$ 以 1 rad/s 转，${}^A\mathrm v^B=0$。转盘上一个物体 $C$ 在 ${}^Bp^C_A=(0.5,0,0)$ m，相对转盘不动，${}^B\mathrm v^C=0$。前两项都是 0，第三项 $(0,0,1)\times(0.5,0,0)=(0,0.5,0)$ m/s：物体以 0.5 m/s 沿切线方向走，正是 $r\omega$。Gripper 抓着物体、wrist camera 装在 link 上，算它们的 velocity 时都要带这一项。
 
+同一个公式还说明 translational velocity 的“反过来”不是加个负号。取 $C=A$，左边 ${}^A\mathrm v^A=0$，于是
+
+$$-{}^A\mathrm v^B_F={}^B\mathrm v^A_F+{}^A\omega^B_F\times{}^Bp^A_F$$
+
+还是那个转盘：转盘中心固定，${}^A\mathrm v^B=0$；把 world frame $A$ 的 origin 放在离转盘中心 $(0.5,0,0)$ m 的地方，${}^Bp^A=(0.5,0,0)$。代进去，${}^B\mathrm v^A=0-(0,0,1)\times(0.5,0,0)=(0,-0.5,0)$ m/s：站在转盘上看，world 的 origin 以 0.5 m/s 往后退，尽管 ${}^A\mathrm v^B=0$。
+
 ### $\dot q$ 和 $v$ 不是一回事
 
 Drake 把 configuration 记作 $q$，velocity 记作 $v$，并且一般 $\dot q\ne v$。原因在 floating body：一个自由的物体用 unit quaternion（4 个数）加 position（3 个数）记 orientation 和位置，$q$ 有 7 个数；它的 velocity 是 angular velocity 加 translational velocity，$v$ 只有 6 个数。Quaternion 的 4 个 derivative 和 3 个 angular velocity 之间差一个依赖于 $q$ 的 linear map，Drake 用 `MapQDotToVelocity`、`MapVelocityToQDot` 换算。教材的例子是一个 state 有 13 个数：7 个 position、6 个 velocity。
@@ -184,7 +192,11 @@ $${}^{G_{grasp}}p^O=\begin{pmatrix}0\\0.11\\0\end{pmatrix},\qquad {}^{G_{pregras
 
 物体在 gripper 的 $y$ 方向 11 cm 处，正好在两根 finger 之间（$3.625+8.2=11.8$ cm 是 fingertip 的位置）。Pregrasp 是同一个 orientation，沿 $y_G$ 再退 9 cm。Gripper 要去的 pose 由 ${}^WX^{G_{grasp}}={}^WX^O\,{}^OX^{G_{grasp}}={}^WX^O\,[{}^{G_{grasp}}X^O]^{-1}$ 得到，下标首尾相接，inverse 把上下标对调。Pregrasp 的用处是：从 pregrasp 到 grasp 是一条短直线，hand 只在物体附近沿这条线进出，这一段不需要做 collision 推理。
 
-Keyframe 依次是 initial、prepick、pick、postpick、clearance、preplace、place、postplace。时间按教材的规则：从 initial 到 prepick 用 $10\ \text{s/m}\times$ 距离（10 cm/s），pregrasp 与 grasp 之间各 2 s，finger 开合时原地停 2 s，postpick 经 clearance 到 preplace 的两段各用 $10\ \text{s/m}\times\|{}^{G_{prepick}}p^{G_{preplace}}\|$。在侧视的 plane 里取一组数：gripper 从 $(0,0.40)$ m 出发，brick 中心在 $(0.15,0.025)$，要放到 $(0.65,0.025)$，clearance 在 $(0.40,0.40)$。Gripper 朝下，pick 时 origin 在 brick 中心上方 0.11 m，即 $z=0.135$；prepick 在 $z=0.225$。
+Keyframe 依次是 initial、prepick、pick、postpick、clearance、preplace、place、postplace。Clearance 是教材 notebook 里另加的一帧：不加它时 gripper 从 postpick 直线走到 preplace，会擦着 bin 的壁过去（notebook 里附了一段失败的录像）。它的位置这样定：先取 prepick 到 preplace 的 relative pose ${}^{G_{prepick}}X^{G_{preplace}}$，translation 取一半、rotation 的 axis-angle 取一半角，再沿 $-y_G$ 退 0.3 m（gripper 朝下时就是往上抬 0.3 m）。
+
+时间按教材的规则：从 initial 到 prepick 用 $t=k\,\|{}^{G_0}p^{G_{prepick}}\|$，$k=10$ s/m（即 10 cm/s）；pregrasp 与 grasp 之间各 2 s；finger 开合时原地停 2 s。Clearance 前后两段在正文里没有写，按 notebook 的代码，两段各用 $10\ \text{s/m}\times\|{}^{G_{prepick}}p^{G_{clearance}}\|$，即 prepick 到 clearance 这一段的长度。（Notebook 的代码里 grasp 的 offset 是 0.12 m、pregrasp 再退 0.08 m，pregrasp 处的物体同样在 0.2 m；正文写的是 0.11 m 与 0.2 m。）
+
+在侧视的 plane 里取一组数：gripper 从 $(0,0.40)$ m 出发，brick 中心在 $(0.15,0.025)$，要放到 $(0.65,0.025)$。Gripper 朝下，pick 时 origin 在 brick 中心上方 0.11 m，即 $z=0.135$；prepick 在 $z=0.225$，preplace 同理在 $(0.65,0.225)$。Prepick 与 preplace 的中点是 $(0.40,0.225)$，再抬 0.3 m，clearance 在 $(0.40,0.525)$。Prepick 到 clearance 的距离是 $\sqrt{0.25^2+0.3^2}=\sqrt{0.1525}=0.3905$ m。
 
 | keyframe | 位置（m） | 时间（s） | 怎么算的 |
 |---|---|---|---|
@@ -193,24 +205,24 @@ Keyframe 依次是 initial、prepick、pick、postpick、clearance、preplace、
 | pick | (0.15, 0.135) | 4.305 | 加 2 |
 | finger 合上 | 同上 | 6.305 | 加 2 |
 | postpick | (0.15, 0.225) | 8.305 | 加 2 |
-| clearance | (0.40, 0.40) | 13.305 | 加 $10\times0.5$ |
-| preplace | (0.65, 0.225) | 18.305 | 加 $10\times0.5$ |
-| place | (0.65, 0.135) | 20.305 | 加 2 |
-| finger 张开 | 同上 | 22.305 | 加 2 |
-| postplace | (0.65, 0.225) | 24.305 | 加 2 |
+| clearance | (0.40, 0.525) | 12.210 | 加 $10\times0.3905$ |
+| preplace | (0.65, 0.225) | 16.115 | 再加 $10\times0.3905$ |
+| place | (0.65, 0.135) | 18.115 | 加 2 |
+| finger 张开 | 同上 | 20.115 | 加 2 |
+| postplace | (0.65, 0.225) | 22.115 | 加 2 |
 
 ::fig[m4210-pick] 上表的 keyframe 按 2 倍速播放。Gripper 画成 body 加两根 finger；brick 在 finger 合上之后跟着 gripper 走，张开之后留在原地。下方的点沿时间轴走。
 
-Keyframe 之间，position 用 linear interpolation（Drake 的 `PiecewisePolynomial`，first-order hold），orientation 用 quaternion 的 slerp（`PiecewiseQuaternionSlerp`），两者合成 `PiecewisePose`。为什么 rotation 不能逐个分量做 linear interpolation，以及 quaternion 的符号要先对齐，见 [RB2202 第 1 站](../courses/RB2202.html#rot)；ps2 Problem 3 用五组例子把各种“平均 rotation”的办法逐一试错，值得做一遍。对 `PiecewisePose` 求 derivative 就得到每个时刻要的 spatial velocity $V^{G_d}$，交给第 2 站的 differential IK。
+Keyframe 之间，position 用 linear interpolation（Drake 的 `PiecewisePolynomial`，first-order hold），orientation 用 quaternion 的 slerp（`PiecewiseQuaternionSlerp`），两者合成 `PiecewisePose`；finger 的开合命令同样是一条 first-order hold（张开 0.107 m，合上 0）。为什么 rotation 不能逐个分量做 linear interpolation，以及 quaternion 的符号要先对齐，见 [RB2202 第 1 站](../courses/RB2202.html#rot)；ps2 Problem 3 用五组例子把各种“平均 rotation”的办法逐一试错，值得做一遍。对 `PiecewisePose` 求 derivative 就得到每个时刻要的 spatial velocity $V^{G_d}$（`PiecewiseQuaternionSlerp` 的 derivative 直接给出 3 个数的 angular velocity，不是 quaternion 的 4 个 derivative），交给第 2 站的 differential IK。Controller 输出的是 joint velocity，iiwa 的接口要的是 joint position，所以中间还要串一个 `Integrator`。
 
-ps2 16.2 给了一个反例：把每段压到 0.5 s，叠方块就不再可靠。原因是 controller 只把 $V^{G_d}$ 换成 joint velocity 再 integrate，没有任何 feedback 去拉回已经偏掉的 pose，desired velocity 变化太快时 arm 跟不上，error 一路累积。ps2 Problem 18（6.4212）让 gripper 走一个 10 cm 的正方形，linear interpolation 让 desired velocity 在每个角上突变，实测 speed 在角上先掉下去再冲过头，要求的 speed 越快，角被削得越圆。
+ps2 Problem 16 的 handout 让每两个 waypoint 之间走 4 s，并问压到 0.5 s 会怎样（16.2 的选项之一是“motion 太激进，叠方块不再可靠”）。原因是 controller 只把 $V^{G_d}$ 换成 joint velocity 再 integrate，没有任何 feedback 去拉回已经偏掉的 pose，desired velocity 变化太快时 arm 跟不上，error 一路累积。教材在 demo 之后也提了同一个问题：把同一条 trajectory 来回反复执行，error 会不会累积。ps2 Problem 18（6.4212）让 gripper 快速走一个正方形，问经过 waypoint 时 speed 的形状，以及 speed 与精度之间有没有 trade-off：linear interpolation 让 desired velocity 在每个角上突变，arm 跟不上这个突变，要求的 speed 越快，角被削得越圆。（上一版从解答摘要里记下的“10 cm 的正方形、speed 在角上先掉再冲过头”，这次没能对着解答核对。）
 
 :::back
-Rotation matrix、quaternion 与 slerp 来自 [RB2202 第 1、2 站](../courses/RB2202.html#rot)；twist 的另一套写法（space twist、body twist）见 [Modern Robotics 第 2 站](../courses/NW-MODERNROBOTICS.html#twist)，教材附录 A 给了两者的对应：space twist 用的是一个此刻与 $A$ 重合、随 $B$ 运动的 frame，结果是 $({}^A\omega^B,\;{}^A\mathrm v^B-{}^A\omega^B\times{}^Ap^B)$。
+Rotation matrix、quaternion 与 slerp 来自 [RB2202 第 1、2 站](../courses/RB2202.html#rot)；twist 的另一套写法（space twist、body twist）见 [Modern Robotics 第 2 站](../courses/NW-MODERNROBOTICS.html#twist)，教材第 3 章 spatial velocity 一节的展开说明给了两者的对应：space twist 用的是一个此刻与 $A$ 重合、随 $B$ 运动的 frame，结果是 $({}^A\omega^B,\;{}^A\mathrm v^B-{}^A\omega^B\times{}^Ap^B)$。
 :::
 
 :::from
-Monogram notation 的全部规则、velocity 加法的推导（$\dot RR^\top$ skew-symmetric）、$\dot q\ne v$ 与 13 个 state 的例子、geometric Jacobian 的约定、brick 与 WSG 的尺寸、grasp 与 pregrasp 的 offset、keyframe 的名字与“10 s/m、2 s”的时间规则、`PiecewisePose` 与 slerp，来自 [教材第 3 章](https://manipulation.mit.edu/pick.html)（WebFetch 摘要）。三个 frame 的例子与结果、“负号要求同一个 frame”、2D pose inverse 的公式、0.5 s 的反例与正方形的实验，来自 [ps2](https://manipulation.csail.mit.edu/Fall2026/ps2.pdf) 的 Problem 4、16、18。侧视 keyframe 的具体 coordinate、clearance 的位置和表里的时间是为这一页取的数并实际算过；clearance 两段的时间规则按我对教材代码的记忆写，摘要里没有给出这一处细节。转盘的例子是自己加的。
+Monogram notation 的全部规则、velocity 加法的推导（$\dot RR^\top$ skew-symmetric）与 translational velocity 的 additive inverse、space twist 的对应、$\dot q\ne v$ 与 13 个 state 的例子、geometric Jacobian 的约定、brick 与 WSG 的尺寸、grasp 与 pregrasp 的 offset 和 $R_x(\pi/2)R_z(\pi/2)$、keyframe 的名字与“10 s/m、2 s”的时间规则、`PiecewisePose`、slerp 与 `Integrator`，来自 [教材第 3 章](https://manipulation.mit.edu/pick.html)，这次逐字读了源码仓库里的原文。Clearance 的构造（半个 relative pose 加 0.3 m）与它前后两段的时间、notebook 里 0.12 m 与 0.08 m 的 offset，来自同一章 notebook `pick.ipynb` 的 `MakeGripperFrames`。上一版把 clearance 两段的时间写成 $10\times\|{}^{G_{prepick}}p^{G_{preplace}}\|$（凭记忆），对照代码是错的，这一版改成了 prepick 到 clearance 的距离，表和图跟着重算。三个 frame 的例子、“负号要求同一个 frame”（4.8）、2D pose inverse 的问题（4.9）、`X2D` 先写 translation 后作用 rotation 的提醒、0.5 s 与正方形的问题，来自 [ps2](https://github.com/tlpmit/6.4210-2-fall26-handouts) 的题目原文（Problem 4、16、18）；2D pose inverse 的公式、各题的数值答案是我自己算的，解答没能再核对。侧视 keyframe 的具体 coordinate 是为这一页取的数并实际算过。转盘的两个例子是自己加的。
 :::
 
 ## [diffik] Differential IK：从 pseudoinverse 到 QP
@@ -233,7 +245,9 @@ $$v=[J^G(q)]^+V^{G_d}$$
 
 $$\frac{d}{d\sigma}\frac{\sigma}{\sigma^2+\lambda}=\frac{(\sigma^2+\lambda)-2\sigma^2}{(\sigma^2+\lambda)^2}=\frac{\lambda-\sigma^2}{(\sigma^2+\lambda)^2}$$
 
-在 $\sigma=\sqrt\lambda$ 处为 0，最大 gain 是 $\sqrt\lambda/(2\lambda)=1/(2\sqrt\lambda)$，$\lambda=0.01$ 时是 5。$\lambda$ 于是同时决定了 joint velocity 的上限和“哪些方向还能被准确跟踪”的界线。Damping 只能间接地限制 joint velocity，真机上的 limit 是硬的：iiwa 在 joint impedance mode 下会把每个 joint 各自截到上限，它并不知道 end-effector 要往哪里走（教材第 3 章）。
+在 $\sigma=\sqrt\lambda$ 处为 0，最大 gain 是 $\sqrt\lambda/(2\lambda)=1/(2\sqrt\lambda)$，$\lambda=0.01$ 时是 5。$\lambda$ 于是同时决定了 joint velocity 的上限和“哪些方向还能被准确跟踪”的界线。Damping 只能间接地限制 joint velocity，真机上的 limit 是硬的：iiwa 在 joint impedance mode 下会把每个 joint 各自截到上限，它并不知道 end-effector 要往哪里走，结果“不会像一条放慢了的 end-effector trajectory 那么方便”，gripper 可能跑偏得很厉害（教材第 3 章）。
+
+Singularity 是不是只是数学上的假象？教材用 unit link 的 2R arm 回答：$p^G=(c_0+c_{0+1},\;s_0+s_{0+1})$，取 $q_0(t)=1-t$、$q_1(t)=-2+2t$，joint velocity 恒为 $(-1,2)$。代进去，$x=\cos(1-t)+\cos(t-1)=2\cos(1-t)$，$y=\sin(1-t)+\sin(t-1)=0$：tip 沿 $x$ 轴走，$t=1$ 时 $q=(0,0)$，arm 伸直，正好在 singularity 上。这一刻 tip 的 velocity 是 $\dot x=-2\sin(1-t)=0$，任何 joint velocity 都推不动它往 $+x$ 走，这是真的；但它也不能瞬间往 $-x$ 走，可 $\ddot x=-2\cos(1-t)=-2$ m/s²，它在往 $-x$ 加速，下一刻就离开了 singularity。所以 Jacobian 对 velocity 的描述是精确的，“这一刻没有这个方向的 velocity”不等于“到不了那里”。另一个容易忽略的性质：用 pseudoinverse 让 gripper 沿一条闭合的 path 走一圈回到原来的 pose，$q$ 一般回不到原来的值，pseudoinverse 给出的不是一个可积的 map（教材引 Mussa-Ivaldi 1991）。
 
 ### 有 limit 时：clip 与 QP
 
@@ -279,7 +293,7 @@ QP 的 error 比 clip 小了将近一半，方向却偏得更多。它最小化�
 
 $$\max_{v,\alpha}\;\alpha\quad\text{s.t.}\quad J^G(q)v=\alpha V^{G_d},\quad0\le\alpha\le1,\quad\text{其他 limit}$$
 
-Equality constraint 要求实际的 spatial velocity 和要的那个平行，只允许按 $\alpha$ 缩短。2R arm 上 $J$ invertible，$v=\alpha J^{-1}V=\alpha(0.0182,-0.1234)$，limit 要求 $0.1234\,\alpha\le0.06$，所以 $\alpha=0.486$，tip 以 0.0486 m/s 正好往右。这就是表里的最后一行和开头那张图里的彩色箭头。Drake 的 `DifferentialInverseKinematics` 用的就是这种写法（ps3 2.2 的 going further）。
+Equality constraint 要求实际的 spatial velocity 和要的那个平行，只允许按 $\alpha$ 缩短。2R arm 上 $J$ invertible，$v=\alpha J^{-1}V=\alpha(0.0182,-0.1234)$，limit 要求 $0.1234\,\alpha\le0.06$，所以 $\alpha=0.486$，tip 以 0.0486 m/s 正好往右。这就是表里的最后一行和开头那张图里的彩色箭头。教材说 Drake 里常用的 `DifferentialInverseKinematics` 就是这种写法，理由是：花了很大功夫规划出一条 collision-free 的 path，不该让 controller 只把它当作“建议”。ps3 2.2 的 going further 问的正是这一点：6 维的 $V^{G_d}$ 配上 $\|J\dot q-V^{G_d}\|^2$ 这个 cost，QP 可能给出什么你不想要的答案，又该怎么改。教材还提醒一个后果：robot 放慢之后，播放 plan 的那一层要知道它慢了，只发 open-loop 的 velocity 命令是不够的，否则 plan 的时间和 robot 实际走到哪里就对不上。
 
 $v=0,\alpha=0$ 永远满足所有 constraint，所以这个 QP 永远 feasible；方向实在做不到时 robot 就停下。做 teleoperation 时“停下”不总是想要的：手柄让 gripper 斜着往桌面里压，人其实希望它贴着桌面滑。教材给的变体是每个 coordinate 一个 $\alpha_i$：
 
@@ -305,7 +319,11 @@ $$J^+=\begin{pmatrix}0.5\\0.5\end{pmatrix},\quad J^+V=\begin{pmatrix}0.1\\0.1\en
 
 $$PK(q_0-q)=P\begin{pmatrix}-0.6\\0\end{pmatrix}=\begin{pmatrix}-0.3\\0.3\end{pmatrix},\qquad\dot q=\begin{pmatrix}-0.2\\0.4\end{pmatrix}$$
 
-检验：$J\dot q=-0.2+0.4=0.2$，主目标没变。Joint 2 本来在 nominal 上，现在反而被推开，但离 $q_0$ 的距离仍在缩短：$\frac{d}{dt}\|q-q_0\|^2=2(q-q_0)^\top\dot q=2\times0.6\times(-0.2)=-0.24$。Joint 1 离 nominal 远，null space 把“往前走”的任务从 joint 1 挪给了 joint 2。
+检验：$J\dot q=-0.2+0.4=0.2$，主目标没变。Joint 2 本来在 nominal 上，现在反而被推开（ps3 3.2 的 going further 专门问：它还算在做 joint centering 吗）。看 $\|q-q_0\|^2$ 的变化率，把两项分开算：
+
+$$\frac{d}{dt}\|q-q_0\|^2=2(q-q_0)^\top\dot q=\underbrace{2(q-q_0)^\top J^+V}_{2\times0.6\times0.1\;=\;0.12}+\underbrace{2(q-q_0)^\top PK(q_0-q)}_{2\times0.6\times(-0.3)\;=\;-0.36}=-0.24$$
+
+第二项永远不是正的：$P=I-J^+J$ 是 symmetric 而且 $P^2=P$，所以 $(q-q_0)^\top P(q-q_0)=\|P(q-q_0)\|^2\ge0$，第二项等于 $-2K\|P(q-q_0)\|^2$。这里 $P(q-q_0)=(0.3,-0.3)$，$\|\cdot\|^2=0.18$，正好是 $-0.36$。也就是说 secondary term 单独看总是在缩短到 nominal 的距离，只是它只能在 null space 里动；主目标那一项（这里是 $+0.12$）它管不着。Joint 2 被推开，是因为 null space 的方向 $(1,-1)/\sqrt2$ 让 joint 1 往回、joint 2 往外，按 $\|q-q_0\|$ 算整体仍在靠近。iiwa 远离 singularity 时 $P$ 的 rank 是 1（ps3 3.2 v），null space 只有一个方向；到了 singularity，$J$ 掉一个 rank，null space 就多出一维。
 
 ### Position limit 与 acceleration limit：只看一步不够
 
@@ -340,13 +358,13 @@ Pseudoinverse 与 damped least squares 的推导见 [RB2202 第 5 站](../course
 :::
 
 :::from
-三种 pseudoinverse 性质、iiwa 逐 joint 截断的说法、velocity/position/acceleration limit 的 QP、joint centering 的 objective 与 $\epsilon\approx0.01$、max α 的写法和“$v=0,\alpha=0$ 总是 feasible”、teleop 的逐 coordinate $\alpha_i$，来自 [教材第 3 章](https://manipulation.mit.edu/pick.html)（WebFetch 摘要）。$\mathrm{diag}(1,0.001)$、$\lambda=0.01$、峰值 gain 5、$J=(1,2)$ 的三种解、joint centering 的数值、$q_{max}=1.57$ 的两个点、停车距离 0.2 rad 与 braking envelope、virtual wall 的 box、$h=0.004$ 与 test6 的 $-0.0885$，来自 [ps3](https://manipulation.csail.mit.edu/Fall2026/ps3.pdf) Problem 1 到 4、13。2R arm 的三行表、QP 的 1 维 least squares、$-0.24$ 的距离变化率、joint limit 的逐 tick 模拟（包括 1.75 rad 和 1.40 rad）是为这一页算的；ps3 对距离变化率给的数是 $-0.36$，我没有弄清它的口径，这里只给自己算的。
+三种 pseudoinverse 性质、iiwa 在 joint-impedance mode 下逐 joint 截断的说法、“singularity 是不是真的”那个 $q_0=1-t$ 的例子与 pseudoinverse 不可积、velocity/position/acceleration limit 的 QP、joint centering 的 objective 与 $\epsilon\approx0.01$、max α 的写法、“$v_n=0,\alpha=0$ 总是 feasible”、plan playback 要知道放慢了、teleop 的逐 coordinate $\alpha_i$，来自 [教材第 3 章](https://manipulation.mit.edu/pick.html)，这次逐字读了原文。$\mathrm{diag}(1,0.001)$、$\lambda=0.01$、“damped gain 何时最大”的问题、$J=(1,2)$ 与 $|\dot q_i|\le0.3$、joint centering 的数据与 going further 的问题、$q_{max}=1.57$、$|\dot q|\le2$、$h=0.01$、$|\ddot q|\le10$ 和“一步的 position constraint 能不能刹住”的问题、virtual wall 的 box 与 $h=0.004$，来自 [ps3](https://github.com/tlpmit/6.4210-2-fall26-handouts) Problem 1 到 4、13 的题目原文。各题的数值（$J^+V$、clip 与 QP 的解、峰值 gain 5、停车距离 0.2 rad 与 braking envelope、$-0.24$ 与 $-0.36$ 的分解）是我按题目算的；上一版提到 ps3 解答给出 $-0.36$，现在看是 secondary term 单独的那一项，解答原文没能再核对。test6 的 $x\approx0.30035$ 与 $\mathrm v_x=-0.0885$ 沿用上一版从解答摘要里记下的数，没有再核对。2R arm 的三行表、QP 的 1 维 least squares、joint limit 的逐 tick 模拟（包括 1.75 rad 和 1.40 rad）是为这一页算的。
 :::
 
 ## [pose] Point cloud registration 与 ICP
 
 :::skip
-快速路线里可以先跳（研究底稿的建议，代价是做真机时 perception pipeline 要另补）；Fall 2026 的 problem set 里也没有对应的题。用户做真机实验时，物体 pose 的估计迟早会用到，建议至少读前三个小节。能对已知 correspondence 的 2D 点手算 $\theta^*$，能说出 ICP 为什么会停在错的 pose 上，就可以去第 4 站。
+快速路线里可以先跳（研究底稿的建议，代价是做真机时 perception pipeline 要另补）；Fall 2026 的 ps1 到 ps7 里都没有对应的题（逐份查过题目原文）。用户做真机实验时，物体 pose 的估计迟早会用到，建议至少读前三个小节。能对已知 correspondence 的 2D 点手算 $\theta^*$，能说出 ICP 为什么会停在错的 pose 上，就可以去第 4 站。
 :::
 
 ### Depth camera 给的是什么
@@ -435,6 +453,12 @@ $$R^*=U\,\mathrm{diag}\big(1,1,\det(UV^\top)\big)\,V^\top,\qquad p^*=\bar s-R^*\
 
 右边那一次每一轮 cost 都在降，最后也“converge”了。问题在第 1 步：初值转反了，每个 scene 点找到的最近点几乎都在错的那条边上，第 2 步按这组错的 correspondence 把 pose 拉到一个和它们自洽的位置，下一轮的最近点还是错的。教材说 ICP 通常 translation 估得好、rotation 估得差，2D 随机物体的动画里“多半会卡住”。补救办法是从许多随机 rotation 出发各跑一次（可以并行，3D 用 `UniformlyRandomRotationMatrix` 做 sampling），留 cost 最小的那个。
 
+Local minimum 是从哪里来的？教材用一个思想实验把它归到 correspondence 上。固定 correspondence，只估 rotation，用一个角 $\theta$ 做 parameter，objective 对 $\theta$ 是 nonlinear 的。没有 noise 时，第 $i$ 个点离 centroid $r_i$，rotation 差 $\theta_{err}$ 时它的平方误差由 law of cosines 是 $r_i^2+r_i^2-2r_i^2\cos\theta_{err}$，加起来
+
+$$\sum_i 2r_i^2\,(1-\cos\theta_{err})$$
+
+这个 function 不 convex，但每个 minimum 都在 $\theta_{err}=0$（差 $2\pi$ 的整数倍），没有坏的 local minimum。拿上面 L 形物体检验：如果右边那一次从 200° 出发时给的是真的 correspondence，第 2 步一次就会解出 35°。卡住它的是第 1 步的 nearest neighbor：初值转反之后，每个 scene 点的最近点都在错的那条边上。教材的结论是：真正带来 local minima 的是 correspondence 和以后加上去的 constraint。
+
 :::wrong ICP converge 了（cost 不再下降），pose 就对了
 右边那次 ICP 在第 15 轮时 RMS 每轮只变 0.002，完全符合“converge”的判据，pose 却差了 196°。RMS 0.45 不为 0 是一个提示，可真实数据有 noise 和 partial view，正确的 pose 也不会给出 0，单凭 RMS 的大小分不出“对齐了但有 noise”和“卡在错的 local minimum”。能做的是多个初值比较 cost，或者用不依赖初值的方法（下一节的 RANSAC、max clique）给 ICP 一个好的起点。
 :::
@@ -458,7 +482,7 @@ SVD 和“离一个 matrix 最近的 orthogonal matrix”见 [MA2101](../courses
 :::
 
 :::from
-Depth camera 的失败方式与 D415 的范围、free space 的说法、known correspondence 的 problem formulation、centroid 的推导、$W$ 与 $R^*=UDV^\top$、“很多推导丢掉 determinant”、ICP 的两步与“translation 好、rotation 差、从随机 rotation 重启”、maximum correspondence distance、RANSAC、max clique、robust loss、CPD、segmentation、non-penetration 的 SOCP relaxation 与“box 会缩小”，来自 [教材第 4 章](https://manipulation.mit.edu/pose.html)（WebFetch 摘要）。2D 的 atan2 推导、三点的例子、$\mathrm{tr}(RW^\top)$ 的推导、reflection 的 2D 例子、L 形物体的两次 ICP（用 surface 上的最近点作 correspondence，这一点和教材用离散 model 点的做法不同）、“cost 单调不增”的论证、outlier 让 centroid 挪 8.3 cm 的估算，是为这一页推和算的；“det 为 $-1$ 时最大值是 $\sigma_1+\sigma_2-\sigma_3$”是 Kabsch–Umeyama 的标准结论，这里没有证明。
+Depth camera 的失败方式与 D415 的 0.3 到 1.5 m、`DepthImageToPointCloud` 的默认 frame、free space 的说法、known correspondence 的 problem formulation 与“constraint 是 quadratic 和 cubic”、centroid 的推导、$W$ 与 $R^*=UDV^\top$（教材引 Myronenko 2009 与 Haralick 1989）、“很多推导丢掉 determinant”、ICP 的两步与 FLANN、“translation 估得好、rotation 估得差，从随机 rotation 重启”（第 4 章 exercise “ICP with random initializations”）、circle 的思想实验与“local minima 来自 correspondence”、maximum correspondence distance、RANSAC、max clique、robust loss、CPD 与 outlier 概率、segmentation、non-penetration 的 SOCP relaxation 与“box 会缩小”、free space 来自 Schmidt 2015 的 DART，来自 [教材第 4 章](https://manipulation.mit.edu/pose.html)，这次逐字读了原文和 exercises。2D 的 atan2 推导、三点的例子、$\mathrm{tr}(RW^\top)$ 的推导、reflection 的 2D 例子、L 形物体的两次 ICP（用 surface 上的最近点作 correspondence，这一点和教材用离散 model 点的做法不同）、“cost 单调不增”的论证、outlier 让 centroid 挪 8.3 cm 的估算，是为这一页推和算的；“det 为 $-1$ 时最大值是 $\sigma_1+\sigma_2-\sigma_3$”是 Kabsch–Umeyama 的标准结论，这里没有证明，教材也没有给证明。ps1 到 ps7 里都没有 ICP 的题。
 :::
 
 ## [grasp] Contact、normal estimation 与 antipodal grasp
@@ -538,12 +562,14 @@ $$\lambda=\frac{112+171.43}{2}\pm\sqrt{\Big(\frac{112-171.43}{2}\Big)^2+120^2}=1
 
 ### 采样 antipodal grasp
 
-ps4 Problem 11 的流程，和教材第 5 章的 ray casting 变体一致：
+教材第 5 章先说明为什么要 sample：cost function（下一节）对绝大多数随机的 $X^G$ 都是 0，因为两根 finger 之间根本没有点，gradient 无从谈起，所以文献里几乎都用随机 sampling 加 heuristic。教材提到两种 heuristic：一种按局部 curvature 摆 hand（让 normal 指向 palm、finger 沿最大 curvature 的方向，tenPas 2017），教材认为它对 YCB 里大量的 box 不太合适，box 的 curvature 没什么信息；另一种是 ray casting 找 antipodal 点对。ps4 Problem 11 用的是后一种：
 
 1. 在物体 surface 上取一个点 $p_1$，normal $n_1$（朝外）。
 2. 从 $p_1$ 沿 $-n_1$ 往物体里面射一条 ray，取最近的那个 intersection $p_2$ 和它的 normal $n_2$。Ray 的起点要往里挪一点，否则会打中 $p_1$ 所在的那个面；intersection 没有顺序，要自己挑最近的。
 3. 检查 friction cone：chord $p_2\to p_1$ 与 $n_1$ 的 angle、与 $-n_2$ 的 angle 都不超过 $\alpha=\arctan\mu$。
 4. 检查宽度不超过 gripper 的最大开口，然后把 gripper 的 $x$ 轴放在 chord 上、中点放在两点中间，做 collision check。
+
+教材自己 notebook 里的代码更简单：随机取一个点，把 gripper 的 $x$ 轴对准它的 normal，从竖直开始依次 sample orientation，好坏全交给 cost 里的 antipodal 项去判断；找到落在两个 fingertip 之间的点之后，再把 hand 沿 $x_G$ 挪到让这些点居中，免得合拢 finger 时把物体碰倒。
 
 在一个 10 cm × 6 cm 的 ellipse 截面上试五个 $p_1$，$\mu=0.5$，$\alpha=26.6°$。
 
@@ -557,16 +583,16 @@ Ellipse 上沿 normal 的 ray 一定从 $p_1$ 出发时就和 $n_1$ 重合，所
 
 $$\text{cost}=-\sum_i\big(n^i_{G_x}\big)^2\;-\;\alpha\,[0\ 0\ {-1}]\,R^G\,[0\ 1\ 0]^\top\;+\;\infty\cdot\mathbb 1[\text{collision}]$$
 
-第一项对两根 finger 之间的所有点求和，$n^i_{G_x}$ 是点 $i$ 的 normal 在 gripper $x$ 轴（finger 合拢的方向）上的分量，平方让 normal 的符号无关。Finger 之间的 surface 越正对 finger，这一项越负。第二项里 $R^G[0\ 1\ 0]^\top$ 是 gripper 的 $y$ 轴（finger 伸出的方向）在 world 里的方向，再和 $(0,0,-1)$ 做 dot product：$y_G$ 正朝下时它等于 1，cost 减 $\alpha$，所以这一项偏爱从上往下抓。第三项让碰到 bin 或 point cloud 的候选直接出局。教材没有给 $\alpha$ 的数值，也没有把 gravity 或 wrench 写进 cost；gravity 只是 antipodal heuristic 的动机。
+第一项对两根 finger 之间的所有点求和，$n^i_{G_x}$ 是点 $i$ 的 normal 在 gripper $x$ 轴（finger 合拢的方向）上的分量，平方让 normal 的符号无关。Finger 之间的 surface 越正对 finger，这一项越负。第二项里 $R^G[0\ 1\ 0]^\top$ 是 gripper 的 $y$ 轴（finger 伸出的方向）在 world 里的方向，再和 $(0,0,-1)$ 做 dot product，整项等于 $\alpha R^G_{3,2}$（$R^G$ 第 3 行第 2 列）：$y_G$ 正朝下时 dot product 等于 1，cost 减 $\alpha$，所以这一项偏爱从上往下抓。教材给的理由是 kinematically 受限的 arm 伸进 bin 时，竖直的 hand 对 arm 更顺手。第三项让碰到 bin 或 point cloud 的候选直接出局。教材没有给 $\alpha$ 的数值，也没有把 gravity 或 wrench 写进 cost；gravity 只是 antipodal heuristic 的动机。
 
-教材自己列出了这套办法的 corner case：物体卡在 bin 的角落时找不到 grasp，系统改用一个 pushing 动作把点往 bin 中间推；系统没有“物体”的概念，两个挨着的物体会被一起抓起来；重的物体应当在 center of mass 附近抓，它却可能抓 hammer 柄的最远端。教材的结论是这些要靠从经验里学 grasp metric（第 10 章）。
+教材自己列出了这套办法的 corner case：pregrasp 的 configuration 没有做 collision check（加一项 cost 就能补上）；物体卡在 bin 的角落时找不到 grasp，系统改用一个 pushing 动作把点往 bin 中间推；系统没有“物体”的概念，两个挨着的物体会被一起抓起来；重的物体应当在 center of mass 附近抓，它却可能抓 hammer 柄的最远端。教材的结论是这些要靠从经验里学 grasp metric（第 10 章）。
 
 :::back
 Friction cone、force closure 与 form closure 见 [Modern Robotics 第 7 站](../courses/NW-MODERNROBOTICS.html#grasp)；eigenvalue 与 Rayleigh quotient 见 [DSA2102 第 5 站](../courses/DSA2102.html#eig)。
 :::
 
 :::from
-Static equilibrium 的方程、三条 contact 规则、friction cone 与 maximal dissipation、point contact 的不连续与 hydroelastic、0.1 m 的错开、antipodal heuristic 与“两个 point contact 挡不住绕 axis 的 torque”、PCA normal 的推导与“朝向 camera 翻转”、ray casting 的 sampling、cost function 的三项、corner case，来自 [教材第 5 章](https://manipulation.mit.edu/clutter.html)（WebFetch 摘要）。Contact model 的表、3 个 hard contact 的下限、`UV_STEP`、$7\times7$ window、$10^{-12}$ 的门槛、$n\cdot\bar p\le0$、ray 起点内移、$\mu=1.17$、depth discontinuity 的 self-check，来自 [ps4](https://manipulation.csail.mit.edu/Fall2026/ps4.pdf) Problem 1、6、10、11。Box 边缘的 PCA 例子、ellipse 上五个候选的数值、对 cost 第二项符号的解读，是为这一页算和推的；“只留 depth 相近的点”是常见做法，凭自己的知识写。
+Static equilibrium 的方程、三条 contact 规则、friction cone 与 maximal dissipation、point contact 的不连续与 hydroelastic（torsional friction 随 squeeze 增大）、0.1 m 的错开、antipodal heuristic 与“两个 point contact 挡不住绕 axis 的 torque”、PCA normal 的推导、“朝向 camera 翻转”、largest eigenvalue 对应最小 curvature、在 depth image 上直接用相邻 pixel 代替 nearest neighbor、为什么要 sample、curvature 与 ray casting 两种 heuristic、教材 notebook 的简化 sampling、cost function 的三项与 $\alpha R^G_{3,2}$、corner case，来自 [教材第 5 章](https://manipulation.mit.edu/clutter.html)，这次逐字读了原文。Contact model 的四种描述、“torque about $\ell$ 永远挡不住”与 3D 需要几个 hard contact 的问题、soft finger 的 force closure、`UV_STEP = 10`、`WINDOW_HALF_WIDTH = 3`、$10^{-12}$ m² 的门槛、$n\cdot\bar p\le0$、ray 起点内移、$\mu=1.17$、`check_collision_free` 只查 gripper body box 的八个角、depth discontinuity 的 self-check，来自 [ps4](https://github.com/tlpmit/6.4210-2-fall26-handouts) Problem 1、6、10、11 的题目原文。Box 边缘的 PCA 例子、ellipse 上五个候选的数值、对 cost 第二项符号的解读，是为这一页算和推的；“邻域里只留 depth 相近的点”是常见做法，凭自己的知识写，教材和 ps4 都没有给这个办法。
 :::
 
 ## [plan] Motion planning：IK as optimization、collision check 与 trajectory optimization
@@ -592,7 +618,7 @@ ik.AddPositionConstraint(frameB=gripper_frame, p_BQ=[0, 0.1, 0.02],
 
 Gripper 上两点 $(0,0.1,\pm0.02)$ 都要落在 cylinder 的 axis（cylinder frame 的 $z$ 轴，$\pm0.5$ m 的一段）上。两点决定一条 line，line 在 3D 里有 4 个 degree of freedom，所以这两条 constraint 固定了 gripper 的 4 个 DOF，留下沿 axis 的 translation 和绕 axis 的 rotation，正好是“任何高度、任何角度”。教材的建议是 cost 尽量简单（只做 joint centering），该是 constraint 的不要写成 penalty，constraint 写得越少越宽，feasible set 越大。
 
-这个问题是 nonconvex 的：$f_{kin}$ 是 joint angle 的 sine、cosine 的 polynomial，collision constraint 也是 nonconvex 的。Feasible set 甚至可以不连通：arm 绕一根 post 从左边够和从右边够是两支 solution，local solver 跳不过去。Differential IK 每步只走一小段，相当于 full problem 上的一步 SQP，永远跳不过去；full IK 能跳，但不保证成功，可能给出很大的 $\Delta q$。
+这个问题是 nonconvex 的：$f_{kin}$ 是 joint angle 的 sine、cosine 的 polynomial，collision constraint 也是 nonconvex 的。Feasible set 甚至可以不连通：arm 绕一根 post 从左边够和从右边够是两支 solution，local solver 跳不过去。教材对两者的分工是：full IK 解的是更 global 的问题，但不保证成功，cost 或 constraint 稍微一变，它给出的 $q$ 也可能跳很远，送给 robot 的 $\Delta q$ 会很大；differential IK 只做增量的一小步，适合跟踪一条在 end-effector space 里设计好的平滑命令，但它沿着当前这一支走，不会自己换到另一支 solution 上。
 
 ps3 的开门题把 IK 用在一串 keyframe 上：每个 keyframe 一次 IK，position error 1 mm、orientation error $0.01\pi$ rad。Grasp frame 相对 handle 只 constrain $x$、$y$ 和 pitch，$z$、roll、yaw 放开，因为 idealized 的 point contact 下，沿 handle 滑、绕 handle 转、绕 finger 合拢的方向转都不受限。第一个 keyframe 从 `Q_NOMINAL` 出发，之后每个都用上一个的 solution 作初值，否则相邻两个 keyframe 可能落在不同的 branch 上，interpolation 时 arm 会整个翻过去（[RB2202](../courses/RB2202.html#ik) 里那个跳变就是这样来的）。PR2 那题说明 IK 失败可能只是“够不着”：目标 $(-0.83,1.30,1.40)$ 离 shoulder-pan axis 的水平距离约 1.228 m，超过约 0.821 m 的 reach，固定 base 时无解，让 base 也作为变量就有解；目标在 2.30 m 高时超过约 1.92 m 的高度上限，base 放哪里都没用。
 
@@ -611,6 +637,19 @@ ps3 Problem 17（6.4212）给出一个可以证明的条件。记 $\eta(q)$ 为 
 **用在开头的例子上。** $\eta(40°)=\eta(50°)=1.5\sin5°-0.08=0.1307-0.08=0.0507$，和是 0.1015。$\|\Delta q\|=10°=0.1745$ rad，$\rho\|\Delta q\|=\sqrt5\times0.1745=0.390>0.1015$，证明不了。于是 bisection：检查中点 45°，$\eta=-0.08<0$，找到 collision。如果 post 在 60° 方向，$\eta(40°)=1.5\sin20°-0.08=0.433$，$\eta(50°)=1.5\sin10°-0.08=0.180$，和 0.613 大于 0.390，一次检查就证明整段安全。
 
 Bisection 在 grazing contact（clearance 趋于 0）时可能永远分下去。ps3 的修补是要求每个 sample 有一个 margin $\delta>0$，这就给了最小的分段长度；固定步长 $\varepsilon$ 的 checker 只要每个 sample 的 clearance 都大于 $\rho\varepsilon/2$ 也是 sound 的。这套证明只管 robot 和 obstacle 之间；ps3 Problem 18 指出 self-collision 仍然只在 sample 上检查。
+
+ps3 17.3 到 17.5 用的是同一种设定，数字更整：伸直的 2R arm 从 $\theta_1=0°$ 扫到 $90°$，半径 0.1 的 post 立在 $A=(1.2,1.2)$ 或 $B=(1.6,1.6)$，handout 给了 0°、22.5°、45°、67.5°、90° 的 clearance。Post 在 $A$ 时，它离 base $1.2\sqrt2=1.697$，arm 方向 $\theta$ 时的 clearance 是 $1.697\sin|\theta-45°|-0.1$（$\theta=22.5°$ 时 $0.649-0.1=0.549$，和 handout 的表一致），碰撞区间是 $|\theta-45°|<\arcsin(0.1/1.697)=3.38°$。每 10° 一个 sample 的 checker 查到 40° 和 50°，离 45° 都是 5°，都报 free，于是整段报 free，错了。Bisecting checker 第一次就查中点 45°，$\eta=-0.1$，报 collision。
+
+Post 在 $B$ 时按定理走一遍，$\rho=\sqrt5=2.236$：
+
+| 段 | 两端 $\eta$ 之和 | $\rho\,\|\Delta q\|$ | 结论 |
+|---|---|---|---|
+| 0° 到 90° | $1.5+1.5=3.0$ | $2.236\times1.571=3.512$ | 证明不了，查中点 45°：$\eta=0.163>0$ |
+| 0° 到 45° | $1.5+0.163=1.663$ | $2.236\times0.785=1.756$ | 证明不了，查中点 22.5°：$\eta=0.771$ |
+| 0° 到 22.5° | $1.5+0.771=2.271$ | $2.236\times0.393=0.878$ | free |
+| 22.5° 到 45° | $0.771+0.163=0.934$ | $0.878$ | free |
+
+右半边对称，再查 67.5° 一次。一共在 0°、90°、45°、22.5°、67.5° 五处算了 $\eta$，证明整段 free。（这几步是我按 handout 的表算的，解答没有核对。）
 
 :::wrong 把 collision check 的 step 取到 1°，就足够安全
 够不够取决于 obstacle 有多细。上面的 post 半径 8 cm，collision 区间宽 6.1°，1° 的 step 当然能抓到。换成一根半径 5 mm 的杆，同样放在 1.5 m 处，collision 区间的半宽是 $\arcsin(0.005/1.5)=0.19°$，总宽 0.38°，1° 一个 sample 完全可能跨过去。ps3 的 RRT 用 `EDGE_STEP = 1°` 规划，再用十分之一的 `CHECK_STEP` 复查，复查也只是降低漏检的 probability，证明不了什么；执行时的 tracking error 还会再加一层。另外各 joint 的 sensitivity 差很多：iiwa 上 fingertip 动 1 mm，joint 2 只需转 0.00092 rad，joint 7 要转 0.0167 rad（ps3 16.7），同一个角度 step 对不同 joint 的意义不一样。
@@ -644,6 +683,28 @@ Hull 给出 $r'(s)\le3$，于是 $|\dot q|=|r'(s)|/T\le3/T$。要 $v_{max}=1$ ra
 
 Collision avoidance 就没有这么好的性质。Drake 用 `MinimumDistanceLowerBoundConstraint`，它是 nonconvex 的，而且只在一些离散的 $s_i$ 上检查；教材明说这样“不保证 trajectory collision-free”，办法是 optimization 时取密的 sample，执行前再密地检查一遍。Nonconvex 还意味着 initial guess 很重要：教材的 planar iiwa 例子先不加 collision 解一次，拿结果当初值再加 collision 解；clutter clearing 的例子用一条简单的 trajectory 当初值，避免 solver 找到绕 base 转 270° 的那条路。一个 point robot 绕过 $\|q\|_1\ge1$ 的方块时，一旦 solver 从一侧绕，就不会换到另一侧，因为中途必须先违反 constraint。
 
+### Path 定了之后，最快能走多快
+
+上面的 Bézier 例子里，velocity limit 1 rad/s 逼出 $T\ge1.5$ s，用的是均匀的 time scaling $s=t/T$。Path 本身不变，只改“沿 path 走的快慢” $s(t)$，能不能更快？这叫 time-optimal path parameterization（TOPP），教材第 6 章最后一节把它写成一个 convex 的问题。
+
+记 path 为 $q(t)=r(s(t))$，要求 $\dot s>0$。用 chain rule：
+
+$$\dot q=r'(s)\,\dot s,\qquad\ddot q=r''(s)\,\dot s^2+r'(s)\,\ddot s$$
+
+这里 $\dot s^2$ 和 $\ddot s$ 让 constraint 看起来是 nonlinear 的。教材的 change of variables 是 $b(s)=\dot s^2$。对 $t$ 求导，一边是 $\dot b=b'(s)\,\dot s$，另一边是 $\dot b=2\dot s\ddot s$，所以 $b'(s)=2\ddot s$。代回去：
+
+$$\dot q=r'(s)\sqrt{b(s)},\qquad\ddot q=r''(s)\,b(s)+\tfrac12\,r'(s)\,b'(s)$$
+
+于是每一条 limit 都变成 $b$ 的 convex constraint：velocity limit 是 $r'_j(s)^2\,b(s)\le\dot q_{max,j}^2$，对 $b$ linear；acceleration limit 对 $(b,b')$ linear；把 $\ddot q$ 代进 manipulator equation，torque 是 $\tfrac12m(s)b'(s)+c(s)b(s)+\tau_g(s)$，torque limit 也是 linear 的。总时间
+
+$$T=\int_0^T dt=\int_0^1\frac{ds}{\dot s}=\int_0^1\frac{ds}{\sqrt{b(s)}}$$
+
+$1/\sqrt b$ 在 $b>0$ 上是 convex function，所以 objective 也是 convex 的。$\dot s>0$ 写成 $b(s_i)\ge\epsilon$。和 trajectory optimization 一样，这些 constraint 只在一组 sample 的 $s_i$ 上加，教材明说这里放弃了对所有 $t$ 的严格保证。
+
+拿上面那个 joint 算一次：$r(s)=3s^2-2s^3$，$r'=6s-6s^2$，$r''=6-12s$，limit 取 $|\dot q|\le1$ rad/s、$|\ddot q|\le4$ rad/s²，起点和终点静止（$b(0)=b(1)=0$）。只有一个 joint 时，path 就是从 0 到 1 的那条线段，任何 $s(t)$ 都只是在这条线段上换个走法，最快的走法是先以 4 rad/s² 加速到 1 rad/s（用 $1/4=0.25$ s，走 $\tfrac12\times4\times0.25^2=0.125$ rad），以 1 rad/s 走完中间的 $1-2\times0.125=0.75$ rad（0.75 s），再用 0.25 s 减速停下，共 $0.25+0.75+0.25=1.25$ s。把 $s$ 切成 2000 段，在每段上按上面的 linear constraint 先正向、再反向取最大的 $b$，再数值积分 $\int ds/\sqrt b$，得到 1.245 s，和 1.25 s 只差离散化的误差。均匀 scaling 在同样两条 limit 下要 $\max(1.5/T,\;6/T^2)$ 都不超限：$T\ge1.5$ 且 $T\ge\sqrt{1.5}=1.22$，所以是 1.5 s；TOPP 省下的 0.25 s 来自中段一直贴着 velocity limit 走，均匀 scaling 只在 $s=0.5$ 那一点贴到。
+
+教材说这类问题 1980 年代就有专门的 algorithm（Bobrow 1985 一类，去找 bang-bang 的切换时刻），和 convex optimization 的联系是后来（Verscheure 2009 等）才讲清楚的；常用的实现是 TOPPRA，Drake 里有 `PathParameterizedTrajectory`。Jerk limit 能不能也写成 convex 的，教材留作还没写完的问题：$\dddot q=r'''\dot s^3+3r''\dot s\ddot s+r'\dddot s$ 不再是 $b$ 的 linear function。
+
 ### Graphs of Convex Sets
 
 :::skip
@@ -654,20 +715,20 @@ GCS 把 collision-free 的 configuration space 事先切成若干个 convex regi
 
 于是 planning 变成 graph 上的 shortest path：每个 region 是一个 vertex，相交的两个 region 之间连 edge。走过一个 vertex 时，在这个 region 里放一段 curve（$n$ 维 configuration space 里，一个 vertex 的变量至少有 $2n$ 个：这段的起点和终点都要在 region 里），edge 上加 equality constraint 让前一段的终点等于后一段的起点，edge cost 是 length 或 time 这类 convex function。选哪些 edge 是离散的，curve 的位置是连续的，合起来是一个 mixed-integer convex program。教材说它的 convex relaxation（把 0/1 变量放宽到 $[0,1]$）非常 tight，实践中只解 relaxation 再做一点 rounding 几乎总能得到最优解。
 
-Convex region 从哪里来是另一个问题：IRIS 交替找 separating hyperplane 和最大体积的 ellipsoid 来“长”一个 region，适合 mobile robot 这类 configuration space 本来就近似 Euclidean 的情形；arm 的 configuration space obstacle 不是 convex 的，要用 IRIS-NP（nonlinear solver 加随机 sample，probabilistic soundness）或 IRIS-ZO，或者用 sums-of-squares 给出严格证明（更慢）。iiwa 的例子先用 IK 在感兴趣的区域做 sampling，用包住这些 sample 的最小 ellipsoid 当 `starting_ellipse`，跑一次 IRIS。
+Convex region 从哪里来是另一个问题：IRIS 交替找 separating hyperplane 和最大体积的 ellipsoid 来“长”一个 region，适合 mobile robot 这类 configuration space 本来就近似 Euclidean 的情形；arm 的 configuration space obstacle 不是 convex 的，要用 IRIS-NP（nonlinear solver 加随机 sample，probabilistically sound，不保证 region 完全 collision-free；新的 IRIS-NP2 快几个数量级、region 更大、面更少）或 IRIS-ZO（只用 sample 的 zeroth-order 版本，region 稍小但容易并行），或者用 sums-of-squares 给出严格证明（更慢，而且 region 是在 stereographic projection 的 coordinate 里求的）。iiwa 的例子先用 IK 在感兴趣的区域做 sampling，用包住这些 sample 的最小 ellipsoid 当 `starting_ellipse`，跑一次 IRIS。
 
 :::back
 Configuration space、RRT 与 PRM 的基本做法见 [Modern Robotics 第 5 站](../courses/NW-MODERNROBOTICS.html#plan)；IK 的 branch 跳变见 [RB2202 第 5 站](../courses/RB2202.html#ik)；time scaling 见 [RB2202 第 7 站](../courses/RB2202.html#traj)。
 :::
 
 :::from
-IK 的 optimization 形式、cylinder 的两条 position constraint、“cost 简单、constraint 宽松”的建议、nonconvex 与 post 的两支 solution、differential IK 与 full IK 的对比、trajectory optimization 的形式、B-spline 的 convex hull property、collision 只在 sample 上检查与 initial guess 的例子、$\ell_1$ 方块的 toy、shortcutting、GCS 的 formulation 与 relaxation、IRIS 系列，来自 [教材第 6 章](https://manipulation.mit.edu/trajectories.html)（WebFetch 摘要；教材里 RRT、PRM 两节是空的标题）。开门的 tolerance 与 constraint 的选择、keyframe 初值、PR2 的 1.228/0.821/1.92 m、clearance 定理与 bisection、$\rho=\sqrt5$、margin $\delta$、self-collision 的提醒、`EDGE_STEP` 与 `CHECK_STEP`、joint sensitivity、RRT-Connect 与比较方式，来自 [ps3](https://manipulation.csail.mit.edu/Fall2026/ps3.pdf) Problem 14 到 18；shortcutting 也见 ps4 Problem 9。“两点决定 4 个 DOF”的解读、post 例子的几何与全部数值、证明的写法、5 mm 杆的例子、cubic Bézier 的推导与“保守一倍”，是为这一页推和算的。
+IK 的 optimization 形式、cylinder 的两条 position constraint、“cost 简单、constraint 宽松”的建议、nonconvex 与 post 的两支 solution、IK 与 differential IK 的分工、trajectory optimization 的形式、B-spline 的 convex hull property、collision 只在 sample 上检查与 initial guess 的例子（270°）、$\ell_1$ 方块的 toy、GCS 的 formulation（$2n$ 个变量、edge 上的 equality）与 relaxation、IRIS 系列、time-optimal path parameterization 的 change of variables、各条 constraint 与 $\int ds/\sqrt b$、TOPPRA 与 jerk 的问题，来自 [教材第 6 章](https://manipulation.mit.edu/trajectories.html)，这次逐字读了原文；教材里 RRT、PRM、post-processing 几节目前只有标题。开门题的 constraint 选择与 tolerance、`Q_NOMINAL` 与 keyframe 初值、PR2 题的 1 mm、1°、1 cm 与 `IK_SEED`、clearance 定理、$\rho=\sqrt5$、post 在 $A$、$B$ 的 clearance 表、margin $\delta$ 与 $\rho\varepsilon/2$、self-collision 的提醒、`EDGE_STEP`、`CHECK_STEP` 与 16.7 的 joint sensitivity 表、RRT-Connect 的写法与“按时间比较”，来自 [ps3](https://github.com/tlpmit/6.4210-2-fall26-handouts) Problem 14 到 18 的题目原文；shortcutting 也见 ps4 Problem 9。PR2 的 1.228/0.821/1.92 m 沿用上一版从解答摘要里记下的数，没有再核对。“两点决定 4 个 DOF”的解读、开头 post 例子的几何与全部数值、ps3 17.3 到 17.5 的走法、证明的写法、5 mm 杆的例子、cubic Bézier 的推导与“保守一倍”、TOPP 的 1.25 s 与 1.245 s，是为这一页推和算的。
 :::
 
 ## [force] Force control 与 hybrid position/force control
 
 :::skip
-快速路线里可以跳（研究底稿没有把第 8 章列入快速路线，我读到的 problem set 里也没有对应的题）。做灵巧手、真机接触任务的话值得读：能说出擦桌面时 $z$ 方向为什么用 force，能写出 hybrid control 的 control law，就可以去第 7 站。
+快速路线里可以跳（研究底稿没有把第 8 章列入快速路线）；ps7 的 Problem 2 到 5 是这一站的题。做灵巧手、真机接触任务的话值得读：能说出擦桌面时 $z$ 方向为什么用 force，能写出 hybrid control 的 control law，能推出拖书时两个 contact 各自要满足的 friction 条件，就可以去第 7 站。
 :::
 
 ### 碰到东西时，position control 在做什么
@@ -678,15 +739,39 @@ IK 的 optimization 形式、cylinder 的两条 position constraint、“cost �
 
 $$m\ddot x=\tau_g+u+f^{F_c},\qquad\tau_g=(0,-mg)^\top$$
 
+记号上 $f^{F_c}$ 是作用在 finger $F$ 上、作用点在 $c$ 的 force，同一个 force 作用在 box $B$ 上记作 $f^{B_c}$，两者相反：$f^{F_c}=-f^{B_c}$。教材特别提醒，不分清这两个，后面的符号一定会乱。
+
 想让 finger 对环境施加 $f_d$，环境对 finger 的 force 就是 $-f_d$。Finger 静止时 $\ddot x=0$，所以 $0=\tau_g+u-f_d$，
 
 $$u=f_d-\tau_g$$
 
-这就是 direct force control。它只需要知道 finger 自己的 mass，不需要知道物体的 mass，也不需要知道物体在哪里。教材的模拟里 finger 从 box 旁边出发，碰到 box 之后：force 小时 box 几乎不动；中等时 box 被推动一段，friction 让它停下；force 大时 finger 一直把 box 推到对面的墙。
+这就是 direct force control（教材写成 $u=-mg-f^{F_c}_{desired}$，$f^{F_c}_{desired}$ 是作用在 finger 上的那个 force）。它只需要知道 finger 自己的 mass，不需要知道物体的 mass，也不需要知道物体在哪里。“静止”这个假设在 manipulation 里通常不算太差，动作一般都慢；要不然就得测 acceleration（很吵），或者测 contact force 做 feedback。教材的模拟里 finger 从 box 旁边出发，在 $x=0.089$ 处撞上 box：force 小时 box 几乎不动；中等时 box 被推动一段，friction 让它停下；force 大时 finger 一直把 box 推到对面的墙。
 
-:::wrong Force control 不管位置，所以比 position control 更安全
-没接触时它恰恰最危险。Free space 里 $f^{F_c}=0$，代回去 $m\ddot x=\tau_g+f_d-\tau_g=f_d$：finger 以 $f_d/m$ 的 acceleration 一直加速，直到撞上东西。取 $m=1$ kg、$f_d=2$ N，离桌面 0.1 m，撞上时的 speed 是 $\sqrt{2\times2\times0.1}=0.63$ m/s，冲击力远大于 2 N。教材说这个性质在 legged robot 落脚时有用（脚会自己去找地面），对 manipulator 来说，没接触的方向不应该用 pure force control。
+:::wrong Direct force control 让 robot 安全地停在接触上
+没接触时它不会停。Free space 里 $f^{F_c}=0$，代回去 $m\ddot x=\tau_g+f_d-\tau_g=f_d$：finger 以 $f_d/m$ 的 acceleration 一直加速，直到撞上东西。教材把这一点当作 force control 吸引人的地方：不需要知道 box 的几何，只要有一条直线能碰到它，finger 自己就会去接触；legged robot 落脚时也这样用（swing 时近似 position control，落地时切到 force control，对地形的感知要求低得多）。代价是撞上时的速度：取 $m=1$ kg、$f_d=2$ N，离桌面 0.1 m，撞上时 speed 是 $\sqrt{2\times2\times0.1}=0.63$ m/s。ps7 4.3 把“direct force control 总能保证 robot 安全地停下来”列为要判断的说法，它是错的。
 :::
+
+### Feedback 与 feedforward：两个最小的例子
+
+ps7 Problem 4 用两个一维的 plant 把“哪一项负责什么”拆开。
+
+**Velocity-controlled joint**，$\dot q=u$，跟踪 $q_d(t)=q_0+vt$。P control $u=K_p(q_d-q)$，记 $e=q_d-q$，$\dot e=\dot q_d-\dot q=v-K_pe$。Steady state 是 $\dot e=0$，即 $e=v/K_p$：取 $K_p=10$ s$^{-1}$、$v=0.5$ rad/s，joint 永远落后 0.05 rad。加上 feedforward $u=\dot q_d+K_p(q_d-q)$，$\dot e=v-(v+K_pe)=-K_pe$，error 指数地趋于 0。加 integral 也能消掉这个 lag，代价是多一个要调的 gain。
+
+**Torque-controlled joint 举着一个重物**，$I\ddot q=u-\tau_g$。PD 在 setpoint 上静止时 $\dot q=\ddot q=0$，$0=K_p(q_d-q)-\tau_g$，$e=\tau_g/K_p$，就是 $mg/k_p$ 那个 error。PID 的 integral 在 steady state 补上 $\tau_g$，error 可以是 0，但不是任何一组正的 gain 都 stable。教材的 `JointStiffnessController` 走另一条路：feedforward $-\tau_g$ 直接抵消模型里的 gravity，不靠 error 去撑，所以 gain 可以调得很低。
+
+### Position 与 force 同时给
+
+教材的一般形式是在 stiffness 之上再加一个 feedforward force。ps7 Problem 2 用 point mass 在一条直线上把它算清楚：
+
+$$m\ddot x=u+f_c,\qquad u=k_p(x_d-x)-k_d\dot x-f_d$$
+
+$f_c$ 和 $f_d$ 都是作用在 robot 上的 force，正方向为 $+x$。$f_d>0$ 时 $-f_d$ 让 robot 往 $-x$ 推，那一侧的 surface 推回来，$f_c>0$。零 error 的意思是 $x=x_d$ 且 $f_c=f_d$。
+
+**Free space。** $f_c=0$，steady state $\dot x=\ddot x=0$ 时 $0=k_p(x_d-x)-f_d$，$x=x_d-f_d/k_p$。取 $k_p=1000$ N/m、$f_d=2$ N、$x_d=0$：robot 停在 $x=-2$ mm，position error 2 mm，force error $f_c-f_d=-2$ N。两个 error 不可能同时为 0：没有 surface，就没有东西提供 reaction force。
+
+**贴着一面墙。** 墙限制 $x\ge0$，robot 在 $x=x_d=0$ 处接触。Steady state 时 $0=k_p\cdot0-f_d+f_c$，$f_c=f_d=2$ N，两个 error 都是 0：墙提供的 reaction force 正好平衡了 $u=-f_d$。
+
+这和下面的 hybrid control 是同一个接口：把某个方向的 $k_p$、$k_d$ 设成 0，那个方向就只剩 force。
 
 ### Hybrid：每个方向选一样
 
@@ -698,9 +783,28 @@ $$u=-\tau_g+\begin{pmatrix}k_p(x_d-x)+k_d(\dot x_d-\dot x)\\ f_{d,z}\end{pmatrix
 
 ::fig[m4210-hybrid] 三种情形下 finger 都在 $x$ 方向做 position control，只看 $z$ 方向。虚线是估计的桌面，$k_p=1000$ N/m，gravity 已补偿。
 
-$z$ 用 position control，目标设在估计的桌面上：估计高了 1 cm，finger 悬在空中，什么也没擦到；估计低了 1 cm，spring 被压缩 1 cm，force 是 $1000\times0.01=10$ N，是想要的 5 倍。$z$ 用 force control，桌面在哪里都压 2 N，position 自己去适应真实的 surface。教材的说法是：commanded normal force 让 finger 跟着墙走，即使 normal 的估计错了也一样。
+$z$ 用 position control，目标设在估计的桌面上：估计高了 1 cm，finger 悬在空中，什么也没擦到；估计低了 1 cm，spring 被压缩 1 cm，force 是 $1000\times0.01=10$ N，是想要的 5 倍。$z$ 用 force control，桌面在哪里都压 2 N，position 自己去适应真实的 surface。教材的说法是：commanded normal force 让 finger 跟着墙走，即使 normal 的估计错了也一样；position control 的 robot 估错了墙的 normal，会在一边离开墙、在另一边压得极重。
 
-Surface 不水平时，在 contact frame 里写：$x$、$z$ 换成 contact 的 tangential 和 normal 方向，force 用 ${}^WR^C$ 转回 world。合起来的一般形式是 $u=-\tau_g+K_p(p^{F_d}-p^F)+K_d(v^{F_d}-v^F)-f_{ff}$：在要控 force 的方向把 $K_p$、$K_d$ 设成 0，就得到上面的 hybrid。教材的另一个例子是拖一本书：finger 和书之间 $z$ force 大，不打滑；书和桌面之间 friction 小，书能滑；$x,y$ 用 position control 决定往哪里拖。
+Surface 不水平时，在 contact frame 里写：$x$、$z$ 换成 contact 的 tangential 和 normal 方向，force 用 ${}^WR^C$ 转回 world。合起来的一般形式是 $u=-\tau_g+K_p(p^{F_d}-p^F)+K_d(v^{F_d}-v^F)-f_{ff}$：在要控 force 的方向把 $K_p$、$K_d$ 设成 0，就得到上面的 hybrid。教材指出，这和 iiwa 等 torque-controlled robot 提供的接口很接近。
+
+### 拖一本书
+
+教材配了一段视频：gripper 压住一本书，把它在桌面上拖走。要求是 finger 与书之间不打滑，书与桌面之间要滑。ps7 Problem 5 把条件推出来。书的 mass 是 $m$，gripper 向下压 $F>0$，gripper–书之间的 static friction 系数 $\mu_C$，书–桌面之间 $\mu_A$。没有竖直方向的 acceleration，所以桌面对书的 normal force 是 $F+mg$。
+
+- 书要滑，gripper 给书的水平 force $H$ 要超过桌面能给的最大 friction：$H>\mu_A(F+mg)$。
+- Gripper 与书不打滑，$H$ 不能超过这个 contact 的 friction cone：$H\le\mu_CF$。
+
+两条能同时满足，当且仅当 $\mu_CF>\mu_A(F+mg)$，两边除以 $\mu_AF$：
+
+$$\frac{\mu_C}{\mu_A}>1+\frac{mg}{F}$$
+
+由此能直接读出两件事。$\mu_C$ 小了不行：它限制的是 gripper 能传多大的 tangential force。$\mu_C>\mu_A$ 时，压得越重越容易：$F\to\infty$ 时右边趋于 1，两边的 friction 都随 $F$ 增大，但 gripper 那边增长得更快（斜率 $\mu_C$ 对 $\mu_A$）。取一组数检验（这组数是为这一页取的，ps7 没有给书的 mass）：$\mu_A=0.3$、$\mu_C=1.0$、$mg=3$ N，左边 $3.33$，要求 $1+3/F<3.33$，即 $F>1.29$ N。用 ps7 simulation 里的 $F=10$ N，桌面最多给 $0.3\times13=3.9$ N，gripper 最多传 $1.0\times10=10$ N，任何 $3.9<H\le10$ N 的水平 force 都能拖动书而不打滑。
+
+这正是 hybrid 的分工：$z$ 方向的 force 决定两个 friction 上限，必须直接给；$x$ 方向往哪里拖用 position。ps7 的实现题在 planar iiwa 上写 `compute_ctrl`：输入 gripper 的 $(\theta_y,x,z)$ 和 $(\omega_y,\mathrm v_x,\mathrm v_z)$，输出 end-effector wrench $w=(\tau_y,f_x,f_z)$，wrapper 用 $J^\top w$ 换成 joint torque，gravity compensation 由 station 负责。Pitch 和 $x$ 用 PD（$k_{p\theta}=10$、$k_{d\theta}=3$、$k_{px}=50$、$k_{dx}=15$，desired 的 pitch rate 和水平 velocity 取 0），$z$ 没有 position feedback，只给 $f_z=-F_d$（world $z$ 朝上，向下压是负的）：
+
+$$\tau_y=10(0-\theta_y)+3(0-\omega_y),\qquad f_x=50(x_d-x)+15(0-\mathrm v_x),\qquad f_z=-F_d$$
+
+代 handout 给的 verification input $(\theta_y,x,z)=(0.1,0.8,0.05)$、$(\omega_y,\mathrm v_x,\mathrm v_z)=(0.2,-0.1,0)$、$x_d=0.65$、$F_d=2$：$\tau_y=-1-0.6=-1.6$ N·m，$f_x=50\times(-0.15)+15\times0.1=-7.5+1.5=-6.0$ N，$f_z=-2.0$ N。（这是我按题目的定义算的，解答没有核对。）Simulation 里 $x_d(t)=0.65-0.125\max(t-2,0)$ m、$F_d=10$ N，跑 6.5 s，handout 要求书的中心最后落在 0.35 到 0.55 m 之间，fingertip 始终不低于 $z=0.035$ m。
 
 ### Stiffness control 也是一种 force control
 
@@ -708,9 +812,33 @@ Hybrid 需要事先决定“哪个方向在接触”。Stiffness control 不做�
 
 $$u=-\tau_g-b\dot x-k(x-x_d)$$
 
-没接触时它就是 position control；接触时 spring 被压缩，force 是 $k(x_d-x)$，force 由“$x_d$ 设在 surface 里面多深”决定。所以它被叫做 indirect force control。教材强调它的一个好处：robot 和环境都是 dissipative 的时候，耦合起来的系统一定 stable（passivity），不需要知道环境的 model。
+没接触时它就是 position control；接触时 spring 被压缩，force 是 $k(x_d-x)$，force 由“$x_d$ 设在 surface 里面多深”决定。所以它被叫做 indirect force control（Salisbury 的 stiffness control、Hogan 的 impedance control）。只改 stiffness 和 damping 叫 stiffness control；连 effective mass 也改才是完整的 impedance control，教材说控制领域的共识是改 mass 多数时候不值得，sensing 和 bandwidth 的要求太高。教材强调它的一个好处：robot 和环境都是 dissipative 的时候，耦合起来的系统一定 stable（passivity），不需要知道环境的 model。Stiffness 矩阵也可以写在另一个 frame $A$ 里：$K_p$ 换成 ${}^WR^AK_p\,{}^AR^W$。
 
-教材的 box flip-up 用了两种写法。Force 版本在 friction cone 的 constraint 下解一个 least squares，让 finger 对 box 底角的 torque 等于一个 PID 的输出；stiffness 版本更简单：在 finger 和 box 左上角附近的一点之间挂一根“rubber band”，先把 virtual finger 移到墙前面压出一个支撑的 contact force，再把 virtual finger 沿墙往上移，box 绕上角转起来；即使中途打滑，同一根 spring 也会把 box 压下去完成动作，不需要 slip detection，也不需要 replan。
+### 翻起一个 box
+
+教材的 box flip-up 用了两种写法。Force 版本：finger 在 box 右上角 $C$ 施力，让 box 绕左下角 $A$ 转起来，同时要求 $A$ 不滑。教材在 friction cone 的 constraint（两个 contact 各一个）和 box 的 force balance 下解一个 least squares，让 finger 对 $A$ 的 torque 等于一个 PID（作用在 box 的角度 $\hat\theta$ 上）的输出；它只需要 $\hat\theta$、两个 $\hat\mu$、finger 相对 corner 的大致位置和 box 的大致 mass，教材说对这些估计相当 robust。
+
+刚开始翻、box 还近似竖直时，什么样的 force 可行？ps7 Problem 3（来自教材的 exercise “Box Flip-up”）用 axis-aligned 的近似算出上下界。Box 是边长 $s$、mass $m$ 的正方形；finger 在 $C$ 处给一个向左的 normal force $N>0$ 和一个向上的 tangential force $T\ge0$，要求 $T\le\mu_CN$；gravity $mg$ 作用在中心；地面只在 $A$ 处给 reaction $R_x$、$R_z$。
+
+::fig[m4210-tip] 左：box 与各个 force。右：$\mu_A=0.25$ 时，$N/mg$ 必须落在下界与上界之间；$\mu_C=1$ 时区间是空的，$\mu_C=3$ 时不空。
+
+**Tipping。** 对 $A$ 取 moment：$N$ 的 moment arm 是 $s$（作用在高 $s$ 处），$T$ 的 moment arm 也是 $s$（作用在水平距离 $s$ 处），gravity 的是 $s/2$，开始转的条件是 $s(N+T)-smg/2>0$，即 $N+T>mg/2$。
+
+**Finger 不滑。** $T\le\mu_CN$，所以 $N+T\le(1+\mu_C)N$。要 $N+T>mg/2$ 可行，必须
+
+$$N>\frac{mg}{2(\mu_C+1)}$$
+
+**Pivot 不滑。** 水平方向 $R_x=N$，竖直方向 $R_z=mg-T$（$T$ 向上，地面少承担一部分），要求 $N\le\mu_AR_z=\mu_A(mg-T)$。$T$ 越大地面越“轻”，pivot 越容易滑，所以 $T$ 只取 tipping 所需的最小值附近：由 $N+T>mg/2$，$T>mg/2-N$，于是 $mg-T<mg/2+N$，
+
+$$N\le\mu_A(mg-T)<\mu_A\Big(\frac{mg}{2}+N\Big)\quad\Rightarrow\quad N(1-\mu_A)<\frac{\mu_Amg}{2}\quad\Rightarrow\quad N<\frac{\mu_Amg}{2(1-\mu_A)}\quad(0<\mu_A<1)$$
+
+**两个界放在一起。** 区间不空，当且仅当 $\frac{1}{2(\mu_C+1)}<\frac{\mu_A}{2(1-\mu_A)}$，即 $1-\mu_A<\mu_A(1+\mu_C)$，
+
+$$\mu_C>\frac{1-2\mu_A}{\mu_A}$$
+
+取 $\mu_A=0.25$（教材说相当于 wood 对 metal）：上界是 $N<0.25mg/1.5=mg/6=0.1667\,mg$，要 $\frac{1}{2(\mu_C+1)}<\frac16$，即 $\mu_C>2$。$\mu_C=1$ 时下界是 $mg/4=0.25\,mg$，比上界大，翻不起来；$\mu_C=3$ 时下界是 $mg/8=0.125\,mg$，$N$ 取 $0.125\,mg$ 到 $0.1667\,mg$ 之间就行。$\mu_A=1$（concrete 对 rubber）时 $N(1-\mu_A)<\mu_Amg/2$ 恒成立，pivot 那一边没有上界，任何 $\mu_C\ge0$ 都有有限的 force 能翻起 box。$\mu_A\ge0.5$ 时右边 $\frac{1-2\mu_A}{\mu_A}\le0$，同样对 $\mu_C$ 没有要求。
+
+Stiffness 版本更简单：先把 box 推进角落，在 finger 和墙上 box 左上角稍高处的一点之间挂一根“rubber band”，即把 virtual finger 移到墙前面压出一个支撑的 contact force，再把 virtual finger 沿墙往上移，box 绕上角像 pendulum 一样转起来；上角迟早会打滑，但同一根 spring 会让 finger 从上面把 box 压下去完成动作。教材的评价是：要是写一个 estimator 去检测打滑的那一刻再重新规划，“那不是通往幸福的路”。
 
 ### 真机上：iiwa 的 joint impedance 与 $\tau_{ff}$
 
@@ -718,18 +846,20 @@ $$u=-\tau_g-b\dot x-k(x-x_d)$$
 
 $$u=-\tau_g(q)+K_p(q_d-q)+K_d(\dot q_d-\dot q)+\tau_{ff}$$
 
-它只抵消 gravity，不改变 inertia，所以能用低得多的 gain，接触时很顺从。Cartesian 版本经 $u=J^\top f_u$ 把一个 end-effector force 换成 joint torque（virtual work），闭环后 end-effector 像一个 spring-damper。iiwa 自带 Cartesian impedance mode，但教材指出：在 joint 和 Cartesian mode 之间切换要先停下 robot，运动中也不能改 stiffness 和 frame。实际的做法是一直留在 joint impedance mode，把想要的 Cartesian force 换成 $\tau_{ff}=J^\top f$ 送进去。教材给的真机 gain 是 $[800,600,600,600,400,200,200]$ N·m/rad。Gripper 的 inertia 在 pendant 里设一次，之后抓起物体、finger 开合造成的变化不会被补偿。Simulation 里则偏好 `InverseDynamicsController`，因为在差不多的物理 stiffness 下它的等效 stiffness 更小，可以用更大的 integration time step。
+它和普通 PD 只差 $-\tau_g$ 一项，但不再靠 error 去撑住 gravity，所以能用低得多的 gain，接触时很顺从，没有外力时照样跟得准。它只抵消 gravity（和 friction），不改变 inertia；iiwa 的 joint-impedance mode 也会 shape 一点 rotor inertia，但用户设不了，从用户角度看就是 stiffness control。对比 `InverseDynamicsController`：闭环后是 $\ddot q+K_p(q-q_d)+K_d(\dot q-\dot q_d)=M^{-1}\tau_{ext}$，feedback 写在 acceleration 的单位里，前提是 $M$、$C$ 估得准。Cartesian 版本经 $u=J^\top f_u$ 把一个 end-effector force 换成 joint torque（virtual work；ps7 4.4 问的就是这个 map 是 $J^\top$），闭环后 end-effector 像一个 spring-damper；有多余的 joint 时还要在 dynamically-consistent 的 null space 里加 joint centering，这就是 Khatib 的 operational space control。
+
+iiwa 自带 Cartesian impedance mode，但教材指出：在 joint 和 Cartesian mode 之间切换要先停下 robot，运动中也不能改 stiffness 和 frame。实际的做法是一直留在 joint impedance mode，把想要的 Cartesian force 换成 $\tau_{ff}=J^\top f$ 送进去。iiwa 的接口只收 desired joint position，不收 desired velocity，教材认为它内部对 position 命令做数值差分，会带来几个控制周期的延迟。教材给的真机 gain 是 $[800,600,600,600,400,200,200]$ N·m/rad。Gripper 的 inertia 在 pendant 里设一次，之后抓起物体、finger 开合造成的变化不会被补偿。Simulation 里则偏好 `InverseDynamicsController`，因为要在 physics 里得到差不多的 stiffness，它的 differential equation 的等效 stiffness 更小，可以用更大的 integration time step；用上面那组 gain 直接 simulate 需要很小的 step。
 
 ### Peg in hole
 
-把圆 peg 插进圆孔，间隙很小。Peg 的位置稍有偏差，孔口的 chamfer 加上一点 compliance 就能把它导进去。Orientation 偏了更麻烦：peg 会在孔里卡住（jamming），在 Coulomb model 下 friction force 可以变得很大、而且不唯一。需要的 rotation 应该绕 contact 点发生，而不是绕 gripper；stiffness control 可以把 compliance 的中心放在 peg 的 tip 附近，但间隙很小时要求很高的 sensing 和 bandwidth。Remote center compliance（RCC）是一个被动的机械装置，把 compliance 的中心放在 gripper 外面、peg tip 附近，不需要 sensing，bandwidth 等于无穷。这一节教材只给了定性的讨论。
+把圆 peg 插进圆孔，间隙很小。Peg 的位置稍有偏差，孔口的 chamfer 加上一点水平方向的 compliance 就能把它导进去。Orientation 偏了更麻烦：peg 会在孔里卡住（jamming），在 Coulomb model 下 friction force 可以变得很大、而且不唯一。需要的 rotation 应该绕 contact 点发生，而不是绕 gripper；stiffness control 可以把 compliance 的中心放在 peg 的 tip 附近，但间隙很小时要求很高的 sensing 和 bandwidth。Remote center compliance（RCC）是一个被动的机械装置，把 compliance 的中心放在 gripper 外面、peg tip 附近，不需要 sensing，bandwidth 等于无穷。这一节教材只给了定性的讨论，配套的 exercise 让你先给一个 floating peg 写 stiffness control，再给 planar iiwa 写 operational space 的 stiffness controller。
 
 :::back
 $mg/k_p$、integral windup、joint impedance、Cartesian stiffness 与 operational space control 见 [RB2203 第 5、6 站](../courses/RB2203.html#task)；friction cone 见[第 4 站](#grasp)。
 :::
 
 :::from
-Point finger 的 model、direct force control 只需 finger 的 mass、box 的三种结果、free space 里朝 force 方向加速、legged robot 的说法、hybrid 的 control law 与 contact frame 版本、“跟着墙走”、拖书的例子、stiffness 与 impedance 的区别、passivity、box flip-up 的两种写法、joint stiffness 与 Cartesian stiffness、iiwa 不能切 mode、$\tau_{ff}$、gain 数组、simulation 用 `InverseDynamicsController`、peg-in-hole 的 chamfer、jamming 与 RCC，来自 [教材第 8 章](https://manipulation.mit.edu/force.html)（WebFetch 摘要）。$u=f_d-\tau_g$ 的符号约定（教材写成 $u=-mg-f^F_{desired}$，$f^F_{desired}$ 是作用在 finger 上的 force）、0.63 m/s 的例子、擦桌面的三格对比与 10 N、2 N，是为这一页写和算的。
+Point finger 的 model 与 $f^{F_c}=-f^{B_c}$ 的记号、direct force control 只需 finger 的 mass 与“accelerations 近似为 0”的假设、$x=0.089$ 与 box 的三种结果、free space 里朝 force 方向加速与 legged robot 的说法、`JointStiffnessController` 与 `InverseDynamicsController` 的闭环形式、hybrid 的 control law 与 contact frame 版本、“跟着墙走”、position 加 feedforward force 的一般形式、拖书的视频、stiffness 与 impedance 的区别、passivity、box flip-up 的两种写法、joint stiffness 与 Cartesian stiffness、operational space control、iiwa 不能切 mode、只收 position 命令、$\tau_{ff}$、gain 数组、simulation 用 `InverseDynamicsController`、peg-in-hole 的 chamfer、jamming 与 RCC，来自 [教材第 8 章](https://manipulation.mit.edu/force.html)，这次逐字读了原文和 exercises。Feedback 与 feedforward 的两个 plant、position 加 force 的 point mass 与零 error 的定义、box 翻起的设定与 tipping-moment test（含 $\mu_A=0.25$、$\mu_A=1$ 两种情形）、拖书的 friction 条件与 $\mu_C/\mu_A>1+mg/F$ 的形式、`compute_ctrl` 的接口与 gain、verification input、$x_d(t)$、10 N、6.5 s 与验收范围，来自 [ps7](https://github.com/tlpmit/6.4210-2-fall26-handouts) Problem 2 到 5 的题目原文和 handout 代码 `hybrid_force_control.py`。上一版写“我读到的 problem set 里没有对应的题”，是因为 ps7 当时没有抓到。所有推导和数值（$0.05$ rad、$-2$ mm、上下界的推导、$\mu_C>2$、拖书的 $1.29$ N 与 $3.9$ N、wrench 的 $(-1.6,-6.0,-2.0)$）是我按题目算的，ps7 的解答没有读到。$u=f_d-\tau_g$ 的符号约定、0.63 m/s 的例子、擦桌面的三格对比与 10 N、2 N、拖书那组 $\mu$ 与 $mg$，是为这一页写和取的。
 :::
 
 ## [policy] Imitation learning 的工程选择：action 的表示与评估
@@ -742,7 +872,7 @@ Point finger 的 model、direct force control 只需 finger 的 mass、box 的�
 
 Demonstration 记录下来的是 robot 的 position。如果 policy 要输出 velocity，label 就要从 position 差分出来。ps5 5.1：两次测量相隔 0.02 s，读数是 $-1$ mm 和 $+1$ mm（真实的 robot 静止，只是 sensor noise），差分出来的 velocity 是 $2/0.02=100$ mm/s；sampling 快一倍、相隔 0.01 s，就变成 200 mm/s。sampling 越快，velocity label 越吵。
 
-执行时两者的差别更大。ps5 5.2 设每次 update 相隔 0.1 s，policy 一直输出同一个东西。输出 velocity 5 mm/s 时 $x_n=0.5n$ mm，没有上限。输出 position target 1 mm、controller 每次走完剩余 error 的一半时，$x_n=1-2^{-n}$ mm：
+执行时两者的差别更大。ps5 5.2 设 policy 预测错了，而且 1 s 之内不会给新的预测，robot 每 0.1 s update 一次，一直执行这个错的命令。应该是 0 的 velocity 被预测成 5 mm/s 时 $x_n=0.5n$ mm，没有上限。应该是 0 的 position target 被预测成 1 mm、robot 每次从当前位置走到 target 的一半时（两种错误第一步走得一样远），$x_n=1-2^{-n}$ mm：
 
 | update | velocity command | position target |
 |---|---|---|
@@ -766,7 +896,7 @@ ps5 Problem 6：两个场景只差 robot 的起点，A 在 world 里 0.20 m，B 
 
 只看 image 的 deterministic policy 对两张一样的 image 只能给一样的输出，所以学得会 relative，学不会 absolute。把当前 pose 也作为 input 时两种都能学，world 里的 target 由 ${}^WX^{G_{t+j}}={}^WX^{G_t}\,{}^{G_t}X^{G_{t+j}}$ 得到。
 
-还有精度的问题。ps5 6.4 设训练数据里 absolute target 的范围是 $[-9.95,10.20]$ m，relative 是 $[0.05,0.20]$ m。Network 的 output 通常 normalize 到 $[-1,1]$ 这类范围，同样是“满量程的 1%”的 error，absolute 是 $0.01\times20.15=0.2015$ m，relative 是 $0.01\times0.15=0.0015$ m。要 1 mm 的精度，absolute 表示对 network 的要求是 relative 的 134 倍。
+还有精度的问题。ps5 6.4 设起点 $h\in[-10,10]$ m，向前的位移 $d\in[0.05,0.20]$ m，于是 absolute target $h+d$ 的范围是 $[-9.95,10.20]$ m，relative 是 $[0.05,0.20]$ m。训练时每个 output 线性地缩放到 $[0,1]$，scaled output 上同样 0.01 的 error（满量程的 1%），absolute 是 $0.01\times20.15=0.2015$ m，relative 是 $0.01\times0.15=0.0015$ m。要 1 mm 的精度，absolute 表示对 network 的要求是 relative 的 134 倍。
 
 ### Rotation 怎么交给 network
 
@@ -778,7 +908,7 @@ Network 输出的是一串实数，rotation 要变成实数。ps5 Problem 11 把
 | unit quaternion，两个符号都允许 | J、U、C |
 | unit quaternion，第一个非零分量取正 | J、C |
 | $R$ 的全部 9 个 entry | C |
-| $R$ 的两个 column（6 个数） | C |
+| $R$ 的第 2、3 个 column（6 个数） | C |
 
 J 对 regression 伤害最大：两个几乎一样的 rotation，label 却差很远，MSE 会把 policy 拉向两者的平均，那是一个完全不同的 rotation。固定 quaternion 的符号消掉了 U，却在“第一个分量接近 0”处造出了 J。9 个 entry 和 6 个数都只有 C，而 C 可以在 output 之后修掉。6D 表示用 Gram–Schmidt 把任意两个 vector 变成 rotation matrix（ps5 11.2 的写法）：
 
@@ -788,7 +918,7 @@ ps5 11.3 的例子：$u=(2,0,0)$，$v=(1,0,3)$。$r_2=(1,0,0)$；$r_2^\top v=1$�
 
 $$R=\begin{pmatrix}0&1&0\\-1&0&0\\0&0&1\end{pmatrix},\qquad\det R=0\cdot(0\cdot1-0)-1\cdot(-1\cdot1-0)+0=1$$
 
-Cross product 的顺序反过来（$r_1=r_3\times r_2$）得到 determinant $-1$，是 reflection。这个 map 在 $u$、$v$ 不平行的地方都 continuous，相邻的 rotation 总能由相邻的 6 个数得到，所以没有 J。为什么 3 个或 4 个数做不到这一点（任何三参数的表示都有 singularity 或 wraparound，ps2 2.9），以及 6D 表示最早的论证，来自 Zhou 等人 2019 年的论文，这里凭记忆写，没有核对原文。
+Cross product 的顺序反过来（$r_1=r_3\times r_2$）得到 determinant $-1$，是 reflection。这个 map 在 $u$、$v$ 不平行的地方都 continuous，相邻的 rotation 总能由相邻的 6 个数得到，所以没有 J。为什么 3 个或 4 个数做不到这一点：ps2 2.9 问的就是“为什么任何三个数的表示都免不了在某处出 singularity”；quaternion 的 4 个数则有 $q$ 与 $-q$ 的 double cover，固定符号又造出 J。ps5 把 Zhou 等人的 On the Continuity of Rotation Representations in Neural Networks（CVPR 2019）列为这道题的背景阅读，6D 表示就出自这篇；论文正文我没有读。
 
 ### 再看一次 multimodal
 
@@ -819,66 +949,72 @@ Behavior cloning、DAgger、multimodal demonstration、diffusion policy 与 flow
 :::
 
 :::from
-Velocity label 的 100 与 200 mm/s、velocity 与 position 的表、bump 之后的 4 mm 与 2、1、0.5 mm、relative 与 absolute 的场景与 201.5 mm 对 1.5 mm、J/U/C 的分类、Gram–Schmidt 的写法与例子、两个 waypoint 的 averaging 与“独立 sample 成功率 1/2”、80% 对 60% 的 z 值和两种 p-value、expected count 的检查、“不显著不等于相同”，来自 [ps5](https://manipulation.csail.mit.edu/Fall2026/ps5.pdf) Problem 3、5、6、10、11；bootstrap 的单位来自 [ps6](https://manipulation.csail.mit.edu/Fall2026/ps6.pdf) 的 appendix。z-test 的推导、134 倍、Wilson interval、power 的计算是为这一页算的（scipy 核对过 ps5 的 p-value）；6D 表示的出处（Zhou et al. 2019）凭记忆写，没有核对。
+Velocity label 的 100 与 200 mm/s、velocity 与 position 的表、bump 之后的 4 mm 与 2、1、0.5 mm、relative 与 absolute 的场景与 201.5 mm 对 1.5 mm、J/U/C 的分类、Gram–Schmidt 的写法与例子、两个 waypoint 的 averaging 与“独立 sample 成功率 1/2”、80% 对 60% 的 z 值和两种 p-value、expected count 的检查、“不显著不等于相同”，来自 [ps5](https://github.com/tlpmit/6.4210-2-fall26-handouts) Problem 3、5、6、10、11；bootstrap 的单位来自 [ps6](https://manipulation.csail.mit.edu/Fall2026/ps6.pdf) 的 appendix。z-test 的推导、134 倍、Wilson interval、power 的计算是为这一页算的（scipy 核对过 ps5 的 p-value）；6D 表示的出处按 ps5 的 background reading 写，Zhou et al. 2019 的论文只核对了题目与出处，正文没有读。这次对照 ps5 的题目原文核对了每道题的设定（11.1 里 6D 表示是 $R$ 的第 2、3 个 column、11.2 用 $u$ 定 $r_2$）；各题的数值答案是按题目算的，解答没能再核对。教材里 imitation learning 的章节（visuomotor policies）目前是空的 draft，所以这一站没有教材原文可对照。
 :::
 
 ## 作业
 
-Fall 2026 有 ps1 到 ps7 七份 problem set，每份 PDF 里题目和解答在一起（schedule 页把它们列在 midterm 复习材料下面）。自学时先遮住解答自己做，再对照。每份分 bookwork（选择题和短答，在 Gradescope 上填）、computational（Python 和 Drake）、6.4212 加做的题，以及不用交的 “Going further” 和 understanding check。Gradescope 的评分不对外。ps7 的 PDF 这次没有抓到，下面不写。所有 problem set 都能在笔记本 CPU 或免费 Colab 上做，不需要 GPU；handout 都没有给出所需时间，下面的时间是估计。
+Fall 2026 有 ps1 到 ps7 七份 problem set。Handout 仓库里的 PDF 只有题目；课程网站 schedule 页把带解答的版本列在两次 midterm 的复习材料下面（ps1 到 ps4 在 Midterm I 下，ps5 到 ps7 在 Midterm II 下），旁边还有 midterm practice 和解答。自学时先用仓库里的题目版自己做，再对照。每份分 bookwork（Gradescope 上填的选择题和数，加一个不用交的 “Going further”）、computational（Python 和 Drake，交几个 checkpoint 数和一段视频）、6.4212 加做的题，最后是一节 “What you should understand about the code you just produced”。ps1 开头说得很清楚：作业的首要目的是教，不是考，真正的考核是 quiz 和 final project；用什么工具写代码都可以，但要始终参与其中、对结果保持批判，最后那一节列的就是“不管代码怎么写出来的，你都应该懂的东西”。Gradescope 的评分不对外。所有 problem set 都能在笔记本 CPU 或免费 Colab 上做，不需要 GPU；handout 都没有给出所需的人工时间，下面的时间是估计。下面提示里凡是写“解答摘要”的，是上一版从带解答的 PDF 的 WebFetch 摘要里记下的数，这次没能再核对。
 
 **环境（handout 仓库 README）。** 两条路选一条。本地（推荐）：装 git、uv 和 Graphviz（系统程序，不是 Python 包：macOS 用 `brew install graphviz`，Ubuntu/WSL 用 `sudo apt install graphviz`）；clone 仓库后 `uv python install 3.13`、`uv venv --python 3.13`、`uv pip install drake`。Drake 没有原生 Windows 版，要先装 WSL。Colab：从 GitHub 打开 `ps1/ps1_colab.ipynb`，前两个 cell 把代码拉到 `MyDrive/6.4210/repo`，之后只在 Drive 里的副本上工作，每次会话先跑 setup cell。
 
 - **不要 fork 公开的 handout 仓库**：fork 不能设为 private，会把 solution 公开；要备份就新建一个空的 private 仓库，把 handout 仓库设成 `upstream`。（来源：README。）
-- **路径里有空格或特殊字符（包括 apostrophe、括号、`&`）时 Drake 下载 model 会失败，报 `returncode == 512`**：Drake 新版本运行 venv 里的 helper script 时不给路径加引号。把 venv 建在 home 下：`uv venv --python 3.13 ~/venv64210`。（来源：README。）
+- **路径里有空格或特殊字符（包括 apostrophe、括号、`&`）时 Drake 下载 model 会失败，报 `returncode == 512`**：Drake 新版本运行 venv 里的 helper script 时不给路径加引号。把 venv 建在 home 下：`uv venv --python 3.13 ~/venv64210`，README 给了往这个 venv 里一次装齐后面各份 problem set 依赖的命令。（来源：README。）
 - **Colab 上改了 `.py` 文件要先运行 `colab_bootstrap.refresh()` 再重跑 cell**，否则 import 的还是旧代码；Colab 的 terminal 收费，git 用 `!` cell，`%cd` 能在会话内保持，`!cd` 不能。（来源：README。）
-- **查 API 先看 Drake 的 C++ 文档**：Python 文档大多从 C++ 自动生成，C++ 的写得更仔细。用 `plot_system_graphviz` 画 block diagram，排查 port 连线。（来源：ps1。）
-- 新 problem set 发布时，先 commit 自己的修改再 `git pull upstream main`。（来源：README。）
+- **查 API 先看 Drake 的 C++ 文档**：Python 文档大多从 C++ 自动生成，C++ 的写得更仔细。用 `plot_system_graphviz` 画 block diagram，每个 subsystem 一个框、列出 input 和 output port，排查连线。（来源：ps1 Problem 7。）
+- 新 problem set 发布时，先 commit 自己的修改再 `git pull upstream main`。ps4 和 ps6 各要求先更新环境（ps4 要 `"manipulation[letter]" scipy rtree`，ps6 要 `torch gymnasium pandas ipykernel`）。（来源：README、ps4、ps6。）
 
 ### ps1：State、discrete-time system 与 Drake 入门（第一次用 Drake 就做）
 
-**要做什么。** Bookwork 数 state 和 configuration 的维数（pendulum、自由的 rigid body、mobile robot、differential drive、iiwa、drone），区分 joint 的类型。Computational 部分在 Drake 里搭 1D 的 free body、series 与 feedback composition、position controller；一个 2D Cartesian finger 加 damping、observer 和 controller，用 waypoint follower 走正方形；iiwa 在 zero torque、constant torque、P 和 PD control 下的 simulation。6.4212 另做 plant time step 与 controller period 对精度和失败方式的影响、PD damping 对 overshoot 的影响。
+**要做什么。** 教材第 1、2 章是指定阅读。Bookwork：数 state 的维数（plane 上的 pendulum、3D 的 free body、会耗电也能充电的 mobile robot），数 configuration 与 actuation 的维数（differential-drive、iiwa、四个固定 propeller 的 drone；going further 是蛇和铰接公交车），manipulation 与 driving 的根本区别（“通过有选择的 contact 改变环境”），四类系统设计思路，joint 的类型（iiwa、抽屉、parallel-jaw gripper、桌上的方块），Drake 的组成。Computational 分三块。Problem 7：用一个只有 next-state function $s_{t+1}=f(s_t,i_t)$ 和 output function $o_t=g(s_t,i_t)$ 的 `DTVectorSystem` 接口，写 1D free body（forward Euler $s_{t+1}=s_t+\Delta t\,\dot s_t$，input 是 force、output 是 position）、series composition、P controller 和 feedback composition。Problem 8：一个两个 prismatic joint 的 2D Cartesian “finger”，先给 constant input 看 velocity 为什么 plateau，再写 `Observer`（从 $[x,y,\dot x,\dot y]$ 里挑出 position）接上 controller，最后写一个带 state 的 waypoint follower 走正方形。Problem 9：iiwa 在 zero torque、constant torque（20 N·m）、P（gain 100）、PD（100 与 30）下的行为，最后用 PD（10000 与 3000）加 waypoint follower 让 end-effector 在竖直 plane 里画一个 0.4 m 的正方形并交视频。6.4212 另做 plant time step 与 controller period 的影响、PD damping 与 overshoot、settling time 的关系，每题交一页带 plot 的 PDF。
 
-**做完会什么。** Drake 的 `Diagram`、`System`、port 与 `Context`，后面每一份 problem set 都建立在这上面。
+**做完会什么。** Drake 的 `Diagram`、`System`、port 与 `Context`，后面每一份 problem set 都建立在这上面；在 iiwa 上亲眼看到 zero torque、P、PD 各是什么样子，第 6 站的 gravity compensation 和 stiffness control 就有了参照。
 
 **时间与算力。** 估计 6 到 10 小时，大半花在环境和 Drake 的写法上（估计）。笔记本 CPU。
 
 **提示。**
-- 这份我只读到每题的一句话摘要和环境说明，没有更具体的提示。研究底稿把第 2 章（Let's get you a robot）和 Drake 的 Diagram 写法列为快速路线的第一步。
+- `simulate` 的参数是秒，不是步数：$\Delta t=0.1$ s 时 5 步是 $T=0.5$。（来源：ps1 7.2。）
+- 8.3 要把 `JOINT_DAMPING` 从 10 改成 20，它是在载入时写进 SDF 文本的，所以要改 `cartesian_2d_robot.py` 再重跑，光改变量不生效。（来源：ps1 8.3。）
+- iiwa 的 Drake state 是 14 维（7 个 position 加 7 个 velocity），P controller 只要 7 维 position，用 8.2 写的 `Observer` 去挑。（来源：ps1 9.3。）
+- 给的 PD controller 用相邻两次 position 测量的差分估计 velocity，所以它的 `dt` 参数是 controller 自己的运行周期，要传一个和 simulation 相符的值，不要用默认值。（来源：ps1 9.4。）
+- 最后一节要求能解释：为什么 $\Delta t$ 进入 physics simulation 和 PD controller 的数学，却不进入 P controller（它没有 state）；waypoint follower 的 $\Delta t$ 只决定多久检查一次是否到达；SDF 里声明 inertia 和 joint damping 各起什么作用；epsilon 怎样和 controller gain 一起改变走出来的 path。（来源：ps1 第 3 节。）
+- 视频是 mp4，远小于 500 MB。（来源：ps1 9.5。）
 
 ### ps2：Rotation、transform、FK/IK、Jacobian 与 pick and place（先做）
 
-**要从零写什么。** Bookwork 是 roll-pitch-yaw 与 quaternion 的组合与 inverse、五组 rotation 平均的陷阱、第 1 站那三个 frame 的换算、planar arm 的 transform chain、Jacobian 的 rank 与 singularity。Computational：planar 2R 的 FK（$(0.3,0.2)$ 处 tip 在 $(1.8329,0.7749)$）、解析 IK（$(-1,-0.5)$ 的两组解 $(-3.66,1.96)$、$(-1.70,-1.96)$）、Jacobian（$\det J=\sin q_1$）；overhead grasp 的 offset（$p^O_{G}=(0,0,0.1330)$ m）；`JointVelocity` system 用 pseudoinverse 做 differential IK；`PiecewisePose.MakeLinear` 生成 trajectory；最后规划叠三个方块（`plan` 返回 16 个 waypoint）并交一段视频。6.4212 另做按距离与转角分配时间（0.05 m/s 共 53.78 s，0.15 m/s 共 21.26 s）和走正方形。
+**要从零写什么。** Bookwork 是 roll-pitch-yaw 与 quaternion 的组合与 inverse、gimbal lock、五种“取两个 rotation 的中点”的办法在 Y1 到 Y4、P1 到 P5 这些例子上的对错、第 1 站那三个 frame 的换算（另有一个 frame $A=(1,2,\pi/6)$）、gripper 与物体的相对位置、按 URDF 的写法描述 planar arm 的 transform chain、Jacobian 的形状与 rank、singularity、null space。Computational：planar 2R（两根 link 各 1 m）的 FK、解析 IK、translational Jacobian；overhead grasp 的 transform 与 `target_conf_to_pick`；`JointVelocity` system 用 pseudoinverse 做 differential IK，`PiecewisePose.MakeLinear` 生成 gripper trajectory、`MakeDerivative` 得 velocity、finger 用 `PiecewisePolynomial.ZeroOrderHold`，接上 `Integrator` 和 iiwa；最后规划叠三个方块（第二块对齐放在第一块上，第三块竖起来立在中间）并交一段视频。6.4212 另做“全程按指定 speed 走、把 rotation 也算进去”的时间分配、走正方形时 speed 的形状，以及 robot painter。
 
 **做完会什么。** 第 1 站全部、第 2 站的 pseudoinverse 部分，以及在 Drake 里把 trajectory、controller、integrator、iiwa 连成一个 diagram。
 
 **时间与算力。** 估计 8 到 12 小时（估计）。笔记本 CPU。
 
 **提示。**
-- `JointVelocity` 用 local plant 的 geometric Jacobian，只保留 arm 对应的 column（`arm_columns`）；它没有 state，但要把 $q$ 作为 input，因为 Jacobian 依赖 $q$。（来源：ps2 Problem 15 与 understanding questions。）
-- Drake 的 `Integrator` 不能直接给初值，handout 的代码里有 workaround，照着用；understanding question 专门问了“漏掉 integrator 或它的起点会怎样”。（来源：ps2。）
-- `test3("blue")` 应在 8.0 s 结束，最终 iiwa configuration 是 $(-0.14,1.14,0.29,-1.00,-0.31,1.04,-1.43)$ rad，先对上这个数再做叠方块。（来源：ps2 Problem 15。）
-- 叠方块每个 pick 和 place 各 4 个 waypoint，前后都要有 pregrasp/post-place；用 0.5 s 一个 waypoint 再试一次，会看到计划不再可靠，原因见第 1 站。视频里至少一个方块要换一个 orientation。（来源：ps2 Problem 16。）
-- 课程用 extrinsic XYZ 的 RPY（和 URDF 一致）；2D 的 $(x,y,\theta)$ 先写 translation，但先作用的是 rotation。（来源：ps2。）
-- Gradescope 上 9.2 原本把 A、C 都算对，C 其实是错的，只有 A 对。（来源：ps2 的勘误。）
+- 先用手算对一遍 planar arm：$q=(0.3,0.2)$ 时 tip 在 $(\cos0.3+\cos0.5,\;\sin0.3+\sin0.5)=(1.8329,0.7749)$；$(-1,-0.5)$ 的两组 IK 解是 $(-3.66,1.96)$ 与 $(-1.70,-1.96)$（代回 FK 都得 $(-0.99,-0.49)$，四舍五入的误差）；$\det J=(-s_0-s_{0+1})c_{0+1}+s_{0+1}(c_0+c_{0+1})=\sin q_1$，所以 singularity 正是 $q_1=0$ 或 $\pi$。（来源：ps2 Problem 11 到 13 的题目，数是我按题目算的。）
+- `JointVelocity` 用 local plant 的 geometric Jacobian，只保留 arm 对应的 column（`arm_columns`）；它没有 state，但要把 $q$ 作为 input，因为 Jacobian 依赖 $q$。（来源：ps2 Problem 15 与最后一节。）
+- Drake 的 `Integrator` 不能直接给初值，handout 的代码里有 workaround，照着用；最后一节专门问了“漏掉 integrator 或不给它起点会怎样”。（来源：ps2。）
+- `test3("blue")` 应在 8.0 s 结束，最终 iiwa configuration 是 $(-0.14,1.14,0.29,-1.00,-0.31,1.04,-1.43)$ rad，先对上这个数再做叠方块。（来源：解答摘要。）
+- Handout 的代码默认每两个 waypoint 之间 4 s，它要求放足够多的 waypoint，让任何顺序的方块都叠得可靠，并建议抓和放的前后都经过 pregrasp；`plan("red","blue","yellow")` 返回 16 个 waypoint（每个 pick 和 place 各 4 个）是解答摘要里的数。用 0.5 s 一个 waypoint 再试一次，会看到计划不再可靠，原因见第 1 站。视频里至少一个方块要换一个 orientation。（来源：ps2 Problem 16。）
+- 课程用 extrinsic XYZ 的 roll-pitch-yaw（URDF 也用这个）；2D 的 $(x,y,\theta)$ 先写 translation，但当作 operation 读时先作用的是 rotation。附录 A 把 monogram notation 的规则整理成了一页。（来源：ps2 Problem 1、4 与附录 A。）
+- Gradescope 上 9.2 原本把 A、C 都算对，C 其实是错的，只有 A 对。（来源：解答摘要里的勘误。）
 
 ### ps3：QP、differential IK as optimization、IK 与 RRT（先做）
 
-**要从零写什么。** Bookwork 是第 2 站和第 5 站的大部分例子：damped pseudoinverse、clip 与 QP、joint centering、joint limit 的 lookahead、C-space 与 completeness、grid 的规模（$100^7=10^{14}$ 个 cell，每个 1 bit 也要 12.5 TB）。Computational：用 `MathematicalProgram` 解一个小 QP（答案 $(0.1534,-0.1005,0.3492)$，cost 0.5450）；`DiffIKQP` 加 velocity limit（test5 的 fixed data 应得 $(3.0000,1.3128)$ 等，最大 3.0000 rad/s，不加 limit 时 5.7852）和 `DiffIKQP_Wall`；开门的 keyframe IK；PR2 的 IK 与 random restart；RRT 与 RRT-Connect，交一段 playback 视频。6.4212 另做 exact edge checking（第 5 站的定理与 bisection）。
+**要从零写什么。** Bookwork 是第 2 站和第 5 站的大部分例子：damped pseudoinverse、clip 与 QP、joint centering、joint limit 的 lookahead、C-space 与 completeness、grid 的规模（$100^7=10^{14}$ 个 cell，每个 1 bit 也要 12.5 TB）。Computational：用 `MathematicalProgram` 解一个小 QP（每个 $|x_i|\le0.35$；解答摘要里的答案是 $(0.1534,-0.1005,0.3492)$，cost 0.5450）；`DiffIKQP` 加 velocity limit（解答摘要：test5 的 fixed data 应得 $(3.0000,1.3128)$ 等，最大 3.0000 rad/s，不加 limit 时 5.7852）和 `DiffIKQP_Wall`；开门的 keyframe IK；PR2 的 IK 与 random restart；RRT 与 RRT-Connect，交一段 playback 视频。6.4212 另做 exact edge checking（第 5 站的定理与 bisection）。
 
 **做完会什么。** 第 2 站与第 5 站的前半；之后看到任何“QP-based controller”“IK with constraints”都知道底下是什么。
 
-**时间与算力。** 估计 10 到 15 小时（估计）。笔记本 CPU；Meshcat 在浏览器里看。Handout 提到一个写得好的 7-DOF RRT 在典型问题上不到 1 ms。
+**时间与算力。** 估计 10 到 15 小时（估计）。笔记本 CPU；Meshcat 在浏览器里看。（Bookwork 的 Problem 10 让你判断“最好的实现里 7-DOF 的 probabilistically complete planning 通常不到 1 ms”与“通常要几十秒”哪个对。）
 
 **提示。**
 - 绝对值 constraint 拆成两条 linear constraint，或者直接用 `AddBoundingBoxConstraint`。（来源：ps3 Problem 12。）
-- Virtual wall 的 prediction horizon $h=0.004$ s 和 controller 的 sampling period 是两回事；constraint 只管 gripper origin。test6 里 hand 已经在 wall 外，应解出 $\mathrm v_x=-0.0885$ m/s。（来源：ps3 Problem 13。）
+- Virtual wall 的 prediction horizon $h=0.004$ s 和 controller 的 sampling period 是两回事；constraint 只管 gripper origin。test6 要填 hand 的 $x$ velocity 和 first-order 预测的下一个 $x$，精度 0.0001；解答摘要里 hand 已经在 wall 外，应解出 $\mathrm v_x=-0.0885$ m/s。Constraint 只管 gripper origin，所以 gripper 的一部分伸出 box 是允许的，handout 让你想想为什么。（来源：ps3 Problem 13。）
 - 开门题的 tolerance：位置每轴 1 mm，orientation $0.01\pi$ rad，只在 keyframe 上要求；第一个 keyframe 用 `Q_NOMINAL` 作初值，之后用上一个的 solution。`add_pose_constraint` 要写成通用的，PR2 那题会 import 它。（来源：ps3 Problem 14。）
 - PR2 题的 tolerance 是 1 mm 与 1°，加 1 cm 的 minimum distance constraint；不要改 `IK_SEED`，random restart 有一部分失败是正常的，不一定是 bug。（来源：ps3 Problem 15。）
-- RRT 偶尔失败（handout 叫它 “RRT Dance”）；调 `max_iterations` 和 `prob_sample_q_goal` 试试。比较 RRT 与 RRT-Connect 用时间而不是 iteration 数。动手前先读 handout 标出的给学生读的那部分代码（`RRT_tools`、`PlanningProblem`）。视频上限 500 MB。（来源：ps3 Problem 16。）
+- RRT 的 path 播放出来会绕来绕去（handout 叫它 “RRT Dance”），而且偶尔失败，不用慌；调 `max_iterations` 和 `prob_sample_q_goal` 试试。Playback 里出现大的 contact force 或碰倒东西，不算成功执行，要检查 path 并重新规划；`CHECK_STEP` 的复查通过也不证明连续的 path 没有 collision。比较 RRT 与 RRT-Connect 用时间而不是 iteration 数。动手前先读 handout 标出的给学生读的那部分代码（`RRT_tools`、`PlanningProblem`）。视频上限 500 MB。（来源：ps3 Problem 16。）
 
 ### ps4：Contact、force closure、normal estimation 与 antipodal grasping（值得做）
 
-**要从零写什么。** Bookwork 是 contact model、planar wrench、斜面上的 box（$\mu\ge\tan\gamma$）、两根 finger 的平衡（cone 的张角 53.13°，即 $\mu=\tan26.57°=0.5$）、force closure 需要几个 contact、3D antipodal 与 soft finger、grasp quality、RRT shortcutting。Computational：从 mustard bottle 的 depth image 用 PCA 估 normal（`normal_patches`）；在自己姓名首字母的 letter mesh 上做 antipodal sampling、过滤、规划 pick-turn-place 并交视频。6.4212 另在一个 gear 的边界上用 `MathematicalProgram` 找 antipodal 点对并用 Hessian 分类。
+**要从零写什么。** Bookwork 是 contact model、planar wrench、斜面上的 box（$\mu\ge\tan\gamma$）、两根 point finger 夹住一个边长 0.2 m、重 1 N 的方块（$\mu=1/2$，cone 的半角 $\arctan0.5=26.57°$，整个 cone 张开 53.13°）、force closure 不只是“托住 gravity”、3D antipodal 与 soft finger、non-convex 物体上的 antipodal 点、grasp quality score 该量什么、RRT shortcutting。Computational：从 mustard bottle 的 depth image 用 PCA 估 normal（`normal_patches`）；在自己姓名首字母的 letter mesh 上做 antipodal sampling、过滤、规划 pick-turn-place 并交视频。6.4212 另在一个 gear 的边界上用 `MathematicalProgram` 找 antipodal 点对并用 Hessian 分类。
 
 **做完会什么。** 第 4 站全部：normal 的估计与方向、ray casting、friction cone 的过滤、grasp frame 的构造。
 
@@ -893,17 +1029,17 @@ Fall 2026 有 ps1 到 ps7 七份 problem set，每份 PDF 里题目和解答在�
 
 ### ps5：Behavior cloning 与 Diffusion Policy on Push-T（先做）
 
-**要做什么。** 11 道 bookwork（6.4212 有 12 道），覆盖第 7 站的全部内容和 [RB4301](../courses/RB4301.html#bc) 的大部分：discrete 与 continuous action（linear policy $k=10/29$，diffusion sampler 从 0.2 走到 0.66、1.00）、pause 与 chunking（$(3/4)^{10}\approx0.056$，history 至少 $P+1$ 步）、averaging、DAgger 的一个四状态例子、velocity 与 position、frame、跨 embodiment 的 importance weight、何时请求更多 demonstration（ensemble 的 disagreement 加 distance 两个触发条件）、两个点之间的 flow matching（$t=1/2$ 时 $v(x)=8-2x-4f(x)$）、评估所需的 sample size、rotation 表示。计算题在一个预训练的 Diffusion Policy 上看 Push-T 的 action distribution。
+**要做什么。** 11 道 bookwork（6.4212 有 12 道），覆盖第 7 站的全部内容和 [RB4301](../courses/RB4301.html#bc) 的大部分：discrete 与 continuous action（linear policy $k=10/29$，diffusion sampler 从 0.2 走到 0.66、1.00）、pause 与 chunking（$(3/4)^{10}\approx0.056$，history 至少 $P+1$ 步）、averaging、DAgger 的一个四状态例子、velocity 与 position、frame、跨 embodiment 的 importance weight、何时请求更多 demonstration（ensemble 的 disagreement 加 distance 两个触发条件）、两个点之间的 flow matching（$t=1/2$ 时 $v(x)=8-2x-4f(x)$）、评估所需的 sample size、rotation 表示（括号里的数来自解答摘要）。6.4212 加做的 Problem 12 是 diffusion 的加噪与学习去噪。计算题在一个预训练的 Diffusion Policy 上看 Push-T 的 action distribution。背景阅读是 DAgger 的原论文（Ross、Gordon、Bagnell）和 Zhou 等人关于 rotation 表示 continuity 的论文；Problem 9 改编自 6.7900 Fall 2024 的一道期末题。
 
 **做完会什么。** 读 VLA 和 diffusion policy 论文时的一整套工程词汇，以及每个选择背后的一个可以手算的反例。
 
 **时间与算力。** 估计 6 到 8 小时，以读题和推导为主（估计）。Notebook 会下载预训练的 policy，handout 说本地不需要 GPU。
 
 **提示。**
-- 计算题用 `diffusion_policy_pusht_state.ipynb`，setup cell 按顺序跑；`show_action_samples` 默认 32 个 sample、seed 0。（来源：ps5 Problem 13。）
-- 要看到的现象：pusher 在 T 的正下方 $(0,-100)$ 时 action 是 bi-modal 的（T 横梁两端对称），T 平移 100 px 后变成 uni-modal；observation history 里的初始 velocity $(100,0)$ 与 $(-100,0)$ 会选中 pusher 已经在走的那个 mode。（来源：ps5 Problem 13 的解答。先自己做再看。）
-- 研究底稿说“Problem 10 用自然对数、保留三位有效数字”，我读到的 ps5 只在开头说 log 一律是自然对数，Problem 10 本身没有 log 的计算；三位有效数字与 ps5 解答里的写法一致。（来源：核对 ps5。）
-- 题目和解答在同一份 PDF 里，先遮住解答。（来源：经验。）
+- 计算题用 `diffusion_policy_pusht_state.ipynb`，它自带 Push-T 环境和 diffusion policy，会下载预训练的 policy，setup cell 按顺序跑；helper 的实现藏在一个折叠起来的 setup cell 里。先把 notebook 一步步走一遍再动手。（来源：ps5 Problem 13。）
+- 要比较的几组初始条件（pusher 相对 T 的位置，单位 pixel）：$(0,-100)$ 对 $(100,-100)$、$(100,50)$ 对 $(50,50)$、$(0,-100)$ 对 $(0,-300)$，以及 $(0,-100)$ 时把初始 velocity 设成 $(100,0)$ 和 $(-100,0)$；然后把 T 沿 $+x$ 挪 100 pixel 再做一遍。每组都要判断 action distribution 是 uni-modal 还是 bi-modal、动作合不合理。解答摘要里的现象：pusher 在 T 的正下方 $(0,-100)$ 时是 bi-modal 的（T 横梁两端对称），初始 velocity 会选中 pusher 已经在走的那个 mode；`show_action_samples` 默认 32 个 sample、seed 0。（来源：ps5 Problem 13 的题目；现象与默认值来自解答摘要。先自己做再看。）
+- Problem 10 要求所有数保留三位有效数字；ps5 开头说 log 一律是自然对数。（来源：ps5。）
+- 题目和解答分开：仓库里的 PDF 只有题目，带解答的版本在 schedule 页。（来源：经验。）
 
 ### ps6：Representation、REINFORCE 与 residual PPO（值得做）
 
@@ -916,12 +1052,28 @@ Fall 2026 有 ps1 到 ps7 七份 problem set，每份 PDF 里题目和解答在�
 **提示。**
 - Loss 里一律用 torch 的操作（`torch.exp`、`torch.minimum`、`torch.clamp`），换成 NumPy 或 Python float 会让 gradient 断掉；`reward_to_go` 和 `gae_advantages` 用普通的 NumPy。（来源：ps6。）
 - `policy_loss` 对所有 $N$ 个 transition 求和，但除以 episode 数 $B$，不是 $N$；手算的检查值是 $-0.2$（$B=2$）。Return 和 baseline 在求导时当常数。（来源：ps6 Problem 6。）
-- 32 个 command 的 cutoff 是 truncation，不是 terminal：保留 $V(s_T)$ 做 bootstrap，只有成功或真正的失败才把下一个 value 设成 0。手算例子里 cutoff 时 $\mathrm{adv}_0=1.245$。（来源：ps6 Problem 7.4。）
-- `critic_loss` 里不要乘那个 1/4，update 的代码会加。（来源：ps6。）
+- 32 个 command 的 cutoff 是 truncation，不是 terminal：保留 $V(s_T)$ 做 bootstrap，只有成功或真正的失败才把下一个 value 设成 0。手算例子（rewards $(0,1)$、old values $(0.2,0.4)$）：terminal 时 $\delta_1=1+0-0.4=0.6$、$\mathrm{adv}_0=0.2+0.95\times0.6=0.77$；改成 cutoff、最后的 old value 0.5 时 $\delta_1=1+0.5-0.4=1.1$、$\mathrm{adv}_0=0.2+0.95\times1.1=1.245$，$\hat G_0=0+1+0.5=1.5$。（来源：ps6 Problem 7.4 的题目，数是我算的。）
+- `critic_loss` 里不要乘那个 1/4，update 的代码会加；GAE 的 advantage 不要自己再 rescale，batch 的代码会减均值除标准差，critic 的 target $\hat G_t$ 则不 rescale。（来源：ps6 Problem 7.4、7.5。）
 - BC 的 train/validation 按整条 demonstration 分，相邻 transition 几乎重复，按 transition 分会泄漏。（来源：ps6 Problem 7.3。）
 - 不要 Run All：训练、fit 和 Meshcat 回放的 cell 一运行就开跑。改代码不生效时重启 kernel 再跑 setup cell；cache 只有在代码、设置、数据都一致时才复用，要重跑用 `retrain=True`。（来源：ps6。）
 - 先补完 Python 文件再跑 notebook 的 check cell，check cell 用的数和手算题不同。（来源：ps6。）
 
+### ps7：Manipulator control 与 learned model（值得做）
+
+**要做什么。** 指定阅读是教材第 8 章和第 11 章 RL 的 model-based 部分。Bookwork：MPPI 式的 cost-weighted 更新（三个候选 $U=(0,0),(1,1),(2,0)$，$\lambda\to0^+$ 与 $\lambda\to\infty$ 的极限，执行第一步后按观测重新规划）；point mass 上的 position 加 feedforward force（free space 与贴墙）；翻起 box 时 finger 与 pivot 都不滑的条件；feedback 与 feedforward 的选择（velocity-controlled 与 torque-controlled joint、direct force control 与 stiffness control、$\tau=J^\top f$ 与 operational space control）。这几道是第 6 站的例子。Computational：Problem 5 先推拖书的 friction 条件，再在 planar iiwa 上写 hybrid force-position 的 `compute_ctrl`；Problem 6 在 ps6 的推方块任务上，从同样 886 条 demonstration transition 拟合一个“push 了多远”的 linear correction 和一个 neural transition model，用 MPPI（看两步、枚举 $4^2=16$ 种 face 序列、优化连续的 push 距离）规划，和 ps6 的 BC、residual PPO 比 reward 与执行时间。6.4212 另做 Part 6.6：十个不同 seed 拟合的 model 各驱动 MPPI 跑同样 64 个 goal，看结论有多依赖一次训练。
+
+**做完会什么。** 第 6 站的 hybrid control 写成能在 iiwa 上跑的代码；“学一个 model 再在线规划”和“直接学 policy”的代价对比：handout 给的数是 neural model 拟合 1.16 s、MPPI 每个 command 约 2.37 ms 的规划，PPO 每个 run 收集 8192 到 8202 个新 command、用 2.65 到 2.94 小时（十个 run 共 28.19 小时）。
+
+**时间与算力。** Handout 说 Problem 6 拟合两个 model 再在 4 个 goal 上跑两种 controller 共约 3 到 5 分钟，64 个 goal 的比较和十个 replication 都已提供、不用重跑；笔记本 CPU。人工时间估计 6 到 8 小时（估计）。
+
+**提示。**
+- Problem 2 的符号：$f_c$ 与 $f_d$ 都是作用在 robot 上的 force，正方向 $+x$；$-f_d$ 那一项让 robot 往 $-x$ 推，那一侧的 surface 推回来时 $f_c>0$。第 6 站把 free space 与贴墙两种情形都算了一遍。（来源：ps7 Problem 2。）
+- `compute_ctrl` 只返回额外的 wrench，gravity compensation 由 station 加；$z$ 没有 position feedback，world $z$ 朝上，所以向下压的 force 是 $-F_d$。可以只用 Python：`python ps7/hybrid_force_demo.py --verify --simulate`。验收：书的中心最后在 0.35 到 0.55 m 之间，fingertip 不低于 0.035 m。（来源：ps7 Problem 5 与 `hybrid_force_control.py`。）
+- Problem 6 所有数保留三位小数，p-value 三位有效数字；自己机器上的 timing 和四个 goal 的表不对固定答案检查。有几问规定用提供的 `data/cautious_model_based/dynamics.pt` 而不是你自己拟合的 model，这样大家报的数一样。（来源：ps7 Problem 6。）
+- `dynamics_loss` 是网络输出和 $(y_i-\mu)/s$ 的 MSE，网络输出已经在 normalized coordinate 里，不要再 normalize 一次。题目给的手算检查：$f_\theta$ 全是 0、两个样本 $y=(2,8)$ 与 $(6,12)$、$\mu=(2,4)$、$s=(2,4)$，normalized target 是 $(0,1)$ 与 $(2,2)$，四个数的平方平均 $(0+1+4+4)/4=2.25$。（来源：ps7 6.2；数是我按题目算的。）
+- MPPI 的权重先减掉 $S_{min}$ 再取 exp：normalized 的权重不变，最大的那个 exp 等于 1，分母不会 underflow 成 0。题目的检查：$S=(0,\ln3)$、$\lambda=1$ 时权重是 $e^0:e^{-\ln3}=1:\tfrac13$，即 $(0.75,0.25)$，nominal 更新为 $0.75(0.2,-0.4)+0.25(-0.6,0.8)=(0,-0.1)$。Face 是离散的，单独枚举，不要对 face 的编号取平均。（来源：ps7 6.4；数是我按题目算的。）
+- 比较 MPPI 与 PPO 时要记住两者用的数据不一样多（PPO 多收集了在线经验），64 个 goal 的评估用的是同一个拟合的 model，不是 64 个独立训练的 model；Part 6.6 的 bootstrap 单位是整个 fit，不是 640 个 episode。（来源：ps7 6.5、6.6。）
+
 ### Project
 
-6.4210 的成绩里 project 占一半（proposal、report、video），Fall 2026 的 project 页面我没有读。教材附录 E 有一节 “Some great final projects”，可以从那里找方向。
+6.4210 的成绩里 project 占一半（proposal、report、video）。Fall 2026 的 project 页面（schedule 页的导航里有 project.html）这次请求访问没有得到批准，没有读到。教材附录 E 有一节 “Some great final projects”，可以从那里找方向。

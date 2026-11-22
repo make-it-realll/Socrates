@@ -1,4 +1,4 @@
-import { svg, svgA, anim, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+import { sub, svg, svgA, anim, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
 
 const R = Math.PI / 180;
 const fk2 = (t1, t2) => [Math.cos(t1) + Math.cos(t1 + t2), Math.sin(t1) + Math.sin(t1 + t2)];
@@ -179,10 +179,12 @@ function frames() {
 
 // ---------- 第 1 站：pick and place 的 keyframe（动图） ----------
 export const PICK = (() => {
-  const G0 = [0.0, 0.40], pre = [0.15, 0.225], pick = [0.15, 0.135], clr = [0.40, 0.40], prep = [0.65, 0.225], plc = [0.65, 0.135];
+  const G0 = [0.0, 0.40], pre = [0.15, 0.225], pick = [0.15, 0.135], prep = [0.65, 0.225], plc = [0.65, 0.135];
+  // 教材 notebook 的 MakeGripperFrames：prepick 到 preplace 的一半，再沿 -y_G（朝下的 gripper 即往上）退 0.3 m
+  const clr = [(pre[0] + prep[0]) / 2, (pre[1] + prep[1]) / 2 + 0.3];
   const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
   const t = [0]; t.push(10 * dist(G0, pre)); t.push(t[1] + 2); t.push(t[2] + 2); t.push(t[3] + 2);
-  const tc = 10 * dist(pre, prep); t.push(t[4] + tc); t.push(t[5] + tc); t.push(t[6] + 2); t.push(t[7] + 2); t.push(t[8] + 2);
+  const tc = 10 * dist(pre, clr); t.push(t[4] + tc); t.push(t[5] + tc); t.push(t[6] + 2); t.push(t[7] + 2); t.push(t[8] + 2);
   const pos = [G0, pre, pick, pick, pre, clr, prep, plc, plc, prep];
   const gap = [0.107, 0.107, 0.107, 0.05, 0.05, 0.05, 0.05, 0.05, 0.107, 0.107];
   const names = ['initial', 'prepick', 'pick', 'close', 'postpick', 'clearance', 'preplace', 'place', 'open', 'postplace'];
@@ -191,7 +193,7 @@ export const PICK = (() => {
 function pickA() {
   const { t, pos, gap, names } = PICK, speed = 2, Tend = t[t.length - 1], T = Tend / speed + 1.5;
   const kt = [...t.map((x) => x / speed / T), 1];
-  const P = ([x, z]) => [40 + (x + 0.05) * 600, 232 - z * 480];
+  const P = ([x, z]) => [50 + (x + 0.05) * 400, 230 - z * 390];
   const seq = (arr) => [...arr, arr[arr.length - 1]];
   const ps = seq(pos), gs = seq(gap);
   // 物体：被抓住（close 之后、open 之前）时跟着 gripper
@@ -226,7 +228,7 @@ function pickA() {
     o += `<text x="540" y="30" class="tl" text-anchor="end">→ ${nm}${ashow(on, kt, T)}</text>`;
   });
   o += text(540, 48, '2 倍速；keyframe 之间 linear interpolation', 'ts', 'end');
-  return svgA(560, 290, o, '动图：侧视的 gripper 从 initial 走到 prepick、下降到 pick、合上 finger、回到 postpick、经过 clearance 到 preplace、下降放下、张开、回到 postplace。下方时间轴标出 0、2.3、8.3、13.3、18.3、24.3 秒');
+  return svgA(560, 290, o, '动图：侧视的 gripper 从 initial 走到 prepick、下降到 pick、合上 finger、回到 postpick、经过 clearance 到 preplace、下降放下、张开、回到 postplace。下方时间轴标出 0、2.3、8.3、12.2、16.1、22.1 秒');
 }
 
 // ---------- 第 3 站：known correspondence 的 2D 例子 ----------
@@ -519,6 +521,46 @@ function evalci() {
   return svg(560, 272, o, '三组实验，A 都是 80%、B 都是 60%。N 等于 5 和 10 时两个 interval 大部分重叠，Fisher exact test 的 p 是 1.00 和 0.628；N 等于 100 时 interval 分开，p 等于 0.003');
 }
 
+
+// ---------- 第 6 站：翻起 box 时 finger 与 pivot 都不滑（ps7 Problem 3） ----------
+export const TIP = (() => {
+  const muA = 0.25, lo = (muC) => 1 / (2 * (muC + 1)), hi = muA / (2 * (1 - muA));
+  return { muA, hi, rows: [1, 3].map((muC) => ({ muC, lo: lo(muC), ok: lo(muC) < hi })), need: (1 - 2 * muA) / muA };
+})();
+function tip() {
+  let o = '';
+  // 左：box、pivot A、finger contact C 与各个 force
+  const A = [70, 236], S = 140, C = [A[0] + S, A[1] - S], G = [A[0] + S / 2, A[1] - S / 2];
+  o += line(16, A[1], 268, A[1], 'ink') + rect(16, A[1], 252, 10, 'wash2');
+  o += rect(A[0], A[1] - S, S, S, 'wash') + rect(A[0], A[1] - S, S, S, 'ink');
+  o += circle(...A, 3.5, 'ink-f') + text(A[0] + 8, A[1] - 8, 'A', 'tb', 'start');
+  o += circle(...C, 3.5, 'ink-f') + text(C[0] - 8, C[1] + 18, 'C', 'tb', 'end');
+  o += arrow(C[0] + 52, C[1], C[0] + 3, C[1], 'ln') + text(C[0] + 30, C[1] + 16, it('N'), 'tl', 'middle');
+  o += arrow(C[0] + 6, C[1] - 3, C[0] + 6, C[1] - 46, 'ln') + text(C[0] + 14, C[1] - 36, it('T'), 'tl', 'start');
+  o += circle(...G, 3, 'ink-f') + arrow(G[0], G[1], G[0], G[1] + 48, 'ink') + text(G[0] + 8, G[1] + 40, it('mg'), 't', 'start');
+  o += arrow(A[0] - 44, A[1] - 6, A[0] - 4, A[1] - 6, 'ink') + text(A[0] - 30, A[1] - 14, it('R') + sub('x'), 't', 'middle');
+  o += arrow(A[0] - 2, A[1] + 34, A[0] - 2, A[1] + 3, 'ink') + text(A[0] - 10, A[1] + 30, it('R') + sub('z'), 't', 'end');
+  o += text(A[0] + S / 2, A[1] - S - 14, '边长 ' + it('s') + '，绕 A 翻起', 'ts', 'middle');
+  // 右：N/mg 的可行区间
+  const sx = lin(0, 0.3, 320, 540), { hi, rows } = TIP;
+  o += line(sx(0), 236, sx(0.3), 236, 'axis');
+  [0, 0.1, 0.2, 0.3].forEach((v) => { o += line(sx(v), 232, sx(v), 240, 'axis') + text(sx(v), 254, v.toFixed(1), 'ts', 'middle'); });
+  o += text(sx(0.3), 272, it('N') + ' / ' + it('mg'), 'ts', 'end');
+  o += text(320, 28, 'μ' + sub('A') + ' = 0.25：pivot 不滑要求 ' + it('N') + ' &lt; ' + it('mg') + '/6', 'ts', 'start');
+  rows.forEach((r, k) => {
+    const y = 84 + k * 76;
+    o += text(320, y - 14, 'μ' + sub('C') + ' = ' + r.muC + '：finger 不滑要求 ' + it('N') + ' &gt; ' + it('mg') + '/' + (2 * (r.muC + 1)), 'ts', 'start');
+    o += rect(sx(0), y, sx(hi) - sx(0), 12, 'wash');
+    o += rect(sx(r.lo), y + 16, sx(0.3) - sx(r.lo), 12, 'wash2');
+    if (r.ok) o += rect(sx(r.lo), y, sx(hi) - sx(r.lo), 28, 'solid') + text(sx(hi) + 6, y + 20, '可行', 'tl', 'start');
+    else o += text(sx(0.3), y + 46, '翻不起来', 'tb', 'end');
+  });
+  rows.forEach((r, k) => { const y = 84 + k * 76; o += line(sx(hi), y - 4, sx(hi), y + 32, 'ln-dash'); });
+  o += line(sx(hi), 214, sx(hi), 236, 'ln-dash') + text(sx(hi) + 5, 226, (hi).toFixed(3), 'ts', 'start');
+  o += text(320, 46, '浅色条：pivot 不滑；灰色条：finger 不滑', 'ts', 'start');
+  return svg(560, 280, o, '左：边长 s 的正方形 box，左下角 A 是 pivot，finger 在右上角 C 施加向左的 N 和向上的 T，gravity mg 在中心，地面在 A 处给 R_x 和 R_z。右：mu_A 等于 0.25 时 N 必须小于 mg/6；mu_C 等于 1 时 N 必须大于 mg/4，两段不重叠；mu_C 等于 3 时 N 大于 mg/8，可行区间是 0.125 到 0.167 mg');
+}
+
 export default {
   'm4210-drift': drift,
   'm4210-edgemiss': edgemissA,
@@ -532,6 +574,7 @@ export default {
   'm4210-antipodal': antipodalA,
   'm4210-bezier': bezier,
   'm4210-hybrid': hybrid,
+  'm4210-tip': tip,
   'm4210-posvel': posvelA,
   'm4210-evalci': evalci,
 };
