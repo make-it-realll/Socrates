@@ -207,6 +207,62 @@ function ramp() {
   return svg(560, 240, o, '同一个 friction coefficient 0.1 的 block 放在 10 度和 20 度的 ramp 上，acceleration 分别是 0.737 和 2.433 米每二次方秒');
 }
 
+// ---------- 第 3 站：planar pushing，ellipsoid limit surface ----------
+// 0.5 kg、边长 10 cm 的 square box，uniform pressure，table 的 μ = 0.5；frictionless finger 沿 +x 推左边那条边上 y = c 的点
+export function pushTwist(c, { m = 0.5, mu = 0.5, g = 9.81, a = 0.05 } = {}) {
+  const fmax = mu * m * g;
+  const meanR = (a * (Math.SQRT2 + Math.log(1 + Math.SQRT2))) / 3; // square 上一点到 center 的平均距离
+  const mmax = fmax * meanR, l2 = (mmax / fmax) ** 2;
+  const F = 1 / Math.sqrt(1 / fmax ** 2 + (c * c) / mmax ** 2); // wrench (F, 0, −cF) 落在 ellipsoid 上
+  const wPerV = -c / l2; // ω / v_x：twist 平行于 ∇H = (2F/fmax², 0, −2cF/mmax²)
+  return { fmax, mmax, l2, F, wPerV, corY: c === 0 ? null : -l2 / c };
+}
+function limitFig() {
+  const s = 900, a = 0.05, adv = 0.012; // ghost：center 往前走 1.2 cm
+  let o = '';
+  const panel = (cx, cy, c, title, l1, l2) => {
+    const P = ([x, y]) => [cx + s * x, cy - s * y];
+    const tw = pushTwist(c);
+    const box = [[-a, -a], [a, -a], [a, a], [-a, a]];
+    // 刚体按 twist 走一小段：平移或绕 COR 转
+    const move = (p) => {
+      if (tw.corY === null) return [p[0] + adv, p[1]];
+      const th = tw.wPerV * adv, q = [p[0], p[1] - tw.corY];
+      return add(rot(q, th), [0, tw.corY]);
+    };
+    o += text(cx, 22, title, 'tb', 'middle');
+    o += path(closed(box.map(move).map(P)), 'dash');
+    o += path(closed(box.map(P)), 'wash ink');
+    // finger：从左边伸过来、有厚度的 pad
+    const fx0 = -a - 0.055, fy = c;
+    o += path(closed([[fx0, fy - 0.007], [-a - 0.001, fy - 0.007], [-a - 0.001, fy + 0.007], [fx0, fy + 0.007]].map(P)), 'paper');
+    const q0 = P([fx0 + 0.006, fy + 0.019]), q1 = P([-a - 0.012, fy + 0.019]);
+    o += arrow(q0[0], q0[1], q1[0], q1[1], 'ln', 6) + text(q0[0] - 4, q0[1] + 4, 'F', 'tl', 'end');
+    // box 里 5 个点的 velocity（同一比例）：靠近四个 corner 的点和 center
+    const vel = (p) => (tw.corY === null ? [1, 0] : [-tw.wPerV * (p[1] - tw.corY), tw.wPerV * p[0]]);
+    const k = 0.022; // center 的 velocity 画成 2.2 cm 长
+    const v0 = vel([0, 0]), sc = k / Math.hypot(...v0), b = 0.03;
+    for (const p of [[-b, -b], [b, -b], [b, b], [-b, b], [0, 0]]) {
+      o += circle(...P(p), 2, 'ink-f');
+      const v = vel(p), e = add(p, v, sc);
+      o += arrow(...P(p), ...P(e), 'ink-b', 6);
+    }
+    if (tw.corY !== null) {
+      const pc = P([0, tw.corY]);
+      o += line(pc[0] - 6, pc[1] - 6, pc[0] + 6, pc[1] + 6, 'ln') + line(pc[0] - 6, pc[1] + 6, pc[0] + 6, pc[1] - 6, 'ln');
+      o += text(pc[0] + 10, pc[1] + 5, 'COR', 'tl', 'start');
+    }
+    o += text(cx, 214, l1 + tw.F.toFixed(2) + ' N' + l2, 't', 'middle');
+  };
+  const t0 = pushTwist(0), t2 = pushTwist(0.02);
+  panel(140, 100, 0, '推在中线上', 'box 只平移；F = ', ' = μmg 才开始滑');
+  panel(420, 100, 0.02, '推在中线上方 2 cm', '绕 COR 顺时针转；F = ', ' 就开始滑');
+  o += text(420, 232, 'COR 在 center 下方 ' + (-t2.corY * 100).toFixed(1) + ' cm；往前推 1 cm 转 ' + (-t2.wPerV * 0.01 / R).toFixed(1) + '°', 'ts', 'middle');
+  o += text(140, 232, 'f' + sub('max') + ' = ' + t0.fmax.toFixed(2) + ' N，m' + sub('max') + ' = ' + t0.mmax.toFixed(4) + ' N·m', 'ts', 'middle');
+  o += text(280, 254, '俯视图。黑箭头：box 上 5 个点的 velocity；虚线：box 按这个 twist 再走 1.2 cm 的位置。', 'ts', 'middle');
+  return svg(560, 262, o, '俯视图：0.5 kg、边长 10 cm 的 box 放在 friction coefficient 0.5 的桌面上，一个 frictionless finger 从左边推。推在中线上时 box 只平移，推力要到 2.45 N；推在中线上方 2 cm 时 box 绕中心下方 7.3 cm 的点顺时针转，推力 2.17 N 就开始滑');
+}
+
 // ---------- 第 3 站：interactive perception，推一下才分得开 ----------
 function pushA() {
   const s = 60, cx = 120, cy = 150;
@@ -385,16 +441,18 @@ function covFig() {
   o += ell(Cd, 'dash') + ell(C, 'ln');
   for (const p of X) o += circle(sx(p[0]), sy(p[1]), 2.8, 'ink-f');
   const q1 = [0.2, 0.36], q2 = [0.2, 0.84];
-  o += circle(sx(q1[0]), sy(q1[1]), 5, 'paper') + text(sx(q1[0]) + 9, sy(q1[1]) + 4, 'P', 'tb', 'start');
+  // P 落在 data 中间：标签挪到右上方的空白处，用一条短线连回去
+  o += line(sx(q1[0]) + 4, sy(q1[1]) - 4, sx(0.265), sy(0.44) + 3, 'mute');
+  o += circle(sx(q1[0]), sy(q1[1]), 5, 'paper') + text(sx(0.27), sy(0.44), 'P', 'tb', 'start');
   o += circle(sx(q2[0]), sy(q2[1]), 5, 'paper') + text(sx(q2[0]) + 9, sy(q2[1]) + 4, 'Q', 'tb', 'start');
   const X0 = 352;
-  o += text(X0, 40, 'demo：转得越多，throttle 越小', 'tb', 'start');
+  o += text(X0, 40, 'demo：steering 越大，throttle 越小', 'tb', 'start');
   o += text(X0, 58, '彩色：full covariance 的 2σ', 'ts', 'start');
   o += text(X0, 74, '虚线：diagonal covariance 的 2σ', 'ts', 'start');
   o += text(X0, 108, '−log density', 'tb', 'start');
-  o += text(X0, 128, 'P（右转并减速）', 't', 'start');
+  o += text(X0, 128, 'P（左转并减速）', 't', 'start');
   o += text(X0, 146, 'full ' + fmt(nll2(q1, m, C)) + '，diagonal ' + fmt(nll2(q1, m, Cd)), 'ts', 'start');
-  o += text(X0, 172, 'Q（右转并加速）', 't', 'start');
+  o += text(X0, 172, 'Q（左转并加速）', 't', 'start');
   o += text(X0, 190, 'full ' + fmt(nll2(q2, m, C), 1) + '，diagonal ' + fmt(nll2(q2, m, Cd)), 'ts', 'start');
   o += text(X0, 222, 'Diagonal 认为 P 和 Q 一样可能。', 'ts', 'start');
   return svg(560, 272, o, '40 个 steering 与 throttle 的 demonstration 点几乎在一条斜线上；full covariance 的 ellipse 是斜的细长形，diagonal covariance 的 ellipse 是正的；点 P 和 Q 的 negative log density 在两种 model 下差别很大');
@@ -538,9 +596,11 @@ function nudgeA() {
 
 // ---------- 第 7 站：shared autonomy 的 lane change ----------
 // 简化的 lane change：车以 10 m/s 前进，action 是 lateral velocity（m/s）
+// 几何照 HW3 的 lanechange scenario：lane 宽 4.4 m、lane marker 宽 0.5 m，两条 lane 的中心在 ±2.45 m；车压着 marker（y = 0）出发
+export const LANE_C = 2.45, ROAD_E = 4.65;
 export function sharedSim(assist, opt = {}) {
   const { gain = 0.4, sigma = 0.3, clipR = 0.5, win = 5, Tend = 6, jit = 0.12, hes = 1.0, ph = 3.5, gate = 0 } = opt;
-  const v = 10, dt = 0.1, yL = 3.5, yRt = -3.5, k = 1.0, cap = 1.5;
+  const v = 10, dt = 0.1, yL = LANE_C, yRt = -LANE_C, k = 1.0, cap = 1.5;
   const m = (yg, y) => Math.max(-cap, Math.min(cap, k * (yg - y)));
   const gauss = (a, mu) => Math.exp(-((a - mu) ** 2) / (2 * sigma * sigma));
   let x = 0, y = 0;
@@ -552,8 +612,9 @@ export function sharedSim(assist, opt = {}) {
     const aH = (t < hes ? 0 : gain * mL) + jit * Math.sin(2.7 * t + ph);
     const lL = gauss(aH, gain * mL), lR = gauss(aH, gain * mR);
     const pStep = lL / (lL + lR);
+    // 和 HW3 一样：robot 出 a_R 时只用到上一步为止的 posterior（第一步之前是 uniform prior），这一步的 a_H 之后才看到
+    const pL = hist.length ? hist.slice(-win).reduce((s2, q) => s2 + q, 0) / Math.min(win, hist.length) : 0.5;
     hist.push(pStep);
-    const pL = hist.slice(-win).reduce((s2, q) => s2 + q, 0) / Math.min(win, hist.length);
     let aR = pL * (mL - gain * mL) + (1 - pL) * (mR - gain * mR);
     if (gate > 0 && Math.max(pL, 1 - pL) < gate) aR = 0;
     aR = Math.max(-clipR, Math.min(clipR, aR));
@@ -565,18 +626,19 @@ export function sharedSim(assist, opt = {}) {
 }
 function sharedA() {
   const A = sharedSim(true), H = sharedSim(false);
-  const sx = lin(0, 60, 24, 536), sy = lin(-5.25, 5.25, 178, 46);
-  let o = rect(sx(0), sy(5.25), sx(60) - sx(0), sy(-5.25) - sy(5.25), 'wash2');
-  o += line(sx(0), sy(1.75), sx(60), sy(1.75), 'dash') + line(sx(0), sy(-1.75), sx(60), sy(-1.75), 'dash');
-  o += text(sx(1), sy(3.5) + 4, 'left lane（human 的 goal）', 'ts', 'start');
-  o += text(sx(60) - 4, sy(-3.5) + 4, 'right lane', 'ts', 'end');
+  const sx = lin(0, 60, 24, 536), sy = lin(-ROAD_E, ROAD_E, 178, 46);
+  let o = rect(sx(0), sy(ROAD_E), sx(60) - sx(0), sy(-ROAD_E) - sy(ROAD_E), 'wash2');
+  o += line(sx(0), sy(0), sx(60), sy(0), 'dash');
+  o += line(sx(0), sy(LANE_C), sx(60), sy(LANE_C), 'grid') + line(sx(0), sy(-LANE_C), sx(60), sy(-LANE_C), 'grid');
+  o += text(sx(1), sy(LANE_C) - 6, 'left lane 中心（human 的 goal）', 'ts', 'start');
+  o += text(sx(60) - 4, sy(-LANE_C) + 16, 'right lane 中心', 'ts', 'end');
   o += path(d(H.map((q) => [sx(q.x), sy(q.y)])), 'dash');
   o += path(d(A.map((q) => [sx(q.x), sy(q.y)])), 'ln');
   const hEnd = H[H.length - 1], aEnd = A[A.length - 1];
-  o += text(sx(30), sy(H[30].y) + 18, '只有 human：6 s 后 y = ' + hEnd.y.toFixed(2) + ' m', 'ts', 'start');
-  o += text(sx(60) - 4, sy(4.75), 'shared autonomy：' + aEnd.y.toFixed(2) + ' m', 'tl', 'end');
-  const i5 = A.findIndex((q) => q.t > 0.45);
-  o += text(sx(A[i5].x) + 4, sy(-1.75) + 16, '犹豫时被往右推', 'ts', 'start');
+  o += text(sx(60) - 4, sy(0) - 5, '虚线：只有 human，6 s 后 y = ' + hEnd.y.toFixed(2) + ' m', 'ts', 'end');
+  o += text(sx(60) - 4, sy(ROAD_E) + 16, 'shared autonomy：' + aEnd.y.toFixed(2) + ' m', 'tl', 'end');
+  const iMin = A.reduce((j, q, i) => (q.y < A[j].y ? i : j), 0);
+  o += text(sx(A[iMin].x) - 6, sy(A[iMin].y) + 18, '犹豫时被推进 right lane', 'ts', 'middle');
   const T = 7, kt = A.map((q) => q.t / T).concat([1]), seq = A.concat([aEnd]);
   const kx = sx(1) - sx(0), ky = sy(0) - sy(1);
   o += apath(seq.map((q) => closed(carPts(sx(q.x), sy(q.y), Math.atan2(-ky * (q.aH + q.aR), kx * 10), 22, 11))), kt, T, 'solid');
@@ -593,7 +655,7 @@ function sharedA() {
   o += apath(seq.map((q) => d([[cx, by + 16], [cx + sc * q.aR, by + 16]])), kt, T, 'ln');
   o += text(cx + 100, by + 40, '向右为 left 方向', 'ts', 'end');
   o += text(280, 24, 'human 想换到左边：前 1 s 犹豫（只有抖动），之后只给出 optimal action 的 0.4 倍', 'tb', 'middle');
-  return svgA(560, 262, o, '动图：三车道的路，车从中间 lane 出发；human 前一秒犹豫，robot 把抖动读成想去右边，往右推了半米；human 开始往左之后 P(left) 很快到 1，robot 接着帮忙，6 秒后到 3.30 米，只有 human 时是 2.69 米');
+  return svgA(560, 262, o, '动图：两车道的路，车压着中间的 lane marker 出发；human 前一秒犹豫，robot 把抖动读成想去右边，把车推进 right lane ' + (-A[iMin].y).toFixed(2) + ' 米；human 开始往左之后 P(left) 很快到 1，robot 接着帮忙，6 秒后到 ' + aEnd.y.toFixed(2) + ' 米，只有 human 时是 ' + hEnd.y.toFixed(2) + ' 米');
 }
 
 export default {
@@ -602,6 +664,7 @@ export default {
   'cs237b-eps': epsFig,
   'cs237b-gfo': gfoA,
   'cs237b-ramp': ramp,
+  'cs237b-limit': limitFig,
   'cs237b-push': pushA,
   'cs237b-avg': avgFig,
   'cs237b-coil': coilA,
