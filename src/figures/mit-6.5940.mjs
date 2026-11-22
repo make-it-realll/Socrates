@@ -1,4 +1,9 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 动图的时间轴：durs[i] 是第 i 帧停留的秒数 → keyTimes；末尾补一个 1
+const timeline = (durs) => { const T = durs.reduce((a, b) => a + b, 0); const kt = []; let t = 0; for (const u of durs) { kt.push(t / T); t += u; } kt.push(1); return { T, kt }; };
+const atext = (x, y, s, cls, on, kt, T, anchor = 'start') => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, kt, T)}</text>`;
+const arect = (x, y, w, h, cls, on, kt, T, rx = 0) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="${rx}" class="${cls}">${ashow(on, kt, T)}</rect>`;
 
 const sup = (n) => String(n).split('').map((c) => (c === '-' ? '⁻' : '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c])).join('');
 const pow10 = (k) => (k === 0 ? '1' : k === 1 ? '10' : '10' + sup(k));
@@ -53,10 +58,10 @@ function sensitivity() {
     for (let j = 0; j < 6; j++) if (i === 0) o += circle(sx(sp[j]), sy(r[j]), 3, 'ln-f');
   });
   o += text(sx(0.9) + 8, sy(31.81) + 4, '第 1 个 conv', 'tl');
-  o += text(sx(0.9) + 8, sy(92.52) + 14, '最后一层', 'tb');
+  o += text(sx(0.9) + 8, sy(92.52) + 4, '最后一层', 'tb');
   o += text(sx(0.9) + 8, sy(51.31) + 4, '第 4 个 conv', 'ts');
   o += text(sx(0.9) + 8, sy(38.78) + 4, '第 5 个 conv', 'ts');
-  o += text(sx(0.9) + 8, sy(84.78) - 2, '其余各层', 'ts');
+  o += text(sx(0.9) + 8, sy(84.78) + 12, '其余各层', 'ts');
   o += text(sx(0.4) + 4, sy(92.95) - 6, 'dense 92.95%', 'ts');
   o += text(400, 270, 'sparsity（只剪这一层）', 'ts', 'end') + text(70, 14, 'accuracy（%）', 'ts');
   return svg(560, 278, o, 'VGG 在 CIFAR-10 上逐层 sensitivity scan：第一层剪到 0.9 时 accuracy 掉到约 32%，最后一层几乎不变');
@@ -215,8 +220,36 @@ function kvcache() {
 function specdec() {
   const c = 0.05;
   const sp = (a, g) => (1 - a ** (g + 1)) / ((1 - a) * (g * c + 1));
-  const sx = lin(1, 12, 70, 470), sy = lin(1, 5, 230, 26);
-  let o = axes({ sx, sy, x0: 1, x1: 12, y0: 1, y1: 5, xt: [1, 2, 4, 6, 8, 10, 12], yt: [1, 2, 3, 4, 5], grid: true });
+  // 上半：一轮 speculative decoding（动图）。帧：0 = 一轮的结果；1 = 只有 context；2–5 draft 逐个猜；6 target 一次 forward；7–10 逐个判；11 重新采样
+  const draft = ['sat', 'on', 'a', 'bed'], ok = [true, true, true, false];
+  const NF = 12;
+  const { T, kt } = timeline([3.2, 0.9, 0.6, 0.6, 0.6, 0.6, 1.2, 0.7, 0.7, 0.7, 0.9, 2.2]);
+  const on = (pred) => { const a = Array.from({ length: NF }, (_, f) => pred(f)); a.push(a[NF - 1]); return a; };
+  const fin = (f) => f === 0 || f >= 11;
+  let o = '';
+  const bx = (k) => 112 + k * 64, BY = 30, BW = 56, BH = 26;
+  o += rect(8, BY, 96, BH, 'wash2', 4) + text(56, BY + 18, 'The cat', 't', 'middle');
+  draft.forEach((w, k) => {
+    o += arect(bx(k), BY, BW, BH, 'wash ink-s', on((f) => fin(f) || f >= 2 + k), kt, T, 4);
+    o += atext(bx(k) + BW / 2, BY + 18, w, 't', on((f) => fin(f) || f >= 2 + k), kt, T, 'middle');
+    o += atext(bx(k) + BW / 2, BY + 52, ok[k] ? '✓ 接受' : '✗ 拒绝', ok[k] ? 'tl' : 'tb', on((f) => fin(f) || f >= 7 + k), kt, T, 'middle');
+  });
+  // 被拒绝的 bed 划掉，target 在这个位置重新采样 mat
+  o += `<line x1="${bx(3) + 8}" y1="${BY + 13}" x2="${bx(3) + BW - 8}" y2="${BY + 13}" class="ink-b">${ashow(on((f) => fin(f) || f >= 10), kt, T)}</line>`;
+  o += arect(bx(3), BY + 64, BW, BH, 'solid', on(fin), kt, T, 4) + atext(bx(3) + BW / 2, BY + 82, 'mat', 'tw', on(fin), kt, T, 'middle');
+  o += atext(bx(3) - 6, BY + 82, '由 target 重新采样 →', 'ts', on(fin), kt, T, 'end');
+  // target 的一次 forward：横跨 4 个位置的括号
+  const TB = (f) => fin(f) || f >= 6;
+  o += `<path d="M${bx(0)} ${BY + BH + 6}v5H${bx(3) + BW}v-5" class="ln">${ashow(on(TB), kt, T)}</path>`;
+  o += atext(bx(3) + BW + 12, BY + BH + 14, 'target：1 次 forward', 'tl', on(TB), kt, T);
+  o += atext(bx(3) + BW + 12, BY + BH + 30, '同时检查 4 个位置', 'ts', on(TB), kt, T);
+  o += atext(bx(3) + BW + 12, BY + 18, 'draft：每次 0.05', 'ts', on((f) => fin(f) || f >= 2), kt, T);
+  const st = ['一轮（γ = 4）：4 次便宜的 draft + 1 次 target，产出 4 个 token', 'context 已有 “The cat”', 'draft model 猜第 1 个 token', 'draft model 猜第 2 个 token', 'draft model 猜第 3 个 token', 'draft model 猜第 4 个 token', 'target model 一次 forward 算出 4 个位置的 p', '从左往右：以 min(1, p/q) 接受', '从左往右：以 min(1, p/q) 接受', '从左往右：以 min(1, p/q) 接受', '第 4 个被拒绝，后面不再看', '在被拒绝的位置从 p′ 重新采样'];
+  st.forEach((s_, f) => { o += atext(8, 14, s_, 'tb', on((g) => g === f), kt, T); });
+  // 下半：speedup 曲线
+  const Y0 = 128;
+  const sx = lin(1, 12, 70, 470), sy = lin(1, 5, 230 + Y0, 26 + Y0);
+  o += axes({ sx, sy, x0: 1, x1: 12, y0: 1, y1: 5, xt: [1, 2, 4, 6, 8, 10, 12], yt: [1, 2, 3, 4, 5], grid: true });
   const al = [[0.6, 'mute'], [0.8, 'ln'], [0.9, 'ink-b']];
   for (const [a, cls] of al) {
     const pts = []; let best = 1;
@@ -227,8 +260,8 @@ function specdec() {
     o += text(sx(best), sy(sp(a, best)) - 9, '最大 ' + sp(a, best).toFixed(2) + '（γ = ' + best + '）', 'ts', 'middle');
   }
   o += circle(sx(4), sy(sp(0.8, 4)), 5, 'ln') + text(sx(4) + 10, sy(sp(0.8, 4)) + 18, 'α = 0.8，γ = 4：2.80', 'tl');
-  o += text(470, 266, '每轮 draft 的 token 数 γ', 'ts', 'end') + text(70, 14, 'speedup（draft 的成本 c = 0.05）', 'ts');
-  return svg(560, 274, o, 'Speculative decoding 的 speedup 随 draft 长度先升后降；acceptance rate 越高，最佳的 draft 长度越长、speedup 越大');
+  o += text(470, 266 + Y0, '每轮 draft 的 token 数 γ', 'ts', 'end') + text(70, 14 + Y0, 'speedup（draft 的成本 c = 0.05）', 'ts');
+  return svgA(560, 274 + Y0, o, '上：动图，一轮 speculative decoding。Draft model 逐个猜出 sat、on、a、bed；target model 一次 forward 检查这 4 个位置，接受前 3 个，拒绝 bed 并在那里重新采样 mat，一轮产出 4 个 token。下：speedup 随 draft 长度先升后降；acceptance rate 越高，最佳的 draft 长度越长、speedup 越大');
 }
 
 // MobileNetV2（int8，224 input）每个 block 的 peak activation
@@ -266,26 +299,46 @@ function mcupeak() {
   return svg(560, 272, o, 'MobileNetV2 每个 block 的 peak activation memory：前几个 block 远超 320 kB 的 SRAM，最高的是第 2 个 block 的 1372 KiB，后面的 block 都在 200 KiB 以下');
 }
 
-// Patch-based inference 的示意
+// Patch-based inference（动图）：16 个 patch 依次带着 halo 跑完前几个 block，output 一块块拼起来
 function patch() {
   let o = '';
-  const g = 34, X = 30, Y = 50, n = 4;
+  const g = 34, X = 30, Y = 50, n = 4, h = 8;
+  // 帧的顺序：从第 6 个 patch 开始（第一帧里已经有 5 块拼好），走完 16 块后从头再来
+  const order = [...Array.from({ length: 11 }, (_, i) => i + 5), ...Array.from({ length: 5 }, (_, i) => i)];
+  const { T, kt } = timeline(order.map((_, f) => (f === 0 ? 3 : 0.75)));
+  const fr = [...order, order[order.length - 1]];
   o += text(X + (g * n) / 2, 30, 'input（4 × 4 个 patch）', 'tb', 'middle');
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) o += rect(X + j * g, Y + i * g, g, g, i === 1 && j === 1 ? 'wash-strong' : 'wash2');
-  o += rect(X + g - 8, Y + g - 8, g + 16, g + 16, 'ln');
-  o += text(X + (g * n) / 2, Y + g * n + 22, '一个 patch 加一圈 halo', 'tl', 'middle');
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) o += rect(X + j * g, Y + i * g, g, g, 'wash2');
+  for (let i = 1; i < n; i++) o += line(X + i * g, Y, X + i * g, Y + n * g, 'grid') + line(X, Y + i * g, X + n * g, Y + i * g, 'grid');
+  const rc = (p) => [Math.floor(p / n), p % n];
+  const cur = (fn) => fr.map((p) => f1(fn(...rc(p))));
+  const A = (attr, fn) => anim(attr, cur(fn), kt, T, true);
+  // 当前 patch 与它的 halo（在 input 边上 halo 落在 zero padding 里，画到边为止）
+  const hx0 = (i, j) => Math.max(X, X + j * g - h), hy0 = (i, j) => Math.max(Y, Y + i * g - h);
+  const hx1 = (i, j) => Math.min(X + n * g, X + (j + 1) * g + h), hy1 = (i, j) => Math.min(Y + n * g, Y + (i + 1) * g + h);
+  const [i0, j0] = rc(fr[0]);
+  o += `<rect x="${X + j0 * g}" y="${Y + i0 * g}" width="${g}" height="${g}" class="wash-strong">${A('x', (i, j) => X + j * g)}${A('y', (i, j) => Y + i * g)}</rect>`;
+  o += `<rect x="${f1(hx0(i0, j0))}" y="${f1(hy0(i0, j0))}" width="${f1(hx1(i0, j0) - hx0(i0, j0))}" height="${f1(hy1(i0, j0) - hy0(i0, j0))}" class="ln">${A('x', hx0)}${A('y', hy0)}${A('width', (i, j) => hx1(i, j) - hx0(i, j))}${A('height', (i, j) => hy1(i, j) - hy0(i, j))}</rect>`;
+  o += text(X + (g * n) / 2, Y + g * n + 22, '当前 patch 加一圈 halo', 'tl', 'middle');
+  o += text(X + (g * n) / 2, Y + g * n + 40, 'halo 与相邻 patch 重叠', 'ts', 'middle');
   o += arrow(X + g * n + 10, Y + 1.5 * g, 228, Y + 1.5 * g, 'ink');
   o += rect(232, Y + 0.5 * g, 110, 2 * g, 'paper', 6) + text(287, Y + 1.5 * g - 4, 'patch stage', 't', 'middle') + text(287, Y + 1.5 * g + 14, '前几个 block', 'ts', 'middle');
   o += text(287, Y + 3 * g + 10, '每次只有一个 patch', 'ts', 'middle') + text(287, Y + 3 * g + 26, '的 activation 在 SRAM 里', 'ts', 'middle');
+  order.forEach((p, f) => { o += `<text x="287" y="${Y + 0.5 * g - 10}" class="tl" text-anchor="middle">patch ${p + 1} / 16${ashow([...order.map((_, k) => k === f), f === order.length - 1], kt, T)}</text>`; });
   o += arrow(346, Y + 1.5 * g, 380, Y + 1.5 * g, 'ink');
-  const s = 18, X2 = 386, Y2 = Y + 1.5 * g - 2 * s;
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) o += rect(X2 + j * s, Y2 + i * s, s, s, i === 1 && j === 1 ? 'wash-strong' : 'wash2');
-  o += rect(X2, Y2, 4 * s, 4 * s, 'frame');
-  o += text(X2 + 2 * s, Y2 - 10, '拼回 feature map', 'ts', 'middle');
-  o += arrow(X2 + 4 * s + 4, Y + 1.5 * g, X2 + 4 * s + 30, Y + 1.5 * g, 'ink');
-  o += text(X2 + 4 * s + 34, Y + 1.5 * g - 4, '其余', 'ts') + text(X2 + 4 * s + 34, Y + 1.5 * g + 12, '逐层', 'ts');
-  o += text(280, 248, '28 × 28 的 output patch 经过 3 个 3×3 conv 需要 34 × 34 的 input：重叠部分重复计算，这一段多算 47%', 'ts', 'middle');
-  return svg(560, 258, o, 'Patch-based inference：input 切成 4 乘 4 个 patch，每个 patch 带一圈 halo 单独通过前几个 block，拼回 feature map 后剩下的网络逐层执行');
+  const s_ = 18, X2 = 386, Y2 = Y + 1.5 * g - 2 * s_;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const p = i * n + j;
+    o += rect(X2 + j * s_, Y2 + i * s_, s_, s_, 'wash2');
+    o += `<rect x="${X2 + j * s_}" y="${Y2 + i * s_}" width="${s_}" height="${s_}" class="wash-strong">${ashow(fr.map((q) => p < q), kt, T)}</rect>`;
+  }
+  o += `<rect x="${X2 + j0 * s_}" y="${Y2 + i0 * s_}" width="${s_}" height="${s_}" class="solid">${A('x', (i, j) => X2 + j * s_)}${A('y', (i, j) => Y2 + i * s_)}</rect>`;
+  o += rect(X2, Y2, 4 * s_, 4 * s_, 'frame');
+  o += text(X2 + 2 * s_, Y2 - 10, '拼回 feature map', 'ts', 'middle');
+  o += arrow(X2 + 4 * s_ + 4, Y + 1.5 * g, X2 + 4 * s_ + 30, Y + 1.5 * g, 'ink');
+  o += text(X2 + 4 * s_ + 34, Y + 1.5 * g - 4, '其余', 'ts') + text(X2 + 4 * s_ + 34, Y + 1.5 * g + 12, '逐层', 'ts');
+  o += text(280, 262, '28 × 28 的 output patch 经过 3 个 3×3 conv 需要 34 × 34 的 input：重叠部分重复计算，这一段多算 47%', 'ts', 'middle');
+  return svgA(560, 272, o, '动图：Patch-based inference。Input 切成 4 乘 4 个 patch，每次取一个 patch 加一圈 halo，单独通过前几个 block，得到 feature map 上对应的一块；16 块拼好之后，剩下的网络逐层执行');
 }
 
 // ---------- 开头第一次：model size 与 8 GB ----------
@@ -428,20 +481,27 @@ function gqa() {
 // ---------- 第 7 站：MobileNetV2 第 2 个 block 的 expand ----------
 function invres() {
   const H = 112, cin = 16, cexp = 96;
-  const bIn = cin * H * H, bOut = cexp * H * H, tot = bIn + bOut;
-  const sram = 320 * 1000;
+  const bIn = cin * H * H, bCh = H * H, bOut = cexp * bCh, tot = bIn + bOut;
+  const sram = 320 * 1000, kOver = (sram - bIn) / bCh; // 写到第几个 output channel 时超出 SRAM
   const sx = lin(0, 1.5e6, 40, 520);
+  // 动图：第一帧是写完的样子；之后 output 一个 channel 一个 channel 写出来（每个 channel 0.1 s），input 一直要留着
+  const t = [0, 3, 3.3, 3.3 + 0.1 * kOver, 3.3 + 0.1 * cexp], T = t[4] + 2.5, kt = [...t.map((v) => v / T), 1];
+  const W = [bOut, bOut, 0, kOver * bCh, bOut, bOut].map((v) => f1(sx(bIn + v) - sx(bIn)));
   let o = text(40, 28, `第 2 个 block 的 1×1 expand：${cin} → ${cexp} 个 channel，${H}×${H}，int8`, 'tb');
-  o += rect(sx(0), 50, sx(bIn) - sx(0), 34, 'wash-strong', 3) + rect(sx(bIn), 50, sx(tot) - sx(bIn), 34, 'solid', 3);
+  o += rect(sx(0), 50, sx(bIn) - sx(0), 34, 'wash-strong', 3);
+  o += `<rect x="${f1(sx(bIn))}" y="50" width="${W[0]}" height="34" rx="3" class="solid">${anim('width', W, kt, T)}</rect>`;
   o += text(sx(bIn / 2), 104, `input ${cin}×${H}×${H}`, 'ts', 'middle') + text(sx(bIn / 2), 120, bIn.toLocaleString('en-US') + ' B', 'ts', 'middle');
-  o += text(sx(bIn + bOut / 2), 72, `output ${cexp}×${H}×${H} = ${bOut.toLocaleString('en-US')} B`, 'tw', 'middle');
-  o += text(sx(tot), 104, `合计 ${Math.round(tot / 1024)} KiB`, 'tl', 'end');
+  const full = [true, true, false, false, true, true];
+  o += `<text x="${f1(sx(bIn + bOut / 2))}" y="72" class="tw" text-anchor="middle">output ${cexp}×${H}×${H} = ${bOut.toLocaleString('en-US')} B${ashow(full, kt, T)}</text>`;
+  o += `<text x="${f1(sx(tot))}" y="104" class="tl" text-anchor="end">合计 ${Math.round(tot / 1024)} KiB${ashow(full, kt, T)}</text>`;
+  o += `<text x="${f1(sx(tot))}" y="104" class="ts" text-anchor="end">output 一个 channel 一个 channel 写出来，input 要留到最后${ashow(full.map((v) => !v), kt, T)}</text>`;
+  o += `<text x="${f1(sx(sram) + 8)}" y="140" class="tl" text-anchor="start">写到第 ${Math.ceil(kOver)} 个 output channel（共 ${cexp} 个）就超出 SRAM${ashow([true, true, false, true, true, true], kt, T)}</text>`;
   o += rect(sx(0), 150, sx(sram) - sx(0), 34, 'wash2', 3) + text(sx(sram) + 8, 172, 'SRAM 320 kB（STM32F746）', 't');
   o += line(sx(sram), 44, sx(sram), 190, 'dash');
   o += line(sx(0), 200, sx(1.5e6), 200, 'axis');
   for (const v of [0, 5e5, 1e6, 1.5e6]) o += line(sx(v), 200, sx(v), 204, 'axis') + text(sx(v), 218, (v / 1e6).toFixed(1) + ' MB', 'ts', 'middle');
   o += text(40, 244, `一个 layer 的 input 和 output 必须同时在 SRAM 里：${(tot / sram).toFixed(1)} 倍；weight 放在 Flash，不占这里`, 'ts');
-  return svg(560, 256, o, 'MobileNetV2 第二个 block 的 1x1 expand conv：input 200,704 byte 加 output 1,204,224 byte 共 1372 KiB，是 320 kB SRAM 的四倍多');
+  return svgA(560, 256, o, '动图：MobileNetV2 第二个 block 的 1x1 expand conv。Output 一个 channel 一个 channel 写出来，input 必须一直留着；写到第 10 个 output channel 时已经超过 320 kB 的 SRAM，写完时 input 加 output 共 1372 KiB，是 SRAM 的四倍多');
 }
 
 export default {

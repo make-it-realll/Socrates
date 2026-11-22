@@ -246,7 +246,7 @@ function energy() {
   const E = (t, w) => { const c2 = Math.cos(t[1]); const K = 0.5 * ((3 + 2 * c2) * w[0] * w[0] + 2 * (1 + c2) * w[0] * w[1] + w[1] * w[1]); return K + g * (2 * Math.sin(t[0]) + Math.sin(t[0] + t[1])); };
   const dt = 0.01, n = 300;
   const run = (m) => {
-    let t = [0, 0], w = [0, 0]; const out = [[0, 0]];
+    let t = [0, 0], w = [0, 0]; const out = [[0, 0, t]];
     for (let k = 1; k <= n; k++) {
       if (m === 0) { const a = acc(t, w); t = [t[0] + dt * w[0], t[1] + dt * w[1]]; w = [w[0] + dt * a[0], w[1] + dt * a[1]]; }
       else if (m === 1) { const a = acc(t, w); w = [w[0] + dt * a[0], w[1] + dt * a[1]]; t = [t[0] + dt * w[0], t[1] + dt * w[1]]; }
@@ -256,19 +256,41 @@ function energy() {
         const k1 = f(x), k2 = f(ad(x, k1, dt / 2)), k3 = f(ad(x, k2, dt / 2)), k4 = f(ad(x, k3, dt));
         const y = x.map((xi, i) => xi + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i])); t = [y[0], y[1]]; w = [y[2], y[3]];
       }
-      out.push([k * dt, E(t, w)]);
+      out.push([k * dt, E(t, w), t]);
     }
     return out;
   };
-  const sx = lin(0, 3, 70, 450), sy = lin(-1, 5, 240, 30);
+  const runs = [0, 1, 2].map(run);
+  // 右：energy 曲线
+  const sx = lin(0, 3, 250, 470), sy = lin(-1, 5, 240, 30);
   let o = axes({ sx, sy, x0: 0, x1: 3, y0: -1, y1: 5, xt: [[0, '0'], [1, '1 s'], [2, '2 s'], [3, '3 s']], yt: [[0, '0'], [1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5 J']], grid: true });
   const cl = ['ln', 'ink', 'ink-b'];
-  const ends = [];
-  for (let m = 0; m < 3; m++) { const pts = run(m); o += path(d(pts.map(([x, y]) => [sx(x), sy(y)])), cl[m]); ends.push(pts[n][1]); }
-  o += text(456, sy(ends[0]) + 4, 'explicit Euler', 'tl') + text(456, sy(ends[1]) + 4, 'semi-implicit', 'tb') + text(456, sy(ends[1]) + 18, 'Euler', 'tb') + text(456, sy(ends[2]) + 4, 'RK4', 'tb');
-  o += text(70, 18, 'total energy（J），真实值恒为 0', 'tb');
-  o += text(280, 276, '2R arm 从水平伸直处松手，τ = 0，Δt = 0.01 s', 'ts', 'middle');
-  return svg(560, 286, o, '同一个无 friction 的 2R arm 自由下摆，explicit Euler 的 energy 一路上升到 4.6 J，semi-implicit Euler 时升时降，RK4 几乎保持为 0');
+  for (let m = 0; m < 3; m++) o += path(d(runs[m].map(([x, y]) => [sx(x), sy(y)])), cl[m]);
+  const ends = runs.map((r) => r[n][1]);
+  o += text(476, sy(ends[0]) + 4, 'explicit Euler', 'tl') + text(476, sy(ends[1]) + 4, 'semi-implicit', 'tb') + text(476, sy(ends[1]) + 18, 'Euler', 'tb') + text(476, sy(ends[2]) + 4, 'RK4', 'tb');
+  o += text(250, 18, 'total energy（J），真实值恒为 0', 'tb');
+  // 左：三个 integrator 各自算出的 arm，同一个时刻叠在一起
+  const u = 48, B = [112, 104], P = ([x, y]) => [B[0] + x * u, B[1] - y * u];
+  o += text(B[0], 18, '同一时刻三种算法的 arm', 'tb', 'middle');
+  o += line(B[0] - 104, B[1], B[0] + 104, B[1], 'grid');
+  // 动图：第 0 帧停在 t = 3 s；之后按真实时间从 t = 0 放到 3 s
+  const ks = [n, n]; for (let k = 0; k <= n; k += 2) ks.push(k);
+  const tt = [0, 2.8]; for (let i = 2; i < ks.length; i++) tt.push(3.1 + ks[i] * dt);
+  const T = tt[tt.length - 1] + 1.4; tt.push(T); ks.push(n);
+  const kt = tt.map((v) => v / T);
+  for (const m of [1, 0, 2]) {
+    const conf = (k) => { const [a1, a2] = runs[m][k][2]; return [[0, 0], [Math.cos(a1), Math.sin(a1)], fk2(a1, a2)]; };
+    o += apath(ks.map((k) => d(conf(k).map(P))), kt, T, m === 2 ? 'ink-b' : cl[m]);
+    const el = ks.map((k) => P(conf(k)[1])), tp = ks.map((k) => P(conf(k)[2]));
+    o += acircle(el.map((q) => q[0]), el.map((q) => q[1]), kt, T, 3.5, 'paper');
+    o += acircle(tp.map((q) => q[0]), tp.map((q) => q[1]), kt, T, 3, m === 0 ? 'ln-f' : 'ink-f');
+  }
+  o += circle(B[0], B[1], 5, 'paper');
+  o += text(B[0], 230, '从水平伸直处松手，τ = 0，Δt = 0.01 s', 'ts', 'middle');
+  o += text(B[0], 254, '彩色 explicit Euler，细线 semi-implicit，', 'ts', 'middle') + text(B[0], 270, '粗线 RK4（与真实解几乎重合）', 'ts', 'middle');
+  o += apath(ks.map((k) => `M${f1(sx(k * dt))} 30V240`), kt, T, 'dash');
+  for (let m = 0; m < 3; m++) o += acircle(ks.map((k) => sx(k * dt)), ks.map((k) => sy(runs[m][k][1])), kt, T, 4, m === 0 ? 'ln-f' : 'ink-f');
+  return svgA(560, 286, o, '动图：同一个无 friction 的 2R arm 从水平伸直处松手自由下摆。左边是三种 integrator 在同一时刻算出的 arm，右边是 total energy：explicit Euler 的 energy 一路上升到 4.6 J，arm 越摆越高；semi-implicit Euler 时升时降；RK4 几乎保持为 0');
 }
 
 // 第 7 站：cubic、quintic、trapezoid 的 velocity 与 acceleration
@@ -294,21 +316,47 @@ function profiles() {
   const sv = lin(0, 90, 145, 35), sa = lin(-150, 150, 330, 190);
   panel(sv, 0, 90, [[0, '0'], [30, '30'], [60, '60'], [90, '90']], 'v', 'velocity（°/s）');
   panel(sa, -150, 150, [[-135, '−135'], [0, '0'], [135, '135']], 'a', 'acceleration（°/s²）');
-  const X = 436;
-  o += line(X, 60, X + 26, 60, 'ln') + text(X + 32, 64, 'cubic', 't');
-  o += line(X, 84, X + 26, 84, 'ink-b') + text(X + 32, 88, 'quintic', 't');
-  o += line(X, 108, X + 26, 108, 'dash') + text(X + 32, 112, 'trapezoid', 't');
-  o += text(X, 150, 'peak velocity', 'ts') + text(X, 166, '67.5 / 84.4 / 60', 'ts');
-  o += text(X, 200, 'peak acceleration', 'ts') + text(X, 216, '135 / 129.9 / 120', 'ts');
-  o += text(X, 250, 'Cubic 在 t = 0、2 s', 'ts') + text(X, 266, 'acceleration 跳变', 'ts');
   o += text(250, 360, '同样 90°、同样 2 s。t < 0 和 t > 2 时 joint 静止', 'ts', 'middle');
-  return svg(560, 370, o, '三种 time scaling 的 velocity 和 acceleration：cubic 的 acceleration 在两端从零跳到 135，quintic 从零平滑升起，trapezoid 的 peak 最低但 acceleration 在四处跳变');
+  // 右栏：三个 joint 按各自的 profile 转 90°，tip 上的箭头是 angular acceleration（长度 ∝ θ̈）
+  const pos = (P, t) => { // 数值积分 velocity 得到 angle（°）
+    if (t <= 0) return 0; if (t >= 2) return 90;
+    let a = 0; const m = 200; for (let i = 0; i < m; i++) a += P.v((t * (i + 0.5)) / m) * (t / m); return a;
+  };
+  const acc_ = (P, t) => (t <= 0 || t >= 2 ? 0 : P.a(Math.min(Math.max(t, 1e-9), 2 - 1e-9)));
+  // 动图：第 0 帧停在 t = 0.04 s（刚起步：cubic 的箭头已经满长，quintic 几乎为 0）；之后 t 从 −0.3 走到 2.3 s，慢放 2 倍
+  const ts = [0.04, 0.04]; for (let t = -0.3; t <= 2.3 + 1e-9; t += 0.02) ts.push(Math.round(t * 100) / 100);
+  const tt = [0, 3]; for (let i = 2; i < ts.length; i++) tt.push(3.3 + 2 * (ts[i] + 0.3));
+  const TA = tt[tt.length - 1] + 0.8; tt.push(TA); ts.push(2.3);
+  const kt = tt.map((v) => v / TA);
+  o += apath(ts.map((t) => `M${f1(sx(t))} 35V145M${f1(sx(t))} 190V330`), kt, TA, 'mute');
+  const rows = [[cub, 'ln', 'cubic', 'peak v 67.5，a 135'], [qui, 'ink-b', 'quintic', 'peak v 84.4，a 129.9'], [tr, 'dash', 'trapezoid', 'peak v 60，a 120']];
+  const L = 52, X = 452;
+  rows.forEach(([Pf, cls, name, pk], r) => {
+    const py = 112 + r * 116;
+    o += line(X, py - 86, X + 22, py - 86, cls) + text(X + 28, py - 82, name, 'tb') + text(X, py - 66, pk, 'ts');
+    const arc = []; for (let k = 0; k <= 30; k++) { const a = (k / 30) * Math.PI / 2; arc.push([X + L * Math.cos(a), py - L * Math.sin(a)]); }
+    o += path(d(arc), 'grid');
+    const tip = (t) => { const a = pos(Pf, t) * R; return [X + L * Math.cos(a), py - L * Math.sin(a), a]; };
+    o += apath(ts.map((t) => { const [x, y] = tip(t); return d([[X, py], [x, y]]); }), kt, TA, cls === 'dash' ? 'ink-b' : cls);
+    // acceleration 箭头：沿 tip 的切线方向（逆时针为正），长度 40 px 对应 135 °/s²
+    o += apath(ts.map((t) => {
+      const [x, y, a] = tip(t), A = acc_(Pf, t), len = (40 * A) / 135;
+      if (Math.abs(len) < 2) return `M${f1(x)} ${f1(y)}`;
+      const ux = -Math.sin(a) * Math.sign(len), uy = -Math.cos(a) * Math.sign(len), Lm = Math.abs(len);
+      const ex = x + ux * Lm, ey = y + uy * Lm, hx = ex - ux * 6, hy = ey - uy * 6;
+      return `M${f1(x)} ${f1(y)}L${f1(ex)} ${f1(ey)}M${f1(hx - uy * 4)} ${f1(hy + ux * 4)}L${f1(ex)} ${f1(ey)}L${f1(hx + uy * 4)} ${f1(hy - ux * 4)}`;
+    }), kt, TA, cls === 'ln' ? 'ln' : 'ink');
+    o += circle(X, py, 4, 'paper');
+  });
+  return svgA(600, 370, o, '动图：三种 time scaling 让一个 joint 在 2 秒内转 90 度。左边是 velocity 和 acceleration 曲线，竖线是当前时刻；右边三个 joint 同步转动，tip 上的箭头是 angular acceleration。Cubic 一起步箭头就是满长（acceleration 从零跳到 135），quintic 的箭头从零慢慢长出来，trapezoid 的箭头在 0、0.5、1.5、2 s 四处突然出现或消失');
 }
 
 // 第 7 站：Cartesian 直线经过 base 附近
 function cartline() {
-  const h = 0.1;
+  const h = 0.1, v = 0.5;
   const ik = (x, y) => { const Dd = (x * x + y * y - 2) / 2; const t2 = Math.atan2(Math.sqrt(Math.max(0, 1 - Dd * Dd)), Dd); return [Math.atan2(y, x) - Math.atan2(Math.sin(t2), 1 + Math.cos(t2)), t2]; };
+  const wrapd = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
+  const rateAt = (x) => { const e = 1e-4; return Math.abs(wrapd(ik(x + e, h)[0] - ik(x - e, h)[0])) / (2 * e) * v; };
   const S = 58, O = [140, 150], P = ([x, y]) => [O[0] + S * x, O[1] - S * y];
   let o = '';
   const circ = []; for (let i = 0; i <= 120; i++) { const a = (2 * Math.PI * i) / 120; circ.push(P([2 * Math.cos(a), 2 * Math.sin(a)])); }
@@ -318,11 +366,7 @@ function cartline() {
   if (qb[0] > qa[0]) qb[0] -= 2 * Math.PI;
   const js = []; for (let i = 0; i <= 100; i++) { const s = i / 100; js.push(P(fk2(qa[0] + s * (qb[0] - qa[0]), qa[1] + s * (qb[1] - qa[1])))); }
   o += path(d(js), 'dash');
-  for (const x of [-1, -0.15, 0.15, 1]) {
-    const q = ik(x, h), e = [Math.cos(q[0]), Math.sin(q[0])];
-    o += arm([[0, 0], e, [x, h]], P, Math.abs(x) < 0.5 ? 'ink-b' : 'mute', 3);
-    if (Math.abs(x) < 0.5) { const pe = P(e); o += x < 0 ? text(pe[0], pe[1] - 12, `x = ${x}`, 'ts', 'middle') : text(pe[0] + 8, pe[1] + 14, `x = ${x}`, 'ts'); }
-  }
+  for (const x of [-1, 1]) { const q = ik(x, h); o += arm([[0, 0], [Math.cos(q[0]), Math.sin(q[0])], [x, h]], P, 'mute', 3); }
   o += line(P([-1, h])[0], P([-1, h])[1], P([1, h])[0], P([1, h])[1], 'ln');
   o += text(P([-1, h])[0] - 4, P([-1, h])[1] + 18, 'A', 'tb', 'middle') + text(P([1, h])[0] + 4, P([1, h])[1] + 18, 'B', 'tb', 'middle');
   o += text(O[0], 24, 'Tip 走 y = 0.1 的 straight line（彩线）', 'tb', 'middle');
@@ -330,13 +374,32 @@ function cartline() {
   // 右图：θ̇1 随 x
   const sx = lin(-1, 1, 330, 530), sy = lin(0, 6, 240, 50);
   o += axes({ sx, sy, x0: -1, x1: 1, y0: 0, y1: 6, xt: [[-1, '−1'], [0, '0'], [1, '1']], yt: [[0, '0'], [2, '2'], [4, '4'], [6, '6']], grid: true });
-  const pts = []; const n = 800, v = 0.5;
+  const pts = []; const n = 800;
   let prev = ik(-1, h)[0];
   for (let i = 1; i <= n; i++) { const x = -1 + (2 * i) / n; let q = ik(x, h)[0]; while (q - prev > Math.PI) q -= 2 * Math.PI; while (q - prev < -Math.PI) q += 2 * Math.PI; const rate = Math.abs(q - prev) / ((2 / n) / v); pts.push([sx(x - 1 / n), sy(rate)]); prev = q; }
   o += path(d(pts), 'ln');
   o += text(sx(0) - 8, sy(5.4), 'peak 5 rad/s', 'tl', 'end') + text(sx(0) - 8, sy(5.4) + 15, '= 287°/s', 'tl', 'end');
   o += text(310, 30, 'Joint 1 的 velocity（rad/s）', 'tb') + text(530, 274, 'Tip 的 x（m）', 'ts', 'end');
-  return svg(560, 292, o, '左图：2R arm 的 tip 沿离 base 0.1 m 的 straight line 走，经过 base 旁时 arm 几乎折叠；joint space straight line 对应的 tip path 远离 base。右图：joint 1 的 velocity 在 x 等于 0 处尖起，达到 5 rad/s');
+  // 动图：tip 以 0.5 m/s 从 A 走到 B（真实时间 4 s）。取样点在 joint 1 转得快的地方加密（每步 joint 1 不超过 2°）
+  const xs = [-1];
+  while (xs[xs.length - 1] < 1 - 1e-12) {
+    const x0 = xs[xs.length - 1]; let dx = Math.min(0.02, 1 - x0);
+    while (dx > 1e-4 && Math.abs(wrapd(ik(x0 + dx, h)[0] - ik(x0, h)[0])) > 2 * R) dx /= 2;
+    xs.push(x0 + dx);
+  }
+  const seq = [0, 0, -1, ...xs, 1];
+  const tt = [0, 2.8, 3.1, ...xs.map((x) => 3.5 + (x + 1) / v)];
+  const T = tt[tt.length - 1] + 1.2; tt.push(T);
+  const kt = tt.map((t) => t / T);
+  const conf = (x) => { const q = ik(x, h); return [[0, 0], [Math.cos(q[0]), Math.sin(q[0])], [x, h]]; };
+  o += apath(seq.map((x) => d(conf(x).map(P))), kt, T, 'ink-b');
+  o += circle(...P([0, 0]), 5, 'paper');
+  const el = seq.map((x) => P(conf(x)[1])), tp = seq.map((x) => P([x, h]));
+  o += acircle(el.map((q) => q[0]), el.map((q) => q[1]), kt, T, 4, 'paper');
+  o += acircle(tp.map((q) => q[0]), tp.map((q) => q[1]), kt, T, 3.5, 'ln-f');
+  o += acircle(seq.map((x) => sx(x)), seq.map((x) => sy(rateAt(x))), kt, T, 5, 'ln-f');
+  o += apath(seq.map((x) => `M${f1(sx(x))} ${f1(sy(rateAt(x)) + 6)}V240`), kt, T, 'dash');
+  return svgA(560, 292, o, '动图：2R arm 的 tip 以 0.5 m/s 沿离 base 0.1 m 的 straight line 从 A 走到 B，经过 base 旁时 arm 几乎折叠、joint 1 在零点几秒内甩过大半圈；右图的点同步显示 joint 1 的 velocity，在 x 等于 0 处尖起到 5 rad/s。虚线是 joint space straight line 对应的 tip path，远离 base');
 }
 
 // ---------- 开头三次事故 ----------

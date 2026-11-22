@@ -1,4 +1,21 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, apath, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+
+// 动图的时间轴：durs[i] 是第 i 帧停留的秒数 → keyTimes；末尾补一个 1
+const timeline = (durs) => { const T = durs.reduce((a, b) => a + b, 0); const kt = []; let t = 0; for (const u of durs) { kt.push(t / T); t += u; } kt.push(1); return { T, kt }; };
+const onlyAt = (n, ...idx) => { const a = Array.from({ length: n }, (_, i) => idx.includes(i)); a.push(a[n - 1]); return a; };
+const atext = (x, y, s, cls, on, kt, T, anchor = 'start') => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, kt, T)}</text>`;
+// 一条 line w1 x + w2 y + b = 0 与矩形 [x0,x1]×[y0,y1] 的交线段，以及 w·x̃ > 0 那一侧的多边形
+function halfplane([w1, w2, b], [x0, x1, y0, y1]) {
+  const f = ([x, y]) => w1 * x + w2 * y + b;
+  const box = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  const poly = [], seg = [];
+  for (let i = 0; i < 4; i++) {
+    const A = box[i], B = box[(i + 1) % 4], fa = f(A), fb = f(B);
+    if (fa > 0) poly.push(A);
+    if ((fa > 0) !== (fb > 0)) { const t = fa / (fa - fb), X = [A[0] + t * (B[0] - A[0]), A[1] + t * (B[1] - A[1])]; poly.push(X); seg.push(X); }
+  }
+  return { poly, seg };
+}
 
 // 从圆心 A 指向圆心 B 的箭头，两端各缩进半径；off 是垂直方向的平移（画一对相反的边时用）
 function link(A, B, rA, rB, cls = 'ink', off = 0) {
@@ -7,46 +24,93 @@ function link(A, B, rA, rB, cls = 'ink', off = 0) {
   return arrow(A[0] + ux * rA + ox, A[1] + uy * rA + oy, B[0] - ux * rB + ox, B[1] - uy * rB + oy, cls);
 }
 
-// 第 1 站：nearest centroid 的 boundary 与 perceptron 的 boundary
+// 第 1 站：nearest centroid 的 boundary（虚线，静止）与 perceptron 一步步 update 的 boundary（动图）
 function centroid() {
-  const sx = lin(-2, 8, 40, 300), sy = lin(-1, 10, 285, 20);
-  let o = axes({ sx, sy, x0: -2, x1: 8, y0: -1, y1: 10, xt: [2, 4, 6], yt: [2, 4, 6, 8], xAt: 0, yAt: 0, grid: true });
+  const sx = lin(-2, 8, 40, 300), sy = lin(-1, 10, 285, 20), BOX = [-2, 8, -1, 10];
+  const X = [[2, 2], [3, 1], [7, 9], [0, 0], [1, 1], [-1, 2]], Y = [1, 1, 1, -1, -1, -1];
+  // 按顺序扫，犯错就 w ← w + y x̃，直到一整轮都对
+  let w = [0, 0, 0]; const ups = [];
+  for (let round = 1; round < 50; round++) {
+    let err = 0;
+    X.forEach(([a, b], i) => {
+      if (Y[i] * (w[0] * a + w[1] * b + w[2]) <= 0) { w = [w[0] + Y[i] * a, w[1] + Y[i] * b, w[2] + Y[i]]; ups.push({ i, round, w }); err++; }
+    });
+    if (!err) break;
+  }
+  const n = ups.length;            // 12
+  const frames = [{ w, i: -1 }, ...ups];
+  const { T, kt } = timeline(frames.map((f, k) => (k === 0 ? 3 : 1.3)));
+  const fr = [...frames, frames[frames.length - 1]];
+  const P = (pts) => pts.map(([x, y]) => [sx(x), sy(y)]);
+  let o = apath(fr.map((f) => d(P(halfplane(f.w, BOX).poly)) + 'Z'), kt, T, 'wash', true);
+  o += axes({ sx, sy, x0: -2, x1: 8, y0: -1, y1: 10, xt: [2, 4, 6], yt: [2, 4, 6, 8], xAt: 0, yAt: 0, grid: true });
   o += text(sx(8), sy(0) - 6, 'x₁', 'ts', 'end') + text(sx(0) + 6, sy(10) + 4, 'x₂', 'ts');
-  // centroid boundary 4x1 + 3x2 = 15.5
   const g = (x) => (15.5 - 4 * x) / 3;
   o += line(sx(-1.25), sy(g(-1.25)), sx(4.1), sy(g(4.1)), 'dash');
-  o += line(sx(4 / 3), sy(-1), sx(4 / 3), sy(10), 'ln');
-  const P = [[2, 2], [3, 1], [7, 9]], N = [[0, 0], [1, 1], [-1, 2]];
-  for (const [x, y] of N) o += circle(sx(x), sy(y), 5.5, 'paper');
-  for (const [x, y] of P) o += circle(sx(x), sy(y), 5.5, 'solid');
-  for (const [x, y] of [[2, 2], [3, 1]]) o += circle(sx(x), sy(y), 10, 'ink');
+  o += apath(fr.map((f) => d(P(halfplane(f.w, BOX).seg))), kt, T, 'ln', true);
+  for (const [x, y] of X.slice(3)) o += circle(sx(x), sy(y), 5.5, 'paper');
+  for (const [x, y] of X.slice(0, 3)) o += circle(sx(x), sy(y), 5.5, 'solid');
+  for (const [x, y] of [[2, 2], [3, 1]]) o += circle(sx(x), sy(y), 10, 'dash');
   const cross = (x, y) => line(sx(x) - 6, sy(y) - 6, sx(x) + 6, sy(y) + 6, 'ink-b') + line(sx(x) - 6, sy(y) + 6, sx(x) + 6, sy(y) - 6, 'ink-b');
   o += cross(4, 4) + cross(0, 1);
   o += text(sx(4) + 9, sy(4) - 6, 'μ₊ = (4, 4)', 'ts') + text(sx(0) - 10, sy(1) + 4, 'μ₋ = (0, 1)', 'ts', 'end');
   o += text(sx(7) - 9, sy(9) + 4, '(7, 9)', 'ts', 'end');
-  o += text(sx(4 / 3) + 6, sy(9.6), 'perceptron：x₁ = 4/3', 'tl');
-  const T = ['实心点 label +1，', '空心点 label −1。', '', '虚线：nearest centroid', '的 boundary 4x₁ + 3x₂ = 15.5。', '', '(7, 9) 把 μ₊ 拉到右上，', '圈出的 (2, 2)、(3, 1)', '落在虚线的错误一侧。', '', '彩线：perceptron 12 次', '更新后的 boundary，', '六个点全对。'];
-  T.forEach((s, i) => { if (s) o += text(322, 44 + i * 18, s, 't'); });
-  return svg(560, 300, o, '六个点的 nearest centroid boundary 把两个 positive point 分错，perceptron 找到的 vertical boundary 把六个点全部分对');
+  // 正在 update 的点：粗圈
+  const hx = fr.map((f) => (f.i < 0 ? sx(7) : sx(X[f.i][0]))), hy = fr.map((f) => (f.i < 0 ? sy(9) : sy(X[f.i][1])));
+  o += `<circle cx="${f1(hx[0])}" cy="${f1(hy[0])}" r="11" class="ln">${anim('cx', hx.map(f1), kt, T, true)}${anim('cy', hy.map(f1), kt, T, true)}${ashow(fr.map((f) => f.i >= 0), kt, T)}</circle>`;
+  // 右栏
+  const R0 = 318;
+  const T0 = ['实心点 label +1，空心点 label −1。', '虚线：nearest centroid 的 boundary', '4x₁ + 3x₂ = 15.5，虚线圈的两点分错。', '彩线：perceptron 当前的 boundary，', '浅色一侧判为 +1。'];
+  T0.forEach((s, i) => { o += text(R0, 40 + i * 19 + (i >= 3 ? 10 : 0), s, i === 3 ? 'tl' : 't'); });
+  o += rect(R0 - 6, 160, 248, 96, 'paper', 4);
+  const vec = (v) => '(' + v.map((a) => (a < 0 ? '−' : '') + Math.abs(a)).join(', ') + ')';
+  const pt = (i) => '(' + X[i].map((a) => (a < 0 ? '−' : '') + Math.abs(a)).join(', ') + ')';
+  frames.forEach((f, k) => {
+    const on = onlyAt(frames.length, k);
+    if (k === 0) {
+      o += atext(R0 + 4, 184, `${n} 次 update 之后：六个点全对`, 'tb', on, kt, T);
+      o += atext(R0 + 4, 208, 'w = ' + vec(f.w) + '，即 x₁ > 4/3', 't', on, kt, T);
+      o += atext(R0 + 4, 232, `接下来从 w = 0 重放这 ${n} 步`, 'ts', on, kt, T);
+    } else {
+      o += atext(R0 + 4, 184, `update ${k} / ${n}　（第 ${f.round} 轮）`, 'tb', on, kt, T);
+      o += atext(R0 + 4, 208, pt(f.i) + ' 分错，label ' + (Y[f.i] > 0 ? '+1' : '−1'), 't', on, kt, T);
+      o += atext(R0 + 4, 232, 'w ← w ' + (Y[f.i] > 0 ? '+ ' : '− ') + vec([...X[f.i], 1]) + ' = ' + vec(f.w), 't', on, kt, T);
+    }
+  });
+  return svgA(560, 300, o, '动图：六个点上，nearest centroid 的 boundary（虚线）把两个 positive point 分错；perceptron 从 w 等于 0 出发，每遇到一个分错的点就 update 一次，12 次之后 boundary 停在 x1 等于 4/3，六个点全对');
 }
 
-// 第 2 站：PageRank，圆的面积正比于 PageRank
+// 第 2 站：PageRank 的 power iteration（动图）。圆的面积正比于当前的 x_k，第一帧是收敛后的 π
 function pagerank() {
-  const pr = [0.3536, 0.1803, 0.3807, 0.0555, 0.03];
+  const out = [[1, 2], [2], [0], [2], [3]], al = 0.15, nn = 5;
+  const step = (x) => { const y = Array(nn).fill(al / nn); x.forEach((v, i) => out[i].forEach((j) => { y[j] += (1 - al) * v / out[i].length; })); return y; };
+  const xs = [Array(nn).fill(1 / nn)]; for (let k = 0; k < 200; k++) xs.push(step(xs[k]));
+  const pi = xs[200], err = (x) => x.reduce((s, v, i) => s + Math.abs(v - pi[i]), 0);
+  const K = [0, 1, 2, 3, 4, 5, 6, 8, 10];
+  const frames = [{ x: pi, k: -1 }, ...K.map((k) => ({ x: xs[k], k }))];
+  const { T, kt } = timeline(frames.map((f, i) => (i === 0 ? 3.2 : 1.2)));
+  const fr = [...frames, frames[frames.length - 1]];
   const inl = [1, 1, 3, 1, 0];
-  const pos = [[110, 120], [260, 45], [260, 200], [400, 200], [515, 200]];
-  const r = pr.map((p) => 8 + 42 * Math.sqrt(p));
+  const pos = [[110, 130], [260, 55], [260, 210], [400, 210], [515, 210]];
+  const rad = (p) => 8 + 42 * Math.sqrt(p);
+  const rmax = pos.map((_, i) => Math.max(...frames.map((f) => rad(f.x[i]))));
   let o = '';
   const E = [[0, 1, 0], [0, 2, 5], [1, 2, 0], [2, 0, 5], [3, 2, 0], [4, 3, 0]];
-  for (const [i, j, off] of E) o += link(pos[i], pos[j], r[i] + 2, r[j] + 3, 'ink', off);
+  for (const [i, j, off] of E) o += link(pos[i], pos[j], rmax[i] + 2, rmax[j] + 3, 'ink', off);
   pos.forEach(([x, y], i) => {
-    o += circle(x, y, r[i], 'wash ink-s') + text(x, y + 5, String(i + 1), 'tb', 'middle');
+    const rs = fr.map((f) => f1(rad(f.x[i])));
+    o += `<circle cx="${x}" cy="${y}" r="${rs[0]}" class="wash ink-s">${anim('r', rs, kt, T, true)}</circle>` + text(x, y + 5, String(i + 1), 'tb', 'middle');
   });
-  const lab = (i, dx, dy, anchor) => text(pos[i][0] + dx, pos[i][1] + dy, `π = ${pr[i].toFixed(3)}，in-link ${inl[i]}`, 'ts', anchor);
-  o += lab(0, 0, r[0] + 18, 'middle') + lab(1, r[1] + 8, 4, 'start') + lab(2, 0, r[2] + 18, 'middle');
-  o += text(pos[3][0], pos[3][1] - r[3] - 26, 'π = 0.056', 'ts', 'middle') + text(pos[3][0], pos[3][1] - r[3] - 10, 'in-link 1', 'ts', 'middle');
-  o += text(pos[4][0], pos[4][1] - r[4] - 26, 'π = 0.030', 'ts', 'middle') + text(pos[4][0], pos[4][1] - r[4] - 10, 'in-link 0', 'ts', 'middle');
-  return svg(560, 262, o, '五个 node 的 directed graph，每个 node 画成面积正比于 PageRank 的圆；node 1 只有一个 in-link 却排第二，因为那个 in-link 来自排第一的 node 3');
+  frames.forEach((f, k) => {
+    const on = onlyAt(frames.length, k), v = (i) => (k === 0 ? 'π' : 'x') + ' = ' + (Math.round(f.x[i] * 1000 + 1e-9) / 1000).toFixed(3);
+    const L = (i, dx, dy, s, anchor) => atext(pos[i][0] + dx, pos[i][1] + dy, s, 'ts', on, kt, T, anchor);
+    o += L(0, 0, rmax[0] + 18, v(0) + '，in-link 1', 'middle') + L(1, rmax[1] + 8, 4, v(1) + '，in-link 1', 'start') + L(2, 0, rmax[2] + 18, v(2) + '，in-link 3', 'middle');
+    o += L(3, 0, -rmax[3] - 26, v(3), 'middle') + L(4, 0, -rmax[4] - 26, v(4), 'middle');
+    o += atext(4, 20, k === 0 ? 'π：power iteration converge 之后' : `power iteration　k = ${f.k}`, 'tb', on, kt, T);
+    o += atext(4, 40, k === 0 ? '圆的面积 = PageRank' : `‖xₖ − π‖₁ = ${err(f.x).toFixed(3)}`, 'ts', on, kt, T);
+  });
+  o += text(pos[3][0], pos[3][1] - rmax[3] - 10, 'in-link 1', 'ts', 'middle') + text(pos[4][0], pos[4][1] - rmax[4] - 10, 'in-link 0', 'ts', 'middle');
+  return svgA(560, 280, o, '动图：五个 node 的 directed graph，圆的面积是当前的 PageRank 估计。Power iteration 从每个 node 0.2 出发，node 5 第一步就掉到 0.03，node 3 先涨到 0.455，node 1 再从 node 3 接过分数，大约十步之后停在 π；node 1 只有一个 in-link 却排第二，因为那个 in-link 来自排第一的 node 3');
 }
 
 // 第 3 站：I am Sam 语料的 bigram Markov chain
@@ -127,17 +191,31 @@ function zigzag() {
     o += path(d(pts) + 'Z', 'grid');
   }
   o += line(sx(-1), sy(0), sx(11), sy(0), 'axis') + line(sx(0), sy(-1.6), sx(0), sy(1.6), 'axis');
-  const run = (eta, n) => { let p = [10, 1]; const out = [p]; for (let k = 0; k < n; k++) { p = [p[0] * (1 - eta), p[1] * (1 - 10 * eta)]; out.push(p); } return out; };
-  const z = run(2 / 11, 14), s = run(0.1, 14);
-  o += path(d(s.map(([x, y]) => [sx(x), sy(y)])), 'mute');
-  o += path(d(z.map(([x, y]) => [sx(x), sy(y)])), 'ln');
-  for (const [x, y] of z) o += circle(sx(x), sy(y), 2.6, 'ln-f');
-  for (const [x, y] of s) o += circle(sx(x), sy(y), 2.2, 'mute-f');
+  const N = 14;
+  const run = (eta) => { let p = [10, 1]; const out = [p]; for (let k = 0; k < N; k++) { p = [p[0] * (1 - eta), p[1] * (1 - 10 * eta)]; out.push(p); } return out; };
+  const z = run(2 / 11), s = run(0.1);
+  // 第 0 帧：全部 14 步（静态时看到的）；之后从 k = 0 一步一步走
+  const ks = [N, ...Array.from({ length: N + 1 }, (_, k) => k)];
+  const { T, kt } = timeline(ks.map((k, i) => (i === 0 ? 3 : 0.55)));
+  const kf = [...ks, N];
+  const P = ([x, y]) => [sx(x), sy(y)];
+  o += apath(kf.map((k) => d(s.slice(0, k + 1).map(P))), kt, T, 'mute', true);
+  o += apath(kf.map((k) => d(z.slice(0, k + 1).map(P))), kt, T, 'ln', true);
+  z.forEach((p, j) => { const [x, y] = P(p); o += `<circle cx="${f1(x)}" cy="${f1(y)}" r="2.6" class="ln-f">${ashow(kf.map((k) => k >= j), kt, T)}</circle>`; });
+  s.forEach((p, j) => { const [x, y] = P(p); o += `<circle cx="${f1(x)}" cy="${f1(y)}" r="2.2" class="mute-f">${ashow(kf.map((k) => k >= j), kt, T)}</circle>`; });
+  for (const [run_, cls, r] of [[z, 'ln', 6], [s, 'ink', 5]]) {
+    const xs = kf.map((k) => f1(P(run_[k])[0])), ys = kf.map((k) => f1(P(run_[k])[1]));
+    o += `<circle cx="${xs[0]}" cy="${ys[0]}" r="${r}" class="${cls}">${anim('cx', xs, kt, T, true)}${anim('cy', ys, kt, T, true)}</circle>`;
+  }
   o += circle(sx(0), sy(0), 3.5, 'ink-f');
   o += text(sx(10) - 4, sy(1) - 10, '起点 (10, 1)', 'ts', 'end');
   o += text(sx(5.6), sy(-1.25), '彩线 η = 2/11：y 每步变号，x 每步乘 9/11', 'tl', 'middle');
   o += text(sx(0.3), sy(1.3), '灰线 η = 0.1：y 一步归零，x 每步只乘 0.9', 't');
-  return svg(560, 250, o, '在拉长的 quadratic 上，两种 step size 的 gradient descent 路径：一条在山谷两壁之间 zigzag，一条先落到谷底再沿谷底缓慢前进');
+  ks.forEach((k, i) => {
+    const on = onlyAt(ks.length, i);
+    o += atext(280, 262, i === 0 ? `两条路径各走 ${N} 步；接下来从 k = 0 重放` : `第 ${k} 步：彩线 x = ${z[k][0].toFixed(2)}，灰线 x = ${s[k][0].toFixed(2)}`, 'ts', on, kt, T, 'middle');
+  });
+  return svgA(560, 270, o, '动图：在拉长的 quadratic 上，两种 step size 的 gradient descent 一步一步走：η 等于 2/11 的路径在山谷两壁之间 zigzag，η 等于 0.1 的路径第一步就落到谷底，再沿谷底缓慢前进');
 }
 
 // 第 6 站：|x|/√d 的 density，d 越大越集中在 1 附近
@@ -160,18 +238,26 @@ function l1ball() {
   const P = (x, y) => [O[0] + S * x, O[1] - S * y];
   let o = line(...P(-1.4, 0), ...P(2.4, 0), 'axis') + line(...P(0, -1.3), ...P(0, 1.45), 'axis');
   o += text(...P(2.4, 0).map((v, i) => v + (i ? 16 : 0)), 'x₁', 'ts', 'end') + text(P(0, 1.45)[0] + 6, P(0, 1.45)[1] + 4, 'x₂', 'ts');
-  o += poly([P(1, 0), P(0, 1), P(-1, 0), P(0, -1)], 'wash ink-s');
-  const r = Math.sqrt(0.8), circ = [];
-  for (let i = 0; i <= 120; i++) { const t = (2 * Math.PI * i) / 120; circ.push(P(r * Math.cos(t), r * Math.sin(t))); }
-  o += path(d(circ) + 'Z', 'dash');
+  // 两个 ball 以同样的速度从原点放大：‖x‖ ≤ s；L2 ball 在 s = 2/√5 碰到 line 就停，L1 ball 在 s = 1 碰到
+  const r2 = 2 / Math.sqrt(5);
+  const ss = [1, 1, 0.08, 0.3, 0.5, 0.7, r2, 1, 1];
+  const grow = 4.2, tAt = (v) => 3 + grow * (v - 0.08) / 0.92;
+  const times = [0, 2.6, 3, ...ss.slice(3, 8).map(tAt), tAt(1) + 2.5];
+  const T = times[times.length - 1], kt = times.map((t) => t / T);
+  o += apath(ss.map((v) => d([P(v, 0), P(0, v), P(-v, 0), P(0, -v)]) + 'Z'), kt, T, 'wash ink-s');
+  const rr = ss.map((v) => f1(S * Math.min(v, r2)));
+  o += `<circle cx="${O[0]}" cy="${O[1]}" r="${rr[0]}" class="dash">${anim('r', rr, kt, T)}</circle>`;
   o += line(...P(-0.15, 1.075), ...P(2.1, -0.05), 'ln');
-  o += circle(...P(0, 1), 4.5, 'ink-f') + circle(...P(0.4, 0.8), 4.5, 'paper');
-  o += text(P(0, 1)[0] - 16, P(0, 1)[1] + 5, '(0, 1)', 'tb', 'end');
-  o += text(P(0.4, 0.8)[0] + 6, P(0.4, 0.8)[1] - 10, '(0.4, 0.8)', 't');
+  const shown = (th) => ashow(ss.map((v, i) => i === 0 || v >= th - 1e-9), kt, T);
+  o += `<circle cx="${f1(P(0, 1)[0])}" cy="${f1(P(0, 1)[1])}" r="4.5" class="ink-f">${shown(1)}</circle>`;
+  o += `<circle cx="${f1(P(0.4, 0.8)[0])}" cy="${f1(P(0.4, 0.8)[1])}" r="4.5" class="paper">${shown(r2)}</circle>`;
+  o += `<text x="${f1(P(0, 1)[0] - 16)}" y="${f1(P(0, 1)[1] + 5)}" class="tb" text-anchor="end">(0, 1)${shown(1)}</text>`;
+  o += `<text x="${f1(P(0.4, 0.8)[0] + 6)}" y="${f1(P(0.4, 0.8)[1] - 10)}" class="t" text-anchor="start">(0.4, 0.8)${shown(r2)}</text>`;
   o += text(P(1.3, 0.55)[0], P(1.3, 0.55)[1], 'x₁ + 2x₂ = 2', 'tl');
-  o += text(384, 196, '实线 diamond：‖x‖₁ = 1，', 't') + text(384, 214, '碰到 line 在 vertex (0, 1)。', 't');
-  o += text(384, 240, '虚线 circle：', 't') + text(384, 258, '‖x‖₂ = 0.894，碰到 line', 't') + text(384, 276, '在 (0.4, 0.8)，', 't') + text(384, 294, '两个 component 都不为 0。', 't');
-  return svg(560, 304, o, '一条 constraint line 与逐渐放大的 L1 ball、L2 ball 第一次相碰的位置：L1 ball 碰在 coordinate axis 上的 vertex，得到 sparse solution；L2 ball 碰在一般位置');
+  o += text(384, 194, '两个 ball 同时从原点放大：', 'tb');
+  o += text(384, 218, '实线 diamond：‖x‖₁ = 1，', 't') + text(384, 236, '碰到 line 在 vertex (0, 1)。', 't');
+  o += text(384, 262, '虚线 circle：', 't') + text(384, 280, '‖x‖₂ = 0.894，碰到 line', 't') + text(384, 298, '在 (0.4, 0.8)，', 't') + text(384, 316, '两个 component 都不为 0。', 't');
+  return svgA(560, 324, o, '动图：L1 ball（diamond）和 L2 ball（circle）从原点同时放大，直到第一次碰到 constraint line：circle 在半径 0.894 时碰在 (0.4, 0.8)，diamond 在半径 1 时碰在 coordinate axis 上的 vertex (0, 1)，得到 sparse solution');
 }
 
 // 第 7 站：L1 recovery 的 phase transition（d = 50，每个 n 做 50 次）

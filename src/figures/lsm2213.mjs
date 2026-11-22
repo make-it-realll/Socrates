@@ -1,4 +1,7 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, apath, acircle, ashow, f1, lin, logx, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, axes } from '../lib/svg.mjs';
+
+// 动图的时间轴：durs[i] 是第 i 帧停留的秒数 → keyTimes；末尾补一个 1
+const timeline = (durs) => { const T = durs.reduce((a, b) => a + b, 0); const kt = []; let t = 0; for (const u of durs) { kt.push(t / T); t += u; } kt.push(1); return { T, kt }; };
 
 const E = (s) => it('E') + sub(s);
 const SLOPE = 61.54; // 2.303 RT/F，37 °C，单位 mV
@@ -91,7 +94,7 @@ function hhRun(Ifun, T, dt = 0.005) {
 
 function hh() {
   const run = hhRun((t) => (t >= 1 && t < 2 ? 20 : 0), 15);
-  const sx = lin(0, 15, 80, 520);
+  const sx = lin(0, 15, 62, 344);
   const sy1 = lin(-90, 60, 150, 24), sy2 = lin(0, 36, 300, 190);
   let o = axes({ sx, sy: sy1, x0: 0, x1: 15, y0: -90, y1: 60, xt: [], yt: [[-77, '−77'], [0, '0'], [50, '+50']] });
   o += line(sx(0), sy1(50), sx(15), sy1(50), 'grid') + line(sx(0), sy1(-77), sx(15), sy1(-77), 'grid') + line(sx(0), sy1(0), sx(15), sy1(0), 'grid');
@@ -104,35 +107,86 @@ function hh() {
   o += text(sx(pk[0]) + 8, sy1(pk[1]) + 4, `peak +${pk[1].toFixed(0)} mV`, 'tl');
   const und = run.filter((r) => r[0] > pk[0]).reduce((a, b) => (b[1] < a[1] ? b : a));
   o += line(sx(und[0]) + 2, sy1(und[1]) - 3, sx(und[0]) + 14, sy1(-58), 'mute') + text(sx(und[0]) + 16, sy1(-58) - 2, `undershoot ${und[1].toFixed(0)} mV`, 'ts');
-  o += text(80, 14, 'V（mV）', 'ts');
+  o += text(62, 14, 'V（mV）', 'ts');
   o += axes({ sx, sy: sy2, x0: 0, x1: 15, y0: 0, y1: 36, xt: [0, 3, 6, 9, 12, 15], yt: [0, 10, 20, 30] });
   o += path(d(run.filter((_, i) => i % step === 0).map(([t, , g]) => [sx(t), sy2(g)])), 'ln');
   o += path(d(run.filter((_, i) => i % step === 0).map(([t, , , g]) => [sx(t), sy2(g)])), 'ink-b');
   const gmax = run.reduce((a, b) => (b[2] > a[2] ? b : a));
-  o += text(sx(gmax[0]) + 8, sy2(gmax[2]) + 4, 'g' + sub('Na') + '：快开，自己关（inactivation）', 'tl');
+  o += text(sx(gmax[0]) + 6, sy2(gmax[2]) + 4, 'g' + sub('Na') + '：快开，自己关', 'tl');
   const kmax = run.reduce((a, b) => (b[3] > a[3] ? b : a));
   o += text(sx(kmax[0]) + 8, sy2(kmax[3]) - 6, 'g' + sub('K') + '：慢开，慢关', 't');
-  o += text(80, 180, 'conductance（mS/cm²）', 'ts') + text(520, 334, 'time（ms）', 'ts', 'end');
-  return svg(560, 342, o, 'Hodgkin–Huxley model 对一个 1 ms input pulse 的响应。上图是 voltage：升到约 +41 mV 再落到约 −76 mV 的 undershoot。下图是两种 conductance：Na conductance 先快速升起又自己落下，K conductance 较晚升起、较晚回落');
+  o += text(62, 180, 'conductance（mS/cm²）', 'ts') + text(344, 334, 'time（ms）', 'ts', 'end');
+  // ---- 动图：时间游标 + 右边一小块 membrane 上的两种 channel ----
+  // 第 0 帧停在 V 往上冲过 0 mV 的时刻；之后按 1 ms = 0.5 s 从 0 走到 15 ms
+  const at = (t) => run[Math.min(run.length - 1, Math.round(t / 0.005))];
+  const up0 = run.find((r) => r[1] >= 0);
+  const ts = [up0[0], up0[0]]; for (let t = 0; t <= 15 + 1e-9; t += 0.1) ts.push(t);
+  const tt = [0, 2.6]; for (let k = 2; k < ts.length; k++) tt.push(2.9 + 0.5 * ts[k]);
+  const T = tt[tt.length - 1] + 1.2; tt.push(T); ts.push(15);
+  const kt = tt.map((v) => v / T), S = ts.map(at);
+  o += apath(S.map(([t]) => `M${f1(sx(t))} 22V152M${f1(sx(t))} 188V300`), kt, T, 'dash');
+  o += acircle(S.map(([t]) => sx(t)), S.map(([, V]) => sy1(V)), kt, T, 4.5, 'ln-f');
+  o += acircle(S.map(([t]) => sx(t)), S.map(([, , g]) => sy2(g)), kt, T, 4, 'ln-f');
+  o += acircle(S.map(([t]) => sx(t)), S.map(([, , , g]) => sy2(g)), kt, T, 4, 'ink-f');
+  const MX0 = 372, MX1 = 556, MY0 = 150, MY1 = 190;
+  o += text((MX0 + MX1) / 2, 30, 'membrane 上的 channel', 'tb', 'middle');
+  o += text(MX0, 112, 'outside', 'ts') + text(MX0, 236, 'inside', 'ts');
+  o += rect(MX0, MY0, MX1 - MX0, MY1 - MY0, 'wash2');
+  const gNaMax = gmax[2], gKMax = kmax[3];
+  const INa = S.map(([, V, g]) => g * (V - 50)), IK = S.map(([, V, , g]) => g * (V + 77));
+  const Imax = Math.max(...INa.map(Math.abs), ...IK.map(Math.abs));
+  const chan = (cx, frac, I, cls, lab, ion, down) => {
+    let c = '';
+    const gaps = frac.map((f) => 2 + 26 * f), bw = 14;
+    c += `<rect x="${f1(cx - gaps[0] / 2 - bw)}" y="${MY0 - 6}" width="${bw}" height="${MY1 - MY0 + 12}" rx="4" class="solid2">${anim('x', gaps.map((g) => f1(cx - g / 2 - bw)), kt, T)}</rect>`;
+    c += `<rect x="${f1(cx + gaps[0] / 2)}" y="${MY0 - 6}" width="${bw}" height="${MY1 - MY0 + 12}" rx="4" class="solid2">${anim('x', gaps.map((g) => f1(cx + g / 2)), kt, T)}</rect>`;
+    // 离子流：箭头穿过 channel，总长正比于 |I|；电流几乎为 0 时不画
+    const yc = (MY0 + MY1) / 2;
+    const ar = I.map((v) => {
+      const L = 150 * Math.abs(v) / Imax;
+      if (L < 10) return `M${cx} ${yc}`;
+      const y0 = down ? yc - L / 2 : yc + L / 2, y1 = down ? yc + L / 2 : yc - L / 2, hy = y1 - (down ? 7 : -7);
+      return `M${cx} ${f1(y0)}L${cx} ${f1(y1)}M${cx - 5} ${f1(hy)}L${cx} ${f1(y1)}L${cx + 5} ${f1(hy)}`;
+    });
+    c += apath(ar, kt, T, cls);
+    c += text(cx, MY1 + 76, lab, 'ts', 'middle') + text(cx, MY0 - 82, ion, cls === 'ln' ? 'tl' : 'tb', 'middle');
+    return c;
+  };
+  o += chan(420, S.map(([, , g]) => g / gNaMax), INa, 'ln', 'Na⁺ channel', 'Na⁺ 流入', true);
+  o += chan(510, S.map(([, , , g]) => g / gKMax), IK, 'ink-b', 'K⁺ channel', 'K⁺ 流出', false);
+  o += text((MX0 + MX1) / 2, 312, '缝宽 ∝ conductance', 'ts', 'middle') + text((MX0 + MX1) / 2, 328, '箭头长 ∝ current', 'ts', 'middle');
+  return svgA(560, 342, o, '动图：Hodgkin–Huxley model 对一个 1 ms input pulse 的响应。左上是 voltage，升到约 +41 mV 再落到约 −76 mV 的 undershoot；左下是两种 conductance，Na 先快速升起又自己落下，K 较晚升起、较晚回落。时间游标走过时，右边 membrane 上 Na channel 先张开、Na⁺ 大量流入，随后 K channel 张开、K⁺ 流出把 voltage 拉回');
 }
-
-// 第 3 站：chemical synapse 的五个步骤
 function synapse() {
+  // 动图：第 0 帧是五步全画上的总览；之后 1–5 步依次亮起，图里只出现这一步正在发生的东西
+  const NF = 6;
+  const { T, kt } = timeline([3.2, 1.8, 1.8, 1.8, 1.8, 1.8]);
+  const on = (pred) => { const a = Array.from({ length: NF }, (_, f) => pred(f)); a.push(a[NF - 1]); return a; };
+  const show = (pred) => ashow(on(pred), kt, T);
+  const g = (pred, body) => `<g>${show(pred)}${body}</g>`;
   let o = '';
   const tag = (x, y, n) => circle(x, y, 9, 'solid') + text(x, y + 4.5, n, 'tw', 'middle');
   o += rect(50, 26, 190, 112, 'paper', 36);
   o += text(145, 46, 'presynaptic terminal', 'ts', 'middle');
   for (const [x, y] of [[92, 80], [122, 66], [152, 84], [184, 68], [210, 92], [176, 108]]) o += circle(x, y, 10, 'wash ink-s') + circle(x - 3, y - 2, 1.7, 'ink-f') + circle(x + 3, y + 2, 1.7, 'ink-f');
-  o += circle(142, 126, 10, 'wash ink-s') + circle(140, 125, 1.7, 'ink-f');
-  for (const [x, y] of [[138, 152], [150, 160], [162, 150], [174, 158], [156, 168]]) o += circle(x, y, 1.8, 'ink-f');
+  // 步骤 3 的 vesicle：之前在 terminal 里，fuse 之后不见了
+  o += g((f) => f <= 2, circle(142, 120, 10, 'wash ink-s') + circle(140, 119, 1.7, 'ink-f'));
+  o += g((f) => f === 0 || f >= 3, circle(142, 136, 7, 'wash ink-s'));
+  // cleft 里的 transmitter：步骤 3、4 都在，步骤 5 只剩两个
+  for (const [k, [x, y]] of [[138, 152], [150, 160], [162, 150], [174, 158], [156, 168]].entries()) o += g((f) => f === 0 || f === 3 || f === 4 || (f === 5 && k < 2), circle(x, y, 1.8, 'ink-f'));
   o += rect(50, 180, 190, 56, 'paper', 6);
   o += text(145, 226, 'postsynaptic membrane', 'ts', 'middle');
   for (const x of [110, 150, 190]) o += rect(x - 9, 174, 18, 14, 'solid');
-  o += arrow(150, 190, 150, 210, 'ln');
+  o += g((f) => f === 0 || f === 4, arrow(150, 190, 150, 210, 'ln'));
   o += rect(44, 86, 14, 20, 'solid2');
-  o += arrow(20, 74, 46, 92, 'ink') + text(22, 66, 'Ca²⁺', 'tb', 'middle');
-  o += arrow(145, 4, 145, 26, 'ln');
+  o += g((f) => f === 0 || f >= 2, arrow(20, 74, 46, 92, 'ink') + text(22, 66, 'Ca²⁺', 'tb', 'middle'));
+  o += g((f) => f === 2, arrow(60, 96, 84, 96, 'ln') + circle(70, 104, 1.8, 'ln-f') + circle(76, 89, 1.8, 'ln-f'));
+  o += g((f) => f === 5, arrow(184, 152, 214, 132, 'ln') + text(222, 128, 'reuptake', 'tl'));
+  // 步骤 1：action potential 沿 axon 下来，第 1 帧里这支箭头一闪一闪
+  o += `<line x1="145" y1="4" x2="145" y2="22" class="ln"/>`;
+  o += poly([[145, 26], [140, 17], [150, 17]], 'ln-f');
   o += tag(162, 12, '1') + tag(30, 118, '2') + tag(118, 124, '3') + tag(214, 170, '4') + tag(118, 158, '5');
+  const tagAt = [[162, 12], [30, 118], [118, 124], [214, 170], [118, 158]];
   const steps = [
     ['1', 'Action potential 到达 terminal'],
     ['2', 'Voltage-gated Ca²⁺ channel 打开，', 'Ca²⁺ 流入 terminal'],
@@ -141,14 +195,17 @@ function synapse() {
     ['5', 'Reuptake 或被 enzyme 分解，', 'signal 结束'],
   ];
   let y = 22;
-  for (const [n, l1, l2] of steps) {
+  steps.forEach(([n, l1, l2], k) => {
+    const h = l2 ? 44 : 28;
+    o += g((f) => f === k + 1, rect(262, y - 19, 296, h, 'wash', 4));
     o += tag(272, y - 4, n) + text(288, y, l1, 'ts');
     if (l2) { o += text(288, y + 17, l2, 'ts'); y += 46; } else y += 30;
-  }
-  return svg(560, 246, o, 'Chemical synapse 的五个步骤：action potential 到达 presynaptic terminal，calcium 进入，vesicle 释放 neurotransmitter，neurotransmitter 结合 postsynaptic receptor，最后被 reuptake 或分解');
+  });
+  // 当前步骤：左图里对应的编号外加一个圈
+  const fx = [tagAt[0], ...tagAt, tagAt[4]].map((p) => f1(p[0])), fy = [tagAt[0], ...tagAt, tagAt[4]].map((p) => f1(p[1]));
+  o += `<circle cx="${fx[0]}" cy="${fy[0]}" r="14" class="ln">${anim('cx', fx, kt, T, true)}${anim('cy', fy, kt, T, true)}${show((f) => f > 0)}</circle>`;
+  return svgA(560, 246, o, '动图：Chemical synapse 的五个步骤依次亮起：action potential 到达 presynaptic terminal，calcium 进入，vesicle 与 membrane fuse 释放 neurotransmitter，neurotransmitter 结合 postsynaptic receptor 产生 EPSP 或 IPSP，最后被 reuptake 或分解');
 }
-
-// 第 3 站：temporal summation 与 spatial summation
 function summation() {
   // 与正文同一个 model：EPSP 瞬间升到 1 mV，再以 τ = 10 ms 指数衰减
   const tau = 10;
@@ -353,7 +410,7 @@ function shunt() {
 
 // ---------- 第 4 站：膝跳 reflex 的路线与时间 ----------
 function reflex() {
-  const L = 0.5, v = 100, cond = (L / v) * 1000;
+  const L = 0.5, v = 100, cond = (L / v) * 1000, syn = 1;
   let o = '';
   // 路线
   o += rect(20, 40, 120, 40, 'wash2', 6) + text(80, 58, 'thigh muscle', 't', 'middle') + text(80, 73, 'stretch receptor', 'ts', 'middle');
@@ -369,7 +426,19 @@ function reflex() {
   o += text(sx(2 * cond + 1.5), y + 44, 'NMJ', 'ts', 'middle') + text(sx(2 * cond + 1.5), y + 58, '0.5–1 ms', 'ts', 'middle');
   for (const t of [0, 5, 10, 12]) o += line(sx(t), y - 4, sx(t), y, 'axis') + text(sx(t), y - 8, t + ' ms', 'ts', 'middle');
   o += text(40, 244, `合计 ${2 * cond} + 2 × (0.5～1) ≈ ${2 * cond + 1}～${2 * cond + 2} ms，时间主要花在路上`, 't');
-  return svg(560, 256, o, '膝跳 reflex 的路线：stretch receptor 的 signal 沿 sensory fiber 进入 spinal cord，经一个 synapse 交给 motor neuron，再沿 motor axon 回到 muscle；两段 conduction 各 5 ms，两个 synapse 各 0.5 到 1 ms');
+  // 动图：signal 沿路线走，下面的时间轴同步（synapse 和 NMJ 各按 1 ms 算；1 ms = 0.5 s）
+  // 第 0 帧停在 t = 12 ms（muscle 收到 signal）
+  const tk = [12, 12, 0, cond, cond + syn, 2 * cond + syn, 2 * cond + 2 * syn, 12];
+  const px = [130, 130, 140, 418, 430, 142, 130, 130], py = [72, 72, 50, 50, 72, 72, 72, 72];
+  const tt = [0, 2.6, 2.9, ...tk.slice(3, 7).map((t) => 2.9 + 0.5 * t), 2.9 + 6 + 1.4];
+  const T = tt[tt.length - 1], kt = tt.map((t) => t / T);
+  o += acircle(px, py, kt, T, 6, 'ln-f');
+  o += apath(tk.map((t) => `M${f1(sx(t))} ${y - 4}V${y + 30}`), kt, T, 'ink-b');
+  o += `<rect x="16" y="36" width="128" height="48" rx="8" class="ln">${ashow([true, true, false, false, false, false, true, true], kt, T)}</rect>`;
+  const st = [[0, 'muscle 收到 signal，收缩：从 stretch 到这里约 12 ms'], [2, 'signal 沿 sensory fiber 往 spinal cord 走'], [3, 'spinal cord 里过一个 synapse'], [4, '沿 motor axon 回到 muscle'], [5, '过 neuromuscular junction']];
+  const fr = [0, 0, 1, 2, 3, 4, 0, 0];
+  st.forEach(([, s_], k) => { o += `<text x="280" y="124" class="tl" text-anchor="middle">${s_}${ashow(fr.map((f) => f === k), kt, T)}</text>`; });
+  return svgA(560, 256, o, '动图：膝跳 reflex 的 signal 从 stretch receptor 出发，沿 sensory fiber 走 5 ms 进入 spinal cord，过一个 synapse，再沿 motor axon 走 5 ms 回到 muscle，过 neuromuscular junction；下面时间轴上的游标同步走，两段 conduction 各 5 ms，两个 synapse 各 0.5 到 1 ms');
 }
 
 // ---------- 第 5 站：Bliss 与 Lømo 的 design ----------

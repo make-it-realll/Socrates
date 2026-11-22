@@ -100,7 +100,7 @@ sources:
 
 **第三次。** MobileNetV2 只有 340 万个 parameter，int8 之后 3.4 MB。放到一块 320 KB SRAM 的 microcontroller 上，问题出在 activation：网络前部的一个 $1\times1$ conv，input 加 output 要 1372 KiB，是 SRAM 的四倍多。
 
-::fig[m6940-invres] 第三次：那个 $1\times1$ conv 的 input、output 与 SRAM（第 7 站逐层算）。
+::fig[m6940-invres] 第三次：那个 $1\times1$ conv 的 input、output 与 SRAM（第 7 站逐层算）。动起来看 output 一个 channel 一个 channel 写出来，input 一直不能丢，写到第 10 个 channel 就越过了 SRAM 那条虚线。
 
 三件事的原因是同一个：设备的瓶颈常常是“把多少 byte 从哪里搬到哪里”，而不是“做多少次乘法”。这门课的每个方法都可以用同一组问题去检验：它减少了存下的 bytes 吗？减少了每次 inference 要搬的 bytes 吗？减少了 operation 吗？在真实 hardware 上变快了吗？最后一个问题的答案常常和前三个不一样。
 
@@ -854,7 +854,7 @@ $$\text{speedup}=\frac{1-\alpha^{\gamma+1}}{(1-\alpha)(\gamma c+1)}$$
 
 $$E=\frac{1-0.8^5}{0.2}=\frac{1-0.32768}{0.2}=3.36,\qquad\text{speedup}=\frac{3.36}{1+4\times0.05}=2.80$$
 
-::fig[m6940-specdec] Speedup 随每轮 draft 长度 $\gamma$ 的变化（$c=0.05$）。$\gamma$ 太大时，后面的 draft token 大多被拒绝，draft 的时间白花了。
+::fig[m6940-specdec] 上：一轮 speculative decoding 一步步走，看 4 个 draft token 怎样只用 target model 的一次 forward 检查完，在第一个被拒绝的位置由 target 补一个 token。下：speedup 随每轮 draft 长度 $\gamma$ 的变化（$c=0.05$）。$\gamma$ 太大时，后面的 draft token 大多被拒绝，draft 的时间白花了。
 
 论文在 T5-XXL 上得到 2 到 3 倍的 latency 改善，输出与原来完全相同。
 
@@ -925,7 +925,7 @@ int8 下一个数占 1 byte，input 是 $224\times224$。MobileNetV2 的 block �
 $$\underbrace{16\times112\times112}_{200{,}704}+\underbrace{96\times112\times112}_{1{,}204{,}224}=1{,}404{,}928\ \text{byte}=1372\ \text{KiB}$$
 接着的 depthwise（stride 2）输出 $96\times56\times56=301{,}056$，in + out 是 1,505,280 byte $=1470$ KiB。
 
-::fig[m6940-invres] 这一层的 input、output 与 SRAM。
+::fig[m6940-invres] 这一层的 input、output 与 SRAM。看 output 写到第几个 channel 时越过 SRAM 的虚线。
 
 按 in + out 硬算，peak 是 1470 KiB，在第 2 个 block 的 depthwise。如果 depthwise 能原地计算（下面 TinyEngine 那部分），它只需要 input 那么多加一点，peak 落到 expand 那一层的 1372 KiB。这正是 MCUNetV2 论文 Table 1 里 MobileNetV2 的 peak SRAM 1372 kB，$1372/256=5.36$ 也就是 MCUNet 说的“int8 之后仍要 5.3 倍”（对 256 kB 的预算而言）。
 
@@ -975,7 +975,7 @@ $$\Big(\frac{34}{28}\Big)^2=1.47$$
 
 这一段的计算多出 47%。Patch 越小越糟：$14\times14$ 的 patch 要 $20\times20$ 的 input，多出 104%。
 
-::fig[m6940-patch] Patch-based inference：前几个 block 分 patch 执行，每个 patch 的 input 要向外多取一圈 halo；后面的 block 照常逐层执行。
+::fig[m6940-patch] Patch-based inference：看左边的框一块块扫过 input，每个 patch 带着一圈和邻居重叠的 halo 跑完前几个 block，右边的 feature map 一块块拼满；后面的 block 照常逐层执行。
 
 MCUNetV2 论文：MobileNetV2 的 peak SRAM 从 1372 kB 降到 172 kB（8 倍），整体计算多出约 10%（patch 段内部多出 42%）。再把前面这一段的 receptive field 缩小（用小 kernel、少几个 block），把缺的 receptive field 补到后面的 layer-by-layer 段，overhead 降到 3%，accuracy 不变。结果：STM32H743 上 ImageNet 71.8%；Visual Wake Words 在 32 kB SRAM 下超过 90%。
 

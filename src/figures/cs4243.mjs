@@ -1,4 +1,20 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, apath, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, axes } from '../lib/svg.mjs';
+
+// 动图的时间轴：durs[i] 是第 i 帧停留的秒数 → keyTimes；末尾补一个 1
+const timeline = (durs) => { const T = durs.reduce((a, b) => a + b, 0); const kt = []; let t = 0; for (const u of durs) { kt.push(t / T); t += u; } kt.push(1); return { T, kt }; };
+const onlyAt = (n, ...idx) => { const a = Array.from({ length: n }, (_, i) => idx.includes(i)); a.push(a[n - 1]); return a; };
+const atext = (x, y, s, cls, on, kt, T, anchor = 'start') => `<text x="${f1(x)}" y="${f1(y)}" class="${cls}" text-anchor="${anchor}">${s}${ashow(on, kt, T)}</text>`;
+// 多边形裁到矩形 [x0,x1]×[y0,y1] 里（Sutherland–Hodgman）
+function clipPoly(pts, x0, x1, y0, y1) {
+  const edges = [[(p) => p[0] >= x0, (a, b) => [x0, a[1] + (b[1] - a[1]) * (x0 - a[0]) / (b[0] - a[0])]], [(p) => p[0] <= x1, (a, b) => [x1, a[1] + (b[1] - a[1]) * (x1 - a[0]) / (b[0] - a[0])]],
+    [(p) => p[1] >= y0, (a, b) => [a[0] + (b[0] - a[0]) * (y0 - a[1]) / (b[1] - a[1]), y0]], [(p) => p[1] <= y1, (a, b) => [a[0] + (b[0] - a[0]) * (y1 - a[1]) / (b[1] - a[1]), y1]]];
+  let out = pts;
+  for (const [inside, cut] of edges) {
+    const inp = out; out = [];
+    inp.forEach((cur, i) => { const prev = inp[(i + inp.length - 1) % inp.length]; if (inside(cur)) { if (!inside(prev)) out.push(cut(prev, cur)); out.push(cur); } else if (inside(prev)) out.push(cut(prev, cur)); });
+  }
+  return out;
+}
 
 // ---------- 小工具 ----------
 const K = { f: 500, cx: 320, cy: 240 };
@@ -87,30 +103,42 @@ const SX = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
 function conv() {
   const c = 32;
   let o = '';
-  const grid = (x0, y0, M, hl) => {
-    let g = '';
-    M.forEach((r, i) => r.forEach((v, j) => {
-      if (hl && hl(i, j)) g += rect(x0 + j * c, y0 + i * c, c, c, 'wash');
-      g += rect(x0 + j * c, y0 + i * c, c, c, 'frame') + text(x0 + j * c + c / 2, y0 + i * c + c / 2 + 5, String(v).replace('-', '−'), 'ts', 'middle');
-    }));
-    return g;
-  };
+  const sgn = (v) => String(v).replace('-', '−');
   const out = [1, 2, 3].map((r) => [1, 2, 3].map((cc) => { let s = 0; for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) s += SX[i + 1][j + 1] * P5[r + i][cc + j]; return s; }));
+  // 帧：0 = 中心位置、output 全部填好；1–9 = kernel 按 raster 顺序走过 9 个位置，output 一格一格填
+  const pos = [[1, 1], ...[0, 1, 2].flatMap((r) => [0, 1, 2].map((cc) => [r, cc]))];
+  const NF = pos.length;
+  const { T, kt } = timeline(pos.map((_, f) => (f === 0 ? 3.2 : 1.6)));
+  const fr = [...pos, pos[NF - 1]];
+  const grid = (x0, y0, M) => { let g = ''; M.forEach((r, i) => r.forEach((v, j) => { g += rect(x0 + j * c, y0 + i * c, c, c, 'frame') + text(x0 + j * c + c / 2, y0 + i * c + c / 2 + 5, sgn(v), 'ts', 'middle'); })); return g; };
+  const mov = (x0, y0, w, cls) => `<rect x="${f1(x0 + fr[0][1] * c)}" y="${f1(y0 + fr[0][0] * c)}" width="${w}" height="${w}" class="${cls}">${anim('x', fr.map(([, cc]) => f1(x0 + cc * c)), kt, T, true)}${anim('y', fr.map(([r]) => f1(y0 + r * c)), kt, T, true)}</rect>`;
   o += text(20 + 2.5 * c, 26, 'patch P（5×5）', 'tb', 'middle');
-  o += grid(20, 40, P5, (i, j) => i >= 1 && i <= 3 && j >= 1 && j <= 3);
-  o += rect(20 + c, 40 + c, 3 * c, 3 * c, 'ln');
+  o += mov(20, 40, 3 * c, 'wash');
+  o += grid(20, 40, P5);
+  o += mov(20, 40, 3 * c, 'ln');
   o += text(205, 40 + 2.5 * c + 6, '⊗', 'tbig', 'middle');
   o += text(230 + 1.5 * c, 26, 'Sobel kernel Sₓ', 'tb', 'middle');
   o += grid(230, 40 + c, SX);
   o += text(352, 40 + 2.5 * c + 6, '=', 'tbig', 'middle');
   o += text(380 + 1.5 * c, 26, 'output（3×3）', 'tb', 'middle');
-  o += grid(380, 40 + c, out, (i, j) => i === 1 && j === 1);
-  o += rect(380 + c, 40 + 2 * c, c, c, 'ln');
-  o += text(280, 222, '中心位置：(−10 + 0 + 50) + (−20 + 0 + 100) + (−10 + 0 + 50) = 160', 't', 'middle');
+  o += mov(380, 40 + c, c, 'wash');
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+    const k = i * 3 + j + 1; // 第几帧算出这一格
+    o += rect(380 + j * c, 40 + c + i * c, c, c, 'frame');
+    o += atext(380 + j * c + c / 2, 40 + c + i * c + c / 2 + 5, sgn(out[i][j]), 'ts', fr.map((_, f) => f === 0 || f >= k), kt, T, 'middle');
+  }
+  o += mov(380, 40 + c, c, 'ln');
+  // 每个位置的算式：kernel 三行各自的贡献
+  const expr = ([r, cc]) => [0, 1, 2].map((i) => {
+    const row = [0, 1, 2].map((j) => SX[i][j] * P5[r + i][cc + j]);
+    return '(' + row.map((v, j) => (j === 0 ? sgn(v) : (v < 0 ? ' − ' : ' + ') + Math.abs(v))).join('') + ')';
+  }).join(' + ') + ' = ' + sgn(out[r][cc]);
+  pos.forEach((p, f) => {
+    o += atext(280, 222, (f === 0 ? '中心位置：' : `位置 ${f} / 9：`) + expr(p), 't', onlyAt(NF, f), kt, T, 'middle');
+  });
   o += text(280, 242, '彩框里的 9 个数和 kernel 逐项相乘再相加；kernel 每挪一格，output 多一个数', 'ts', 'middle');
-  return svg(560, 256, o, '5 乘 5 的 patch 与 Sobel kernel 做 correlation，中心位置的 3 乘 3 邻域逐项相乘再相加得到 160，output 是 3 乘 3');
+  return svgA(560, 256, o, '动图：5 乘 5 的 patch 与 Sobel kernel 做 correlation。彩框按行依次走过 9 个位置，每个位置的 3 乘 3 邻域逐项相乘再相加，output 一格一格填满；中心位置得到 160');
 }
-
 const NOISE = [0.25, -0.26, 1.28, 0.21, -1.07, 0.72, 2.61, 1.89, -1.41, -2.53, -1.25, 0.08, -4.65, -0.44, -2.49, -1.46, -1.09, -0.63, 0.82, 2.09, -0.26, 2.73, -1.33, 0.70, 1.81, 0.19, -1.49, -1.84, -0.92, 0.44, -2.02, -0.42, -0.32, 1.08, 0.43, 0.71, -1.31, -0.26, 1.57, 2.99, -2.52, 3.03, 2.69, 1.56, 0.53, -0.63, 2.92, 3.92, 3.60, 2.63, 0.71, -2.42, -0.01, 1.31, -2.58, 0.79, 0.86, 1.39, -2.37, -1.32, -0.87, -2.34, 3.48, -0.99, 0.66, -0.52, 3.17, 2.64, 1.27, -4.41, 0.10, 1.37, 2.01, -1.24, 3.64, -2.64, -1.32, 1.87, 0.10, 4.00];
 function edge1d() {
   const N = 80, I = NOISE.map((n, x) => Math.min(30, Math.max(10, 10 + 2 * (x - 35))) + n);
@@ -289,34 +317,50 @@ function fitLS(pts) {
 function ransacline() {
   const all = [...RX, ...ROUT];
   const [mL, cL] = fitLS(all);
-  const A = RX[2], B = RX[8];
-  const m0 = (B[1] - A[1]) / (B[0] - A[0]), c0 = A[1] - m0 * A[0];
   const t = 1.96 * 0.15;
   const dist = (m, c, p) => Math.abs(m * p[0] - p[1] + c) / Math.hypot(m, 1);
-  const inl = all.filter((p) => dist(m0, c0, p) < t);
+  const thru = (A, B) => { const m = (B[1] - A[1]) / (B[0] - A[0]); return [m, A[1] - m * A[0]]; };
+  // 正文表里的三轮
+  const rounds = [[ROUT[0], RX[4]], [RX[1], ROUT[1]], [RX[2], RX[8]]].map(([A, B]) => { const [m, c] = thru(A, B); return { A, B, m, c, inl: all.filter((p) => dist(m, c, p) < t) }; });
+  const inl = rounds[2].inl;
   const [mR, cR] = fitLS(inl);
   const sx = lin(0, 11, 60, 400), sy = lin(0, 10, 250, 20);
   let o = axes({ sx, sy, x0: 0, x1: 11, y0: 0, y1: 10, xt: [0, 2, 4, 6, 8, 10], yt: [0, 2, 4, 6, 8, 10] });
-  const band = t * Math.hypot(mR, 1);
-  o += poly([[sx(0), sy(cR + band)], [sx(11), sy(mR * 11 + cR + band)], [sx(11), sy(mR * 11 + cR - band)], [sx(0), sy(cR - band)]], 'wash');
+  // 帧：0 = 最终结果；1–3 = 三轮；4 = refit（与 0 相同）
+  const NF = 5;
+  const { T, kt } = timeline([3.2, 2.2, 2.2, 2.2, 2.2]);
+  const model = (f) => (f === 0 || f === 4 ? { m: mR, c: cR, A: RX[2], B: RX[8], inl } : rounds[f - 1]);
+  const fr = [0, 1, 2, 3, 4, 4].map(model);
+  const bandOf = ({ m, c }) => { const b = t * Math.hypot(m, 1); return d(clipPoly([[0, c + b], [11, m * 11 + c + b], [11, m * 11 + c - b], [0, c - b]], 0, 11, 0, 10).map(([x, y]) => [sx(x), sy(y)])) + 'Z'; };
+  const lineOf = ({ m, c }) => d(clipPoly([[0, c + 1e-6], [11, m * 11 + c + 1e-6], [11, m * 11 + c - 1e-6], [0, c - 1e-6]], 0, 11, 0, 10).filter((_, i, a) => i === 0 || i === Math.floor(a.length / 2)).map(([x, y]) => [sx(x), sy(y)]));
+  o += apath(fr.map(bandOf), kt, T, 'wash', true);
   o += line(sx(0), sy(cL), sx(11), sy(mL * 11 + cL), 'ln-dash');
-  o += line(sx(0), sy(cR), sx(11), sy(mR * 11 + cR), 'ln');
+  o += apath(fr.map(lineOf), kt, T, 'ln', true);
+  // inlier：外加一个小圈
+  for (const p of all) o += `<circle cx="${f1(sx(p[0]))}" cy="${f1(sy(p[1]))}" r="6.5" class="ln">${ashow(fr.map((M) => M.inl.includes(p)), kt, T)}</circle>`;
   for (const p of RX) o += circle(sx(p[0]), sy(p[1]), 4, 'ink-f');
   for (const p of ROUT) o += circle(sx(p[0]), sy(p[1]), 4.5, 'ink paper-f');
-  for (const p of [A, B]) o += circle(sx(p[0]), sy(p[1]), 8, 'ink');
+  for (const k of ['A', 'B']) {
+    const xs = fr.map((M) => f1(sx(M[k][0]))), ys = fr.map((M) => f1(sy(M[k][1])));
+    o += `<circle cx="${xs[0]}" cy="${ys[0]}" r="9" class="ink">${anim('cx', xs, kt, T, true)}${anim('cy', ys, kt, T, true)}</circle>`;
+  }
   const lx = 412;
   o += line(lx, 46, lx + 26, 46, 'ln-dash') + text(lx + 32, 50, 'least squares', 'ts');
   o += text(lx + 32, 66, `y = ${mL.toFixed(3)}x + ${cL.toFixed(3)}`, 'ts');
-  o += line(lx, 92, lx + 26, 92, 'ln') + text(lx + 32, 96, 'RANSAC + refit', 'ts');
-  o += text(lx + 32, 112, `y = ${mR.toFixed(3)}x + ${cR.toFixed(3)}`, 'ts');
+  o += line(lx, 92, lx + 26, 92, 'ln') + text(lx + 32, 96, '这一轮的 line', 'ts');
+  o += atext(lx + 32, 112, `refit：y = ${mR.toFixed(3)}x + ${cR.toFixed(3)}`, 'ts', fr.map((_, f) => f === 0 || f >= 4), kt, T);
   o += rect(lx, 130, 26, 12, 'wash') + text(lx + 32, 140, '距离 < t = 0.29', 'ts');
-  o += circle(lx + 13, 166, 8, 'ink') + text(lx + 32, 170, '那一轮的 sample', 'ts');
-  o += circle(lx + 13, 192, 4.5, 'ink paper-f') + text(lx + 32, 196, 'outlier', 'ts');
-  o += text(230, 284, `第 3 轮的 sample (3, 2.5)、(9, 5.6) 给出 ${inl.length} 个 inlier，3 个 outlier 全在带外`, 'ts', 'middle');
-  return svg(560, 294, o, '10 个近似共线的点加 3 个 outlier：least squares 的 line 被 outlier 拉偏，RANSAC 选中的 line 和它的 threshold 带覆盖全部 10 个正确点');
+  o += circle(lx + 13, 166, 9, 'ink') + text(lx + 32, 170, '这一轮的 sample', 'ts');
+  o += circle(lx + 13, 192, 6.5, 'ln') + text(lx + 32, 196, 'inlier', 'ts');
+  o += circle(lx + 13, 218, 4.5, 'ink paper-f') + text(lx + 32, 222, 'outlier', 'ts');
+  const pt = (p) => `(${p[0]}, ${p[1].toFixed(1)})`;
+  const st = [`第 3 轮的 sample ${pt(RX[2])}、${pt(RX[8])} 给出 ${inl.length} 个 inlier，3 个 outlier 全在带外`,
+    ...rounds.map((r, k) => `第 ${k + 1} 轮：抽到 ${pt(r.A)}、${pt(r.B)}，slope ${r.m.toFixed(2).replace('-', '−')}，${r.inl.length} 个 inlier`),
+    `inlier 最多的是第 3 轮；用这 ${inl.length} 个点 refit，得到实线`];
+  st.forEach((s_, f) => { o += atext(230, 284, s_, f === 0 ? 'ts' : 'tl', onlyAt(NF, f), kt, T, 'middle'); });
+  return svgA(560, 294, o, '动图：10 个近似共线的点加 3 个 outlier。RANSAC 走三轮：第 1 轮抽到一个 outlier，只有 3 个 inlier；第 2 轮也抽到 outlier，2 个 inlier；第 3 轮两个正确点给出 10 个 inlier。用这 10 个点 refit 得到实线，而虚线的 least squares 被 outlier 拉偏');
 }
 
-// ---------- 第 6 站 ----------
 const R6 = Ry(10), C6 = [0.5, -0.2, 0];
 const t6 = mv(R6, C6).map((v) => -v);
 function epipolar() {
@@ -346,7 +390,32 @@ function epipolar() {
   o += arrow(o2[0] + 30, o2[1] + Hh - 12, o2[0] + 6, o2[1] + Hh + 2, 'mute');
   o += text(o2[0] + 36, o2[1] + Hh + 22, '往左下延长，经过 epipole e₂ = (−2516, 1392)', 'ts');
   o += text(280, 282, 'Ray 上不同 depth 的点全落在同一条 epipolar line 上；Z = 2 是真实的点 x₂ = (332.8, 264.7)', 'ts', 'middle');
-  return svg(560, 294, o, 'Image 1 的一个 pixel 对应一条 ray，ray 上不同 depth 的点投到 image 2 里排成一条 epipolar line');
+  // 下：俯视（camera 1 的 x–Z plane），横向放大 2 倍
+  const tz = (Z) => 60 + 53.5 * Z, tx = (x) => 444 - 120 * x, TP = ([x, , Z]) => [tz(Z), tx(x)];
+  o += text(14, 308, '俯视（横向放大 2.2 倍）：camera 2 看 ray 上的点，视线一直在变，落点沿 ℓ₂ 走', 'tb');
+  const Zmax = 8.6;
+  o += line(tz(0), tx(0), tz(Zmax), tx(0.1 * Zmax), 'ln') + text(tz(Zmax) - 2, tx(0.1 * Zmax) + 24, 'x₁ 的 ray', 'tl', 'end');
+  for (const [Z, lab] of labs.slice(0, 5)) { const [px, py] = TP(ray(Z)); o += line(px, py - 3, px, py + 3, 'ink') + text(px, py - 7, lab, 'ts', 'middle'); }
+  // 两个 camera 的 optical axis
+  const ax2 = [-Math.sin(10 * Math.PI / 180), Math.cos(10 * Math.PI / 180)];
+  o += arrow(tz(0), tx(0), tz(0.9), tx(0), 'mute') + arrow(tz(0), tx(0.5), tz(0.9 * ax2[1]), tx(0.5 + 0.9 * ax2[0]), 'mute');
+  o += text(tz(0.95), tx(0) + 14, 'optical axis', 'ts');
+  o += circle(tz(0), tx(0), 4.5, 'ink-f') + circle(tz(0), tx(0.5), 4.5, 'ink-f');
+  o += text(tz(0) - 8, tx(0) + 4, 'C₁', 'tb', 'end') + text(tz(0) - 8, tx(0.5) + 4, 'C₂', 'tb', 'end');
+  // 动图：第 0 帧停在 Z = 2（真实的点）；之后 Z 从 0.5 走到 8（按 log 均匀），最后跳到无穷远
+  const Zs = [2, 2]; for (let k = 0; k <= 40; k++) Zs.push(0.5 * 16 ** (k / 40)); Zs.push(Infinity);
+  const tt = [0, 3, 3.3]; for (let k = 1; k <= 40; k++) tt.push(3.3 + 0.1 * k); tt.push(tt[tt.length - 1] + 0.4);
+  const TT = tt[tt.length - 1] + 1.6; tt.push(TT); Zs.push(Infinity);
+  const kt = tt.map((v) => v / TT);
+  const img2 = Zs.map((Z) => P2(to2(Z === Infinity ? ray(1e9) : ray(Z))));
+  const top = Zs.map((Z) => TP(ray(Z === Infinity ? Zmax : Z)));
+  // camera 2 的视线：到点为止；Z = ∞ 时与 ray 平行
+  const sight = Zs.map((Z, i) => (Z === Infinity ? `M${f1(tz(0))} ${f1(tx(0.5))}L${f1(tz(4.4))} ${f1(tx(0.94))}` : `M${f1(tz(0))} ${f1(tx(0.5))}L${f1(top[i][0])} ${f1(top[i][1])}`));
+  o += apath(sight, kt, TT, 'dash');
+  const dot = (P, r) => `<circle cx="${f1(P[0][0])}" cy="${f1(P[0][1])}" r="${r}" class="ln-f">${anim('cx', P.map((q) => f1(q[0])), kt, TT)}${anim('cy', P.map((q) => f1(q[1])), kt, TT)}</circle>`;
+  o += dot(top.map((q, i) => (Zs[i] === Infinity ? [-50, -50] : q)), 5.5) + dot(img2, 5.5);
+  o += `<text x="${f1(tz(4.4) + 8)}" y="${f1(tx(0.94) + 4)}" class="tl" text-anchor="start">Z = ∞：视线与 ray 平行${ashow(Zs.map((Z) => Z === Infinity), kt, TT)}</text>`;
+  return svgA(560, 456, o, '动图：Image 1 的一个 pixel 对应一条 ray。点沿这条 ray 从 Z = 0.5 m 走到无穷远，image 1 里它一直在同一个 pixel；image 2 里它的投影沿 epipolar line 从左下走到右上。下方俯视图画出两个 camera center、这条 ray 和 camera 2 的视线');
 }
 
 function depth() {
