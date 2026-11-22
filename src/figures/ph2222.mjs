@@ -179,8 +179,9 @@ function divline() {
   row(yC, yD, C, 'Pistis（belief）', 'animals、plants、artifacts', '510a');
   row(yD, yE, D, 'Eikasia（conjecture）', 'shadows、reflections', '509e–510a');
   o += text(x + 58, 26, '长度', 'ts', 'end') + text(x + 66, 26, 'state of the soul，下面是它的 object', 'ts');
-  o += text(280, yE + 30, `(${A} + ${B}) : (${C} + ${D}) = ${A} : ${B} = ${C} : ${D} = ${r} : 1。不论 ratio 取多少，中间两段总是一样长。`, 't', 'middle');
-  return svg(560, yE + 44, o, 'Divided Line：一条 line 按 2 比 1 分成 intelligible 和 visible 两段，每段再按同样的 ratio 分，得到长度为 4、2、2、1 的四段，分别对应 noesis、dianoia、pistis、eikasia');
+  o += text(280, yE + 30, `509d–510a：(${A} + ${B}) : (${C} + ${D}) = ${A} : ${B} = ${C} : ${D} = ${(A + B) / (C + D)} : 1`, 't', 'middle');
+  o += text(280, yE + 50, `534a：${A} : ${C} = ${B} : ${D} = ${A / C} : 1。两组都成立，所以中间两段只能一样长。`, 't', 'middle');
+  return svg(560, yE + 64, o, 'Divided Line：一条 line 按 2 比 1 分成 intelligible 和 visible 两段，每段再按同样的 ratio 分，得到长度为 4、2、2、1 的四段，分别对应 noesis、dianoia、pistis、eikasia');
 }
 
 // Cave 的侧视示意，标上与 Line 四段的对应
@@ -224,7 +225,7 @@ function cave() {
 // Republic II：Glaucon 的三类 good，以及把名声和结果全部倒过来的两个人
 function glaucon() {
   let o = text(16, 20, 'Glaucon 的三类 good（357b–d）', 'tb');
-  const cls = [['只为它本身而要', '无害的 pleasure', 'paper'], ['为它本身，也为结果', 'knowledge、sight、health', 'wash'], ['只为结果而忍受', '锻炼、治病、赚钱', 'paper']];
+  const cls = [['只为它本身而要', '无害的 pleasure', 'paper'], ['为它本身，也为结果', 'understanding、sight、health', 'wash'], ['只为结果而忍受', '锻炼、治病、赚钱', 'paper']];
   cls.forEach(([a, b, c], i) => {
     const x = 16 + i * 179;
     o += rect(x, 32, 170, 52, c, 6) + text(x + 85, 54, a, 'tb', 'middle') + text(x + 85, 73, b, 'ts', 'middle');
@@ -235,7 +236,7 @@ function glaucon() {
   o += text(16, y0, '最后的思想实验（361e–362a）：名声和结果全部倒过来', 'tb');
   const cx = [130, 215, 300];
   ['实际是', '名声', '一辈子的结果'].forEach((h, i) => { o += text(cx[i], y0 + 26, h, 'ts'); });
-  const rows = [['第一个人', 'unjust', 'just', '顺遂'], ['第二个人', 'just', 'unjust', '鞭打、上刑、烧瞎眼睛，最后被 impale']];
+  const rows = [['第一个人', 'unjust', 'just', '顺遂'], ['第二个人', 'just', 'unjust', '鞭打、上刑、烧瞎眼睛，最后被钉死']];
   rows.forEach(([who, a, b, c], k) => {
     const y = y0 + 50 + k * 30;
     o += text(16, y, who, 't');
@@ -248,7 +249,44 @@ function glaucon() {
   return svg(560, y0 + 154, o, 'Glaucon 把 good 分成只为本身、为本身也为结果、只为结果三类，Socrates 把 justice 放在第二类，多数人放在第三类；最后的思想实验里，unjust 的人有 just 的名声且一生顺遂，just 的人被当成 unjust 而受尽酷刑');
 }
 
+// Laches 197e–199e：Nicias 的 definition 怎样从一列扩成整张表，再变成整个 virtue
+function nicias() {
+  let o = '';
+  const x0 = 96, y0 = 46, cw = 70, rh = 52;
+  const cols = ['past', 'present', 'future'], rows = ['goods', 'evils'];
+  const inner = [['', '', 'to be dared'], ['', '', 'to be dreaded']];
+  cols.forEach((c, j) => { o += text(x0 + j * cw + cw / 2, y0 - 10, c, 'tb', 'middle'); });
+  rows.forEach((r, i) => {
+    o += text(x0 - 10, y0 + i * rh + rh / 2 + 4, r, 'tb', 'end');
+    cols.forEach((c, j) => {
+      const fut = j === 2;
+      o += rect(x0 + j * cw, y0 + i * rh, cw, rh, fut ? 'wash-strong' : 'wash2');
+      if (inner[i][j]) o += text(x0 + j * cw + cw / 2, y0 + i * rh + rh / 2 + 4, inner[i][j], 'ts', 'middle');
+    });
+  });
+  o += rect(x0, y0, 3 * cw, 2 * rh, 'ln');
+  o += line(x0 + cw, y0, x0 + cw, y0 + 2 * rh, 'mute') + line(x0 + 2 * cw, y0, x0 + 2 * cw, y0 + 2 * rh, 'mute') + line(x0, y0 + rh, x0 + 3 * cw, y0 + rh, 'mute');
+  const yb = y0 + 2 * rh;
+  o += text(x0 - 60, yb + 20, '深色一列：Nicias 的 definition（194e、198c）', 'ts');
+  o += text(x0 - 60, yb + 38, '粗框整张表：同一门 knowledge 管三个时间（198d–199c）', 'ts');
+  // 右边：virtue 和它的 parts
+  const vx = 372, vw = 168;
+  o += rect(vx, y0 - 6, vw, 2 * rh + 12, 'ln', 6) + text(vx + vw / 2, y0 - 14, 'Virtue', 'tb', 'middle');
+  const parts = ['courage', 'temperance', 'justice', 'holiness'];
+  parts.forEach((t, k) => {
+    const bx = vx + 12 + (k % 2) * 76, by = y0 + 6 + Math.floor(k / 2) * 48;
+    o += rect(bx, by, 68, 36, k === 0 ? 'wash-strong' : 'paper', 4) + text(bx + 34, by + 23, t, 't', 'middle');
+  });
+  o += arrow(x0 + 3 * cw + 6, y0 + rh, vx - 6, y0 + rh, 'ln');
+  o += text((x0 + 3 * cw + vx) / 2, y0 + rh - 10, '= 整个', 'tl', 'middle');
+  o += text(vx + vw / 2, yb + 28, '第 1 步：courage 只是一个 part（198a）', 'ts', 'middle');
+  o += text(280, yb + 66, 'Courage 的范围从 future 一列扩成整张表；整张表是 knowledge of all goods and evils，', 't', 'middle');
+  o += text(280, yb + 84, '那就是整个 virtue（199d–e），和“courage 是一个 part”冲突。', 't', 'middle');
+  return svg(560, yb + 94, o, 'Laches 里 Nicias 的 definition：courage 原本只是关于将来的 goods 和 evils 的 knowledge，即表中 future 一列；同一门 knowledge 管过去、现在和将来，于是它扩成整张表，成了关于一切 goods 和 evils 的 knowledge，也就是整个 virtue，而不是 courage 这一个 part');
+}
+
 export default {
+  'ph2222-nicias': nicias,
   'ph2222-glaucon': glaucon,
   'ph2222-elenchus': elenchus,
   'ph2222-horns': horns,
