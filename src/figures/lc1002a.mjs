@@ -242,11 +242,17 @@ function rules() {
     const rl = r1 > r0 ? `${r0} 到 ${r1}` : String(r0);
     o += text(sx(f1) - 6, y + 6, fl === '0' ? '0' : fl.replace(/-/g, '−'), 'ts', 'end') + text(sx(r1) + 6, y + 6, rl, 'tb');
   };
-  row(68, 'Rule A：rancher 赔', '3 头', 0, 0, 6.5, 6.5, '6.5');
-  row(132, 'Rule B，还没谈判', '4 头', -10, -10, 14, 14, '4');
-  row(196, 'Rule B，farmer 付 p 让他少养一头', '3 头', -7.5, -9, 14, 15.5, '6.5');
-  o += text(280, 266, '浅色段是 p 在 1.5 到 3 之间时的范围。两种 rule 最后都是 3 头、合计 6.5，只是钱的去向不同。', 'ts', 'middle');
-  return svg(560, 276, o, 'Coase 例子里双方的净得：Rule A 下 rancher 养 3 头净得 6.5，farmer 得到全额赔偿净得 0；Rule B 下不谈判时 rancher 养 4 头净得 14，farmer 损失 10，合计只有 4；谈判后 farmer 付 p 让 rancher 减到 3 头，rancher 净得 14 到 15.5，farmer 净得负 7.5 到负 9，合计回到 6.5');
+  // 数字全部由 Coase 的损失表、为本页设的边际利润和 9 元的围栏算出
+  const profit = [5, 4, 3.5, 1.5], damage = [1, 2, 3, 4], fence = 9;
+  const cum = (a, n) => a.slice(0, n).reduce((s, v) => s + v, 0);
+  const P3 = cum(profit, 3), P4 = cum(profit, 4), D3 = cum(damage, 3);
+  const pLo = P4 - P3, pHi = fence - D3;            // farmer 付的 p 的范围：(1.5, 3)
+  const fmt = (v) => String(Math.round(v * 10) / 10);
+  row(68, 'Rule A：rancher 赔', '3 头', 0, 0, P3 - D3, P3 - D3, fmt(P3 - D3));
+  row(132, 'Rule B，farmer 自己修围栏', '4 头', -fence, -fence, P4, P4, fmt(P4 - fence));
+  row(196, 'Rule B，farmer 付 p 让他少养一头', '3 头', -(D3 + pLo), -(D3 + pHi), P3 + pLo, P3 + pHi, fmt(P3 - D3));
+  o += text(280, 266, `浅色段是 p 在 ${fmt(pLo)} 到 ${fmt(pHi)} 之间时的范围。两种 rule 最后都是 3 头、合计 ${fmt(P3 - D3)}，只是钱的去向不同。`, 'ts', 'middle');
+  return svg(560, 276, o, `Coase 例子里双方的净得：Rule A 下 rancher 养 3 头净得 ${fmt(P3 - D3)}，farmer 得到全额赔偿净得 0；Rule B 下不谈判时 rancher 养 4 头净得 ${fmt(P4)}，farmer 自己花 ${fence} 修围栏，合计 ${fmt(P4 - fence)}；谈判后 farmer 付 p 让 rancher 减到 3 头，rancher 净得 ${fmt(P3 + pLo)} 到 ${fmt(P3 + pHi)}，farmer 净得负 ${fmt(D3 + pLo)} 到负 ${fmt(D3 + pHi)}，合计回到 ${fmt(P3 - D3)}`);
 }
 
 // Hand formula：PL 与 B
