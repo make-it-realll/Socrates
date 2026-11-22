@@ -54,13 +54,13 @@ function loopA() {
 function verifier() {
   const ans = ['1/2', '2/4', '\\frac{1}{2}'];
   const rows = [
-    { name: '应得的 reward', sub: '题目要求 lowest terms', v: [1, 0, 1], truth: true },
+    { name: '应得的 reward', sub: '题目要求 simplest form', v: [1, 0, 1], truth: true },
     { name: 'exact string match', sub: '和 "1/2" 逐字比较', v: [1, 0, 0] },
     { name: 'numeric equality', sub: '化成数再比', v: [1, 1, 1] },
-    { name: '数值相等且是 lowest terms', sub: '先 parse 再检查两条', v: [1, 0, 1] },
+    { name: '数值相等且是最简分数', sub: '先 parse 再检查两条', v: [1, 0, 1] },
   ];
-  const X0 = 214, W = 112, Y0 = 70, H = 44;
-  let o = text(20, 22, 'Prompt：Simplify 2/4. Give the answer in lowest terms.', 'tb');
+  const X0 = 214, W = 112, Y0 = 80, H = 44;
+  let o = text(20, 22, 'Prompt：A drink costs 50¢ and I pay $1. How much change?', 'tb') + text(20, 40, '（单位是 dollar，Give the simplest form.）', 'ts');
   o += text(20, Y0 - 12, 'verifier', 'ts');
   ans.forEach((a, j) => { o += text(X0 + j * W + W / 2, Y0 - 12, 'model 答 ' + a, 'tb', 'middle'); });
   rows.forEach((r, i) => {
@@ -75,7 +75,7 @@ function verifier() {
     if (i === 0) o += line(20, y + H + 1, X0 + 3 * W, y + H + 1, 'mute');
   });
   o += text(20, Y0 + 4 * H + 22, 'false positive 奖励了错的答案，false negative 惩罚了对的答案；RL 会把两种错误都当成真信号去学。', 'ts');
-  return svg(560, Y0 + 4 * H + 32, o, '同一道题的三个答案 1/2、2/4、frac 1 2，三个 verifier 给出的 reward：exact string match 漏掉了 LaTeX 写法，numeric equality 放过了不是最简的 2/4');
+  return svg(560, Y0 + 4 * H + 32, o, '找零钱题（50 美分的饮料付 1 美元，要求最简形式）的三个答案 1/2、2/4、frac 1 2，三个 verifier 给出的 reward：exact string match 漏掉了 LaTeX 写法，numeric equality 放过了不是最简的 2/4');
 }
 
 // ---------- 第 2 站：softmax policy 上的 exact policy gradient，entropy 怎样塌下去 ----------
@@ -321,7 +321,111 @@ function fpA() {
   return svgA(560, 326, o, '动图：Rock-Paper-Scissors 上的 fictitious play，平均策略从 Rock 角出发，绕着中心盘旋收敛到三分之一、三分之一、三分之一，exploitability 从 1 降到 0.035；只对上一步做 best response 的策略则在三个角之间循环');
 }
 
-// ---------- 第 7 站：GT Sophy 的 reward 只看一个窗口里的对手 ----------
+// ---------- 第 7 站：Virtual Lab 一次 team meeting 的发言顺序和字数占比 ----------
+export const vlabShare = [
+  ['PI', 36.4], ['Scientific critic', 21.0], ['Computational biologist', 14.8],
+  ['ML specialist', 14.5], ['Immunologist', 12.8], ['human', 0.5],
+];
+function vlab() {
+  const turns = [
+    ['PI', '开场：初步想法和引导问题', 1],
+    ['Immunologist', '', 0],
+    ['ML specialist', '', 0],
+    ['Computational biologist', '', 0],
+    ['Scientific critic', '质疑，提反对意见', 0],
+    ['PI', '小结、做决定、提追问', 1],
+    ['PI', '总结、推荐、回答 agenda questions', 1],
+  ];
+  const y0 = 64, rh = 27;
+  let o = text(20, 22, '一次 team meeting：谁按什么顺序发言', 'tb');
+  o += text(330, 22, '这次 meeting 里各方写了多少字', 'tb');
+  turns.forEach(([who, note, isPI], i) => {
+    const y = y0 + i * rh;
+    o += rect(56, y, 120, rh - 5, isPI ? 'solid' : 'paper', 4);
+    o += text(116, y + 15, who, isPI ? 'tw' : 'ts', 'middle');
+    if (note) o += text(184, y + 15, note, 'ts');
+  });
+  // 中间 5 行重复 3 轮
+  const yA = y0 + rh, yB = y0 + 6 * rh - 5;
+  o += path(`M50 ${f1(yA)}L44 ${f1(yA)}L44 ${f1(yB)}L50 ${f1(yB)}`, 'ink');
+  o += text(40, (yA + yB) / 2 + 4, '×3 轮', 'tl', 'end');
+  const sx0 = 404, pxp = 2.75;
+  vlabShare.forEach(([who, v], i) => {
+    const y = y0 + i * rh;
+    o += text(398, y + 15, who, 't', 'end');
+    o += rect(sx0, y + 4, Math.max(v * pxp, 1.4), rh - 13, 'solid', 2);
+    o += text(sx0 + Math.max(v * pxp, 1.4) + 5, y + 15, v.toFixed(1) + '%', 'ts');
+  });
+  const H = y0 + 7 * rh + 6;
+  o += text(20, H + 14, '人写的只有 PI 和 Scientific critic 两个 agent 的设定；其余三个 agent 是 PI 自己造的，', 'ts');
+  o += text(20, H + 32, `这次 meeting 里它们合起来写了 ${vlabShare.slice(2, 5).reduce((a, [, v]) => a + v, 0).toFixed(1)}%。全程 124,058 字里人写了 1,596 字，占 1.3%。`, 'ts');
+  return svg(560, H + 42, o, 'Virtual Lab 一次 team meeting 的发言顺序：PI 开场，三位 scientist agent 和 Scientific critic 依次发言，PI 小结，中间五步重复三轮，最后 PI 总结；右侧是各方写的字数占比，PI 36.4%、critic 21.0%、人 0.5%');
+}
+
+// ---------- 第 7 站：每一轮的筛选漏斗 ----------
+export const vlabRounds = [
+  { r: 1, seeds: 1 }, { r: 2, seeds: 5 }, { r: 3, seeds: 5 }, { r: 4, seeds: 5 },
+];
+export const vlabScored = vlabRounds.reduce((a, x) => a + x.seeds * 20, 0);
+function funnel() {
+  const boxes = [
+    ['当前序列的\n所有单点 mutant', '便宜'],
+    ['ESM-1b LLR\n取前 20', '只看序列'],
+    ['AlphaFold-Multimer\n+ Rosetta', '贵'],
+    ['weighted score\n取前 5', '进下一轮'],
+  ];
+  const W = 116, X = (i) => 20 + i * 132, Y = 56;
+  let o = text(20, 22, '一个起始 nanobody、一轮的筛选（四轮之后每条序列带 4 个 mutation）', 'tb');
+  boxes.forEach(([s, tag], i) => {
+    const x = X(i), ls = s.split('\n');
+    o += rect(x, Y, W, 56, i === 2 ? 'wash-strong' : 'paper', 4);
+    ls.forEach((l, k) => { o += text(x + W / 2, Y + 22 + k * 18, l, i === 2 ? 'tl' : 't', 'middle'); });
+    o += text(x + W / 2, Y + 72, tag, 'ts', 'middle');
+    if (i < 3) o += arrow(x + W + 2, Y + 28, X(i + 1) - 2, Y + 28, 'ink');
+  });
+  const ty = Y + 100;
+  o += text(20, ty, '轮次', 'ts') + text(90, ty, '起始序列', 'ts') + text(190, ty, '进 ESM 的 mutant', 'ts') + text(350, ty, '跑 AF + Rosetta 的', 'ts') + text(500, ty, '留下', 'ts');
+  vlabRounds.forEach((R, i) => {
+    const y = ty + 22 + i * 21;
+    o += text(20, y, String(R.r), 't') + text(90, y, String(R.seeds), 't');
+    o += text(190, y, '全部', 'ts') + text(350, y, String(R.seeds * 20), 't') + text(500, y, '5', 't');
+  });
+  const yE = ty + 22 + 4 * 21 + 8;
+  o += line(20, yE, 540, yE, 'mute');
+  o += text(20, yE + 20, `四轮合计跑 AF + Rosetta ${vlabScored} 次；四种起始 nanobody 共 ${(vlabScored * 4).toLocaleString('en-US')} 次。最后每种挑 23 条去合成，合计 ${23 * 4} 条。`, 'ts');
+  return svg(560, yE + 32, o, 'Virtual Lab 的 nanobody 设计流程：每轮先用 ESM-1b 的 log-likelihood ratio 从所有单点 mutant 里取前 20，再对这 20 条跑 AlphaFold-Multimer 和 Rosetta，按 weighted score 留 5 条进下一轮；四轮共跑 320 次结构计算，四种起始 nanobody 共 1280 次，最后合成 92 条');
+}
+
+// ---------- 第 7 站：proxy 的通过率和实验的通过率 ----------
+export const proxyRows = [
+  ['ESM LLR > 0（像天然蛋白）', 92, 0],
+  ['AF ipLDDT 高于 wild type', 78, 0],
+  ['Rosetta dG 优于 wild type', 60, 0],
+  ['AF ipLDDT ≥ 80', 32, 0],
+  ['Rosetta dG ≤ −50', 23, 0],
+  ['实验：表达量高到很高', 35, 1],
+  ['实验：对 JN.1 或 KP.3 有结合', 2, 1],
+];
+function proxy() {
+  const N = 92, x0 = 236, w = 250, rh = 28, Y = 56;
+  let o = text(20, 22, `合成的 ${N} 条 mutant nanobody 里，每一关通过多少条`, 'tb');
+  const gap = 32;
+  proxyRows.forEach(([lab, v, isExp], i) => {
+    const y = Y + i * rh + (isExp ? gap : 0);
+    o += text(228, y + 15, lab, isExp ? 'tb' : 't', 'end');
+    o += rect(x0, y + 4, w, rh - 12, 'wash2', 2);
+    o += rect(x0, y + 4, (v / N) * w, rh - 12, isExp ? 'solid2' : 'solid', 2);
+    o += text(x0 + w + 8, y + 15, `${v} / ${N} = ${Math.round((v / N) * 100)}%`, isExp ? 'tb' : 'ts');
+  });
+  const yl = Y + 5 * rh + 8;
+  o += line(20, yl, x0 + w, yl, 'mute');
+  o += text(20, yl + 20, '上面五行是三个 proxy model 给的分，下面两行是实验测出来的。', 'ts');
+  const H = Y + 7 * rh + gap + 4;
+  o += text(20, H + 16, '三个 proxy 分数都比 wild type 好的设计很多，真的对新 variant 有结合的只有 2 条。', 'ts');
+  return svg(560, H + 26, o, '92 条设计里各关的通过数：ESM LLR 为正 92 条、AlphaFold ipLDDT 高于野生型 78 条、Rosetta 能量优于野生型 60 条，而实验里表达良好的 35 条、对 JN.1 或 KP.3 有结合的只有 2 条');
+}
+
+// ---------- 第 8 站：GT Sophy 的 reward 只看一个窗口里的对手 ----------
 function sophy() {
   const m = 5, Y0 = 70, Y1 = 170, yc = (Y0 + Y1) / 2, ax = 200;
   const X = (dm) => ax + dm * m;
@@ -343,7 +447,7 @@ function sophy() {
   return svg(560, Y1 + 62, o, 'GT Sophy 的赛道俯视示意：agent 车周围 20 米后到 40 米前的窗口里有两辆对手车计入 passing bonus，54 米前的一辆不计；箭头表示 200 公里每小时下三个 0.1 秒步长的前进距离');
 }
 
-// ---------- 第 7 站：SLAC 的两层 action ----------
+// ---------- 第 8 站：SLAC 的两层 action ----------
 function slac() {
   const sx = lin(0, 200, 112, 540), K = 50;
   let o = text(20, 22, '真机上每一步发 17 维的 action；task policy 每 50 步才选一次 latent action z', 'tb');
@@ -357,11 +461,12 @@ function slac() {
   o += line(sx(0), 80, sx(200), 80, 'axis');
   for (const t of [0, 50, 100, 150, 200]) o += text(sx(t), 92, String(t), 'ts', 'middle');
   o += text(20, 194, 'decoder 在 low-fidelity simulation 里预训练、上真机后冻结：它负责把 z 变成 50 步安全的 17 维动作，', 'ts');
-  o += text(20, 212, `task policy 只面对 4 个 entity 的选择。真机 30,000 步约 50 分钟，只有 ${30000 / K} 次 latent decision。`, 'ts');
-  return svg(560, 222, o, 'SLAC 的两层 action：上面每一个 low-level step 发一个 17 维 action，下面 task policy 每 50 步选一个 latent action，每段结束时给一次 sparse reward');
+  o += text(20, 212, `task policy 每次在 4⁵ = ${4 ** 5} 个 latent action 里挑一个。真机 30,000 步约 50 分钟，`, 'ts');
+  o += text(20, 230, `只有 ${30000 / K} 次 latent decision。`, 'ts');
+  return svg(560, 240, o, 'SLAC 的两层 action：上面每一个 low-level step 发一个 17 维 action，下面 task policy 每 50 步选一个 latent action，每段结束时给一次 sparse reward');
 }
 
-// ---------- 第 8 站：tool call 之前的 policy check ----------
+// ---------- 第 9 站：tool call 之前的 policy check ----------
 function policy() {
   let o = '';
   o += rect(20, 14, 290, 30, 'paper', 4) + text(30, 34, 'user：帮我总结今天的邮件', 't');
@@ -389,6 +494,9 @@ export default {
   'berkeley-agentic-passk': passk,
   'berkeley-agentic-dual': dual,
   'berkeley-agentic-fp': fpA,
+  'berkeley-agentic-vlab': vlab,
+  'berkeley-agentic-funnel': funnel,
+  'berkeley-agentic-proxy': proxy,
   'berkeley-agentic-sophy': sophy,
   'berkeley-agentic-slac': slac,
   'berkeley-agentic-policy': policy,

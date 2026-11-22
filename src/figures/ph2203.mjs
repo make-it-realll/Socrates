@@ -132,7 +132,7 @@ function hume() {
 // ---------- 第 4 站：universalizability test，Kant 的四个例子依次走一遍 ----------
 function fulA() {
   const maxims = [
-    { m: ['生活带来的 pain 多于 pleasure 时，', '出于 self-love 结束生命'], s3: '用 self-love 毁掉 life：作为 nature 自相矛盾', s4: null, v: 0 },
+    { m: ['Life 再延续下去，evil 多于', 'satisfaction 时，出于 self-love 缩短它'], s3: '用 self-love 毁掉 life：作为 nature 自相矛盾', s4: null, v: 0 },
     { m: ['缺钱时就借钱并承诺归还，', '尽管知道自己还不了'], s3: '人人如此，promise 就没人信：conceive 不了', s4: null, v: 0 },
     { m: ['有 talent 也不去发展，', '宁可图安逸'], s3: '人人如此的 world 可以 conceive', s4: 'rational being 必然 will 自己的 faculties 发展', v: 1 },
     { m: ['自己过得好，', '别人有难一概不帮'], s3: '人人如此的 world 可以 conceive', s4: '我会需要别人帮：这样 will 就自相矛盾', v: 1 },
@@ -178,7 +178,7 @@ function fulA() {
   // 右上：当前 maxim 和它在 step 3、4 的回答
   const CX = 244, CY = 8;
   o += rect(CX, CY, 316, 126, 'frame', 6);
-  o += gshow([[0, lead]], T, text(CX + 12, CY + 24, 'Kant 自己的四个例子（G 4:421–423）', 'tb') + text(CX + 12, CY + 44, '加一个 permissible 的 maxim，', 'ts') + text(CX + 12, CY + 61, '依次走一遍流程。', 'ts') + text(CX + 12, CY + 86, '前两个停在 step 3，后两个停在 step 4。', 'ts'));
+  o += gshow([[0, lead]], T, text(CX + 12, CY + 24, 'Kant 自己的四个例子（Groundwork II）', 'tb') + text(CX + 12, CY + 44, '加一个 permissible 的 maxim，', 'ts') + text(CX + 12, CY + 61, '依次走一遍流程。', 'ts') + text(CX + 12, CY + 86, '前两个停在 step 3，后两个停在 step 4。', 'ts'));
   for (const p of plan) {
     const { q } = p;
     o += gshow([[p.t0, p.out]], T, text(CX + 12, CY + 22, 'Maxim', 'ts tl') + text(CX + 12, CY + 40, q.m[0], 't') + text(CX + 12, CY + 57, q.m[1], 't'));

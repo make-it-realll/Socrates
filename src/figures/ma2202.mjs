@@ -1,12 +1,12 @@
 import { svg, svgA, d, path, line, rect, circle, poly, text, it, arrow, anim, apath, ashow, f1 } from '../lib/svg.mjs';
 
-// ---------- D4：正方形的 8 个对称 ----------
+// ---------- D8（Dummit–Foote 记号；有的书写 D4）：正方形的 8 个对称 ----------
 // 顶点 1..4 逆时针，1 在右上（45°）。元素 r^a s^b：先做 s（关于竖直轴反射），再转 a·90°。
 const R = Math.PI / 180;
 const SUP = { 2: '²', 3: '³' };
 const name = ([a, b]) => (a === 0 && b === 0 ? 'e' : (a ? 'r' + (SUP[a] || '') : '') + (b ? 's' : ''));
 const mul = ([a1, b1], [a2, b2]) => [(((a1 + (b1 ? -a2 : a2)) % 4) + 4) % 4, (b1 + b2) % 2];
-const D4 = [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1]];
+const D8 = [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1]];
 const act = ([a, b], [x, y]) => { const X = b ? -x : x, c = Math.cos(a * 90 * R), s = Math.sin(a * 90 * R); return [c * X - s * y, s * X + c * y]; };
 const pos = (k) => [Math.cos((45 + 90 * (k - 1)) * R), Math.sin((45 + 90 * (k - 1)) * R)];
 const whichPos = ([x, y]) => { let best = 1, bd = 9; for (let k = 1; k <= 4; k++) { const p = pos(k), dd = Math.hypot(p[0] - x, p[1] - y); if (dd < bd) { bd = dd; best = k; } } return best; };
@@ -130,10 +130,10 @@ function colorings() {
   return svg(560, 244, o, '正方形四个 vertex 各涂 black 或 white，共 16 种，按 rotation 能否互相转到分成 6 类，大小分别是 1、4、4、2、4、1');
 }
 
-// 第 1 站：D4 的 8 个元素
+// 第 1 站：D8 的 8 个元素
 function d4() {
   let o = '';
-  D4.forEach((g, i) => {
+  D8.forEach((g, i) => {
     const col = i % 4, row = Math.floor(i / 4);
     const cx = 75 + col * 137, cy = 62 + row * 132;
     o += mini(cx, cy, 30, g, { axis: true, lab: 'tb' });
@@ -141,7 +141,7 @@ function d4() {
   });
   o += text(8, 14, 'rotation：转 0°、90°、180°、270°', 'ts', 'start');
   o += text(8, 146, 'reflection：虚线是 mirror', 'ts', 'start');
-  return svg(560, 270, o, 'D4 的 8 个元素各自把标好号的正方形变成什么样子：上排 4 个 rotation，下排 4 个 reflection，每个旁边写着它在 vertex 上的 permutation');
+  return svg(560, 270, o, 'D8 的 8 个元素各自把标好号的正方形变成什么样子：上排 4 个 rotation，下排 4 个 reflection，每个旁边写着它在 vertex 上的 permutation');
 }
 
 // 第 2 站：在 Z12 里从 0 出发每次加 k（动图）
@@ -245,7 +245,42 @@ function composeA() {
   return svgA(560, 262, o, '动图：6 个编号的圆片先按 p 移动，再按 q 移动；最后 1 落在 4，4 落在 3，3 落在 1，2 和 6 互换，5 回到原处');
 }
 
-// 第 4 站：D4 关于 H = {e, s} 的 left coset 与 right coset
+// 第 3 站：reversal = 连线图里的 crossing；右乘 (3 4) 少掉一个
+function reversal() {
+  let o = '';
+  const panel = (x0, one, title, swap) => {
+    const n = one.length, gap = 52, X = (i) => x0 + 40 + (i - 1) * gap, yT = 64, yB = 170;
+    o += text(x0 + 40 + 1.5 * gap, 18, title, 'tb', 'middle');
+    o += text(x0 + 2, yT - 18, 'a', 'ts', 'start') + text(x0 + 2, yB + 26, 'σ(a)', 'ts', 'start');
+    for (let a = 1; a <= n; a++) {
+      o += line(X(a), yT, X(one[a - 1]), yB, swap.includes(a) ? 'ln' : 'ink');
+    }
+    const pairs = [];
+    for (let a = 1; a <= n; a++) for (let b = a + 1; b <= n; b++) {
+      if (one[a - 1] < one[b - 1]) continue;
+      pairs.push(`(${a}, ${b})`);
+      const da = X(one[a - 1]) - X(a), db = X(one[b - 1]) - X(b);
+      const t = (X(b) - X(a)) / (da - db);
+      o += circle(X(a) + t * da, yT + t * (yB - yT), 5, 'solid');
+    }
+    for (let a = 1; a <= n; a++) {
+      o += circle(X(a), yT, 11, 'paper') + text(X(a), yT + 4.5, String(a), 'tb', 'middle');
+      o += circle(X(a), yB, 11, 'paper') + text(X(a), yB + 4.5, String(a), 't', 'middle');
+    }
+    o += text(x0 + 40 + 1.5 * gap, 34, '一行写成 ' + one.join(' '), 'ts', 'middle');
+    o += text(x0 + 40 + 1.5 * gap, 214, pairs.length + ' 个 crossing：' + pairs.join(' '), 't', 'middle');
+    return pairs.length;
+  };
+  const sigma = [2, 3, 4, 1];
+  const st = sigma.slice(); [st[2], st[3]] = [st[3], st[2]];
+  panel(0, sigma, 'σ = (1 2 3 4)', []);
+  panel(284, st, 'σ(3 4)', [3, 4]);
+  o += text(280, 240, '每条线从上面的 a 连到下面的 σ(a)；a < b 而 σ(a) > σ(b) 的两条线必定交叉一次', 'ts', 'middle');
+  o += text(280, 258, '右乘 (3 4) 只是把从 3、4 出发的两条线的下端对调，这两条线的交叉没了，别的交叉不变', 'ts', 'middle');
+  return svg(560, 264, o, '两张连线图：上排是位置 a，下排是值 sigma(a)。sigma = (1 2 3 4) 一行写成 2 3 4 1，有 3 个交叉；右乘 (3 4) 后一行写成 2 3 1 4，只剩 2 个交叉');
+}
+
+// 第 4 站：D8 关于 H = {e, s} 的 left coset 与 right coset
 function cosets() {
   const H = [[0, 0], [0, 1]];
   const left = [0, 1, 2, 3].map((a) => H.map((h) => mul([a, 0], h)));
@@ -265,7 +300,7 @@ function cosets() {
   };
   row(76, left, 'left coset gH = {g, gs}', '同一个框里，粗边（原来的 1–2 边）落在同一处');
   row(232, right, 'right coset Hg = {g, sg}', '同一个框里，粗边落在不同处');
-  return svg(560, 304, o, 'D4 关于 H = {e, s} 的四个 left coset 和四个 right coset；left coset 里的两个元素把原来的 1-2 边送到同一条边，right coset 不是');
+  return svg(560, 304, o, 'D8 关于 H = {e, s} 的四个 left coset 和四个 right coset；left coset 里的两个元素把原来的 1-2 边送到同一条边，right coset 不是');
 }
 
 // 第 5 站：Z4、U(10)、U(8) 的 Cayley table
@@ -310,7 +345,7 @@ function fiber() {
   return svg(560, 246, o, 'Homomorphism Z12 到 Z4：送到同一个元素的三个数排成一行，每一行是 kernel {0, 4, 8} 的一个 coset');
 }
 
-// 第 6 站：D4 的 Cayley table 按 coset 排序上色
+// 第 6 站：D8 的 Cayley table 按 coset 排序上色
 function blocks() {
   const fills = ['paper', 'wash', 'wash-strong', 'solid'];
   let o = '';
@@ -335,7 +370,7 @@ function blocks() {
   const idxIn = (cs) => (v) => cs.findIndex((c) => c.some((x) => eq(x, v)));
   table(0, 'N = {e, r²}：每个 2×2 块只有一种颜色', cosN.flat(), idxIn(cosN), '块的颜色只看行、列属于哪个 coset');
   table(280, 'H = {e, s}：有的块里混着两种颜色', cosH.flat(), idxIn(cosH), '同一对 coset 相乘，落进不同 coset');
-  return svg(560, 278, o, 'D4 的 Cayley table，行和列按 coset 排好，乘积按它所在的 coset 上色：对 normal subgroup {e, r 平方}，每个 2 乘 2 块颜色一致；对 {e, s}，有的块颜色不一致');
+  return svg(560, 278, o, 'D8 的 Cayley table，行和列按 coset 排好，乘积按它所在的 coset 上色：对 normal subgroup {e, r 平方}，每个 2 乘 2 块颜色一致；对 {e, s}，有的块颜色不一致');
 }
 
 // 第 6 站：Z2×Z3 与 Z2×Z4 里反复加 (1,1)（动图）
@@ -440,6 +475,7 @@ export default {
   'ma2202-clock': clockA,
   'ma2202-z12lat': z12lat,
   'ma2202-compose': composeA,
+  'ma2202-reversal': reversal,
   'ma2202-cosets': cosets,
   'ma2202-cayley': cayley,
   'ma2202-fiber': fiber,

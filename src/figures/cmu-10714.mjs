@@ -412,7 +412,51 @@ function overlap() {
   return svg(560, 296, o, '同一个 4 层 network 的一步 data parallel 训练。先做完 backward 再 allreduce 共 8 个单位时间；每层 gradient 算出就 allreduce，通信和后面几层的 backward 重叠，共 5 个单位时间');
 }
 
+// ---------- 第 7 站：两个 matmul 的 tensor parallelism ----------
+function tp() {
+  const X = [1, 2];
+  const W1 = [[1, 0, 2, -3], [0, 1, 1, 1]];
+  const W2 = [1, -1, 2, 5];
+  const cw = 26, ch = 24;
+  const mm = (x, cols) => cols.map((j) => x[0] * W1[0][j] + x[1] * W1[1][j]);
+  const shards = [[0, 1], [2, 3]].map((cols) => {
+    const pre = mm(X, cols), h = pre.map((v) => Math.max(v, 0));
+    const part = h.reduce((s, v, k) => s + v * W2[cols[k]], 0);
+    return { cols, pre, h, part };
+  });
+  const Y = shards[0].part + shards[1].part;
+  const full = W2.reduce((s, w, j) => s + w * Math.max(X[0] * W1[0][j] + X[1] * W1[1][j], 0), 0);
+  let o = '';
+  // 表头
+  const heads = [[86, 'X', 'replicated'], [160, 'W⁽¹⁾', '按 column 切'], [246, 'ReLU 之后', 'sharded'], [309, 'W⁽²⁾', '按 row 切'], [366, 'partial', 'result']];
+  heads.forEach(([x, a, b]) => { o += text(x, 16, a, 'tb', 'middle') + text(x, 32, b, 'ts', 'middle'); });
+  o += text(436, 16, 'allreduce', 'tb', 'middle') + text(512, 16, 'Y', 'tb', 'middle');
+  const yc = [92, 190];
+  shards.forEach((s, g) => {
+    const c = yc[g];
+    o += rect(4, c - 40, 394, 80, 'wash2', 8) + text(12, c - 26, 'GPU ' + g, 'tb');
+    o += grid(60, c - ch / 2, 1, 2, cw, ch, 'paper') + vals(60, c - ch / 2, [X], cw, ch);
+    o += text(122, c + 5, '×', 't', 'middle');
+    const Wsh = [0, 1].map((r) => s.cols.map((j) => W1[r][j]));
+    o += grid(134, c - ch, 2, 2, cw, ch, 'wash') + vals(134, c - ch, Wsh, cw, ch, 't', neg);
+    o += arrow(190, c, 216, c, 'ink');
+    o += grid(220, c - ch / 2, 1, 2, cw, ch, 'wash-strong') + vals(220, c - ch / 2, [s.h], cw, ch, 't', neg);
+    o += text(246, c + 30, 'ReLU 前：(' + s.pre.map(neg).join(', ') + ')', 'ts', 'middle');
+    o += text(284, c + 5, '×', 't', 'middle');
+    o += grid(296, c - ch, 2, 1, cw, ch, 'wash') + vals(296, c - ch, s.cols.map((j) => [W2[j]]), cw, ch, 't', neg);
+    o += text(334, c + 5, '=', 't', 'middle');
+    o += grid(346, c - ch / 2, 1, 1, 40, ch, 'wash-strong') + vals(346, c - ch / 2, [[s.part]], 40, ch, 'tb', neg);
+    o += arrow(388, c, 412, c + (g ? -18 : 18), 'ln');
+    o += arrow(460, c + (g ? -18 : 18), 488, c, 'ln');
+    o += grid(492, c - ch / 2, 1, 1, 40, ch, 'solid') + text(512, c + 4.5, String(Y), 'tw', 'middle');
+  });
+  o += rect(410, 104, 52, 74, 'paper', 6) + text(436, 136, 'sum', 'ts', 'middle') + text(436, 154, neg(shards[0].part) + ' + ' + shards[1].part, 't', 'middle');
+  o += text(4, 254, '不切时 ReLU(X W⁽¹⁾) = (' + [0, 1, 2, 3].map((j) => neg(Math.max(X[0] * W1[0][j] + X[1] * W1[1][j], 0))).join(', ') + ')，乘 W⁽²⁾ 得 ' + full + '。中间的 hidden 从不离开各自的卡', 'ts');
+  return svg(560, 260, o, 'Tensor parallelism：X 等于 (1, 2) 两张卡各一份。GPU 0 用 W1 的前两列算出 (1, 2)，乘 W2 的前两行得 -1；GPU 1 用后两列算出 (4, -1)，ReLU 后 (4, 0)，乘后两行得 8。Allreduce 相加，两张卡都得到 7');
+}
+
 export default {
+  'cmu-10714-tp': tp,
   'cmu-10714-adgraph': adgraphA,
   'cmu-10714-bcast': bcast,
   'cmu-10714-norm': norm,

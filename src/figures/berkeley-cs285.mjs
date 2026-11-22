@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
+import { svg, lin, logx, f1, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
 // 标准正态的 pdf 与分位数（分位数用二分）
 const npdf = (x, m = 0, s = 1) => Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s);
@@ -545,6 +545,497 @@ function grpoA() {
   return svgA(560, 278, o, '动图：每批 24 个 prompt、每个 8 个回答，答对率 23%；大约八分之一的 prompt 8 个回答全错，group 内的 advantage 全是 0，没有 gradient');
 }
 
+// ================= 补写的各站（Lecture 4、11–13、19、20、23–25） =================
+const SB = (b, x) => `${b}<tspan class="sub" dy="3">${x}</tspan><tspan dy="-3">\u200b</tspan>`;
+const SP = (b, x) => `${b}<tspan class="sup" dy="-5">${x}</tspan><tspan dy="5">\u200b</tspan>`;
+const arect = (x, ys, hs, w, kt, T, cls) => `<rect x="${f1(x)}" y="${f1(ys[0])}" width="${f1(w)}" height="${f1(hs[0])}" class="${cls}">${anim('y', ys.map(f1), kt, T, true)}${anim('height', hs.map(f1), kt, T, true)}</rect>`;
+const atext = (x, y, strs, kt, T, cls = 't', anchor = 'start') => strs.map((s, i) => `<g>${text(x, y, s, cls, anchor)}${ashow(strs.map((_, j) => j === i).concat([i === strs.length - 1]), kt, T)}</g>`).join('');
+const box = (x, y, w, h, lines, cls = 'paper', tcls = 'tb') => rect(x, y, w, h, cls, 6) + lines.map((s, i) => text(x + w / 2, y + h / 2 + 5 + (i - (lines.length - 1) / 2) * 17, s, i === 0 ? tcls : 'ts', 'middle')).join('');
+const qarrow = (x1, y1, cx, cy, x2, y2, cls = 'ink') => {
+  // 二次 Bezier，末端加箭头
+  const a = Math.atan2(y2 - cy, x2 - cx), s = 7;
+  const p = (ang) => [x2 - s * Math.cos(a + ang), y2 - s * Math.sin(a + ang)];
+  return `<path d="M${f1(x1)} ${f1(y1)}Q${f1(cx)} ${f1(cy)} ${f1(x2 - 2 * Math.cos(a))} ${f1(y2 - 2 * Math.sin(a))}" class="${cls}" fill="none"/>` + poly([[x2, y2], p(0.42), p(-0.42)], cls.split(' ').map((c) => c + '-f').join(' '));
+};
+
+// 第 2 站：road 与 ditch，μ_t 一步步乘 T
+function roadA() {
+  const th = 0.2, Tm = [[1 - th, 0.5], [th, 0.5]];
+  const mus = [[1, 0]];
+  for (let t = 1; t < 8; t++) { const m = mus[t - 1]; mus.push([Tm[0][0] * m[0] + Tm[0][1] * m[1], Tm[1][0] * m[0] + Tm[1][1] * m[1]]); }
+  const muS = [0.5 / (0.5 + th), th / (0.5 + th)];
+  let o = '';
+  // 左：MDP
+  const R = [70, 150], O = [210, 150];
+  o += box(R[0] - 42, R[1] - 26, 84, 52, ['R：road', 'r = +1']) + box(O[0] - 42, O[1] - 26, 84, 52, ['O：ditch', 'r = −1']);
+  o += qarrow(R[0] + 42, R[1] - 12, 140, 112, O[0] - 42, O[1] - 12, 'ink') + text(140, 104, 'swerve：θ = 0.2', 'ts', 'middle');
+  o += qarrow(O[0] - 42, O[1] + 12, 140, 188, R[0] + 42, R[1] + 12, 'ink') + text(140, 204, '回到 road：0.5', 'ts', 'middle');
+  o += qarrow(R[0] - 20, R[1] - 26, R[0] - 30, 76, R[0] + 4, R[1] - 27, 'ink') + text(R[0] - 18, 72, 'steady：0.8', 'ts', 'middle');
+  o += qarrow(O[0] + 4, O[1] - 26, O[0] + 34, 76, O[0] + 22, O[1] - 27, 'ink') + text(O[0] + 22, 72, '留在 ditch：0.5', 'ts', 'middle');
+  o += text(140, 24, 'policy 加 MDP：一个 Markov chain', 'tb', 'middle');
+  // 右：柱子与 mini plot
+  const order = [7, 0, 1, 2, 3, 4, 5, 6, 7];
+  const F = frames(order.map((t, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.6 : 1.3)));
+  const by = lin(0, 1, 222, 52), bw = 34;
+  const bx = [312, 372];
+  ['R', 'O'].forEach((nm, k) => {
+    o += rect(bx[k], by(1), bw, by(0) - by(1), 'frame');
+    const ys = F.vals(order.map((t) => by(mus[t][k]))), hs = F.vals(order.map((t) => by(0) - by(mus[t][k])));
+    o += arect(bx[k], ys, hs, bw, F.kt, F.T, k === 0 ? 'wash-strong' : 'wash2');
+    o += line(bx[k] - 6, by(muS[k]), bx[k] + bw + 6, by(muS[k]), 'ln-dash');
+    o += text(bx[k] + bw / 2, 240, SB('μ', 't') + '(' + nm + ')', 'ts', 'middle');
+  });
+  o += text(bx[0] - 8, by(muS[0]) + 4, '0.714', 'tl', 'end') + text(bx[1] + bw + 8, by(muS[1]) + 4, '0.286', 'tl', 'start');
+  o += atext(342, 36, order.map((t) => `t = ${t + 1}`), F.kt, F.T, 'tb', 'middle');
+  // mini plot：μ_t(R) 随 t
+  const px = lin(1, 8, 446, 548), py = lin(0.6, 1, 222, 60);
+  o += line(px(1), py(0.6), px(8), py(0.6), 'axis') + line(px(1), py(0.6), px(1), py(1), 'axis');
+  o += line(px(1), py(muS[0]), px(8), py(muS[0]), 'ln-dash');
+  for (const v of [0.6, 0.8, 1]) o += text(px(1) - 5, py(v) + 4, v.toFixed(1), 'ts', 'end');
+  o += text(px(1), 240, '1', 'ts', 'middle') + text(px(8), 240, '8', 'ts', 'middle') + text((px(1) + px(8)) / 2, 240, 't', 'ts', 'middle');
+  o += text(497, 50, SB('μ', 't') + '(R)', 'ts', 'middle');
+  mus.forEach((m, t) => {
+    const on = order.map((tt, i) => i === 0 || tt >= t);
+    o += gshow(circle(px(t + 1), py(m[0]), 3.5, 'ln-f'), F, on);
+  });
+  o += text(280, 268, '虚线：stationary distribution μ = (0.714, 0.286)，它是 T 的 eigenvalue 为 1 的 eigenvector', 'ts', 'middle');
+  return svgA(560, 276, o, '动图：road 与 ditch 两个 state 的 Markov chain，从 road 出发，state marginal 每步乘 transition matrix，0.8、0.74、0.722 逐步收敛到 stationary distribution 0.714');
+}
+
+// 第 2 站：单个 sample 的 reward 跳来跳去，expectation 光滑
+function smooth() {
+  const sx = lin(0, 1, 70, 420), sy = lin(-1.25, 1.25, 232, 34);
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: -1.25, y1: 1.25, xt: [0, 0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, String(v)]), yt: [[-1, '−1'], [0, '0'], [1, '+1']], xAt: -1.25, grid: true });
+  const Rg = rng(5);
+  for (let i = 0; i < 70; i++) {
+    const th = (i + 0.5) / 70, muR = 0.5 / (0.5 + th);
+    const r = Rg.u() < muR ? 1 : -1;
+    o += circle(sx(th), sy(r), 2.6, 'mute-f');
+  }
+  o += path(curve((t) => (0.5 - t) / (0.5 + t), 0, 1, sx, sy), 'ln');
+  // θ = 0.2 处的切线
+  const t0 = 0.2, y0 = (0.5 - t0) / (0.5 + t0), k = -1 / (0.5 + t0) ** 2;
+  o += line(sx(0.08), sy(y0 + k * (0.08 - t0)), sx(0.34), sy(y0 + k * (0.34 - t0)), 'ink');
+  o += circle(sx(t0), sy(y0), 4, 'ink-f');
+  o += text(sx(t0) + 8, sy(y0) - 6, 'slope −2.04', 'tb');
+  o += text(sx(0.42), sy(-0.62), 'E[r] = (0.5 − θ)/(0.5 + θ)', 'tl');
+  o += text(436, 60, '灰点：一个 sample', 'ts') + text(436, 76, '的 reward，', 'ts') + text(436, 92, '只能是 +1 或 −1', 'ts');
+  o += text(436, 130, '彩色曲线：它的', 'ts') + text(436, 146, 'expectation，处处', 'ts') + text(436, 162, '可导', 'ts');
+  o += text(245, 262, 'swerve 的 probability θ', 'ts', 'middle');
+  return svg(560, 272, o, '单个 sample 的 reward 只有正负 1 两种值，随 theta 跳动；它的 expectation 是光滑曲线，在 theta 等于 0.2 处 slope 为负 2.04');
+}
+
+// 第 2 站：RL algorithm 的三步循环
+function anatomy() {
+  let o = '';
+  const G = [150, 58], Fi = [410, 58], I = [280, 196];
+  o += box(G[0] - 92, G[1] - 26, 184, 52, ['1 generate samples', 'run the policy']);
+  o += box(Fi[0] - 104, Fi[1] - 26, 208, 52, ['2 fit a model', 'estimate the return']);
+  o += box(I[0] - 92, I[1] - 26, 184, 52, ['3 improve the policy']);
+  o += arrow(G[0] + 92, G[1], Fi[0] - 104, Fi[1], 'ink');
+  o += arrow(Fi[0] - 30, Fi[1] + 26, I[0] + 50, I[1] - 26, 'ink');
+  o += arrow(I[0] - 50, I[1] - 26, G[0] + 20, G[1] + 26, 'ink');
+  o += text(G[0] + 10, G[1] + 46, '真实 robot：1× 真实时间', 'ts', 'end') + text(G[0] + 10, G[1] + 62, 'simulator：至多 10000×', 'ts', 'end');
+  const fx = 470, fy = 112;
+  o += text(fx, fy, 'PG：把 reward 加起来', 'ts', 'middle') + text(fx, fy + 16, 'Q-learning：fit Q', 'ts', 'middle') + text(fx, fy + 32, 'actor-critic：fit ' + SP('Q', 'π') + ' 或 ' + SP('V', 'π'), 'ts', 'middle') + text(fx, fy + 48, 'model-based：fit p(s′ | s, a)', 'ts', 'middle');
+  o += text(I[0], I[1] + 44, 'PG：θ ← θ + α∇J　　Q-learning：π(s) = argmax Q', 'ts', 'middle') + text(I[0], I[1] + 60, 'model-based：plan，或 backprop 进 policy', 'ts', 'middle');
+  return svg(560, 268, o, 'RL algorithm 的三步循环：generate samples、fit a model 或 estimate the return、improve the policy，以及各类 algorithm 在后两步做什么');
+}
+
+// 第 7 站：mixture 的 posterior 与 ELBO(q)
+function elbo() {
+  const lj1 = Math.log(0.5) + Math.log(npdf(1, 2, 1)), lj2 = Math.log(0.5) + Math.log(npdf(1, -2, 1));
+  const lpx = Math.log(Math.exp(lj1) + Math.exp(lj2)), post = 1 / (1 + Math.exp(lj2 - lj1));
+  let o = '';
+  // 左
+  const sx = lin(-5, 5, 30, 250), sy = lin(0, 0.22, 220, 50);
+  o += line(sx(-5), sy(0), sx(5), sy(0), 'axis');
+  for (const v of [-4, -2, 0, 2, 4]) o += text(sx(v), 238, String(v).replace('-', '−'), 'ts', 'middle');
+  o += path(curve((x) => 0.5 * npdf(x, -2, 1), -5, 5, sx, sy), 'mute') + path(curve((x) => 0.5 * npdf(x, 2, 1), -5, 5, sx, sy), 'ln');
+  o += line(sx(1), sy(0), sx(1), sy(0.21), 'ink-b') + text(sx(1) + 4, sy(0.21) - 4, '观测 x = 1', 'tb');
+  o += text(sx(2.7), sy(0.16), 'z = 1', 'tl', 'start') + text(sx(-2), sy(0.215), 'z = 2', 'ts', 'middle');
+  o += text(140, 24, 'p(z) p(x | z)，两个 element', 'tb', 'middle');
+  o += text(140, 262, 'p(z = 1 | x = 1) = 0.982', 'tl', 'middle');
+  // 右
+  const qx = lin(0.3, 1, 320, 540), qy = lin(-4.2, -1.8, 220, 50);
+  const L = (q) => q * lj1 + (1 - q) * lj2 - q * Math.log(q) - (1 - q) * Math.log(1 - q);
+  o += axes({ sx: qx, sy: qy, x0: 0.3, x1: 1, y0: -4.2, y1: -1.8, xt: [[0.5, '0.5'], [0.75, '0.75'], [1, '1']], yt: [[-4, '−4'], [-3, '−3'], [-2, '−2']], xAt: -4.2 });
+  o += line(qx(0.3), qy(lpx), qx(1), qy(lpx), 'dash') + text(qx(0.32), qy(lpx) - 6, 'log p(x) = −2.094', 'ts');
+  o += path(curve(L, 0.33, 0.9995, qx, qy, 300), 'ln');
+  o += circle(qx(post), qy(lpx), 4, 'ink-f') + text(qx(post) - 4, qy(lpx) + 18, 'q = posterior', 'ts', 'end');
+  o += line(qx(0.5), qy(L(0.5)), qx(0.5), qy(lpx), 'ink-b') + circle(qx(0.5), qy(L(0.5)), 3.5, 'ln-f');
+  o += text(qx(0.5) + 6, qy((L(0.5) + lpx) / 2), 'gap = KL = 1.325', 'tb');
+  o += text(qx(0.52), qy(L(0.5)) + 16, 'ELBO(0.5) = −3.419', 'ts');
+  o += text(430, 24, 'ELBO 随 q(z = 1) 的变化', 'tb', 'middle') + text(430, 262, 'q(z = 1)', 'ts', 'middle');
+  return svg(560, 272, o, '左：两个 Gaussian element 和观测 x 等于 1，posterior 为 0.982；右：ELBO 随 q 变化，最大值在 posterior 处碰到 log p(x)，q 等于 0.5 时差 1.325，等于 KL');
+}
+
+// 第 7 站：一维 conditional VAE
+function cvae() {
+  const c = 0.958, s = 0.292, k = c / (s * s);
+  const sx = lin(-3, 3, 50, 400);
+  let o = '';
+  // 上：decoder
+  const ty = lin(-1.25, 1.25, 120, 30);
+  o += line(sx(-3), ty(0), sx(3), ty(0), 'grid') + line(sx(-3), ty(1), sx(3), ty(1), 'dash') + line(sx(-3), ty(-1), sx(3), ty(-1), 'dash');
+  o += line(sx(0), 26, sx(0), 270, 'grid');
+  const zb = Math.atanh(0.5) / k;
+  o += rect(sx(-zb), 26, sx(zb) - sx(-zb), 244, 'wash2');
+  o += path(curve((z) => Math.tanh(k * z), -3, 3, sx, ty, 600), 'ln');
+  o += text(sx(-3) - 6, ty(1) + 4, '+1', 'ts', 'end') + text(sx(-3) - 6, ty(-1) + 4, '−1', 'ts', 'end') + text(sx(-3) - 6, ty(0) + 4, 'a', 'ts', 'end');
+  o += text(sx(1.2), ty(0.62), 'decoder f(z) = tanh(11.27 z)', 'tl');
+  // 下：latent
+  const py = lin(0, 1.45, 250, 140);
+  o += line(sx(-3), py(0), sx(3), py(0), 'axis');
+  for (const v of [-3, -2, -1, 0, 1, 2, 3]) o += text(sx(v), 266, String(v).replace('-', '−'), 'ts', 'middle');
+  o += path(curve((z) => npdf(z, 0, 1), -3, 3, sx, py), 'dash');
+  o += path(curve((z) => npdf(z, c, s), -3, 3, sx, py, 400), 'ln') + path(curve((z) => npdf(z, -c, s), -3, 3, sx, py, 400), 'ink');
+  o += text(sx(c) + 26, py(1.2), 'q(z | a = +1)', 'tl') + text(sx(-c) - 26, py(1.2), 'q(z | a = −1)', 'tb', 'end');
+  o += text(sx(2.62), py(0.2), 'prior N(0, 1)', 'ts', 'middle');
+  o += text(418, 70, '灰带：|f(z)| &lt; 0.5，', 'ts') + text(418, 86, '只有 |z| &lt; 0.049', 'ts');
+  o += text(418, 196, 'prior 抽出的 z：', 'ts') + text(418, 212, '89.6% 被送到', 'ts') + text(418, 228, '±1 的 0.1 以内', 'ts');
+  o += text(225, 284, 'latent z', 'ts', 'middle');
+  return svg(560, 292, o, '一维 conditional VAE：encoder 把 a 等于正负 1 分别编码到 z 的两侧，decoder 是陡峭的 tanh，prior 抽出的 z 绝大多数被送到正负 1');
+}
+
+// 第 8 站：forward 与 backward message 的交集（动图）
+function cigarA() {
+  const X = 13, T = 12, goal = 8;
+  const nb = (x) => [-1, 0, 1].map((a) => Math.min(Math.max(x + a, 0), X - 1));
+  const al = [Array.from({ length: X }, (_, x) => (x === 0 ? 1 : 0))];
+  for (let t = 0; t < T; t++) { const n = Array(X).fill(0); al[t].forEach((p, x) => nb(x).forEach((y) => { n[y] += p / 3; })); al.push(n); }
+  const be = Array(T + 1); be[T] = Array.from({ length: X }, (_, x) => Math.exp(-((x - goal) ** 2) / 2));
+  for (let t = T - 1; t >= 0; t--) be[t] = Array.from({ length: X }, (_, x) => nb(x).reduce((s, y) => s + be[t + 1][y], 0) / 3);
+  const po = al.map((a, t) => { const v = a.map((p, x) => p * be[t][x]); const z = v.reduce((s, q) => s + q, 0); return v.map((q) => q / z); });
+  const norm = (col) => { const m = Math.max(...col); return col.map((v) => v / m); };
+  const cs = 10.5, Y0 = 56, panels = [[34, 'forward ' + SB('α', 't'), '从起点走得到'], [212, 'backward ' + SB('β', 't'), '到得了 goal 附近'], [390, SB('α', 't') + ' · ' + SB('β', 't'), 'optimal behavior 经过的 state']];
+  // 帧：0 全部；1..13 β 从 t=12 到 0；14..26 α 从 0 到 12；27 乘积
+  const nF = 28, durs = Array.from({ length: nF }, (_, i) => (i === 0 ? 3.5 : i === nF - 1 ? 3 : 0.32));
+  const F = frames(durs);
+  let o = '';
+  const cell = (px, t, x, v) => `<rect x="${f1(px + t * cs)}" y="${f1(Y0 + (X - 1 - x) * cs)}" width="${f1(cs - 1)}" height="${f1(cs - 1)}" class="solid" opacity="${(0.06 + 0.94 * v).toFixed(2)}"/>`;
+  panels.forEach(([px, title, sub2], k) => {
+    o += text(px + (T + 1) * cs / 2, 22, title, 'tb', 'middle') + text(px + (T + 1) * cs / 2, 40, sub2, 'ts', 'middle');
+    o += rect(px - 1, Y0 - 1, (T + 1) * cs + 1, X * cs + 1, 'frame');
+    for (let t = 0; t <= T; t++) {
+      const col = k === 0 ? norm(al[t]) : k === 1 ? norm(be[t]) : norm(po[t]);
+      let g = '';
+      col.forEach((v, x) => { g += cell(px, t, x, v); });
+      const on = Array.from({ length: nF }, (_, i) => {
+        if (i === 0) return true;
+        if (k === 1) return i >= 1 + (T - t);
+        if (k === 0) return i >= 14 + t;
+        return i === nF - 1;
+      });
+      o += gshow(g, F, on);
+    }
+    o += text(px, Y0 + X * cs + 16, 't = 0', 'ts', 'start') + text(px + (T + 1) * cs, Y0 + X * cs + 16, '12', 'ts', 'end');
+  });
+  o += text(28, Y0 + (X - 1 - 0) * cs + 8, 'x = 0', 'ts', 'end') + text(28, Y0 + (X - 1 - goal) * cs + 8, 'goal 8', 'tl', 'end') + text(28, Y0 + 8, '12', 'ts', 'end');
+  o += atext(280, 230, Array.from({ length: nF }, (_, i) => (i === 0 ? '三步都算完的样子' : i <= 13 ? 'backward：算 ' + SB('β', T - (i - 1)) : i <= 26 ? 'forward：算 ' + SB('α', i - 14) : '相乘再 normalize：posterior 的 state marginal')), F.kt, F.T, 'tb', 'middle');
+  o += text(280, 250, '每一列各自按最大值缩放；纵轴是 position，从 0 出发，最后一步的 reward 是 −(x − 8)²/2', 'ts', 'middle');
+  return svgA(560, 260, o, '动图：一维 position 随时间的 forward message、backward message 和两者的乘积；乘积是一条从起点斜着通向 goal 附近的带子');
+}
+
+// 第 8 站：exact inference 的 optimism
+function optimism() {
+  let o = '';
+  const panel = (x0, title, pw, pl, q, qcls) => {
+    o += text(x0 + 125, 22, title, 'tb', 'middle');
+    const S = [x0 + 125, 58];
+    o += box(S[0] - 22, S[1] - 16, 44, 32, ['s₀']);
+    const A = [x0 + 55, 128], B = [x0 + 195, 128];
+    o += line(S[0] - 14, S[1] + 16, A[0], A[1] - 14, 'ink') + line(S[0] + 14, S[1] + 16, B[0], B[1] - 14, 'ink');
+    o += box(A[0] - 30, A[1] - 14, 60, 28, ['safe'], 'wash2') + box(B[0] - 30, B[1] - 14, 60, 28, ['risky'], 'wash2');
+    o += line(A[0], A[1] + 14, A[0], 196, 'ink') + text(A[0], 212, 'r = −3', 't', 'middle') + text(A[0] + 6, 172, '1', 'ts', 'start');
+    o += line(B[0], B[1] + 14, B[0] - 36, 196, 'ln') + line(B[0], B[1] + 14, B[0] + 36, 196, 'ink');
+    o += text(B[0] - 36, 212, 'r = 0', 'tl', 'middle') + text(B[0] + 36, 212, 'r = −10', 't', 'middle');
+    o += text(B[0] - 30, 168, pw, 'tl', 'end') + text(B[0] + 30, 168, pl, 'ts', 'start');
+    o += text(x0 + 125, 240, q, qcls, 'middle');
+  };
+  panel(10, '真实的 transition', '0.1', '0.9', 'Q(risky) = E[r] = −9，比 safe 差', 'tb');
+  panel(290, '以 O 为 condition 的 posterior', '0.9996', '0.0004', 'Q(risky) = log E[eʳ] = −2.30', 'tl');
+  o += line(280, 14, 280, 250, 'grid');
+  o += text(280, 270, 'exact inference 用右边的 Q：选 risky 的 probability 0.668；variational inference 用左边的：0.0025', 'ts', 'middle');
+  return svg(560, 278, o, '一步的 safe 与 risky：真实 transition 下 risky 的 expected reward 为负 9；以 optimality 为 condition 时 posterior 认为 risky 几乎一定得到 0，Q 被算成负 2.30');
+}
+
+// 第 9 站：chain 上的 MaxEnt IRL（动图）
+function irlA() {
+  const S = 5, T = 4, A = [-1, 0, 1];
+  const st = (s, a) => Math.min(Math.max(s + a, 0), S - 1);
+  const soft = (psi) => {
+    let V = Array(S).fill(0); const pols = [];
+    for (let t = T - 1; t >= 0; t--) {
+      const Q = Array.from({ length: S }, (_, s) => A.map((a) => psi[st(s, a)] + V[st(s, a)]));
+      const Vn = Q.map((q) => Math.log(q.reduce((m, v) => m + Math.exp(v), 0) / 3));
+      pols.unshift(Q.map((q, s) => q.map((v) => Math.exp(v - Vn[s]) / 3))); V = Vn;
+    }
+    let d = Array(S).fill(0); d[0] = 1; const D = Array(S).fill(0);
+    for (let t = 0; t < T; t++) { const n = Array(S).fill(0); d.forEach((p, s) => A.forEach((a, j) => { n[st(s, a)] += p * pols[t][s][j]; })); d = n; d.forEach((p, s) => { D[s] += p; }); }
+    return D;
+  };
+  const rs = [-3, -2, -1, 0, -1], rc = rs.map((v) => v + 1.4), Ds = soft(rs);
+  const ks = [0, 1, 2, 3, 5, 10, 20, 50, 100], hist = {};
+  let psi = Array(S).fill(0);
+  for (let k = 0; k <= 100; k++) { const D = soft(psi); if (ks.includes(k)) hist[k] = [psi.slice(), D]; psi = psi.map((p, s) => p + 0.5 * (Ds[s] - D[s])); }
+  const order = [100, ...ks];
+  const F = frames(order.map((k, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.4 : 1.1)));
+  const X0 = 110, W = 76, bw = 34;
+  let o = '';
+  for (let s = 0; s < S; s++) o += text(X0 + s * W + W / 2, 270, 'state ' + s, 'tb', 'middle');
+  o += text(X0 + W / 2, 286, '起点', 'ts', 'middle');
+  // 上：ψ
+  const py = lin(-2, 1.6, 120, 30);
+  o += line(X0, py(0), X0 + S * W, py(0), 'axis') + text(X0 - 10, py(0) + 4, '0', 'ts', 'end') + text(X0 - 10, py(1.4) + 4, '1.4', 'ts', 'end') + text(X0 - 10, py(-1.6) + 4, '−1.6', 'ts', 'end');
+  o += text(20, 44, 'reward ψ', 'tb') + text(20, 60, '（减 mean）', 'ts');
+  for (let s = 0; s < S; s++) {
+    const x = X0 + s * W + (W - bw) / 2;
+    const ys = F.vals(order.map((k) => py(Math.max(hist[k][0][s], 0)))), hs = F.vals(order.map((k) => Math.abs(py(hist[k][0][s]) - py(0))));
+    o += arect(x, ys, hs, bw, F.kt, F.T, 'solid');
+    o += rect(x - 3, Math.min(py(rc[s]), py(0)), bw + 6, Math.abs(py(rc[s]) - py(0)), 'frame');
+  }
+  // 下：visitation
+  const dy = lin(0, 2.2, 250, 150);
+  o += line(X0, dy(0), X0 + S * W, dy(0), 'axis') + text(X0 - 10, dy(0) + 4, '0', 'ts', 'end') + text(X0 - 10, dy(2) + 4, '2', 'ts', 'end');
+  o += text(20, 174, 'visitation', 'tb') + text(20, 190, '（4 步之和）', 'ts');
+  for (let s = 0; s < S; s++) {
+    const x = X0 + s * W + (W - bw) / 2;
+    const ys = F.vals(order.map((k) => dy(hist[k][1][s]))), hs = F.vals(order.map((k) => dy(0) - dy(hist[k][1][s])));
+    o += arect(x, ys, hs, bw, F.kt, F.T, 'wash-strong');
+    o += rect(x - 3, dy(Ds[s]), bw + 6, dy(0) - dy(Ds[s]), 'frame');
+  }
+  o += atext(X0 + S * W / 2, 142, order.map((k) => `第 ${k} 步 gradient ascent`), F.kt, F.T, 'tl', 'middle');
+  o += text(X0 + S * W + 8, 40, '灰框：', 'ts') + text(X0 + S * W + 8, 56, 'expert', 'ts');
+  return svgA(560, 294, o, '动图：MaxEnt IRL 在 5 个 state 的 chain 上做 gradient ascent，学到的 reward 逐步对上 expert reward 减去 mean，soft optimal 的 visitation 逐步对上 demonstration');
+}
+
+// 第 13 站：combination lock（动图）
+function lockA() {
+  const D = { tb: 56, tr: 6601, frames: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 56],
+    B: [[3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], [5, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0], [6, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0], [7, 5, 4, 3, 2, 0, 0, 0, 0, 0, 0], [8, 6, 4, 3, 2, 1, 1, 1, 0, 0, 0], [8, 6, 5, 4, 3, 2, 2, 1, 0, 0, 0], [9, 7, 6, 4, 3, 2, 2, 2, 1, 0, 0], [10, 8, 6, 5, 4, 3, 2, 2, 1, 0, 0], [10, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0], [11, 9, 8, 7, 6, 4, 3, 2, 1, 0, 0], [11, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0], [11, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1]],
+    R: [[2, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0], [3, 3, 3, 2, 0, 0, 0, 0, 0, 0, 0], [6, 4, 4, 2, 0, 0, 0, 0, 0, 0, 0], [7, 6, 6, 2, 0, 0, 0, 0, 0, 0, 0], [9, 6, 6, 3, 1, 1, 0, 0, 0, 0, 0], [13, 7, 6, 3, 1, 1, 0, 0, 0, 0, 0], [18, 7, 6, 3, 1, 1, 0, 0, 0, 0, 0], [19, 8, 7, 4, 2, 1, 0, 0, 0, 0, 0], [21, 10, 8, 4, 2, 1, 0, 0, 0, 0, 0], [22, 11, 9, 5, 3, 1, 0, 0, 0, 0, 0], [24, 13, 9, 6, 3, 1, 0, 0, 0, 0, 0], [25, 13, 9, 6, 3, 1, 0, 0, 0, 0, 0]],
+    Bmax: [3, 3, 4, 4, 7, 7, 8, 8, 8, 8, 9, 10], Rmax: [3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5] };
+  const n = D.frames.length, order = [n - 1, ...D.frames.map((_, i) => i)];
+  const F = frames(order.map((k, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.6 : 0.8)));
+  const X0 = 64, W = 44, cw = 36;
+  let o = '';
+  const row = (Y, key, mx, title) => {
+    o += text(X0, Y - 92, title, 'tb');
+    const sc = 3.2;
+    for (let s = 0; s <= 10; s++) {
+      const x = X0 + s * W;
+      o += rect(x, Y, cw, 22, s === 10 ? 'solid2' : 'paper', 4) + text(x + cw / 2, Y + 16, s === 10 ? 'goal' : String(s), s === 10 ? 'tw' : 'ts', 'middle');
+      const ys = F.vals(order.map((k) => Y - 2 - D[key][k][s] * sc)), hs = F.vals(order.map((k) => D[key][k][s] * sc));
+      o += arect(x + 6, ys, hs, cw - 12, F.kt, F.T, key === 'B' ? 'solid' : 'wash-strong');
+    }
+    o += atext(X0 + 11 * W - 8, Y - 70, order.map((k) => `最远到过 ${D[mx][k] === 10 ? 'goal' : 'state ' + D[mx][k]}`), F.kt, F.T, key === 'B' ? 'tl' : 'tb', 'end');
+  };
+  row(130, 'R', 'Rmax', 'Random policy（这个 seed 要 6601 步才第一次到 goal）');
+  row(272, 'B', 'Bmax', 'Count bonus（第 56 步到 goal）');
+  o += atext(280, 318, order.map((k) => `第 ${D.frames[k]} 步`), F.kt, F.T, 'tb', 'middle');
+  o += text(280, 336, '柱子：到达这个 state 的次数（含起点）；每个 state 选错 action 就回到 0', 'ts', 'middle');
+  return svgA(560, 344, o, '动图：10 个 state 的 combination lock，random policy 反复被送回起点，56 步内最远只到 state 5；count bonus 的 agent 每到一个新 state 就试没试过的 action，第 56 步到达 goal');
+}
+
+// 第 13 站：RND 的 prediction error
+function rnd() {
+  const ERR = [3.2929, 2.7918, 2.3352, 1.9235, 1.5631, 1.2441, 0.9687, 0.7334, 0.5386, 0.3978, 0.2954, 0.215, 0.151, 0.0977, 0.0612, 0.0367, 0.021, 0.012, 0.0051, 0.0012, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0002, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0, 0.0001, 0.0001, 0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0004, 0.0025, 0.0066, 0.0128, 0.0261, 0.0307, 0.0519, 0.0926, 0.1532, 0.2327, 0.3411, 0.4714, 0.5957, 0.7268, 0.8598, 0.9944, 1.1229, 1.2613, 1.3811, 1.4802];
+  const sx = lin(-3, 3, 70, 440), sy = lin(0, 3.5, 230, 34);
+  let o = rect(sx(-1), 34, sx(1) - sx(-1), 196, 'wash');
+  o += axes({ sx, sy, x0: -3, x1: 3, y0: 0, y1: 3.5, xt: [-3, -2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), yt: [[1, '1'], [2, '2'], [3, '3']], grid: true });
+  o += path(d(ERR.map((e, i) => [sx(-3 + 0.1 * i), sy(e)])), 'ln');
+  o += text(sx(0), 56, '访问过的 state', 'tb', 'middle') + text(sx(0), 72, '（2000 个）', 'ts', 'middle');
+  o += text(sx(-2.95), sy(3.29) - 8, '3.3', 'tl') + text(sx(2.95), sy(1.48) - 8, '1.5', 'tl', 'end');
+  o += text(sx(0), sy(0) - 8, 'error ≈ 10⁻⁴', 'ts', 'middle');
+  o += text(456, 90, 'bonus =', 't') + text(456, 108, '‖f̂(s) − f(s)‖²', 't') + text(456, 140, 'f：random', 'ts') + text(456, 156, 'network，不 train', 'ts') + text(456, 180, 'f̂：只在见过的', 'ts') + text(456, 196, 'state 上 train', 'ts');
+  o += text(255, 262, 'state s', 'ts', 'middle');
+  return svg(560, 272, o, 'RND 的 exploration bonus：predictor 与 random target network 的 squared error 在访问过的 state 区间里约为万分之一，离开后迅速增大');
+}
+
+// 第 14 站：value iteration 的 contraction（动图）
+function contractA() {
+  const g = 0.9, Tq = (Q) => { const VR = Math.max(Q[0], Q[1]), VO = Q[2]; return [1 + g * VR, 1 + g * VO, -1 + g * (0.5 * VR + 0.5 * VO)]; };
+  let Qs = [0, 0, 0]; for (let i = 0; i < 3000; i++) Qs = Tq(Qs);
+  const Qk = [[0, 0, 0]]; for (let k = 1; k <= 30; k++) Qk.push(Tq(Qk[k - 1]));
+  const ks = [0, 1, 2, 3, 4, 5, 6, 8, 10, 13, 16, 20, 25, 30], order = [30, ...ks];
+  const F = frames(order.map((k, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.6 : 0.7)));
+  const by = lin(-1.5, 10.5, 230, 40), bw = 40, names = ['(R, steady)', '(R, swerve)', 'O'];
+  let o = line(40, by(0), 270, by(0), 'axis');
+  for (const v of [0, 5, 10]) o += text(34, by(v) + 4, String(v), 'ts', 'end');
+  names.forEach((nm, j) => {
+    const x = 60 + j * 72;
+    const ys = F.vals(order.map((k) => by(Math.max(Qk[k][j], 0)))), hs = F.vals(order.map((k) => Math.abs(by(Qk[k][j]) - by(0))));
+    o += arect(x, ys, hs, bw, F.kt, F.T, 'wash-strong');
+    o += line(x - 6, by(Qs[j]), x + bw + 6, by(Qs[j]), 'ln-dash') + text(x + bw / 2, by(Qs[j]) - 6, Qs[j].toFixed(2), 'tl', 'middle');
+    o += text(x + bw / 2, 250, nm, 'ts', 'middle');
+  });
+  o += atext(150, 22, order.map((k) => SB('Q', k)), F.kt, F.T, 'tb', 'middle');
+  // 右：error
+  const ex = lin(0, 30, 320, 540), ey = lin(0, 10, 230, 40);
+  o += axes({ sx: ex, sy: ey, x0: 0, x1: 30, y0: 0, y1: 10, xt: [0, 10, 20, 30].map((v) => [v, String(v)]), yt: [[5, '5'], [10, '10']] });
+  o += path(curve((k) => 10 * g ** k, 0, 30, ex, ey), 'grid');
+  ks.forEach((k) => { o += gshow(circle(ex(k), ey(10 * g ** k), 3.5, 'ln-f'), F, order.map((kk, i) => i === 0 || kk >= k)); });
+  o += text(430, 22, '‖' + SB('Q', 'k') + ' − Q*‖∞ = 10 · 0.9ᵏ', 'tb', 'middle') + text(430, 264, 'iteration k', 'ts', 'middle');
+  o += text(ex(12), ey(6.2), '每步乘 γ = 0.9', 'ts');
+  return svgA(560, 272, o, '动图：第 2 站的 MDP 上做 value iteration，三个 Q 值从 0 涨向 Q 星的 10、6.73、6.36，error 每步乘 0.9');
+}
+
+// 第 14 站：simulation lemma 的实测与 bound
+function simlemma() {
+  const N = [10, 100, 1000, 10000];
+  const S = [['γ = 0.9 实测', [1.2815, 0.3776, 0.1191, 0.0374], 'ink', ''], ['γ = 0.9 bound', [77.3045, 24.4458, 7.7304, 2.4446], 'ink', 'dash'], ['γ = 0.99 实测', [11.7741, 3.3182, 1.0485, 0.3342], 'ln', ''], ['γ = 0.99 bound', [8503.49, 2689.04, 850.35, 268.9], 'ln', 'ln-dash']];
+  const sx = logx(10, 10000, 70, 420), ly = (v) => lin(-2, 4, 236, 30)(Math.log10(v));
+  let o = '';
+  for (const e of [-2, -1, 0, 1, 2, 3, 4]) o += line(sx(10), ly(10 ** e), sx(10000), ly(10 ** e), 'grid') + text(64, ly(10 ** e) + 4, e === 0 ? '1' : e === 1 ? '10' : '10' + ['⁻²', '⁻¹', '', '', '²', '³', '⁴'][e + 2], 'ts', 'end');
+  for (const v of N) o += line(sx(v), ly(0.01), sx(v), ly(0.01) + 4, 'axis') + text(sx(v), ly(0.01) + 18, String(v), 'ts', 'middle');
+  o += line(sx(10), ly(0.01), sx(10000), ly(0.01), 'axis') + line(sx(10), ly(0.01), sx(10), ly(10000), 'axis');
+  for (const [nm, ys, cls, dcls] of S) {
+    o += path(d(ys.map((y, i) => [sx(N[i]), ly(y)])), dcls || cls);
+    ys.forEach((y, i) => { o += circle(sx(N[i]), ly(y), 3, cls === 'ln' ? 'ln-f' : 'ink-f'); });
+  }
+  o += text(436, ly(8503) + 4, 'γ = 0.99 bound', 'tl') + text(436, ly(77) + 4, 'γ = 0.9 bound', 'tb');
+  o += text(436, ly(11.8) + 4, 'γ = 0.99 实测', 'tl') + text(436, ly(1.28) + 4, 'γ = 0.9 实测', 'tb');
+  o += text(436, 200, '实线：5000 次', 'ts') + text(436, 216, '重复的平均 error', 'ts');
+  o += text(245, 268, '每个 (s, a) 的 sample 数 N（log scale）', 'ts', 'middle') + text(70, 18, '‖' + SP('Q', 'π') + ' − ' + SP('Q̂', 'π') + '‖∞', 'tb');
+  return svg(560, 276, o, 'Log-log 坐标下 simulation lemma 的 bound 与实测 error：四条线 slope 都是负二分之一，bound 比实测高两到三个数量级，gamma 从 0.9 到 0.99 时 bound 乘 110，实测乘 9');
+}
+
+// 第 15 站：DIAYN，4 个 skill 一步步分开（动图）
+function diaynA() {
+  const ds = [0, 0.25, 0.5, 1.0, 1.5, 2.0], I = ['0', '0.116', '0.403', '1.000', '1.295', '1.373'], acc = ['25%', '41%', '58%', '85%', '97%', '99.5%'];
+  const order = [5, 0, 1, 2, 3, 4, 5];
+  const F = frames(order.map((_, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.6 : 1.5)));
+  const U = [[1, 0], [0, 1], [-1, 0], [0, -1]], R = rng(11);
+  const sx = lin(-3.4, 3.4, 30, 300), sy = lin(-3.4, 3.4, 290, 20);
+  let o = rect(30, 20, 270, 270, 'frame') + line(sx(0), 20, sx(0), 290, 'grid') + line(30, sy(0), 300, sy(0), 'grid');
+  for (let z = 0; z < 4; z++) for (let i = 0; i < 40; i++) {
+    const e = [R.n() * 0.5, R.n() * 0.5];
+    const xs = F.vals(order.map((k) => sx(ds[k] * U[z][0] + e[0]))), ys = F.vals(order.map((k) => sy(ds[k] * U[z][1] + e[1])));
+    o += `<circle cx="${f1(xs[0])}" cy="${f1(ys[0])}" r="${z === 0 ? 3 : 2.4}" class="${z === 0 ? 'ln-f' : 'mute-f'}">${anim('cx', xs.map(f1), F.kt, F.T)}${anim('cy', ys.map(f1), F.kt, F.T)}</circle>`;
+  }
+  o += text(sx(2.3), sy(1.75), 'skill 1', 'tl', 'middle');
+  o += atext(330, 60, order.map((k) => `d = ${ds[k]}`), F.kt, F.T, 'tb');
+  o += atext(330, 92, order.map((k) => `I(z; s) = ${I[k]}`), F.kt, F.T, 'tl');
+  o += atext(330, 116, order.map((k) => `discriminator 猜对 ${acc[k]}`), F.kt, F.T, 't');
+  o += text(330, 156, '上限 log 4 = 1.386', 'ts');
+  o += text(330, 196, '每个 skill 的 final state', 'ts') + text(330, 212, '~ N(d · ' + SB('u', 'z') + ', 0.5² I)', 'ts') + text(330, 236, 'reward 的平均', 'ts') + text(330, 252, '= I(z; s)', 'ts');
+  return svgA(560, 300, o, '动图：4 个 skill 的 final state 从原点向四个方向分开，mutual information 从 0 涨到 1.373，接近上限 log 4');
+}
+
+// 第 15 站：Skew-Fit 一轮轮把 goal distribution 推向 uniform（动图）
+function skewA() {
+  const p0 = [0.5, 0.25, 0.15, 0.07, 0.03], its = [p0];
+  for (let k = 1; k <= 6; k++) { const q = its[k - 1].map((v) => Math.sqrt(v)); const z = q.reduce((a, b) => a + b, 0); its.push(q.map((v) => v / z)); }
+  const H = (p) => -p.reduce((s, v) => s + v * Math.log(v), 0);
+  const order = [0, 1, 2, 3, 4, 5, 6];
+  const F = frames(order.map((_, i) => (i === 0 ? 3.2 : i === order.length - 1 ? 2.6 : 1.4)));
+  const by = lin(0, 0.55, 230, 40), bw = 40;
+  let o = line(40, by(0), 330, by(0), 'axis') + line(40, by(0.2), 330, by(0.2), 'ln-dash') + text(334, by(0.2) + 4, 'uniform 0.2', 'tl');
+  for (const v of [0.25, 0.5]) o += text(34, by(v) + 4, String(v), 'ts', 'end');
+  for (let s = 0; s < 5; s++) {
+    const x = 56 + s * 54;
+    o += arect(x, F.vals(order.map((k) => by(its[k][s]))), F.vals(order.map((k) => by(0) - by(its[k][s]))), bw, F.kt, F.T, 'wash-strong');
+    o += rect(x, by(p0[s]), bw, by(0) - by(p0[s]), 'frame');
+    o += text(x + bw / 2, 250, 'state ' + (s + 1), 'ts', 'middle');
+  }
+  o += atext(185, 24, order.map((k) => `第 ${k} 轮`), F.kt, F.T, 'tb', 'middle');
+  // 右：entropy 表
+  o += text(420, 40, '轮', 'tb', 'middle') + text(490, 40, 'entropy', 'tb', 'middle');
+  its.forEach((p, k) => {
+    o += text(420, 62 + k * 22, String(k), 'ts', 'middle') + text(490, 62 + k * 22, H(p).toFixed(3), 'ts', 'middle');
+    o += gshow(rect(392, 48 + k * 22, 140, 20, 'wash', 3) + text(420, 62 + k * 22, String(k), 'tl', 'middle') + text(490, 62 + k * 22, H(p).toFixed(3), 'tl', 'middle'), F, order.map((kk) => kk === k));
+  });
+  o += text(462, 222, 'log 5 = 1.609', 'ts', 'middle');
+  o += text(185, 270, '灰框：第 0 轮见过的 state 的 distribution；α = −1/2，每轮 p ← ' + SP('p', '1/2') + ' / Σ ' + SP('p', '1/2'), 'ts', 'middle');
+  return svgA(560, 278, o, '动图：Skew-Fit 以 alpha 负二分之一一轮轮作用在五个 state 的 distribution 上，常见 state 被压低、罕见 state 被抬高，entropy 从 1.269 涨到 log 5');
+}
+
+// 第 16 站：bit-flipping 的 relabeling
+function her() {
+  const S = ['000', '100', '101', '001'], acts = ['翻第 1 位', '翻第 3 位', '翻第 1 位'];
+  let o = '';
+  const row = (Y, title, goal, rs) => {
+    o += text(20, Y - 30, title, 'tb');
+    S.forEach((s, i) => {
+      const x = 40 + i * 132;
+      o += rect(x, Y - 16, 64, 32, s === goal ? 'solid' : 'paper', 5) + text(x + 32, Y + 6, s, s === goal ? 'tw' : 'tb', 'middle');
+      if (i < 3) {
+        o += arrow(x + 64, Y, x + 132, Y, 'ink');
+        o += text(x + 98, Y - 8, acts[i], 'ts', 'middle') + text(x + 98, Y + 22, 'r = ' + rs[i], rs[i] === '0' ? 'tl' : 'ts', 'middle');
+      }
+    });
+    o += text(40 + 3 * 132 + 76, Y + 6, 'goal ' + goal, goal === '111' ? 'tb' : 'tl', 'start');
+  };
+  row(70, '原来的 goal：111，一次也没到', '111', ['−1', '−1', '−1']);
+  row(170, 'relabel：把终点 001 当成 goal（final）', '001', ['−1', '−1', '0']);
+  o += text(280, 232, 'future strategy 还会挑 101：第二条 transition 在 goal 101 下 reward 为 0', 'ts', 'middle');
+  o += text(280, 250, '涂色的格子是这一行的 goal；relabel 之后的 transition 和原来的一起存进 replay buffer', 'ts', 'middle');
+  return svg(560, 258, o, '3 个 bit 的 bit-flipping：原 goal 111 下三条 transition 的 reward 全是负 1；把终点 001 当 goal 再存一遍，最后一条 transition 的 reward 变成 0');
+}
+
+// 第 16 站：chain 上的 GPI
+function sr() {
+  const rows = [
+    [SB('π', 'R') + '：一直往右', ['→', '→', '→', '→', '→'], [6.905, 6.561, 7.29, 8.1, 9.0], 'ts'],
+    [SB('π', 'L') + '：一直往左', ['←', '←', '←', '←', '←'], [10, 9, 8.1, 7.29, 7.461], 'ts'],
+    ['只用 ' + SB('π', 'R') + ' 改进一步', ['←', '→', '→', '→', '→'], [10, 6.561, 7.29, 8.1, 9.0], 'ts'],
+    ['GPI（= optimal）', ['←', '←', '←', '→', '→'], [10, 9, 8.1, 8.1, 9.0], 'tl'],
+  ];
+  const X0 = 170, W = 74;
+  let o = '';
+  for (let s = 0; s < 5; s++) {
+    o += text(X0 + s * W + W / 2, 24, 'state ' + s, 'tb', 'middle');
+    o += text(X0 + s * W + W / 2, 42, s === 0 ? 'r = 1' : s === 4 ? 'r = 0.9' : 'r = 0', s === 0 || s === 4 ? 'tl' : 'ts', 'middle');
+  }
+  rows.forEach(([nm, acts, vs, cls], j) => {
+    const Y = 64 + j * 50;
+    o += text(X0 - 12, Y + 22, nm, cls === 'tl' ? 'tl' : 'tb', 'end');
+    acts.forEach((a, s) => {
+      const x = X0 + s * W, bad = j === 2 && (s === 1 || s === 2);
+      o += rect(x + 4, Y, W - 8, 40, j === 3 ? 'wash' : bad ? 'wash2' : 'paper', 5);
+      o += text(x + W / 2, Y + 18, a, j === 3 || bad ? 'tl' : 'tb', 'middle') + text(x + W / 2, Y + 34, vs[s].toFixed(vs[s] === 10 || vs[s] === 9 ? 0 : 2), 'ts', 'middle');
+    });
+  });
+  o += text(280, 280, '格子里：选的 action 和从这个 state 出发的 value（γ = 0.9）。灰底是选错方向的 state', 'ts', 'middle');
+  return svg(560, 288, o, 'Chain 上的 generalized policy improvement：两个已学好的 policy 一直往右或一直往左，GPI 对新 reward 在靠左的 state 往左、靠右的 state 往右，和 optimal 一致；只用往右的 policy 改进一步在 state 1、2 上选错');
+}
+
+// 第 16 站：两个 arm 的 meta-RL
+function meta() {
+  let o = '';
+  o += box(20, 108, 110, 48, ['第 1 次：拉 A', 'expected reward 0.5'], 'wash');
+  o += arrow(130, 120, 200, 70, 'ink') + arrow(130, 144, 200, 194, 'ink');
+  o += text(162, 84, '中了', 'tl', 'end') + text(162, 190, '没中', 'tb', 'end');
+  o += box(202, 40, 150, 56, ['P(task 1) = 0.9', '之后 9 次拉 A'], 'paper') + box(202, 166, 150, 56, ['P(task 1) = 0.1', '之后 9 次拉 B'], 'paper');
+  o += arrow(352, 68, 380, 68, 'ink') + arrow(352, 194, 380, 194, 'ink');
+  o += text(386, 64, '1 + 9 × 0.82', 'tb') + text(386, 82, '= 8.38', 'ts');
+  o += text(386, 190, '0 + 9 × 0.5', 'tb') + text(386, 208, '= 4.5', 'ts');
+  o += text(280, 254, '先拉一次 A：½ × 8.38 + ½ × 4.5 = 6.44；Bayes-optimal 6.556；不看历史的 policy 10 × 0.5 = 5.0', 'tb', 'middle');
+  o += text(280, 274, 'Task 1：A 以 0.9 给 1；task 2：A 以 0.1 给 1；B 总是 0.5。每个 task 拉 10 次', 'ts', 'middle');
+  return svg(560, 282, o, '两个 arm 的 meta-RL：先拉一次 arm A，中了就继续拉 A，没中就改拉 B，10 次的期望总 reward 是 6.44，不看历史的 policy 只有 5.0');
+}
+
+// 第 17 站：三种流程
+function pipeline() {
+  let o = '';
+  const row = (Y, title, items, last) => {
+    o += text(20, Y - 22, title, 'tb');
+    items.forEach((it_, i) => {
+      const x = 30 + i * 176;
+      o += box(x, Y - 6, 136, 40, [it_], i === items.length - 1 ? last : 'paper');
+      if (i < items.length - 1) o += arrow(x + 136, Y + 14, x + 176, Y + 14, 'ink');
+    });
+  };
+  row(52, '传统的控制工程', ['characterize', 'simulate', '人设计 controller'], 'wash2');
+  row(142, 'RL 作为工程工具：能 simulate 就能 control', ['characterize', 'simulate', 'run RL'], 'wash');
+  o += text(20, 210, 'RL 在真实世界里：the real world simulates itself', 'tb');
+  o += box(30, 226, 136, 40, ['真实世界'], 'paper') + box(382, 226, 136, 40, ['RL agent'], 'wash');
+  o += arrow(166, 238, 382, 238, 'ink') + arrow(382, 256, 166, 256, 'ink');
+  o += text(274, 232, 'observation、reward（1× 真实时间）', 'ts', 'middle') + text(274, 274, 'action（失败的代价是真的）', 'ts', 'middle');
+  return svg(560, 284, o, 'Lecture 25 的三种流程：传统控制工程、在 simulator 里 run RL、以及直接在真实世界里学');
+}
+
 export default {
   'cs285-pgbatch': pgbatchA,
   'cs285-grpo': grpoA,
@@ -564,4 +1055,22 @@ export default {
   'cs285-ood': oodA,
   'cs285-expectile': expectile,
   'cs285-cql': cql,
+  'cs285-roadA': roadA,
+  'cs285-smooth': smooth,
+  'cs285-anatomy': anatomy,
+  'cs285-elbo': elbo,
+  'cs285-cvae': cvae,
+  'cs285-cigarA': cigarA,
+  'cs285-optimism': optimism,
+  'cs285-irlA': irlA,
+  'cs285-lockA': lockA,
+  'cs285-rnd': rnd,
+  'cs285-contractA': contractA,
+  'cs285-simlemma': simlemma,
+  'cs285-diaynA': diaynA,
+  'cs285-skewA': skewA,
+  'cs285-her': her,
+  'cs285-sr': sr,
+  'cs285-meta': meta,
+  'cs285-pipeline': pipeline,
 };

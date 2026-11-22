@@ -1,4 +1,4 @@
-import { svg, svgA, anim, animRot, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, animRot, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 const R = Math.PI / 180;
 const fk2 = (t1, t2) => [Math.cos(t1) + Math.cos(t1 + t2), Math.sin(t1) + Math.sin(t1 + t2)];
@@ -182,10 +182,10 @@ function ik2() {
   o += arm([[0, 0], [Math.cos(30 * R), Math.sin(30 * R)], tip], P, 'ln', 4);
   o += arm([[0, 0], [Math.cos(120 * R), Math.sin(120 * R)], tip], P, 'ink-b', 4);
   const e1 = P([Math.cos(30 * R), Math.sin(30 * R)]), e2 = P([Math.cos(120 * R), Math.sin(120 * R)]);
-  o += text(e1[0] + 10, e1[1] + 4, 'elbow-up：(30°, 90°)', 'tl') + text(e2[0] - 10, e2[1] + 4, 'elbow-down：(120°, −90°)', 'tb', 'end');
+  o += text(e1[0] + 10, e1[1] + 4, 'righty：(30°, 90°)', 'tl') + text(e2[0] - 10, e2[1] + 4, 'lefty：(120°, −90°)', 'tb', 'end');
   o += text(P(tip)[0] + 10, P(tip)[1] - 4, '目标 (0.366, 1.366)', 't');
   o += text(O[0], O[1] + 20, 'base', 'ts', 'middle');
-  return svg(560, 262, o, '同一个目标点的两组 IK solution：elbow-up 是 30 度、90 度，elbow-down 是 120 度、负 90 度，两条 arm 关于 base 到目标的连线对称');
+  return svg(560, 262, o, '同一个目标点的两组 IK solution：righty 是 30 度、90 度，lefty 是 120 度、负 90 度，两条 arm 关于 base 到目标的连线对称');
 }
 
 // 第 5 站：Newton IK 的 basin of attraction
@@ -225,8 +225,8 @@ function basin() {
   mark(30, 90, 'A', 'paper', 9, -6, 'start'); mark(120, -90, 'B', 'paper', 9, -6, 'start');
   mark(20, 60, '1', 'ink-f', 8, 14, 'start'); mark(0, 30, '2', 'ink-f', -8, 14, 'end'); mark(0, 45, '3', 'ink-f', -8, -4, 'end');
   const X = 392;
-  o += rect(X, 40, 16, 16, 'wash-strong') + text(X + 24, 53, '→ A：elbow-up', 't');
-  o += rect(X, 66, 16, 16, 'band-n') + text(X + 24, 79, '→ B：elbow-down', 't');
+  o += rect(X, 40, 16, 16, 'wash-strong') + text(X + 24, 53, '→ A：righty', 't');
+  o += rect(X, 66, 16, 16, 'band-n') + text(X + 24, 79, '→ B：lefty', 't');
   o += rect(X, 92, 16, 16, 'paper') + text(X + 24, 105, '40 步内没有 converge', 't');
   o += text(X, 140, '1 = (20°, 60°)：5 步到 A', 'ts') + text(X, 158, '2 = (0°, 30°)：落到 B', 'ts') + text(X, 176, '3 = (0°, 45°)：不 converge', 'ts');
   o += text(X, 210, '目标 (0.366, 1.366)，', 'ts') + text(X, 226, '只给 position', 'ts');
@@ -459,7 +459,7 @@ function ikjump() {
   o += text(e1[0] + 8, e1[1] + 18, 'polar 39.5° → (−5.5°, 90°)', 't', 'start');
   o += text(e2[0] - 4, e2[1] - 12, 'polar 40° → (85°, −90°)', 'tl', 'start');
   o += circle(...P([0, 0]), 5, 'paper') + text(P([0, 0])[0], P([0, 0])[1] + 22, 'base', 'ts', 'middle');
-  o += text(280, 258, '同一个 seed 出发做 Newton IK：目标挪了一点，解从 elbow-up 跳到 elbow-down。', 'ts', 'middle');
+  o += text(280, 258, '同一个 seed 出发做 Newton IK：目标挪了一点，解从 righty 跳到 lefty。', 'ts', 'middle');
   return svg(560, 270, o, 'radius 根号 2 的 arc 上两个相距 1.2 cm 的目标，从同一个 seed 做 Newton IK 得到两组完全不同的 joint angle');
 }
 
@@ -613,7 +613,7 @@ function ikjumpA() {
   });
   o += `<text x="${X}" y="${172}" class="tl" text-anchor="start">目标只挪了 1.2 cm，arm 整个翻过去${ashow(flip, kt, T)}</text>`;
   o += text(X, 206, '每个目标都从同一个 seed 做 Newton IK。', 'ts', 'start') + text(X, 224, '39.5° 和 40° 之间，结果在两组解和', 'ts', 'start') + text(X, 242, '不 converge 之间来回跳（第 5 站）。', 'ts', 'start');
-  return svgA(600, 262, o, '动图：目标沿 radius 根号 2 的 arc 从 30 度走到 39.5 度，Newton IK 一直给出 elbow-up 的解；目标再挪到 40 度（只差 1.2 cm），arm 突然翻成 elbow-down');
+  return svgA(600, 262, o, '动图：目标沿 radius 根号 2 的 arc 从 30 度走到 39.5 度，Newton IK 一直给出 righty（θ2 为正）的解；目标再挪到 40 度（只差 1.2 cm），arm 突然翻成 lefty');
 }
 
 // ---------- 第 1 站 :::wrong：quaternion 中点走哪条路 ----------
@@ -709,12 +709,51 @@ function via() {
   return svg(560, 296, o, '同一组 via point，两种 via velocity：45 度每秒时 acceleration 在 1 秒处跳 180；67.5 度每秒时连续');
 }
 
+// ---------- 第 2 站：Example 3.19 的 frame 圈（示意） ----------
+function loop() {
+  let o = '';
+  const T = (s) => 'T' + sub(s);
+  o += line(40, 26, 540, 26, 'ink') + line(40, 262, 540, 262, 'ink');
+  // camera {d}：挂在天花板上
+  o += line(150, 26, 150, 32, 'ink') + rect(130, 32, 40, 20, 'paper', 3) + rect(143, 52, 14, 6, 'paper', 1);
+  o += text(122, 47, '{d} camera', 'tb', 'end');
+  // fixed frame {a}
+  const A = [500, 98];
+  o += arrow(A[0], A[1], A[0] + 30, A[1], 'ink') + arrow(A[0], A[1], A[0], A[1] - 30, 'ink') + circle(A[0], A[1], 3, 'ink-f');
+  o += text(A[0], A[1] + 20, '{a} fixed frame', 'tb', 'middle');
+  // platform {b}
+  o += rect(110, 218, 120, 26, 'paper', 4) + circle(135, 252, 9, 'paper') + circle(205, 252, 9, 'paper') + circle(150, 218, 3, 'ink-f');
+  o += text(170, 284, '{b} platform', 'tb', 'middle');
+  // arm 与 gripper {c}
+  const B0 = [200, 218], E = [260, 150], G = [350, 190];
+  o += path(d([B0, E, G]), 'ink-b') + circle(...B0, 4.5, 'paper') + circle(...E, 4, 'paper');
+  const ux = (G[0] - E[0]) / Math.hypot(G[0] - E[0], G[1] - E[1]), uy = (G[1] - E[1]) / Math.hypot(G[0] - E[0], G[1] - E[1]);
+  const nx = -uy, ny = ux;
+  for (const sgn of [1, -1]) { const b = [G[0] + sgn * 7 * nx, G[1] + sgn * 7 * ny]; o += line(G[0] + sgn * 7 * nx - 3 * ux, G[1] + sgn * 7 * ny - 3 * uy, b[0] + 12 * ux, b[1] + 12 * uy, 'ink-b'); }
+  o += line(G[0] + 7 * nx - 3 * ux, G[1] + 7 * ny - 3 * uy, G[0] - 7 * nx - 3 * ux, G[1] - 7 * ny - 3 * uy, 'ink-b');
+  o += text(340, 214, '{c} gripper', 'tb', 'end');
+  // 物体 {e}
+  o += rect(448, 236, 36, 26, 'solid2', 2);
+  o += text(466, 284, '{e} 物体', 'tb', 'middle');
+  // 已知的四段
+  o += arrow(492, 92, 174, 42, 'ink') + text(330, 50, T('ad') + '：事先标定', 't', 'middle');
+  o += arrow(150, 60, 150, 214, 'ink') + text(142, 140, T('db') + '：camera 测', 't', 'end');
+  o += arrow(166, 60, 462, 232, 'ink') + text(262, 92, T('de') + '：camera 测', 't', 'start');
+  o += text(242, 234, T('bc') + '：由 joint angle 算', 't', 'start');
+  // 要求的 T_ce
+  const c0 = [364, 198], c1 = [444, 236], L = Math.hypot(c1[0] - c0[0], c1[1] - c0[1]);
+  o += line(...c0, c1[0] - 6 * (c1[0] - c0[0]) / L, c1[1] - 6 * (c1[1] - c0[1]) / L, 'ln-dash') + arrow(c1[0] - 10 * (c1[0] - c0[0]) / L, c1[1] - 10 * (c1[1] - c0[1]) / L, ...c1, 'ln');
+  o += text(436, 256, T('ce') + ' = ?', 'tl', 'end');
+  return svg(560, 296, o, '示意图：天花板上的 camera d、fixed frame a、带轮 platform b 上的 arm、gripper c 和地上的物体 e。已知 T_ad、T_db、T_de 和 T_bc，要求 gripper 到物体的 T_ce');
+}
+
 export default {
   'rb2202-pitch88': pitch88A,
   'rb2202-stretch': stretchA,
   'rb2202-ikjump': ikjumpA,
   'rb2202-slerpsign': slerpsign,
   'rb2202-tfmove': tfmove,
+  'rb2202-loop': loop,
   'rb2202-statics': statics,
   'rb2202-via': via,
   'rb2202-frame': frame,

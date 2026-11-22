@@ -408,6 +408,227 @@ function selective() {
   return svg(560, 330, o, 'McCombs 与 Shaw 1972 年 Table 3 的 24 对 correlation 的散点图：' + above + ' 对在对角线以上，' + tie + ' 对相等，' + below + ' 对在以下');
 }
 
+// ---------- 第 3 站：Garfinkel 式的 breaching experiment（tic-tac-toe） ----------
+function breach() {
+  let o = '';
+  const S = 40;
+  const board = (x0, y0, title, sub) => {
+    o += text(x0 + 1.5 * S, y0 - 30, title, 'tb', 'middle') + text(x0 + 1.5 * S, y0 - 13, sub, 'ts', 'middle');
+    for (let k = 1; k <= 2; k++) o += line(x0 + k * S, y0, x0 + k * S, y0 + 3 * S, 'ink-b') + line(x0, y0 + k * S, x0 + 3 * S, y0 + k * S, 'ink-b');
+    const X = (cx, cy, cls) => { o += line(cx - 11, cy - 11, cx + 11, cy + 11, cls) + line(cx - 11, cy + 11, cx + 11, cy - 11, cls); };
+    const O = (cx, cy) => { o += circle(cx, cy, 12, 'ink'); };
+    const c = (i) => x0 + (i + 0.5) * S, r = (j) => y0 + (j + 0.5) * S;
+    O(c(0), r(0)); X(c(1), r(1), 'ink'); O(c(2), r(0));
+    return { X, c, r };
+  };
+  const L = board(40, 60, '对手预期的一步', 'X 画进一个空格');
+  L.X(L.c(1), L.r(0), 'ln');
+  const R = board(250, 60, '实验者走的一步', 'X 画在两条格线的交点上');
+  R.X(250 + 2 * S, 60 + S, 'ln');
+  o += circle(250 + 2 * S, 60 + S, 19, 'ln-dash');
+  // 右栏：对手的反应
+  const X = 440;
+  o += text(X, 72, '对手的反应', 'tb');
+  o += text(X, 94, '困惑，甚至生气：', 'ts') + text(X, 110, '“你这是干什么？”', 'ts');
+  o += text(X, 142, '规则书里没有一条', 'ts') + text(X, 158, '写着 X 必须画进格子', 'ts');
+  o += text(X, 190, 'Sanction 出现了，', 'tl') + text(X, 206, 'norm 才被看见', 'tl');
+  o += line(422, 40, 422, 214, 'grid');
+  return svg(560, 222, o, '两个 tic-tac-toe 棋盘：左边 X 画在一个空格里，是对手预期的一步；右边 X 画在两条格线的交点上，规则里没有禁止，对手却困惑甚至生气');
+}
+
+// ---------- 第 3 站：在家最常说的语言，2010 与 2020（动图） ----------
+// Census of Population 2020 Statistical Release 1，Key Indicators 与 Chart 4.5
+const HOMELANG = [
+  ['Chinese', [['English', 32.6, 47.6, 'solid'], ['Mandarin', 47.7, 40.2, 'wash-strong'], ['dialects', 19.2, 11.8, 'wash'], ['', 0.5, 0.4, 'wash2']]],
+  ['Malay', [['English', 17.0, 39.0, 'solid'], ['Malay', 82.7, 60.7, 'wash-strong'], ['', 0.3, 0.3, 'wash2']]],
+  ['Indian', [['English', 41.6, 59.2, 'solid'], ['Tamil', 36.7, 27.4, 'wash-strong'], ['其他', 21.7, 13.4, 'wash2']]],
+];
+function homelangA() {
+  const sx = lin(0, 100, 100, 540);
+  const hold = 2.8, move = 1.4, T = 2 * hold + 2 * move;
+  const kt = [0, hold / T, (hold + move) / T, (2 * hold + move) / T, 1];
+  // 文字的切换时刻放在移动的中点
+  const ktT = [0, (hold + move / 2) / T, (2 * hold + 1.5 * move) / T, 1];
+  let o = '';
+  o += `<text x="100" y="22" class="tbig" text-anchor="start">2010${ashow([true, false, true, true].map((v, i) => i !== 1), ktT, T)}</text>`;
+  o += `<text x="100" y="22" class="tbig" text-anchor="start" opacity="0">2020${ashow([false, true, false, false], ktT, T)}</text>`;
+  o += text(180, 20, '5 岁以上 resident，在家最常说哪种语言', 'ts');
+  HOMELANG.forEach(([g, segs], i) => {
+    const y = 48 + i * 62;
+    o += text(90, y + 21, g, 'tb', 'end');
+    let a10 = 0, a20 = 0;
+    for (const [lab, v10, v20, cls] of segs) {
+      const xs = [a10, a10, a20, a20, a10].map((v) => f1(sx(v)));
+      const ws = [v10, v10, v20, v20, v10].map((v) => f1(sx(v) - sx(0)));
+      o += `<rect x="${xs[0]}" y="${y}" width="${ws[0]}" height="32" class="${cls}">${anim('x', xs, kt, T)}${anim('width', ws, kt, T)}</rect>`;
+      const tcls = cls === 'solid' ? 'tw' : 't';
+      const lt = (v, a, on, first) => (v >= 9 ? `<text x="${f1(sx(a + v / 2))}" y="${y + 14}" class="${tcls}" text-anchor="middle"${first ? '' : ' opacity="0"'}>${lab}${ashow(on, ktT, T)}</text><text x="${f1(sx(a + v / 2))}" y="${y + 27}" class="${tcls}" text-anchor="middle"${first ? '' : ' opacity="0"'}>${v.toFixed(1)}%${ashow(on, ktT, T)}</text>` : '');
+      o += lt(v10, a10, [true, false, true, true], true) + lt(v20, a20, [false, true, false, false], false);
+      a10 += v10; a20 += v20;
+    }
+    // 2020 年 English 的位置，静态时也看得见
+    const e20 = segs[0][2];
+    o += line(sx(e20), y - 9, sx(e20), y - 1, 'ln') + line(sx(e20), y + 33, sx(e20), y + 41, 'ln') + text(sx(e20) + 5, y - 4, '2020：' + e20.toFixed(1) + '%', 'ts');
+  });
+  o += text(100, 246, '全体 resident：English 32.3% → 48.3%。条上下的短线标出 2020 年 English 到达的位置。', 'ts');
+  o += text(100, 263, '最常说 English 的人里，超过 80% 在家也说一种 vernacular language。', 'ts');
+  return svgA(560, 270, o, '动图：Chinese、Malay、Indian 三组 resident 在家最常说的语言，从 2010 年变到 2020 年。English 的份额分别从 32.6% 到 47.6%、17.0% 到 39.0%、41.6% 到 59.2%');
+}
+
+// ---------- 第 9 站：citizen 的 age structure，往前走五年（动图） ----------
+// Population in Brief 2025，附表 2（2025 年 6 月，千人）
+const PIB_M = [81.3, 93.6, 95.2, 96.8, 103.3, 119.8, 131.7, 125.2, 117.3, 112.6, 122.6, 122.3, 134.2, 126.3, 98.4, 67.3, 30.3, 17.6, 8.3];
+const PIB_F = [76.8, 89.3, 89.8, 92.3, 96.3, 110.7, 125.9, 125.0, 122.0, 121.0, 131.0, 129.3, 138.2, 132.5, 107.5, 80.2, 41.8, 28.4, 18.4];
+const PIB_T = [158.1, 182.9, 185.0, 189.1, 199.5, 230.5, 257.5, 250.2, 239.3, 233.6, 253.6, 251.7, 272.4, 258.8, 205.9, 147.5, 72.1, 46.1, 26.7];
+const AGES = ['0–4', '5–9', '10–14', '15–19', '20–24', '25–29', '30–34', '35–39', '40–44', '45–49', '50–54', '55–59', '60–64', '65–69', '70–74', '75–79', '80–84', '85–89', '90+'];
+function pyramidA() {
+  const n = AGES.length, RH = 13, Y0 = 40, CX = 190, G = 22;
+  const yRow = (i) => Y0 + (n - 1 - i) * RH; // i=0 在最下面
+  const sw = lin(0, 140, 0, 125);
+  const hold = 3.2, move = 1.8, T = 2 * hold + move;
+  const kt = [0, hold / T, (hold + move) / T, 1];
+  const show25 = [true, false, false], show30 = [false, true, true];
+  const ktS = [0, (hold + move * 0.5) / T, 1];
+  const tot = PIB_T;
+  const sum = (a, b) => tot.slice(a, b).reduce((s, v) => s + v, 0);
+  const w25 = sum(4, 13), o25 = sum(13, n), w30 = sum(3, 12), o30 = sum(12, n);
+  let o = '';
+  o += text(CX, 16, '2025 年 6 月的 citizen（千人）', 'tb', 'middle');
+  o += text(CX - G - 4, 32, 'Men', 'ts', 'end') + text(CX + G + 4, 32, 'Women', 'ts', 'start');
+  for (let i = 0; i < n; i++) o += text(CX, yRow(i) + 10, AGES[i], 'ts', 'middle');
+  // 65 岁的线
+  const y65 = yRow(13) + RH;
+  o += line(CX - G - 128, y65, CX + G + 128, y65, 'dash') + text(CX - G - 130, y65 - 3, '65 岁', 'ts', 'end');
+  const y20 = yRow(4) + RH;
+  o += line(CX - G - 128, y20, CX + G + 128, y20, 'grid') + text(CX - G - 130, y20 - 3, '20 岁', 'ts', 'end');
+  for (let i = 0; i < n; i++) {
+    const cls = i === 12 ? 'solid' : i >= 13 ? 'band-n' : i >= 4 ? 'wash-strong' : 'wash';
+    const ys = [yRow(i), yRow(i), yRow(Math.min(i + 1, n - 1)), yRow(Math.min(i + 1, n - 1))].map((v) => f1(v + 1));
+    for (const [arr, side] of [[PIB_M, -1], [PIB_F, 1]]) {
+      let v0 = arr[i], v1 = arr[i];
+      if (i === n - 2) v1 = arr[i] + arr[i + 1]; // 85–89 走进 90+，与原来的 90+ 合并（不计死亡）
+      const ws = [v0, v0, v1, v1].map((v) => f1(sw(v)));
+      const xs = side < 0 ? [v0, v0, v1, v1].map((v) => f1(CX - G - sw(v))) : [CX + G, CX + G, CX + G, CX + G].map(f1);
+      const op = i === n - 1 ? `opacity="1"` : '';
+      o += `<rect x="${xs[0]}" y="${ys[0]}" width="${ws[0]}" height="${RH - 2}" class="${cls}" ${op}>${anim('y', ys, kt, T)}${anim('width', ws, kt, T)}${side < 0 ? anim('x', xs, kt, T) : ''}${i === n - 1 ? anim('opacity', [1, 1, 0, 0], kt, T, true) : ''}</rect>`;
+    }
+  }
+  // 2030 年 0–4 岁那一格：还没出生
+  o += `<g opacity="0">${rect(CX - G - 80, yRow(0) + 1, 80, RH - 2, 'dash')}${rect(CX + G, yRow(0) + 1, 80, RH - 2, 'dash')}${text(CX - G - 86, yRow(0) + 10, '2025–30 年出生', 'ts', 'end')}${ashow(show30, ktS, T)}</g>`;
+  // 右栏
+  const X = 384;
+  o += `<text x="${X}" y="60" class="tl">2025 年${ashow(show25, ktS, T)}</text>`;
+  o += `<g opacity="0"><text x="${X}" y="60" class="tl">五年之后</text><text x="${X + 64}" y="60" class="ts">不计死亡与新 citizen</text>${ashow(show30, ktS, T)}</g>`;
+  const panel = (w, ov, on, first) => {
+    const op = first ? '' : ' opacity="0"';
+    const sh = ashow(on, ktS, T);
+    return `<g${op}>${text(X, 88, '20–64 岁：' + w.toFixed(1), 't')}${text(X, 108, '65 岁以上：' + ov.toFixed(1), 't')}${text(X, 134, 'OASR = ' + w.toFixed(1) + ' ÷ ' + ov.toFixed(1), 't')}${text(X, 156, '= ' + (w / ov).toFixed(2), 'tbig')}${sh}</g>`;
+  };
+  o += panel(w25, o25, show25, true);
+  o += panel(w30, o30, show30, false);
+  o += text(X, 196, '深色一格是 60–64 岁：', 'ts') + text(X, 212, '272.4 千人，全表最大，', 'ts') + text(X, 228, '五年之内全部越过 65 岁', 'ts');
+  o += text(X, 258, '官方 projection（2030）：2.4', 'ts') + text(X, 274, '死亡和新 citizen 都把比往上推', 'ts');
+  return svgA(560, Y0 + n * RH + 14, o, '动图：2025 年 Singapore citizen 的 age pyramid，每一格往上移一格代表五年过去。OASR 从 2188.3 除以 757.1 等于 2.89，变成 2105.0 除以 1029.5 等于 2.04（不计死亡与新 citizen）');
+}
+
+// ---------- 第 9 站：age effect 还是 cohort effect ----------
+// Census 2020 SR1 Chart 4.6：Chinese resident 在家最常说 English 的比例
+const ENG_CH = { y2010: [51.9, 40.7, 29.4, 34.4, 31.5, 19.2], y2020: [77.4, 69.2, 53.7, 48.4, 43.9, 29.0] };
+function cohort() {
+  const lab = ['5–14', '15–24', '25–34', '35–44', '45–54', '55+'];
+  const sx = (k) => 80 + k * 80, sy = lin(0, 80, 270, 40);
+  let o = axes({ sx: lin(0, 5, 80, 480), sy, x0: 0, x1: 5, y0: 0, y1: 80, xt: lab.map((l, k) => [k, l]), yt: [0, 20, 40, 60, 80].map((v) => [v, v + '%']), xl: '当年的 age group', grid: true });
+  o += text(40, 22, 'Chinese resident 在家最常说 English 的比例', 'tb');
+  o += path(d(ENG_CH.y2010.map((v, k) => [sx(k), sy(v)])), 'mute') + path(d(ENG_CH.y2020.map((v, k) => [sx(k), sy(v)])), 'ln');
+  // 同一批人：2010 年第 k 组 → 2020 年第 k+1 组
+  for (let k = 0; k < 4; k++) {
+    const x1 = sx(k), y1 = sy(ENG_CH.y2010[k]), x2 = sx(k + 1), y2 = sy(ENG_CH.y2020[k + 1]);
+    const a = Math.atan2(y2 - y1, x2 - x1), r = 7;
+    o += arrow(x1 + r * Math.cos(a), y1 + r * Math.sin(a), x2 - r * Math.cos(a), y2 - r * Math.sin(a), 'ink', 6);
+  }
+  ENG_CH.y2010.forEach((v, k) => { o += circle(sx(k), sy(v), 4, 'paper') + text(sx(k), sy(v) + 18, v.toFixed(1), 'ts', 'middle'); });
+  ENG_CH.y2020.forEach((v, k) => { o += circle(sx(k), sy(v), 4.5, 'ln-f') + text(sx(k) + (k === 0 ? 10 : 0), sy(v) - 10, v.toFixed(1), 'tl', k === 0 ? 'start' : 'middle'); });
+  o += text(480, 70, '2020 年', 'tl', 'end') + text(118, 164, '2010 年', 'ts', 'middle');
+  o += text(290, 330, '箭头连起同一批人：十年后每一批都更常说 English，没有一批随着变老而减少', 'ts', 'middle');
+  return svg(560, 338, o, '两条折线：2010 年与 2020 年 Chinese resident 按 age group 在家最常说 English 的比例；箭头把 2010 年的每个 age group 连到 2020 年大十岁的那一组，每一支箭头都向上');
+}
+
+// ---------- 第 9 站：Singapore 按 age 分配的规则 ----------
+function agerules() {
+  const sx = lin(0, 80, 30, 540), Y = 118;
+  let o = '';
+  o += line(sx(0), Y, sx(80), Y, 'ink-b');
+  for (let a = 0; a <= 80; a += 10) o += line(sx(a), Y - 4, sx(a), Y + 4, 'axis') + text(sx(a), Y + 20, String(a), 'ts', 'middle');
+  // CPF 的两个 band（2026 年起）
+  o += rect(sx(55), Y - 16, sx(60) - sx(55), 12, 'wash-strong') + rect(sx(60), Y - 16, sx(65) - sx(60), 12, 'wash');
+  // 上方：住房与 CPF
+  const up = (a, y, l1, l2, cls = 'ts') => { o += line(sx(a), Y - 6, sx(a), y + 6, 'mute') + text(sx(a), y - 12, l1, 'tb', 'middle') + text(sx(a), y + 2, l2, cls, 'middle'); };
+  up(21, 66, '21', 'HDB：couple 可以申请');
+  up(35, 26, '35', 'HDB：单身可以申请');
+  o += text(sx(60), 50, 'CPF total rate（2026 年起）', 'tb', 'middle') + text(sx(57.5), 70, '55–60：34%', 'ts', 'middle') + text(sx(62.5), 88, '60–65：25%', 'ts', 'middle');
+  // 下方：retirement 与 re-employment
+  const dn = (a0, a1, y, l1, l2) => {
+    o += line(sx(a0), Y + 26, sx(a0), y - 14, 'mute') + circle(sx(a0), Y, 4, 'paper');
+    o += circle(sx(a1), Y, 4.5, 'ln-f');
+    o += text(sx(a0) - 6, y + 12, l1, 'tb', 'end') + text(sx(a0) - 6, y + 27, l2, 'ts', 'end');
+  };
+  dn(63, 64, 170, 'Retirement age 63 → 64', '之前不得因 age 解雇');
+  dn(68, 69, 222, 'Re-employment age 68 → 69', '雇主须提供 re-employment 到这一年');
+  o += text(sx(80), 268, '空心点是 2022 年起的规定，实心点是 2026 年起；目标是 2030 年 65 与 70', 'ts', 'end');
+  o += line(sx(65), Y - 2, sx(65), Y + 2, 'ink');
+  return svg(560, 276, o, '一条 0 到 80 岁的 age 轴：21 岁 couple 可申请 HDB，35 岁单身可申请；CPF 55 到 60 岁 total rate 34%，60 到 65 岁 25%；retirement age 从 63 到 64，re-employment age 从 68 到 69');
+}
+
+// ---------- 第 12 站：Hall 的 encoding/decoding ----------
+function hall() {
+  let o = '';
+  o += rect(10, 30, 150, 110, 'paper', 8) + text(85, 52, 'Encoding', 'tb', 'middle');
+  o += text(85, 72, '编辑、记者的', 'ts', 'middle') + text(85, 87, 'professional routine、', 'ts', 'middle') + text(85, 102, '对 audience 的假设', 'ts', 'middle') + text(85, 124, 'Preferred reading', 'tl', 'middle');
+  o += arrow(162, 85, 196, 85, 'ink', 6);
+  o += rect(198, 44, 150, 82, 'wash', 8) + text(273, 64, '同一条新闻', 'tb', 'middle') + text(273, 86, '“为了 national interest，', 'ts', 'middle') + text(273, 102, '今年的 wage 增长', 'ts', 'middle') + text(273, 118, '要放缓”', 'ts', 'middle');
+  const rd = [['Dominant-hegemonic', '照着 preferred reading 读：', '“国家要紧，应该放缓”', 18], ['Negotiated', '大道理接受，局部另立规则：', '“道理对，我们这一行例外”', 100], ['Oppositional', 'national interest 一律读成', 'class interest', 182]];
+  for (const [t, l1, l2, y] of rd) {
+    o += arrow(350, 85, 384, y + 30, 'mute', 6);
+    o += rect(386, y, 166, 64, 'paper', 6) + text(394, y + 19, t, 'tb') + text(394, y + 37, l1, 'ts') + text(394, y + 54, l2, 'ts');
+  }
+  o += text(180, 176, 'Decoding：audience 用自己的 code 读', 'tb', 'middle');
+  o += text(180, 196, '编码与解码的 code 不必对称，', 'ts', 'middle') + text(180, 212, '没有哪一个 moment 能保证下一个', 'ts', 'middle');
+  o += text(180, 240, '例子里的新闻是这一页造的；', 'ts', 'middle') + text(180, 256, 'oppositional 的读法是 Hall 自己的例子', 'ts', 'middle');
+  return svg(560, 262, o, 'Hall 的 encoding/decoding：production 一端按 professional routine 编码出 preferred reading；同一条新闻被三种 audience 分别以 dominant-hegemonic、negotiated、oppositional 的方式解码');
+}
+
+// ---------- 第 12 站：Distinction Table 1 ----------
+// [label, N, Blue Danube, Well-Tempered Clavier]
+const DIST = {
+  middle: [['None、CEP、CAP', 243, 64.0, 1.5], ['BEPC、bac', 289, 31.0, 5.0], ['Higher education', 46, 3.0, 21.0]],
+  bac: [['Middle', 289, 31.0, 5.0], ['Upper', 107, 14.0, 3.0]],
+  higher: [['Middle', 46, 3.0, 21.0], ['Upper', 325, 16.5, 19.0]],
+};
+function distinction() {
+  let o = '';
+  const sw = lin(0, 70, 0, 150);
+  const bars = (x0, y0, rows) => {
+    rows.forEach(([lab, n, bd, wtc], i) => {
+      const y = y0 + i * 46;
+      o += text(x0 + 104, y + 12, lab, 't', 'end') + text(x0 + 104, y + 27, 'N = ' + n, 'ts', 'end');
+      o += rect(x0 + 112, y, sw(bd), 15, 'wash-strong') + text(x0 + 116 + sw(bd), y + 12, bd.toFixed(1), 'ts');
+      o += rect(x0 + 112, y + 17, sw(wtc), 15, 'solid') + text(x0 + 116 + sw(wtc), y + 29, wtc.toFixed(1), 'tl');
+    });
+  };
+  o += text(10, 18, 'Class 不变（middle class），education 变', 'tb');
+  bars(0, 34, DIST.middle);
+  o += line(282, 8, 282, 238, 'grid');
+  o += text(292, 18, 'Education 不变，class 变', 'tb');
+  o += text(292, 40, 'BEPC、bac', 'ts');
+  bars(282, 48, DIST.bac);
+  o += text(292, 152, 'Higher education', 'ts');
+  bars(282, 160, DIST.higher);
+  o += rect(10, 196, 14, 10, 'wash-strong') + text(30, 205, 'Blue Danube（popular taste）', 'ts');
+  o += rect(10, 216, 14, 10, 'solid') + text(30, 225, 'Well-Tempered Clavier（legitimate taste）', 'ts');
+  o += text(10, 252, '数字：每 100 人里把这首曲子列进最喜欢的三首的人数', 'ts');
+  return svg(560, 260, o, 'Bourdieu Distinction Table 1 的两组比较：middle class 里 education 从低到高，Blue Danube 从 64 降到 3，Well-Tempered Clavier 从 1.5 升到 21；同样 education 下 middle 与 upper class 的差别小，方向也不一致');
+}
+
 export default {
   'sc1101e-suicide': suicide,
   'sc1101e-frame': frame,
@@ -422,4 +643,11 @@ export default {
   'sc1101e-correll': correll,
   'sc1101e-agenda': agenda,
   'sc1101e-selective': selective,
+  'sc1101e-breach': breach,
+  'sc1101e-homelangA': homelangA,
+  'sc1101e-pyramidA': pyramidA,
+  'sc1101e-cohort': cohort,
+  'sc1101e-agerules': agerules,
+  'sc1101e-hall': hall,
+  'sc1101e-distinction': distinction,
 };

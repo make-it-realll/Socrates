@@ -413,6 +413,56 @@ function twoway() {
 }
 
 
+// 第 5 站：variance 随 x 变大时，OLS 与 WLS（weight 1/x²）的两条 line
+function wls() {
+  const x = [1, 2, 3, 4, 5], y = [5.2, 7.2, 11.9, 14.6, 15.0];
+  const o1 = slr(x, y);
+  // WLS = 对 (1/x, y/x) 做 SLR：slope 是 β0，intercept 是 β1
+  const t = slr(x.map((v) => 1 / v), y.map((v, i) => v / x[i]));
+  const w0 = t.b1, w1 = t.b0;
+  const sx = lin(0.4, 5.6, 60, 360), sy = lin(0, 30, 262, 24);
+  let o = axes({ sx, sy, x0: 0.4, x1: 5.6, y0: 0, y1: 30, xt: [1, 2, 3, 4, 5], yt: [0, 10, 20, 30], xl: 'x', yl: 'y', grid: true });
+  // 真实的 noise 宽度 ±2σx（σ = 1）
+  x.forEach((v) => { const m = 2 + 3 * v; o += rect(sx(v) - 5, sy(m + 2 * v), 10, sy(m - 2 * v) - sy(m + 2 * v), 'wash'); });
+  o += line(sx(0.5), sy(o1.b0 + o1.b1 * 0.5), sx(5.5), sy(o1.b0 + o1.b1 * 5.5), 'dash');
+  o += line(sx(0.5), sy(w0 + w1 * 0.5), sx(5.5), sy(w0 + w1 * 5.5), 'ln');
+  x.forEach((v, i) => { o += circle(sx(v), sy(y[i]), 4.5, 'ink-f'); });
+  o += line(380, 60, 410, 60, 'ln') + text(416, 64, 'WLS，weight 1/x²', 'tl') + text(416, 82, `ŷ = ${w0.toFixed(2)} + ${w1.toFixed(2)}x`, 't');
+  o += line(380, 116, 410, 116, 'dash') + text(416, 120, 'OLS', 'tb') + text(416, 138, `ŷ = ${o1.b0.toFixed(2)} + ${o1.b1.toFixed(2)}x`, 't');
+  o += rect(380, 162, 14, 22, 'wash') + text(402, 172, '浅色竖条：', 'ts') + text(402, 188, '2 + 3x ± 2x', 'ts');
+  o += text(380, 222, 'x = 1 处的点最准，', 'ts') + text(380, 240, 'WLS 给它的 weight 是', 'ts') + text(380, 258, 'x = 5 处的 25 倍', 'ts');
+  return svg(560, 300, o, `5 个点，noise 的宽度随 x 成比例变大；weighted least squares 的 line 是 y hat 等于 ${w0.toFixed(2)} 加 ${w1.toFixed(2)} x，ordinary least squares 的是 ${o1.b0.toFixed(2)} 加 ${o1.b1.toFixed(2)} x`);
+}
+
+// 第 6 站：Hald data 的 ridge trace（unit length scaling，y 也 scaled）
+function ridge() {
+  const X = [0, 1, 2, 3].map((j) => HALD.map((r) => r[j])), Y = HALD.map((r) => r[4]);
+  const z = X.map((c) => { const m = mean(c), s = Math.sqrt(c.reduce((a, v) => a + (v - m) ** 2, 0)); return c.map((v) => (v - m) / s); });
+  const ym = mean(Y), ys = Math.sqrt(Y.reduce((a, v) => a + (v - ym) ** 2, 0)), zy = Y.map((v) => (v - ym) / ys);
+  const R = z.map((a) => z.map((b) => a.reduce((s, v, i) => s + v * b[i], 0)));
+  const r = z.map((a) => a.reduce((s, v, i) => s + v * zy[i], 0));
+  const coef = (k) => solve(R.map((row, i) => row.map((v, j) => v + (i === j ? k : 0))), r);
+  const k0 = 1e-5, k1 = 1, kSel = 0.1 / 13;
+  const lx = (k) => Math.log10(k);
+  const sx = lin(lx(k0), lx(k1), 70, 392), sy = lin(-0.5, 0.7, 262, 24);
+  let o = axes({ sx, sy, x0: lx(k0), x1: lx(k1), y0: -0.5, y1: 0.7, xt: [[-5, '0.00001'], [-4, '0.0001'], [-3, '0.001'], [-2, '0.01'], [-1, '0.1'], [0, '1']], yt: [[-0.4, '−0.4'], [-0.2, '−0.2'], [0, '0'], [0.2, '0.2'], [0.4, '0.4'], [0.6, '0.6']], xl: 'k（log scale）', yl: 'standardized coefficient', grid: true });
+  o += line(sx(lx(k0)), sy(0), sx(lx(k1)), sy(0), 'mute');
+  o += line(sx(lx(kSel)), sy(-0.5), sx(lx(kSel)), sy(0.7), 'dash');
+  const cls = ['ln', 'ink-b', 'ink', 'mute'];
+  const N = 120, ks = Array.from({ length: N + 1 }, (_, i) => 10 ** (lx(k0) + ((lx(k1) - lx(k0)) * i) / N)), C = ks.map(coef);
+  for (let j = 0; j < 4; j++) o += path(d(ks.map((k, i) => [sx(lx(k)), sy(C[i][j])])), cls[j]);
+  const start = coef(k0), lab = ['x₁', 'x₂', 'x₃', 'x₄'], dy = [-7, 17, -7, 17];
+  for (let j = 0; j < 4; j++) o += text(sx(-4.85), sy(start[j]) + dy[j], lab[j], j === 0 ? 'tl' : 'tb');
+  const sel = coef(kSel), ls = coef(0);
+  o += text(sx(lx(kSel)) + 4, 40, 'k = 0.0077', 'ts');
+  o += text(418, 110, 'k = 0（least squares）：', 'ts');
+  o += text(418, 128, ls.map((v) => v.toFixed(2).replace('-', '−')).join('，'), 'ts');
+  o += text(418, 166, 'k = 0.0077：', 'ts');
+  o += text(418, 184, sel.map((v) => v.toFixed(2).replace('-', '−')).join('，'), 'ts');
+  o += text(418, 222, '依次是 x₁、x₂、x₃、x₄', 'ts');
+  return svg(560, 300, o, 'Hald data 的 ridge trace：四个 standardized coefficient 随 k 从 0.00001 增大到 1 的变化，x3 和 x4 在 k 很小时变化最大，k 等于 0.0077 处画了竖线');
+}
+
 // ---------- 动图 ----------
 // 开头第二件：Anscombe 的四组 data 轮流变形，fitted line 和输出不变
 function anscombeA() {
@@ -502,4 +552,6 @@ export default {
   'st3131-reverse': reverse,
   'st3131-stepwise': stepwise,
   'st3131-twoway': twoway,
+  'st3131-wls': wls,
+  'st3131-ridge': ridge,
 };

@@ -213,8 +213,8 @@ function gd() {
     o += text(sx(0) + 8, sy(0) + 14, '(0, 0)', 'ts') + text(sx(ws[0]) + 8, sy(ws[1]) - 7, 'minimum (⅔, ½)', 'ts');
     o += text(x0 + 112, 20, title, 'tb', 'middle') + text(x0 + 112, 240, note, 'ts', 'middle');
   };
-  panel(40, 0.1, 40, 'α = 0.1：前 40 步', '两步下到谷底，然后沿谷底慢慢爬');
-  panel(300, 0.3, 40, 'α = 0.3：前 40 步', '在谷的两壁之间来回跳，同时沿谷底前进');
+  panel(40, 0.1, 40, 'γ = 0.1：前 40 步', '两步下到谷底，然后沿谷底慢慢爬');
+  panel(300, 0.3, 40, 'γ = 0.3：前 40 步', '在谷的两壁之间来回跳，同时沿谷底前进');
   o += text(280, 262, '横轴 w₀，纵轴 w₁；灰线是 loss J 的 contour，共用同一组 level', 'ts', 'middle');
   return svg(560, 272, o, '同一个 quadratic loss 的 contour 上，两种 step size 的 gradient descent path：小 step size 平滑但沿狭长的谷底走得很慢，大 step size 在谷的两侧来回振荡');
 }
@@ -728,13 +728,200 @@ function gdA() {
       o += `<g>${text(x0 + 225, 20, lab(mk), 'ts', 'end')}${F.show(on)}</g>`;
     }
   };
-  panel(40, 0.1, 'α = 0.1', '两步下到谷底，然后沿谷底慢慢爬');
-  panel(300, 0.3, 'α = 0.3', '在谷的两壁之间来回跳，同时沿谷底前进');
+  panel(40, 0.1, 'γ = 0.1', '两步下到谷底，然后沿谷底慢慢爬');
+  panel(300, 0.3, 'γ = 0.3', '在谷的两壁之间来回跳，同时沿谷底前进');
   o += text(280, 262, '横轴 w₀，纵轴 w₁；灰线是 loss J 的 contour。两边同一节拍，每拍走一步', 'ts', 'middle');
   return svgA(560, 272, o, '动图：同一个 quadratic loss 的 contour 上，两种 step size 的 gradient descent 一步一步走 40 步：小 step size 平滑但沿狭长的谷底走得很慢，大 step size 在谷的两侧来回振荡');
 }
 
+// ---------- 第 8 站：k-means 一轮一轮走 ----------
+const KM_P = [[1, 1], [1, 2], [2, 1], [4, 3], [5, 4], [5, 3]];
+function kmRun(P, C0, rounds) {
+  // 返回每个 step 的 { assign, C, J }：先 assignment 再 update
+  const steps = [];
+  let C = C0.map((c) => c.slice());
+  const D2 = (p, c) => (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2;
+  const J = (A, C) => P.reduce((s, p, i) => s + D2(p, C[A[i]]), 0) / P.length;
+  for (let r = 0; r < rounds; r++) {
+    const A = P.map((p) => { let b = 0; for (let k = 1; k < C.length; k++) if (D2(p, C[k]) < D2(p, C[b])) b = k; return b; });
+    steps.push({ kind: 'assign', A, C: C.map((c) => c.slice()), J: J(A, C) });
+    C = C.map((c, k) => { const m = P.filter((_, i) => A[i] === k); return [m.reduce((s, p) => s + p[0], 0) / m.length, m.reduce((s, p) => s + p[1], 0) / m.length]; });
+    steps.push({ kind: 'update', A, C: C.map((c) => c.slice()), J: J(A, C) });
+  }
+  return steps;
+}
+function kmeansA() {
+  const st = kmRun(KM_P, [[1, 1], [1, 2]], 2); // 4 个 step
+  const fin = st[st.length - 1];
+  // 帧：0 结果；1 初始；2..5 四个 step
+  const fr = [
+    { A: fin.A, C: fin.C, t: '结果：两个 cluster', s: `distortion J = ${fin.J.toFixed(3)}` },
+    { A: null, C: [[1, 1], [1, 2]], t: '初始：μ₁ = (1, 1)，μ₂ = (1, 2)', s: '还没有分 cluster' },
+    ...st.map((q, i) => ({ A: q.A, C: q.C, t: `第 ${Math.floor(i / 2) + 1} 轮 ${q.kind === 'assign' ? 'assignment' : 'update'}`, s: `J = ${q.J.toFixed(3)}` })),
+  ];
+  const F = frames([3.2, 2.0, 2.4, 2.4, 2.4, 2.8]);
+  const sx = lin(0, 6, 50, 350), sy = lin(0, 5, 250, 34);
+  let o = rect(sx(0), sy(5), sx(6) - sx(0), sy(0) - sy(5), 'frame');
+  for (let v = 1; v <= 5; v++) o += line(sx(v), sy(0), sx(v), sy(5), 'grid') + text(sx(v), sy(0) + 15, String(v), 'ts', 'middle');
+  for (let v = 1; v <= 4; v++) o += line(sx(0), sy(v), sx(6), sy(v), 'grid') + text(sx(0) - 7, sy(v) + 4, String(v), 'ts', 'end');
+  // 点到 centroid 的连线
+  fr.forEach((q, f) => {
+    if (!q.A) return;
+    const on = fr.map((_, g) => g === f);
+    let g = '';
+    KM_P.forEach((p, i) => { const c = q.C[q.A[i]]; g += line(sx(p[0]), sy(p[1]), sx(c[0]), sy(c[1]), 'grid'); });
+    o += `<g>${g}${F.show(on)}</g>`;
+  });
+  // 点：三种样子
+  KM_P.forEach((p, i) => {
+    const x = sx(p[0]), y = sy(p[1]);
+    o += `<g>${circle(x, y, 6, 'mute-f')}${F.show(fr.map((q) => !q.A))}</g>`;
+    o += `<g>${circle(x, y, 6.5, 'solid')}${F.show(fr.map((q) => !!q.A && q.A[i] === 0))}</g>`;
+    o += `<g>${circle(x, y, 6, 'paper')}${circle(x, y, 6, 'ink')}${F.show(fr.map((q) => !!q.A && q.A[i] === 1))}</g>`;
+  });
+  o += text(sx(1) - 10, sy(2) - 10, '(1, 2)', 'ts', 'end');
+  // centroid：叉
+  const cross = (x, y, cls) => line(x - 7, y - 7, x + 7, y + 7, cls) + line(x - 7, y + 7, x + 7, y - 7, cls);
+  fr.forEach((q, f) => {
+    const on = fr.map((_, g) => g === f);
+    o += `<g>${cross(sx(q.C[0][0]), sy(q.C[0][1]), 'ln')}${text(sx(q.C[0][0]) + 9, sy(q.C[0][1]) + 16, 'μ₁', 'tl')}${cross(sx(q.C[1][0]), sy(q.C[1][1]), 'ink-b')}${text(sx(q.C[1][0]) + 9, sy(q.C[1][1]) - 8, 'μ₂', 'tb')}${F.show(on)}</g>`;
+    o += `<g>${text(372, 60, q.t, 'tb')}${text(372, 82, q.s, 't')}${F.show(on)}</g>`;
+  });
+  // J 的历史
+  o += text(372, 130, 'J 的变化', 'ts');
+  st.forEach((q, i) => { o += text(372, 152 + i * 20, `${i % 2 ? 'update' : 'assign'} ${Math.floor(i / 2) + 1}：${q.J.toFixed(3)}`, 'ts'); });
+  o += circle(380, 250, 6.5, 'solid') + text(392, 254, 'cluster 1', 'ts') + circle(470, 250, 6, 'paper') + circle(470, 250, 6, 'ink') + text(482, 254, 'cluster 2', 'ts');
+  return svgA(560, 272, o, '动图：六个点上的 k-means。从两个 data point 作为初始 centroid 开始，两轮 assignment 和 update 之后停下，distortion 依次是 8.0、2.208、0.990、0.444');
+}
+
+// ---------- 第 8 站：长方形四角，两种初始化 ----------
+function kmlocal() {
+  const R = [[0, 0], [0, 2], [6, 0], [6, 2]];
+  let o = '';
+  const panel = (x0, C0, title) => {
+    const st = kmRun(R, C0, 3), q = st[st.length - 1];
+    const sx = lin(-0.8, 6.8, x0, x0 + 230), sy = lin(-0.8, 2.8, 172, 92);
+    o += rect(x0, 72, 230, 120, 'frame');
+    R.forEach((p, i) => { const c = q.C[q.A[i]]; o += line(sx(p[0]), sy(p[1]), sx(c[0]), sy(c[1]), 'mute'); });
+    R.forEach((p, i) => { o += q.A[i] === 0 ? circle(sx(p[0]), sy(p[1]), 6.5, 'solid') : circle(sx(p[0]), sy(p[1]), 6, 'paper') + circle(sx(p[0]), sy(p[1]), 6, 'ink'); });
+    const cross = (x, y, cls) => line(x - 6, y - 6, x + 6, y + 6, cls) + line(x - 6, y + 6, x + 6, y - 6, cls);
+    o += cross(sx(q.C[0][0]), sy(q.C[0][1]), 'ln') + cross(sx(q.C[1][0]), sy(q.C[1][1]), 'ink-b');
+    o += text(x0 + 115, 24, title, 'tb', 'middle');
+    o += text(x0 + 115, 46, `初始 centroid (${C0[0].join(', ')}) 与 (${C0[1].join(', ')})`, 'ts', 'middle');
+    o += text(x0 + 115, 214, `停在 μ = (${q.C[0].join(', ')})、(${q.C[1].join(', ')})`, 't', 'middle');
+    o += text(x0 + 115, 234, `J = ${q.J}`, q.J > 2 ? 'tb' : 'tl', 'middle');
+  };
+  panel(30, [[0, 0], [0, 2]], '上下分：local optimum');
+  panel(300, [[0, 0], [6, 0]], '左右分：global optimum');
+  o += text(280, 262, '叉号是 centroid，细线连到每个点所属的 centroid；两边都已停下，没有点想改投', 'ts', 'middle');
+  return svg(560, 272, o, '长方形四角的四个点：一种初始化让 k-means 停在上下两条边各一个 cluster，distortion 9；另一种停在左右各一个，distortion 1');
+}
+
+// ---------- 第 8 站：PCA 投影 ----------
+function pca() {
+  const P = [[2, 2], [3, 4], [4, 3], [5, 6], [6, 5]];
+  const mu = [4, 4], u = [Math.SQRT1_2, Math.SQRT1_2];
+  const sx = lin(1, 7, 50, 290), sy = lin(1, 7, 270, 30);
+  let o = rect(sx(1), sy(7), sx(7) - sx(1), sy(1) - sy(7), 'frame');
+  for (let v = 2; v <= 6; v++) o += line(sx(v), sy(1), sx(v), sy(7), 'grid') + line(sx(1), sy(v), sx(7), sy(v), 'grid') + text(sx(v), sy(1) + 15, String(v), 'ts', 'middle') + text(sx(1) - 7, sy(v) + 4, String(v), 'ts', 'end');
+  o += line(sx(1.2), sy(1.2), sx(6.8), sy(6.8), 'ln');
+  let err = 0;
+  const zs = [];
+  for (const p of P) {
+    const z = (p[0] - mu[0]) * u[0] + (p[1] - mu[1]) * u[1];
+    const r = [mu[0] + z * u[0], mu[1] + z * u[1]];
+    err += (p[0] - r[0]) ** 2 + (p[1] - r[1]) ** 2;
+    zs.push(z);
+    if (Math.hypot(p[0] - r[0], p[1] - r[1]) > 1e-9) o += line(sx(p[0]), sy(p[1]), sx(r[0]), sy(r[1]), 'dash');
+    o += circle(sx(r[0]), sy(r[1]), 4, 'ln paper-f');
+  }
+  for (const p of P) o += circle(sx(p[0]), sy(p[1]), 5.5, 'ink-f');
+  o += rect(sx(mu[0]) - 5, sy(mu[1]) - 5, 10, 10, 'solid2');
+  o += text(sx(mu[0]) + 10, sy(mu[1]) + 18, 'mean (4, 4)', 'ts');
+  o += text(sx(6.8) - 4, sy(6.8) + 18, 'u₁', 'tl', 'end');
+  o += text(318, 50, '实心点：原来的 5 个点', 't');
+  o += text(318, 72, '空心点：只留 u₁ 一个方向后', 't') + text(318, 90, '的 reconstruction', 't');
+  o += text(318, 118, 'u₁ = (1, 1)/√2，σ₁² = 18', 'tl');
+  o += text(318, 140, '虚线：被丢掉的 u₂ 方向的部分', 't');
+  o += text(318, 158, `长度的平方和 = ${err.toFixed(1)} = σ₂²`, 't');
+  o += text(318, 192, 'z = ' + zs.map((z) => z.toFixed(2).replace('-', '−')).join('，'), 'ts');
+  o += text(318, 212, '（每个点 compression 后只剩这一个数）', 'ts');
+  o += text(318, 246, '保留的 variance：18 / 20 = 90%', 'tb');
+  return svg(560, 290, o, '五个点、它们的 mean 和第一个 principal direction；每个点沿垂直方向投到这条 line 上，被丢掉的部分的平方和等于第二个 singular value 的平方 2');
+}
+
+// ---------- 第 10 站：RNN 沿 time step 展开 ----------
+function rnn() {
+  const words = ['I', 'saw', 'a', 'saw'], onehot = ['(1, 0, 0)', '(0, 1, 0)', '(0, 0, 1)', '(0, 1, 0)'];
+  const wx = { I: 0.2, saw: 0.6, a: -2.0 };
+  const sig = (z) => 1 / (1 + Math.exp(-z));
+  let h = 0;
+  const H = [], Y = [];
+  for (const w of words) { h = Math.tanh(wx[w] + h); H.push(h); Y.push(sig(4 * h - 2)); }
+  const f = (v, k = 3) => v.toFixed(k).replace('-', '−');
+  let o = '';
+  const X = (t) => 120 + t * 122, yb = 128;
+  o += text(30, yb + 4, 'h⁰ = 0', 'ts', 'middle');
+  o += arrow(52, yb, X(0) - 42, yb, 'mute');
+  words.forEach((w, t) => {
+    const x = X(t), verb = Y[t] >= 0.5;
+    o += rect(x - 40, yb - 24, 80, 48, verb ? 'wash' : 'paper', 6);
+    o += text(x, yb - 6, 'tanh', 'ts', 'middle') + text(x, yb + 13, 'h = ' + f(H[t]), 'tb', 'middle');
+    // input
+    o += arrow(x, 214, x, yb + 26, 'ink');
+    o += text(x, 236, w, 'tb', 'middle') + text(x, 254, onehot[t], 'ts', 'middle');
+    // output
+    o += arrow(x, yb - 26, x, 64, 'ink');
+    o += text(x, 50, 'ŷ = ' + f(Y[t]), verb ? 'tl' : 't', 'middle') + text(x, 30, verb ? 'verb' : 'not verb', verb ? 'tl' : 'ts', 'middle');
+    if (t < 3) { o += arrow(x + 41, yb, X(t + 1) - 42, yb, 'ln'); o += text((x + X(t + 1)) / 2, yb - 8, f(H[t]), 'ts', 'middle'); }
+  });
+  o += text(280, 280, `两个 saw 的 input 都是 (0, 1, 0)；带进来的 h 一个是 ${f(H[0])}，一个是 ${f(H[2])}，所以 ŷ 不同`, 'ts', 'middle');
+  return svg(560, 286, o, '一个一维 hidden state 的 RNN 读 I saw a saw 四个词：每一步的 hidden state 和 output，只有第二个词被判为 verb');
+}
+
+// ---------- 第 10 站：self-attention 不看顺序 ----------
+function attn() {
+  const E = { dog: [1, 0], bites: [0, 1], man: [1, 1] };
+  const WQ = [[1, 0], [0, 2]], WK = [[2, 0], [0, 1]];
+  const mul = (x, W) => [x[0] * W[0][0] + x[1] * W[1][0], x[0] * W[0][1] + x[1] * W[1][1]];
+  let o = '';
+  const row = (y0, seq) => {
+    const q = mul(E.bites, WQ), s = seq.map((w) => { const k = mul(E[w], WK); return q[0] * k[0] + q[1] * k[1]; });
+    const m = Math.max(...s), e = s.map((v) => Math.exp(v - m)), Z = e.reduce((a, b) => a + b, 0), a = e.map((v) => v / Z);
+    const out = [0, 1].map((j) => seq.reduce((acc, w, i) => acc + a[i] * E[w][j], 0));
+    const xs = [90, 210, 330], bi = seq.indexOf('bites');
+    seq.forEach((w, i) => {
+      o += rect(xs[i] - 38, y0, 76, 30, w === 'bites' ? 'wash' : 'paper', 5) + text(xs[i], y0 + 20, w, 'tb', 'middle');
+      o += text(xs[i], y0 + 48, `(${E[w].join(', ')})`, 'ts', 'middle');
+    });
+    seq.forEach((w, i) => {
+      const big = a[i] > 0.3, cls = big ? 'ln' : 'mute';
+      if (i === bi) {
+        const x = xs[i];
+        o += path(`M${x - 10} ${y0}C${x - 26} ${y0 - 34} ${x + 26} ${y0 - 34} ${x + 10} ${y0}`, cls);
+        o += text(x, y0 - 30, a[i].toFixed(3), big ? 'tl' : 'ts', 'middle');
+      } else {
+        const x1 = xs[bi] + (i < bi ? -16 : 16), x2 = xs[i] + (i < bi ? 10 : -10), xm = (x1 + x2) / 2;
+        o += path(`M${x1} ${y0}Q${xm} ${y0 - 46} ${x2} ${y0}`, cls);
+        o += text(xm, y0 - 26, a[i].toFixed(3), big ? 'tl' : 'ts', 'middle');
+      }
+    });
+    o += text(400, y0 + 12, 'bites 的 output', 'ts') + text(400, y0 + 32, `(${out.map((v) => v.toFixed(3)).join(', ')})`, 'tb');
+  };
+  row(70, ['dog', 'bites', 'man']);
+  row(196, ['man', 'bites', 'dog']);
+  o += text(20, 22, '“dog bites man”：弧线上是 bites 分给每个词的 attention weight', 'ts');
+  o += text(20, 148, '“man bites dog”：weight 跟着词走，output 不变', 'ts');
+  o += text(20, 276, '括号里是每个词的 embedding；粗彩线 weight 大，细灰线 weight 小', 'ts');
+  return svg(560, 286, o, '两个句子 dog bites man 和 man bites dog 里，bites 对三个词的 attention weight 和 output：dog 与 man 换了位置，weight 跟着词走，output 完全相同');
+}
+
 export default {
+  'cs2109s-kmeans': kmeansA,
+  'cs2109s-kmlocal': kmlocal,
+  'cs2109s-pca': pca,
+  'cs2109s-rnn': rnn,
+  'cs2109s-attn': attn,
   'cs2109s-threepaths': threepathsA,
   'cs2109s-thresh': thresh,
   'cs2109s-fit3': fit3,

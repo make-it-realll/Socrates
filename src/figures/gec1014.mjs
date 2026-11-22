@@ -523,6 +523,267 @@ function deshkar() {
   return svg(560, 246, o, 'Bhupali 与 Deshkar 用同样的 Sa Re Ga Pa Dha：Bhupali 的 vadi 是 Ga、samvadi 是 Dha，晚上奏；Deshkar 的 vadi 是 Dha、samvadi 是 Ga，Re 被弱化，在上半个 octave 展开，早晨奏');
 }
 
+// ---------- 第 5 站：键盘（triad 与 key 共用） ----------
+const WHITE_PC = [0, 2, 4, 5, 7, 9, 11];
+// 在 (x0, y0) 画 nWhite 个白键的键盘，从 C 开始；返回画法和 semitone → 键中心 x 的函数
+function keyboard(x0, y0, ww, wh, nWhite) {
+  const bw = ww * 0.6, bh = wh * 0.6;
+  let o = '';
+  for (let i = 0; i < nWhite; i++) o += rect(x0 + i * ww, y0, ww, wh, 'paper');
+  for (let i = 0; i < nWhite - 1; i++) if ([0, 2, 5, 7, 9].includes(WHITE_PC[i % 7])) o += rect(x0 + (i + 1) * ww - bw / 2, y0, bw, bh, 'solid2');
+  const kx = (s) => {
+    const oct = Math.floor(s / 12), pc = s % 12, wi = WHITE_PC.indexOf(pc);
+    if (wi >= 0) return { x: x0 + (oct * 7 + wi) * ww + ww / 2, black: false };
+    return { x: x0 + (oct * 7 + WHITE_PC.indexOf(pc - 1) + 1) * ww, black: true };
+  };
+  return { o, kx, bh };
+}
+
+// ---------- 第 5 站：三种 triad ----------
+function triads() {
+  const rows = [
+    ['major triad', 'C E G', [0, 4, 7], ['4 + 3 = 7 个 half step', '两端是 fifth（700¢）']],
+    ['minor triad', 'C E♭ G', [0, 3, 7], ['3 + 4 = 7 个 half step', '两端仍是 fifth（700¢）']],
+    ['diminished triad', 'C E♭ G♭', [0, 3, 6], ['3 + 3 = 6 个 half step', '两端 600¢，半个 octave']],
+  ];
+  let o = '';
+  rows.forEach(([nm, notes, semis], j) => {
+    const x0 = 6 + j * 186, y0 = 40, ww = 21, wh = 84;
+    const k = keyboard(x0, y0, ww, wh, 8);
+    o += text(x0, 14, nm, 'tb') + text(x0, 30, notes, 'ts') + k.o;
+    const pts = semis.map((s) => k.kx(s));
+    pts.forEach((q) => (o += circle(q.x, q.black ? y0 + k.bh - 10 : y0 + wh - 12, 6, 'solid')));
+    for (let i = 0; i < 2; i++) {
+      const xa = pts[i].x, xb = pts[i + 1].x, y = y0 + wh + 14;
+      o += line(xa, y, xb, y, 'ink') + line(xa, y - 4, xa, y + 4, 'ink') + line(xb, y - 4, xb, y + 4, 'ink');
+      o += text((xa + xb) / 2, y + 17, String(semis[i + 1] - semis[i]), 'tl', 'middle');
+    }
+    o += text(x0, y0 + wh + 52, rows[j][3][0], 'ts') + text(x0, y0 + wh + 68, rows[j][3][1], 'ts');
+  });
+  o += text(6, 222, '数字是相邻两音之间的 half step 个数。Triad 是在 scale 上“取一个、跳一个”取出的第 1、3、5 个 degree。', 'ts');
+  return svg(560, 228, o, '三个键盘：major triad C E G 是 4 加 3 个 half step，minor triad C E♭ G 是 3 加 4，diminished triad C E♭ G♭ 是 3 加 3');
+}
+
+// ---------- 第 5 站：dominant key 与 relative major ----------
+function keys() {
+  const NOTE = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+  const rows = [
+    ['G major', [7, 9, 11, 0, 2, 4, 6], 'D major', [2, 4, 6, 7, 9, 11, 1], ['七个音里六个相同，', '只差 C 和 C♯：', '去 dominant key 只改一个音。']],
+    ['C minor', [0, 2, 3, 5, 7, 8, 10], 'E♭ major', [3, 5, 7, 8, 10, 0, 2], ['七个音完全相同，', '都是三个 flat；', '只是 tonic 从 C 换成 E♭。']],
+  ];
+  let o = '';
+  rows.forEach(([na, a, nb, b, note], r) => {
+    const y0 = 14 + r * 150, x0 = 150, ww = 34, wh = 100;
+    const k = keyboard(x0, y0, ww, wh, 7);
+    o += k.o;
+    const nm = (arr) => arr.map((s) => NOTE[s]).join(' ');
+    o += circle(8, y0 + 24, 6, 'solid') + text(20, y0 + 28, na, 'tb') + text(20, y0 + 44, nm(a), 'ts');
+    o += circle(8, y0 + 66, 6, 'paper') + text(20, y0 + 70, nb, 'tb') + text(20, y0 + 86, nm(b), 'ts');
+    for (const s of a) { const q = k.kx(s); o += circle(q.x, (q.black ? y0 + k.bh : y0 + wh) - 30, 6.5, 'solid'); }
+    for (const s of b) { const q = k.kx(s); o += circle(q.x, (q.black ? y0 + k.bh : y0 + wh) - 12, 6.5, 'paper'); }
+    WHITE_PC.forEach((pc, i) => (o += text(x0 + i * ww + ww / 2, y0 + wh + 16, NOTE[pc], 'ts', 'middle')));
+    note.forEach((ln, i) => (o += text(400, y0 + 34 + i * 18, ln, i === 1 ? 'tl' : 'ts')));
+  });
+  o += text(0, 306, '实心点是前一个 key 的音，空心点是后一个 key 的音；只看 pitch class，不管哪个 octave。', 'ts');
+  return svg(560, 312, o, '两组键盘：G major 与 D major 七个音里六个相同，只差 C 和 C sharp；C minor 与 E flat major 七个音完全相同');
+}
+
+// ---------- 第 5 站：Wright 的 sonata-allegro template ----------
+function sonata() {
+  const yb = 34, hb = 38, yI = 186, yV = 140;
+  let o = '';
+  const blk = (x0, x1, l1, l2, cls) => {
+    let q = rect(x0, yb, x1 - x0 - 3, hb, cls, 3) + rect(x0, yb, x1 - x0 - 3, hb, 'frame', 3);
+    const cx = (x0 + x1 - 3) / 2;
+    q += l2 ? text(cx, yb + 16, l1, 'ts', 'middle') + text(cx, yb + 31, l2, 'ts', 'middle') : text(cx, yb + 24, l1, 'ts', 'middle');
+    return q;
+  };
+  const head = (x0, x1, lab) => line(x0, 22, x1 - 3, 22, 'ink') + line(x0, 18, x0, 26, 'ink') + line(x1 - 3, 18, x1 - 3, 26, 'ink') + text((x0 + x1 - 3) / 2, 13, lab, 'tb', 'middle');
+  o += head(36, 238, 'exposition') + head(244, 346, 'development') + head(350, 524, 'recapitulation');
+  o += rect(0, yb, 32, hb, 'dash', 3) + text(16, yb + 24, 'intro', 'ts', 'middle');
+  o += blk(36, 86, '1st', 'theme', 'wash-strong') + blk(86, 136, 'bridge', '', 'wash2') + blk(136, 186, '2nd', 'theme', 'wash') + blk(186, 234, 'closing', '', 'wash2');
+  o += line(235, yb, 235, yb + hb, 'ink-b') + line(238.5, yb, 238.5, yb + hb, 'ink') + circle(231, yb + 13, 1.8, 'ink-f') + circle(231, yb + 25, 1.8, 'ink-f');
+  o += text(236, yb + hb + 15, 'repeat', 'ts', 'middle');
+  o += blk(244, 318, '', '', 'wash2') + blk(318, 346, 'retr.', '', 'wash2');
+  o += blk(350, 394, '1st', 'theme', 'wash-strong') + blk(394, 438, 'bridge', '', 'wash2') + blk(438, 482, '2nd', 'theme', 'wash') + blk(482, 527, 'closing', '', 'wash2');
+  o += rect(530, yb, 30, hb, 'dash', 3) + text(545, yb + 24, 'coda', 'ts', 'middle');
+  // key 的轨迹
+  o += line(36, yI, 560, yI, 'grid') + line(36, yV, 560, yV, 'grid');
+  o += text(0, yI + 4, 'I', 'tb') + text(10, yI + 4, 'tonic', 'ts');
+  o += text(0, yV - 2, 'V', 'tb') + text(14, yV - 2, 'dominant', 'ts') + text(0, yV + 13, '（minor：III）', 'ts');
+  o += path(d([[36, yI], [86, yI], [136, yV], [235, yV]]), 'ln');
+  o += rect(244, yV - 22, 71, yI - yV + 44, 'wash2', 4) + text(279, (yV + yI) / 2 + 4, '不停在换', 'ts', 'middle');
+  o += path(d([[318, yV], [346, yV]]), 'ln') + path(d([[346, yV], [350, yI], [560, yI]]), 'ln');
+  o += text(332, yV - 30, 'dominant', 'ts', 'middle') + text(332, yV - 16, 'preparation', 'ts', 'middle');
+  o += text(279, yI + 38, 'tonal instability，', 'ts', 'middle') + text(279, yI + 53, '最 polyphonic', 'ts', 'middle');
+  o += text(111, yI + 22, 'modulate，', 'ts', 'middle') + text(111, yI + 37, '不安定', 'ts', 'middle');
+  o += text(416, yI + 22, 'bridge to nowhere：', 'ts', 'middle') + text(416, yI + 37, '不再 modulate', 'ts', 'middle');
+  o += text(185, yV - 10, '在 V 和 I 之间来回', 'ts', 'middle');
+  o += text(0, 262, '粗线是此刻在哪个 key：exposition 离开 tonic，development 没有固定的 key，', 'ts');
+  o += text(0, 278, 'recapitulation 全部留在 tonic。虚线框的 intro 与 coda 可有可无。', 'ts');
+  return svg(560, 284, o, 'Sonata-allegro form 的 template：exposition 由 1st theme、bridge、2nd theme、closing 组成并 repeat；development 的 key 不停在换，最后停在 dominant；recapitulation 全部在 tonic；intro 和 coda 可有可无');
+}
+
+// 137 个 bar；只 repeat exposition，共 192 个 bar；按 Wright 说的约 6 分钟，每个 bar 360 / 192 = 1.875 s
+const EKN = { spb: 360 / 192 };
+function ekn() {
+  const pxs = 450 / 206.25, X0 = 96;
+  const sxA = (t) => X0 + t * pxs, sxB = (t) => X0 + (t - 206.25) * pxs;
+  const sp = EKN.spb, T1 = (b) => (b - 1) * sp, T2 = (b) => (55 + b - 1) * sp;
+  const speed = 12, Tm = 360 / speed, T = Tm + 1.5;
+  let o = '';
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+  const row = (y0, sx, bigs, subs, axis, keyPts, extra) => {
+    for (const [a, b, lab, cls] of bigs) {
+      o += rect(sx(a), y0, sx(b) - sx(a) - 2, 20, cls, 3) + text((sx(a) + sx(b)) / 2, y0 + 14, lab, 'ts', 'middle');
+    }
+    for (const [a, b, cls] of subs) o += rect(sx(a), y0 + 24, sx(b) - sx(a) - 2, 12, cls, 2);
+    // key 轨迹
+    const yG = y0 + 110, yD = y0 + 88;
+    o += line(X0, yG, 546, yG, 'grid') + line(X0, yD, 546, yD, 'grid');
+    o += text(0, yG + 4, 'G major', 't') + text(0, yD + 4, 'D major', 't');
+    for (const seg of keyPts) o += path(d(seg.map(([t, k]) => [sx(t), k === 'G' ? yG : yD])), 'ln');
+    // 时间轴
+    const ya = y0 + 130;
+    o += line(sx(axis[0]), ya, sx(axis[1]), ya, 'axis');
+    for (let t = Math.ceil(axis[0] / 30) * 30; t <= axis[1] + 0.01; t += 30) o += line(sx(t), ya, sx(t), ya + 4, 'axis') + text(sx(t), ya + 16, fmt(t), 'ts', 'middle');
+    o += extra(sx, y0, yG, yD);
+  };
+  // 第一行：exposition 两遍
+  const subsExp = (off) => [[off + T1(1), off + T1(18), 'wash-strong'], [off + T1(18), off + T1(28), 'wash2'], [off + T1(28), off + T1(35), 'wash'], [off + T1(35), off + T1(56), 'solid2']];
+  const ex1 = 55 * sp;
+  row(14, sxA, [[0, ex1, 'exposition（bar 1–55）', 'wash'], [ex1, 2 * ex1, 'exposition repeat', 'wash2']], [...subsExp(0), ...subsExp(ex1)], [0, 206.25],
+    [[[0, 'G'], [T1(18), 'G'], [T1(28), 'D'], [ex1, 'D']], [[ex1, 'G'], [ex1 + T1(18), 'G'], [ex1 + T1(28), 'D'], [2 * ex1, 'D']]],
+    (sx, y0) => {
+      const lab = (a, b, s, tier) => { const x = (sx(a) + sx(b)) / 2, y = y0 + 36; return line(x, y + 1, x, y + (tier ? 20 : 6), 'mute') + text(x, y + (tier ? 32 : 18), s, 'ts', 'middle'); };
+      return lab(T1(1), T1(18), '1st theme', 0) + lab(T1(18), T1(28), 'transition', 1) + lab(T1(28), T1(35), '2nd theme', 0) + lab(T1(35), T1(56), 'closing', 1)
+        + text(sxA(T1(21)) + 6, y0 + 126, 'C♯（bar 21）', 'ts');
+    });
+  // 第二行：development、recapitulation、coda
+  const dv = T2(56), rc = T2(76), cd = T2(128), end = 360;
+  row(196, sxB, [[dv, rc, 'development', 'wash2'], [rc, cd, 'recapitulation（76–127）', 'wash'], [cd, end, 'coda', 'wash-strong']],
+    [[T2(56), T2(60), 'wash-strong'], [T2(60), T2(70), 'solid2'], [T2(70), T2(76), 'wash2'], [T2(76), T2(93), 'wash-strong'], [T2(93), T2(101), 'wash2'], [T2(101), T2(108), 'wash'], [T2(108), T2(128), 'solid2'], [T2(128), end, 'wash-strong']],
+    [206.25, 360],
+    [[[dv, 'D'], [T2(59), 'D']], [[T2(74), 'D'], [T2(76), 'D'], [T2(76), 'G'], [end, 'G']]],
+    (sx, y0, yG, yD) => {
+      let q = rect(sx(T2(59)), yD - 12, sx(T2(74)) - sx(T2(59)), yG - yD + 24, 'wash2', 3);
+      q += text((sx(T2(59)) + sx(T2(74))) / 2, yG + 2, '不停在换', 'ts', 'middle');
+      q += text(sx(T2(74)) + 2, yD - 6, 'V', 'tl');
+      const lab = (a, b, s, tier, side) => {
+        const x = (sx(a) + sx(b)) / 2, y = y0 + 36;
+        return line(x, y + 1, x, y + (tier ? 20 : 6), 'mute') + text(side ? x - 4 : x, y + (tier ? 32 : 18), s, 'ts', side ? 'start' : 'middle');
+      };
+      q += lab(T2(56), T2(60), '56–59', 0) + lab(T2(60), T2(70), 'closing theme 60–69', 1) + lab(T2(70), T2(76), 'retransition 70–75', 0, 1);
+      q += lab(T2(93), T2(101), 'transition 93–100，留在 G', 1, 1) + lab(T2(128), end, '128–137', 0);
+      return q;
+    });
+  // 指针：第一行走完跳到第二行
+  const pA = (x) => d([[x, 8], [x, 144]]), pB = (x) => d([[x, 190], [x, 326]]);
+  const k1 = 206.25 / speed / T, k2 = Tm / T;
+  o += apath([pA(sxA(0)), pA(sxA(206.25)), pB(sxB(206.25)), pB(sxB(360)), pB(sxB(360))], [0, k1, k1 + 0.0005, k2, 1], T, 'ln');
+  o += text(0, 362, `横轴是时间（每个 bar ${sp} s，quarter note = 128），动图按 ${speed} 倍速走。`, 'ts');
+  o += text(0, 378, '浅色块是 theme，灰块是 transition 或 retransition，深色块是 closing 和收尾。', 'ts');
+  return svgA(560, 384, o, '动图：Eine kleine Nachtmusik 的 first movement 按约 6 分钟画在时间轴上。第一行是 exposition 和它的 repeat，key 从 G major 走到 D major；第二行是 development、recapitulation 和 coda，development 的 key 不停在换，最后停在 D，recapitulation 和 coda 都在 G major');
+}
+
+// ---------- 第 5 站：Beethoven Fifth Symphony 的 first movement development 的 196 到 248 bar（动图） ----------
+function dev5() {
+  const b0 = 194, b1 = 249, X0 = 118, u = 7.6, bx = (b) => X0 + (b - b0) * u, per = 0.5, N = b1 - b0, T = N * per + 1.2;
+  const yW = 46, yS = 92;
+  let o = text(0, yW + 4, 'winds', 'tb') + text(0, yW + 19, 'flute、oboe、clarinet', 'ts') + text(0, yS + 4, 'strings', 'tb');
+  o += line(X0, yW, bx(b1), yW, 'grid') + line(X0, yS, bx(b1), yS, 'grid');
+  const W = [], S = [], both = [];
+  for (const b of [196, 197, 200, 201, 204, 205, 208, 209]) W.push(b);
+  for (const b of [198, 199, 202, 203, 206, 207]) S.push(b);
+  for (let b = 210; b <= 226; b += 2) S.push(b);
+  for (let b = 211; b <= 227; b += 2) W.push(b);
+  for (let b = 228; b <= 232; b++) both.push(b);
+  for (const b of [233, 235, 237, 239]) W.push(b);
+  for (const b of [234, 236, 238]) S.push(b);
+  S.push(240);
+  for (let b = 241; b <= 247; b++) both.push(b);
+  const cell = (b, y, cls) => rect(bx(b) + 0.6, y - 9, u - 1.2, 18, cls, 1.5) + `<g>${rect(bx(b) - 1, y - 12, u + 2, 24, 'ln', 2)}${flash((b - b0) * per, per * 0.9, T)}</g>`;
+  for (const b of W) o += cell(b, yW, 'solid');
+  for (const b of S) o += cell(b, yS, 'solid2');
+  for (const b of both) o += cell(b, yW, 'solid') + cell(b, yS, 'solid2');
+  // 每多少 bar 一换
+  const br = (a, b, s) => line(bx(a), 22, bx(b), 22, 'ink') + line(bx(a), 18, bx(a), 26, 'ink') + line(bx(b), 18, bx(b), 26, 'ink') + text((bx(a) + bx(b)) / 2, 13, s, 'ts', 'middle');
+  o += br(196, 210, '每 2 bar 一换') + br(210, 228, '每 1 bar 一换') + br(233, 240, '又是每 1 bar');
+  // 力度与事件
+  const ev = [[210, 'dimin.'], [216, 'p'], [222, 'pp'], [228, 'ff'], [234, 'pp'], [241, 'ff']];
+  for (const [b, s] of ev) if (s) o += text(bx(b) + 1, 124, s, 'tl');
+  o += line(bx(248), 30, bx(248), 132, 'dash');
+  for (const b of [196, 210, 228, 240]) o += text(bx(b), 146, String(b), 'ts', 'middle');
+  o += text(bx(248) + 3, 146, '248 recap', 'tb', 'end');
+  o += text(0, 146, 'bar', 'ts');
+  o += text(0, 172, '228–232 与 241–247：四个音的 motive 在两排一起 ff 冲进来。', 'ts');
+  o += text(0, 188, '233–239 的 chord 是 B D F A♭：三个 minor third 叠起来。', 'ts');
+  const ph = (x) => d([[x, 28], [x, 108]]);
+  o += apath([ph(bx(b0)), ph(bx(b1)), ph(bx(b1))], [0, (N * per) / T, 1], T, 'ln');
+  return svgA(560, 196, o, '动图：Beethoven Fifth Symphony 的 first movement 第 194 到 249 bar。winds 和 strings 轮流奏 chord，先每 2 个 bar 一换，第 210 bar 起每 1 个 bar 一换，越来越弱；第 228 和 240 bar 四音 motive ff 冲进来，第 248 bar 开始 recapitulation');
+}
+
+// ---------- 第 5 站：Mozart 与 Beethoven 四个部分的比例 ----------
+function proportion() {
+  const X0 = 150, W = 400;
+  const rows = [
+    ['Mozart', 'Eine kleine Nachtmusik', [55, 20, 52, 10], [['G → D'], ['不停在换'], ['G'], ['G']], 44],
+    ['Beethoven', 'Symphony No. 5', [124, 123, 126, 129], [['C minor →', 'E♭ major'], ['不停在换'], ['C minor；2nd theme', '在 C major'], ['C minor']], 160],
+  ];
+  const names = ['exposition', 'development', 'recapitulation', 'coda'];
+  const cls = ['wash', 'wash2', 'wash', 'wash-strong'];
+  let o = '';
+  rows.forEach(([nm, sub, bars, ks, y]) => {
+    const tot = bars.reduce((a, b) => a + b, 0);
+    o += text(0, y + 12, nm, 'tb') + text(0, y + 28, sub, 'ts') + text(0, y + 44, `first movement，共 ${tot} bar`, 'ts');
+    let x = X0;
+    bars.forEach((b, i) => {
+      const w = (W * b) / tot, cx = x + (w - 2) / 2;
+      o += rect(x, y, w - 2, 26, cls[i], 3) + rect(x, y, w - 2, 26, 'frame', 3);
+      const pct = Math.round((1000 * b) / tot) / 10;
+      o += text(cx, y + 17, w > 40 ? `${b} bar` : String(b), 'ts', 'middle');
+      o += text(cx, y - 6, w > 90 ? `${names[i]} ${pct}%` : `${pct}%`, 'ts', 'middle');
+      ks[i].forEach((ln, k) => (o += text(cx, y + 44 + k * 15, ln, 'ts', 'middle')));
+      x += w;
+    });
+  });
+  o += text(0, 248, 'Mozart 的 development 只占 14.6%，coda 只有 10 个 bar；', 'ts');
+  o += text(0, 264, 'Beethoven 四部分各占约四分之一。Mozart 一行窄的两段是 development 和 coda。', 'ts');
+  return svg(560, 270, o, 'Mozart 的 Eine kleine Nachtmusik 的 first movement 55、20、52、10 个 bar，Beethoven Fifth Symphony 的 first movement 124、123、126、129 个 bar，以及各部分的 key');
+}
+
+// ---------- 第 8 站：同一组五声的四个出处 ----------
+function pent() {
+  const NOTE = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+  const sets = [
+    ['只弹黑键', 'Voiles、Hollywood', [6, 8, 10, 1, 3]],
+    ['gong mode', '三分损益，gong = C', [0, 2, 4, 7, 9]],
+    ['两个 min’yō tetrachord', 'E G A + B D E', [4, 7, 9, 11, 2]],
+    ['Raga Bhupali', 'Sa = C', [0, 2, 4, 7, 9]],
+  ];
+  const r = 40;
+  let o = '';
+  sets.forEach(([nm, sub, pcs], j) => {
+    const cx = 70 + j * 140, cy = 112;
+    const P = (pc, rr) => [cx + rr * Math.sin((pc * 30) * R), cy - rr * Math.cos((pc * 30) * R)];
+    o += text(cx, 16, nm, 'tb', 'middle') + text(cx, 32, sub, 'ts', 'middle');
+    o += circle(cx, cy, r, 'grid');
+    for (let k = 0; k < 12; k++) { const [x, y] = P(k, r); o += circle(x, y, 1.8, 'mute-f'); }
+    const sorted = [...pcs].sort((a, b) => a - b);
+    o += path(d(sorted.map((pc) => P(pc, r))) + 'Z', 'ln');
+    for (const pc of pcs) {
+      const [x, y] = P(pc, r), [lx, ly] = P(pc, r + 15);
+      o += circle(x, y, 4.5, pc === pcs[0] ? 'solid' : 'ink-f') + text(lx, ly + 4, NOTE[pc], pc === pcs[0] ? 'tl' : 'ts', 'middle');
+    }
+    const steps = pcs.map((pc, i) => (((pcs[(i + 1) % 5] - pc) % 12) + 12) % 12);
+    o += text(cx, cy + r + 34, 'step：' + steps.join(' '), 'ts', 'middle');
+  });
+  o += text(0, 222, '每个圆是一个 octave 的 12 个 pitch class，C 在最上面；主题色的点是起音。', 'ts');
+  o += text(0, 238, '四个五边形是同一个形状，只是转了一个角度。按最近的 piano key 画；', 'ts');
+  o += text(0, 254, 'gong mode 实际的 interval 是 204 与 294 cents（第 3 站）。', 'ts');
+  return svg(560, 262, o, '四个 pitch class 圆：piano 黑键的五声、三分损益的 gong mode、两个 min’yō tetrachord 拼出的 E G A B D、Raga Bhupali，四个五边形形状相同，step 都是 2 和 3 个 half step 的同一种排列');
+}
+
 export default {
   'gec1014-string': string,
   'gec1014-timbre': timbre,
@@ -540,4 +801,11 @@ export default {
   'gec1014-hemiola': hemiola,
   'gec1014-fugue': fugue,
   'gec1014-deshkar': deshkar,
+  'gec1014-triads': triads,
+  'gec1014-keys': keys,
+  'gec1014-sonata': sonata,
+  'gec1014-ekn': ekn,
+  'gec1014-dev5': dev5,
+  'gec1014-proportion': proportion,
+  'gec1014-pent': pent,
 };

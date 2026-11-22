@@ -521,7 +521,7 @@ function knaptab() {
   const cw = 36, rh = 28, x0 = 120, y0 = 46;
   const cx = (w2) => x0 + w2 * cw + cw / 2, cy = (j) => y0 + j * rh + rh / 2;
   for (let c = 0; c <= W; c++) o += text(cx(c), y0 - 8, String(c), 'ts', 'middle');
-  o += text(x0 - 8, y0 - 8, 'j \\ w', 'ts', 'end');
+  o += text(x0 - 8, y0 - 8, 'i \\ w', 'ts', 'end');
   for (let j = 0; j <= n; j++) {
     o += text(x0 - 8, cy(j) + 4, j ? `${j}：(${items[j - 1].join(', ')})` : '0', 'ts', 'end');
     for (let c = 0; c <= W; c++) {
@@ -535,9 +535,9 @@ function knaptab() {
     o += arrow(cx(w2) - (take ? 8 : 0), cy(j) - 9, cx(w3) + (take ? 10 : 0), cy(j - 1) + 9, take ? 'ln' : 'ink');
   }
   const picked = trail.filter((t) => t[2]).map((t) => t[0]).sort();
-  o += text(20, y0 + 5 * rh + 26, `从右下角 K(10, 4) = ${K[n][W]} 往回走：竖直向上 = 第 j 件没拿；斜着向左上（彩色）= 拿了，容量减去 w_j。`, 'ts');
+  o += text(20, y0 + 5 * rh + 26, `从右下角 K(4, 10) = ${K[n][W]} 往回走：竖直向上 = 第 i 件没拿；斜着向左上（彩色）= 拿了，容量减去 wᵢ。`, 'ts');
   o += text(20, y0 + 5 * rh + 44, `拿的是第 ${picked.join('、')} 件。`, 'ts');
-  return svg(560, y0 + 5 * rh + 56, o, 'Knapsack 的 DP table，从 K(10,4)=46 倒推：第 4 件没拿，第 3 件拿了，第 2 件没拿，第 1 件拿了');
+  return svg(560, y0 + 5 * rh + 56, o, 'Knapsack 的 DP table，从 K(4,10)=46 倒推：第 4 件没拿，第 3 件拿了，第 2 件没拿，第 1 件拿了');
 }
 
 // ---------- Earliest finish time 在 9 个 interval 上 ----------
@@ -591,6 +591,160 @@ function c5() {
   return svg(560, 196, o, '5 个 vertex 的 cycle：S 等于 1 和 3 是 independent set，其余 2、4、5 是 vertex cover');
 }
 
+
+// ---------- stable counting sort：倒着扫，按 C[q] 放 ----------
+function count() {
+  let o = '';
+  const A = [[2, 'a'], [1, 'b'], [2, 'c'], [1, 'd']], k = 2, n = A.length;
+  const C = Array(k + 1).fill(0);
+  for (const [q] of A) C[q]++;
+  const cnt = C.slice();
+  for (let q = 1; q <= k; q++) C[q] += C[q - 1];
+  const pre = C.slice();
+  const steps = [];
+  for (let j = n - 1; j >= 0; j--) { const q = A[j][0]; steps.push({ j, q, pos: C[q], after: null }); C[q]--; steps[steps.length - 1].after = C.slice(); }
+  const B = Array(n + 1);
+  for (const st of steps) B[st.pos] = A[st.j];
+  const cw = 56, x0 = 60, X = (i) => x0 + (i - 1) * cw + cw / 2, yA = 58, yB = 214, h = 28;
+  o += text(x0 - 12, yA + 19, 'A', 'tb', 'end') + text(x0 - 12, yB + 19, 'B', 'tb', 'end');
+  for (let i = 1; i <= n; i++) {
+    o += text(X(i), yA - 8, String(i), 'ts', 'middle') + text(X(i), yB + h + 16, String(i), 'ts', 'middle');
+    const [q, c] = A[i - 1];
+    o += rect(X(i) - cw / 2 + 3, yA, cw - 6, h, q === 1 ? 'wash' : 'wash2', 4) + text(X(i), yA + 19, `(${q}, ${c})`, 't', 'middle');
+    const [q2, c2] = B[i];
+    o += rect(X(i) - cw / 2 + 3, yB, cw - 6, h, q2 === 1 ? 'wash' : 'wash2', 4) + text(X(i), yB + 19, `(${q2}, ${c2})`, 't', 'middle');
+  }
+  steps.forEach((st, r) => {
+    const x1 = X(st.j + 1), x2 = X(st.pos), y1 = yA + h + 4, y2 = yB - 4;
+    o += arrow(x1, y1, x2, y2, 'ln', 6);
+    const t = 0.16, lx = x1 + (x2 - x1) * t, ly = y1 + (y2 - y1) * t;
+    o += circle(lx, ly, 9, 'paper') + text(lx, ly + 4.5, String(r + 1), 'tl', 'middle');
+  });
+  const tx = 320;
+  o += text(tx, 30, `数完：C = [${cnt.join(', ')}]`, 't');
+  o += text(tx, 52, `prefix sum：C = [${pre.join(', ')}]`, 'tb');
+  o += text(tx, 74, `C[q] = key ≤ q 的个数`, 'ts');
+  o += text(tx, 104, '从 j = 4 倒着扫到 1：', 't');
+  steps.forEach((st, r) => {
+    const y = 130 + r * 26, [q, c] = A[st.j];
+    o += text(tx, y, `${r + 1}　A[${st.j + 1}] = (${q}, ${c}) → B[C[${q}]] = B[${st.pos}]`, 't');
+    o += text(tx + 16, y + 12, `C = [${st.after.join(', ')}]`, 'ts');
+  });
+  return svg(560, yB + h + 24, o, 'Stable counting sort：A 是 (2,a)、(1,b)、(2,c)、(1,d)，prefix sum 后 C 是 0、2、4，倒着扫依次把 (1,d) 放到 2、(2,c) 放到 4、(1,b) 放到 1、(2,a) 放到 3');
+}
+
+// ---------- LCS：ABCBDAB 与 BDCABA 的表和倒推 ----------
+function lcs() {
+  const A = 'ABCBDAB', B = 'BDCABA', m = A.length, n = B.length;
+  const L = [];
+  for (let i = 0; i <= m; i++) { L.push([]); for (let j = 0; j <= n; j++) L[i].push(i === 0 || j === 0 ? 0 : A[i - 1] === B[j - 1] ? L[i - 1][j - 1] + 1 : Math.max(L[i - 1][j], L[i][j - 1])); }
+  const pathCells = [[m, n]], match = [];
+  { let i = m, j = n; while (i > 0 && j > 0) { if (A[i - 1] === B[j - 1]) { match.push([i, j]); i--; j--; } else if (L[i - 1][j] >= L[i][j - 1]) i--; else j--; pathCells.push([i, j]); } }
+  const word = match.map(([i]) => A[i - 1]).reverse().join('');
+  const S = 30, X0 = 52, Y0 = 40;
+  const cx = (j) => X0 + (j + 0.5) * S, cy = (i) => Y0 + (i + 0.5) * S;
+  const isMatch = (i, j) => match.some(([a, b]) => a === i && b === j);
+  let o = '';
+  for (const [i, j] of pathCells) o += rect(X0 + j * S, Y0 + i * S, S, S, isMatch(i, j) ? 'wash-strong' : 'wash');
+  for (let i = 0; i <= m + 1; i++) o += line(X0, Y0 + i * S, X0 + (n + 1) * S, Y0 + i * S, 'grid');
+  for (let j = 0; j <= n + 1; j++) o += line(X0 + j * S, Y0, X0 + j * S, Y0 + (m + 1) * S, 'grid');
+  o += text(cx(0), Y0 - 9, '∅', 'ts', 'middle') + text(X0 - 12, cy(0) + 4, '∅', 'ts', 'middle');
+  for (let j = 1; j <= n; j++) o += text(cx(j), Y0 - 9, B[j - 1], 'tb', 'middle');
+  for (let i = 1; i <= m; i++) o += text(X0 - 12, cy(i) + 5, A[i - 1], 'tb', 'middle');
+  for (let i = 0; i <= m; i++) for (let j = 0; j <= n; j++) o += text(cx(j), cy(i) + 5, String(L[i][j]), isMatch(i, j) ? 'tb' : 't', 'middle');
+  for (let k = 1; k < pathCells.length; k++) {
+    const [i1, j1] = pathCells[k - 1], [i2, j2] = pathCells[k];
+    const di = i2 - i1, dj = j2 - j1;
+    o += arrow(cx(j1) + dj * 7, cy(i1) + di * 7 - (di === 0 ? 0 : 0), cx(j2) - dj * 8, cy(i2) - di * 8, 'ln', 5);
+  }
+  o += text(X0 + 3.5 * S, 16, 'B = BDCABA', 'ts', 'middle') + text(16, Y0 + 4 * S, 'A', 'ts', 'middle');
+  const tx = 290;
+  o += text(tx, 66, '从右下角 L(7, 6) = 4 往回走：', 'tb');
+  o += text(tx, 92, '字母相同（深色格）：斜着走，', 't') + text(tx, 110, '这个字母进入 LCS', 't');
+  o += text(tx, 136, '字母不同：走向较大的邻格，', 't') + text(tx, 154, '相等时往上', 't');
+  o += text(tx, 186, `倒着记下：${word.split('').reverse().join('、')}`, 't');
+  o += text(tx, 212, `LCS = ${word}，长度 ${L[m][n]}`, 'tl');
+  o += text(tx, 238, '表一共 8 × 7 = 56 格，每格 O(1)', 'ts');
+  return svg(560, Y0 + (m + 1) * S + 10, o, `ABCBDAB 与 BDCABA 的 LCS 表，右下角为 4；倒推经过四个字母相同的格子，得到 ${word}`);
+}
+
+// ---------- patience sorting：6 堆牌和 back pointer ----------
+function patience() {
+  const cards = [10, 3, 7, 2, 4, 6, 11, 8, 9, 1, 5, 13, 12];
+  const piles = [], back = new Map(), where = new Map();
+  for (const c of cards) {
+    let p = piles.findIndex((pl) => pl[pl.length - 1] > c);
+    if (p < 0) { p = piles.length; piles.push([]); }
+    back.set(c, p > 0 ? piles[p - 1][piles[p - 1].length - 1] : null);
+    piles[p].push(c); where.set(c, [p, piles[p].length - 1]);
+  }
+  const chain = []; { let x = piles[piles.length - 1][piles[piles.length - 1].length - 1]; while (x !== null) { chain.push(x); x = back.get(x); } }
+  chain.reverse();
+  const px = (p) => 58 + p * 88, py = (k) => 166 - k * 34, w = 46, h = 26;
+  let o = '';
+  o += text(14, 20, `发牌顺序：${cards.join('　')}`, 't');
+  piles.forEach((pl, p) => {
+    o += line(px(p) - 30, py(0) + h / 2 + 6, px(p) + 30, py(0) + h / 2 + 6, 'axis');
+    o += text(px(p), py(0) + h / 2 + 24, `pile ${p + 1}`, 'ts', 'middle');
+    pl.forEach((c, k) => {
+      const on = chain.includes(c);
+      o += rect(px(p) - w / 2, py(k) - h / 2, w, h, on ? 'solid' : 'paper', 4) + text(px(p), py(k) + 5, String(c), on ? 'tw' : 't', 'middle');
+    });
+  });
+  for (let r = chain.length - 1; r > 0; r--) {
+    const [p1, k1] = where.get(chain[r]), [p2, k2] = where.get(chain[r - 1]);
+    o += arrow(px(p1) - w / 2 - 2, py(k1), px(p2) + w / 2 + 3, py(k2), 'ln', 6);
+  }
+  o += text(14, 230, `沿箭头从 ${chain[chain.length - 1]} 往回走：${chain.join(' → ')}，长度 ${chain.length}，等于 pile 数 ${piles.length}`, 't');
+  o += text(14, 250, '每个 pile 从下往上递减，所以一个 increasing subsequence 每个 pile 至多取一张', 'ts');
+  return svg(560, 258, o, `Patience sorting：13 张牌按规则分成 ${piles.length} 个 pile，back pointer 给出 increasing subsequence ${chain.join('、')}`);
+}
+
+// ---------- 一个小 circuit：x1、x2 → AND、NOT → OR ----------
+function circuit() {
+  let o = '';
+  const val = (x1, x2) => { const g1 = x1 & x2, g2 = 1 - x1, z = g1 | g2; return { g1, g2, z }; };
+  const v = val(1, 0);
+  // gate 形状
+  const AND = (x, y) => path(`M${x} ${y - 18}H${x + 18}A18 18 0 0 1 ${x + 18} ${y + 18}H${x}Z`, 'paper');
+  const OR = (x, y) => path(`M${x} ${y - 18}Q${x + 26} ${y - 18} ${x + 40} ${y}Q${x + 26} ${y + 18} ${x} ${y + 18}Q${x + 10} ${y} ${x} ${y - 18}Z`, 'paper');
+  const NOT = (x, y) => poly([[x, y - 14], [x, y + 14], [x + 26, y]], 'paper') + circle(x + 30, y, 4, 'paper');
+  const yX1 = 52, yX2 = 140, gx = 150, yG2 = 52, yG1 = 128, ox = 290, yZ = 92;
+  // wires
+  o += line(56, yX1, gx, yG2, 'ink');
+  o += line(100, yX1, 100, yG1 - 9, 'ink') + line(100, yG1 - 9, gx, yG1 - 9, 'ink') + circle(100, yX1, 3, 'ink-f');
+  o += line(56, yX2, 120, yX2, 'ink') + line(120, yX2, 120, yG1 + 9, 'ink') + line(120, yG1 + 9, gx, yG1 + 9, 'ink');
+  o += line(gx + 34, yG2, 250, yG2, 'ink') + line(250, yG2, 250, yZ - 9, 'ink') + line(250, yZ - 9, ox + 4, yZ - 9, 'ink');
+  o += line(gx + 36, yG1, 250, yG1, 'ink') + line(250, yG1, 250, yZ + 9, 'ink') + line(250, yZ + 9, ox + 4, yZ + 9, 'ink');
+  o += line(ox + 40, yZ, 370, yZ, 'ink');
+  o += NOT(gx, yG2) + AND(gx, yG1) + OR(ox, yZ);
+  o += text(gx + 12, yG2 - 22, 'NOT', 'ts', 'middle') + text(gx + 18, yG1 + 34, 'AND', 'ts', 'middle') + text(ox + 20, yZ + 34, 'OR', 'ts', 'middle');
+  o += text(46, yX1 + 5, 'x₁', 'tb', 'end') + text(46, yX2 + 5, 'x₂', 'tb', 'end') + text(378, yZ + 5, 'z', 'tb');
+  // (1,0) 时各条线上的值
+  o += text(70, yX1 - 8, '1', 'tl', 'middle') + text(70, yX2 - 8, '0', 'tl', 'middle');
+  o += text(214, yG2 - 8, `g₂ = ${v.g2}`, 'tl', 'middle') + text(214, yG1 - 8, `g₁ = ${v.g1}`, 'tl', 'middle') + text(352, yZ - 8, String(v.z), 'tl', 'middle');
+  // 右边：truth table
+  const tx = 410, rows = [[0, 0], [0, 1], [1, 0], [1, 1]];
+  const cols = ['x₁', 'x₂', 'g₁', 'g₂', 'z'];
+  cols.forEach((c, k) => { o += text(tx + 14 + k * 28, 30, c, 'tb', 'middle'); });
+  rows.forEach(([a, b], r) => {
+    const y = 54 + r * 24, w = val(a, b);
+    if (a === 1 && b === 0) o += rect(tx, y - 16, 140, 22, 'wash', 3);
+    [a, b, w.g1, w.g2, w.z].forEach((x, k) => { o += text(tx + 14 + k * 28, y, String(x), k === 4 ? 'tb' : 't', 'middle'); });
+  });
+  o += line(tx, 38, tx + 140, 38, 'grid');
+  // 下面：逐 gate 的 clause
+  const cl = [
+    ['g₁ ⇔ x₁ ∧ x₂', '(¬g₁ ∨ x₁) ∧ (¬g₁ ∨ x₂) ∧ (g₁ ∨ ¬x₁ ∨ ¬x₂)'],
+    ['g₂ ⇔ ¬x₁', '(g₂ ∨ x₁) ∧ (¬g₂ ∨ ¬x₁)'],
+    ['z ⇔ g₁ ∨ g₂', '(z ∨ ¬g₁) ∧ (z ∨ ¬g₂) ∧ (¬z ∨ g₁ ∨ g₂)'],
+    ['output = 1', '(z)'],
+  ];
+  cl.forEach(([a, b], r) => { const y = 196 + r * 24; o += text(14, y, a, 'tb') + text(130, y, b, 't'); });
+  o += text(14, 300, '9 个 clause；补齐到每个 3 个 literal 之后是 6 × 2 + 2 + 4 = 18 个', 'ts');
+  return svg(560, 308, o, '一个 circuit：g1 是 x1 与 x2 的 AND，g2 是 x1 的 NOT，z 是 g1 与 g2 的 OR；x1 等于 1、x2 等于 0 时 z 为 0；下面是每个 gate 写成的 clause');
+}
+
 export default {
   'cs3230-split': split,
   'cs3230-knap0': knap0,
@@ -611,4 +765,8 @@ export default {
   'cs3230-huffman': huffman,
   'cs3230-potential': potential,
   'cs3230-gadget': gadget,
+  'cs3230-count': count,
+  'cs3230-lcs': lcs,
+  'cs3230-patience': patience,
+  'cs3230-circuit': circuit,
 };

@@ -407,6 +407,70 @@ function transport() {
   return svg(560, 290, o, '两个仓库三家店的 transportation 问题：左边 northwest corner 方案 cost 360，W1 到 S3 的 reduced cost 为 -1；右边沿 cycle 调整 10 单位后的 optimal 方案 cost 350');
 }
 
+// ---------- 第 7 站：network simplex 一次 pivot ----------
+const NS = {
+  b: { 1: 5, 2: 2, 3: -3, 4: -4 },
+  arcs: [[1, 2, 2], [1, 3, 4], [2, 3, 1], [2, 4, 6], [3, 4, 2], [1, 4, 9]],
+};
+// 给定 tree（arc 的下标），从 leaf 往里推 flow，并以 node 4 为根解 potential
+function treeSolve(tree) {
+  const T = tree.map((k) => NS.arcs[k]);
+  const f = {}, rest = { ...NS.b }, left = new Set(T.map((_, i) => i));
+  const deg = (n) => [...left].filter((i) => T[i][0] === n || T[i][1] === n).length;
+  while (left.size) {
+    const n = [1, 2, 3, 4].find((v) => v !== 4 && deg(v) === 1) ?? [1, 2, 3, 4].find((v) => deg(v) === 1);
+    const i = [...left].find((k) => T[k][0] === n || T[k][1] === n), [u, v] = T[i];
+    const flow = u === n ? rest[n] : -rest[n];
+    f[u + '' + v] = flow; rest[u] -= flow; rest[v] += flow; left.delete(i);
+  }
+  const p = { 4: 0 };
+  for (let it = 0; it < 4; it++) for (const [u, v, c] of T) { if (p[v] !== undefined && p[u] === undefined) p[u] = p[v] + c; if (p[u] !== undefined && p[v] === undefined) p[v] = p[u] - c; }
+  const rc = {}; for (const [u, v, c] of NS.arcs) rc[u + '' + v] = c - (p[u] - p[v]);
+  const cost = T.reduce((s, [u, v, c]) => s + c * f[u + '' + v], 0);
+  return { f, p, rc, cost };
+}
+function netsimplex() {
+  const pos = { 1: [28, 222], 2: [135, 50], 3: [135, 138], 4: [242, 222] };
+  const t0 = [1, 2, 4], t1 = [0, 2, 4];
+  const S0 = treeSolve(t0), S1 = treeSolve(t1);
+  const fm = (v) => (v < 0 ? '−' + -v : String(v));
+  const CB = 'c̄';
+  // nonbasic arc 的 reduced cost 标注位置（相对中点）与对齐
+  const off = { 12: [-12, 0, 'end'], 13: [16, 20, 'start'], 24: [12, 0, 'start'], 14: [0, 20, 'middle'] };
+  let o = '';
+  const panel = (x0, title, tree, S, enter, note) => {
+    const P = (n) => [x0 + pos[n][0], pos[n][1]];
+    o += text(x0 + 135, 18, title, 'tb', 'middle');
+    if (enter) o += poly([P(1), P(2), P(3)], 'wash');
+    const boxes = [];
+    NS.arcs.forEach(([u, v], k) => {
+      const [x1, y1] = P(u), [x2, y2] = P(v), L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L;
+      const a = [x1 + ux * 14, y1 + uy * 14], bb = [x2 - ux * 15, y2 - uy * 15];
+      const key = u + '' + v, inT = tree.includes(k), isE = enter && key === enter;
+      if (inT) o += line(a[0], a[1], bb[0], bb[1], 'ink-b') + arrow(a[0], a[1], bb[0], bb[1], 'ink', 9);
+      else o += arrow(a[0], a[1], bb[0], bb[1], isE ? 'ln' : 'mute', 7);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      if (inT) boxes.push(rect(mx - 13, my - 10, 26, 19, 'paper', 3) + text(mx, my + 4.5, String(S.f[key]), 'tb', 'middle'));
+      else o += text(mx + off[key][0], my + off[key][1] + 4, CB + ' = ' + fm(S.rc[key]), isE ? 'tl' : 't', off[key][2]);
+    });
+    o += boxes.join('');
+    const pl = { 1: [0, 32, 'middle'], 2: [-20, 5, 'end'], 3: [20, -8, 'start'], 4: [0, 32, 'middle'] };
+    for (const n of [1, 2, 3, 4]) {
+      const [x, y] = P(n);
+      o += circle(x, y, 13, 'paper') + text(x, y + 4.5, String(n), 'tb', 'middle');
+      o += text(x + pl[n][0], y + pl[n][1], 'p = ' + S.p[n], 'tl', pl[n][2]);
+    }
+    o += text(x0 + 135, 280, note, 'ts', 'middle');
+  };
+  panel(0, 'Tree {(1,3), (2,3), (3,4)}', t0, S0, '12', 'cost ' + S0.cost + '；(1,2) 进，cycle 上 (1,3) 减到 0');
+  panel(290, 'Tree {(1,2), (2,3), (3,4)}', t1, S1, null, 'cost ' + S1.cost + '；reduced cost 全部 ≥ 0');
+  o += line(285, 35, 285, 262, 'grid');
+  const cs = NS.arcs.map(([u, v, c]) => '(' + u + ',' + v + ') ' + c).join('，');
+  o += text(280, 304, 'arc 的 cost：' + cs, 'ts', 'middle');
+  o += text(280, 322, 'supply：node 1、2 供给 5、2，node 3、4 需求 3、4；tree 上 p' + sub('i') + ' − p' + sub('j') + ' = c' + sub('ij') + '，p' + sub('4') + ' = 0', 'ts', 'middle');
+  return svg(560, 332, o, '4-node min cost flow 的一次 network simplex pivot：左边 tree (1,3)(2,3)(3,4)，flow 5、2、4，cost 30，arc (1,2) 的 reduced cost 为 -1；推 5 单位后得到右边 tree (1,2)(2,3)(3,4)，flow 5、7、4，cost 25，reduced cost 全部非负');
+}
+
 // ---------- 第 8 站：branch and bound tree ----------
 function bb() {
   const W = 104, H = 40;
@@ -487,6 +551,7 @@ export default {
   'ma3252-sptree': sptree,
   'ma3252-maxflow': maxflowA,
   'ma3252-transport': transport,
+  'ma3252-netsimplex': netsimplex,
   'ma3252-bb': bb,
   'ma3252-tsp': tsp,
 };

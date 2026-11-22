@@ -564,6 +564,413 @@ function latency() {
   return svg(560, 284, o, '三次实测的 decision latency：π0 在 RTX 4090 上 73 ms，走网络 86 ms，π0.5 加 RTC 在 mobile robot 上 139 ms，都跨过多个 20 ms 的 controller 周期');
 }
 
+
+// ---------- 第 8、9 站：listen 与 speak ----------
+const esc2 = (s) => s.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const dshow = (vals, kt, T) => anim('opacity', vals, kt, T, true);
+const dtrans = (xs, ys, kt, T) => `<animateTransform attributeName="transform" type="translate" calcMode="discrete" values="${xs.map((x, i) => f1(x) + ' ' + f1(ys[i])).join(';')}" keyTimes="${kt.map((t) => (Math.round(t * 1e5) / 1e5).toString()).join(';')}" dur="${T}s" repeatCount="indefinite"/>`;
+// librosa 默认（Slaney）的 mel scale，与 Whisper 的 mel_filters.npz 逐项一致
+const hz2melS = (f) => { const fsp = 200 / 3, ml = 1000 / fsp, ls = Math.log(6.4) / 27; return f < 1000 ? f / fsp : ml + Math.log(f / 1000) / ls; };
+const mel2hzS = (m) => { const fsp = 200 / 3, ml = 1000 / fsp, ls = Math.log(6.4) / 27; return m < ml ? fsp * m : 1000 * Math.exp(ls * (m - ml)); };
+function melbankS(sr = 16000, nfft = 400, nm = 80) {
+  const nb = nfft / 2 + 1, ff = Array.from({ length: nb }, (_, k) => (k * sr) / nfft);
+  const m1 = hz2melS(sr / 2);
+  const hz = Array.from({ length: nm + 2 }, (_, i) => mel2hzS((m1 * i) / (nm + 1)));
+  const W = [];
+  for (let i = 0; i < nm; i++) {
+    const en = 2 / (hz[i + 2] - hz[i]);
+    W.push(ff.map((f) => Math.max(0, Math.min((f - hz[i]) / (hz[i + 1] - hz[i]), (hz[i + 2] - f) / (hz[i + 2] - hz[i + 1]))) * en));
+  }
+  return { W, hz, ff };
+}
+function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+// 第 8 站：waveform → 25 ms window、10 ms hop → log-mel（动图）
+function framesA() {
+  const sr = 16000, N = 4800, r = rng(7);
+  const x = new Float64Array(N);
+  const fade = (n, a, b) => Math.min(1, (n - a) / 160, (b - n) / 160);
+  const ph = Array.from({ length: 40 }, () => r() * 2 * Math.PI);
+  const amp = (f) => (Math.exp(-(((f - 700) / 150) ** 2)) + 0.8 * Math.exp(-(((f - 1200) / 200) ** 2)) + 0.3 * Math.exp(-(((f - 2600) / 250) ** 2)) + 0.004) * (f < 5000 ? 1 : 0);
+  const nf = Array.from({ length: 60 }, () => [4000 + 3800 * r(), r() * 2 * Math.PI]);
+  for (let n = 0; n < N; n++) {
+    const t = n / sr;
+    if (n < 2400) { let v = 0; for (let h = 1; h <= 40; h++) v += amp(150 * h) * Math.sin(2 * Math.PI * 150 * h * t + ph[h - 1]); x[n] = 0.22 * v * Math.max(0, fade(n, 0, 2400)); }
+    else { let v = 0; for (const [f, p] of nf) v += Math.sin(2 * Math.PI * f * t + p); x[n] = 0.035 * v * Math.max(0, fade(n, 2400, 4800)); }
+  }
+  // STFT：reflect padding 200，periodic Hann，n_fft 400，hop 160，丢掉最后一帧
+  const pad = (i) => (i < 0 ? x[-i] : i >= N ? x[2 * N - 2 - i] : x[i]);
+  const win = Array.from({ length: 400 }, (_, n) => 0.5 - 0.5 * Math.cos((2 * Math.PI * n) / 400));
+  const { W } = melbankS();
+  const F = N / 160; // 31 帧，丢最后一帧后 30
+  const S = [];
+  for (let k = 0; k < F; k++) {
+    const seg = Array.from({ length: 400 }, (_, n) => pad(k * 160 - 200 + n) * win[n]);
+    const P = [];
+    for (let b = 0; b <= 200; b++) { let re = 0, im = 0; for (let n = 0; n < 400; n++) { const a = (2 * Math.PI * b * n) / 400; re += seg[n] * Math.cos(a); im -= seg[n] * Math.sin(a); } P.push(re * re + im * im); }
+    S.push(W.map((w) => Math.log10(Math.max(1e-10, w.reduce((s, wi, b) => s + wi * P[b], 0)))));
+  }
+  const mx = Math.max(...S.flat());
+  const L = S.map((c) => c.map((v) => (Math.max(v, mx - 8) + 4) / 4));
+  const lo = Math.min(...L.flat()), hi = Math.max(...L.flat());
+  const X0 = 150, px = 1300, cw = 13; // 每秒 1300 px，一个 hop 13 px
+  let o = '';
+  // waveform
+  o += text(10, 58, 'waveform', 'tb') + text(10, 74, '16 kHz', 'ts');
+  const yc = 62, A = 34;
+  const mm = [];
+  for (let c = 0; c < 390; c++) { let a = 1e9, b = -1e9; for (let n = Math.floor(c * 4800 / 390); n < Math.floor((c + 1) * 4800 / 390); n++) { a = Math.min(a, x[n]); b = Math.max(b, x[n]); } mm.push([a, b]); }
+  o += path(mm.map(([a, b], c) => `M${f1(X0 + c)} ${f1(yc - A * b)}L${f1(X0 + c)} ${f1(yc - A * a)}`).join(''), 'mute');
+  o += line(X0, yc, X0 + 390, yc, 'grid');
+  o += text(X0 + 97, 18, 'vowel：150 Hz 的 harmonic', 'ts', 'middle') + text(X0 + 292, 18, '“s”：4 kHz 以上的 noise', 'ts', 'middle');
+  // log-mel
+  const Y1 = 324, rh = 2;
+  o += text(10, 150, 'log-mel：80 channel × 30 frame', 'tb');
+  const steps = [29, ...Array.from({ length: 30 }, (_, i) => i)];
+  const hold = 1.5, per = 0.15, T = hold + 29 * per + 0.6;
+  const tms = steps.map((_, j) => (j === 0 ? 0 : hold + (j - 1) * per));
+  const kt = tms.map((t) => t / T);
+  for (let k = 0; k < 30; k++) {
+    let g = '';
+    for (let m = 0; m < 80; m++) {
+      const op = ((L[k][m] - lo) / (hi - lo)) ** 2.2;
+      if (op > 0.07) g += `<rect x="${f1(X0 + cw * k - cw / 2)}" y="${f1(Y1 - rh * (m + 1))}" width="${cw}" height="${rh}" class="solid" opacity="${op.toFixed(2)}"/>`;
+    }
+    o += `<g>${g}${dshow(steps.map((q) => (q >= k ? 1 : 0)), kt, T)}</g>`;
+  }
+  o += rect(X0 - cw / 2, Y1 - 160, 30 * cw, 160, 'frame');
+  // channel 刻度：标出 filter 的峰值 frequency
+  for (const m of [0, 20, 40, 60, 79]) {
+    const pk = W[m].indexOf(Math.max(...W[m])) * 40;
+    o += line(X0 - cw / 2, Y1 - rh * (m + 0.5), X0 - cw / 2 - 4, Y1 - rh * (m + 0.5), 'axis') + text(X0 - cw / 2 - 8, Y1 - rh * (m + 0.5) + 4, `ch ${m} · ${pk} Hz`, 'ts', 'end');
+  }
+  for (const t of [0, 0.1, 0.2, 0.3]) o += line(X0 + t * px, Y1, X0 + t * px, Y1 + 4, 'axis') + text(X0 + t * px, Y1 + 17, `${t.toFixed(1)} s`, 'ts', 'middle');
+  // 移动的 window 与当前列
+  const xs = steps.map((k) => cw * k), zs = steps.map(() => 0);
+  o += `<g>${rect(X0 - 16.25, yc - A - 4, 32.5, 2 * A + 8, 'wash', 3)}${rect(X0 - 16.25, yc - A - 4, 32.5, 2 * A + 8, 'ln', 3)}${line(X0, yc + A + 4, X0, Y1 - 160, 'ln-dash')}${rect(X0 - cw / 2, Y1 - 160, cw, 160, 'ln')}${dtrans(xs, zs, kt, T)}</g>`;
+  o += text(10, 122, '25 ms window = 400 个 sample，每次往右挪 10 ms = 160 个 sample', 'ts', 'start');
+  o += text(10, 352, '每个 frame：Hann window → 400 点 DFT（201 个 bin，间隔 40 Hz）→ 80 个 mel filter → log10。', 'ts');
+  return svgA(560, 360, o, '一段 0.3 s 的合成 audio：25 ms 的 window 每次挪 10 ms，每个位置算出 log-mel spectrogram 的一列；vowel 部分在低 channel 上有横纹，s 部分的 energy 在高 channel 上');
+}
+
+// 第 8 站：Whisper 的 80 个 mel filter
+function melbank() {
+  const { hz } = melbankS();
+  let o = '';
+  const sx = lin(0, 8000, 50, 540), base = 140, H = 90;
+  const tri = (i, sxf, b, h, cls) => path(d([[sxf(hz[i]), b], [sxf(hz[i + 1]), b - h], [sxf(hz[i + 2]), b]]), cls);
+  for (let i = 0; i < 80; i++) if (i !== 10 && i !== 79) o += tri(i, sx, base, H, 'mute');
+  o += tri(79, sx, base, H, 'ln') + tri(10, sx, base, H, 'ln');
+  for (let k = 0; k <= 200; k++) o += line(sx(40 * k), base, sx(40 * k), base + 3, 'grid');
+  o += line(sx(0), base, sx(8000), base, 'axis');
+  for (let f = 0; f <= 8000; f += 1000) o += line(sx(f), base, sx(f), base + 6, 'axis') + text(sx(f), base + 19, f === 0 ? '0' : `${f / 1000} kHz`, 'ts', 'middle');
+  o += text(sx(7700), 44, 'filter 79：7440–7960 Hz，14 个 bin', 'tl', 'end');
+  o += line(sx(0), 40, sx(1000), 40, 'ink') + line(sx(0), 36, sx(0), 44, 'ink') + line(sx(1000), 36, sx(1000), 44, 'ink');
+  o += text(sx(1000) + 6, 44, '1 kHz 以下挤着 26 个 filter', 'ts', 'start');
+  o += text(10, 16, 'Whisper 的 80 个 mel filter（每个画成同样高，看宽度）', 'tb');
+  // 放大 0–600 Hz
+  const Y2 = 186, b2 = 300, H2 = 80, sz = lin(0, 600, 50, 540);
+  o += text(10, Y2, '放大 0–600 Hz：bin 间隔 40 Hz，低端的 filter 比一个 bin 还窄', 'tb');
+  for (let i = 0; i < 80; i++) { if (hz[i + 2] > 640) break; o += tri(i, sz, b2, H2, i === 10 ? 'ln' : 'mute'); }
+  o += line(sz(0), b2, sz(600), b2, 'axis');
+  for (let k = 0; k <= 15; k++) o += circle(sz(40 * k), b2, 2.5, 'ink-f') + (k % 2 === 0 ? text(sz(40 * k), b2 + 18, String(40 * k), 'ts', 'middle') : '');
+  o += text(sz(600), b2 + 34, 'Hz；黑点是 400 点 DFT 的 bin', 'ts', 'end');
+  o += text(sz(420), b2 - H2 - 8, 'filter 10：只在 400、440 Hz 两个 bin 上非零', 'tl', 'middle');
+  return svg(560, 340, o, 'Whisper 的 80 个 mel filter：1 kHz 以下有 26 个，每个只盖一两个 bin；8 kHz 附近的 filter 79 盖 14 个 bin。下方放大 0 到 600 Hz，bin 间隔 40 Hz');
+}
+
+// 第 8 站：CTC trellis（动图）
+function ctcA() {
+  const Y = [[0.6, 0.1, 0.3], [0.4, 0.3, 0.3], [0.1, 0.4, 0.5]]; // H, I, blank
+  const lp = ['−', 'H', '−', 'I', '−'], col = { H: 0, I: 1, '−': 2 };
+  const a = [[0.3, 0.6, 0, 0, 0]];
+  for (let t = 1; t < 3; t++) {
+    const row = [];
+    for (let s = 0; s < 5; s++) {
+      let v = a[t - 1][s] + (s >= 1 ? a[t - 1][s - 1] : 0);
+      if (!(lp[s] === '−' || (s >= 2 && lp[s - 2] === lp[s]))) v += s >= 2 ? a[t - 1][s - 2] : 0;
+      row.push(v * Y[t][col[lp[s]]]);
+    }
+    a.push(row);
+  }
+  let o = '';
+  // 左：output 表
+  o += text(20, 24, 'network 的 output y', 'tb');
+  const hx = [70, 112, 154];
+  ['H', 'I', '−'].forEach((c, j) => { o += text(hx[j], 48, c, 'tb', 'middle'); });
+  Y.forEach((r, t) => { o += text(24, 72 + t * 24, `t = ${t + 1}`, 'ts'); r.forEach((v, j) => { o += text(hx[j], 72 + t * 24, v.toFixed(1), 't', 'middle'); }); });
+  o += text(20, 160, "ℓ′ = (−, H, −, I, −)", 'ts') + text(20, 178, '5 个 state', 'ts');
+  // 右：trellis
+  const cx = [270, 380, 490], ry = (s) => 40 + s * 52;
+  for (let s = 0; s < 5; s++) o += text(222, ry(s) + 5, `${s + 1}：${lp[s]}`, 'tb', 'end');
+  cx.forEach((x, t) => { o += text(x, 316, `t = ${t + 1}`, 'ts', 'middle'); });
+  const groups = [[], [], []];
+  for (let t = 0; t < 3; t++) for (let s = 0; s < 5; s++) {
+    let g = '';
+    if (t > 0) {
+      const srcs = [s, s - 1];
+      if (!(lp[s] === '−' || (s >= 2 && lp[s - 2] === lp[s]))) srcs.push(s - 2);
+      for (const q of srcs) if (q >= 0 && a[t - 1][q] > 0) {
+        const x1 = cx[t - 1] + 19, y1 = ry(q), x2 = cx[t] - 19, y2 = ry(s);
+        g += arrow(x1, y1 + (y2 - y1) * 0.12, x2, y2 - (y2 - y1) * 0.12, q === s - 2 ? 'ln' : 'mute', 6);
+      }
+    }
+    const v = a[t][s];
+    const fin = t === 2 && s >= 3;
+    g += circle(cx[t], ry(s), 19, v > 0 ? (fin ? 'wash-strong ink-s' : 'paper') : 'grid') + text(cx[t], ry(s) + 5, v > 0 ? (Math.round(v * 1000) / 1000).toString() : '0', v > 0 ? 't' : 'ts', 'middle');
+    groups[t].push(g);
+  }
+  const frames = [3, 0, 1, 2, 3];
+  const dur = [2.6, 1.2, 1.2, 1.2];
+  const T = dur.reduce((p, q) => p + q, 0) + 0.8;
+  const tms = [0]; for (const d0 of dur) tms.push(tms[tms.length - 1] + d0);
+  const kt = tms.map((t) => t / T);
+  for (let t = 0; t < 3; t++) o += `<g>${groups[t].join('')}${dshow(frames.map((f) => (f >= t ? 1 : 0)), kt, T)}</g>`;
+  o += `<g>${text(380, 296, 'p(HI | x) = 0.288 + 0.09 = 0.378', 'tl', 'middle')}${dshow(frames.map((f) => (f >= 3 ? 1 : 0)), kt, T)}</g>`;
+  o += text(20, 224, '灰线：停在原 state', 'ts') + text(20, 242, '或走到下一个 state', 'ts');
+  o += text(20, 266, '主题色线：从 H 跳过', 'ts') + text(20, 284, '中间的 blank 到 I', 'ts');
+  return svgA(560, 324, o, 'CTC 对 HI 的 forward trellis：5 个 state、3 个 frame，每格是 alpha；最后一列的 I 和末尾 blank 两格相加得 0.378');
+}
+
+// 第 8 站：一句 1.5 s 的 command 在 Whisper 里
+function whisperwin() {
+  let o = '';
+  const sx = lin(0, 30, 70, 540);
+  o += text(10, 20, '30 s 的 window：480000 个 sample', 'tb');
+  o += rect(sx(0), 30, sx(1.5) - sx(0), 26, 'solid') + rect(sx(1.5), 30, sx(30) - sx(1.5), 26, 'wash2');
+  o += text(sx(1.5) + 8, 48, 'pad_or_trim 补上的 0（28.5 s）', 'ts');
+  o += text(sx(0), 72, '1.5 s 的 command', 'tl');
+  for (const t of [0, 1.5, 10, 20, 30]) o += line(sx(t), 56, sx(t), 60, 'axis') + (t < 2 ? '' : text(sx(t), 72, `${t} s`, 'ts', 'middle'));
+  o += text(10, 104, '80 × 3000 的 log-mel → 两层 convolution（第二层 stride 2）→ 1500 个 audio token', 'tb');
+  o += rect(sx(0), 114, sx(1.5) - sx(0), 26, 'solid') + rect(sx(1.5), 114, sx(30) - sx(1.5), 26, 'wash2');
+  for (let k = 1; k < 30; k++) o += line(sx(k), 114, sx(k), 140, 'grid');
+  o += text(sx(0), 156, '75 个 token（5%）', 'tl') + text(sx(1.5) + 8, 132, '1425 个 token，encoder 照样每层都算', 'ts');
+  o += text(10, 188, 'Decoder 要 output 的 token sequence', 'tb');
+  const chips = [['<|startoftranscript|>', 'paper'], ['<|en|>', 'paper'], ['<|transcribe|>', 'paper'], ['<|0.00|>', 'wash'], ['Pick up the red cup.', 'wash-strong'], ['<|1.50|>', 'wash'], ['<|endoftext|>', 'paper']];
+  let x = 10, y = 202;
+  for (const [c, cls] of chips) {
+    const w = c.length * 6.9 + 14;
+    if (x + w > 552) { x = 10; y += 36; }
+    o += rect(x, y, w, 26, cls, 4) + text(x + w / 2, y + 17, esc2(c), 'ts', 'middle');
+    x += w + 6;
+  }
+  o += text(10, y + 52, '前三个指定语言和任务；timestamp 以 20 ms 为一格，0.00 到 30.00 共 1501 个。', 'ts');
+  return svg(560, y + 60, o, 'Whisper 把 1.5 s 的 command 补到 30 s，3000 个 frame 变成 1500 个 audio token，只有 75 个对应声音；decoder 输出 startoftranscript、en、transcribe、两个 timestamp 之间的文字和结束 token');
+}
+
+// 第 8 站：plane wave 扫过 4 个 microphone（动图）
+function micA() {
+  const O = [280, 190], u = [0.5, -Math.sqrt(3) / 2], v = [Math.sqrt(3) / 2, 0.5];
+  const mx = [160, 240, 320, 400];
+  const proj = mx.map((x) => (x - O[0]) * u[0]);
+  let o = '';
+  o += line(110, O[1], 450, O[1], 'grid');
+  // 角度
+  o += path(`M${O[0] + 150} ${O[1]} A150 150 0 0 0 ${f1(O[0] + 150 * u[0])} ${f1(O[1] + 150 * u[1])}`, 'mute');
+  o += line(O[0], O[1], O[0] + 175 * u[0], O[1] + 175 * u[1], 'dash');
+  o += text(O[0] + 158, O[1] - 30, 'θ = 60°', 'ts');
+  o += text(O[0] + 182 * u[0] + 8, O[1] + 182 * u[1], 'user 的方向', 'ts');
+  // wavefront：沿 −u 移动
+  const N = 60, s0 = 150, s1 = -150, hold = 0.8, run = 3.6, T = hold + run;
+  const ss = Array.from({ length: N + 1 }, (_, j) => s0 + ((s1 - s0) * j) / N);
+  const kt = [0, (hold - 0.01) / T, ...ss.map((_, j) => (hold + (run * j) / N) / T)];
+  const sAll = [ss[N / 2], ss[N / 2], ...ss];
+  const tx = sAll.map((s) => s * u[0]), ty = sAll.map((s) => s * u[1]);
+  const L = 170;
+  o += `<clipPath id="ee4706-mic-clip"><rect x="110" y="70" width="430" height="140"/></clipPath><g clip-path="url(#ee4706-mic-clip)"><g>${line(O[0] - L * v[0], O[1] - L * v[1], O[0] + L * v[0], O[1] + L * v[1], 'ln')}${atrans(tx, ty, kt, T)}</g></g>`;
+  // microphone 与到达标记
+  mx.forEach((x, k) => {
+    o += rect(x - 7, O[1] - 9, 14, 18, 'paper', 3);
+    const on = sAll.map((s) => (s <= proj[k] ? 1 : 0));
+    o += `<g>${circle(x, O[1], 14, 'ln')}${dshow(on, kt, T)}</g>`;
+    const dtu = ((proj[3] - proj[k]) / 40) * ((0.02 * 0.5) / 343) * 1e6;
+    o += text(x, O[1] + 34, `mic ${k + 1}`, 'ts', 'middle') + text(x, O[1] + 50, k === 3 ? '0' : `+${dtu.toFixed(1)} μs`, k === 3 ? 'ts' : 'tl', 'middle');
+  });
+  o += text(200, O[1] - 18, 'd = 2 cm', 'ts', 'middle');
+  // 下方：到达时刻与 sample 时刻
+  const Yt = 300, st = lin(0, 100, 120, 500);
+  o += line(st(0), Yt, st(100), Yt, 'axis');
+  for (const t of [0, 25, 50, 75, 100]) o += line(st(t), Yt, st(t), Yt + 4, 'axis') + text(st(t), Yt + 17, String(t), 'ts', 'middle');
+  o += text(st(100), Yt + 33, 'μs', 'ts', 'end');
+  for (const t of [0, 62.5]) o += line(st(t), Yt - 30, st(t), Yt, 'dash');
+  o += text(st(62.5) + 4, Yt - 22, '16 kHz 的下一个 sample', 'ts');
+  [0, 1, 2, 3].map((k) => (k * 0.01 / 343) * 1e6).forEach((t) => { o += circle(st(t), Yt - 8, 4, 'ln-f'); });
+  o += text(10, Yt - 4, '到达时刻', 'tb');
+  o += text(10, 26, 'τ = d cos θ / c = 0.02 × 0.5 / 343 = 29.2 μs', 'tb');
+  o += text(10, 44, '只有 0.47 个 sample：对齐要做 fractional delay', 'ts');
+  return svgA(560, 340, o, '一个 plane wave 从 60 度方向依次扫过 4 个间距 2 cm 的 microphone，相邻的到达时间差 29.2 微秒，不到 16 kHz 下一个 sample 的一半');
+}
+
+// 第 9 站：Furhat baseline 的一次回合
+function turn() {
+  const sx = lin(-1.2, 3.0, 110, 545);
+  let o = '';
+  const bar = (a, b, y, cls, lab, tcls = 'ts') => rect(sx(a), y, sx(b) - sx(a), 26, cls) + (lab ? text((sx(a) + sx(b)) / 2, y + 17, lab, tcls, 'middle') : '');
+  o += text(100, 42, 'user', 'tb', 'end') + bar(-1.0, 0, 26, 'wash-strong', '“Pick up the red cup.”', 't');
+  o += text(100, 94, 'robot', 'tb', 'end') + text(100, 110, 'baseline', 'ts', 'end');
+  o += bar(0, 1, 80, 'wash2', '等 1 s silence') + bar(1, 1.5, 80, 'wash', 'LLM') + bar(1.5, 2.5, 80, 'wash-strong', 'TTS 1 s');
+  o += rect(sx(2.5), 80, sx(3.0) - sx(2.5), 26, 'solid') + text(sx(2.75), 97, '开口', 'tw', 'middle');
+  o += line(sx(2.6), 70, sx(2.6), 116, 'dash') + text(sx(2.6), 64, '实测峰值 2.6 s', 'ts', 'middle');
+  o += text(100, 158, '人', 'tb', 'end');
+  o += rect(sx(0.2), 142, sx(3.0) - sx(0.2), 26, 'solid') + text(sx(0.2) + 8, 159, '0.2 s 后已经在回答', 'tw', 'start');
+  o += line(sx(0), 20, sx(0), 186, 'ink');
+  o += text(sx(0), 200, '用户说完', 'tl', 'middle');
+  for (const t of [-1, 0, 1, 2, 3]) o += line(sx(t), 186, sx(t), 190, 'axis') + text(sx(t), 222, `${t} s`, 'ts', 'middle');
+  o += line(sx(-1.2), 186, sx(3.0), 186, 'axis');
+  o += text(10, 248, '1 + 0.5 + 1 = 2.5 s，和实测的峰值 2.6 s 接近（Skantze and Irfan 2025）。', 'ts');
+  return svg(560, 256, o, 'Furhat baseline 从用户说完起，先等 1 s silence，再 LLM 0.5 s、TTS 1 s，2.5 s 后才开口；人在 0.2 s 后已经接话');
+}
+
+// 第 9 站：silero-vad 的规则在一串 probability 上（动图）
+function vadA() {
+  const dt = 0.032, N = 110;
+  const pAt = (i) => { const t = (i + 0.5) * dt; if (t < 0.10) return 0.04; if (t < 1.06) return t > 0.46 && t < 0.62 ? 0.42 : 0.92; if (t < 1.5) return 0.06; if (t < 2.14) return 0.93; return 0.05; };
+  const P = Array.from({ length: N }, (_, i) => pAt(i));
+  const run = (minMs) => {
+    const ms = (16000 * minMs) / 1000; let trig = false, temp = 0, cur = 0; const ev = [];
+    P.forEach((p) => { cur += 512; if (p >= 0.5 && temp) temp = 0; if (p >= 0.5 && !trig) { trig = true; ev.push(cur / 16000); return; } if (p < 0.35 && trig) { if (!temp) temp = cur; if (cur - temp < ms) return; ev.push(cur / 16000); temp = 0; trig = false; } });
+    const seg = []; for (let k = 0; k < ev.length; k += 2) seg.push([ev[k], ev[k + 1]]); return seg;
+  };
+  const A = run(100), B = run(1000);
+  const sx = lin(0, 3.5, 92, 545);
+  let o = '';
+  o += text(84, 30, 'user', 'tb', 'end');
+  o += rect(sx(0.10), 16, sx(1.06) - sx(0.10), 22, 'wash-strong') + text(sx(0.58), 32, 'Pick up the', 't', 'middle');
+  o += rect(sx(1.5), 16, sx(2.14) - sx(1.5), 22, 'wash-strong') + text(sx(1.82), 32, 'red cup', 't', 'middle');
+  o += text(sx(1.28), 32, '停 0.44 s', 'ts', 'middle');
+  // probability
+  const yb = 150, hp = 90;
+  o += text(84, 100, 'speech', 'tb', 'end') + text(84, 116, 'probability', 'ts', 'end');
+  P.forEach((p, i) => { o += rect(sx(i * dt) + 0.4, yb - hp * p, sx(dt) - sx(0) - 0.8, hp * p, 'wash'); });
+  o += line(sx(0), yb, sx(3.5), yb, 'axis');
+  o += line(sx(0), yb - hp * 0.5, sx(3.5), yb - hp * 0.5, 'dash') + text(sx(3.5), yb - hp * 0.5 - 4, '0.5', 'ts', 'end');
+  o += line(sx(0), yb - hp * 0.35, sx(3.5), yb - hp * 0.35, 'dash') + text(sx(3.5), yb - hp * 0.35 + 13, '0.35', 'ts', 'end');
+  o += text(sx(0.54), 56, '0.42：在两条线之间', 'ts', 'middle') + line(sx(0.54), 60, sx(0.54), yb - hp * 0.42 - 3, 'mute');
+  // 状态条：随 cursor 增长
+  const hold = 1.6, runT = 3.5, T = hold + runT + 0.6, M = 70;
+  const cur = [3.5, 3.5, ...Array.from({ length: M + 1 }, (_, j) => (3.5 * j) / M), 3.5];
+  const kt = [0, (hold - 0.01) / T, ...Array.from({ length: M + 1 }, (_, j) => (hold + (runT * j) / M) / T), 1];
+  const stateRow = (segs, y, name, sub) => {
+    let q = text(84, y + 14, name, 'tb', 'end') + text(84, y + 30, sub, 'ts', 'end');
+    q += rect(sx(0), y, sx(3.5) - sx(0), 22, 'frame');
+    for (const [a, b] of segs) {
+      const ws = cur.map((c) => f1(Math.max(0, Math.min(c, b) - a) * (sx(1) - sx(0))));
+      q += `<rect x="${f1(sx(a))}" y="${y}" width="${ws[0]}" height="22" class="solid">${anim('width', ws, kt, T)}</rect>`;
+      const on = cur.map((c) => (c >= b ? 1 : 0));
+      q += `<g>${line(sx(b), y - 4, sx(b), y + 26, 'ink')}${b > 3 ? text(sx(b) - 4, y + 38, `${b.toFixed(3)} s 判定说完`, 'tl', 'end') : text(sx(b) + 4, y + 38, `${b.toFixed(3)} s 判定说完`, 'tl', 'start')}${dshow(on, kt, T)}</g>`;
+    }
+    return q;
+  };
+  o += stateRow(A, 176, 'min_silence', '100 ms');
+  o += stateRow(B, 236, 'min_silence', '1000 ms');
+  o += `<line x1="${f1(sx(3.5))}" y1="12" x2="${f1(sx(3.5))}" y2="262" class="mute">${anim('x1', cur.map((c) => f1(sx(c))), kt, T)}${anim('x2', cur.map((c) => f1(sx(c))), kt, T)}</line>`;
+  for (const t of [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]) o += line(sx(t), 286, sx(t), 290, 'axis') + text(sx(t), 304, `${t}`, 'ts', 'middle');
+  o += line(sx(0), 286, sx(3.5), 286, 'axis') + text(sx(3.5), 320, '时间（s）；每根细条是一个 32 ms 的 window', 'ts', 'end');
+  return svgA(560, 328, o, '同一串 VAD probability 在两种 min_silence 下：100 ms 在 1.216 秒就判定说完，把 Pick up the 切成一句；1000 ms 要到 3.2 秒才判定，比用户说完晚 1.06 秒');
+}
+
+// 第 9 站：LocalAgreement-2 的三次 update
+function agree() {
+  const rows = [
+    ['update 1', '0–1.0 s', [['pick', 0], ['up', 0], ['the', 0], ['bread', 0]], '还没有 confirmed'],
+    ['update 2', '0–1.5 s', [['pick', 1], ['up', 1], ['the', 1], ['red', 0], ['cup', 0]], 'confirmed：pick up the'],
+    ['update 3', '0–2.0 s', [['pick', 1], ['up', 1], ['the', 1], ['red', 1], ['cup', 1], ['and', 0]], 'confirmed：pick up the red cup'],
+  ];
+  let o = '';
+  rows.forEach(([u, buf, ws, note], r) => {
+    const y = 20 + r * 74;
+    o += text(10, y + 18, u, 'tb') + text(10, y + 34, `buffer ${buf}`, 'ts');
+    let x = 130;
+    ws.forEach(([w, c]) => {
+      const wd = w.length * 8 + 18;
+      o += rect(x, y, wd, 28, c ? 'solid' : 'paper', 4) + text(x + wd / 2, y + 19, w, c ? 'tw' : 't', 'middle');
+      if (w === 'bread') o += text(x + wd + 8, y + 19, '← 听到一半的“red”', 'ts', 'start');
+      x += wd + 6;
+    });
+    o += text(130, y + 48, note, r ? 'tl' : 'ts', 'start');
+  });
+  o += text(10, 250, '实心：连续两次 output 的公共 prefix，以后不再改。空心：unconfirmed，下一次还可能变。', 'ts');
+  return svg(560, 258, o, 'LocalAgreement-2：第一次 output 是 pick up the bread，第二次是 pick up the red cup，公共 prefix pick up the 被 confirmed；第三次之后 pick up the red cup 被 confirmed');
+}
+
+// 第 9 站：streaming TTS 的 chunk 时间线
+function tts() {
+  const ch = (20 * 256) / 22050 * 1000;
+  const sx = lin(0, 1150, 130, 545);
+  let o = '';
+  const sched = (speed, n) => {
+    const c = ch / speed, comp = [], play = [];
+    let end = 0;
+    for (let k = 0; k < n; k++) { comp.push([k * c, (k + 1) * c]); const st = Math.max((k + 1) * c, end); play.push([st, st + ch]); end = st + ch; }
+    return { comp, play };
+  };
+  const block = (segs, y, cls, lab, tcls) => segs.map(([a, b], k) => { const b2 = Math.min(b, 1150); return b2 > a ? rect(sx(a), y, sx(b2) - sx(a), 24, cls) + (sx(b2) - sx(a) > 30 ? text((sx(a) + sx(b2)) / 2, y + 16, `${lab}${k + 1}`, tcls, 'middle') : '') : ''; }).join('');
+  const A = sched(1.43, 7), B = sched(0.8, 4);
+  o += text(10, 20, 'HiFi-GAN V1，CPU 上 1.43 倍 real time', 'tb');
+  o += text(122, 50, 'vocoder 在算', 'ts', 'end') + block(A.comp, 34, 'wash', 'c', 'ts');
+  o += text(122, 84, 'loudspeaker 在播', 'ts', 'end') + block(A.play, 68, 'solid', 'c', 'tw');
+  o += line(sx(A.comp[0][1]), 58, sx(A.comp[0][1]), 68, 'ink') + text(sx(A.comp[0][1]) + 3, 108, `first audio：${A.comp[0][1].toFixed(0)} ms`, 'tl', 'start');
+  o += text(10, 140, '假设一个 0.8 倍 real time 的 vocoder', 'tb');
+  o += text(122, 170, 'vocoder 在算', 'ts', 'end') + block(B.comp, 154, 'wash', 'c', 'ts');
+  o += text(122, 204, 'loudspeaker 在播', 'ts', 'end') + block(B.play, 188, 'solid', 'c', 'tw');
+  for (let k = 1; k < B.play.length; k++) { const g0 = B.play[k - 1][1], g1 = B.play[k][0]; if (g1 < 1150 && g1 - g0 > 1) o += text((sx(g0) + sx(g1)) / 2, 228, `空白 ${(g1 - g0).toFixed(0)} ms`, 'tl', 'middle'); }
+  for (let t = 0; t <= 1100; t += 100) o += line(sx(t), 244, sx(t), 248, 'axis') + (t % 200 === 0 ? text(sx(t), 262, String(t), 'ts', 'middle') : '');
+  o += line(sx(0), 244, sx(1150), 244, 'axis') + text(sx(1150), 278, 'ms', 'ts', 'end');
+  o += text(10, 300, `一个 chunk = 20 个 mel frame = ${ch.toFixed(1)} ms 的 audio。上面每个 chunk 算 ${(ch / 1.43).toFixed(1)} ms，播放之前已经就绪。`, 'ts');
+  return svg(560, 308, o, 'Streaming TTS：HiFi-GAN V1 在 CPU 上每个 232 毫秒的 chunk 算 162 毫秒，第二个 chunk 起计算总领先于播放，声音连续；一个 0.8 倍 real time 的 vocoder 每两个 chunk 之间留下 58 毫秒的空白');
+}
+
+// 第 9 站：barge-in
+function barge() {
+  let o = '';
+  // 上：几何
+  o += rect(80, 30, 92, 80, 'paper', 18) + text(126, 22, 'robot', 'ts', 'middle');
+  o += rect(96, 82, 22, 14, 'wash-strong ink-s', 2) + text(76, 94, 'loudspeaker', 'ts', 'end');
+  o += circle(152, 89, 6, 'ink-f') + text(152, 64, 'mic', 'ts', 'middle');
+  o += line(107, 122, 152, 122, 'ink') + line(107, 118, 107, 126, 'ink') + line(152, 118, 152, 126, 'ink') + text(130, 140, '0.1 m', 'ts', 'middle');
+  o += circle(470, 52, 13, 'wash-strong ink-s') + rect(452, 68, 36, 46, 'wash-strong ink-s', 8) + text(470, 132, 'user', 'ts', 'middle');
+  o += line(158, 89, 446, 89, 'dash') + text(302, 82, '1.5 m', 'ts', 'middle');
+  o += text(282, 164, 'free field 里 pressure ∝ 1/距离：robot 自己的声音比 user 高 20 log10(15) = 23.5 dB', 'tl', 'middle');
+  // 下：时间线
+  const words = ['I', 'will', 'put', 'the', 'cup', 'in', 'the', 'sink', 'and', 'then', 'wipe', 'the', 'table'];
+  let x = 20; const y = 196, stopAt = 8;
+  o += text(10, 186, 'robot 在说', 'tb');
+  words.forEach((w, k) => {
+    const wd = w.length * 7.6 + 12;
+    o += rect(x, y, wd, 26, k < stopAt ? 'solid' : 'paper', 3) + text(x + wd / 2, y + 17, w, k < stopAt ? 'tw' : 'ts', 'middle');
+    if (k === stopAt) { o += line(x - 3, y - 10, x - 3, y + 66, 'ln') + text(x, y + 82, '在下一个 word 边界停下', 'tl', 'middle'); }
+    if (k === 6) o += rect(x, y + 36, 280, 24, 'wash-strong') + text(x + 92, y + 53, 'user：“No, not the sink”', 't', 'start');
+    x += wd + 4;
+  });
+  o += text(10, y + 112, 'LLM 的 history 只放说出口的部分：', 'ts');
+  o += rect(10, y + 120, 300, 26, 'wash', 4) + text(20, y + 137, 'robot：“I will put the cup in the sink”', 't', 'start');
+  o += text(330, y + 137, '空心的半句从没播出，不进 history', 'ts', 'start');
+  return svg(560, y + 154, o, '上：robot 的 loudspeaker 离自己的 microphone 0.1 米，user 在 1.5 米外，robot 自己的声音在 microphone 上高 23.5 分贝。下：robot 说到 sink 时 user 插话，robot 在下一个 word 边界停下，LLM 的 history 只保留说出口的部分');
+}
+
+// 第 9 站：四种做法的 latency 账
+function budget() {
+  const sx = lin(0, 2.7, 170, 545);
+  let o = '';
+  const row = (y, name, sub, segs, endLab) => {
+    let q = text(160, y + 12, name, 'tb', 'end') + text(160, y + 28, sub, 'ts', 'end');
+    let t = 0;
+    segs.forEach(([lab, d0, cls]) => { q += rect(sx(t), y, sx(t + d0) - sx(t), 26, cls); const a0 = t === 0 ? sx(0.23) : sx(t); if (sx(t + d0) - a0 > lab.length * 6.5 + 6) q += text((a0 + sx(t + d0)) / 2, y + 17, lab, cls === 'solid' ? 'tw' : 'ts', 'middle'); t += d0; });
+    q += text(Math.max(sx(t), sx(0.23)) + 6, y + 17, endLab, 'tl', 'start');
+    return q;
+  };
+  o += row(20, '串行', 'Furhat baseline', [['等 silence 1 s', 1, 'wash2'], ['LLM 0.5', 0.5, 'wash'], ['TTS 1 s', 1, 'wash-strong']], '2.5 s');
+  o += row(80, 'Streaming', '每段只算第一块', [['gap', 0.5, 'wash2'], ['', 0.156, 'wash'], ['', 0.162, 'wash-strong']], '≥ 0.82 s');
+  o += text(sx(0.5), 126, 'LLM 第一句 0.156 + vocoder 第一个 chunk 0.162', 'ts', 'start') + text(sx(0.5), 142, '（ASR、prefill、mel 没有计入）', 'ts', 'start');
+  o += row(162, '提前准备', 'VAP + TurnGPT', [['gap', 0.5, 'wash2']], '回复已就绪；实测 mode 0.6 s');
+  o += row(218, 'Moshi', '一个 model', [['', 0.2, 'solid']], '实际 200 ms（理论 160 ms）');
+  o += line(sx(0.23), 12, sx(0.23), 256, 'ln-dash') + text(sx(0.23) + 4, 270, '人：230 ms', 'tl', 'start');
+  for (const t of [0, 0.5, 1, 1.5, 2, 2.5]) o += line(sx(t), 256, sx(t), 260, 'axis') + text(sx(t), 290, `${t} s`, 'ts', 'middle');
+  o += line(sx(0), 256, sx(2.7), 256, 'axis');
+  o += text(10, 314, '时间从用户说完算起。串行时整段相加；streaming 时只有每段的第一块相加。', 'ts');
+  return svg(560, 322, o, '四种做法的 latency：串行 2.5 秒；每段 streaming 至少 0.82 秒；提前准备时只剩 0.5 秒的 gap，实测 mode 0.6 秒；Moshi 实际 200 毫秒，人 230 毫秒');
+}
+
 export default {
   'ee4706-pause': pause,
   'ee4706-react': reactA,
@@ -579,4 +986,15 @@ export default {
   'ee4706-assist': assist,
   'ee4706-latency': latency,
   'ee4706-rtc': rtcA,
+  'ee4706-frames': framesA,
+  'ee4706-melbank': melbank,
+  'ee4706-ctc': ctcA,
+  'ee4706-whisperwin': whisperwin,
+  'ee4706-mic': micA,
+  'ee4706-turn': turn,
+  'ee4706-vad': vadA,
+  'ee4706-agree': agree,
+  'ee4706-tts': tts,
+  'ee4706-barge': barge,
+  'ee4706-budget': budget,
 };

@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, ashow, apath, acircle, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 // Power 的三个 face：各自作用在从 preference 到 outcome 的哪一段
 function faces() {
@@ -337,6 +337,419 @@ function bargain() {
   return svg(560, 294, o, 'Bargaining model：一期时 A 接受 x 不小于 0.5，B 接受 x 不大于 0.7，双方都宁愿和平的分法是 0.5 到 0.7；两期 commitment problem 中，B 现在开战得 1.3，即使 A 第一期全部让出 B 也只得 1.2，所以 B 选择开战');
 }
 
+// ====================== 第 9–16 站 ======================
+// 一段内容只在某些 state 出现（第一个 state 就是静态截图时看到的样子）
+const showG = (body, on, kt, T) => `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+// n 个 state 均分时间
+const evenKt = (n) => Array.from({ length: n }, (_, i) => i / n);
+
+// 第 9 站：policy cycle，用 ALS 走一遍（静态部分完整，动画只移动高亮框）
+function cycleA() {
+  const bx = 70, bw = 170, y0 = 14, rh = 54, bh = 40;
+  const st = [
+    ['Problem identification', ['1962–73 年私家车每年 +8.8%', '1975 年底 143,155 辆，CBD 早高峰拥堵']],
+    ['Agenda setting', ['1974 年 1 月成立', 'Road Transport Action Committee']],
+    ['Formulation 与 adoption', ['1974 年 5 月公布 ALS', '目标：高峰 traffic 减少 25%–30%']],
+    ['Implementation', ['1975 年 6 月 2 日起，6.7 km²，27 个 gantry', '7:30–9:30，每天 SGD 3；Park-and-Ride']],
+    ['Evaluation', ['', '']],
+  ];
+  let o = '';
+  st.forEach(([name, notes], i) => {
+    const y = y0 + i * rh;
+    o += rect(bx, y, bw, bh, 'paper', 6) + text(bx + bw / 2, y + 25, name, 'tb', 'middle');
+    if (i < 4) o += arrow(bx + bw / 2, y + bh + 1, bx + bw / 2, y + rh - 1, 'ink');
+    o += text(bx + bw + 16, y + 16, notes[0], 'ts') + text(bx + bw + 16, y + 33, notes[1], 'ts');
+  });
+  // evaluation 一行：两根 bar
+  const ye = y0 + 4 * rh, sx = lin(0, 42790, 0, 180), ex = bx + bw + 16;
+  o += rect(ex + 52, ye + 4, sx(42790), 11, 'wash2') + text(ex, ye + 14, '1975.3', 'ts') + text(ex + 56 + sx(42790), ye + 14, '42,790 辆', 'ts');
+  o += rect(ex + 52, ye + 22, sx(11363), 11, 'solid') + text(ex, ye + 32, '9–10 月', 'ts') + text(ex + 56 + sx(11363), ye + 32, '11,363 辆（−73.4%）', 'tb');
+  // feedback：从 evaluation 回到 agenda setting
+  const yb = y0 + 4 * rh + bh / 2, ya = y0 + rh + bh / 2;
+  o += line(bx, yb, bx - 22, yb, 'ln') + line(bx - 22, yb, bx - 22, ya, 'ln') + arrow(bx - 22, ya, bx - 2, ya, 'ln');
+  o += text(bx - 28, (ya + yb) / 2 - 6, 'feed', 'tl', 'end') + text(bx - 28, (ya + yb) / 2 + 10, 'back', 'tl', 'end');
+  const yr = y0 + 5 * rh + 6;
+  o += rect(bx, yr, 482, 64, 'wash', 6);
+  o += text(bx + 10, yr + 18, '下一轮：车流挪到收费时段前后，傍晚高峰没人管。', 'ts');
+  o += text(bx + 10, yr + 37, '1975.8 延到 10:15 → 1989 加傍晚、取消豁免', 'tb');
+  o += text(bx + 10, yr + 56, '→ 1994 全天 → 1998.4.1 改为 ERP', 'tb');
+  // 动画：高亮框依次落在五个 stage，再落到下一轮
+  const T = 15, kt = evenKt(6);
+  const fr = (y, h, w = bw) => d([[bx - 4, y - 4], [bx + w + 4, y - 4], [bx + w + 4, y + h + 4], [bx - 4, y + h + 4], [bx - 4, y - 4]]);
+  const frames = [0, 1, 2, 3, 4].map((i) => fr(y0 + i * rh, bh, 482)).concat([fr(yr, 64, 482)]);
+  o += apath(frames, kt, T, 'ln', true);
+  return svgA(560, yr + 70, o, '动图：Singapore 1975 年的 Area Licensing Scheme 依次经过 policy cycle 的五个 stage：problem identification、agenda setting、formulation 与 adoption、implementation、evaluation；evaluation 显示进 CBD 的车从 42,790 辆降到 11,363 辆，之后 feedback 回到 agenda setting，引出 1975 到 1998 年的一系列修改');
+}
+
+// 第 9 站：Mexico tobacco control 的三条 stream
+function streamsA() {
+  const sx = lin(2008, 2022, 120, 530);
+  const rows = [['Problem stream', '倡导者不断改写说法：health → law、economy、青少年', 2008], ['Policy stream', '方案现成：100% 无烟、广告禁令', 2008], ['Politics stream', '2018 年新 president，legislature 有多数', 2018]];
+  let o = '';
+  for (const yr of [2008, 2010, 2012, 2014, 2016, 2018, 2020, 2022]) o += line(sx(yr), 36, sx(yr), 214, 'grid') + text(sx(yr), 232, String(yr), 'ts', 'middle');
+  o += rect(sx(2018), 36, sx(2022) - sx(2018), 178, 'wash');
+  o += text((sx(2018) + sx(2022)) / 2, 30, 'policy window', 'tl', 'middle');
+  rows.forEach(([n, note, from], i) => {
+    const y = 66 + i * 56;
+    o += text(112, y + 4, n, 'tb', 'end');
+    if (from > 2008) o += line(sx(2008), y, sx(from), y, 'dash');
+    o += line(sx(from), y, sx(2022), y, 'ln');
+    o += circle(sx(from), y, 4, 'ln-f');
+    o += text(sx(2008) + 8, y + 20, note, 'ts');
+  });
+  o += text(sx(2008), 252, '2008–2020：修订 tobacco 控制法的提案和倡议超过 100 项，都没有通过', 'ts');
+  o += circle(sx(2022), 178, 6, 'ink-f') + text(sx(2022) - 10, 200, '2022 修正案通过', 'tb', 'end');
+  // 动画：年份游标
+  const T = 12, yrs = [2008, 2022, 2022], kt = [0, 10 / 12, 1];
+  o += apath(yrs.map((y) => `M${f1(sx(y))} 40V214`), kt, T, 'ink-b');
+  return svgA(560, 260, o, '动图：Mexico tobacco control 的三条 stream。Problem stream 和 policy stream 从 2008 年起就在，politics stream 到 2018 年新 president 上任、拥有 legislature 多数时才到位，三者同时到位的 2018 到 2022 年是 policy window，修正案在 2022 年通过；2008 到 2020 年间超过 100 项提案失败');
+}
+
+// 第 10 站：Iyengar、Peters 与 Kinder 的 experiment 2
+function iyengar() {
+  const G = [['Defense', 15, '+5 条，17 分钟', 0.76, 'p < .05'], ['Pollution', 14, '+5 条，15 分钟', 1.53, 'p < .01'], ['Inflation', 15, '+8 条，21 分钟', 0.11, '不显著']];
+  let o = text(20, 18, '44 个 New Haven 居民，随机分三组', 'tb') + text(128, 40, '第 2–5 天每晚看的新闻', 'ts');
+  o += text(410, 18, 'Importance 的变化', 'tb') + text(410, 34, 'adjusted change，4–20 分', 'ts');
+  const sx = lin(0, 1.6, 410, 520);
+  G.forEach(([n, N, add, ch, p], i) => {
+    const y = 52 + i * 62;
+    o += rect(20, y, 92, 44, 'paper', 6) + text(66, y + 19, n, 'tb', 'middle') + text(66, y + 36, `N = ${N}`, 'ts', 'middle');
+    // 四天的 newscast：浅色是原来的节目，深色是剪进去的报道
+    for (let k = 0; k < 4; k++) {
+      const x = 128 + k * 44;
+      o += rect(x, y + 6, 38, 32, 'wash2', 3);
+      o += rect(x + 5, y + 13, 28, 7, 'solid', 1);
+      o += text(x + 19, y + 33, String(k + 2), 'ts', 'middle');
+    }
+    o += text(306, y + 18, add, 'ts') + text(306, y + 34, '另两个 issue 删掉', 'ts');
+    o += rect(sx(0), y + 12, sx(ch) - sx(0), 18, i === 2 ? 'wash-strong' : 'solid', 2);
+    o += text(sx(ch) + 5, y + 20, '+' + ch.toFixed(2), 'tb') + text(sx(ch) + 5, y + 35, p, 'ts');
+  });
+  o += line(sx(0), 46, sx(0), 236, 'axis');
+  o += text(20, 252, '深色条：剪进当晚 ABC 或 NBC 新闻里的报道。第 1 天 pretest，最后一次看完 24 小时后 posttest。', 'ts');
+  o += text(20, 270, 'Inflation 的 pretest 平均已是 18.5 分（满分 20），没有多少上升的空间。', 'ts');
+  return svg(560, 276, o, 'Iyengar、Peters 与 Kinder 1982 年的第二次 experiment：44 人随机分成 defense、pollution、inflation 三组，四天的新闻里分别剪进相应报道；defense 组 importance 上升 0.76，pollution 组上升 1.53，inflation 组只上升 0.11，因为 pretest 时已接近满分');
+}
+
+// 第 10 站：Asian disease，同一棵结果树，两种说法
+function frame() {
+  let o = '';
+  const panel = (x0, title, N, a, b, pa, pb) => {
+    o += text(x0 + 130, 18, title, 'tb', 'middle') + text(x0 + 130, 34, `N = ${N}；预计 600 人会死`, 'ts', 'middle');
+    const two = (cx, y, l) => text(cx, y, l[0], 'ts', 'middle') + (l[1] ? text(cx, y + 15, l[1], 'ts', 'middle') : '');
+    // 方案 1：确定
+    o += rect(x0 + 6, 52, 120, 30, 'paper', 5) + text(x0 + 66, 72, a[0], 'tb', 'middle');
+    o += line(x0 + 66, 82, x0 + 66, 104, 'ink') + rect(x0 + 16, 104, 100, 44, 'wash2', 5);
+    o += two(x0 + 66, 121, a[1]) + text(x0 + 66, 166, '（200 人活）', 'ts', 'middle');
+    // 方案 2：赌
+    o += rect(x0 + 140, 52, 120, 30, 'paper', 5) + text(x0 + 200, 72, b[0], 'tb', 'middle');
+    o += line(x0 + 200, 82, x0 + 168, 104, 'ink') + line(x0 + 200, 82, x0 + 232, 104, 'ink');
+    o += text(x0 + 176, 96, '⅓', 'ts', 'end') + text(x0 + 224, 96, '⅔', 'ts');
+    o += rect(x0 + 138, 104, 60, 44, 'wash2', 5) + two(x0 + 168, 121, b[1]) + text(x0 + 168, 166, '（600 活）', 'ts', 'middle');
+    o += rect(x0 + 202, 104, 60, 44, 'wash2', 5) + two(x0 + 232, 121, b[2]) + text(x0 + 232, 166, '（0 活）', 'ts', 'middle');
+    o += text(x0 + 200, 186, 'expected：200 人活', 'ts', 'middle');
+    // 选择比例
+    const W = 252, yb = 200;
+    o += rect(x0 + 6, yb, W * pa, 22, 'solid', 3) + rect(x0 + 6 + W * pa, yb, W * pb, 22, 'wash-strong', 3);
+    o += text(x0 + 6 + (W * pa) / 2, yb + 16, `${a[0].slice(-1)} ${Math.round(pa * 100)}%`, 'tw', 'middle');
+    o += text(x0 + 6 + W * pa + (W * pb) / 2, yb + 16, `${b[0].slice(-1)} ${Math.round(pb * 100)}%`, 'tb', 'middle');
+  };
+  panel(10, '第一组：说“救活”', 152, ['方案 A', ['200 人', '被救活']], ['方案 B', ['600 人', '被救活'], ['没有人', '被救活']], 0.72, 0.28);
+  panel(290, '第二组：说“死去”', 155, ['方案 C', ['400 人', '会死']], ['方案 D', ['没有人死', ''], ['600 人', '都死']], 0.22, 0.78);
+  o += line(280, 10, 280, 226, 'grid');
+  o += text(280, 248, '括号里是同一个结果换成“活几人”的说法：A 与 C、B 与 D 完全相同。下面的条是选每个方案的比例。', 'ts', 'middle');
+  o += text(280, 266, '多数人在“救活”的说法下选确定的方案，在“死去”的说法下选冒险的方案。', 'ts', 'middle');
+  return svg(560, 274, o, 'Tversky 与 Kahneman 1981 年的 Asian disease 问题：两组拿到的方案结果完全相同，第一组用救活描述，72% 选确定救活 200 人的方案；第二组用死去描述，只有 22% 选确定 400 人会死的方案，78% 选冒险的方案');
+}
+
+// 第 11 站：costly signal，一次袭击之后 government 的 belief
+function signalA() {
+  const sx = lin(0, 1, 70, 520);
+  let o = '';
+  const row = (y, title, sub, post, note) => {
+    o += text(20, y - 26, title, 'tb') + text(20, y - 10, sub, 'ts');
+    o += line(sx(0), y + 20, sx(1), y + 20, 'axis');
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) o += line(sx(v), y + 16, sx(v), y + 24, 'axis') + text(sx(v), y + 38, String(v), 'ts', 'middle');
+    o += rect(sx(0.375), y - 2, sx(1) - sx(0.375), 22, 'wash');
+    o += line(sx(0.375), y - 6, sx(0.375), y + 24, 'ln') + text(sx(0.375) + 4, y + 52, '0.375：超过它就让步', 'tl');
+    o += circle(sx(0.3), y + 9, 6, 'ink paper-f') + text(sx(0.3) - 9, y + 13, 'prior 0.3', 'ts', 'end');
+    if (post !== 0.3) o += arrow(sx(0.3) + 8, y + 9, sx(post) - 8, y + 9, 'ink') + circle(sx(post), y + 9, 6, 'ink-f') + text(sx(post) + 10, y + 13, note, 'tb');
+    else o += text(sx(0.62), y + 13, note, 'tb');
+  };
+  row(62, 'Costly 的袭击：resolute 的 group 发动的 probability 0.9，weak 的只有 0.3', '0.3 × 0.9 / (0.3 × 0.9 + 0.7 × 0.3) = 0.27 / 0.48', 0.5625, 'posterior 0.5625');
+  row(186, '便宜的袭击：两种 group 都有 0.9 的 probability 发动', '0.3 × 0.9 / (0.3 × 0.9 + 0.7 × 0.9) = 0.3', 0.3, 'posterior 仍是 0.3');
+  // 动画：上一行的点从 0.3 走到 0.5625
+  const T = 8, kt = [0, 0.25, 0.55, 1];
+  o += acircle([0.3, 0.3, 0.5625, 0.5625].map(sx), [71, 71, 71, 71], kt, T, 4, 'ln-f');
+  o += acircle([0.3, 0.3, 0.3, 0.3].map(sx), [195, 195, 195, 195], kt, T, 4, 'ln-f');
+  o += `<text x="500" y="75" class="tl" text-anchor="start" opacity="0">袭击${ashow([0, 1, 0, 0], kt, T)}</text>`;
+  o += `<text x="500" y="199" class="tl" text-anchor="start" opacity="0">袭击${ashow([0, 1, 0, 0], kt, T)}</text>`;
+  o += text(20, 290, 'Government 继续打的 expected cost 是 2 + 8π，让步的 cost 是 5；π > 0.375 时让步更划算。', 'ts');
+  return svgA(560, 298, o, '动图：government 认为对手 resolute 的 probability 起初是 0.3。袭击 costly 时，用 Bayes rule 更新为 0.5625，越过 0.375 的让步门槛；袭击便宜到两种 group 都会发动时，belief 仍是 0.3，袭击不传递信息');
+}
+
+// 第 11 站：Kydd 与 Walter 的五种 strategy
+function strategies() {
+  const cols = [['说服敌方 government', [
+    ['Attrition', '让步比继续打更便宜', ['1983 年 Beirut 美军兵营袭击，', '之后美军撤出 Lebanon']],
+    ['Spoiling', '对面的温和派管不住极端分子', ['1979 年 Bazargan 与 Brzezinski 握手，', '三天后激进学生扣押 52 名美国人']],
+  ]], ['说服自己一方或当地的 population', [
+    ['Intimidation', 'Government 保护不了不服从的人', ['Government 弱、地形崎岖、', '司法无力时有效']],
+    ['Provocation', 'Government 会无差别报复，不可信', ['要求 government 处在', '“中等程度的残暴”']],
+    ['Outbidding', '我们比其他 group 更坚决', ['1980 年 Peru 交还民选政权后，', 'Shining Path 与参选的左翼划清界线']],
+  ]]];
+  let o = '';
+  const cw = 266, ch = 80;
+  cols.forEach(([head, cells], j) => {
+    const x = 10 + j * (cw + 8);
+    o += rect(x, 6, cw, 28, 'wash', 6) + text(x + cw / 2, 25, head, 'tb', 'middle');
+    cells.forEach(([n, belief, ex], i) => {
+      const y = 44 + i * (ch + 8);
+      o += rect(x, y, cw, ch, 'paper', 6);
+      o += text(x + 10, y + 20, n, 'tl') + text(x + 10, y + 39, belief, 't') + text(x + 10, y + 57, ex[0], 'ts') + text(x + 10, y + 72, ex[1], 'ts');
+    });
+  });
+  o += text(10, 230, '每一格：strategy 的名字、', 'ts') + text(10, 246, '它想让 audience 相信什么、', 'ts') + text(10, 262, '例子或生效的条件。', 'ts');
+  return svg(560, 312, o, 'Kydd 与 Walter 的五种 terrorism strategy：attrition 和 spoiling 要说服敌方 government，intimidation、provocation、outbidding 要说服自己一方或当地的 population；每一格写了要改变的 belief 和例子');
+}
+
+// 第 12 站：Ricardo，autarky 与 specialization（每个方块 10 个人干一年）
+function ricardoA() {
+  const s = 15, g = 3, cols = 11;
+  let o = '';
+  const T = 9, kt = [0, 0.5];
+  const grp = (x0, y0, n, nCloth, title, sub) => {
+    o += text(x0, y0 - 24, title, 'tb') + text(x0, y0 - 8, sub, 'ts');
+    for (let k = 0; k < n; k++) {
+      const x = x0 + (k % cols) * (s + g), y = y0 + Math.floor(k / cols) * (s + g);
+      o += rect(x, y, s, s, 'solid', 2);
+      // 盖在上面的 wine 方块：autarky 时 k ≥ nCloth 为 wine，specialization 时看国家
+      const wineA = k >= nCloth, wineS = title.startsWith('Portugal');
+      if (wineA || wineS) o += `<rect x="${f1(x)}" y="${f1(y)}" width="${s}" height="${s}" rx="2" class="paper" opacity="${wineA ? 1 : 0}">${ashow([wineA, wineS], kt, T)}</rect>`;
+    }
+  };
+  grp(20, 60, 22, 10, 'England：220 人', 'cloth 每份 100 人，wine 每份 120 人');
+  grp(300, 60, 17, 9, 'Portugal：170 人', 'cloth 每份 90 人，wine 每份 80 人');
+  o += rect(20, 120, 12, 12, 'solid', 2) + text(38, 131, 'cloth', 'ts') + rect(90, 120, 12, 12, 'paper', 2) + text(108, 131, 'wine', 'ts') + text(150, 131, '每个方块 = 10 个人干一年', 'ts');
+  const lab = (on, s1, s2, s3) => showG(text(20, 166, s1, 'tb') + text(20, 186, s2, 't') + text(20, 206, s3, 't'), on, kt, T);
+  o += lab([1, 0], '不 trade：各做 1 份 cloth、1 份 wine', 'England 100 + 120 = 220 人，Portugal 90 + 80 = 170 人', '合计：2 份 cloth、2 份 wine');
+  o += lab([0, 1], 'Specialization：England 只做 cloth，Portugal 只做 wine', 'England 220 / 100 = 2.2 份 cloth，Portugal 170 / 80 = 2.125 份 wine', '合计：2.2 份 cloth、2.125 份 wine，人力一个没多');
+  o += text(20, 232, '按 1 份 cloth 换 1 份 wine，交换 1.1 份之后：', 'ts');
+  o += text(20, 250, 'England 有 1.1 份 cloth、1.1 份 wine；Portugal 有 1.1 份 cloth、1.025 份 wine。', 'ts');
+  return svgA(560, 258, o, '动图：Ricardo 的 England 与 Portugal。不 trade 时 England 用 100 人做 cloth、120 人做 wine，Portugal 用 90 人做 cloth、80 人做 wine，合计 2 份 cloth、2 份 wine；specialization 之后 England 220 人全做 cloth 得 2.2 份，Portugal 170 人全做 wine 得 2.125 份');
+}
+
+// 第 13 站：AJR 的链条与两个 coefficient
+function ajr() {
+  const nodes = [['Settler', 'mortality'], ['欧洲人', '是否定居'], ['早期', 'institution'], ['今天的', 'institution'], ['ln GDP', 'per capita 1995']];
+  const w = 100, gap = 10, y = 40, h = 46;
+  let o = '';
+  nodes.forEach(([a, b], i) => {
+    const x = 10 + i * (w + gap);
+    o += rect(x, y, w, h, i === 0 || i === 4 ? 'wash' : 'paper', 6) + text(x + w / 2, y + 20, a, 'tb', 'middle') + text(x + w / 2, y + 37, b, 'ts', 'middle');
+    if (i < 4) o += arrow(x + w + 1, y + h / 2, x + w + gap - 1, y + h / 2, 'ink');
+  });
+  const cx = (i) => 10 + i * (w + gap) + w / 2;
+  // first stage 与 2SLS 的括号
+  o += line(cx(0), y - 6, cx(0), y - 16, 'ln') + line(cx(0), y - 16, cx(3), y - 16, 'ln') + line(cx(3), y - 16, cx(3), y - 6, 'ln');
+  o += text((cx(0) + cx(3)) / 2, y - 21, 'first stage：−0.61（R² ≈ 0.27）', 'tl', 'middle');
+  o += line(cx(3), y + h + 6, cx(3), y + h + 16, 'ln') + line(cx(3), y + h + 16, cx(4), y + h + 16, 'ln') + line(cx(4), y + h + 16, cx(4), y + h + 6, 'ln');
+  o += text((cx(3) + cx(4)) / 2, y + h + 32, '2SLS：0.94', 'tl', 'middle') + text((cx(3) + cx(4)) / 2, y + h + 48, '（OLS 只有 0.52）', 'ts', 'middle');
+  // exclusion restriction
+  o += path(`M${cx(0)} ${y + h + 4}C${cx(0)} ${y + h + 70} ${cx(2)} ${y + h + 70} ${cx(3) - 40} ${y + h + 70}`, 'dash');
+  o += text(cx(3) - 36, y + h + 75, '×', 'tb', 'middle');
+  o += text(cx(0) + 6, y + h + 88, 'Exclusion restriction：mortality 不能绕过 institution 直接影响今天的收入', 'ts');
+  // 例子
+  const ey = 210;
+  o += rect(10, ey, 540, 70, 'wash2', 6);
+  o += text(22, ey + 20, 'Mortality 高 10 倍', 'tb') + text(22, ey + 38, 'ln 10 = 2.303', 'ts');
+  o += arrow(150, ey + 30, 176, ey + 30, 'ink');
+  o += text(182, ey + 20, 'Institution 指数', 'tb') + text(182, ey + 38, '−0.61 × 2.303 = −1.40', 'ts');
+  o += arrow(318, ey + 30, 344, ey + 30, 'ink');
+  o += text(350, ey + 20, 'ln GDP', 'tb') + text(350, ey + 38, '0.94 × (−1.40) = −1.32', 'ts');
+  o += text(22, ey + 60, '人均 GDP 约为另一国的 e^(−1.32) = 0.27 倍，约四分之一。', 't');
+  return svg(560, ey + 78, o, 'Acemoglu、Johnson 与 Robinson 的因果链：settler mortality 影响欧洲人是否定居，进而影响早期 institution、今天的 expropriation risk 和 1995 年人均 GDP；first stage coefficient 是负 0.61，2SLS coefficient 是 0.94；mortality 高 10 倍时 institution 指数低 1.40，log GDP 低 1.32，人均 GDP 约为四分之一');
+}
+
+// 第 14 站：Singapore 的 foreign workforce，2024 年 12 月
+function passes() {
+  const T = 1576500;
+  const seg = [['EP', 202100, 'solid'], ['S Pass', 178200, 'wash-strong'], ['WP：家庭帮佣', 301600, 'wash2'], ['WP：建筑、造船、加工', 456800, 'wash'], ['WP：其他行业', 1165900 - 301600 - 456800, 'wash2'], ['其他', 30400, 'mute-f']];
+  const sx = lin(0, T, 20, 540);
+  let o = text(20, 20, 'Foreign workforce 1,576,500 人（2024 年 12 月）', 'tb');
+  let acc = 0;
+  const y = 70, h = 40;
+  seg.forEach(([n, v, cls], i) => {
+    const x0 = sx(acc), x1 = sx(acc + v);
+    o += rect(x0, y, x1 - x0, h, cls + ' ink-s');
+    const mid = (x0 + x1) / 2, pct = ((100 * v) / T).toFixed(1) + '%';
+    if (i === 5) { o += line(mid, y, mid, y - 10, 'mute') + text(mid + 2, y - 14, `${n} ${pct}`, 'ts', 'end'); }
+    else if (x1 - x0 > 60) { o += text(mid, y + h + 18, n, 'ts', 'middle') + text(mid, y + h + 34, `${v.toLocaleString('en-US')}，${pct}`, 'ts', 'middle'); }
+    else { o += line(mid, y, mid, y - 10, 'mute') + text(mid, y - 14, `${n} ${pct}`, 'ts', 'middle'); }
+    acc += v;
+  });
+  const wx0 = sx(202100 + 178200), wx1 = sx(202100 + 178200 + 1165900);
+  o += line(wx0, y + h + 46, wx1, y + h + 46, 'ink') + line(wx0, y + h + 40, wx0, y + h + 46, 'ink') + line(wx1, y + h + 40, wx1, y + h + 46, 'ink');
+  o += text((wx0 + wx1) / 2, y + h + 64, 'Work Permit 合计 1,165,900，74.0%', 'tb', 'middle');
+  o += text(20, 200, '最左边是 EP 202,100（12.8%）和 S Pass 178,200（11.3%）。', 'ts');
+  o += text(20, 218, '只有月薪至少 SGD 6,000 的 EP 和 S Pass 持有人能带家属。', 'ts');
+  return svg(560, 226, o, 'Singapore 2024 年 12 月的 foreign workforce 共 1,576,500 人：Employment Pass 202,100，S Pass 178,200，Work Permit 1,165,900，其中家庭帮佣 301,600、建筑造船加工 456,800；其他 work pass 30,400');
+}
+
+// 第 14 站：Harris–Todaro，进城的人越多，expected wage 越低
+function todaroA() {
+  const wm = 900, wr = 400, Lm = 600;
+  const sx = lin(500, 1700, 300, 540), sy = lin(0, 1000, 230, 40);
+  let o = axes({ sx, sy, x0: 500, x1: 1700, y0: 0, y1: 1000, xt: [600, 1000, 1350, 1700], yt: [0, 400, 900], grid: true });
+  o += text(sx(1700), 262, '城市劳动力 L_U', 'ts', 'end') + text(sx(500) - 4, 30, 'expected wage', 'ts', 'start');
+  o += path(curve((L) => (Lm * wm) / L, 600, 1700, sx, sy), 'ln') + path(curve((L) => (700 * wm) / L, 700, 1700, sx, sy), 'ln-dash');
+  o += line(sx(500), sy(wr), sx(1700), sy(wr), 'ink') + text(sx(520), sy(wr) - 7, 'w_r = 400', 'tb');
+  o += circle(sx(1350), sy(400), 4.5, 'ink-f') + line(sx(1350), sy(400), sx(1350), sy(0), 'dash');
+  o += circle(sx(1575), sy(400), 4, 'paper') + text(sx(1575) + 4, sy(400) - 10, '1,575', 'ts', 'start');
+  o += text(sx(780), sy(820), 'L_m = 600：600 × 900 / L_U', 'tl') + text(sx(1180), sy(560), 'L_m = 700', 'ts');
+  // 左边：城市里的人（每个点 50 人），工作 12 个格
+  const steps = [600, 750, 900, 1050, 1200, 1350];
+  const T = 12, kt = [0, 0.14, 0.28, 0.42, 0.56, 0.7];
+  o += text(20, 22, '城市：600 个 modern sector 的工作', 'tb') + text(20, 40, '每个圆点 = 50 人，深色 = 有工作', 'ts');
+  for (let k = 0; k < 27; k++) {
+    const x = 30 + (k % 9) * 26, y = 64 + Math.floor(k / 9) * 26;
+    const cls = k < 12 ? 'ln-f' : 'paper';
+    if (k < 12) o += circle(x, y, 8, cls);
+    else {
+      const on = steps.map((L) => L / 50 > k);
+      o += `<g opacity="${on[0] ? 1 : 0}">${circle(x, y, 8, 'ink paper-f')}${ashow(on, kt, T)}</g>`;
+    }
+  }
+  steps.forEach((L, i) => {
+    const on = steps.map((_, j) => j === i);
+    const ew = (Lm * wm) / L;
+    o += showG(text(20, 160, `L_U = ${L.toLocaleString('en-US')}，失业 ${(L - Lm).toLocaleString('en-US')}`, 'tb') + text(20, 180, `找到工作的 probability ${(Lm / L).toFixed(3)}`, 't') + text(20, 200, `expected wage = ${Math.round(ew)}${i === 5 ? '，等于 w_r，停止' : ' > 400，继续进城'}`, i === 5 ? 'tl' : 't'), on, kt, T);
+  });
+  const st2 = steps.concat([1350]);
+  o += acircle(st2.map(sx), st2.map((L) => sy((Lm * wm) / L)), kt.concat([1]), T, 6, 'ln-f');
+  o += text(20, 240, 'Equilibrium：1,350 人，750 人失业（55.6%）。', 'ts');
+  return svgA(560, 270, o, '动图：Harris–Todaro model。城市有 600 个工资 900 的工作，农村工资 400。进城的人从 600 增加到 1,350，找到工作的 probability 从 1 降到 0.444，expected wage 从 900 降到 400，此时 migration 停止，750 人失业；工作增加到 700 个时 equilibrium 变成 1,575 人');
+}
+
+// 第 15 站：Posner 的边界
+function posner() {
+  let o = '';
+  const bx = 280;
+  o += text(140, 20, 'Zambia（Eastern Province）', 'tb', 'middle') + text(420, 20, 'Malawi', 'tb', 'middle');
+  o += rect(30, 40, 500, 44, 'wash2', 4) + rect(30, 92, 500, 44, 'wash', 4);
+  o += text(40, 67, 'Tumbuka', 'tb') + text(40, 119, 'Chewa', 'tb');
+  o += line(bx, 30, bx, 146, 'ink-b') + text(bx, 162, '1891 年 British South Africa Company 划的行政边界', 'ts', 'middle');
+  for (const [x, y] of [[bx - 40, 62], [bx + 40, 62], [bx - 40, 114], [bx + 40, 114]]) o += circle(x, y, 5, 'ink-f');
+  o += text(bx - 50, 66, '村', 'ts', 'end') + text(bx + 50, 66, '村', 'ts');
+  o += text(bx - 50, 118, '村', 'ts', 'end') + text(bx + 50, 118, '村', 'ts');
+  // 人口比例
+  const sx = lin(0, 30, 0, 130);
+  const bar = (x, y, v, lab) => rect(x, y, sx(v), 12, 'solid', 2) + text(x + sx(v) + 5, y + 11, lab, 'ts');
+  o += text(30, 192, '占全国人口', 'tb') + text(310, 192, '占全国人口', 'tb');
+  o += text(30, 212, 'Chewa', 'ts') + bar(90, 202, 7, '约 7%') + text(30, 230, 'Tumbuka', 'ts') + bar(90, 220, 4, '约 4%');
+  o += text(310, 212, 'Chewa', 'ts') + bar(370, 202, 28, '约 28%') + text(310, 230, 'Tumbuka', 'ts') + bar(370, 220, 12, '约 12%');
+  // survey
+  o += text(400, 252, 'Zambia', 'ts', 'end') + text(500, 252, 'Malawi', 'ts', 'end');
+  o += text(30, 270, '本人不愿和另一个 group 通婚', 't') + text(30, 288, '本人不会投另一个 group 的 candidate', 't');
+  o += text(400, 270, '24%', 'tb', 'end') + text(400, 288, '24%', 'tb', 'end');
+  o += text(500, 270, '55%', 'tl', 'end') + text(500, 288, '45%', 'tl', 'end');
+  o += text(30, 312, '感知到的文化差别（平均说出几条）：Zambia 1.66，Malawi 1.70。2001 年访问 180 人。', 'ts');
+  return svg(560, 320, o, 'Posner 的 natural experiment：Zambia 与 Malawi 的边界把 Chewa 和 Tumbuka 切开；两族在 Zambia 只占全国人口的约 7% 和 4%，在 Malawi 占约 28% 和 12%；两边被访者感知到的文化差别相同，但 Malawi 一侧不愿跨族通婚的比例是 55%，Zambia 是 24%');
+}
+
+// 第 15 站：EIP 的 resale 规则，两栋 100 个单位的 block
+function eipA() {
+  const cell = 13, gap = 2;
+  let o = '';
+  const blocks = [
+    { x: 20, name: 'Block X', c: 72, m: 25, i: 3, note: 'Malay 25 户，正好是上限 25%' },
+    { x: 290, name: 'Block Y', c: 87, m: 10, i: 3, note: 'Chinese 87 户，正好是上限 87%' },
+  ];
+  const pos = (b, k) => [b.x + (k % 10) * (cell + gap), 56 + Math.floor(k / 10) * (cell + gap)];
+  blocks.forEach((b) => {
+    o += text(b.x, 20, b.name, 'tb') + text(b.x, 38, b.note, 'ts');
+    for (let k = 0; k < 100; k++) {
+      const [x, y] = pos(b, k);
+      o += rect(x, y, cell, cell, k < b.c ? 'wash2' : k < b.c + b.m ? 'solid' : 'wash-strong', 1);
+    }
+  });
+  o += rect(190, 60, 11, 11, 'wash2', 1) + text(205, 70, 'Chinese', 'ts');
+  o += rect(190, 80, 11, 11, 'solid', 1) + text(205, 90, 'Malay', 'ts');
+  o += rect(190, 100, 11, 11, 'wash-strong', 1) + text(205, 110, 'Indian', 'ts') + text(205, 124, '与 others', 'ts');
+  const tries = [
+    [0, 5, 'Block X：Chinese 卖家 → Malay 买家', 'Malay 会变成 26 户 > 25', false],
+    [0, 80, 'Block X：Malay 卖家 → Malay 买家', 'Malay 仍是 25 户', true],
+    [0, 85, 'Block X：Malay 卖家 → Chinese 买家', 'Chinese 73 户 ≤ 87', true],
+    [1, 90, 'Block Y：Malay 卖家 → Chinese 买家', 'Chinese 会变成 88 户 > 87', false],
+    [1, 92, 'Block Y：Malay 卖家 → Malay 买家', 'Chinese 不变，Malay 10 户 ≤ 25', true],
+  ];
+  const ty = 222;
+  tries.forEach(([bi, k, s, why, ok], j) => {
+    const y = ty + j * 19;
+    o += text(20, y, s, 'ts') + text(300, y, why, 'ts') + text(540, y, ok ? '允许' : '不允许', ok ? 'tl' : 'tb', 'end');
+  });
+  // 动画：依次高亮一笔交易的卖家单位和对应的那一行
+  const n = tries.length, T = 3 * n, kt = evenKt(n);
+  const sel = tries.map(([bi, k]) => { const [x, y] = pos(blocks[bi], k); return d([[x - 2, y - 2], [x + cell + 2, y - 2], [x + cell + 2, y + cell + 2], [x - 2, y + cell + 2], [x - 2, y - 2]]); });
+  o += apath(sel, kt, T, 'ink-b', true);
+  const rowsel = tries.map((_, j) => { const y = ty + j * 19; return d([[14, y - 14], [548, y - 14], [548, y + 5], [14, y + 5], [14, y - 14]]); });
+  o += apath(rowsel, kt, T, 'ln', true);
+  return svgA(560, ty + n * 19, o, '动图：两栋 100 个单位的 HDB block。Block X 有 Chinese 72 户、Malay 25 户，Malay 达到 25% 的上限，所以 Chinese 卖家不能卖给 Malay 买家，Malay 卖家可以卖给 Malay 或 Chinese 买家；Block Y 有 Chinese 87 户，达到上限，Malay 卖家不能卖给 Chinese 买家');
+}
+
+// 第 16 站：每三个 GP 保留一个，以及三项投资的差别
+function reserve() {
+  let o = text(20, 20, 'GP 按编号每三个保留一个', 'tb');
+  for (let k = 1; k <= 12; k++) {
+    const x = 20 + ((k - 1) % 6) * 40, y = 36 + Math.floor((k - 1) / 6) * 40;
+    const r = (k - 1) % 3 === 0;
+    o += rect(x, y, 32, 30, r ? 'solid' : 'paper', 4) + text(x + 16, y + 20, String(k), r ? 'tw' : 't', 'middle');
+  }
+  o += text(20, 130, '深色：保留给 women', 'ts') + text(20, 147, 'Birbhum 县 161 个 GP 里 54 个', 'ts');
+  o += text(20, 170, 'Pradhan 是 women 的比例：', 'ts') + text(20, 187, '保留 100%，不保留 6.5%', 'ts');
+  const items = [['Drinking water 设施（村级）', 23.83, 14.74, 25, (v) => v.toFixed(2)], ['道路状况良好的村的比例', 0.41, 0.23, 0.5, (v) => v.toFixed(2)], ['非正式教育中心（GP 级）', 0.67, 0.82, 1, (v) => v.toFixed(2)]];
+  items.forEach(([n, a, b, max, f], i) => {
+    const y = 30 + i * 62, sx = lin(0, max, 290, 460);
+    o += text(290, y, n, 't');
+    o += rect(290, y + 8, sx(a) - 290, 14, 'solid', 2) + text(sx(a) + 5, y + 20, f(a) + ' 保留', 'tb');
+    o += rect(290, y + 26, sx(b) - 290, 14, 'wash2', 2) + text(sx(b) + 5, y + 38, f(b), 'ts');
+  });
+  o += text(20, 222, '右边深色：保留的 GP；浅色：不保留的。', 'ts') + text(20, 240, 'Women 提的问题里 drinking water 占 26%，men 提的只占 14%。', 'ts');
+  return svg(560, 248, o, 'Chattopadhyay 与 Duflo 的 natural experiment：West Bengal 把 GP 按编号每三个保留一个给 women；保留的 GP 里 drinking water 设施 23.83 对 14.74，道路良好的比例 0.41 对 0.23，非正式教育中心 0.67 对 0.82');
+}
+
+// 第 16 站：closed-list 的名单规则，赢的 seat 从 1 到 10
+function listA() {
+  const designs = [
+    ['只规定 40%', [7, 8, 9, 10]],
+    ['每连续 5 个至少 2 个', [4, 5, 9, 10]],
+    ['每连续 2 个至少 1 个', [2, 4, 6, 8, 10]],
+  ];
+  const ks = [5, 6, 7, 8, 9, 10, 1, 2, 3, 4];
+  const T = 15, kt = evenKt(ks.length);
+  const sh = 20, y0 = 76;
+  let o = '';
+  designs.forEach(([name, W], j) => {
+    const x = 30 + j * 178;
+    o += text(x + 60, 44, name, 'tb', 'middle') + text(x + 60, 62, 'women 在第 ' + W.join('、') + ' 位', 'ts', 'middle');
+    for (let p = 1; p <= 10; p++) {
+      const y = y0 + (p - 1) * (sh + 2), w = W.includes(p);
+      o += rect(x, y, 120, sh, w ? 'wash-strong' : 'wash2', 3);
+      o += text(x + 8, y + 15, String(p), 'ts') + text(x + 60, y + 15, w ? 'W' : 'M', w ? 'tb' : 't', 'middle');
+    }
+    // 当选的部分：边框
+    o += apath(ks.map((k) => d([[x - 3, y0 - 3], [x + 123, y0 - 3], [x + 123, y0 + k * (sh + 2) - 1], [x - 3, y0 + k * (sh + 2) - 1], [x - 3, y0 - 3]])), kt, T, 'ln', true);
+    ks.forEach((k, i) => {
+      const on = ks.map((_, q) => q === i);
+      const nW = W.filter((p) => p <= k).length;
+      o += showG(text(x + 60, y0 + 10 * (sh + 2) + 22, `当选 women：${nW} / ${k}`, 'tl', 'middle'), on, kt, T);
+    });
+  });
+  ks.forEach((k, i) => { o += showG(text(298, 18, `Party 赢 ${k} 个 seat：框住的位置当选`, 'tb', 'middle'), ks.map((_, q) => q === i), kt, T); });
+  o += text(30, y0 + 10 * (sh + 2) + 46, '静止时：赢 5 个 seat，三种规则下当选的 women 是 0、2、2。', 'ts');
+  return svgA(560, y0 + 10 * (sh + 2) + 54, o, '动图：一个 party 的 10 人 closed list，三种规则下女性的位置不同。框住的是当选的位置，party 赢的 seat 从 5 个变到 10 个再从 1 个变到 4 个；赢 5 个 seat 时三种规则下当选的 women 分别是 0、2、2，赢 3 个时是 0、0、1');
+}
+
 export default {
   'ps1101e-faces': faces,
   'ps1101e-pd': pd,
@@ -351,4 +764,18 @@ export default {
   'ps1101e-nz': nz,
   'ps1101e-naval': naval,
   'ps1101e-bargain': bargain,
+  'ps1101e-cycle': cycleA,
+  'ps1101e-streams': streamsA,
+  'ps1101e-iyengar': iyengar,
+  'ps1101e-frame': frame,
+  'ps1101e-signal': signalA,
+  'ps1101e-strategies': strategies,
+  'ps1101e-ricardo': ricardoA,
+  'ps1101e-ajr': ajr,
+  'ps1101e-passes': passes,
+  'ps1101e-todaro': todaroA,
+  'ps1101e-posner': posner,
+  'ps1101e-eip': eipA,
+  'ps1101e-reserve': reserve,
+  'ps1101e-list': listA,
 };

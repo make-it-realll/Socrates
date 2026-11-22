@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 // 估计一段文字的宽度（13px：Latin 约 7px，CJK 约 13px）
 const tw = (s, small = false) => {
@@ -377,6 +377,202 @@ function grimm() {
   return svg(560, 258, o, 'Grimm’s law：Latin 保留的 voiceless stop p、t、k 在 English 里对应 fricative f、θ、h，voiced stop b、d、g 对应 voiceless stop p、t、k；例词是 pater 和 father、tres 和 three、cornu 和 horn、labium 和 lip、duo 和 two、genus 和 kin');
 }
 
+// Accommodation：Street（1982）的 speech rate 例子，每个小块是 12 秒里的一个 word
+function accommodate() {
+  let o = '';
+  const x0 = 176, x1 = 532, W = x1 - x0;
+  const strip = (y, n, cls) => {
+    o += rect(x0, y - 12, W, 24, 'wash2', 4);
+    for (let i = 0; i < n; i++) o += rect(x0 + (i + 0.5) * W / n - 5, y - 7, 10, 14, cls, 3);
+  };
+  const row = (y, name, sub, n, cls) => { o += text(20, y - 2, name, 'tb') + text(20, y + 14, sub, 'ts'); strip(y, n, cls); };
+  row(46, 'A', '100 words/min', 20, 'solid');
+  row(96, 'B 原来', '50 words/min', 10, 'wash-strong');
+  o += line(20, 128, 540, 128, 'grid');
+  o += text(20, 148, 'B 和 A 说了一会儿之后，三种可能：', 'ts');
+  row(180, 'full convergence', 'B：100，和 A 一样', 20, 'wash-strong');
+  row(228, 'partial convergence', 'B：75，走了一半', 15, 'wash-strong');
+  row(276, 'maintenance', 'B：50，不变', 10, 'wash-strong');
+  const ya = 304, sx = lin(0, 12, x0, x1);
+  o += line(x0, ya, x1, ya, 'axis');
+  for (const t of [0, 3, 6, 9, 12]) o += line(sx(t), ya, sx(t), ya + 4, 'axis') + text(sx(t), ya + 17, t + ' s', 'ts', 'middle');
+  o += text(x1, ya + 36, '每个小块是一个 word。12 秒里 A 说 20 个，B 原来说 10 个。', 'ts', 'end');
+  return svg(560, ya + 44, o, 'Speech rate 的 accommodation：A 每分钟 100 个 word，B 原来每分钟 50 个；B 提到 100 是 full convergence，提到 75 是 partial convergence，留在 50 是 maintenance');
+}
+
+// Ferguson（1959）的四个 defining case
+function ferguson() {
+  let o = '';
+  const C = [
+    ['Arabic', 'Classical Arabic', 'Egyptian Arabic', ["'now'", "H  al'āna", "L  dilwa'ti"], ['H 3 个 case', 'L 没有 case']],
+    ['Swiss German', 'Standard German', 'Swiss German', ['没有成对的词：', '差在规则的', 'sound correspondence'], ['H 4 个 case', 'L 3 个 case']],
+    ['Modern Greek', 'katharévusa', 'dhimotikí', ["'house'", 'H  íkos', 'L  spíti'], ['H 4 个 case', 'L 3 个 case']],
+    ['Haiti', 'French', 'Haitian Creole', ["'donkey'", 'H  âne', 'L  bourik'], ['H 有 gender、number', 'L 都没有']],
+  ];
+  const cw = 132, gx = 16;
+  C.forEach(([name, h, l, lex, gram], i) => {
+    const cx = gx + i * cw + cw / 2;
+    o += text(cx, 22, name, 'tb', 'middle');
+    o += rect(cx - 61, 34, 122, 46, 'solid', 6) + text(cx, 53, 'H', 'tw', 'middle') + text(cx, 71, h, 'tw', 'middle');
+    o += rect(cx - 61, 88, 122, 46, 'wash', 6) + text(cx, 107, 'L', 'tb', 'middle') + text(cx, 125, l, 't', 'middle');
+    lex.forEach((s, k) => { o += text(cx, 186 + k * 18, s, k === 0 && i !== 1 ? 'ts' : (i === 1 ? 'ts' : 't'), 'middle'); });
+    gram.forEach((s, k) => { o += text(cx, 272 + k * 18, s, 't', 'middle'); });
+    if (i) o += line(gx + i * cw, 14, gx + i * cw, 300, 'grid');
+  });
+  o += text(16, 162, 'Lexicon：同一个意思，H 和 L 各有一个词', 'tl');
+  o += text(16, 250, 'Grammar：noun 上标多少东西', 'tl');
+  o += text(280, 326, 'H 在学校学会，用于写作和正式场合；L 是每个人的 mother tongue，用于日常对话。', 'ts', 'middle');
+  return svg(560, 334, o, 'Ferguson 的四个 defining case：Arabic 的 Classical 与 Egyptian、Swiss German 的 Standard German 与 Swiss German、Greek 的 katharévusa 与 dhimotikí、Haiti 的 French 与 Creole；每一列下面是一个 lexical doublet 和 noun 的 case 数');
+}
+
+// Fishman（1967）：diglossia 与 bilingualism 的四格
+function fishman() {
+  let o = '';
+  const gx = 112, gy = 52, cw = 218, ch = 118;
+  o += text(gx + cw / 2, 26, 'bilingualism：有', 'tb', 'middle') + text(gx + cw * 1.5, 26, 'bilingualism：没有', 'tb', 'middle');
+  o += text(gx + cw / 2, 42, '多数人自己会两种 variety', 'ts', 'middle') + text(gx + cw * 1.5, 42, '多数人只会一种', 'ts', 'middle');
+  o += text(12, gy + ch / 2 - 6, 'diglossia：有', 'tb') + text(12, gy + ch / 2 + 12, '社会给两种 variety', 'ts') + text(12, gy + ch / 2 + 28, '分好了用途', 'ts');
+  o += text(12, gy + ch * 1.5 - 6, 'diglossia：没有', 'tb') + text(12, gy + ch * 1.5 + 12, '用途没有分开', 'ts');
+  const cell = (c, r, cls, lines) => {
+    const x = gx + c * cw, y = gy + r * ch;
+    o += rect(x + 3, y + 3, cw - 6, ch - 6, cls, 6);
+    lines.forEach(([s, k], j) => { o += text(x + 14, y + 26 + j * 20, s, k); });
+  };
+  cell(0, 0, 'wash', [['1. both', 'tb'], ['Paraguay：Spanish 与 Guaraní', 't'], ['Swiss-German cantons', 't'], ['人人会两种，各管各的 domain', 'ts']]);
+  cell(1, 0, 'paper', [['3. diglossia without bilingualism', 'tb'], ['一战前的 European elite 之间', 't'], ['说 French，大众说别的 language', 't'], ['两边隔着 interpreter', 'ts']]);
+  cell(0, 1, 'wash-strong', [['2. bilingualism without diglossia', 'tb'], ['工业化中的工人、移民家庭：', 't'], ['学校和工作的 language 进了家', 't'], ['tends to be transitional → shift', 'tl']]);
+  cell(1, 1, 'paper', [['4. neither', 'tb'], ['很小、孤立、内部没有分化', 't'], ['的 community', 't'], ['easier to hypothesize than to find', 'ts']]);
+  return svg(560, gy + 2 * ch + 8, o, 'Fishman 的四格：diglossia 是社会层面的用途分工，bilingualism 是个人层面会几种 variety；两者都有的如 Paraguay，只有 diglossia 的如一战前说 French 的 European elite，只有 bilingualism 的如工业化中的工人和移民家庭，这种情况往往是过渡性的，导向 language shift');
+}
+
+// Blom 与 Gumperz（1972）：situational 与 metaphorical switching
+function hemnes() {
+  let o = '';
+  const bub = (x, y, w, who, code, cls) => {
+    o += rect(x, y, w, 50, cls, 8);
+    o += text(x + 12, y + 20, who, cls === 'solid' ? 'tw' : 'ts') + text(x + 12, y + 40, code, cls === 'solid' ? 'tw' : 'tb');
+  };
+  const panel = (x0, title, place, b1, b2, notes) => {
+    o += text(x0 + 130, 22, title, 'tb', 'middle') + text(x0 + 130, 42, place, 'ts', 'middle');
+    bub(x0 + 10, 58, 240, b1[0], b1[1], b1[2]);
+    o += arrow(x0 + 130, 112, x0 + 130, 138, 'mute');
+    bub(x0 + 10, 142, 240, b2[0], b2[1], b2[2]);
+    notes.forEach(([s, k], j) => { o += text(x0 + 130, 222 + j * 18, s, k, 'middle'); });
+  };
+  panel(10, 'Situational switching', 'school（据 teacher 的描述）',
+    ['teacher · lecture', 'Bokmål（standard）', 'solid'], ['teacher 与学生 · discussion', 'Ranamål（local）', 'wash'],
+    [['activity 从 lecture 换成 discussion，', 'ts'], ['code 跟着 situation 一起换', 'tl']]);
+  o += line(280, 14, 280, 270, 'grid');
+  panel(290, 'Metaphorical switching', 'community administration office',
+    ['clerk 与 resident · greeting', 'Ranamål（local）', 'wash'], ['同样两个人 · business', 'Bokmål（standard）', 'solid'],
+    [['人、地点、rights and obligations 都没变，', 'ts'], ['local code 带进另一种关系的联想', 'tl']]);
+  return svg(560, 270, o, 'Hemnesberget 的两种 switching：左边学校里 teacher 讲课用 Bokmål、讨论时换成 Ranamål，code 随 activity 变；右边办公室里 clerk 和 resident 寒暄用 Ranamål、办事用 Bokmål，situation 没变，switch 本身带来意义');
+}
+
+// Myers-Scotton（1993a: 40）：Nairobi 邮局里一次 marked choice，逐个 turn 出现
+function postoffice() {
+  let o = '';
+  const turns = [
+    [0, 'Swahili', 'ee-sema（“说吧”）：要办什么？'],
+    [1, 'Swahili', '要一张 withdrawal form'],
+    [0, 'Swahili', '先给我 passbook'],
+    [1, 'Swahili', 'form 你先收着'],
+    [0, 'Swahili', '今天不能取：离上次取款还不到七天'],
+    [1, 'Luo', "Konya an marach 'Help, I'm in trouble'"],
+    [0, 'Luo', "Anyalo konyi, kik inuo kendo 'I can help, but don't repeat it'"],
+  ];
+  const tw2 = (s) => { let w = 0; for (const ch of s) w += /[　-鿿＀-￯]/.test(ch) ? 13 : 7.1; return w; };
+  const T = 14, kt = [0, 0.004, 0.11, 0.22, 0.33, 0.44, 0.55, 0.66];
+  o += text(20, 22, 'clerk', 'tb') + text(540, 22, 'customer', 'tb', 'end');
+  turns.forEach(([who, lang, s], k) => {
+    const y = 38 + k * 38, tag = (k + 1) + ' · ' + lang;
+    const w = Math.min(520, tw2(s) + tw2(tag) * 0.9 + 40);
+    const x = who === 0 ? 20 : 540 - w;
+    const luo = lang === 'Luo';
+    const on = kt.map((_, j) => j === 0 || j >= k + 1);
+    o += `<g>${rect(x, y, w, 28, luo ? 'solid' : 'wash', 7)}${text(x + 10, y + 19, tag, luo ? 'tw' : 'ts')}${text(x + 18 + tw2(tag) * 0.9, y + 19, s, luo ? 'tw' : 't')}${ashow(on, kt, T)}</g>`;
+  });
+  o += text(280, 324, 'Turn 1–5 一直是 Swahili。被拒绝之后 customer 换成 Luo，clerk 也用 Luo 回答。', 'ts', 'middle');
+  return svgA(560, 334, o, 'Nairobi 邮局的一段对话：clerk 和 customer 前五个 turn 都说 Swahili，clerk 说今天不能取款之后，customer 改用 Luo 求助，clerk 用 Luo 回答说能帮，但别再提');
+}
+
+// Singapore Chinese residents 的 home language：四次 census
+function smc() {
+  let o = '';
+  const sx = lin(1975, 2030, 60, 480), sy = lin(0, 100, 262, 72);
+  const data = [[1990, 50.3, 30.1, 19.3], [2000, 30.7, 45.1, 23.9], [2010, 19.2, 47.7, 32.6], [2020, 11.8, 40.2, 47.6]];
+  o += line(sx(1975), sy(0), sx(2026), sy(0), 'axis');
+  for (const v of [0, 50, 100]) o += line(sx(1975), sy(v), sx(1975) - 4, sy(v), 'axis') + text(sx(1975) - 7, sy(v) + 4, v + '%', 'ts', 'end');
+  o += line(sx(1975), sy(0), sx(1975), sy(100), 'axis');
+  for (const y of [1980, 1990, 2000, 2010, 2020]) o += line(sx(y), sy(0), sx(y), sy(0) + 4, 'axis') + text(sx(y), sy(0) + 18, String(y), 'ts', 'middle');
+  const seg = [['wash2', 't'], ['wash-strong', 't'], ['solid', 'tw']];
+  data.forEach(([yr, dd, mm, ee]) => {
+    const vals = [dd, mm, ee];
+    let acc = 0;
+    vals.forEach((v, k) => {
+      const ya = sy(acc + v), yb = sy(acc);
+      o += rect(sx(yr) - 22, ya, 44, yb - ya, seg[k][0], 2);
+      o += text(sx(yr), (ya + yb) / 2 + 4, v.toFixed(1), seg[k][1], 'middle');
+      acc += v;
+    });
+  });
+  // 2020 柱子右边直接标名字
+  let acc = 0;
+  [['Chinese dialects', 11.8], ['Mandarin', 40.2], ['English', 47.6]].forEach(([s, v]) => { o += text(sx(2020) + 30, sy(acc + v / 2) + 4, s, 'tb'); acc += v; });
+  for (const [yr, s, yy] of [[1979, '1979 Speak Mandarin Campaign 开始', 40], [1994, '1994 起对象转向 English-educated Chinese', 58]]) {
+    o += line(sx(yr), yy + 6, sx(yr), sy(0), 'dash') + text(sx(yr) + 4, yy, s, 'ts');
+  }
+  o += text(480, 300, 'Chinese residents，5 岁以上，在家最常说的 language（%）。数据：Census 1990–2020。', 'ts', 'end');
+  return svg(560, 308, o, 'Singapore Chinese residents 在家最常说的 language：dialect 从 1990 年的 50.3% 降到 2020 年的 11.8%；Mandarin 从 30.1% 升到 2010 年的 47.7%，2020 年回落到 40.2%；English 从 19.3% 升到 47.6%');
+}
+
+// 同一组 age group，1990 → 2000 → 2020：dialect、Mandarin、English 的份额
+function cohort() {
+  const rows = ['5–14', '15–24', '25–39', '40–54', '55 & over'];
+  const Y = {
+    1990: [[18.9, 57.6, 23.3], [51.5, 28.5, 19.9], [44.8, 30.4, 24.6], [58.8, 24.8, 16.1], [87.7, 6.1, 5.3]],
+    2000: [[4.3, 59.6, 35.8], [18.4, 59.8, 21.5], [28.0, 46.5, 25.2], [30.7, 43.9, 25.1], [71.8, 17.8, 9.9]],
+    2020: [[0.4, 22.1, 77.4], [1.0, 29.6, 69.2], [3.0, 44.9, 51.5], [8.9, 45.0, 45.7], [27.4, 43.3, 29.0]],
+  };
+  const yrs = [1990, 1990, 2000, 2000, 2020, 2020, 1990];
+  const kt = [0, 0.22, 0.34, 0.52, 0.64, 0.94, 1];
+  const T = 12, x0 = 110, W = 340, sx = (p) => x0 + W * p / 100;
+  const cls = ['wash2', 'wash-strong', 'solid'];
+  let o = '';
+  rows.forEach((r, i) => {
+    const y = 58 + i * 46;
+    o += text(x0 - 10, y + 19, r, 'tb', 'end');
+    for (let k = 0; k < 3; k++) {
+      const xs = yrs.map((yr) => sx(Y[yr][i].slice(0, k).reduce((a, b) => a + b, 0)));
+      const ws = yrs.map((yr) => W * Y[yr][i][k] / 100);
+      o += `<rect x="${f1(xs[0])}" y="${y}" width="${f1(ws[0])}" height="28" rx="2" class="${cls[k]}">${anim('x', xs.map(f1), kt, T)}${anim('width', ws.map(f1), kt, T)}</rect>`;
+    }
+    // 2020 年 dialect 的右边界：虚线一直留着
+    const g = sx(Y[2020][i][0]);
+    o += line(g, y - 4, g, y + 32, 'ln-dash');
+    // 右边的数字：dialect 份额，随年份切换
+    for (const yr of [1990, 2000, 2020]) {
+      const on = yrs.map((q) => q === yr);
+      o += `<text x="${x0 + W + 54}" y="${y + 19}" class="t" text-anchor="end" opacity="${on[0] ? 1 : 0}">${Y[yr][i][0].toFixed(1)}%${ashow(on, kt, T)}</text>`;
+    }
+  });
+  o += text(x0 + W + 54, 44, 'dialect', 'ts', 'end');
+  // 顶部标签跟着第一行的色块走
+  const names = ['dialect', 'Mandarin', 'English'];
+  for (let k = 0; k < 3; k++) {
+    const cs = yrs.map((yr) => { const a = Y[yr][0].slice(0, k).reduce((p, q) => p + q, 0); return sx(a + Y[yr][0][k] / 2); });
+    if (k === 0) continue;
+    o += `<text x="${f1(cs[0])}" y="44" class="ts" text-anchor="middle">${names[k]}${anim('x', cs.map(f1), kt, T)}</text>`;
+  }
+  for (const yr of [1990, 2000, 2020]) {
+    const on = yrs.map((q) => q === yr);
+    o += `<text x="20" y="28" class="tbig" opacity="${on[0] ? 1 : 0}">${yr}${ashow(on, kt, T)}</text>`;
+  }
+  o += text(20, 300, '灰色是 dialect，浅色 Mandarin，深色 English。虚线是 2020 年 dialect 的位置。', 'ts');
+  o += text(20, 318, 'Chinese residents 在家最常说的 language。数据：Census 1990、2000、2020。', 'ts');
+  return svgA(560, 326, o, '五个 age group 在家最常说的 language 从 1990 到 2000 再到 2020 的变化：1990 年 55 岁以上 87.7% 说 dialect，5 到 14 岁 18.9%；2020 年分别是 27.4% 和 0.4%；每一个 age group 里 dialect 都在缩小，English 在扩大');
+}
+
 export default {
   'el1101e-embed': embed,
   'el1101e-vowels': vowels,
@@ -393,4 +589,11 @@ export default {
   'el1101e-sandhi': sandhi,
   'el1101e-bpe': bpe,
   'el1101e-grimm': grimm,
+  'el1101e-accommodate': accommodate,
+  'el1101e-ferguson': ferguson,
+  'el1101e-fishman': fishman,
+  'el1101e-hemnes': hemnes,
+  'el1101e-postoffice': postoffice,
+  'el1101e-smc': smc,
+  'el1101e-cohort': cohort,
 };

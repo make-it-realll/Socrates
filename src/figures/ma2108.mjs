@@ -437,6 +437,107 @@ function bump() {
 }
 
 
+// 第 3 站：peak（x_k 不小于后面所有 term 的 index）
+function peaks() {
+  const M = 16, sx = lin(0.3, M + 0.7, 60, 530), sy = lin(-2.25, 1.75, 236, 40);
+  const x = (n) => (-1) ** n * (1 + 1 / n);
+  const isPeak = (k) => { for (let m = k; m < k + 2000; m++) if (x(m) > x(k)) return false; return true; };
+  let o = axes({ sx, sy, x0: 0.3, x1: M + 0.7, y0: -2.25, y1: 1.85, xt: [1, 2, 4, 6, 8, 10, 12, 14, 16], yt: [[-2, '−2'], [-1, '−1'], [0, '0'], [1, '1'], [1.5, '1.5']], xAt: -2.25, xl: 'n' });
+  o += line(sx(0.3), sy(0), sx(M + 0.7), sy(0), 'mute');
+  const pk = [];
+  for (let k = 1; k <= M; k++) if (isPeak(k)) pk.push(k);
+  for (const k of pk.slice(0, 2)) o += line(sx(k) + 5, sy(x(k)), sx(M + 0.7), sy(x(k)), 'ln-dash');
+  o += path(d(pk.map((k) => [sx(k), sy(x(k))])), 'ln');
+  for (let n = 1; n <= M; n++) o += circle(sx(n), sy(x(n)), 4, pk.includes(n) ? 'ln-f' : 'ink-f');
+  o += text(sx(2) + 8, sy(x(2)) - 8, 'x₂ = 1.5', 'tl');
+  o += text(sx(10), sy(1) + 18, 'x₂, x₄, x₆, … decreasing，趋向 1', 'ts', 'middle');
+  o += text(sx(9), sy(-1.62), '黑点：odd index，negative，后面有更大的 term，不是 peak', 'ts', 'middle');
+  o += text(530, 18, '彩点：peak（even index）；虚线右边没有比它高的 term', 'ts', 'end');
+  return svg(560, 270, o, 'Sequence 负一的 n 次方乘一加 n 分之一的前 16 个 term：even index 的 term 都是 peak，从每个 peak 往右的虚线以上没有 term；把 peak 连起来是一条 decreasing 的折线，趋向 1');
+}
+
+// 第 3 站：contractive sequence y_n = (y_{n-1} + 2y_{n-2})/3
+function contract() {
+  const M = 14, ys = [0, 1];
+  for (let n = 3; n <= M; n++) ys.push((ys[n - 2] + 2 * ys[n - 3]) / 3);
+  const sx = lin(0.3, M + 0.7, 60, 470), sy = lin(-0.08, 1.1, 226, 34);
+  let o = axes({ sx, sy, x0: 0.3, x1: M + 0.7, y0: -0.08, y1: 1.1, xt: [1, 2, 4, 6, 8, 10, 12, 14], yt: [[0, '0'], [0.6, '3/5'], [1, '1']], xAt: -0.08, xl: 'n' });
+  o += line(sx(0.3), sy(0.6), sx(M + 0.7), sy(0.6), 'ln-dash');
+  o += path(d(ys.map((v, i) => [sx(i + 1), sy(v)])), 'mute');
+  ys.forEach((v, i) => { o += circle(sx(i + 1), sy(v), 3.8, 'ink-f'); });
+  const lab = [[2, '1'], [3, '1/3'], [4, '7/9'], [5, '13/27']];
+  for (const [n, t] of lab) { const v = ys[n - 1], up = v > 0.6; o += text(sx(n) + (n === 2 ? 8 : 0), sy(v) + (up ? -10 : 18), t, 'ts', n === 2 ? 'start' : 'middle'); }
+  const X = 480;
+  o += text(X, 70, '相邻两项的差', 'tb');
+  for (let n = 2; n <= 6; n++) { const dd = ys[n] - ys[n - 1]; o += text(X, 70 + (n - 1) * 20, `y${sub(n + 1)} − y${sub(n)} = ${dd > 0 ? '' : '−'}${Math.abs(dd).toFixed(3)}`, 'ts'); }
+  o += text(X, 190, '每次乘 −2/3', 'tl');
+  o += text(60, 18, 'y₁ = 0，y₂ = 1，yₙ = (yₙ₋₁ + 2yₙ₋₂)/3', 'tb');
+  return svg(560, 262, o, 'Contractive sequence 的前 14 个 term：在 3/5 上下来回跳，每一跳的长度是上一跳的三分之二，方向相反');
+}
+
+// 第 4 站：Riemann rearrangement，目标 L = 1.5
+function riemann() {
+  const L = 1.5, M = 200, ts = [], sg = [];
+  let t = 0, p = 1, q = 2;
+  while (ts.length < M) { if (t <= L) { t += 1 / p; p += 2; sg.push(1); } else { t -= 1 / q; q += 2; sg.push(-1); } ts.push(t); }
+  const sx = lin(0, M + 2, 60, 520), sy = lin(0.9, 1.62, 228, 34);
+  let o = axes({ sx, sy, x0: 0, x1: M + 2, y0: 0.9, y1: 1.62, xt: [1, 50, 100, 150, 200], yt: [[1, '1'], [1.2, '1.2'], [1.4, '1.4'], [1.5, '1.5']], xAt: 0.9, xl: '用到的 term 个数 m' });
+  o += line(sx(0), sy(L), sx(M + 2), sy(L), 'ln-dash');
+  o += path(d(ts.map((v, i) => [sx(i + 1), sy(v)])), 'ink');
+  ts.forEach((v, i) => { if (sg[i] < 0) o += circle(sx(i + 1), sy(v), 3, 'paper'); });
+  o += line(sx(4) + 4, sy(ts[3]) + 2, sx(14), sy(0.98), 'mute') + text(sx(14) + 4, sy(0.98) + 4, '减去 ½ 之后：1.0333', 'ts');
+  o += text(sx(3) + 6, sy(ts[2]) - 4, '前三个 term：1.5333', 'ts');
+  o += text(520, sy(L) - 8, 'L = 1.5', 'tl', 'end');
+  o += text(520, sy(1.03), '空心点：刚减去一个 negative term', 'ts', 'end');
+  o += text(60, 18, '≤ L 就加下一个 1/(2k − 1)，> L 就减下一个 1/(2k)', 'tb');
+  return svg(560, 262, o, 'Alternating harmonic series 的 term 按“不超过 1.5 就加 positive term，超过就减 negative term”排列后的前 200 个 partial sum：在 1.5 上下来回，摆动越来越小');
+}
+
+// 第 5 站：Thomae function，在 irrational 点 continuous
+function thomae() {
+  const sx = lin(0, 1, 50, 530), sy = lin(0, 0.56, 222, 30), c = 1 / Math.SQRT2, eps = 0.3;
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const delta = c - 2 / 3;
+  let o = rect(sx(c - delta), sy(0.56), sx(c + delta) - sx(c - delta), sy(0) - sy(0.56), 'wash');
+  o += axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 0.56, xt: [[0, '0'], [1 / 3, '1/3'], [0.5, '1/2'], [2 / 3, '2/3'], [1, '1']], yt: [[0.25, '¼'], [0.5, '½']] });
+  o += line(sx(0), sy(eps), sx(1), sy(eps), 'dash') + text(sx(0.02), sy(eps) - 6, 'ε = 0.3', 'ts');
+  for (let qq = 2; qq <= 24; qq++) for (let pp = 1; pp < qq; pp++) if (gcd(pp, qq) === 1) {
+    const v = pp / qq, h = 1 / qq, inBand = Math.abs(v - c) < delta;
+    o += circle(sx(v), sy(h), qq <= 6 ? 3.2 : 1.8, h > eps ? 'ink-f' : inBand ? 'ln-f' : 'mute-f');
+  }
+  o += line(sx(c), sy(0), sx(c), sy(0.56), 'ln-dash');
+  o += text(sx(c) + 6, sy(0.5), 'c = 1/√2 = 0.7071', 'tl');
+  o += text(sx(c) + 6, sy(0.45), 'δ = 0.0404', 'ts');
+  o += text(sx(0.5), sy(0.5) - 8, 'f(1/2) = 1/2', 'ts', 'middle');
+  o += text(sx(0.04), sy(0.47), '彩色 band 里的点都低于 ε', 'ts');
+  return svg(560, 250, o, 'Thomae function 在 denominator 不超过 24 的 rational 点上的值，高度是 denominator 分之一；高于 0.3 的只有二分之一、三分之一、三分之二；c 等于根号 2 分之一两边宽 0.0404 的 band 里所有点都低于 0.3');
+}
+
+// 第 7 站：[0,1) → S¹ 是 continuous bijection，inverse 不 continuous
+function circleMap() {
+  const sx = lin(0, 1, 40, 240), Y = 132;
+  const C = [410, 132], R = 92;
+  const P = (t) => [C[0] + R * Math.cos(2 * Math.PI * t), C[1] - R * Math.sin(2 * Math.PI * t)];
+  let o = line(sx(0), Y, sx(1), Y, 'ink-b') + circle(sx(0), Y, 4.5, 'ink-f') + circle(sx(1), Y, 4.5, 'paper');
+  o += text(sx(0), Y + 22, '0', 'ts', 'middle') + text(sx(1), Y + 22, '1', 'ts', 'middle') + text(sx(0.5), Y + 22, '0.5', 'ts', 'middle');
+  o += line(sx(0.5), Y - 4, sx(0.5), Y + 4, 'axis');
+  const near1 = [0.9, 0.95, 0.98], near0 = [0.02, 0.05, 0.1];
+  for (const t of near1) o += circle(sx(t), Y, 3.4, 'ln-f');
+  for (const t of near0) o += circle(sx(t), Y, 3.4, 'ink-f');
+  o += text(sx(0.94), Y - 14, 'tₙ → 1', 'tl', 'middle') + text(sx(0.06), Y - 14, '靠近 0', 'tb', 'middle');
+  o += text(sx(0.5), 40, '[0, 1)', 'tb', 'middle');
+  const pts = []; for (let i = 0; i <= 120; i++) pts.push(P(i / 120));
+  o += path(d(pts) + 'Z', 'ink-b');
+  for (const t of near1) { const [a, b] = P(t); o += circle(a, b, 3.4, 'ln-f'); }
+  for (const t of near0) { const [a, b] = P(t); o += circle(a, b, 3.4, 'ink-f'); }
+  const [ax, ay] = P(0); o += circle(ax, ay, 5, 'paper') + text(ax - 12, ay + 4, '(1, 0) = f(0)', 'tb', 'end');
+  o += text(C[0], 26, 'S¹，f(t) = (cos 2πt, sin 2πt)', 'tb', 'middle');
+  o += arrow(255, Y - 30, 300, Y - 30, 'mute') + text(277, Y - 38, 'f', 'tb', 'middle');
+  o += text(280, 254, 'f(0.98) 和 f(0.02) 在 circle 上只差 0.25，在 [0, 1) 上 0.98 和 0.02 却差 0.96', 'ts', 'middle');
+  return svg(560, 266, o, '左边是区间零到一（左闭右开），右边是单位圆；f 把 t 送到角度 2πt 处，t 接近 1 的点和接近 0 的点都被送到点 (1, 0) 附近，在圆上相邻');
+}
+
+
 // ---------- 动图 ----------
 const grp = (first, on, kt, T, body) => `<g opacity="${first ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
 
@@ -563,4 +664,9 @@ export default {
   'ma2108-ball': ball,
   'ma2108-cover': cover,
   'ma2108-xn': xn,
+  'ma2108-peaks': peaks,
+  'ma2108-contract': contract,
+  'ma2108-riemann': riemann,
+  'ma2108-thomae': thomae,
+  'ma2108-circle': circleMap,
 };

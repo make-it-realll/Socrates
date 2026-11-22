@@ -325,15 +325,15 @@ function cephalic() {
     q += poly([[cx - 9, cy - L / 2 + 3], [cx, cy - L / 2 - 12], [cx + 9, cy - L / 2 + 3]], 'paper');
     q += arrow(cx, cy, cx, cy - L / 2 + 2, 'ink', 6) + arrow(cx, cy, cx, cy + L / 2 - 2, 'ink', 6);
     q += arrow(cx, cy + 26, cx - B / 2 + 2, cy + 26, 'ln', 6) + arrow(cx, cy + 26, cx + B / 2 - 2, cy + 26, 'ln', 6);
-    q += text(cx + 6, cy - 30, 'L = ' + L + ' mm', 'ts', 'start') + text(cx, cy + 46, 'B = ' + B.toFixed(1).replace('.0', '') + ' mm', 'tl', 'middle');
+    q += text(cx + 6, cy - 30, 'L = ' + L + ' mm', 'ts', 'start') + text(cx + B / 2 + 6, cy + 31, 'B = ' + B.toFixed(1).replace('.0', '') + ' mm', 'tl', 'start');
     q += text(cx, 252, title, 'tb', 'middle') + text(cx, 270, 'cephalic index = 100 × B / L = ' + ci.toFixed(1), 'ts', 'middle');
     return q;
   };
   const L = 190, B1 = 152, dCI = 1.4, B2 = B1 + (dCI * L) / 100;
-  o += head(140, L, B1, '一个 child', (100 * B1) / L);
-  o += head(400, L, B2, 'B 多 ' + ((dCI * L) / 100).toFixed(1) + ' mm', (100 * B2) / L);
+  o += head(150, L, B1, '一个 child', (100 * B1) / L);
+  o += head(380, L, B2, 'B 多 ' + ((dCI * L) / 100).toFixed(1) + ' mm', (100 * B2) / L);
   o += text(270, 22, '从头顶往下看，鼻子朝上', 'ts', 'middle');
-  o += text(270, 128, '→', 'tbig', 'middle');
+  o += text(265, 128, '→', 'tbig', 'middle');
   return svg(560, 278, o, '从头顶看两个头的轮廓，L 都是 190 mm，B 分别是 152 mm 和 154.7 mm，cephalic index 从 80.0 变成 81.4，两个轮廓几乎看不出差别');
 }
 
@@ -377,24 +377,31 @@ function edwards() {
   return svg(560, 368, o, 'Toy model：两个 group 在每个 locus 上 allele a 的 frequency 是 0.65 和 0.35。只看一个 locus，两个 distribution 大量重叠，错分 35%；30 个 locus 加起来，distribution 几乎分开，错分 0.9%');
 }
 
-// 第 7 站：Hong Kong 的 McDonald's：设计的 visit 和实际的用法
+// 第 7 站：Hong Kong 的 McDonald's：设计的 visit 和实际的用法（时钟时间）
 function mcd() {
-  const sx = lin(0, 12, 150, 540);
+  const h0 = 8, h1 = 20;
+  const sx = lin(h0, h1, 150, 540);
   let o = '';
-  o += line(sx(0), 40, sx(12), 40, 'axis');
-  ['早上', '中午', '下午', '傍晚'].forEach((s, k) => { o += text(sx(1.5 + 3 * k), 30, s, 'ts', 'middle'); });
-  for (let k = 0; k <= 4; k++) o += line(sx(3 * k), 36, sx(3 * k), 44, 'axis');
-  const row = (y, label, sub, a, b, cls, note) => {
+  o += line(sx(h0), 40, sx(h1), 40, 'axis');
+  for (let h = h0; h <= h1; h += 2) o += line(sx(h), 36, sx(h), 44, 'axis') + text(sx(h), 30, h + ':00', 'ts', 'middle');
+  // left = true 时注释写在条的左边（条靠右、右边放不下时）
+  const row = (y, label, sub, a, b, cls, note, note2, left = false) => {
     o += text(12, y + 4, label, 'tb') + text(12, y + 20, sub, 'ts');
     o += rect(sx(a), y - 10, sx(b) - sx(a), 22, cls, 4);
-    if (note) o += text(sx(b) + 6, y + 6, note, 'ts');
+    const x = left ? sx(a) - 6 : sx(b) + 6, an = left ? 'end' : 'start';
+    if (note) o += text(x, y + 6, note, 'ts', an);
+    if (note2) o += text(x, y + 22, note2, 'ts', an);
   };
-  row(70, 'Oak Brook 的设计', 'fast food', 4.5, 4.8, 'solid2', '买、吃、走；fast 指上菜快');
-  row(116, '退休的人', '整个早上', 0, 3.2, 'wash-strong', 'tea 免费续杯，读店里的报纸');
-  row(162, '放学的学生', 'weekday 下午', 7, 9.2, 'solid', '一盘 fries 大家分');
-  o += text(sx(9.2) + 6, 182, '坐一个小时以上', 'ts');
-  o += text(280, 214, '顾客照单全收的：自己排队、自己找座位。被改掉的：一次 visit 待多久。', 'ts', 'middle');
-  return svg(560, 224, o, 'Hong Kong 的 McDonald’s：总部设计的一次 visit 很短；退休的人整个早上坐着喝 tea，学生放学后坐一个小时以上');
+  // Oak Brook 设计的一次 visit：示意，约 15 分钟
+  row(72, 'Oak Brook 的设计', 'fast food', 12.5, 12.75, 'solid2', '买、吃、走：fast 指上菜快', '（示意）');
+  // 退休的人：Watson 访谈，9:30 到 11:00
+  const r0 = 9.5, r1 = 11;
+  row(124, '退休的人', '多半独居的年长 women', r0, r1, 'wash-strong', 'pancake 早餐、免费续杯、', '读店里的报纸（' + (r1 - r0) * 60 + ' 分钟）');
+  // 学生：约两个小时，开始时刻原文未给，放学后示意
+  const s0 = 16, s1 = s0 + 2;
+  row(176, '放学的学生', '1990 年代中期', s0, s1, 'solid', '一盘 fries 大家分，', '坐约 ' + (s1 - s0) + ' 小时（开始时刻是示意）', true);
+  o += text(280, 222, '顾客照单全收的：自己排队、自己找座位。被改掉的：一次 visit 待多久。', 'ts', 'middle');
+  return svg(560, 232, o, 'Hong Kong 的 McDonald’s：总部设计的一次 visit 很短；退休的人上午 9:30 到 11:00 坐着吃早餐读报，学生放学后坐约两个小时');
 }
 
 export default {
