@@ -1,4 +1,4 @@
-import { svg, svgA, anim, apath, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, apath, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, sub, arrow, curve, area, axes } from '../lib/svg.mjs';
 
 // 动图的时间轴：durs[i] 是第 i 帧停留的秒数 → keyTimes；末尾补一个 1
 const timeline = (durs) => { const T = durs.reduce((a, b) => a + b, 0); const kt = []; let t = 0; for (const u of durs) { kt.push(t / T); t += u; } kt.push(1); return { T, kt }; };
@@ -420,7 +420,50 @@ function otPlan() {
   return svg(560, 288, o, '位置 0、1、2 上的 source mass 0.5、0.3、0.2 搬到 target mass 0.1、0.3、0.6：从左到右依次配对，总 cost 为 1.0');
 }
 
+// ---------- 第 8 站开头：WGAN 的 Example 1，两条平行 segment ----------
+function wgan() {
+  const ths = [1.2, 1.5, 1, 0.6, 0.3, 0.1, 0.03, 0];
+  const { T, kt } = timeline(ths.map((t, i) => (i === 0 ? 3.2 : i === ths.length - 1 ? 2.4 : 1.2)));
+  const LOG2 = Math.log(2);
+  const W = (t) => Math.abs(t), TV = (t) => (t === 0 ? 0 : 1), JS = (t) => (t === 0 ? 0 : LOG2);
+  // 左：平面上的两条 segment
+  const lx = lin(-0.35, 1.75, 40, 262), ly = lin(0, 1, 196, 56);
+  let o = text(150, 22, '平面上的两个 distribution', 'tb', 'middle');
+  o += line(lx(-0.35), ly(0), lx(1.75), ly(0), 'axis') + text(lx(1.75), ly(0) + 16, 'x', 'ts', 'end');
+  for (const v of [0, 1]) o += line(lx(v), ly(0), lx(v), ly(0) + 4, 'axis') + text(lx(v), ly(0) + 16, String(v), 'ts', 'middle');
+  o += line(lx(0), ly(0), lx(0), ly(1), 'ink-b') + text(lx(0) - 8, ly(1) + 4, 'P₀', 'tb', 'end');
+  // 右：四个量作为 θ 的 function
+  const sx = lin(0, 1.6, 330, 540), sy = lin(0, 1.7, 196, 40);
+  o += text(435, 22, '四个量随 θ 的变化', 'tb', 'middle');
+  o += axes({ sx, sy, x0: 0, x1: 1.6, y0: 0, y1: 1.7, xt: [[0, '0'], [0.5, '0.5'], [1, '1'], [1.5, '1.5']], yt: [[LOG2, 'log 2'], [1, '1']] });
+  o += text(sx(1.6), sy(0) + 32, 'θ', 'ts', 'end');
+  o += path(d([[sx(0), sy(0)], [sx(1.6), sy(1.6)]]), 'ln');
+  o += line(sx(0) + 4, sy(1), sx(1.6), sy(1), 'ink') + line(sx(0) + 4, sy(LOG2), sx(1.6), sy(LOG2), 'mute');
+  o += circle(sx(0), sy(1), 3.5, 'paper') + circle(sx(0), sy(LOG2), 3.5, 'paper') + circle(sx(0), sy(0), 3.5, 'ink-f');
+  o += text(sx(1.18), sy(1.18) - 12, 'W₁ = |θ|', 'tl', 'end');
+  o += text(sx(1.6), sy(1) - 6, 'TV = 1', 'ts', 'end') + text(sx(1.6), sy(LOG2) + 15, 'JS = log 2', 'ts', 'end');
+  o += text(sx(0.05), sy(1.7) + 4, 'KL = +∞（θ ≠ 0 时）', 'ts');
+  // 每一帧
+  const fmt = (v) => v.toFixed(2);
+  ths.forEach((t, k) => {
+    const on = onlyAt(ths.length, k);
+    let g = line(lx(t), ly(0), lx(t), ly(1), 'ln') + text(lx(t) + 8, ly(1) + 4, 'P' + sub('θ'), 'tl');
+    if (t > 0.05) for (const z of [0.2, 0.5, 0.8]) g += arrow(lx(0) + 4, ly(z), lx(t) - 4, ly(z), 'mute', 6);
+    if (t > 0) g += text((lx(0) + lx(t)) / 2, ly(1) - 10, `θ = ${fmt(t)}`, 'ts', 'middle');
+    else g += text(lx(0) + 8, ly(1) - 12, 'θ = 0：两条重合', 'ts');
+    g += line(sx(t), sy(0), sx(t), sy(1.62), 'grid');
+    g += circle(sx(t), sy(W(t)), 4.5, 'ln-f') + circle(sx(t), sy(TV(t)), 4, 'ink-f') + circle(sx(t), sy(JS(t)), 4, 'mute-f');
+    const vals = t === 0 ? 'W₁ = 0，TV = 0，JS = 0，KL = 0' : `W₁ = ${fmt(W(t))}，TV = 1，JS = 0.693，KL = +∞`;
+    g += text(150, 232, vals, t === 0 ? 'tb' : 't', 'middle');
+    g += text(150, 252, t === 0 ? '只有 θ 恰好为 0 时其余三个量才变' : '只有 W₁ 随 θ 变小而变小', 'ts', 'middle');
+    o += `<g>${g}${ashow(on, kt, T)}</g>`;
+  });
+  o += text(435, 252, '空心圈：θ → 0 时的极限；实心点：θ = 0 时的值', 'ts', 'middle');
+  return svgA(560, 262, o, '动图：P0 是 x 等于 0 处竖直 segment 上的 uniform distribution，P theta 是把它平移到 x 等于 theta。Theta 从 1.5 一路减到 0：Wasserstein-1 distance 等于 theta，跟着变小；total variation 一直是 1，JS 一直是 log 2，KL 一直是正无穷，直到 theta 恰好等于 0 才一起跳到 0');
+}
+
 export default {
+  'ma3270-wgan': wgan,
   'ma3270-centroid': centroid,
   'ma3270-pagerank': pagerank,
   'ma3270-bigram': bigram,
