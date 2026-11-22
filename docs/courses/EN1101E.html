@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EN1101E 文学研究导论 · Socrates</title>
+<link rel="stylesheet" href="../assets/katex/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="p-course" style="--line-l:#9A4C9E;--line-dk:#D493D8">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="top">
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true"></span>Socrates</a>
+  <nav class="top-nav" aria-label="全站">
+    <a href="../index.html#map">谱系图</a>
+    <a href="../index.html#lines">全部课程</a>
+    <a href="../index.html#threads">概念线</a>
+    <a href="../labs.html">动手做</a>
+    <a href="../index.html#how">怎么用</a>
+  </nav>
+</header>
+<main id="main" class="course" data-course="EN1101E" data-title="An Introduction to Literary Studies" data-zh="文学研究导论">
+<header class="c-head">
+  <p class="c-line">语言、文学与艺术线</p>
+  <h1><span class="c-code">EN1101E</span><span class="c-zh">文学研究导论</span></h1>
+  <p class="c-title">An Introduction to Literary Studies</p>
+  <dl class="c-meta">
+    <div><dt>依据</dt><dd><strong>只有大纲</strong>范围取自 NUSMods AY26/27 的课程描述：人是 tale-telling animals，课程研究人怎样讲 story、讲什么样的 story、story 产生什么 meaning，重点放在 the telling 上，text 包括一部 novel、一部 play、几部 film、short story、poem 和 oral tale。另参考了 2011/12 学期 Susan Ang 与 Rajeev Patke 的旧课程页（先 poetry，再 fiction，再 drama，第 6 周一讲 critical approaches），那是十几年前的版本，具体篇目现在多半已换。NUSMods 上的学生评价这次没有抓到（Disqus 加载失败）。讲法主要跟 Yale ENGL 300（Paul Fry）的 transcript，narrative 部分跟 Manfred Jahn 的 narratology 讲义，meter 部分参考 MIT 21L.004 的 handout，每一站末尾注明。还没有对着往年卷子核过。</dd></div>
+    <div><dt>考试</dt><dd>NUSMods AY26/27 没有列出 final exam。2011/12 学期的课程页写的是 essay 20%、mid-term class test 20%、class participation 10%、final exam 50%；现在的比例没有查到。以当学期 Canvas 的说明为准。</dd></div>
+  </dl>
+</header>
+<div class="c-grid">
+<nav class="rail" aria-label="本课各站"><ol><li class="rs"><a href="#close" data-skill="close"><span class="dot" aria-hidden="true"></span><span class="rl">Close reading：opposition、tension 与 unity</span></a></li><li class="rs"><a href="#verse" data-skill="verse"><span class="dot" aria-hidden="true"></span><span class="rl">Poetic form：meter、sound 与 poetic function</span></a></li><li class="rs"><a href="#story" data-skill="story"><span class="dot" aria-hidden="true"></span><span class="rl">Story 与 discourse：order、duration、frequency</span></a></li><li class="rs"><a href="#voice" data-skill="voice"><span class="dot" aria-hidden="true"></span><span class="rl">Narrator、focalization 与 speech representation</span></a></li><li class="rs"><a href="#stage" data-skill="stage"><span class="dot" aria-hidden="true"></span><span class="rl">Drama 与 film：没有 narrator 时谁在 telling</span></a></li><li class="rs"><a href="#struct" data-skill="struct"><span class="dot" aria-hidden="true"></span><span class="rl">Structuralism：sign、opposition 与 myth 的结构</span></a></li><li class="rs"><a href="#meaning" data-skill="meaning"><span class="dot" aria-hidden="true"></span><span class="rl">Meaning 从哪里来：intention、reader 与 deconstruction</span></a></li><li class="rs"><a href="#lens" data-skill="lens"><span class="dot" aria-hidden="true"></span><span class="rl">Desire、class、gender、empire：四种 context 读法</span></a></li><li class="rp"><a href="#sec-9"><span class="dot" aria-hidden="true"></span><span class="rl">真题走读：待补</span></a></li></ol></nav>
+<div class="c-body">
+<section class="mine" aria-label="我的进度">
+  <h2>我的进度</h2>
+  <div class="map-rows" id="skill-map"></div>
+  <p class="mine-note">等级自己点，标准写在每一站开头。想被真正提问，把进度块贴回 Claude 对话里说 “resume from:”。</p>
+  <div class="mine-act"><button type="button" id="btn-copy">复制进度块</button><span id="copy-ok" aria-live="polite"></span>
+  <details><summary>从进度块恢复</summary><textarea id="imp" rows="5" aria-label="粘贴进度块"></textarea><button type="button" id="btn-imp">恢复</button><span id="imp-ok" aria-live="polite"></span></details></div>
+</section>
+<section class="plain lead"><p>先看三件事。每一件里，常识给出的回答都走不下去。</p>
+<p><strong>第一件。</strong> Wordsworth 1800 年的一首 12 行短诗 She dwelt among the untrodden ways，两位严肃的 critic 读出了相反的东西：Cleanth Brooks 认为诗里所有的对立最后被统一起来，F. W. Bateson 认为它们一个也没有被调和，诗的力量恰恰来自不调和。两人引的是同一组词。常识说“去问作者想说什么”，可是 Wordsworth 没有留下注解；就算留下了，也解释不了为什么同样的 12 行能同时撑起两种读法。</p>
+<p><strong>第二件。</strong> Sophocles 的 Oedipus Tyrannus 首演时，雅典观众早就知道 Oedipus 杀父娶母，结局毫无悬念。可这部 play 两千多年来一直被当作 suspense 的典范。如果“发生了什么”已经知道，观众到底在等什么？</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 234" role="img" aria-label="Oedipus 的七个 story 事件：上面按发生顺序 F1 到 F7，下面按 play 第一次讲到它们的顺序 F7、F5、F6、F1、F2、F4、F3，连线交叉"><text x="8" y="18" class="tb" text-anchor="start">Story：事件实际发生的顺序（跨越几十年）</text><text x="8" y="214" class="tb" text-anchor="start">Play：这些事件第一次被讲出来的顺序（舞台上只过了一天）</text><line x1="512" y1="78" x2="50" y2="142" class="ln"/><line x1="358" y1="78" x2="127" y2="142" class="mute"/><line x1="435" y1="78" x2="204" y2="142" class="mute"/><line x1="50" y1="78" x2="281" y2="142" class="mute"/><line x1="127" y1="78" x2="358" y2="142" class="mute"/><line x1="281" y1="78" x2="435" y2="142" class="mute"/><line x1="204" y1="78" x2="512" y2="142" class="mute"/><rect x="16" y="38" width="68" height="40" rx="5" class="paper"/><text x="50" y="54" class="tb" text-anchor="middle">F1</text><text x="50" y="70" class="ts" text-anchor="middle">oracle</text><rect x="16" y="142" width="68" height="40" rx="5" class="wash"/><text x="50" y="158" class="tb" text-anchor="middle">F7</text><text x="50" y="174" class="ts" text-anchor="middle">plague</text><rect x="93" y="38" width="68" height="40" rx="5" class="paper"/><text x="127" y="54" class="tb" text-anchor="middle">F2</text><text x="127" y="70" class="ts" text-anchor="middle">exposed</text><rect x="93" y="142" width="68" height="40" rx="5" class="paper"/><text x="127" y="158" class="tb" text-anchor="middle">F5</text><text x="127" y="174" class="ts" text-anchor="middle">crossroads</text><rect x="170" y="38" width="68" height="40" rx="5" class="paper"/><text x="204" y="54" class="tb" text-anchor="middle">F3</text><text x="204" y="70" class="ts" text-anchor="middle">Corinth</text><rect x="170" y="142" width="68" height="40" rx="5" class="paper"/><text x="204" y="158" class="tb" text-anchor="middle">F6</text><text x="204" y="174" class="ts" text-anchor="middle">Sphinx</text><rect x="247" y="38" width="68" height="40" rx="5" class="paper"/><text x="281" y="54" class="tb" text-anchor="middle">F4</text><text x="281" y="70" class="ts" text-anchor="middle">Delphi</text><rect x="247" y="142" width="68" height="40" rx="5" class="paper"/><text x="281" y="158" class="tb" text-anchor="middle">F1</text><text x="281" y="174" class="ts" text-anchor="middle">oracle</text><rect x="324" y="38" width="68" height="40" rx="5" class="paper"/><text x="358" y="54" class="tb" text-anchor="middle">F5</text><text x="358" y="70" class="ts" text-anchor="middle">crossroads</text><rect x="324" y="142" width="68" height="40" rx="5" class="paper"/><text x="358" y="158" class="tb" text-anchor="middle">F2</text><text x="358" y="174" class="ts" text-anchor="middle">exposed</text><rect x="401" y="38" width="68" height="40" rx="5" class="paper"/><text x="435" y="54" class="tb" text-anchor="middle">F6</text><text x="435" y="70" class="ts" text-anchor="middle">Sphinx</text><rect x="401" y="142" width="68" height="40" rx="5" class="paper"/><text x="435" y="158" class="tb" text-anchor="middle">F4</text><text x="435" y="174" class="ts" text-anchor="middle">Delphi</text><rect x="478" y="38" width="68" height="40" rx="5" class="wash"/><text x="512" y="54" class="tb" text-anchor="middle">F7</text><text x="512" y="70" class="ts" text-anchor="middle">plague</text><rect x="478" y="142" width="68" height="40" rx="5" class="paper"/><text x="512" y="158" class="tb" text-anchor="middle">F3</text><text x="512" y="174" class="ts" text-anchor="middle">Corinth</text></svg><figcaption>同样七件事。上面按发生的顺序排，跨越几十年；下面按 play 第一次把它们讲出来的顺序排，全部挤在舞台上的一天里。连线的交叉就是 play 对 story 做的事。</figcaption></figure>
+<p><strong>第三件。</strong> Kate Chopin 1894 年的 The Story of an Hour 最后一句说，医生们来了，说她死于 heart disease，死于“joy that kills”。Narrator 没有加一个字的评论，读者却知道医生说错了。这句话是谁的判断？读者凭什么知道它错？</p>
+<p>三件事指向同一个对象：telling。Meaning 不只在“说了什么”里，还在“怎样说”里：词与词怎样对立（第 1、2 站），事件按什么顺序、以什么速度、被讲几次（第 3 站），谁在讲、透过谁的眼睛看（第 4 站），没有 narrator 时这些功能交给了谁（第 5 站）。这是 NUS 这门课描述里说的 focuses upon the telling。后三站往外走一步：一套 narrative 背后有没有普遍的 structure（第 6 站），meaning 最终由 author、text 还是 reader 决定（第 7 站），text 和 desire、class、gender、empire 这些 text 之外的力量是什么关系（第 8 站）。第一件事在第 1 站和第 7 站解决，第二件在第 3、5 站，第三件在第 4 站。</p>
+<p>全页反复用几篇 text：Wordsworth 的两首 Lucy poem，Shakespeare 的 Sonnet 73，Oedipus Tyrannus，Chopin 的 The Story of an Hour，Poe 的 The Tell-Tale Heart。它们都在 1929 年以前发表，属于 public domain，所以可以直接引原文。受版权保护的作品只描述，不引用。</p>
+
+<aside class="blk blk-note"><p class="blk-h"><span class="blk-t">EN1101E 与 Yale ENGL 300 的整体差别</span></p><p>两门课的问题不同。Yale ENGL 300 是一门 theory 课：26 讲按学派走，从 hermeneutics、New Criticism、Russian Formalism、structuralism、deconstruction，到 psychoanalysis、Marxism、new historicism、feminism、postcolonial criticism、queer theory，用的 text 很少（Fry 反复拿一本儿童读物 Tony the Tow Truck 来演示每一种理论）。NUS EN1101E 是一门 reading 课：课程描述列的是 novel、play、film、short story、poem、oral tale，重点在 the telling，旧的课程页上 critical approaches 只占一讲。所以本页前五站按 NUS 的重点讲 close reading、poetic form 和 narrative 的分析工具，ENGL 300 的讲法在需要的地方并进来；后三站才是 ENGL 300 的主体，按 EN1101E 用得上的程度取舍。ENGL 300 不讲 meter，不讲 drama 和 film；NUS 不太可能像 ENGL 300 那样讲 Lacan、Frankfurt School、neo-pragmatism，本页没有写这几讲。</p>
+</aside>
+</section>
+<section class="stop" id="close" data-skill="close" data-name="Close reading：opposition、tension 与 unity">
+<header class="stop-h"><span class="stop-n">第 1 站</span><h2>Close reading：opposition、tension 与 unity</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>在一首短诗里找出重复的词和成对的 opposition，并说出它们之间是什么关系。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>对一段陌生的诗或 prose 写出一段 close reading，论点落在具体的词上，并能说明一种读法靠的是哪一条 criterion（比如 unity）。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能解释 heresy of paraphrase、intentional fallacy、affective fallacy 各自排除了什么，并用 Brooks 与 Bateson 的分歧说明 close reading 本身不能决定哪种读法对。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-close">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-close"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能对一首陌生的短诗找出成对的 opposition，说清 paraphrase 丢掉了什么，并且知道一种读法“好”是按哪一条 criterion 说的，就可以去第 2 站。</p>
+</aside>
+<h3>Paraphrase 丢了什么</h3>
+<p>先读这首诗。它出自 Wordsworth 和 Coleridge 的 Lyrical Ballads 第二版（1800），是所谓 Lucy poems 中的一首。</p>
+<blockquote>
+<p>She dwelt among the untrodden ways<br>
+Beside the springs of Dove,<br>
+A Maid whom there were none to praise<br>
+And very few to love:</p>
+<p>A violet by a mossy stone<br>
+Half hidden from the eye!<br>
+Fair as a star, when only one<br>
+Is shining in the sky.</p>
+<p>She lived unknown, and few could know<br>
+When Lucy ceased to be;<br>
+But she is in her grave, and, oh,<br>
+The difference to me!</p>
+</blockquote>
+<p>一个合格的 paraphrase 是：“有个叫 Lucy 的姑娘住在偏僻的地方，没什么人认识她；她死了，speaker 很悲痛。”这句话每一处都对，可是把诗换成这句话，读者失去的东西太多了。失去的是什么，正是 close reading 要找的东西。</p>
+<p>试着逐行问“这里有没有两样东西被放在一起”：</p>
+<ol>
+<li>第 1 行 untrodden ways。Way 是被人走出来的路，untrodden 是没人走过。一条“没人走过的路”，这个短语自己在抵消自己。</li>
+<li>第 3、4 行 none to praise 和 very few to love。前一句是零，后一句不是零。Speaker 自己就在那 very few 里面。</li>
+<li>第二节两个 simile：violet 长在低处，被 mossy stone 遮住一半，是 hidden；star 挂在高处，而且是天上唯一的一颗，是最显眼的。同一个人同时被比作最不显眼和最显眼的东西。</li>
+<li>第三节 lived unknown、few could know，对 the difference to me。对世界来说她的死几乎没有发生；对 speaker 来说它改变了一切。</li>
+</ol>
+<p>四组对立排出来，诗的骨架就出来了：每一组的一端是 obscurity（没人走、没人夸、看不见、不为人知），另一端是 value（路、爱、星、the difference）。Paraphrase 只保留了“偏僻”和“悲痛”两个结论，把两端之间的拉扯全丢了。Cleanth Brooks 在 The Well Wrought Urn（1947）里给这种做法起了名字，heresy of paraphrase：把诗当成一个可以被转述的 statement，再加上装饰。New Criticism 的立场是，诗的 meaning 就是这些关系本身，换一种说法就是另一个东西。</p>
+<h3>两种读法：unity 还是 unresolved conflict</h3>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 286" role="img" aria-label="She dwelt among the untrodden ways 里的四对 opposition：左栏 Brooks 把每一对收束到 speaker 的 feeling，右栏 Bateson 认为每一对都没有被调和"><text x="130" y="18" class="tb" text-anchor="middle">Brooks：unity</text><text x="130" y="36" class="ts" text-anchor="middle">两边在一个视角里同时成立</text><rect x="0" y="62" width="116" height="26" rx="4" class="wash2"/><text x="58" y="79" class="ts" text-anchor="middle">untrodden</text><rect x="144" y="62" width="116" height="26" rx="4" class="wash"/><text x="202" y="79" class="ts" text-anchor="middle">ways</text><line x1="116" y1="75" x2="126" y2="236" class="mute"/><line x1="144" y1="75" x2="134" y2="236" class="mute"/><rect x="0" y="102" width="116" height="26" rx="4" class="wash2"/><text x="58" y="119" class="ts" text-anchor="middle">none to praise</text><rect x="144" y="102" width="116" height="26" rx="4" class="wash"/><text x="202" y="119" class="ts" text-anchor="middle">very few to love</text><line x1="116" y1="115" x2="126" y2="236" class="mute"/><line x1="144" y1="115" x2="134" y2="236" class="mute"/><rect x="0" y="142" width="116" height="26" rx="4" class="wash2"/><text x="58" y="159" class="ts" text-anchor="middle">violet, half hidden</text><rect x="144" y="142" width="116" height="26" rx="4" class="wash"/><text x="202" y="159" class="ts" text-anchor="middle">star, only one</text><line x1="116" y1="155" x2="126" y2="236" class="mute"/><line x1="144" y1="155" x2="134" y2="236" class="mute"/><rect x="0" y="182" width="116" height="26" rx="4" class="wash2"/><text x="58" y="199" class="ts" text-anchor="middle">lived unknown</text><rect x="144" y="182" width="116" height="26" rx="4" class="wash"/><text x="202" y="199" class="ts" text-anchor="middle">the difference to me</text><line x1="116" y1="195" x2="126" y2="236" class="mute"/><line x1="144" y1="195" x2="134" y2="236" class="mute"/><circle cx="130" cy="240" r="6" class="ln-f"/><text x="130" y="266" class="ts" text-anchor="middle">speaker 的 feeling 把两边统一</text><text x="426" y="18" class="tb" text-anchor="middle">Bateson：unresolved</text><text x="426" y="36" class="ts" text-anchor="middle">两边始终互相抵消</text><rect x="296" y="62" width="116" height="26" rx="4" class="wash2"/><text x="354" y="79" class="ts" text-anchor="middle">untrodden</text><rect x="440" y="62" width="116" height="26" rx="4" class="wash"/><text x="498" y="79" class="ts" text-anchor="middle">ways</text><line x1="420" y1="68" x2="420" y2="82" class="ink-b"/><line x1="432" y1="68" x2="432" y2="82" class="ink-b"/><rect x="296" y="102" width="116" height="26" rx="4" class="wash2"/><text x="354" y="119" class="ts" text-anchor="middle">none to praise</text><rect x="440" y="102" width="116" height="26" rx="4" class="wash"/><text x="498" y="119" class="ts" text-anchor="middle">very few to love</text><line x1="420" y1="108" x2="420" y2="122" class="ink-b"/><line x1="432" y1="108" x2="432" y2="122" class="ink-b"/><rect x="296" y="142" width="116" height="26" rx="4" class="wash2"/><text x="354" y="159" class="ts" text-anchor="middle">violet, half hidden</text><rect x="440" y="142" width="116" height="26" rx="4" class="wash"/><text x="498" y="159" class="ts" text-anchor="middle">star, only one</text><line x1="420" y1="148" x2="420" y2="162" class="ink-b"/><line x1="432" y1="148" x2="432" y2="162" class="ink-b"/><rect x="296" y="182" width="116" height="26" rx="4" class="wash2"/><text x="354" y="199" class="ts" text-anchor="middle">lived unknown</text><rect x="440" y="182" width="116" height="26" rx="4" class="wash"/><text x="498" y="199" class="ts" text-anchor="middle">the difference to me</text><line x1="420" y1="188" x2="420" y2="202" class="ink-b"/><line x1="432" y1="188" x2="432" y2="202" class="ink-b"/><text x="426" y="236" class="ts" text-anchor="middle">每一对都没有被调和</text><text x="426" y="254" class="ts" text-anchor="middle">pathos 来自这个 conflict 本身</text><line x1="280" y1="10" x2="280" y2="270" class="grid"/></svg><figcaption>同样四组 opposition。左边 Brooks 把每一组收束到一个点上，右边 Bateson 让每一组保持断开。</figcaption></figure>
+<p>Fry 在第 6 讲把这首诗当作 New Criticism 的试金石。Brooks 的读法：Lucy 对世界是 violet，对 speaker 是 star，两种身份同时成立，是 speaker 的 feeling 把它们统一起来。诗里的每一组对立都被这个视角吸收，诗是一个 unity。Bateson 的回应是把同一组 oxymoron（untrodden ways、none praise、few could know）重新列出来，指出它们始终没有被调和，诗的 pathos 恰恰来自这个没有解决的 conflict。</p>
+<p>两人对“诗里有什么”没有分歧，四组对立双方都承认。分歧在于怎样评价这些对立：它们是被统一的 tension，还是不可调和的 contradiction。Fry 在这一讲给出了 New Criticism 隐含的 criterion：一种解读是否 valid，看它是否有助于作品统一的 form。按这条 criterion，Brooks 赢；可是 Bateson 否认的正是这条 criterion 本身。Fry 的评论是，close reading 这个工具既可以用来把诗统一起来，也可以用来把它拆开，后来的 deconstruction 就是后一种用法（第 7 站）。</p>
+<p>所以 close reading 要做两件事：一是像上面那样把 text 里的关系一条条找出来，二是说清楚自己拿什么标准判断这些关系的意义。只做第一件，写出来的是一张清单；只做第二件，写出来的是空话。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Close reading 就是把每个 image 翻译成它“象征”的东西</span></p><p>比如：violet 象征 modesty，star 象征 purity，所以这首诗赞美 Lucy 的 modesty 和 purity。这样做等于给诗配一本 symbol 词典。检验一下：如果 violet 就是 modesty，star 就是 purity，那么第二节说的是“她 modest 而且 pure”，两个 simile 是同方向的。可是第二节里两个 image 的关键恰恰是方向相反：一个低、被遮住、是很多 violet 中的一朵；一个高、毫无遮挡、only one。词典式的翻译把它们之间唯一要紧的关系抹掉了。一个 image 的意思来自它在这首诗里和别的 image 的关系，同一个 star 在另一首诗里可以意味着完全相反的东西（第 6 站会说明这是 structuralism 的基本主张）。</p>
+</aside>
+<h3>Author 的 intention 能不能当裁判</h3>
+<p>开头那个常识的回答是：Brooks 和 Bateson 争不出结果，就去查 Wordsworth 本人怎么想。W. K. Wimsatt 和 Monroe Beardsley 在 The Intentional Fallacy（1946）里反对这样做。他们的论证可以拆成三步：</p>
+<ol>
+<li>作者的 intention 要么在作品里实现了，要么没有实现。</li>
+<li>如果实现了，作品本身就是证据，不必到作品外面去找。</li>
+<li>如果没有实现，那么作品外的材料（日记、书信、访谈）告诉我们的是作者想写什么，不是作品写了什么。</li>
+</ol>
+<p>结论：作品外的 intention 既不是 available 的，也不是 desirable 的评判标准。他们的另一篇 The Affective Fallacy（1949）从另一边封口：也不能用读者读后的感受来判断诗，因为那是把诗和它造成的效果混为一谈。两篇合起来，把 meaning 的位置固定在 text 上。</p>
+<p>这个立场并不是说可以不顾历史。Fry 在第 3 讲举了一个例子：18 世纪诗人 Mark Akenside 写过一行 “The great creator raised his plastic arm.” 今天的读者看到 plastic 会想到塑料，可是 18 世纪 plastic 的意思是能塑形的、柔韧的。Wimsatt 本人在 The Intentional Fallacy 的一个注释里也承认，词义的历史可以影响对一首诗 structure 的判断。区别在于证据的类型：一个词在那个时代的公共意义是语言的事实，属于 text 的一部分，可以用；作者私下想表达什么是心理事实，不能用。查 plastic 在 1744 年的意思是合法的，查 Wordsworth 写 Lucy 时心里想的是谁是不合法的。</p>
+<p>拿这条标准回到 Brooks 和 Bateson：两人都只用了 text 和词的公共意义，都是合法的 close reading。Intentional fallacy 排除了一种错误的裁判方式，并没有提供一种正确的。谁来裁决这个问题要等到第 7 站。</p>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Brooks 与 Bateson 对 She dwelt among the untrodden ways 的分歧、unity 作为 validity 的 criterion、close reading 既能统一也能拆开、Empson 是 deconstruction 的先驱，来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-6">Yale ENGL 300 第 6 讲</a>；Akenside 的 plastic 和 Wimsatt 那个关于词义历史的注释，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-3">第 3 讲</a>和第 6 讲开头。逐行找四组 opposition 的做法、paraphrase 的演示、:::wrong 里的检验是为这一页写的。Heresy of paraphrase 的出处、The Intentional Fallacy 的三步论证、The Affective Fallacy 的年份，凭自己的知识写，没有读这两篇原文，也没有读讲这两篇的第 5 讲。诗的原文是 public domain，按通行版本引用。</p>
+</aside>
+
+</section>
+<section class="stop" id="verse" data-skill="verse" data-name="Poetic form：meter、sound 与 poetic function">
+<header class="stop-h"><span class="stop-n">第 2 站</span><h2>Poetic form：meter、sound 与 poetic function</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>给一行 iambic pentameter 标出 stress，指出 substitution 的位置。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>scan 一节陌生的诗，说出 meter、rhyme scheme，并把 meter 与 speech stress 不一致的地方和这一行的 meaning 联系起来。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 defamiliarization 和 Jakobson 的 poetic function（selection axis 与 combination axis）解释 meter、rhyme 为什么不是装饰，并说明 poetic function 为什么也出现在非诗的 text 里。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-verse">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-verse"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能给一行 iambic pentameter 标出 stress 和 foot、指出它在哪里偏离 meter，并能用 Jakobson 的两条 axis 解释 rhyme 为什么是 meaning 的一部分，就可以去第 3 站。</p>
+</aside>
+<h3>为什么数音节不够</h3>
+<p>上一站的诗读起来有一种稳定的节拍，第二行比第一行短。这种节拍是怎样做出来的？English 的每个多音节词有固定的 stress（MIT 21L.004 的 handout 用大写表示 stressed syllable：beSIDE、VIolet），单音节的实词（名词、动词、形容词）通常读重，虚词（the、of、a）通常读轻。Meter 就是把 stressed 和 unstressed syllable 排成有规律的格子。</p>
+<p>最小的单位叫 foot：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>foot</th>
+<th>pattern</th>
+<th>例词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iamb</td>
+<td>unstressed + stressed</td>
+<td>beSIDE</td>
+</tr>
+<tr>
+<td>trochee</td>
+<td>stressed + unstressed</td>
+<td>VIolet 的前两个 syllable</td>
+</tr>
+<tr>
+<td>anapest</td>
+<td>unstressed + unstressed + stressed</td>
+<td>in the SKY</td>
+</tr>
+<tr>
+<td>dactyl</td>
+<td>stressed + unstressed + unstressed</td>
+<td>MERrily</td>
+</tr>
+<tr>
+<td>spondee</td>
+<td>stressed + stressed</td>
+<td>BARE RU-</td>
+</tr>
+</tbody>
+</table></div>
+<p>一行有几个 foot 决定它叫什么：两个是 dimeter，三个 trimeter，四个 tetrameter，五个 pentameter。上一站那首诗的第一行：</p>
+<p>she DWELT | aMONG | th'unTROD | den WAYS</p>
+<p>四个 iamb，是 iambic tetrameter（the 和 un 读的时候连在一起，算一个 syllable，这叫 elision）。第二行 beSIDE | the SPRINGS | of DOVE 是三个 iamb，trimeter。4、3、4、3 交替，rhyme scheme 是 ABAB（ways/praise，Dove/love），这是 English ballad 的 common meter。一首写一个乡下姑娘的诗用了民谣的格子，这本身就是一种选择。</p>
+<p>为什么不能只数 syllable？Handout 里有两个各 8 个 syllable 的句子：“let me call you when it's over” 是 trochaic tetrameter（LET me CALL you WHEN it's O-ver）；“Jim kicked the soccer ball to Wyn” 被拿来当没有 meter 的对照，stress 不按规律排列。Syllable 数一样，一个有 meter，一个没有。决定 meter 的是 stress 的排列。</p>
+<h3>Meter 与 speech stress 的偏离</h3>
+<p>Meter 是一个预期，实际的词不一定完全照着走。读诗时同时听到两样东西：格子要求的节拍，和这些词按正常说话应有的 stress。两者重合时听不出什么；偏离时，偏离本身就成了信息。</p>
+<p>Shakespeare 的 Sonnet 73（1609）前四行：</p>
+<blockquote>
+<p>That time of year thou mayst in me behold<br>
+When yellow leaves, or none, or few, do hang<br>
+Upon those boughs which shake against the cold,<br>
+Bare ruin'd choirs, where late the sweet birds sang.</p>
+</blockquote>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 280" role="img" aria-label="动图：Sonnet 73 第 1 行和第 4 行依次标出 syllable、speech stress、iambic pentameter 的 grid，最后标出两者不一致的位置；第 4 行有 7 个 stress，第一个和最后一个 foot 是 spondee"><text x="8" y="16" class="tb" text-anchor="start">Shakespeare, Sonnet 73：iambic pentameter 的 grid 和实际 speech stress</text><g><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.62" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><text x="8" y="50" class="tb" text-anchor="start">line 1</text><text x="8" y="74" class="ts" text-anchor="start">speech</text><text x="8" y="96" class="ts" text-anchor="start">meter</text><g><text x="90" y="50" class="t" text-anchor="middle">That</text><text x="130" y="50" class="tb" text-anchor="middle">time</text><text x="170" y="50" class="t" text-anchor="middle">of</text><text x="210" y="50" class="tb" text-anchor="middle">year</text><text x="250" y="50" class="t" text-anchor="middle">thou</text><text x="290" y="50" class="tb" text-anchor="middle">mayst</text><text x="330" y="50" class="t" text-anchor="middle">in</text><text x="370" y="50" class="tb" text-anchor="middle">me</text><text x="410" y="50" class="t" text-anchor="middle">be</text><text x="450" y="50" class="tb" text-anchor="middle">hold</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.08" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="90" y="74" class="ts" text-anchor="middle">×</text><text x="130" y="74" class="tb" text-anchor="middle">/</text><text x="170" y="74" class="ts" text-anchor="middle">×</text><text x="210" y="74" class="tb" text-anchor="middle">/</text><text x="250" y="74" class="ts" text-anchor="middle">×</text><text x="290" y="74" class="tb" text-anchor="middle">/</text><text x="330" y="74" class="ts" text-anchor="middle">×</text><text x="370" y="74" class="tb" text-anchor="middle">/</text><text x="410" y="74" class="ts" text-anchor="middle">×</text><text x="450" y="74" class="tb" text-anchor="middle">/</text><text x="552" y="74" class="ts" text-anchor="end">5 个 stress</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.26" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="90" y="96" class="ts" text-anchor="middle">×</text><text x="130" y="96" class="tb" text-anchor="middle">/</text><text x="170" y="96" class="ts" text-anchor="middle">×</text><text x="210" y="96" class="tb" text-anchor="middle">/</text><text x="250" y="96" class="ts" text-anchor="middle">×</text><text x="290" y="96" class="tb" text-anchor="middle">/</text><text x="330" y="96" class="ts" text-anchor="middle">×</text><text x="370" y="96" class="tb" text-anchor="middle">/</text><text x="410" y="96" class="ts" text-anchor="middle">×</text><text x="450" y="96" class="tb" text-anchor="middle">/</text><line x1="150" y1="34" x2="150" y2="102" class="grid"/><line x1="230" y1="34" x2="230" y2="102" class="grid"/><line x1="310" y1="34" x2="310" y2="102" class="grid"/><line x1="390" y1="34" x2="390" y2="102" class="grid"/><text x="552" y="96" class="ts" text-anchor="end">5 个 beat</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.44" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="72" y="126" width="36" height="72" rx="5" class="wash-strong"/><rect x="392" y="126" width="36" height="72" rx="5" class="wash-strong"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.62" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><text x="8" y="144" class="tb" text-anchor="start">line 4</text><text x="8" y="168" class="ts" text-anchor="start">speech</text><text x="8" y="190" class="ts" text-anchor="start">meter</text><g><text x="90" y="144" class="tb" text-anchor="middle">Bare</text><text x="130" y="144" class="tb" text-anchor="middle">ru</text><text x="170" y="144" class="t" text-anchor="middle">in'd</text><text x="210" y="144" class="tb" text-anchor="middle">choirs,</text><text x="250" y="144" class="t" text-anchor="middle">where</text><text x="290" y="144" class="tb" text-anchor="middle">late</text><text x="330" y="144" class="t" text-anchor="middle">the</text><text x="370" y="144" class="tb" text-anchor="middle">sweet</text><text x="410" y="144" class="tb" text-anchor="middle">birds</text><text x="450" y="144" class="tb" text-anchor="middle">sang.</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.08" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="90" y="168" class="tb" text-anchor="middle">/</text><text x="130" y="168" class="tb" text-anchor="middle">/</text><text x="170" y="168" class="ts" text-anchor="middle">×</text><text x="210" y="168" class="tb" text-anchor="middle">/</text><text x="250" y="168" class="ts" text-anchor="middle">×</text><text x="290" y="168" class="tb" text-anchor="middle">/</text><text x="330" y="168" class="ts" text-anchor="middle">×</text><text x="370" y="168" class="tb" text-anchor="middle">/</text><text x="410" y="168" class="tb" text-anchor="middle">/</text><text x="450" y="168" class="tb" text-anchor="middle">/</text><text x="552" y="168" class="ts" text-anchor="end">7 个 stress</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.26" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="90" y="190" class="ts" text-anchor="middle">×</text><text x="130" y="190" class="tb" text-anchor="middle">/</text><text x="170" y="190" class="ts" text-anchor="middle">×</text><text x="210" y="190" class="tb" text-anchor="middle">/</text><text x="250" y="190" class="ts" text-anchor="middle">×</text><text x="290" y="190" class="tb" text-anchor="middle">/</text><text x="330" y="190" class="ts" text-anchor="middle">×</text><text x="370" y="190" class="tb" text-anchor="middle">/</text><text x="410" y="190" class="ts" text-anchor="middle">×</text><text x="450" y="190" class="tb" text-anchor="middle">/</text><line x1="150" y1="128" x2="150" y2="196" class="grid"/><line x1="230" y1="128" x2="230" y2="196" class="grid"/><line x1="310" y1="128" x2="310" y2="196" class="grid"/><line x1="390" y1="128" x2="390" y2="196" class="grid"/><text x="552" y="190" class="ts" text-anchor="end">5 个 beat</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.44" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="110" y="222" class="tl" text-anchor="middle">spondee</text><text x="190" y="222" class="ts" text-anchor="middle">iamb</text><text x="270" y="222" class="ts" text-anchor="middle">iamb</text><text x="350" y="222" class="ts" text-anchor="middle">iamb</text><text x="430" y="222" class="tl" text-anchor="middle">spondee</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.62" dur="9s" repeatCount="indefinite" calcMode="discrete"/></g><text x="8" y="246" class="ts" text-anchor="start">第 1 行的 stress 和 grid 完全重合；第 4 行同样 10 个 syllable，却有 7 个 stress，</text><text x="8" y="262" class="ts" text-anchor="start">多出来的两个落在第 1 和第 5 个 foot（深色格），读的时候这一行被迫放慢。</text></svg><figcaption>先标 syllable，再标说话时的 stress，再铺上 iambic pentameter 的格子，最后标出两者不一致的地方。第一帧是全部标完的样子。</figcaption></figure>
+<p>逐步 scan 第 4 行：</p>
+<ol>
+<li>数 syllable：Bare / ru / in'd / choirs / where / late / the / sweet / birds / sang，一共 10 个（ruin'd 两个，choirs 一个），和第 1 行一样多。</li>
+<li>按正常说话标 stress：Bare、choirs、late、sweet、birds、sang 都是单音节实词，读重；ruin'd 的 stress 在第一个 syllable。一共 7 个 stress：/ / × / × / × / / /。</li>
+<li>铺上 iambic pentameter 的格子：× / × / × / × / × /，5 个 beat。</li>
+<li>对比：第 1 个位置（Bare）和第 9 个位置（birds）的 stress 落在格子要求轻读的地方。按 foot 切开，第一个 foot BARE RU- 和最后一个 foot BIRDS SANG 都是 spondee，中间三个是 iamb。</li>
+</ol>
+<p>第 1 行照着格子走，10 个 syllable、5 个 stress，读起来是平稳的 da-DUM。第 4 行同样 10 个 syllable，挤进了 7 个 stress，读的人没法快，每个词都得重重地落下去。这一行说的是：秋天的枝条像坍塌了的 choir loft，不久前鸟还在那里唱歌。节拍在这一行变得沉重、迟缓，和“曾经歌唱、现在荒废”的内容一致。</p>
+<p>第 2 行也值得看一眼：yellow leaves, or none, or few。按常理，衰败的顺序是 yellow → few → none，这里却是 yellow → none → few，像是说话人先说出最坏的情况又改口。三个逗号把一行切碎，这种犹豫是靠 syntax 做出来的，和 meter 无关。Close reading 要同时听这几个层面。</p>
+<h3>为什么诗要“难读”：defamiliarization</h3>
+<p>为什么诗人要故意制造这种阻力？Russian Formalism 给了一个答案。Viktor Shklovsky 在 Art as Device（1917）里说，习惯让感知自动化：天天走的路、天天说的话，人其实已经不再“看见”它们。艺术的 device 让熟悉的东西变得陌生（ostranenie，defamiliarization），迫使人重新感知。Fry 在第 7 讲指出，这个想法不限于俄国：Wallace Stevens 说诗要让可见的东西变得 “a little hard to see”，Pound 说 “Make it new”。</p>
+<p>Meter 就是这样一种 device：它把日常说话放进一个格子里，于是哪怕一个微小的偏离（比如第 4 行的两个 spondee）都会被注意到。日常说话里多两个 stress 没人在意，在 iambic pentameter 里就成了事件。</p>
+<p>Formalist 因此把研究对象从“meaning”换成了 literariness：一段文字凭什么让 device 显得新。Fry 强调他们的另一个概念 dominant：一个 text 里各种 device 互相关联，其中一个占主导，并且组织其他的。在 Longfellow 的 Hiawatha 里 dominant 是 meter，在 Tennyson 那里是 sound，在 Keats 那里是 imagery。文学史在 Tynjanov 看来就是 device 争夺 dominant 位置的历史。</p>
+<h3>Jakobson：poetic function</h3>
+<p>Roman Jakobson 把 Formalism 和 Saussure 的语言学接在一起，问了一个更一般的问题：一句话在什么时候变成“诗的”？</p>
+<p>他先把任何一次 communication 拆成六个 factor，每个 factor 对应一种 function。Fry 在第 9 讲用同一句 “It is raining” 演示六种 function 怎样各自成为 dominant：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>factor</th>
+<th>function</th>
+<th>“It is raining” 在这种情境下</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>addresser（说话的人）</td>
+<td>emotive</td>
+<td>表达说话人的心情，像 singing in the rain</td>
+</tr>
+<tr>
+<td>addressee（听的人）</td>
+<td>conative</td>
+<td>父母对孩子说：意思是“穿上外套”</td>
+</tr>
+<tr>
+<td>context（所指的世界）</td>
+<td>referential</td>
+<td>天气预报员在报告天气</td>
+</tr>
+<tr>
+<td>contact（渠道）</td>
+<td>phatic</td>
+<td>没话找话，只为了让对话继续</td>
+</tr>
+<tr>
+<td>code（语言本身）</td>
+<td>metalingual</td>
+<td>追问“it 指的是什么？”（法语 il pleut、德语 es regnet 也有这个空主语）</td>
+</tr>
+<tr>
+<td>message（这句话本身）</td>
+<td>poetic</td>
+<td>注意 raining 的拖长、重复的 /ɪ/ 音，好像雨一直在下</td>
+</tr>
+</tbody>
+</table></div>
+<p>任何一句话都同时有六种 function，区别在哪一种占主导。Poetic function 就是注意力落在 message 本身，落在它的声音、长度、排列上。</p>
+<p>那么怎样让注意力落在 message 本身？Jakobson 的定义是：poetic function 把 equivalence 原则从 selection axis 投射到 combination axis 上。这句话要拆开读。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 264" role="img" aria-label="Jakobson 的 selection axis 与 combination axis：I like Ike 的三个位置各有 meaning 相近的候选词，选中的三个词在 sound 上一个包含另一个"><text x="8" y="18" class="ts" text-anchor="start">Selection axis：每个位置上可以互相替换的词（按 meaning 的 equivalence 聚在一起）</text><rect x="50" y="39" width="100" height="26" rx="4" class="wash2"/><text x="100" y="56" class="ts" text-anchor="middle">we</text><rect x="50" y="79" width="100" height="26" rx="4" class="wash2"/><text x="100" y="96" class="ts" text-anchor="middle">everyone</text><line x1="44" y1="38" x2="44" y2="212" class="dash"/><rect x="50" y="182" width="100" height="30" rx="5" class="solid"/><text x="100" y="202" class="tw" text-anchor="middle">I</text><rect x="170" y="39" width="100" height="26" rx="4" class="wash2"/><text x="220" y="56" class="ts" text-anchor="middle">support</text><rect x="170" y="79" width="100" height="26" rx="4" class="wash2"/><text x="220" y="96" class="ts" text-anchor="middle">prefer</text><line x1="164" y1="38" x2="164" y2="212" class="dash"/><rect x="170" y="182" width="100" height="30" rx="5" class="solid"/><text x="220" y="202" class="tw" text-anchor="middle">like</text><rect x="290" y="39" width="100" height="26" rx="4" class="wash2"/><text x="340" y="56" class="ts" text-anchor="middle">Eisenhower</text><rect x="290" y="79" width="100" height="26" rx="4" class="wash2"/><text x="340" y="96" class="ts" text-anchor="middle">the general</text><line x1="284" y1="38" x2="284" y2="212" class="dash"/><rect x="290" y="182" width="100" height="30" rx="5" class="solid"/><text x="340" y="202" class="tw" text-anchor="middle">Ike</text><line x1="30" y1="228" x2="418" y2="228" class="ink"/><polygon points="420,228 413.6,225.1 413.6,230.9" class="ink-f"/><text x="420" y="246" class="ts" text-anchor="end">Combination axis：选出来的词排成 sequence</text><text x="100" y="170" class="tl" text-anchor="middle">/aɪ/</text><text x="220" y="170" class="tl" text-anchor="middle">/laɪk/</text><text x="340" y="170" class="tl" text-anchor="middle">/aɪk/</text><text x="420" y="70" class="ts" text-anchor="start">同一列 meaning 相近，</text><text x="420" y="88" class="ts" text-anchor="start">口号按 sound 选：</text><text x="420" y="106" class="ts" text-anchor="start">Ike 藏在 like 里，</text><text x="420" y="124" class="ts" text-anchor="start">I 又藏在 Ike 里</text></svg><figcaption>每个位置上都有一组可以互相替换的词（竖着的 selection axis），选出来的词横着排成句子（combination axis）。I like Ike 的三个词在 sound 上一层套一层。</figcaption></figure>
+<p>说一句话要做两种操作。第一种是 selection：在每个位置上，从一组 equivalent 的候选词里挑一个（说 Eisenhower、the general 还是 Ike，说 like、support 还是 prefer）。这组候选词因为 meaning 相近而聚在一起，它们之间的关系是 equivalence。第二种是 combination：把选出来的词按 grammar 排成 sequence，排在一起的词之间的关系是相邻。</p>
+<p>在普通的 referential 语言里，selection 按 meaning 做，combination 按 grammar 做，两条 axis 各管各的。Poetic function 的特点是 sequence 本身也按 equivalence 组织：同样的 stress 数（每行 5 个 beat），同样的韵尾（behold/cold，hang/sang），同样的元音。本来只在“候选词之间”起作用的 equivalence 原则，被搬到了“排在一起的词之间”。</p>
+<p>Jakobson 自己的例子是 1952 年美国大选的口号 I like Ike。三个单音节词，每个都有 /aɪ/。Ike 完整地包含在 like 里（/laɪk/ 与 /aɪk/），I 又包含在 Ike 里（/aɪ/ 与 /aɪk/）。说 I support Eisenhower 意思一样，可 sound 之间没有这层包含关系。Like 包住了 Ike，feeling 把它的对象整个包住；Ike 又包住了 I，喜欢的人被喜欢的对象包住。声音的结构做出了口号想说的东西。这个例子同时说明了一件事：poetic function 不等于 poetry。广告、口号、绕口令里 poetic function 都可以是 dominant；反过来，诗里 referential function 也一直在场，只是退居次位。</p>
+<p>拿这个定义回去检验 Sonnet 73 第 4 行：它的 equivalence 一方面在于和其他三行一样是 5 个 beat 的格子、与第 2 行的 hang 押韵，一方面在于 sweet 和 birds、bare 和 ruin'd 里重复的 stress。读者的注意力被拉到这一行的声音上，这一行就不只是在“报告”树枝的样子。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Meter 只是装饰，把诗写成 prose 意思不变</span></p><p>把第 4 行写成 prose：“The branches are like ruined choir lofts where birds recently sang.” 信息全在，可是 7 个 stress 挤在 10 个 syllable 里造成的迟缓没有了，因为 prose 没有格子，也就没有偏离。按 Jakobson 的定义，这时 dominant 从 poetic function 换成了 referential function，读者的注意力从这句话本身移到它所指的树枝上。上一站说过的 heresy of paraphrase 在声音层面同样成立。</p>
+</aside>
+
+<aside class="blk blk-note"><p class="blk-h"><span class="blk-t">两边的讲法</span></p><p>Yale ENGL 300 不讲 prosody：Russian Formalism 和 Jakobson 在那里是 theory 史的一环，例子是 Tony the Tow Truck 的 t-t-t 和 It is raining。EN1101E 的旧课程页上 poetry 占前三讲和两次 tutorial，考试里很可能要对一首诗做 close reading，meter、rhyme、enjambment 这类工具要会用。本页把两者接在一起：先讲怎样 scan，再用 Formalism 和 Jakobson 解释 scan 出来的东西为什么重要。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Defamiliarization、Stevens 和 Pound 的两句话、dominant 与 Tynjanov、Hiawatha 与 Tennyson、Keats 的例子来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-7">Yale ENGL 300 第 7 讲</a>；六个 function 和 It is raining 的演示、poetic function 的定义、selection 与 combination 两条 axis，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-9">第 9 讲</a>。Foot 和 line length 的定义、大写标 stress 的写法、“let me call you when it's over” 是 trochaic 的例句，来自 <a href="https://ocw.mit.edu/courses/21l-004-reading-poetry-spring-2018/ef7376760616d27252e951173971792b_MIT21L_004S18meter.pdf">MIT 21L.004 的 meter handout</a>；handout 没有讲 spondee 和 substitution。Sonnet 73 的 scansion、common meter 的分析、I like Ike 的分析（这是 Jakobson 在 Linguistics and Poetics 里的例子，Fry 在抽取到的部分里没有用）是凭自己的知识写的。Shklovsky 文章的年份凭自己的知识。</p>
+</aside>
+
+</section>
+<section class="stop" id="story" data-skill="story" data-name="Story 与 discourse：order、duration、frequency">
+<header class="stop-h"><span class="stop-n">第 3 站</span><h2>Story 与 discourse：order、duration、frequency</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>把一段 narrative 的事件按发生顺序重排，标出 analepsis 和 prolepsis。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>对一个 text 分析 order、duration（scene、summary、ellipsis、pause）和 frequency，并说明每一种安排制造了什么效果。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能解释为什么知道结局的 story 仍然有 suspense，以及为什么 sjuzhet 不只是“打乱顺序的 fabula”。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-story">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-story"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能把一段 narrative 拆成“发生了什么”和“怎样讲出来”两层，对后一层分析 order、duration、frequency，并且能回答开头第二件事（知道结局为什么还有 suspense），就可以去第 4 站。</p>
+</aside>
+<h3>两层：story 与 discourse</h3>
+<p>回到开头第二件事。观众知道 Oedipus 的结局，却仍然被吸住，说明吸引人的东西不在“发生了什么”这一层。要说清楚，需要把一个 narrative 分成两层。</p>
+<p>几乎所有 narrative 理论都做这个区分（Jahn 的讲义 2-05）：story 是被讲述的东西，一串按时间先后发生、牵涉若干 character 的事件；discourse 是讲述本身，这些事件以什么顺序、什么速度、从谁的角度、用什么话被呈现出来。Russian Formalist 管前者叫 fabula，后者叫 sjuzhet。用 Saussure 的术语说，discourse 是 signifier，story 是 signified。</p>
+<p>这个区分的用处是：同一个 story 可以有无数种 discourse，作品的个性主要在 discourse 里。Oedipus 的 story 雅典人人知道，Sophocles 的作品是他选的那一种讲法。</p>
+<h3>Order：Oedipus 的七件事</h3>
+<p>把 Oedipus 的 story 按发生顺序排出来：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>Laius 得到 oracle：他的儿子会杀死他</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>刚出生的婴儿被钉住脚踝，交给一个 herdsman 丢到 Cithaeron 山上</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Herdsman 没有丢，把婴儿交给一个 Corinth 的牧人；婴儿被 Corinth 国王 Polybus 和王后 Merope 收养</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>长大的 Oedipus 被人在宴会上说不是 Polybus 亲生；去 Delphi 问，得到 oracle：你会杀父娶母；他从此不回 Corinth</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>在三岔路口与一个老人和随从冲突，杀了老人；随从里有一个逃走了</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>到 Thebes 解开 Sphinx 的谜，被立为王，娶了寡居的王后 Jocasta</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>多年以后 Thebes 发生瘟疫，play 从这里开始</td>
+</tr>
+</tbody>
+</table></div>
+<p>Play 演的只有 F7 之后的一天。F1 到 F6 全都发生在幕启之前，只能靠舞台上的人讲出来。讲到过去的事件，Jahn 的术语叫 analepsis（flashback）；提前讲未来的事件叫 prolepsis（flashforward）；两者合称 anachrony，即 discourse 的顺序偏离 story 的顺序（Jahn 5-05）。Oedipus Tyrannus 几乎整部 play 都是由 analepsis 构成的。</p>
+<p>按 play 的顺序，六段 testimony 分别讲到了哪些事件：</p>
+<ol>
+<li>Creon 从 Delphi 回来：要找出杀 Laius 的凶手，城才能得救；Laius 在路上被 robbers 所杀，只逃回一个随从（F5，而且是 robbers 复数）。</li>
+<li>Tiresias：你就是你要找的凶手，你和最亲的人生活在耻辱里（F5、F6）。</li>
+<li>Jocasta 为了证明 oracle 不可信：Laius 当年得到过 oracle（F1），婴儿被钉住脚踝丢到山上（F2），Laius 死在一个三岔路口（F5）。</li>
+<li>Oedipus 听到“三岔路口”，讲出自己的经历：Corinth 的宴会、Delphi 的 oracle、三岔路口的老人（F4、F5）。</li>
+<li>Corinth 来的 messenger：Polybus 死了，但他不是你的亲生父亲；我当年在 Cithaeron 从 Laius 家的一个 herdsman 手里接过你，解开了你脚踝上的钉子（F3、F2）。</li>
+<li>那个 herdsman 被带上来：婴儿是 Laius 家的，是 Jocasta 亲手交给他去丢的（F1、F2、F3）。</li>
+</ol>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 286" role="img" aria-label="动图：Oedipus 的六个 story 事件按发生顺序纵向排列，六段 testimony 按 play 的顺序横向逐列出现，圆点表示这一段讲到这个事件；右边的计数显示 F5 被讲了 4 次"><text x="8" y="16" class="tb" text-anchor="start">纵向：story 的顺序；横向：play 里讲述的顺序</text><text x="214" y="42" class="ts" text-anchor="middle">Creon</text><text x="272" y="42" class="ts" text-anchor="middle">Tiresias</text><text x="330" y="42" class="ts" text-anchor="middle">Jocasta</text><text x="388" y="42" class="ts" text-anchor="middle">Oedipus</text><text x="446" y="42" class="ts" text-anchor="middle">Messenger</text><text x="504" y="42" class="ts" text-anchor="middle">Herdsman</text><text x="548" y="42" class="ts" text-anchor="middle">told</text><text x="8" y="79" class="tb" text-anchor="start">F1</text><text x="36" y="79" class="t" text-anchor="start">Laius's oracle</text><line x1="180" y1="74" x2="530" y2="74" class="grid"/><text x="8" y="109" class="tb" text-anchor="start">F2</text><text x="36" y="109" class="t" text-anchor="start">infant exposed</text><line x1="180" y1="104" x2="530" y2="104" class="grid"/><text x="8" y="139" class="tb" text-anchor="start">F3</text><text x="36" y="139" class="t" text-anchor="start">raised in Corinth</text><line x1="180" y1="134" x2="530" y2="134" class="grid"/><text x="8" y="169" class="tb" text-anchor="start">F4</text><text x="36" y="169" class="t" text-anchor="start">Delphi; flight</text><line x1="180" y1="164" x2="530" y2="164" class="grid"/><text x="8" y="199" class="tb" text-anchor="start">F5</text><text x="36" y="199" class="t" text-anchor="start">the crossroads</text><line x1="180" y1="194" x2="530" y2="194" class="grid"/><text x="8" y="229" class="tb" text-anchor="start">F6</text><text x="36" y="229" class="t" text-anchor="start">Sphinx; marriage</text><line x1="180" y1="224" x2="530" y2="224" class="grid"/><g><rect x="194" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="214" cy="194" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.08" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="252" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="272" cy="194" r="7" class="ln-f"/><circle cx="272" cy="224" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="310" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="330" cy="74" r="7" class="ln-f"/><circle cx="330" cy="104" r="7" class="ln-f"/><circle cx="330" cy="194" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="368" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="388" cy="164" r="7" class="ln-f"/><circle cx="388" cy="194" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="426" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="446" cy="104" r="7" class="ln-f"/><circle cx="446" cy="134" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="484" y="62" width="40" height="182" rx="5" class="wash"/><circle cx="504" cy="74" r="7" class="ln-f"/><circle cx="504" cy="104" r="7" class="ln-f"/><circle cx="504" cy="134" r="7" class="ln-f"/><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></g><text x="548" y="79" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="79" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="79" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="79" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="79" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="79" class="t" text-anchor="middle">×2<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="t" text-anchor="middle">×2<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="109" class="tl" text-anchor="middle">×3<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="139" class="t" text-anchor="middle">×2<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="169" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="t" text-anchor="middle">×2<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="tl" text-anchor="middle">×3<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="tl" text-anchor="middle">×4<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="tl" text-anchor="middle">×4<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="199" class="tl" text-anchor="middle">×4<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×0<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.2" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.2;0.32" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.32;0.44" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.56" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.56;0.68" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="548" y="229" class="t" text-anchor="middle">×1<animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.68;0.999" dur="10s" repeatCount="indefinite" calcMode="discrete"/></text><text x="8" y="268" class="ts" text-anchor="start">F5（crossroads 的那次杀人）被讲了 4 次；F1 到 F3 要等到最后两个人上场才说全。</text></svg><figcaption>纵向是 story 的顺序，横向是 play 的顺序。每一列是一段 testimony，圆点表示它讲到了这件事。第一帧是全部六段讲完的样子。</figcaption></figure>
+<p>从这张表读出两件事。第一，每一行第一个圆点出现的位置，给出事件被首次讲出的顺序：F7（开场就在舞台上）、F5、F6、F1、F2、F4、F3，就是开头那张图下面一排。最早发生的 F1 到第三段才出现，F3 到第五段才出现。第二，play 的顺序有一个方向：先讲离现在最近、最可怕的 F5 和 F6，然后一路往回挖到婴儿的来历。每挖一层，前面已经知道的事就换一个意思：三岔路口的老人从“某个陌生人”变成 Laius，再变成父亲。</p>
+<p>这回答了开头的问题。观众等待的不是 story 的结局，是 discourse 的进程：那些他们早就知道的事，舞台上的人会在什么时候、以什么方式、从谁的嘴里知道。</p>
+<h3>Frequency：一件事讲四次</h3>
+<p>表的最右一列是每件事被讲的次数。F5 被讲了 4 次：Creon 的版本（robbers 复数）、Tiresias 的指控、Jocasta 的版本（三岔路口）、Oedipus 自己的版本（一个人对一群人）。Story 里它只发生了一次。</p>
+<p>Jahn（5-09）按 Genette 把 frequency 分成三种：</p>
+<ul>
+<li>singulative：发生一次，讲一次；</li>
+<li>repetitive：发生一次，讲多次；</li>
+<li>iterative：发生多次，只讲一次（“每天早上她都……”）。</li>
+</ul>
+<p>F5 是 repetitive 的典型。四个版本互相不一致，不一致本身推动了 plot：Oedipus 听了 Jocasta 的版本开始害怕，又抓住 Creon 版本里 robbers 是复数这一点，说只要那个逃回来的随从还坚持是“一群人”，凶手就不是他。他派人去叫这个随从。从此观众知道，真相取决于一个词是单数还是复数，而这个人还在路上。Repetitive narration 在这里是一个 suspense 的装置。</p>
+<h3>Duration：一小时的 story</h3>
+<p>Order 和 frequency 都可以拿 Oedipus 演示，duration 换一个 text 更清楚。Jahn（5-06 到 5-08）把 duration 定义为两种时间的比较：story time（事件在 story 里持续多久）和 discourse time（讲这些事用了多少篇幅，大致等于读的时间）。两者之比是 narrative 的 speed：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>mode</th>
+<th>story time 与 discourse time</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>scene</td>
+<td>大致相等（isochrony）</td>
+<td>像在现场看，dialogue 是典型</td>
+</tr>
+<tr>
+<td>summary</td>
+<td>story time 长，discourse time 短</td>
+<td>加速，几年一句话带过</td>
+</tr>
+<tr>
+<td>ellipsis</td>
+<td>有 story time，discourse time 为零</td>
+<td>跳过</td>
+</tr>
+<tr>
+<td>pause</td>
+<td>story time 停住，discourse 继续</td>
+<td>描写、评论</td>
+</tr>
+<tr>
+<td>slow-down</td>
+<td>discourse time 比 story time 长</td>
+<td>很少见，一瞬间写好几段</td>
+</tr>
+</tbody>
+</table></div>
+<p>The Story of an Hour 的 story time 就是标题说的一小时左右。Chopin 怎样分配篇幅：</p>
+<ol>
+<li>开头很快：Mrs. Mallard 有 heart trouble，所以 sister Josephine 小心地告诉她丈夫 Brently 死于铁路事故，丈夫的朋友 Richards 在报社先看到了遇难名单。几句话交代完，接近 summary。</li>
+<li>她哭完，独自上楼回到房间，坐在面对敞开窗户的扶手椅上。接下来是整篇最长的一段：窗外春天的树梢在颤动，远处有人在唱歌，云缝里露出蓝天，她感到有什么东西在向她靠近，她一遍遍低声说 free。Story 里只过了几分钟，discourse 却用了全篇大半。这是 slow-down，中间夹着 pause（窗外景物的描写）。</li>
+<li>她在想象里往前看：往后的岁月都属于她自己。这是 prolepsis，而且是 subjective prolepsis（Jahn 5-05 的分类），只发生在她心里。</li>
+<li>Josephine 在门外求她开门，她下楼。前门被钥匙打开，进来的是 Brently Mallard，他离事故现场很远，根本不知道有事故。Josephine 尖叫，Richards 想挡住他，晚了。整个转折只用了几句。</li>
+<li>最后一句跳到医生到达和诊断，中间的死亡过程是 ellipsis。</li>
+</ol>
+<p>篇幅的分配本身就是一个论断：对这个 story 来说，重要的不是丈夫的“死”和“生还”这两件外部事件（它们几乎是 summary），重要的是房间里那几分钟她心里发生的事（它占了全篇大半）。如果只看 story 这一层，这是一个关于铁路事故和误报的故事；看 discourse 的 speed，这是一个关于一个女人在一个小时里发现自己想要什么的故事。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Sjuzhet 就是把 fabula 打乱顺序</span></p><p>如果只是重排，Oedipus Tyrannus 的效果应该可以用一张按 play 顺序重排的事件表再现出来。可是上面那张表里还有三样东西是“重排”给不了的。一是 frequency：F5 一次事件讲了 4 遍，每遍都不一样，robbers 的复数正是在重复中才变成悬念。二是 selection：Laius 一行人去 Delphi 的目的、Oedipus 在 Corinth 长大的细节，play 几乎不讲，讲哪些、不讲哪些本身就是 discourse 的选择。三是 source：同一件事从 Creon、Jocasta、Oedipus 嘴里出来，带着各自的立场（下一站的 voice 问题）。Fry 在第 7 讲也提醒，plot 与 story 这对区分不能简单等同于 form 与 content。Discourse 是一整套选择，order 只是其中一项。</p>
+</aside>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Story 由读者拼出来的 text</span></p><p>有的 text 把 story 这一层交给读者拼。Fry 在第 7 讲举了 Tim O'Brien 的 The Things They Carried（1990，受版权保护，这里只描述）：开头的大段篇幅列举一个排的士兵各自背着什么东西，dominant 是清单这个 device，事件只在清单的缝隙里一点点露出来。平常是 story 先在、discourse 去讲它；这里是 discourse 先在，读者从中推出 story。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Story 与 discourse、signifier 与 signified 的类比来自 Jahn 讲义 2-05、2-06；analepsis、prolepsis、anachrony、subjective prolepsis 来自 5-05；duration 的定义、isochrony、speed-up、slow-down、ellipsis、pause 来自 5-06 到 5-08；frequency 的三分来自 5-09。<a href="http://www.uni-koeln.de/%7Eame02/pppn.pdf">Jahn 的讲义</a>。Plot 与 story 不能等同于 form 与 content、O'Brien 的例子来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-7">Yale ENGL 300 第 7 讲</a>。Oedipus Tyrannus 的事件和六段 testimony 是凭自己对 Sophocles 原作的了解整理的，没有对照某个具体译本逐行核对；The Story of an Hour 的情节和篇幅分配按原文概括，引文对照了 UVA 的文本。</p>
+</aside>
+
+</section>
+<section class="stop" id="voice" data-skill="voice" data-name="Narrator、focalization 与 speech representation">
+<header class="stop-h"><span class="stop-n">第 4 站</span><h2>Narrator、focalization 与 speech representation</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>判断一个 narrator 是 homodiegetic 还是 heterodiegetic，一段是谁在 focalize。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>用 tag test 认出 free indirect discourse，找出 unreliable narrator 的 signal，并区分 factual 与 normative unreliability。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 narrative communication 的几个层次解释 irony 发生在哪一层，以及“who speaks”和“who sees”为什么必须分开问。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-voice">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-voice"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能分清 author、narrator、narratee，判断 homodiegetic 与 heterodiegetic，分清 who speaks 和 who sees，能用 tag test 认出 free indirect discourse，并能解释开头第三件事里读者凭什么知道医生说错了，就可以去第 5 站。</p>
+</aside>
+<h3>谁在讲：narrator 不是 author</h3>
+<p>Poe 的 The Tell-Tale Heart（1843）这样开头：</p>
+<blockquote>
+<p>True!—nervous—very, very dreadfully nervous I had been and am; but why will you say that I am mad?</p>
+</blockquote>
+<p>这里有一个 “I”，有一个 “you”。“I” 不是 Poe：Poe 没有杀过一个老人，然后把尸体藏在地板下面。“you” 也不是今天翻开书的读者：读者从来没有说过这个人疯了。要说清这一句里谁在对谁说话，需要把 narrative communication 分层。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 282" role="img" aria-label="Narrative communication 的四层：real author 与 real reader，implied author 与 implied reader，narrator 与 narratee，最里面是 characters；以 The Tell-Tale Heart 为例"><rect x="4" y="4" width="552" height="262" rx="8" class="frame"/><text x="16" y="26" class="tb" text-anchor="start">Real author：Edgar Allan Poe（1843）</text><text x="544" y="26" class="tb" text-anchor="end">Real reader：今天的你</text><rect x="30" y="40" width="500" height="214" rx="8" class="wash2"/><text x="44" y="62" class="t" text-anchor="start">Implied author：从整篇 text 推出来的设计者</text><text x="516" y="62" class="t" text-anchor="end">Implied reader</text><rect x="56" y="76" width="448" height="166" rx="8" class="wash"/><text x="70" y="98" class="tb" text-anchor="start">Narrator：“I”</text><text x="490" y="98" class="tb" text-anchor="end">Narratee：“you”</text><text x="70" y="116" class="ts" text-anchor="start">坚持自己没疯</text><text x="490" y="116" class="ts" text-anchor="end">据说说过 narrator 疯了</text><line x1="170" y1="104" x2="388" y2="104" class="ln"/><polygon points="390,104 383.6,101.1 383.6,106.9" class="ln-f"/><rect x="84" y="132" width="392" height="96" rx="8" class="paper"/><text x="280" y="152" class="tb" text-anchor="middle">Level of action：characters</text><rect x="92" y="166" width="116" height="28" rx="14" class="wash2"/><text x="150" y="185" class="ts" text-anchor="middle">the “I” (当时)</text><rect x="222" y="166" width="116" height="28" rx="14" class="wash2"/><text x="280" y="185" class="ts" text-anchor="middle">old man</text><rect x="347" y="166" width="116" height="28" rx="14" class="wash2"/><text x="405" y="185" class="ts" text-anchor="middle">three police officers</text><text x="280" y="218" class="ts" text-anchor="middle">讲述时的“I”和行动时的“I”是同一个人的两个时刻</text></svg><figcaption>由外到内四层。每一层都有一个发出者和一个接收者；越往里越在 fiction 之内。</figcaption></figure>
+<p>Jahn（2-14 到 2-16）区分三个 level：author 对 reader 的 nonfictional communication；narrator 对 narratee 的 fictional communication；character 之间的 level of action。不少理论家在第一、二层之间再加一层 implied author 和 implied reader：implied author 不是真实的 Poe，是读者从整篇 text 推断出来的那个“安排了这一切的意图”；implied reader 是这篇 text 预设的那种读者。加这一层主要是为了解释 unreliable narration，下面马上用到。</p>
+<p>放到 The Tell-Tale Heart 上：narrator 是那个杀人者 “I”，narratee 是那个据说说过他疯了的 “you”；level of action 上有当时的 “I”、老人、后来上门的三个 police officer。讲述时的 “I” 和行动时的 “I” 是同一个人在两个时刻。</p>
+<h3>Homodiegetic 与 heterodiegetic，overt 与 covert</h3>
+<p>Narrator 和 story 的关系有两种（Jahn 3-05）：</p>
+<ul>
+<li>homodiegetic：narrator 本身是 story 里的一个 character，分成 narrating-I（现在讲述的我）和 experiencing-I（当时经历的我）。如果他还是主角，叫 autodiegetic。</li>
+<li>heterodiegetic：narrator 不在 story 世界里。</li>
+</ul>
+<p>判断的标准不是人称代词。Jahn 举的例子是 Caesar 的 De Bello Gallico：Caesar 用第三人称写自己，但他就是 story 里的人，所以是 homodiegetic。标准是 story 里有没有一个 experiencing-I。</p>
+<p>另一个维度是 narrator 自己有多显眼（Jahn 1-18、3-03）。Overt narrator 提到自己、直接对 narratee 说话、发议论、做道德评判；covert narrator 几乎隐身，让事件自己展开。两者有程度之分。</p>
+<p>用这两个维度检验本页的 text：The Tell-Tale Heart 是 autodiegetic、极其 overt（第一个词就在和 “you” 争辩）。The Story of an Hour 是 heterodiegetic、相当 covert：narrator 从不说“我”，很少评论。</p>
+<h3>什么时候不该相信 narrator</h3>
+<p>Jahn（7-07）引用 Rimmon-Kenan 的定义：unreliable narrator 是读者有理由怀疑其对 story 的讲述和（或）评论的 narrator。怀疑的来源主要有三个：narrator 知道得有限，narrator 本人卷在事件里，narrator 的价值体系有问题。Lanser 又把 unreliability 分成两种：factual（mimetic）的，讲的事实靠不住；evaluative（normative）的，事实也许没错，对事实的判断靠不住。</p>
+<p>Jahn 拿的正是 The Tell-Tale Heart 的开头。逐条看读者凭什么怀疑：</p>
+<ol>
+<li>Narrator 说自己不是疯子，用来证明的却是 “The disease had sharpened my senses”，并且说自己听得到天上地下的一切，“I heard many things in hell.” 他用来证明神智清楚的证据，正好是读者判断他不清楚的证据。</li>
+<li>开头那句的 syntax：True! 之后是一串 dash 隔开的碎片，very 重复三次。一个声称冷静的人用的是最不冷静的句子。这里 syntax 是 signal，和第 2 站读 Sonnet 73 第 2 行的逗号是同一种功夫。</li>
+<li>他反复强调自己杀人时多么小心、多么有条理，以此证明没疯。读者从同一组事实得出相反的结论：为了一只像秃鹫的眼睛，连续七个晚上半夜去开老人的门，这种有条理恰恰是疯狂的形状。</li>
+</ol>
+<p>按 Lanser 的分类，这个 narrator 的 factual 层面大体可信（他确实杀了人、藏了尸、最后在 police 面前崩溃招供），unreliable 的是 normative 层面：他对这些事实的解释。这也说明为什么需要 implied author 那一层：text 通过 narrator 的嘴说出“我没疯”，同时又安排了足够的证据让读者看出他疯了。说这两件事的不是同一个层次。</p>
+<h3>谁在看：focalization</h3>
+<p>The Story of an Hour 的 narrator 是 heterodiegetic 的，可是房间里那一段，读者看到的东西（窗外颤动的树梢、远处的歌声、云缝里的蓝天）都是 Mrs. Mallard 坐在椅子上能看到的。说话的是 narrator，看的是她。“Who speaks”和“who sees”是两个问题。</p>
+<p>Genette 把后一个问题叫 focalization（Jahn 3-25 到 3-31）：</p>
+<ul>
+<li>zero focalization：narrator 不受限制，什么都知道，可以进任何人的内心；</li>
+<li>internal focalization：限制在某个 character 的感知里，这个 character 叫 focalizer（Jahn 也叫 reflector）；</li>
+<li>external focalization：只给外部的观察，像摄像机，不进任何人的内心。</li>
+</ul>
+<p>Internal focalization 还分三种安排：fixed（始终是同一个 reflector，比如 Joyce 的 A Portrait of the Artist as a Young Man），variable（在几个 reflector 之间换，Mrs Dalloway 里有六个），multiple（同一件事从不同 reflector 各讲一遍）。</p>
+<p>把两个问题组合起来，本页的几个 text 各落在不同位置：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>谁在讲</th>
+<th>谁在看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The Tell-Tale Heart</td>
+<td>homodiegetic narrator（现在的“I”）</td>
+<td>当时的“I”</td>
+</tr>
+<tr>
+<td>The Story of an Hour，房间那一段</td>
+<td>heterodiegetic narrator</td>
+<td>Mrs. Mallard（internal focalization）</td>
+</tr>
+<tr>
+<td>The Story of an Hour，最后一段</td>
+<td>heterodiegetic narrator</td>
+<td>没有进入任何人的内心（接近 external）</td>
+</tr>
+</tbody>
+</table></div>
+<p>最后一行马上就要用到。</p>
+<h3>Speech 与 thought 怎样被转述：free indirect discourse</h3>
+<p>Character 的话和念头进入 narrative 有几种形式（Jahn 8-04），区别在于 narrator 和 character 各占多少：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>形式</th>
+<th>例</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tagged direct discourse</td>
+<td>“Free! Body and soul free!” she kept whispering.</td>
+<td>原话加引号，加 tag（she kept whispering）</td>
+</tr>
+<tr>
+<td>free direct discourse</td>
+<td>Free! Body and soul free!</td>
+<td>原话，不加引号和 tag</td>
+</tr>
+<tr>
+<td>tagged indirect discourse</td>
+<td>She whispered that she was free.</td>
+<td>Narrator 的话，转成第三人称、过去时，加 tag</td>
+</tr>
+<tr>
+<td>free indirect discourse（FID）</td>
+<td>She was free, body and soul free!</td>
+<td>Character 的语气和用词，narrator 的人称和时态，没有 tag</td>
+</tr>
+</tbody>
+</table></div>
+<p>第一行是 Chopin 的原句，后三行是为了对比改写的。</p>
+<p>FID 最难认，因为它看上去就是 narrator 的一句叙述。Jahn 介绍了 Toolan 的 tag test：给这句话分别补上两种 tag，一种把它归给 narrator（“the narrator reported”），一种归给 character（“she thought”），看哪一个读起来自然。</p>
+<p>拿 Chopin 原文里的一句试：“There would be no one to live for her during those coming years; she would live for herself.”</p>
+<ol>
+<li>补上 “she thought”：“There would be no one to live for her during those coming years, she thought; she would live for herself.” 很自然。</li>
+<li>补上 narrator 的 tag：narrator 在讲述时“报告”说往后的岁月里没有人会替她活。可是 story 结尾她死了，并没有 coming years；narrator 如果在陈述事实，这句话就是假的。</li>
+<li>语法上，would 是从过去时的立足点看将来，第三人称 she，都是 narrator 的框架；内容和语气（those coming years，那种往前看的兴奋）是她的。</li>
+</ol>
+<p>结论：这是 FID，是 Mrs. Mallard 的念头穿着 narrator 的语法。</p>
+<h3>回到开头第三件事</h3>
+<p>最后一句：“When the doctors came they said she had died of heart disease”，接着是 “of joy that kills”。用上面的工具一步步看：</p>
+<ol>
+<li>形式：they said 是 tag，后面是 tagged indirect discourse。这是医生的判断，经 narrator 转述，narrator 没有加评论。</li>
+<li>Focalization：这一段没有进入 Mrs. Mallard 的内心（她已经死了），也没有进入医生的内心，接近 external。</li>
+<li>医生的判断基于他们能看到的东西：一个以为丈夫死了的女人看到丈夫活着回来，倒地而死。从外面看，“死于狂喜”是唯一合理的解释。</li>
+<li>读者看到过的东西多得多：房间那一段是 internal focalization，读者在她心里待了全篇大半的篇幅，知道她最后一刻想要的是自由。丈夫活着回来，对她意味着失去刚刚得到的东西。</li>
+</ol>
+<p>所以读者凭的是 focalization 的不对称：text 先让读者透过她的眼睛看，最后突然切到外面，让一个只看到外面的人下结论。Irony 不需要 narrator 说任何话，它发生在 implied author 和 implied reader 之间：text 安排读者知道得比 character（医生）多。下一站会看到，drama 制造 irony 用的是同一个原理，只是没有 narrator。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Narrator 说出来的就是作者的观点</span></p><p>Austen 的 Pride and Prejudice（1813）第一句：“It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.” 如果把这当作 Austen 的观点，这部小说就是一部认可这条“真理”的书。往下读一句就不对了：narrator 接着说，这个“真理”在邻居们心里如此牢固，一个有钱的单身汉刚搬来，就被当作她们某一个女儿 rightful property。两句一对照，“需要妻子”的其实是那些想把女儿嫁出去的家庭，那个单身汉并不需要。第一句的 universally 是邻居们的口气，narrator 借来用，被读者听出反讽。Overt narrator 的评论也可以是 irony，判断它要看 implied author 在整段里怎样安排。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>三个 level 与 implied author 的作用、narratee 的定义来自 <a href="http://www.uni-koeln.de/%7Eame02/pppn.pdf">Jahn 讲义</a> 2-14 到 2-16；homodiegetic、heterodiegetic、autodiegetic 与 Caesar 的例子来自 3-02 到 3-13；overt 与 covert 来自 1-18、3-03；focalization 的三种与 fixed、variable、multiple 来自 3-25 到 3-31（Joyce 和 Mrs Dalloway 是 Jahn 的例子）；unreliable narration 的定义、三个来源、Lanser 的两分、以 The Tell-Tale Heart 开头为例，来自 7-07；speech representation 的分类和 Toolan 的 tag test 来自 8-04。把 tag test 用在 Chopin 的句子上、对最后一句的四步分析、Austen 的 :::wrong 是为这一页写的。Chopin 的引文对照了 UVA 的文本（“live for her”一处我原先记错，已按原文改正）。Poe 和 Austen 的引文凭记忆，属 public domain，没有对照文本。</p>
+</aside>
+
+</section>
+<section class="stop" id="stage" data-skill="stage" data-name="Drama 与 film：没有 narrator 时谁在 telling">
+<header class="stop-h"><span class="stop-n">第 5 站</span><h2>Drama 与 film：没有 narrator 时谁在 telling</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>在一部 play 里指出 exposition、dramatic irony 和 offstage 的事件是怎样交给观众的。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>比较同一类信息在 novel、play、film 里分别用什么手段传达（narrator、dialogue 与 stage direction、shot 与 frame）。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 mimesis 与 diegesis、anagnorisis、frame narrative 解释 drama 和 film 怎样在没有 narrator 的情况下控制观众知道什么、什么时候知道。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-stage">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-stage"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说出 drama 怎样把 exposition、内心和 offstage 的事件交给观众，能用 Oedipus 说明 dramatic irony 与 anagnorisis 的关系，并知道 film 里 focalization 靠什么实现，就可以去第 6 站。</p>
+</aside>
+<h3>Drama 拿走了什么</h3>
+<p>上一站的工具几乎都预设了一个 narrator：order 由 narrator 安排，speed 由 narrator 控制，FID 是 narrator 的语法包着 character 的念头。Play 没有这个人。Plato 在 Republic 第三卷区分过两种讲故事的方式：诗人以自己的口吻讲（diegesis），和诗人模仿 character 的口吻说话（mimesis）。Drama 是纯粹的 mimesis：舞台上只有 character 的话和动作。</p>
+<p>可是 narrator 的那些功能并没有消失，只是被转交了出去。拿 Oedipus Tyrannus 对照上一站的清单：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>narrator 在 novel 里做的事</th>
+<th>drama 里由谁来做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交代背景（exposition）</td>
+<td>开场的对话：祭司向 Oedipus 描述瘟疫，Creon 带回 oracle</td>
+</tr>
+<tr>
+<td>讲过去的事（analepsis）</td>
+<td>Character 的 testimony：第 3 站那六段</td>
+</tr>
+<tr>
+<td>评论、给出道德框架</td>
+<td>Chorus 的唱段</td>
+</tr>
+<tr>
+<td>进入内心</td>
+<td>Soliloquy 和 aside：Hamlet 的 “To be, or not to be” 相当于 free direct thought</td>
+</tr>
+<tr>
+<td>交代没有直接呈现的事件</td>
+<td>Messenger speech：Jocasta 自缢、Oedipus 刺瞎双眼都发生在宫内，由一个从宫里出来的 messenger 讲给观众</td>
+</tr>
+<tr>
+<td>控制顺序和速度</td>
+<td>场次的安排：先演什么、谁什么时候上场</td>
+</tr>
+</tbody>
+</table></div>
+<p>印刷出来的 play 还有一个读者能看到、观众看不到的 channel：stage direction。Ibsen 的 A Doll's House（1879）最后一个“事件”只在 stage direction 里：Nora 离开后，楼下传来大门关上的声音。观众听到的是一个声音；读者读到的是一句 narrator 式的叙述。</p>
+<h3>Dramatic irony：观众知道得比 character 多</h3>
+<p>上一站结尾说，The Story of an Hour 的 irony 来自读者知道得比医生多。Drama 用同一个原理，而且做得更彻底，叫 dramatic irony。</p>
+<p>Creon 带回 oracle 以后，Oedipus 当众发誓要找到杀 Laius 的人，并且诅咒这个人被逐出城，永不得安宁。观众知道他诅咒的是自己。他每说一句“我要把凶手找出来”，在观众耳朵里都同时是另一句话。</p>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 256" role="img" aria-label="动图：Oedipus Tyrannus 的六场里，audience 一直知道全部六件事实；Jocasta 在 Messenger 那一场一下子全知道；Oedipus 在 Messenger 那一场只知道一件，到 Herdsman 那一场才全知道；中间的阴影是 dramatic irony"><text x="8" y="16" class="tb" text-anchor="start">六件关于身份的事实里，每一场结束时各自知道几件</text><line x1="100" y1="214" x2="520" y2="214" class="grid"/><text x="94" y="218" class="ts" text-anchor="end">0</text><line x1="100" y1="161.3" x2="520" y2="161.3" class="grid"/><text x="94" y="165.3" class="ts" text-anchor="end">2</text><line x1="100" y1="108.7" x2="520" y2="108.7" class="grid"/><text x="94" y="112.7" class="ts" text-anchor="end">4</text><line x1="100" y1="56" x2="520" y2="56" class="grid"/><text x="94" y="60" class="ts" text-anchor="end">6</text><text x="130" y="236" class="ts" text-anchor="middle">Creon</text><text x="200" y="236" class="ts" text-anchor="middle">Tiresias</text><text x="270" y="236" class="ts" text-anchor="middle">Jocasta</text><text x="340" y="236" class="ts" text-anchor="middle">Oedipus</text><text x="410" y="236" class="ts" text-anchor="middle">Messenger</text><text x="480" y="236" class="ts" text-anchor="middle">Herdsman</text><rect x="95" y="56" width="70" height="158" rx="0" class="wash"/><rect x="165" y="56" width="70" height="158" rx="0" class="wash"/><rect x="235" y="56" width="70" height="158" rx="0" class="wash"/><rect x="305" y="56" width="70" height="158" rx="0" class="wash"/><rect x="375" y="56" width="70" height="131.7" rx="0" class="wash"/><path d="M95 214L165 214L165 214L235 214L235 187.7L305 187.7L305 187.7L375 187.7L375 161.3L445 161.3L445 56L515 56" class="ln-dash"/><path d="M95 214L165 214L165 214L235 214L235 214L305 214L305 187.7L375 187.7L375 56L445 56L445 56L515 56" class="dash"/><path d="M95 56L165 56L165 56L235 56L235 56L305 56L305 56L375 56L375 56L445 56L445 56L515 56" class="ink-b"/><path d="M95 214L165 214L165 214L235 214L235 214L305 214L305 214L375 214L375 56L445 56L445 56L515 56" class="ink"/><path d="M95 214L165 214L165 214L235 214L235 214L305 214L305 214L375 214L375 187.7L445 187.7L445 56L515 56" class="ln"/><text x="97" y="48" class="tb" text-anchor="start">audience</text><text x="200" y="139" class="tl" text-anchor="middle">dramatic irony</text><text x="368" y="74" class="t" text-anchor="end">Jocasta</text><text x="440" y="203.7" class="tl" text-anchor="start">Oedipus</text><text x="270" y="179.7" class="ts" text-anchor="middle">虚线：开始怀疑</text><line x1="480" y1="46" x2="480" y2="222" class="mute"><animate attributeName="x1" values="480;130;200;270;340;410;480" keyTimes="0;0.03;0.2;0.32;0.44;0.56;0.68" dur="11s" repeatCount="indefinite" calcMode="discrete"/><animate attributeName="x2" values="480;130;200;270;340;410;480" keyTimes="0;0.03;0.2;0.32;0.44;0.56;0.68" dur="11s" repeatCount="indefinite" calcMode="discrete"/></line></svg><figcaption>六件关于身份的事实，每一场结束时 audience、Jocasta、Oedipus 各自知道几件。阴影是 audience 与 Oedipus 之间的差距，就是 dramatic irony。前四场 Jocasta 和 Oedipus 都是 0，两条线重合。竖线标出当前这一场。</figcaption></figure>
+<p>六件事实是：三岔路口的老人是 Laius；Laius 是他父亲；Jocasta 是他母亲；Polybus 不是他父亲；那个被丢弃的婴儿活下来了，就是他；两个 oracle 都应验了。图里的数字按第 3 站那张表逐场数：</p>
+<ol>
+<li>Audience 从头到尾知道全部 6 件（雅典观众熟悉这个 myth）。</li>
+<li>Oedipus 前三场一件也不确知：Tiresias 当面说了，他不信，反咬 Tiresias 受 Creon 指使；听到 Jocasta 说三岔路口，他开始怀疑第一件（虚线）。Messenger 那一场他确知了第四件（Polybus 不是他父亲），以为自己也许只是个弃婴。Herdsman 那一场 6 件全部确知。</li>
+<li>Jocasta 在 Messenger 那一场就全明白了：婴儿是从 Cithaeron 来的，又是 Laius 家的人交出的，她把这几条连在一起。她求 Oedipus 不要再查下去，然后离开。Oedipus 以为她是怕他出身低贱。</li>
+</ol>
+<p>这一场是全剧信息最不对称的时刻：观众和 Jocasta 都知道，只有 Oedipus 不知道，他还把 Jocasta 的恐惧读成了虚荣。三层知识的落差全部在舞台上的对话里实现，没有任何人在“讲述”。</p>
+<h3>Anagnorisis 与 peripeteia</h3>
+<p>Aristotle 在 Poetics 里用 Oedipus 作 complex plot 的范例。两个术语：anagnorisis（recognition），从不知到知；peripeteia（reversal），行动的结果转向与预期相反的方向。最好的 plot 让两者同时发生。他举的正是 Corinth 的 messenger：这个人来，是为了带来好消息（Polybus 寿终正寝，你不必再怕杀父的 oracle；Merope 也不是你亲生母亲，娶母的预言也不必怕），结果正是他的话揭出了 Oedipus 是谁。</p>
+<p>拿图检验这个定义：Messenger 那一场，Oedipus 那条线只升了一格，Jocasta 那条线一下升到顶。Peripeteia 已经发生（好消息变成了灾难的开端），完整的 anagnorisis 要等到下一场 herdsman 开口。Sophocles 把 Jocasta 的 recognition 和 Oedipus 的 recognition 错开了一场，中间这一场的张力就来自这个错位。</p>
+<h3>Film：camera 就是 focalizer</h3>
+<p>Film 和 drama 一样没有 narrator 的声音（除非用 voice-over），但它多了一样 drama 没有的东西：camera 决定观众从哪里看、看多大、看多久。上一站的 focalization 在 film 里有直接的对应物：</p>
+<ul>
+<li>point-of-view shot：画面就是某个 character 看到的东西，相当于 internal focalization；</li>
+<li>只拍 character 的外表和动作，不给任何人的视角，相当于 external focalization；</li>
+<li>剪辑决定 order 和 duration：一个 cut 可以跳过十年（ellipsis），慢镜头可以把一秒拉长（slow-down）。</li>
+</ul>
+<p>Film 也可以有 unreliable narration，而且可以做在 structure 上。Robert Wiene 的 The Cabinet of Dr. Caligari（1920，public domain）讲一个年轻人 Francis 向一个老人讲述一段经历：一个叫 Caligari 的江湖医生操纵一个梦游者 Cesare 杀人。影片的布景全是扭曲的斜线和画上去的阴影。到最后，frame 被揭开：Francis 是精神病院的病人，他口中的 Caligari 是这家医院的院长。回过头看，前面整段故事是一个不可靠的 homodiegetic narrator 的讲述，那些扭曲的布景就是他的 focalization。和 The Tell-Tale Heart 一样，text 安排了足够的证据，让观众在最后把前面看到的全部重新归属。</p>
+<p>这个 frame 怎样改变 meaning 是一个有名的争论：Siegfried Kracauer 在 From Caligari to Hitler（1947）里说，frame 是违背编剧原意加上去的，它把一个反抗权威的 story 变成了“权威其实是对的，反抗者是疯子”。后来发现的剧本让这个说法受到质疑。不管 frame 的来历如何，这个争论本身说明了一件事：同一组镜头，加不加一个 frame，story 的 meaning 可以完全翻转。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Drama 没有 narrator，所以没有 point of view</span></p><p>Oedipus Tyrannus 里没有任何人在“讲”，可观众知道什么、什么时候知道，被控制得和任何一部 novel 一样严密。上面那张图里三条线的形状（audience 一开始就在顶上，Jocasta 在第五场跳上去，Oedipus 拖到第六场）完全是场次安排决定的：如果 herdsman 在 Tiresias 之后马上上场，三条线会在第二场就汇合，中间三场的 irony 全部消失。Point of view 在 drama 里由 structure 承担：谁先上场、谁在场、谁说什么时另一个人不在场。</p>
+</aside>
+
+<aside class="blk blk-note"><p class="blk-h"><span class="blk-t">两边的讲法</span></p><p>Yale ENGL 300 没有讲 drama 和 film 的一讲，这一站在 ENGL 300 里没有对应。EN1101E 的课程描述明确列了 a play 和 films，旧课程页上 drama 占四讲（Beckett 的 Waiting for Godot 和 Fugard 的 The Island，都受版权保护）。本页用 public domain 的 Oedipus 和 Caligari 演示同样的工具；具体到当学期的 play 和 film，以课上的分析为准。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>这一站没有读到公开课讲义，是凭自己的知识写的：Plato 的 mimesis 与 diegesis、Aristotle 的 anagnorisis 与 peripeteia 以及他用 Corinth messenger 作例子、Oedipus Tyrannus 各场的内容、A Doll's House 结尾的 stage direction、Caligari 的 frame 与 Kracauer 的论点，都没有找原文核对。Focalization 与 film 技法的对应沿用第 4 站 Jahn 的分类。六件事实的划分、各场知识的计数和那张图是为这一页做的。</p>
+</aside>
+
+</section>
+<section class="stop" id="struct" data-skill="struct" data-name="Structuralism：sign、opposition 与 myth 的结构">
+<header class="stop-h"><span class="stop-n">第 6 站</span><h2>Structuralism：sign、opposition 与 myth 的结构</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>说出 signifier、signified、arbitrary、differential 的意思，并在一个 tale 里找出 binary opposition。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>把一组 narrative 单位按 opposition 排进 column，说明这个 structure 想解决什么 contradiction。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能说明 structuralism 从 Saussure 继承了什么、它读出的东西和“hidden meaning”有什么不同，以及 Derrida 对 Lévi-Strauss 的批评落在哪里。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-struct">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-struct"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说清 sign 为什么是 arbitrary 和 differential 的，能把一组 narrative 单位按 opposition 排进 column 并说明这样排想解决什么问题，并知道 Derrida 对这种做法的批评落在哪里，就可以去第 7 站。</p>
+</aside>
+<h3>一个 sign 的意思从哪里来</h3>
+<p>第 1 站说 violet 的意思来自它和 star 的关系，不来自 symbol 词典。这个主张的根据在 Saussure 的 Course in General Linguistics（1916）。</p>
+<p>Saussure 把 sign 拆成两面：signifier（sound image，比如 tree 这个声音）和 signified（concept，“树”这个概念）。两者之间的联系是 arbitrary 的：同一种动物在 English 里叫 cow，在 French 里叫 boeuf，在 German 里叫 Ochs，声音和概念之间没有天然联系（这一点在 <a href="EL1101E.html#morph">EL1101E 第 4 站</a>从 linguistics 一侧讲过）。</p>
+<p>Arbitrary 推出第二条：如果 signifier 和 signified 没有天然联系，那么一个 sign 凭什么有确定的意思？Saussure 的回答是 differential：一个 sign 的 value 只由它和同一个 system 里其他 sign 的差别决定。Fry 在第 8 讲的例子是红灯。在 traffic light 的 system 里，红的意思是 stop，因为它不是绿、不是黄；同样的红光挂在门口、挂在剧场的出口上、画在 valentine 上、装在救护车上，意思全变了。红光本身什么也不说，它在每一个 system 里的意思都来自它“不是什么”。Fry 的说法是，我们是 negatively 地知道一个 sign 的。</p>
+<p>Saussure 还区分了 langue（一个语言的 system，没有人能直接看到，只能从说出来的话里推出来）和 parole（具体说出来的话）。Structuralism 把这个区分搬到文学上：一篇具体的 narrative 是 parole，研究者要推出的是背后让这些 narrative 成为可能的 langue。Fry 在第 9 讲说，structuralism 从 Formalism 继承了 function 的概念，从 semiotics 继承了 negative knowledge；和 Formalism 不同的是，它把研究对象拆开，再用许多个版本拼出一个“virtual object”。Narratology（第 3、4 站的那些工具）是这一路最持久的成果。</p>
+<h3>Lévi-Strauss 读 Oedipus</h3>
+<p>最有名的示范是 Claude Lévi-Strauss 的 The Structural Study of Myth（1955）。他的问题是：myth 的情节看起来任意、荒诞，为什么世界各地的 myth 又如此相似？他的回答：myth 的 meaning 不在单个事件里，在事件之间的关系里，就像 sign 的 meaning 不在单个声音里。</p>
+<p>操作分三步：</p>
+<ol>
+<li>把 myth 拆成最小的单位，叫 mytheme，每个是一句“谁对谁做了什么”。</li>
+<li>按 narrative 顺序一行一行写下来，但把彼此 equivalent 的 mytheme 写在同一个 column 里。</li>
+<li>读的时候不按行读，按 column 读。</li>
+</ol>
+<p>他拿 Oedipus myth（不只是 Sophocles 那一段，而是从 Thebes 的建城者 Kadmos 一直到 Oedipus 的子女）做的结果如下。</p>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 326" role="img" aria-label="动图：Lévi-Strauss 把 Oedipus myth 的 11 个 mytheme 按出现顺序一个个放进四个 column：overrating 与 underrating blood relations，denial 与 persistence of autochthony"><rect x="4" y="4" width="132" height="40" rx="5" class="wash"/><text x="70" y="20" class="tb" text-anchor="middle">I  overrating</text><text x="70" y="37" class="ts" text-anchor="middle">blood relations</text><rect x="144" y="4" width="132" height="40" rx="5" class="wash2"/><text x="210" y="20" class="tb" text-anchor="middle">II  underrating</text><text x="210" y="37" class="ts" text-anchor="middle">blood relations</text><line x1="140" y1="50" x2="140" y2="280" class="grid"/><rect x="284" y="4" width="132" height="40" rx="5" class="wash"/><text x="350" y="20" class="tb" text-anchor="middle">III  denial of</text><text x="350" y="37" class="ts" text-anchor="middle">autochthony</text><line x1="280" y1="50" x2="280" y2="280" class="grid"/><rect x="424" y="4" width="132" height="40" rx="5" class="wash2"/><text x="490" y="20" class="tb" text-anchor="middle">IV  persistence of</text><text x="490" y="37" class="ts" text-anchor="middle">autochthony</text><line x1="420" y1="50" x2="420" y2="280" class="grid"/><text x="-2" y="82" class="ts" text-anchor="start">↓</text><g><text x="70" y="82" class="t" text-anchor="middle">Kadmos seeks Europa</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.08" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="350" y="82" class="t" text-anchor="middle">Kadmos kills dragon</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.14545" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="210" y="106" class="t" text-anchor="middle">Spartoi kill each other</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.21091" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="490" y="130" class="t" text-anchor="middle">Labdacos = lame?</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.27636" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="210" y="154" class="t" text-anchor="middle">Oedipus kills Laios</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.34182" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="490" y="154" class="t" text-anchor="middle">Laios = left-sided?</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.40727" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="350" y="178" class="t" text-anchor="middle">Oedipus kills Sphinx</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.47273" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="490" y="202" class="t" text-anchor="middle">Oedipus = swollen foot?</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.53818" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="70" y="226" class="t" text-anchor="middle">Oedipus weds Jocasta</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.60364" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="210" y="250" class="t" text-anchor="middle">Eteocles kills brother</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.66909" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="70" y="274" class="t" text-anchor="middle">Antigone buries brother</text><animate attributeName="opacity" values="1;0;1" keyTimes="0;0.03;0.73455" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><line x1="10" y1="286" x2="550" y2="286" class="grid"/><text x="280" y="306" class="ts" text-anchor="middle">从上往下按 narrative 读；按 column 读才是 Lévi-Strauss 要的 structure：I : II = III : IV</text></svg><figcaption>11 个 mytheme 按出现的顺序一个个落进四个 column。从上往下是 narrative，从左往右是 structure。</figcaption></figure>
+<p>四个 column 是什么：</p>
+<ul>
+<li>I，overrating of blood relations（把血缘看得过重）：Kadmos 去寻找被 Zeus 劫走的妹妹 Europa；Oedipus 娶了自己的母亲；Antigone 违抗禁令埋葬哥哥 Polynices。</li>
+<li>II，underrating of blood relations（把血缘看得过轻）：从龙牙里长出来的 Spartoi 互相残杀；Oedipus 杀了父亲；Eteocles 杀了兄弟 Polynices。</li>
+<li>III，denial of autochthony（否定“人从土里生出来”）：Kadmos 杀了龙；Oedipus 杀了 Sphinx。龙和 Sphinx 都是大地生出的怪物，杀死它们就是否定人与大地的联系。</li>
+<li>IV，persistence of autochthony（“人从土里生出来”的残留）：这一家三代的名字都和腿脚有关，Labdacos 意为 lame，Laios 意为 left-sided，Oedipus 意为 swollen foot。在许多 myth 里，从土里生出来的人刚出生时走不稳路。Lévi-Strauss 自己在这几个词义后面都打了问号。</li>
+</ul>
+<p>然后是结论：I 和 II 是一对矛盾，III 和 IV 也是一对矛盾，而且 I : II = III : IV。一个文化相信人是从土里生的（autochthony），又明明知道每个人是一男一女生的。这个矛盾无法解决，myth 做的事是把它和另一对同构的矛盾（血缘被看重和被践踏）并排放在一起，使它变得可以忍受：“既然血缘关系本身就是自相矛盾的，那么起源问题上的矛盾也就不那么刺眼了。”</p>
+<h3>检验：这个 structure 漏掉了什么</h3>
+<p>Fry 在第 9 讲做了一个检查：列出 myth 里有什么不在这张表里。Jocasta 的自杀不在，婴儿 Oedipus 被丢在 Cithaeron 也不在。被丢在山上、被大地“收回”，看起来和 autochthony 很有关系，却没有被放进 column IV。</p>
+<p>这个检查说明了 structuralism 操作中的关键一步：选什么做 mytheme、哪些 mytheme 算 equivalent，是研究者决定的。Column 的划分是 analysis 的结论，同时也是它的前提。Fry 在第 10 讲介绍 Derrida 的批评时把这一点推进了一步：Lévi-Strauss 自己在 The Raw and the Cooked 里承认，他关于 myth 的书本身也是一种 myth；可是在别的地方，他又对自己对 Oedipus 的分析声称有科学的地位。Derrida 批评的是后一种时刻，不是 structural analysis 本身。Fry 还补了一个讽刺：Freud 早就把 Oedipus 读成关于起源的故事，Lévi-Strauss 否认受了 Freud 的影响，这个否认本身就在重演“否定父亲”。</p>
+<h3>Triad：oral tale 的 grammar</h3>
+<p>Structuralism 对 oral tale 特别有用，因为 oral tale 本来就是由许多版本构成的，没有一个“原作”，只有一套可重复的 structure。最常见的一条是 rule of three。Fry 在第 4 讲和第 12 讲反复分析 Tony the Tow Truck 的 triad（受版权保护，只描述）：Tony 被卡住，先后有三辆车经过，前两辆以各自的理由拒绝帮忙，第三辆帮了它。他在第 7 讲引了 Formalist Osip Brik 的一句话：verse 里的 repetition 相当于 folklore 里的 tautology。</p>
+<p>一个 public domain 的例子：Robert Southey 1837 年发表的 The Story of the Three Bears（闯进熊家的是一个老太婆，后来的版本才换成小女孩）。三碗粥，第一碗太烫，第二碗太凉，第三碗正好；椅子、床也都是三件一组。用这一站的工具看：前两项是一对 binary opposition（太烫和太凉，太硬和太软），第三项是 mediation，位于两极之间。Triad 的结构和 Lévi-Strauss 说 myth 用一个中项去调解两个对立项，是同一种 grammar。Tony the Tow Truck 的三辆车也一样：前两辆是两种方向不同的失败，第三辆是解决。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Structuralism 要找的是 text 背后的“深层含义”</span></p><p>“深层含义”是一个内容：作者真正想说的，藏在字面下面的那句话。Structuralism 找的是关系，不是内容。四个 column 本身什么也不“说”，它们说的是 I 对 II 的关系等于 III 对 IV 的关系。红灯的例子是同一个道理：红光“深层”意味着什么，这个问题没有答案，只有“它在这个 system 里和绿、黄的差别”有答案。检验的办法：一个 structuralist reading 写完以后，把所有 column 的名字换成别的词，只要 opposition 的关系还在，analysis 就成立。如果换了名字 analysis 就垮了，它其实是在做 symbol 词典式的翻译（第 1 站的 :::wrong）。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Saussure 的 sign、arbitrary 与 differential、tree 与 arbor、cow 的几种叫法、红灯的例子、negative knowledge、langue 与 parole，来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-8">Yale ENGL 300 第 8 讲</a>；structuralism 继承 function 与 negative knowledge、virtual object、narratology 是最持久的成果、Lévi-Strauss 的四个 column 和 Fry 指出漏掉的 Jocasta 自杀与 Cithaeron，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-9">第 9 讲</a>；Derrida 的批评、The Raw and the Cooked、Freud 与 Lévi-Strauss 的讽刺，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-10">第 10 讲</a>；Tony the Tow Truck 的 triad 与 Brik 的话来自第 4、7、12 讲。四个 column 的具体 mytheme、名字的词义及问号、“使矛盾可以忍受”的结论，是按我对 Lévi-Strauss 原文的了解写的，没有读原文；Southey 的 Three Bears 和 triad 与 mediation 的对应是我加的。</p>
+</aside>
+
+</section>
+<section class="stop" id="meaning" data-skill="meaning" data-name="Meaning 从哪里来：intention、reader 与 deconstruction">
+<header class="stop-h"><span class="stop-n">第 7 站</span><h2>Meaning 从哪里来：intention、reader 与 deconstruction</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>分清 meaning 与 significance，说出 hermeneutic circle 是哪两者之间的往返。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>对一个有两种对立读法的 text，分别按 Hirsch、Gadamer、Iser 的思路说明怎样裁决或者为什么不必裁决。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能对一首短诗做一次有据可查的 deconstructive reading：找出 binary、说明 text 怎样依赖被压低的那一端，并说明它为什么不等于“怎么读都行”。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-meaning">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-meaning"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能分清 meaning 与 significance，能说明 Hirsch、Gadamer、Iser 对“两种读法谁对”分别给出什么回答，并能对一首短诗做一次有据的 deconstructive reading，就可以去第 8 站。</p>
+</aside>
+<h3>又一首 Lucy poem，又一对相反的读法</h3>
+<p>第 1 站留下一个问题：Brooks 和 Bateson 都只用了 text，都是合法的 close reading，那么谁来裁决？E. D. Hirsch 在 Validity in Interpretation（1967）里拿另一首 Lucy poem 正面处理了这个问题。</p>
+<blockquote>
+<p>A slumber did my spirit seal;<br>
+I had no human fears:<br>
+She seemed a thing that could not feel<br>
+The touch of earthly years.</p>
+<p>No motion has she now, no force;<br>
+She neither hears nor sees;<br>
+Rolled round in earth's diurnal course,<br>
+With rocks, and stones, and trees.</p>
+</blockquote>
+<p>第一节：speaker 曾经像睡着一样没有对人世的恐惧，她看上去是一个不会被岁月触碰的东西。第二节：她现在没有 motion、没有 force，听不见也看不见，随着大地每天的自转滚动，和岩石、石头、树在一起。</p>
+<p>Hirsch 记录了两种读法。Brooks 读出的是震惊和恐怖：她变成了和石头一样的东西，被大地机械地裹着转，最后一行那一串 rocks, and stones, and trees 是无生命物的罗列。Bateson 读出的是安慰：她融入了自然宏大的运动，成了和树一样的自然的一部分，这符合 Wordsworth 那个时期 pantheistic 的自然观。两种读法都能覆盖每一个词。</p>
+<h3>Hirsch：meaning 与 significance</h3>
+<p>Hirsch 的第一步是区分两个东西。Meaning 是 text 所表达的那个确定的东西，由 author 的 intention 决定，不随时间改变。Significance 是这个 meaning 和别的东西的关系：和读者、和某个时代、和某个问题的关系，它随读者变化。一首诗对今天的你“意味着什么”是 significance；诗本身说了什么是 meaning。</p>
+<p>Fry 在第 3 讲说明了 Hirsch 为什么坚持 intention：他借用 Kant，人应当被当作目的，而不是别人的工具。一句话是一个人的 intention 的延伸，把话从说话人的 intention 上剥下来随意使用，就是把那个人当工具。所以 Hirsch 关心的是 meaning，不是 truth：要先弄清对方说了什么，才谈得上对方说得对不对。</p>
+<p>这和第 1 站的 intentional fallacy 有冲突吗？Hirsch 不去读 Wordsworth 的日记找答案，他要的是 probable 的 intention：从 Wordsworth 那几年的其他作品、他公开的观点、当时的语言习惯，推断哪一种读法更可能是这首诗的 meaning。据我所知，Hirsch 的结论是 Bateson 的读法更 probable，同时承认 Bateson 低估了诗里的震惊。重要的不是这个结论，是裁决的方式：把问题变成一个可以用证据讨论的 probability 问题。</p>
+<h3>Gadamer：hermeneutic circle</h3>
+<p>Hans-Georg Gadamer 的 Truth and Method（1960）给出了完全不同的图景。Fry 在第 3 讲把 Hirsch 和 Gadamer 当作一对不可调和的选择，并说这个选择会影响你怎样评价后面所有的 theory。</p>
+<p>Gadamer 从一个困难出发：要理解一个 part，需要先对 whole 有个想法；要知道 whole，又只能从一个个 part 读起。这就是 hermeneutic circle。Gadamer 说这个 circle 不是 vicious 的：读者带着一个关于 whole 的 fore-project 进入 text，读到的 part 不断修正这个 fore-project，修正过的 whole 又改变对 part 的理解。</p>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 260" role="img" aria-label="动图：读 A slumber did my spirit seal 时，读到的诗行和对整首诗的 hypothesis 交替修正：先以为她活着，读到第二节知道她死了，第 7、8 行出现两种读法，再回头重读第 3 行"><text x="8" y="18" class="tb" text-anchor="start">Part：一行一行读</text><text x="392" y="18" class="tb" text-anchor="middle">Whole：对整首诗的 hypothesis</text><g><rect x="4" y="31" width="250" height="21" rx="4" class="wash"/><rect x="4" y="53" width="250" height="21" rx="4" class="wash"/><rect x="4" y="75" width="250" height="21" rx="4" class="wash"/><rect x="4" y="97" width="250" height="21" rx="4" class="wash"/><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.26" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="4" y="129" width="250" height="21" rx="4" class="wash"/><rect x="4" y="151" width="250" height="21" rx="4" class="wash"/><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.26;0.44" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="4" y="173" width="250" height="21" rx="4" class="wash"/><rect x="4" y="195" width="250" height="21" rx="4" class="wash"/><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.62" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><rect x="4" y="75" width="250" height="21" rx="4" class="wash"/><animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.62;0.999" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="46" class="t" text-anchor="start">A slumber did my spirit seal;</text><text x="10" y="68" class="t" text-anchor="start">I had no human fears:</text><text x="10" y="90" class="t" text-anchor="start">She seemed a thing that could not feel</text><text x="10" y="112" class="t" text-anchor="start">The touch of earthly years.</text><text x="10" y="144" class="t" text-anchor="start">No motion has she now, no force;</text><text x="10" y="166" class="t" text-anchor="start">She neither hears nor sees;</text><text x="10" y="188" class="t" text-anchor="start">Rolled round in earth's diurnal course,</text><text x="10" y="210" class="t" text-anchor="start">With rocks, and stones, and trees.</text><rect x="286" y="60" width="212" height="88" rx="8" class="paper"/><g><text x="298" y="84" class="tb" text-anchor="start">hypothesis 1：</text><text x="298" y="106" class="ts" text-anchor="start">她还活着，speaker 以为</text><text x="298" y="126" class="ts" text-anchor="start">她不受 time 影响</text><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.08;0.26" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="298" y="84" class="tb" text-anchor="start">hypothesis 2：</text><text x="298" y="106" class="ts" text-anchor="start">她死了；stanza 1 是</text><text x="298" y="126" class="ts" text-anchor="start">当时的 illusion</text><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.26;0.44" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="298" y="84" class="tb" text-anchor="start">到这里分岔：</text><text x="298" y="106" class="ts" text-anchor="start">inert matter，horror（Brooks）</text><text x="298" y="126" class="ts" text-anchor="start">或 nature 的 motion（Bateson）</text><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.03;0.44;0.62" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><g><text x="298" y="84" class="tb" text-anchor="start">回头重读 line 3：</text><text x="298" y="106" class="ts" text-anchor="start">“a thing that could not feel”</text><text x="298" y="126" class="ts" text-anchor="start">活着时已经用了死物的词</text><animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.03;0.62;0.999" dur="12s" repeatCount="indefinite" calcMode="discrete"/></g><line x1="258" y1="80" x2="282" y2="80" class="ln"/><polygon points="284,80 277.6,77.1 277.6,82.9" class="ln-f"/><line x1="284" y1="128" x2="260" y2="128" class="ln-dash"/><polygon points="258,128 264.4,130.9 264.4,125.1" class="ln-dash-f"/><text x="271" y="72" class="ts" text-anchor="middle">读</text><text x="271" y="146" class="ts" text-anchor="middle">重读</text><text x="392" y="174" class="ts" text-anchor="middle">whole 改变以后，已经读过的</text><text x="392" y="192" class="ts" text-anchor="middle">part 要按新的 whole 重读</text></svg><figcaption>一行一行读 A slumber did my spirit seal，对整首诗的 hypothesis 跟着改变，改变以后又回头重读已经读过的行。第一帧停在最后一步。</figcaption></figure>
+<p>拿这首诗走一遍：</p>
+<ol>
+<li>读完第一节：hypothesis 是“她活着，speaker 以为她不受时间影响”。</li>
+<li>读到 No motion has she now：hypothesis 被推翻，她死了；第一节的 slumber 回过头被重读成 speaker 当时的 illusion。</li>
+<li>读到最后两行：whole 在这里分岔，Brooks 和 Bateson 各走一边。</li>
+<li>带着新的 whole 回到第三行，“a thing that could not feel”：读第一遍时这是在说她“不会老”，现在 thing 这个词显出另一层，她活着时 speaker 就已经用了描述无生命物的词。</li>
+</ol>
+<p>Gadamer 还给 circle 加了历史的一维。读者的 fore-project 来自他所在的传统，叫 prejudice。Fry 讲了这个词的来历：法语 préjugé、德语 Vorurteil 都是“预先的判断”，原本是法律推理中的一个环节，不是贬义的偏见。Gadamer 反对的是 Enlightenment 那种“对 prejudice 的 prejudice”，即以为人可以摆脱一切预设。Prejudice 有好坏之分：第 1 站把 Akenside 的 plastic 读成塑料，是坏的 prejudice，它和 text 无关，应当被 text 纠正；意识到 1744 年和今天的距离，本身就是好的 prejudice。理解的目标不是跳出自己的时代、进入作者的时代（Gadamer 认为这做不到，并且称这种 historicism 有居高临下的味道），而是 horizon 的融合（Horizontverschmelzung）：过去的 text 和现在的读者在对话中都发生了改变。</p>
+<p>所以对 Brooks 与 Bateson，Gadamer 不会去问 Wordsworth 1799 年怎么想。他会说两种读法都是诗和某个读者传统对话的结果；text 的 meaning 本来就不止于作者想到的。Hirsch 会说这恰恰取消了 meaning 和 significance 的区别。这就是 Fry 说的不可调和。</p>
+<h3>Iser：gap</h3>
+<p>Wolfgang Iser 关心的是 reading 这个行为本身。Fry 在第 4 讲指出 Iser 和 Gadamer 的根本差别：在 Gadamer 那里，读者与 text 之间的距离很小，容易跨越；在 Iser 那里，这个距离必须足够大，阅读才能“进入高速档”。Text 里有 gap，读者必须自己填；Iser 甚至说，在真正的 literary text 里 expectation 几乎从不被满足。这种 surprise 有两个界限：太少，读者 bored；太多，读者 overstrained。</p>
+<p>拿 Iser 的眼光看 A slumber：最大的 gap 在两节之间那一行空白。她怎么死的、什么时候死的、speaker 什么时候知道的，一个字都没有。用第 3 站的术语，death 本身是 ellipsis。Brooks 和 Bateson 的分歧，说到底是读者用什么去填这个空白：用震惊填，第二节是恐怖；用对自然的信念填，第二节是安慰。按 Iser 的思路，两种填法都是这首诗设计出来要读者做的工作，分歧本身就是 text 的效果。</p>
+<h3>Derrida：没有稳定的 binary</h3>
+<p>最后一种回答根本不裁决。Jacques Derrida 在 1966 年的 Structure, Sign and Play 里批评的是 structuralism 的一个预设：每个 structure 都有一个 center，它组织一切，自己却不受 structure 的约束。Fry 用 Wallace Stevens 的 Anecdote of the Jar 来解释：一只罐子放在荒野里，整片荒野都围着它排列起来，可它本身不属于荒野。Derrida 不说可以不要 structure，他说 structure 必须被放在“under erasure”的状态下使用：用它，同时知道它不稳固。</p>
+<p>Fry 解释了 Derrida 的两个关键词。Différance：Saussure 的 difference 是空间性的，所有 sign 同时并列在 system 里互相区分；Derrida 把 differ 和 defer 合在一起，强调差别是在时间里一个接一个展开的，meaning 总是被推迟，下一个 sign 又会改写上一个。拼写中的 a 只能在写出来时看到，读出来听不出区别，这一点本身就在挑战“speech 优先于 writing”的 binary。Supplement：Fry 的例子是维生素 C 片，它可以是给一个已经完整的饮食“锦上添花”，也可以是填补一个缺口；同一个词同时意味着“多余的添加”和“必要的补足”，被定义为次要的东西暗示了主要的东西并不完整。Fry 总结说：“There are no stable binaries in Derrida.”</p>
+<p>这给出一种操作，可以对 A slumber 做一遍：</p>
+<ol>
+<li>找出 text 依赖的一个 binary，以及它暗含的等级。这首诗是 life / death，以及与之对齐的 motion / stillness、feeling / insensibility。按常理，life、motion、feeling 是高的一端。</li>
+<li>看 text 在哪里依赖被压低的那一端。第一节描写活着的她，用的是 “a thing that could not feel”：活着的状态被定义为不会感觉、不会被时间触碰，也就是用死物的属性来描写生命。第二节描写死去的她，用的是 Rolled round in earth's diurnal course：死者在运动，而且是最大规模的运动。</li>
+<li>结论：诗里 life 和 death 交换了属性。活着时她像死物一样不受影响，死后她像活物一样在动。两节诗不是从 life 走到 death，它们互相借用了对方的词汇。</li>
+</ol>
+<p>这样读，Brooks 和 Bateson 就不是两个需要裁决的选项。Brooks 抓住了“死去的她成了 thing”，Bateson 抓住了“死去的她在 motion 里”，诗同时依赖这两样，因为它从一开始就没有让 life 和 death 稳定地分开。Paul de Man 在 The Rhetoric of Temporality（1969）里正是拿这首诗讲时间与 allegory 的（凭自己的知识，未读原文）。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Deconstruction 的意思是 text 可以随便解释</span></p><p>上面那个 deconstructive reading 的每一步都钉在具体的词上：thing、could not feel、motion、rolled round。拿一个随便的解释比较一下，比如“这首诗其实是在写 Wordsworth 对工业革命的焦虑”：诗里找不到一个词支撑它，它和 text 的关系是零。Deconstruction 的主张是 binary 不稳定，不是 text 没有约束；它找的不稳定必须是 text 自己的词显示出来的。Fry 在第 10 讲也强调，Derrida 并不说可以不要 structure，他要的是知道 structure 不稳固的同时仍然使用它。如果一个 reading 换一首诗也能原样照搬，它就不是 deconstruction，只是联想。</p>
+</aside>
+
+<aside class="blk blk-note"><p class="blk-h"><span class="blk-t">两边的讲法</span></p><p>这是 Yale ENGL 300 花力气最多的部分：hermeneutics 两讲半，Iser 一讲，New Criticism 和 Wimsatt 两讲，deconstruction 两讲。Fry 的立场是把 Hirsch 与 Gadamer 的分歧当作整门课的第一个分岔口。EN1101E 的旧课程页上这些内容集中在 critical approaches 一讲，用到的程度大约是：知道 author、text、reader 三个立场各自怎样回答“meaning 在哪里”，并且能在 essay 里说明自己的读法站在哪个立场上。想深入，按顺序读 ENGL 300 第 2 到 6 讲和第 10、11 讲的 transcript。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Gadamer 与 Hirsch 的对立、fore-project、part 与 whole、prejudice 的词源与 Enlightenment 的“对 prejudice 的 prejudice”、horizon 融合、Gadamer 认为 historicism 居高临下、Hirsch 借用 Kant，来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-3">Yale ENGL 300 第 3 讲</a>；Iser 与 Gadamer 的距离之别、expectation 几乎不被满足、boredom 与 overstrain，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-4">第 4 讲</a>；Structure, Sign and Play、Anecdote of the Jar、under erasure、différance、维生素 C 的 supplement、“There are no stable binaries”，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-10">第 10 讲</a>。Hirsch 对 A slumber 的 Brooks 与 Bateson 两种读法的记录、他偏向 Bateson 的结论、meaning 与 significance 的定义细节，是凭自己对 Validity in Interpretation 的了解写的，没有读原文，也不在我抽取到的 Fry 的 transcript 里；de Man 那句同样没有核对。Hermeneutic circle 和 deconstructive reading 套在这首诗上的步骤是为这一页写的。</p>
+</aside>
+
+</section>
+<section class="stop" id="lens" data-skill="lens" data-name="Desire、class、gender、empire：四种 context 读法">
+<header class="stop-h"><span class="stop-n">第 8 站</span><h2>Desire、class、gender、empire：四种 context 读法</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>说出 psychoanalytic、Marxist、feminist、postcolonial 各自对 text 提什么问题。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>选一种 lens 对一个 short story 做完整分析，论点经过 form（focalization、ending、plot 结构）而不只是贴标签。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能比较同一个 text 在两种 lens 下的读法，说明它们分歧在哪条证据上，并说明 Brooks 的 plot 理论为什么不是在给 character 做精神分析。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-lens">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-lens"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能对一个 short story 选一种 lens 做完整分析，论点经过 focalization、ending、plot 结构这些 form，并能说明两种 lens 在同一个 text 上分歧在哪，就可以跳过这一站。</p>
+</aside>
+<h3>为什么要往 text 外面看</h3>
+<p>前七站的问题基本都在 text 里面：词与词的关系，事件的安排，谁在讲、谁在看，meaning 归谁。可是有一类问题，不往 text 外面看就答不了：The Story of an Hour 里，一个女人为什么只有在丈夫死后才能想象自由？Pride and Prejudice 里，为什么一个有钱单身汉的到来是一件全村的事？这些问题的答案在 text 之外：在 desire 的结构、财产制度、gender 关系、帝国的权力里。</p>
+<p>这一站的四种 lens 各自问一个问题。对每一种，下面写它问什么、怎么操作，然后用一个 text 从头做一遍。共同的要求只有一条：论点必须经过 form。只说“这是一部 sexist 的书”是贴标签；说清楚 text 用什么 form 做到这一点（谁有 focalization，谁有说话的机会，ending 奖励谁），才是 reading。</p>
+<h3>Psychoanalytic：plot 本身是 desire</h3>
+<p>传统的 psychoanalytic criticism 分析的是人：作者的 unconscious，或者 character 的 unconscious。Fry 在第 12 讲提到 Ernest Jones 的经典读法：Hamlet 迟迟不报仇，是因为 Claudius 做了 Hamlet 在 unconscious 里想做的事（杀父娶母），他没法惩罚一个实现了他自己欲望的人。</p>
+<p>Peter Brooks 的 Freud's Masterplot（1977）换了对象：他不分析任何人的 unconscious，他认为 text 本身就“活着”，plot 就是 desire 的运动。他的出发点是 Freud 的 Beyond the Pleasure Principle（1920）。Freud 观察到，经历过创伤的人会在梦里一遍遍重复创伤，而不是压抑它；他的小外孙玩一个游戏，把线轴扔出去喊 fort（不见了），拉回来喊 da（在这儿），用重复去掌控“母亲离开”这件事。Freud 由此推出 repetition compulsion，并进一步提出 death drive：有机体有一种回到更早、更简单状态的冲动，“the aim of all life is death”。可是有机体只想以它自己的方式死去，所以它会抵抗任何过早的、外来的、“short-circuit”式的死亡。</p>
+<p>Brooks 把这套结构搬到 plot 上：</p>
+<ul>
+<li>Beginning：desire 被唤起，story 开始变得 narratable。</li>
+<li>Middle：detour、延迟、重复。Plot 拒绝直接走向结局，就像有机体拒绝 short-circuit。Middle 里的重复把散乱的材料 bind 起来，让读者认出“差异中的相同”，这正是 fabula 被组织成 sjuzhet 的过程（第 3 站）。</li>
+<li>End：desire 释放，回到静止。太早到达的结局让 plot 发育不全；Aristotle 说 plot 要有“一定的长度”，Brooks 给了这句话一个心理的解释。</li>
+</ul>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 252" role="img" aria-label="Peter Brooks 的 plot 模型套在 Oedipus Tyrannus 上：从 desire 到 end 的直线是 short-circuit，实际的路径绕了五个 detour；survivor 在中段被派人去叫，到最后才到场"><text x="8" y="18" class="tb" text-anchor="start">Desire：谁杀了 Laius？</text><text x="552" y="18" class="tb" text-anchor="end">End：discharge</text><circle cx="40" cy="170" r="6" class="ink-f"/><circle cx="520" cy="170" r="6" class="ln-f"/><line x1="40" y1="170" x2="520" y2="170" class="dash"/><text x="280" y="192" class="ts" text-anchor="middle">short-circuit：一开场就把唯一的 survivor 叫来问</text><path d="M40 170 C 60 160, 66 78, 100 78 S 140 160, 144 144 C 150 160, 156 60, 190 60 S 230 160, 234 144 C 240 160, 246 78, 280 78 S 320 160, 324 144 C 330 160, 336 60, 370 60 S 410 160, 414 144 C 420 160, 426 78, 460 78 S 500 160, 504 144 L 520 170" class="ln"/><text x="100" y="54" class="ts" text-anchor="middle">Tiresias 被斥为</text><text x="100" y="68" class="ts" text-anchor="middle">受 Creon 指使</text><text x="190" y="36" class="ts" text-anchor="middle">与 Creon 争吵</text><text x="280" y="54" class="ts" text-anchor="middle">Jocasta：oracle</text><text x="280" y="68" class="ts" text-anchor="middle">不可信</text><text x="370" y="36" class="ts" text-anchor="middle">“robbers” 是复数</text><text x="460" y="54" class="ts" text-anchor="middle">Polybus 死了：</text><text x="460" y="68" class="ts" text-anchor="middle">一场虚假的 relief</text><line x1="300" y1="204" x2="300" y2="218" class="ink"/><text x="300" y="234" class="ts" text-anchor="middle">survivor 被派人去叫</text><line x1="500" y1="204" x2="500" y2="218" class="ink"/><text x="500" y="234" class="ts" text-anchor="middle">到场</text><line x1="364" y1="230" x2="480" y2="230" class="mute"/><polygon points="482,230 475.6,227.1 475.6,232.9" class="mute-f"/></svg><figcaption>从 desire 到 end 的直线是 short-circuit。Oedipus Tyrannus 实际走的路线绕了五个 detour。</figcaption></figure>
+<p>拿 Oedipus Tyrannus 检验。Desire 在开场被唤起：谁杀了 Laius？最短的路线是开场就把那个唯一逃回来的随从叫来问。Play 偏不这么走，它绕了五个 detour：Oedipus 斥责 Tiresias 是受 Creon 指使；与 Creon 争吵；Jocasta 用 Laius 的 oracle“没有应验”来证明 oracle 不可信；Oedipus 抓住 robbers 是复数这一点；Corinth 的 messenger 带来 Polybus 的死讯，带来一阵虚假的 relief。那个随从在中段被派人去叫，直到最后才到场。整个 middle 就是叫人和到场之间的距离。第 3 站说 F5 被讲了 4 次，用 Brooks 的话说，这就是 binding：同一件事的重复让散乱的 testimony 一步步收紧。</p>
+<p>这样读的 psychoanalytic criticism 不需要说 Oedipus 有 Oedipus complex。它说的是：观众享受这部 play 的方式（被延迟、被迫绕路、在重复中逼近结局）本身就是 desire 的形状。</p>
+<h3>Marxist：text 怎样处理它那个时代的经济关系</h3>
+<p>Marxist criticism 问的是：一个 text 和产生它的社会、经济关系是什么关系？关键概念是 ideology：一个社会把它特定的、历史的安排当作自然的、普遍的东西来呈现。Text 的分析目标是找出它在哪里把历史的东西说成了自然的。Fredric Jameson 在 The Political Unconscious（1981）里给出一个更具体的操作：把 narrative 读成对一个真实的社会矛盾的 symbolic resolution，即在想象中解决一个现实中解决不了的问题。</p>
+<p>拿第 4 站那句 Pride and Prejudice 的开头再做一遍。</p>
+<ol>
+<li>找出被说成普遍的东西：a truth universally acknowledged。</li>
+<li>问它掩盖了什么历史条件。第 4 站已经发现，“需要妻子”的其实是那些有女儿的家庭。为什么她们这么需要？小说告诉了读者：Bennet 家的 Longbourn 庄园是 entail 给男性继承人的，Mr. Bennet 没有儿子，他一死，庄园归远亲 Mr. Collins，五个女儿和母亲什么都留不下。在这个财产制度下，女儿们唯一的经济出路是嫁人。</li>
+<li>所以那句“universal truth”是一种 ideology：它把一个由继承法造成的经济必然，说成了男人天性如此。小说开头的 irony 正好把这个 ideology 暴露了出来。</li>
+<li>再看 ending：Elizabeth 嫁给了 Darcy，一个拥有 Pemberley 大庄园的人。Jameson 会说，这是 symbolic resolution：女性的经济依附这个现实矛盾，在小说里通过“恰好既爱她、又非常有钱”的婚姻被想象地解决了。爱情和财产在这个结局里被弄得完全重合，现实中它们并不重合，小说前半部分自己就展示了这一点（Charlotte Lucas 嫁给 Mr. Collins，就是为了一个家）。</li>
+</ol>
+<h3>Feminist：谁的 perception 被授权</h3>
+<p>Virginia Woolf 的 A Room of One's Own（1929）把女性写作的问题落在一个物质条件上：一年 500 英镑和一间自己的房间。Fry 在第 20 讲指出，Woolf 在这里把 material conditions，也就是 class，放在 gender 之前，并且说她在“class 和 gender 哪个更根本”这个问题上有所保留。Fry 在这里接着讲 angel in the house：这个说法出自 Coventry Patmore 的诗，指温柔、无私、为家庭牺牲的理想女性形象；Woolf 在另一篇演讲 Professions for Women 里说，女性写作者必须先“杀死”她。Fry 也提到 Woolf 对 Charlotte Brontë 的批评：她认为 Jane Eyre 里愤怒冲破了小说的形式。</p>
+<p>Feminist criticism 的问题可以写成：在这个 text 里，谁的 perception 被 form 授权，谁的被压下去？谁有 focalization，谁有说话的机会，ending 让谁的判断成为最后的话？</p>
+<p>The Story of an Hour 几乎是一个现成的示范，第 4 站已经做了一半：</p>
+<ol>
+<li>房间里那一段，focalization 完全在 Mrs. Mallard 身上，她的 perception 占了全篇大半的篇幅。</li>
+<li>她发现的是什么？她并不恨丈夫，text 说他对她温柔、爱她。她发现的是，往后不会再有一个人用自己的意志压在她的意志上。Text 在这里把话说得很宽：把私人意志强加给另一个人这种盲目的坚持，是男人和女人都会有的。所以问题不在这一个丈夫好坏，在婚姻这个制度本身。这和 Woolf 的思路一致：问题在结构，不在个人。</li>
+<li>她获得自由的唯一条件是丈夫死了。Text 没有给她任何其他出路，这一点本身就是对那个时代的陈述。</li>
+<li>Ending：最后的话属于医生。一个男性的、医学的权威，从外面看了一眼，给出“死于狂喜”的诊断，把她刚刚发现的东西重新解释为对丈夫的爱。第 4 站说这里有 irony；feminist reading 说清楚了这个 irony 针对的是什么：一个社会用自己的框架读女性的经验，而且读错了，并且这个错误被写进了正式的死因。</li>
+</ol>
+<p>这样的 reading 全部经过 form：focalization 的分配、FID、ending 的归属。它没有说“Chopin 是 feminist”，也不需要说。</p>
+<h3>Postcolonial：谁被讲述，谁在讲述</h3>
+<p>Edward Said 的 Orientalism（1978）研究的是西方写“东方”的一整套 discourse。Fry 在第 22 讲把它和 Woolf 并列：Woolf 在图书馆里发现，关于女性的书几乎全是男性写的；Said 发现，关于“东方”的知识几乎全是西方写给西方读者的。Said 的说法是，Orientalism “is premised upon exteriority”：讲述者站在被讲述者的外面。Said 并不主要论证这些描述是假的，他说它们作为欧洲与大西洋权力的 sign 更有价值，即它们是 representation，不是中立的描述。Fry 把 Said 和 Homi Bhabha 对应于 Elaine Showalter 说的 feminist criticism 的两个阶段：Said 像第一阶段，批评别人怎样再现自己，用的是 West 与 East 的 binary，带着 structuralism 的形状；Bhabha 像第二阶段，用 deconstruction 的方式去模糊 colonizer 与 colonized 的 binary，讲的是 ambivalence 和 hybridity。</p>
+<p>Postcolonial criticism 的操作是：问 text 里谁在讲、谁被讲；被殖民的地方和人在 text 里起什么 function（是 character，还是背景）；它们有没有自己的声音。</p>
+<p>最常被拿来示范的 text 是 Joseph Conrad 的 Heart of Darkness（1899，public domain），一个英国水手 Marlow 讲述自己溯刚果河而上寻找象牙代理人 Kurtz 的经历。它在当时是一部批评殖民暴行的小说。Chinua Achebe 在 1975 年的演讲 An Image of Africa（1977 年发表）里提出了相反的读法：小说把 Africa 当作欧洲人精神危机的背景，Africa 在书里是“the other world”，非洲人几乎被剥夺了语言，作为人的个体性被压到最低。Achebe 的论证用的正是 form 的证据：narrative 的结构是一个欧洲人对一群欧洲人讲话（Marlow 在泰晤士河上的船上讲给几个英国人听，外面还有一个匿名的 frame narrator），非洲人在这个 communication 结构里没有位置。用第 4 站的图说，他们只出现在最里面的 level of action，而且很少说话。</p>
+<p>对 Achebe 的回应主要有两条：一是 Conrad 用了 frame narrative，Marlow 的看法不等于 Conrad 的，text 也许在批评 Marlow；二是要按 1899 年的标准评价。Achebe 的反驳是：如果 implied author 和 Marlow 拉开了距离，text 里应当有让读者看出这个距离的 signal，他找不到。这场争论的焦点因此落在一个第 4 站已经会问的问题上：narrator 和 implied author 之间有没有距离，证据在哪里。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">这几种 lens 是互相排斥的，选一个对的用</span></p><p>拿 The Story of an Hour 试两种：feminist reading 说 ending 的 irony 揭示了社会怎样误读女性的经验；psychoanalytic reading（Brooks 那一路）说房间里那几分钟是 desire 被唤起，丈夫的出现是最极端的 short-circuit，plot 在 desire 刚开始展开时就被掐断，所以篇幅才这么短，标题才是“一小时”。两种读法用的是同一组 form 证据（篇幅分配、focalization、ending），彼此并不矛盾，一个说明了这个 plot 的形状，一个说明了这个形状针对的是什么。Lens 是问题，不是答案；一个 text 可以同时回答几个问题。真正的冲突只出现在两种读法对同一条证据给出相反解释的时候，比如 Heart of Darkness 里 frame 的作用，那时要回到证据本身去争。</p>
+</aside>
+
+<aside class="blk blk-note"><p class="blk-h"><span class="blk-t">两边的讲法</span></p><p>Yale ENGL 300 后一半用了十几讲讲这些 lens：psychoanalysis 四讲（Freud 与 Brooks、Lacan、Bloom 的 influence、postmodern psyche），Bakhtin、Frankfurt School、Jameson、new historicism，feminist、African-American criticism、postcolonial、queer theory 各一讲。EN1101E 的旧课程页上 critical approaches 只有一讲，旧课的 essay 和 final 考的是对具体 text 的 reading。本页只写了四种，每种给出问题、操作和一次完整示范；想看某一种的理论来源，读 ENGL 300 对应的那一讲。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Ernest Jones 的 Hamlet、Brooks 不分析人的 unconscious、Beyond the Pleasure Principle 与 fort/da、repetition compulsion 与 death drive、short-circuit、binding 把 fabula 变成 sjužet、Aristotle 的“一定的长度”、Tony the Tow Truck 的 bad object choice，来自 <a href="https://oyc.yale.edu/english/engl-300/lecture-12">Yale ENGL 300 第 12 讲</a>；Woolf 的 500 英镑和房间、class 先于 gender、angel in the house 与 Patmore、对 Charlotte Brontë 的批评，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-20">第 20 讲</a>前半；Said 的 exteriority、representation 与 power、Woolf 的图书馆与 Orientalism 的并列、Showalter 的两阶段与 Said、Bhabha 的对应，来自<a href="https://oyc.yale.edu/english/engl-300/lecture-22">第 22 讲</a>前半。Plot 模型套在 Oedipus 上、The Story of an Hour 的 feminist reading 步骤和 :::wrong 里的两种读法是为这一页写的。Marxist 一节、Achebe 一节、Brooks 1977 和 Said 1978 等年份是凭自己的知识写的。The Story of an Hour 里“男人和女人都会”那一句是按记忆转述的，没有核对原文措辞。</p>
+</aside>
+
+</section>
+<section class="plain" id="sec-9"><h2>真题走读：待补</h2><p>这一页还没有对着往年卷子核过，所以没有真题走读，各站的等级标准也是按“能做什么”而不是“能做对哪道题”写的。图书馆的卷子需要 NUSNET 登录才能读。补上之后这一节会换成一道跨站的真题，从头走到尾。</p>
+<p>在那之前，复习以课程自己的 tutorial、指定的 text 和讲义为准，这一页只负责把每一站的道理讲通。</p>
+</section>
+<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links"><li><a href="https://oyc.yale.edu/node/670" rel="noopener">Yale ENGL 300 Introduction to Theory of Literature（Paul Fry，Open Yale Courses）</a><span>对照的公开课，全页理论部分的主要讲法来源。读的是 transcript 经 WebFetch 抽取后的转述，不是逐字全文；下面逐讲列出读了哪几讲、哪几段没抽到。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-3" rel="noopener">Yale ENGL 300 第 3 讲：Ways In and Out of the Hermeneutic Circle</a><span>第 1 站的 plastic、第 7 站的 Gadamer 与 Hirsch。全文分两段读完。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-4" rel="noopener">Yale ENGL 300 第 4 讲：Configurative Reading</a><span>第 7 站的 Iser：gap、expectation、boredom 与 overstrain。分两段读完；implied reader 和 wandering viewpoint 那部分没有抽到。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-6" rel="noopener">Yale ENGL 300 第 6 讲：The New Criticism and Other Western Formalisms</a><span>第 1 站：Brooks 与 Bateson 对 She dwelt among the untrodden ways 的分歧、unity 作为 criterion、Empson。分两段读完。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-7" rel="noopener">Yale ENGL 300 第 7 讲：Russian Formalism</a><span>第 2 站的 defamiliarization、dominant，第 3 站的 plot 与 story。分两段读完。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-9" rel="noopener">Yale ENGL 300 第 8、9 讲：Semiotics and Structuralism；Linguistics and Literature</a><span>第 6 站的 Saussure、红灯的例子、Lévi-Strauss 的四个 column；第 2 站 Jakobson 的六个 function 和 poetic function。两讲都分两段读完。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-10" rel="noopener">Yale ENGL 300 第 10 讲：Deconstruction I</a><span>第 6、7 站：Derrida 对 Lévi-Strauss 的批评、différance、supplement。分两段读完；Fry 把“怎样做 deconstructive reading”留到第 11 讲，第 11 讲没有读。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-12" rel="noopener">Yale ENGL 300 第 12 讲：Freud and Fiction</a><span>第 8 站 Peter Brooks 的 plot 理论。分两段读完。</span></li><li><a href="https://oyc.yale.edu/english/engl-300/lecture-22" rel="noopener">Yale ENGL 300 第 20、22 讲：The Classical Feminist Tradition；Post-Colonial Criticism</a><span>第 8 站的 Woolf、Said、Bhabha。两讲都只读到前半（第 20 讲到 Gilbert 与 Gubar 之前，第 22 讲到 Bhabha 的 mimicry 之前）。</span></li><li><a href="http://www.uni-koeln.de/%7Eame02/pppn.pdf" rel="noopener">Manfred Jahn, Narratology: A Guide to the Theory of Narrative（University of Cologne，v2.2）</a><span>第 3、4 站：story 与 discourse、communication 的层次、homodiegetic 与 heterodiegetic、focalization 的类型、order、duration、frequency、unreliable narration、speech representation 与 tag test。读了前三段（约前四分之三）。</span></li><li><a href="https://ocw.mit.edu/courses/21l-004-reading-poetry-spring-2018/ef7376760616d27252e951173971792b_MIT21L_004S18meter.pdf" rel="noopener">MIT 21L.004 Reading Poetry（Mary Fuller，Spring 2018）meter handout</a><span>第 2 站 foot 和 line length 的定义，以及“同样的 syllable 数、不同的 meter”的例句。Handout 很短，没有讲 substitution。</span></li></ul></section>
+
+
+<section class="plain" id="src"><h2>来源</h2><ul class="links"><li><a href="https://nusmods.com/courses/EN1101E" rel="noopener">NUSMods：EN1101E 课程描述（AY26/27）</a></li><li><a href="https://courses.nus.edu.sg/course/ellpatke/EN1101E/index2011.htm" rel="noopener">EN1101E 2011/12 学期课程页（Susan Ang、Rajeev Patke）</a></li><li><a href="https://anthology.lib.virginia.edu/work/Chopin/chopin-hour" rel="noopener">Kate Chopin, The Story of an Hour（UVA anthology 的文本，用来核对引文）</a></li></ul></section>
+</div></div></main>
+<footer class="foot">
+  <p>讲义是按公开课、课程大纲和可查到的往年卷子写的自学笔记，不是任何课程的官方材料，可能有错。往年卷子的原题不在本站，页面里给的是图书馆的链接。</p>
+  <p>等级是你自己点的，只存在这台设备的浏览器里。</p>
+</footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
