@@ -50,7 +50,7 @@ function meselson() {
     ['dispersive', [[['H', 'H']], [['M2', 'M2'], ['M2', 'M2']], [['M4', 'M4'], ['M4', 'M4'], ['M4', 'M4'], ['M4', 'M4']]]],
   ];
   const heavyFrac = { H: 1, L: 0, M2: 0.5, M4: 0.25 };
-  const rhoL = 1.710, rhoH = 1.724;
+  const rhoL = 1.710, rhoH = rhoL + 0.014; // Meselson & Stahl 1958：¹⁴N DNA 约 1.71，两者相差 0.014
   let o = '';
   const cols = [190, 310, 430];
   ['第 0 代（全在 ¹⁵N）', '换到 ¹⁴N 后第 1 代', '第 2 代'].forEach((s, j) => { o += text(cols[j] + 28, 22, s, 'tb', 'middle'); });
@@ -79,7 +79,7 @@ function meselson() {
       });
     });
   });
-  o += text(14, 398, 'Tube 里越往下 density 越大：¹⁵N/¹⁵N DNA 1.724 g/cm³，¹⁴N/¹⁴N 1.710，hybrid 1.717。', 'ts', 'start');
+  o += text(14, 398, `Tube 里越往下 density 越大：¹⁴N DNA ${rhoL.toFixed(3)} g/cm³，¹⁵N DNA 重 ${(rhoH - rhoL).toFixed(3)}，即 ${rhoH.toFixed(3)}；hybrid 在正中 ${((rhoL + rhoH) / 2).toFixed(3)}。`, 'ts', 'start');
   o += text(14, 416, '黑线是 ¹⁵N 的 strand，彩色线是 ¹⁴N 的 strand；dispersive 的每条 strand 新旧混杂。', 'ts', 'start');
   return svg(560, 424, o, '三种 replication model 对 Meselson–Stahl 实验的预测：conservative 第 1 代就有 heavy 和 light 两条 band；semi-conservative 第 1 代只有 hybrid 一条，第 2 代 hybrid 和 light 各半；dispersive 始终一条 band 逐渐变轻');
 }
@@ -671,6 +671,90 @@ function crisprA() {
   return svgA(560, 220, o, '动图：Cas9 带着 guide RNA 沿 DNA 扫描，先在一个 AGG 的 PAM 处停下但序列不配，松开；再到 TGG 的 PAM 处，guide 与 20 nt 的 target 配对，在 PAM 上游 3 bp 处把两条 strand 都切断，DNA 断成两段');
 }
 
+
+// ---------- 第 3 站：incomplete penetrance 的 pedigree ----------
+export const PEN = 0.8;
+function penetrance() {
+  let o = '';
+  const sq = (x, y, cls) => rect(x - 14, y - 14, 28, 28, cls);
+  const ci = (x, y, cls) => circle(x, y, 14, cls);
+  const yI = 46, yII = 136, yIII = 226;
+  o += text(14, yI + 5, 'I', 'tb') + text(14, yII + 5, 'II', 'tb') + text(14, yIII + 5, 'III', 'tb');
+  o += line(134, yI, 186, yI, 'ink') + sq(120, yI, 'solid') + ci(200, yI, 'paper');
+  o += text(120, yI - 22, 'Aa（affected）', 'ts', 'middle') + text(200, yI - 22, 'aa', 'ts', 'middle');
+  o += line(160, yI, 160, yII - 14, 'ink');
+  o += sq(160, yII, 'paper') + text(160, yII + 32, 'II-1：unaffected', 'tb', 'middle');
+  // P(Aa | unaffected)
+  const prior = 0.5, pU = 1 - PEN, post = (prior * pU) / (prior * pU + prior * 1);
+  const frac = (v) => { for (let q = 1; q <= 60; q++) { const pnum = Math.round(v * q); if (Math.abs(pnum / q - v) < 1e-9) return `${pnum}/${q}`; } return v.toFixed(3); };
+  o += text(160, yII + 50, `P(Aa) = ${frac(post)}`, 'tl', 'middle');
+  o += line(174, yII, 286, yII, 'ink') + ci(300, yII, 'paper') + text(300, yII + 32, 'aa', 'ts', 'middle');
+  o += line(230, yII, 230, yIII - 14, 'ink') + rect(216, yIII - 14, 28, 28, 'wash', 0) + text(230, yIII + 5, '?', 'tb', 'middle');
+  const child = post * 0.5 * PEN;
+  o += text(258, yIII - 4, `P(affected) = ${frac(post)} × 1/2 × ${PEN}`, 'tl', 'start') + text(258, yIII + 14, `= ${frac(child)}`, 'tl', 'start');
+  o += text(350, yI - 4, `penetrance = ${PEN}：`, 'ts', 'start');
+  o += text(350, yI + 14, `Aa 的人有 ${Math.round((1 - PEN) * 100)}% 不发病`, 'ts', 'start');
+  o += text(350, yII - 4, '出生前 Aa : aa = 1/2 : 1/2', 'ts', 'start');
+  o += text(350, yII + 14, `unaffected：1/2 × ${f1(pU)} 对 1/2 × 1`, 'ts', 'start');
+  return svg(560, 250, o, 'Incomplete penetrance 的 pedigree：affected 的 Aa father 与 aa mother 生下 unaffected 的儿子 II-1，他是 Aa 的概率降为 1/6；他与 aa 的人结婚，孩子 affected 的概率是 1/15');
+}
+
+// ---------- 第 4 站：P1 cotransduction 的四类 transductant ----------
+function transduce() {
+  let o = '';
+  const xs = { A: 230, B: 320, C: 410 }, xl = 180, xr = 460;
+  const gaps = { L: 205, AB: 275, BC: 365, R: 435 };
+  const rows = [
+    ['A⁺B⁺C⁺', ['L', 'R'], '+++'],
+    ['A⁺B⁺C⁻', ['L', 'BC'], '++-'],
+    ['A⁺B⁻C⁻', ['L', 'AB'], '+--'],
+    ['A⁺B⁻C⁺', ['L', 'AB', 'BC', 'R'], '+-+'],
+  ];
+  o += text(xs.A, 20, 'A', 'tb', 'middle') + text(xs.B, 20, 'B', 'tb', 'middle') + text(xs.C, 20, 'C', 'tb', 'middle');
+  rows.forEach(([name, xo, res], r) => {
+    const y = 50 + r * 62, yD = y, yR = y + 22;
+    if (r === 3) o += rect(4, y - 16, 552, 56, 'wash', 8);
+    o += text(14, y + 16, name, 'tb', 'start');
+    o += line(xl, yD, xr, yD, 'ln') + line(110, yR, 500, yR, 'ink-b');
+    for (const g of ['A', 'B', 'C']) {
+      o += circle(xs[g], yD, 4, 'ln-f') + circle(xs[g], yR, 4, 'ink-f');
+    }
+    for (const k of xo) { const x = gaps[k]; o += line(x - 8, yD + 3, x + 8, yR - 3, 'ink') + line(x + 8, yD + 3, x - 8, yR - 3, 'ink'); }
+    // 结果：每个 gene 最后是谁的 allele
+    const lab = res.split('').map((c, i) => 'ABC'[i] + (c === '+' ? '⁺' : '⁻')).join(' ');
+    o += text(512, y + 6, `${xo.length} 次`, xo.length === 4 ? 'tl' : 'ts', 'start') + text(512, y + 22, 'crossover', 'ts', 'start');
+    void lab;
+  });
+  o += text(xl, 300, '彩色线：phage 带进来的 donor 片段（A⁺B⁺C⁺）', 'ts', 'start');
+  o += text(xl, 318, '黑线：recipient 的 chromosome（A⁻B⁻C⁻）；X 是 crossover 的位置。', 'ts', 'start');
+  o += text(xl, 336, '要两端换成 ⁺、中间的 B 留下 B⁻，必须 4 次 crossover。', 'ts', 'start');
+  return svg(560, 344, o, 'P1 transduction 的四类 A+ transductant：A+B+C+、A+B+C−、A+B−C− 各需要两次 crossover，A+B−C+ 需要四次，最少见，由此可知 B 在中间');
+}
+
+// ---------- 第 7 站：Sanger sequencing 的 gel ----------
+function sanger() {
+  const seq = GENE, n = seq.length;
+  const lanes = ['A', 'C', 'G', 'T'];
+  const lx = (k) => 170 + k * 62, y0 = 318, dy = 13;
+  const yOf = (len) => y0 - (len - 0.5) * dy; // 长度 len 的片段；短的在下
+  let o = '';
+  o += rect(140, yOf(n + 1) - 6, 4 * 62 + 0, y0 - yOf(n + 1) + 10, 'paper', 6);
+  lanes.forEach((b, k) => { o += text(lx(k) + 2, yOf(n + 1) - 14, 'dd' + b + 'TP', 'tb', 'middle'); });
+  for (let i = 0; i < n; i++) {
+    const k = lanes.indexOf(seq[i]), y = yOf(i + 1);
+    o += rect(lx(k) - 20, y - 3.5, 44, 7, 'solid', 2);
+    o += text(lx(4) + 6, y + 4, seq[i], 'tl', 'middle');
+    if ((i + 1) % 5 === 0 || i === 0) o += text(130, y + 4, String(i + 1), 'ts', 'end');
+  }
+  o += text(116, yOf(n + 1) - 14, '片段长度', 'ts', 'end');
+  o += text(lx(4) + 6, yOf(n + 1) - 14, '读', 'tb', 'middle');
+  o += arrow(lx(4) + 36, yOf(1), lx(4) + 36, yOf(n), 'mute');
+  o += text(lx(4) + 48, yOf(1) + 4, '5′（最短）', 'ts', 'start') + text(lx(4) + 48, yOf(n) + 4, '3′（最长）', 'ts', 'start');
+  o += text(lx(4) + 48, (yOf(1) + yOf(n)) / 2 - 8, '从下往上读', 'ts', 'start') + text(lx(4) + 48, (yOf(1) + yOf(n)) / 2 + 10, '= 新 strand', 'ts', 'start');
+  o += text(280, y0 + 22, `短的片段跑得快，在下面。读出 ${seq}，是新合成 strand 的 5′→3′。`, 'ts', 'middle');
+  return svg(560, y0 + 30, o, 'Sanger sequencing 的 gel：ddATP、ddCTP、ddGTP、ddTTP 四个 lane，每个长度只有一个 lane 有 band，从下往上读出新合成 strand 的 sequence ATGGCCAAGTTCGGATGCTAA');
+}
+
 export default {
   'lsm2105-duplex': duplex,
   'lsm2105-meselson': meselson,
@@ -681,12 +765,15 @@ export default {
   'lsm2105-dihybrid': dihybrid,
   'lsm2105-nineseven': ninesevenFig,
   'lsm2105-pedigree': pedigree,
+  'lsm2105-penetrance': penetrance,
   'lsm2105-crossover': crossover,
   'lsm2105-map': map3,
+  'lsm2105-transduce': transduce,
   'lsm2105-luria': luria,
   'lsm2105-nondisj': nondisj,
   'lsm2105-lac': lacA,
   'lsm2105-cistrans': cistrans,
   'lsm2105-pcr': pcrA,
   'lsm2105-crispr': crisprA,
+  'lsm2105-sanger': sanger,
 };
