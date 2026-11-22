@@ -504,7 +504,68 @@ function invres() {
   return svgA(560, 256, o, '动图：MobileNetV2 第二个 block 的 1x1 expand conv。Output 一个 channel 一个 channel 写出来，input 必须一直留着；写到第 10 个 output channel 时已经超过 320 kB 的 SRAM，写完时 input 加 output 共 1372 KiB，是 SRAM 的四倍多');
 }
 
+// ---------- 第 2 站：magnitude 与 Wanda 在同一个 W 上的剪法（每个 row 剪 2 个） ----------
+function wanda() {
+  const W = [[2.09, -0.98, 1.48, 0.09], [0.05, -0.14, -1.08, 2.12], [-0.91, 1.92, 0, -1.03], [1.87, 0, 1.53, 1.49]];
+  const xn = [30, 1, 1, 1];
+  const S = W.map((r) => r.map((w, j) => Math.abs(w) * xn[j]));
+  const keepMask = (score) => score.map((r) => { const idx = r.map((v, j) => [v, j]).sort((a, b) => a[0] - b[0]).slice(0, 2).map((t) => t[1]); return r.map((_, j) => !idx.includes(j)); });
+  const Mm = keepMask(W.map((r) => r.map(Math.abs))), Mw = keepMask(S);
+  // 按 error ≈ Σ_剪掉 (|w|·‖X_j‖)² 算 relative output error
+  const relErr = (M) => { let e = 0, t = 0; S.forEach((r, i) => r.forEach((v, j) => { t += v * v; if (!M[i][j]) e += v * v; })); return Math.sqrt(e / t); };
+  const cw = 52, ch = 34, Y0 = 70;
+  const fmt = (v) => (v < 0 ? '−' + (-v).toFixed(2) : v.toFixed(2));
+  let o = '';
+  const panel = (x0, M, title, sub2, other) => {
+    o += text(x0 + 2 * cw, 20, title, 'tb', 'middle') + text(x0 + 2 * cw, 38, sub2, 'ts', 'middle');
+    if (x0 < 100) o += text(x0 - 8, Y0 - 10, '‖X_j‖', 'ts', 'end');
+    for (let j = 0; j < 4; j++) o += text(x0 + j * cw + cw / 2, Y0 - 10, String(xn[j]), j === 0 ? 'tl' : 'ts', 'middle');
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+      const x = x0 + j * cw, y = Y0 + i * ch;
+      o += rect(x + 1, y + 1, cw - 2, ch - 2, M[i][j] ? 'solid' : 'wash2', 3);
+      o += text(x + cw / 2, y + ch / 2 + 5, fmt(W[i][j]), M[i][j] ? 'tw' : 'ts', 'middle');
+      if (other && M[i][j] !== other[i][j]) o += rect(x + 3, y + 3, cw - 6, ch - 6, 'ink-b', 3);
+    }
+    o += text(x0 + 2 * cw, Y0 + 4 * ch + 26, `output relative error ${relErr(M).toFixed(3)}`, M === Mw ? 'tl' : 'tb', 'middle');
+  };
+  panel(54, Mm, 'magnitude：按 |W| 排序', '每个 row 剪掉最小的 2 个', null);
+  panel(310, Mw, 'Wanda：按 |W|·‖X_j‖ 排序', '第 1 列乘 30 之后再排', Mm);
+  for (let i = 0; i < 4; i++) o += text(54 - 8, Y0 + i * ch + ch / 2 + 5, 'row ' + (i + 1), 'ts', 'end');
+  o += arrow(54 + 4 * cw + 6, Y0 + 2 * ch, 310 - 6, Y0 + 2 * ch, 'mute');
+  o += rect(150, 256, 12, 12, 'solid', 2) + text(168, 266, '保留', 'ts') + rect(214, 256, 12, 12, 'wash2', 2) + text(232, 266, '剪掉', 'ts');
+  o += rect(280, 256, 12, 12, 'ink-b', 2) + text(298, 266, '两边剪法不同的格子', 'ts');
+  return svg(560, 276, o, '同一个 4 乘 4 的 weight matrix，每个 row 剪掉两个。按 magnitude 剪时 row 2 剪掉 0.05、row 3 剪掉 −0.91；第 1 个 input channel 的 activation 大 30 倍，Wanda 改为保留这两个，output 的 relative error 从 0.309 降到 0.026');
+}
+
+// ---------- 作业 Lab 5：QM_ARM 的 int4 weight layout ----------
+function int4pack() {
+  let o = '';
+  const n = 16, bw = 24, X0 = 26, R = X0 + n * bw + 10;
+  const bx = (i) => X0 + i * bw;
+  o += text(X0, 22, '一个 block：16 个 byte（128 bit）装 w0 … w31 这 32 个 4-bit weight（格子里写 index）', 'tb');
+  // 每个 byte 上下两格：上 = 高 4 bit，下 = 低 4 bit
+  for (let i = 0; i < n; i++) {
+    o += rect(bx(i) + 1, 36, bw - 2, 24, 'wash-strong', 2) + text(bx(i) + bw / 2, 52, String(i + 16), 'ts', 'middle');
+    o += rect(bx(i) + 1, 61, bw - 2, 24, 'wash', 2) + text(bx(i) + bw / 2, 77, String(i), 'ts', 'middle');
+  }
+  o += text(R, 52, '高 4 bit', 'ts') + text(R, 77, '低 4 bit', 'ts');
+  o += text(bx(0) + bw / 2, 100, 'byte 0', 'ts', 'middle') + text(bx(15) + bw / 2, 100, 'byte 15', 'ts', 'middle');
+  // 左边一条竖线：两行结果都从同一个 register 来
+  o += line(14, 60, 14, 214, 'mute') + line(14, 60, X0, 60, 'mute');
+  o += arrow(14, 154, X0 - 1, 154, 'ink') + arrow(14, 214, X0 - 1, 214, 'ink');
+  for (let i = 0; i < n; i++) o += rect(bx(i) + 1, 142, bw - 2, 24, 'solid', 2) + text(bx(i) + bw / 2, 158, String(i), 'tw', 'middle');
+  o += text(R, 151, 'AND 0x0F，− 8', 'tl') + text(R, 168, '与 a₀ … a₁₅ 相乘', 'ts');
+  for (let i = 0; i < n; i++) o += rect(bx(i) + 1, 202, bw - 2, 24, 'solid', 2) + text(bx(i) + bw / 2, 218, String(i + 16), 'tw', 'middle');
+  o += text(R, 211, '>> 4，− 8', 'tl') + text(R, 228, '与 a₁₆ … a₃₁ 相乘', 'ts');
+  // 0xB3 的例子：算出来
+  const b = 0xb3, lo = (b & 0x0f) - 8, hi = (b >> 4) - 8;
+  o += text(X0, 254, `例：byte 0xB3 = 1011 0011 → 低 4 bit ${b & 0x0f} − 8 = ${lo}，高 4 bit ${b >> 4} − 8 = ${hi}`, 'ts');
+  return svg(560, 266, o, 'QM_ARM 的 weight layout：16 个 byte，byte i 的低 4 bit 是 w_i、高 4 bit 是 w_{i+16}；与 0x0F 做 AND 得到 w_0 到 w_15，右移 4 bit 得到 w_16 到 w_31，各减 8 后与 32 个 int8 activation 的前后两半相乘');
+}
+
 export default {
+  'm6940-wanda': wanda,
+  'm6940-int4pack': int4pack,
   'm6940-roofline': roofline,
   'm6940-sensitivity': sensitivity,
   'm6940-granularity': granularity,

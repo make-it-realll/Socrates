@@ -1,8 +1,8 @@
 ---
 code: MIT-6.5940
 evidence: syllabus
-evidenceNote: "期次：Fall 2026（正在进行，Lecture 1–19 的 slides 和录像已发布）；Fall 2024 一期材料完整。课程主页的讲次表、lab 列表和评分规则是直接读的；slides 放在 Dropbox 上，这次抓取被拒，没有读到 slides 原文。各站的讲法依据是：erectbranch 与 TinyML KOR 两份对着 2022–2024 版 slides 写的逐讲笔记、课程引用的原始论文（Han 2015、Deep Compression、SmoothQuant、AWQ、MCUNet、MCUNetV2、Once-for-All、SVDQuant），以及 2024 版 lab 的社区镜像。每站末尾写明具体读了什么。"
-exam: "无考试；以作业为主。按 Fall 2026 课程主页：5 个 lab 个人完成，至少交 4 个才能 pass；另有分组 final project（proposal、poster presentation、final report）。主页没有给出各部分的百分比权重。"
+evidenceNote: "期次：Fall 2026（正在进行，Lecture 1–19 的 slides 和录像已发布）。直接读了：Fall 2026 课程主页（讲次、lab、评分、late policy）；2026 版 Lab 0、Lab 2（Pruning）、Lab 3（NAS）、Lab 4（Quantization）四个 Colab notebook 的全文（Google Drive）；Lab 5 的 handout 和 report template（Drive）与 tinychat-tutorial 仓库的 kernel 源码；project ideas 文档。2026 版 slides 和 Lab 1（GPU Basics）的 zip 都在 Dropbox 上，这次连不上（代理拒绝），没有读到。改读了一位学员转存在 Google Drive 上的 Fall 2024 版 slides：Lecture 3、4、5、6、10、11、13 读了全文（Lecture 4 的文字只到 EIE 那几页），Lecture 2、7、8、9、12 因为超过下载上限或时间没有读，diffusion 两讲那个文件夹里没有。其余依据是课程引用的原始论文和两份对着 2022–2024 版 slides 写的社区笔记（erectbranch、TinyML KOR）。每站末尾写明具体读了什么。"
+exam: "无考试；以作业为主。按 Fall 2026 课程主页：5 个 lab（Lab 1–5）个人完成，至少交 4 个才能 pass（交了但 0 分也算交）；6 个 late day，用完后每晚一天扣 50%。另有 3 到 5 人一组的 final project（proposal、poster presentation、final report）。Lab 0 是 PyTorch 热身，主页没写它是否计分；各部分的百分比权重主页也没有给。"
 subskills:
   - id: eff
     name: Efficiency 的账：memory、compute 与 energy
@@ -12,7 +12,7 @@ subskills:
   - id: prune
     name: Pruning 与 sparsity
     l3: "有提示能做：对一个小 matrix 按 magnitude 剪到给定 sparsity，并算出剪后的 error。"
-    l4: "能独立做：用 sensitivity scan 给每层选 sparsity，做 channel pruning 时同步改 BatchNorm 和下一层的 input channel，并估计 MACs 降多少。"
+    l4: "能独立做：用 sensitivity scan 给每层选 sparsity，用 Wanda 的 importance（weight 的大小乘上它那个 input channel 的 activation norm）在每个 output 内排序，做 channel pruning 时同步改 BatchNorm 和下一层的 input channel，并估计 MACs 降多少。"
     l5: "能讲给别人：用 CSR 的 storage 账和 GPU 的执行方式说明 unstructured sparsity 为什么很少变快，以及 2:4 和 channel pruning 各自怎样绕过这个问题。"
   - id: quant
     name: Quantization：从 k-means 到 integer-only inference
@@ -47,19 +47,31 @@ subskills:
 open:
   - label: "MIT 6.5940 TinyML and Efficient Deep Learning Computing（Song Han），Fall 2026 课程主页"
     url: "https://hanlab.mit.edu/courses/2026-fall-65940"
-    note: "读了讲次表、lab 列表、评分规则。slides 链接到 Dropbox，抓取被拒，没有读到。"
-  - label: "MIT 6.5940 Fall 2024 课程主页"
-    url: "https://hanlab.mit.edu/courses/2024-fall-65940"
-    note: "读了讲次表和 lab 列表（含 On-Device Training 一讲）；slides 同样在 Dropbox，没读到。"
+    note: "读了讲次表、lab 列表与链接、评分规则、late policy、final project 日期。slides 和 Lab 1 的 zip 链接到 Dropbox，这次代理拒绝连接，没有读到。"
+  - label: "Fall 2026 Lab 0 / Lab 2 Pruning / Lab 3 NAS / Lab 4 Quantization 的 Colab notebook（课程主页链接的 Google Drive 文件）"
+    url: "https://colab.research.google.com/drive/1-HEcO8qxlbOgccAg6TyuDTOqWt1Jx45W"
+    note: "四个 notebook 的 markdown 和代码全文都读了（notebook 不带运行结果）。链接是 Lab 2 的，Lab 3、4 的链接在页末 sources 里，Lab 0 的在课程主页上。“作业”一节的主要来源。"
+  - label: "Fall 2026 Lab 5 handout：Optimize LLM on Edge Devices，及 report template（Google Drive 文件夹）"
+    url: "https://drive.google.com/drive/folders/1ZA9ZpLFHnEXr8sJ-e4lkJyMGvtoQ55A0"
+    note: "两个文件全文读了。另 clone 了 https://github.com/mit-han-lab/tinychat-tutorial ，读了 reference.cc、simd_programming.cc、evaluate.sh 和量化脚本 quantize_methods.py、model_quantizer.py。"
+  - label: "Fall 2024 版 slides（Lecture 3、4、5、6、10、11、13），一位学员转存的 Google Drive 文件夹"
+    url: "https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf"
+    note: "文件是 Keynote 导出的官方 PDF（创建时间 2024 年 9 月）。这几讲的文字全文读了，图里的数字只能读到 PDF 里的文字层。文件夹链接来自 afondiel/mit-6.5940-notes-labs 仓库的 README。"
+  - label: "TinyML 2026 Project Ideas（课程主页链接的 Google Doc）"
+    url: "https://docs.google.com/document/d/12O5BBEaOZV8oaAoKZKy6RKig9xk2LRTVu2nYd3dWpSo/edit?usp=sharing"
+    note: "全文读了，11 个题目。"
   - label: "erectbranch：MIT Efficient AI 逐讲笔记（对着 2022–2024 版 slides 写）"
     url: "https://erectbranch.github.io/MIT-Efficient-AI/notes/"
-    note: "读了 Lecture 2（efficiency metrics）、3–4（pruning、sparse hardware）、5–6（quantization、PTQ、QAT）、7–8（NAS）、10（distillation）、12（Transformer variants）、13（LLM quantization、serving）各篇。是第 1–6 站的主要讲法来源。"
-  - label: "TinyML KOR：Lab 1 Pruning、Lab 2 Quantization 的 notebook 镜像与运行结果；Lecture 3 笔记"
+    note: "上一版读过 Lecture 2、3–4、5–6、7–8、10、12、13 各篇。这一次能对上 2024 版 slides 的地方改按 slides 写；第 1 站的部分 metrics、第 5 站 NAS 的 latency 对比、第 6 站 KV cache 的数字仍只有这份笔记作依据。"
+  - label: "TinyML KOR：2024 版 Pruning lab、Quantization lab 的 notebook 镜像与运行结果"
     url: "https://tinyml-kor.github.io/blog/posts/labs/lab01.html"
-    note: "第 2、3 站的 lab 数字和“作业”一节的提示。Lab 2 的镜像在 https://tinyml-kor.github.io/blog/posts/labs/lab02.html 。"
+    note: "上一版读过，第 2、3 站的 VGG 数字来自这里（2026 版 lab 已换题，见“作业”）。这次想再核 channel_prune 的代码，抓取没有得到许可；改用 afondiel 仓库里 2023 版同一个 lab 的 notebook 核对。Quantization lab 的镜像在 https://tinyml-kor.github.io/blog/posts/labs/lab02.html 。"
+  - label: "afondiel：mit-6.5940-notes-labs（2023 版 lab notebook 的作答）"
+    url: "https://github.com/afondiel/mit-6.5940-notes-labs"
+    note: "clone 下来读了 Pruning lab 的 channel_prune 代码，用来解释第 2 站 606M → 305M 为什么不是 2.04 倍。"
   - label: "gozhiyuan：6.5940 Fall 2024 Lecture 5、10、11 笔记"
     url: "https://gozhiyuan.github.io/tinyml/large-language-model/2024/10/21/mit-tinyml-11.html"
-    note: "读了，内容较简略，只用来核对讲次顺序和 TinyEngine 的几个名词。"
+    note: "上一版读过，内容较简略；这一次 Lecture 10、11 改按 slides 写。"
   - label: "Han et al. 2015：Learning both Weights and Connections for Efficient Neural Networks"
     url: "https://ar5iv.labs.arxiv.org/html/1506.02626"
     note: "第 1 站的 energy table、第 2 站的三步法和 AlexNet、VGG-16 的数字。"
@@ -69,21 +81,38 @@ open:
   - label: "SmoothQuant 与 AWQ 论文"
     url: "https://arxiv.org/html/2306.00978v5"
     note: "第 4 站。SmoothQuant 读的是 https://arxiv.org/html/2211.10438v7 。"
+  - label: "Sun et al.：A Simple and Effective Pruning Approach for Large Language Models（Wanda）"
+    url: "https://arxiv.org/html/2306.11695v3"
+    note: "第 2 站 Wanda 一节：score 的定义、per-output 的 comparison group、两个 input 的论证、LLaMA-7B 的 perplexity。2026 版 Lab 2 的 Q6、Q9 要实现它。"
   - label: "MCUNet 与 MCUNetV2 论文"
     url: "https://ar5iv.labs.arxiv.org/html/2007.10319"
-    note: "第 7 站。MCUNetV2 读的是 https://arxiv.org/html/2110.15352v2 。"
+    note: "第 7 站。这次重读核了 63.5%、70.7% 对应的 MCU 和 bit 数、100× / 22× / 5.3× 的原句、1.6×。MCUNetV2 读的是 https://arxiv.org/html/2110.15352v2 （这次核了 71.8% 对应的 MCU、前 5 个 block、8×、42% / 10% / 3%）。"
+  - label: "Sandler et al.：MobileNetV2 论文"
+    url: "https://ar5iv.labs.arxiv.org/html/1801.04381"
+    note: "第 7 站逐层计算用的 Table 2（block 配置）和“memory 由所有 operation 的 input 加 output 的最大值决定”那一句。上一版这部分凭记忆写，这次核过。"
+  - label: "Llama-2-7b-chat-hf 的 config.json（Hugging Face 上的一份副本）"
+    url: "https://huggingface.co/OpenSistemas/Llama-2-7b-chat-hf/blob/main/config.json"
+    note: "核了第 1 站用的 shape：hidden 4096、32 层、intermediate 11008、vocab 32000、32 个 head、不共享 embedding。"
   - label: "Once-for-All、Hinton 等的 Distilling the Knowledge in a Neural Network"
     url: "https://ar5iv.labs.arxiv.org/html/1908.09791"
     note: "第 5 站。Hinton 的论文读的是 https://ar5iv.labs.arxiv.org/html/1503.02531 。"
   - label: "Leviathan et al.：Speculative Decoding；SVDQuant"
     url: "https://ar5iv.labs.arxiv.org/html/2211.17192"
-    note: "第 6 站。SVDQuant 读的是 https://arxiv.org/html/2411.05007v4 。"
+    note: "第 6 站。这次读到了附录 A.1 的正确性证明。SVDQuant 读的是 https://arxiv.org/html/2411.05007v4 。"
   - label: "OpenVLA 论文；TinyChatEngine README；tinychat-tutorial README"
     url: "https://arxiv.org/html/2406.09246v3"
-    note: "第 8 站和 Lab 5 的提示。README 在 https://github.com/mit-han-lab/tinychatengine 与 https://github.com/mit-han-lab/tinychat-tutorial 。"
+    note: "第 8 站和 Lab 5 的提示。这次重读核了量化一节对 int8 变慢的解释。README 在 https://github.com/mit-han-lab/tinychatengine 与 https://github.com/mit-han-lab/tinychat-tutorial 。"
 sources:
   - label: "6.5940 Fall 2026 课程主页（讲次、lab、评分）"
     url: "https://hanlab.mit.edu/courses/2026-fall-65940"
+  - label: "Fall 2026 Lab 2 Pruning notebook"
+    url: "https://colab.research.google.com/drive/1-HEcO8qxlbOgccAg6TyuDTOqWt1Jx45W"
+  - label: "Fall 2026 Lab 3 NAS notebook"
+    url: "https://colab.research.google.com/drive/1g_o6v2EErRJKZx5pmX3r8dCsInVkVC7h"
+  - label: "Fall 2026 Lab 4 Quantization notebook"
+    url: "https://colab.research.google.com/drive/1r26Togpim59OcHDCD2UInWYQZKz6_wSO"
+  - label: "Fall 2026 Lab 5 材料（Drive 文件夹）"
+    url: "https://drive.google.com/drive/folders/1ZA9ZpLFHnEXr8sJ-e4lkJyMGvtoQ55A0"
   - label: "NVIDIA 技术博客：Jetson AGX Orin 与 Orin NX 规格"
     url: "https://developer.nvidia.com/blog/delivering-server-class-performance-at-the-edge-with-nvidia-jetson-orin"
 ---
@@ -218,7 +247,7 @@ $165\times10^{12}/13.48\times10^9=12{,}240$，这是只看 compute 那本账的�
 | SRAM cache 读 | 5 |
 | DRAM 读 | 640 |
 
-从 DRAM 读一个 32-bit 的数要 640 pJ，是一次 float 乘法的 173 倍，是从片上 SRAM 读的 128 倍。拿 decode 来算：每个 weight 要从 DRAM 读一次（640 pJ），只参与一次乘加（3.7 + 0.9 = 4.6 pJ），搬运的 energy 是计算的 139 倍。
+从 DRAM 读一个 32-bit 的数要 640 pJ，是一次 float 乘法的 173 倍，是从片上 SRAM 读的 128 倍；Lecture 3 的 slides 用的是同一张表，标注的是 DRAM 比 int 乘法贵约 200 倍（$640/3.1=206$）。拿 decode 来算：每个 weight 要从 DRAM 读一次（640 pJ），只参与一次乘加（3.7 + 0.9 = 4.6 pJ），搬运的 energy 是计算的 139 倍。
 
 这张表和 roofline 指向同一个结论：要省的首先是 off-chip memory 的访问。能放进 SRAM 的东西就别放 DRAM，必须放 DRAM 的东西就让它更少、更短。这是 pruning 和 quantization 的原始动机，也是第 7 站里 weight 放 Flash、activation 必须挤进 SRAM 的原因。
 
@@ -228,10 +257,10 @@ Inference 时还要存 activation。一个 layer 执行时，它的 input 和 ou
 
 $$\text{peak activation}\approx\max_\text{layer}\big(\text{input size}+\text{output size}\big)$$
 
-AlexNet conv1：input $3\times224\times224=150{,}528$，output $96\times55\times55=290{,}400$，合计 440,928 个数，是 conv1 的 34,848 个 parameter 的 12.7 倍。课上的另一个例子是 MobileNetV2 与 ResNet 的对比：MobileNetV2 的 parameter 少得多，peak activation 却没有跟着变小，瓶颈集中在靠近 input、resolution 还很大的那几个 layer。第 7 站会把这件事从头算一遍。Training 时还要为 backward 存下所有 layer 的 activation，那时 activation 是 memory 的主要部分。
+AlexNet conv1：input $3\times224\times224=150{,}528$，output $96\times55\times55=290{,}400$，合计 440,928 个数，是 conv1 的 34,848 个 parameter 的 12.7 倍。Lecture 10 的 slides 拿两个 ImageNet top-1 都在 70% 左右的模型比（int8 计）：MobileNetV2-0.75 的 parameter 比 ResNet-18 小 4.6 倍，peak activation 只小 1.8 倍。省下的几乎全是 weight，瓶颈集中在靠近 input、resolution 还很大的那几个 layer。第 7 站会把这件事从头算一遍。Training 时还要为 backward 存下所有 layer 的 activation，那时 activation 是 memory 的主要部分。
 
 :::from
-Efficiency metrics 的分类（latency、storage、memory、MACs、peak activation）、latency $\approx\max(T_\text{compute},T_\text{memory})$、各类 layer 的 parameter 和 MACs formula、AlexNet 的数字、MobileNetV2 的 activation 瓶颈，按 [erectbranch 的 Lecture 2 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec02/summary02)（对着 2022 版 slides 写的；我没有读到 2026 版 slides，Dropbox 被拒）。Energy table 出自 [Han et al. 2015](https://ar5iv.labs.arxiv.org/html/1506.02626) 的 Figure 1。RTX 4090 的 165 TFLOPS、1 TB/s、20 个 token 310 ms、200 个 token 的 prompt 约 10 ms 出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)。Llama-2-7B 的 shape（4096、32、11008、32000）是凭我自己的知识写的，用它算出的 6,738,415,616 与公开的 6.7B 一致；arithmetic intensity 的 formula 和所有计算是为这一页做的。
+Efficiency metrics 的分类（latency、storage、memory、MACs、peak activation）、latency $\approx\max(T_\text{compute},T_\text{memory})$、各类 layer 的 parameter 和 MACs formula、AlexNet 的数字，按 [erectbranch 的 Lecture 2 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec02/summary02)（对着 2022 版 slides 写的；2026 版 slides 在 Dropbox 上连不上，2024 版 Lecture 2 的 PDF 超过 Drive 工具的下载上限，这一讲的 slides 两版都没读到）。Energy table 出自 [Han et al. 2015](https://ar5iv.labs.arxiv.org/html/1506.02626) 的 Figure 1，并和 [2024 版 Lecture 3 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf) 对过。MobileNetV2-0.75 与 ResNet-18 的 4.6 倍、1.8 倍出自 2024 版 Lecture 10 的 slides。RTX 4090 的 165 TFLOPS、1 TB/s、20 个 token 310 ms、200 个 token 的 prompt 约 10 ms 出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)（310 ms 与 10 ms 在 2024 版 Lecture 13 的 slides 上也有）。Llama-2-7B 的 shape（4096、32、11008、32000）上一版凭记忆写，这次对着 [Hugging Face 上的 config.json](https://huggingface.co/OpenSistemas/Llama-2-7b-chat-hf/blob/main/config.json) 核过，一致。Arithmetic intensity 的 formula 和所有计算是为这一页做的。
 :::
 
 ## [prune] Pruning 与 sparsity
@@ -266,9 +295,41 @@ $$\frac{\|W-W_p\|_F}{\|W\|_F}=\sqrt{\frac{2.88}{26.84}}=0.328$$
 
 剪 25% 时这个数是 0.020（剪掉的四个都在 0.1 以下），剪 75% 时是 0.634。随机剪掉一半，期望的 error 是 $\sqrt{0.5}=0.707$。在一个 $1024\times1024$、entry 服从 standard normal 的 matrix 上实际算：magnitude pruning 剪 50%，error 0.267；随机剪 50%，0.706；乘上一个随机 input vector 之后的 output error 分别是 0.269 和 0.699。Magnitude 这个 criterion 把 error 压到随机的三分之一多一点。
 
+### Input 大小不一样时：Wanda
+
+Magnitude criterion 靠的是“各个 input 大小差不多”。Lecture 3 的 slides 用 $y=\mathrm{ReLU}(10x_0-8x_1+0.1x_2)$ 问：只能去掉一个 weight，去掉哪个？按 magnitude 去掉 0.1。可是如果 $x_2$ 平时是 $x_0$ 的 1000 倍，$0.1x_2$ 反而是 output 里最大的一项。LLM 的 activation 正是这样，少数几个 channel 比其余的大约 100 倍（第 4 站）。
+
+把剪掉之后的 error 写出来，就知道该看什么。Linear layer 的 output $i$ 是 $y_i=\sum_jW_{ij}x_j$。在 row $i$ 里剪掉集合 $P$ 中的 weight，一批 $T$ 个 token 上 output $i$ 的 squared error 是
+
+$$\sum_{t=1}^{T}\Big(\sum_{j\in P}W_{ij}x_{tj}\Big)^2=\sum_{j\in P}W_{ij}^2\sum_tx_{tj}^2+\sum_{\substack{j,k\in P\\j\ne k}}W_{ij}W_{ik}\sum_tx_{tj}x_{tk}$$
+
+不同 input channel 互不相关时，$\sum_tx_{tj}x_{tk}\approx0$，第二项可以丢掉。记 $\|X_j\|_2=\sqrt{\sum_tx_{tj}^2}$（第 $j$ 个 input channel 在所有 token 上的 norm），
+
+$$\text{error}_i\approx\sum_{j\in P}\big(|W_{ij}|\cdot\|X_j\|_2\big)^2$$
+
+每一项只和自己那个 weight 有关。所以在 row $i$ 里剪掉固定个数时，error 最小的剪法就是剪掉
+
+$$S_{ij}=|W_{ij}|\cdot\|X_j\|_2$$
+
+最小的那几个。这就是 Wanda（Pruning by Weights and activations）的 score；所有 $\|X_j\|_2$ 相等时它就是 magnitude pruning。不同 output 的 error 是分开加的，Wanda 也就在每个 output（每个 row）内部比较，每个 row 剪同样的比例；论文发现对 LLM，这比整个 layer 一起排序好。$\|X_j\|_2$ 只要拿一小批 calibration data 跑一次 forward，不要 gradient，剩下的 weight 也不改。
+
+还是用上面的 $W$，row 是 output、column 是 input。设第 1 个 input channel 的 norm 是 30，其余三个是 1，每个 row 剪掉 2 个。Score 是 $|W|$ 的第 1 列乘 30：
+
+$$S=\begin{pmatrix}62.7&0.98&1.48&0.09\\1.5&0.14&1.08&2.12\\27.3&1.92&0&1.03\\56.1&0&1.53&1.49\end{pmatrix}$$
+
+Row 1 和 row 4 两种 criterion 剪的一样。Row 2：magnitude 剪 0.05 和 $-0.14$；Wanda 看到 0.05 乘的是那个大 input（$S=1.5$），留下它，改剪 $-0.14$ 和 $-1.08$。Row 3：magnitude 剪 0 和 $-0.91$，而 $-0.91$ 的 $S=27.3$ 是这一行最大的一项；Wanda 剪 0 和 $-1.03$。按上面的 formula，row 3 的 error 从 $27.3^2=745.29$ 降到 $1.03^2=1.06$。四个 row 合起来，output 的 relative error 是
+
+$$\sqrt{\frac{\sum_{\text{剪掉的}}S_{ij}^2}{\sum_{\text{全部}}S_{ij}^2}}=\begin{cases}0.309&\text{magnitude}\\0.026&\text{Wanda}\end{cases}$$
+
+用 4096 个随机 token（各 column 的 norm 设成 30、1、1、1）实际乘一遍，得到的也是 0.309 和 0.026，说明丢掉的 cross term 确实很小。
+
+::fig[m6940-wanda] 同一个 $W$，每个 row 剪 2 个。左边按 $|W|$，右边按 $|W|\cdot\|X_j\|$；第 1 列的 input 大 30 倍。加框的是两边剪法不同的格子。
+
+论文在 LLaMA-7B 上剪掉 50%（unstructured）：dense 的 WikiText perplexity 5.68，magnitude 17.29，Wanda 7.26，和要做 weight 更新的 SparseGPT（7.22）差不多。2026 版 Lab 2 的 Q6 要你写出 Wanda 的 mask（Gemma-3-270M 的 FFN，sparsity 0.6），Q7 问它为什么比 magnitude 好，Q9 把同样的 score 用到下面的 channel pruning。
+
 ### 剪完要 fine-tune，而且要反复做
 
-0.27 的 error 仍然很大，直接拿去用，accuracy 会掉很多。Han 2015 的做法分三步：先正常 train，按 threshold 剪掉小的 weight，再用剩下的 weight 继续 train（fine-tune）。论文说第三步是关键，没有它 accuracy 会大幅下降。
+0.27 的 error 仍然很大，直接拿去用，accuracy 会掉很多。Han 2015 的做法分三步：先正常 train，按 threshold 剪掉小的 weight，再用剩下的 weight 继续 train（fine-tune）。论文说第三步是关键，没有它 accuracy 会大幅下降。Lecture 4 给的经验是 fine-tune 的 learning rate 取原来的 1/100 到 1/10：模型已经在一个好的解附近，大的 step 会把它推走。
 
 一次剪很多不如分几轮，每轮剪一点、fine-tune 一次。在 AlexNet 上，这样把能剪的比例从 5 倍提高到 9 倍。最终结果：
 
@@ -279,13 +340,18 @@ $$\frac{\|W-W_p\|_F}{\|W\|_F}=\sqrt{\frac{2.88}{26.84}}=0.328$$
 
 ### 每层剪多少：sensitivity scan
 
-各个 layer 能承受的 sparsity 不同。课上和 lab 用的办法是逐层扫一遍：每次只剪一个 layer，sparsity 取 0.4 到 0.9，看 accuracy 掉多少，其余 layer 保持原样。下面是 2024 版 Pruning lab（VGG，CIFAR-10，dense accuracy 92.95%）镜像里的实际结果。
+各个 layer 能承受的 sparsity 不同。Lecture 4 的做法是逐层扫一遍：每次只剪一个 layer $L_i$，pruning ratio 取 $0,0.1,\dots,0.9$，记下 accuracy 掉了多少，其余 layer 保持原样；所有 layer 扫完后，选一个可以接受的 degradation threshold $T$，每个 layer 取 accuracy 掉得不超过 $T$ 的最大 ratio，调 $T$ 直到总的 pruning rate 合乎要求。下面是 2024 版 Pruning lab（VGG，CIFAR-10，dense accuracy 92.95%；这个 VGG 就是 2026 版 Lab 0 里从头 train 的那个，9.2M parameter、606M MACs）镜像里的实际结果，扫的是 0.4 到 0.9。
 
 ::fig[m6940-sensitivity] 逐层 sensitivity scan。第一层（最下面那条）剪到 0.9 时 accuracy 掉到 31.81%，最后一层几乎不受影响。数据来自 2024 版 lab 的社区镜像。
 
 根据这张图，镜像里给每层选的 sparsity 是：第一个 conv 不剪，接下来四个 0.5，再两个 0.8，最后一个 conv 0.9，classifier 不剪。Lab 的要求是 model size 不超过 dense 的 25%、accuracy 不低于 92.5%。剪完立刻测：size 是 dense 的 24.50%，accuracy 87.00%；fine-tune 5 个 epoch 后最好是 92.80%。
 
-Sensitivity scan 有一个局限：它一次只动一个 layer，不考虑 layer 之间的相互影响，选出来的组合不一定最优。课上接着讲了自动选 sparsity 的办法（AMC 用 reinforcement learning，NetAdapt 每轮只剪一个 layer 并用 latency lookup table 控制目标），思路都是把“每层剪多少”交给一个以 latency 或 FLOPs 为约束的搜索。
+2026 版 Lab 2 换成了一个 LLM：Gemma-3-270M，只剪 18 个 transformer layer 的 FFN（每层的 gate、up、down 三个 matrix 用同一个 sparsity），指标从 accuracy 换成 WikiText-2 的 perplexity，扫 0.4 到 0.8。Notebook 给的起点是第 0、2、17 层 0.1，第 15 层 0.4，其余 0.5；不计分的探索题（Q5）请你调到 sparse 模型小于 dense 的 90%、fine-tune 之后 perplexity 不高于 dense。Size 是按整个模型的 nonzero 个数算的，embedding 和 attention 都没剪，只能靠 FFN 把它压下去。Fine-tune 的写法也和上面不同：notebook 不是每步之后把 mask 乘回 weight，而是在 `loss.backward()` 之后、`optimizer.step()` 之前把 gradient 乘上 mask。被剪掉的位置 gradient 恒为 0，AdamW 的两个 moment 也就一直是 0，update 为 0；decoupled weight decay 只是把 weight 乘一个略小于 1 的数，0 乘完还是 0。
+
+Sensitivity scan 有一个局限：它一次只动一个 layer，不考虑 layer 之间的相互影响，选出来的组合不一定最优。Lecture 4 接着讲了两种自动选 ratio 的办法，约束直接写成 FLOPs 或 latency：
+
+- **AMC**：把“每层剪多少”当成 reinforcement learning。State 是这一层的特征（layer index、channel 数、kernel size、FLOPs 等），action 是一个连续的 pruning ratio $a\in[0,1)$，agent 用 DDPG（因为 action 是连续的），reward 在满足约束时是 $-\text{error}$、不满足时是 $-\infty$；latency 约束用一张事先测好的 lookup table 查。Slides 上的结果（Samsung Galaxy S7，TF-Lite，batch 1）：MobileNet 569M MACs、70.6%、119.0 ms；AMC 剪到 50% FLOPs 是 285M、70.5%、64.4 ms（1.8 倍）；按 50% latency 剪是 272M、70.2%、59.7 ms（2.0 倍）；而把 MobileNet 均匀缩成 0.75 倍宽是 325M、68.4%、69.5 ms：比 AMC 的两个结果都慢，accuracy 还低 2 个百分点左右。
+- **NetAdapt**：每一轮要把 latency 降低一个人为定好的 $\Delta R$。对每个 layer 分别试：只剪这一层，剪到 latency 恰好降 $\Delta R$（查 lookup table），短暂 fine-tune（1 万个 iteration）后量 accuracy；从所有 layer 里选 accuracy 最高的那个方案真正执行。重复到总 latency 满足约束，最后长时间 fine-tune。每一轮都得到一个模型，所以顺带得到一串不同 latency 的模型。
 
 ### 剪掉的 0 怎么排：granularity
 
@@ -315,12 +381,12 @@ $$s>1-\frac{2}{2+b}$$
 
 int32 index 要 sparsity 超过 66.7% 才开始省，int16 要超过 50%。Han 2015 为了压低这个代价改存相邻 nonzero 之间的相对距离，FC layer 的 index 只用 5 bit，conv layer 用 8 bit，整体额外开销 15.6%。
 
-**Compute。** GPU 上的 dense GEMM 用 Tensor Core 按固定大小的 tile 计算，每个 tile 的数据在 memory 里连续，每个 thread 的工作量相同。Sparse 的乘法要先读 column index，再按 index 去 input vector 里取对应的数，这是不连续的 memory access；各个 row 的 nonzero 个数不同，分给不同 warp 的工作量不均。课上引用的测量是：在 V100 上，sparse kernel 要到 sparsity 超过 71% 才比 dense GEMM 快。
+**Compute。** GPU 上的 dense GEMM 用 Tensor Core 按固定大小的 tile 计算，每个 tile 的数据在 memory 里连续，每个 thread 的工作量相同。Sparse 的乘法要先读 column index，再按 index 去 input vector 里取对应的数，这是不连续的 memory access；各个 row 的 nonzero 个数不同，分给不同 warp 的工作量不均。erectbranch 对着 2022 版 slides 记下的一个测量是：在 V100 上，sparse kernel 要到 sparsity 超过 71% 才比 dense GEMM 快（2024 版 Lecture 3、4 能读到的文字里没有这一页）。2024 版 slides 的说法是：fine-grained pruning 能在 EIE 这类专用 hardware 上加速，在 GPU 上“不容易”。
 
 两本账合起来：50% 的 unstructured sparsity 在普通 GPU 上既不省 memory，也不省时间。它的用处在于和后面的 quantization 叠加着压 storage，或者配合专门为 sparsity 设计的 hardware。
 
 :::wrong 剪掉 50% 的 weight，model 就小一半、快一倍
-按上面的表，$4096\times4096$ 的 fp16 matrix 剪掉 50% 后用 int32 index 的 CSR 存，是 50.35 MB，比 dense 的 33.55 MB 还大 50%。Decode 是 memory-bound 的（第 1 站），bytes 没少，latency 就不会少；再加上不规则访问，通常还更慢。Lab 1 的问题 Q9 要求对比 fine-grained 和 channel pruning 的取舍，镜像里给出的回答也是：在手机这类没有专门 sparse 支持的 hardware 上选 channel pruning。
+按上面的表，$4096\times4096$ 的 fp16 matrix 剪掉 50% 后用 int32 index 的 CSR 存，是 50.35 MB，比 dense 的 33.55 MB 还大 50%。Decode 是 memory-bound 的（第 1 站），bytes 没少，latency 就不会少；再加上不规则访问，通常还更慢。2026 版 Lab 2 的 Q11.2 问的正是这件事：要让模型在 smartphone 上跑得更快，选哪种 pruning。2024 版镜像里的回答是：在手机这类没有专门 sparse 支持的 hardware 上选 channel pruning。
 :::
 
 ### 规整的 sparsity：2:4 和 channel pruning
@@ -329,7 +395,7 @@ int32 index 要 sparsity 超过 66.7% 才开始省，int16 要超过 50%。Han 2
 
 $$2\times16+2\times2=36\ \text{bit},\qquad\frac{36}{4\times16}=56.25\%$$
 
-int8 时是 $(2\times8+2\times2)/32=62.5\%$。位置的种类固定（4 选 2 只有 6 种），hardware 可以用 index 直接从 input 里选出对应的那一半做 dense 计算，GEMM 的长度从 $K$ 变成 $K/2$。NVIDIA 从 Ampere 开始支持，课上给的测量是 A100 上 int8 GEMM 接近 2 倍。NVIDIA 给 Jetson AGX Orin 64GB 标的算力是 275 sparse TOPS、138 dense TOPS，比值 1.99，指的就是这种 2:4。
+int8 时是 $(2\times8+2\times2)/32=62.5\%$。位置的种类固定（4 选 2 只有 6 种），hardware 可以用 index 直接从 input 里选出对应的那一半做 dense 计算，GEMM 的长度从 $K$ 变成 $K/2$。NVIDIA 从 Ampere 开始支持；Lecture 3 的 slides 写的是 A100 上 2 倍的 peak performance，BERT 实测快 1.5 倍，并且多数任务上 accuracy 保得住。NVIDIA 给 Jetson AGX Orin 64GB 标的算力是 275 sparse TOPS、138 dense TOPS，比值 1.99，指的就是这种 2:4。
 
 **Channel pruning。** 剪掉 conv layer $\ell$ 的一部分 output channel，就是让这个 layer 的 weight tensor 变“瘦”，结果仍然是一个普通的 dense layer，任何 hardware 都能直接受益。代价是要同时改三处：layer $\ell$ 的 weight（第 0 维）、它后面 BatchNorm 的四个 tensor（weight、bias、running mean、running var），以及 layer $\ell+1$ 的 weight（第 1 维，即 input channel）。
 
@@ -339,7 +405,11 @@ MACs 降多少？Layer $\ell+1$ 的 MACs 是 $c_o\,c_i\,k^2\,h\,w$。每个 laye
 
 $$0.7\times0.7=0.49,\qquad\frac{1}{0.49}=2.04$$
 
-Lab 镜像的实测：MACs 606M → 305M（1.99 倍），parameter 9.23M → 5.01M（1.84 倍），CPU latency 24.2 ms → 13.0 ms（1.86 倍）。MACs 没有到 2.04 倍，原因之一是第一个 conv 的 input 是图像的 3 个 channel，不能剪，它的 MACs 只乘了 0.7。Latency 又比 MACs 少一点，是因为 latency 里还有不随 channel 数等比例缩小的部分（memory access、kernel 启动）。
+Lab 镜像的实测：MACs 606M → 305M（1.99 倍），parameter 9.23M → 5.01M（1.84 倍），CPU latency 24.2 ms → 13.0 ms（1.86 倍）。MACs 为什么没有到 2.04 倍？看 lab 的 `channel_prune`：ratio 只作用在“第 $i$ 个 conv 的 output 和第 $i+1$ 个 conv 的 input”这一对上，8 个 conv 只有 7 对，最后一个 conv 的 output 是 classifier 的 input，保持 512 不剪。最后一个 conv 在 $4\times4$ 的 feature map 上，input 剪成 358 个 channel 而 output 留着 512，比两边都剪多出
+
+$$358\times(512-358)\times9\times16=7{,}939{,}008$$
+
+个 MACs。按 VGG 的结构逐层算（保留数 $\mathrm{round}(0.7c)$，即 45、90、179、179、358、358、358），8 个 output 全剪是 297.2M（2.04 倍），留着最后一个是 305.1M（1.99 倍），和实测一致；parameter 用同样的算法得到 5,013,666，也和 5.01M 一致。第一个 conv 的 input 是图像的 3 个 channel，它的 MACs 只有 1.8M，对这个比值几乎没有影响。Latency 又比 MACs 少一点，是因为 latency 里还有不随 channel 数等比例缩小的部分（memory access、kernel 启动）。
 
 只剪不挑，accuracy 掉得很厉害：镜像里按顺序留下前 70% 的 channel，accuracy 从 92.95% 掉到 28.14%。改成先按 importance 排序再留前 70%：importance 用 layer $\ell+1$ 里对应 input channel 那一片 weight 的 Frobenius norm，accuracy 变成 36.81%，fine-tune 5 个 epoch 后回到 92.18%。
 
@@ -347,8 +417,10 @@ Lab 镜像的实测：MACs 606M → 305M（1.99 倍），parameter 9.23M → 5.0
 把 layer $\ell$ 的 output channel、它的 BatchNorm、layer $\ell+1$ 的 input channel 按同一个 permutation 重排，计算结果和原来完全一样（镜像里排序后 dense accuracy 仍是 92.95%）。三处用的 permutation 不一致，模型就坏了，这是 lab 里最常见的 bug。
 :::
 
+2026 版 Lab 2 在 Transformer 的 FFN 上做同一件事。FFN 是 $\mathrm{down}\big(\mathrm{act}(\mathrm{gate}(x))\odot\mathrm{up}(x)\big)$，中间那一维（intermediate size $m$）就是“channel”：剪掉一个 intermediate neuron，要同时删 gate 和 up 的 weight 的一个 row（`index_select(0, keep)`）和 down 的 weight 的一个 column（`index_select(1, keep)`），也是三处、同一组 index。不同的是 hidden size $d$ 不动，FFN 的 MACs 是 $3\,d\,m$ 每个 token，$m$ 乘 0.7，MACs 就正好乘 0.7，notebook 上也写着剪掉 30% 的 channel、MACs 少 30%。CNN 里每层都剪，$c_i$ 和 $c_o$ 一起变小，才有 $0.7^2$。Q8 按 weight 的 norm 给每个 neuron 打分（notebook 写的是对应那一片 weight 的 Frobenius norm）；Q9 换成 Wanda：notebook 已经在 down 的 input 上挂了 hook，累加每个 intermediate neuron 输出的平方和，你要用它和 weight 一起算出每个 neuron 的 importance。Q10 让你在 GPU 上量一层 MLP 的 latency，和 30% 的 MAC 降幅比较；hint 说两种结果都可能，要用你量到的数解释，例如剪完的 shape 是否还能把 GPU 用满。
+
 :::from
-Optimization 的写法、magnitude criterion、granularity 的分类、2:4 的存储方式、V100 上 71% 的测量，按 [erectbranch 的 Lecture 3 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec03/)和 [Lecture 4 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec04/summary03)；AMC、NetAdapt 按[另一篇 Lecture 4 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec04/summary01)，只读了笔记，没有展开。三步法、iterative pruning、AlexNet 和 VGG-16 的数字、相对 index 的 5 bit 与 8 bit 出自 [Han et al. 2015](https://ar5iv.labs.arxiv.org/html/1506.02626)。Sensitivity scan 的数据、选定的 sparsity、channel pruning 的所有数字出自 [2024 版 Pruning lab 的社区镜像](https://tinyml-kor.github.io/blog/posts/labs/lab01.html)。Orin 的 sparse/dense TOPS 出自 [NVIDIA 技术博客](https://developer.nvidia.com/blog/delivering-server-class-performance-at-the-edge-with-nvidia-jetson-orin)。$4\times4$ matrix 上的 pruning、Gaussian matrix 的对比、CSR 的 storage 表和 break-even 公式是为这一页算的。
+Optimization 的写法、magnitude criterion、$y=\mathrm{ReLU}(10x_0-8x_1+0.1x_2)$ 的例子、granularity 的分类、2:4 的存储方式和 A100 上 2 倍 / BERT 1.5 倍，按 [2024 版 Lecture 3 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf)（全文读了）。Sensitivity analysis 加 threshold $T$ 的流程、AMC 的 state / action / reward 与 Galaxy S7 上的表、NetAdapt 的每一步、fine-tune 用原 learning rate 的 1/10 到 1/100、iterative pruning 从 5 倍提到 9 倍，按 2024 版 Lecture 4 的 slides（能读到的文字到 EIE 为止，后面 NVIDIA Tensor Core 的 M:N sparsity 那几页文字缺失）。V100 上 71% 的测量只在 [erectbranch 的 Lecture 4 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec04/summary03)里见到。三步法、AlexNet 和 VGG-16 的数字、相对 index 的 5 bit 与 8 bit 出自 [Han et al. 2015](https://ar5iv.labs.arxiv.org/html/1506.02626)（slides 上 VGG-16 写作 12 倍，论文是 13 倍，这里用论文的）。Wanda 的 score、per-output 的比较、LLaMA-7B 的 perplexity 出自 [Wanda 论文](https://arxiv.org/html/2306.11695v3)；论文用的是两个 input 的符号论证，上面那段 error 展开和“不相关时丢掉 cross term”是本页为了说明 score 的来由补的。2024 版 lab 的 sensitivity 数据、选定的 sparsity、channel pruning 的实测数字出自 [Pruning lab 的社区镜像](https://tinyml-kor.github.io/blog/posts/labs/lab01.html)；`channel_prune` 只剪 7 对、`round((1-p)c)` 的写法是在 [afondiel 仓库](https://github.com/afondiel/mit-6.5940-notes-labs)里 2023 版同一个 lab 的 notebook 上核的。2026 版 Lab 2 的内容（Gemma-3-270M、FFN、gradient mask、Wanda、Q5–Q11）出自 [notebook 原文](https://colab.research.google.com/drive/1-HEcO8qxlbOgccAg6TyuDTOqWt1Jx45W)，notebook 没有运行结果，所以这里没有 2026 版的数字。Orin 的 sparse/dense TOPS 出自 [NVIDIA 技术博客](https://developer.nvidia.com/blog/delivering-server-class-performance-at-the-edge-with-nvidia-jetson-orin)。$4\times4$ matrix 上的两种 pruning、Gaussian matrix 的对比、CSR 的 storage 表和 break-even 公式、VGG 的逐层 MACs 是为这一页算的。
 :::
 
 ## [quant] Quantization：从 k-means 到 integer-only inference
@@ -360,6 +432,8 @@ Optimization 的写法、magnitude criterion、granularity 的分类、2:4 的�
 ### 两种减少 bit 的办法
 
 还是上一站的 $W$，这次不剪，而是让每个数用更少的 bit 存。fp32 存 16 个数要 $16\times32=512$ bit，即 64 byte。
+
+少 bit 省的不只是 storage。Lecture 5 开头把第 1 站那张 45 nm 的 energy table 按位宽拆开：8-bit int ADD 0.03 pJ，32-bit int ADD 0.1 pJ，32-bit float ADD 0.9 pJ（是 int8 的 30 倍）；8-bit int MULT 0.2 pJ，32-bit int MULT 3.1 pJ（16 倍），16-bit float MULT 1.1 pJ，32-bit float MULT 3.7 pJ。所以下面要问的不只是“存成几个 bit”，还有“乘法是不是也能用 integer、用少 bit 做”。
 
 **第一种：k-means quantization。** 只允许 $W$ 里出现 4 个不同的值，每个 entry 存一个 2-bit 的 index，另存一张 4 个 fp32 值的表（codebook）。4 个值怎么选？让每个 weight 到它所用的值的距离的 sum of squares 最小，这正是 k-means clustering。
 
@@ -384,7 +458,7 @@ Codebook 还能 fine-tune。$w_i=c_{\ell(i)}$，$\ell(i)$ 是 $w_i$ 所在的 cl
 
 $$\frac{\partial L}{\partial c_k}=\sum_{i:\ \ell(i)=k}\frac{\partial L}{\partial w_i}$$
 
-把属于同一个 cluster 的 gradient 加起来去更新那个 centroid。Lab 镜像里 4-bit k-means 不 fine-tune 时 accuracy 只有 79.07%，fine-tune 一个 epoch 回到 92.47%；2-bit 掉到 10.00%（CIFAR-10 上等于随机猜），fine-tune 5 个 epoch 回到 91.17%。Deep Compression 把 pruning、k-means quantization（conv 8 bit、FC 5 bit）和 Huffman coding 叠在一起，AlexNet 从 240 MB 压到 6.9 MB（35 倍），VGG-16 从 552 MB 压到 11.3 MB（49 倍），accuracy 没有损失。
+把属于同一个 cluster 的 gradient 加起来去更新那个 centroid。2024 版 Quantization lab 的镜像里（2026 版 Lab 4 已经不做 k-means），4-bit k-means 不 fine-tune 时 accuracy 只有 79.07%，fine-tune 一个 epoch 回到 92.47%；2-bit 掉到 10.00%（CIFAR-10 上等于随机猜），fine-tune 5 个 epoch 回到 91.17%。Deep Compression 把 pruning、k-means quantization（conv 8 bit、FC 5 bit）和 Huffman coding 叠在一起，AlexNet 从 240 MB 压到 6.9 MB（35 倍），VGG-16 从 552 MB 压到 11.3 MB（49 倍），accuracy 没有损失。
 
 它的局限在 compute：计算时要先查表把 index 换回 fp32，乘法仍是 floating-point 的。省了 storage 和搬运，没省 operation 本身。
 
@@ -439,11 +513,27 @@ Bit 数每加 1，$S$ 大约减半，error 也大约减半：
 
 ::fig[m6940-clip] 4-bit 量化一个 Laplace 分布时，total MSE 随 clipping range $\alpha$ 的变化。左边 clipping error 主导，右边 rounding error 主导。
 
-最小值在 $\alpha\approx4.8$，MSE 0.055。如果从 4096 个 sample 里取最大的 absolute value 当 range（这次是 7.9），MSE 是 0.102，差不多翻倍。课上给了三种选 range 的办法：对 min/max 做 exponential moving average、直接最小化 MSE（就是上图）、最小化原分布与量化后分布的 KL divergence。都要用一小批真实数据跑一遍（calibration）。
+最小值在 $\alpha\approx4.8$，MSE 0.055。如果从 4096 个 sample 里取最大的 absolute value 当 range（这次是 7.9），MSE 是 0.102，差不多翻倍。
+
+Lecture 6 的 slides 给的现成答案是：Laplace$(0,b)$ 的最优 clipping 是 $2.83b$、$3.89b$、$5.03b$（2、3、4 bit，出自 Banner 等）。4 bit 是 5.03，比上图的 4.8 大一点，差别来自近似。把 $[-\alpha,\alpha]$ 等分成 $2^M$ 格，格宽 $\Delta=2\alpha/2^M$，rounding error 近似为 uniform distribution 的 variance $\Delta^2/12$；clipping error 是两侧 tail 超出 $\alpha$ 部分的平方的期望：
+
+$$2\int_\alpha^\infty(x-\alpha)^2\frac{1}{2b}e^{-x/b}\,dx=2b^2e^{-\alpha/b},\qquad\text{MSE}(\alpha)\approx2b^2e^{-\alpha/b}+\frac{\alpha^2}{3\cdot4^M}$$
+
+取 $b=1$，对 $\alpha$ 求 derivative 并令它为 0：
+
+$$-2e^{-\alpha}+\frac{2\alpha}{3\cdot4^M}=0\quad\Longrightarrow\quad\alpha\,e^{\alpha}=3\cdot4^M$$
+
+$M=4$ 时右边是 768，解得 $\alpha=5.03$；$M=2,3$ 时右边是 48、192，解得 2.83、3.90（slides 写 3.89），就是那三个数。上图用的是 $-7$ 到 $7$ 这 15 个格点（格宽 $\alpha/7$，比 $2\alpha/16$ 略大），rounding error 也是对 density 做 numerical integration 精确算的，不用 $\Delta^2/12$ 这个近似，所以落在 4.8。曲线在最低点附近很平：$\alpha=5.03$ 时精确的 MSE 是 0.0552，只比 0.0548 多 0.7%。
+
+Lecture 6 给了三类选 range 的办法：train 的时候对 min/max 做 exponential moving average；用 train 好的模型跑几批 calibration data，再最小化 MSE（就是上面这一套）；或者像 TensorRT 那样最小化原分布与量化后分布的 KL divergence。
 
 ### Per-tensor 还是 per-channel
 
-到这里一个 tensor 只用一个 $S$。如果不同 output channel 的 weight 范围差别很大，一个 $S$ 就照顾不过来。把 $W$ 的第 2 个 row（一个 output channel）整体乘 0.01，模拟一个 range 很小的 channel，用 symmetric quantization（$Z=0$，$S=\max|w|/q_\text{max}$）：
+到这里一个 tensor 只用一个 $S$。Lecture 6 先在同一个 $W$ 上做 2-bit symmetric（$Z=0$，$q\in\{-2,-1,0,1\}$，$S=\max|w|/q_\text{max}$）比较：per-tensor 时 $S=2.12/1=2.12$；per-channel 时每个 row 一个 $S$，是各 row 的 $\max|w|$：2.09、2.12、1.92、1.87。差别出在 row 3 的 $-1.03$：per-tensor 下 $-1.03/2.12=-0.49$，round 成 0；per-channel 下 $-1.03/1.92=-0.54$，round 成 $-1$，reconstruct 回 $-1.92$。结果
+
+$$\|W-S\,q_W\|_F=2.28\quad\text{(per-tensor)},\qquad\|W-S\odot q_W\|_F=2.08\quad\text{(per-channel)}$$
+
+$q$ 只有这一个 entry 不同（另外三个 row 的 $S$ 也略小一点），差得不多，因为这个 $W$ 的四个 row 范围本来就接近。如果不同 output channel 的 weight 范围差别很大，一个 $S$ 就照顾不过来；slides 说常见的失败是不同 channel 的范围差 100 倍以上，per-tensor 在大模型上通常够用，在小模型上 accuracy 会掉。把 $W$ 的第 2 个 row（一个 output channel）整体乘 0.01，模拟一个 range 很小的 channel，用 symmetric quantization（$Z=0$，$S=\max|w|/q_\text{max}$）：
 
 | | 8-bit per-tensor | 8-bit per-channel | 4-bit per-tensor | 4-bit per-channel |
 |---|---|---|---|---|
@@ -495,7 +585,7 @@ $q_Y=\mathrm{clamp}(\mathrm{round}(M\times\text{acc})+Z_Y)=(-128,\ 127,\ 62,\ 57
 ::fig[m6940-intmm] 上面这次计算的数据流和每一步的位宽。
 
 :::wrong int8 的模型里所有数都是 8-bit 的
-上面的 accumulator 里出现了 $-20565$、$19032$，int8 存不下，int16 也只是勉强。一般地，$K$ 个 int8 乘积相加，最大可以到 $K\times128\times128$；$K=4096$ 时是 $6.7\times10^7$，要 int32。Bias 存 int32，$M_0$ 是 32-bit 的 fixed-point 数。“int8”说的是 weight 和 activation 在 memory 里的格式，计算中间值都更宽。Lab 里先 cast 成 int8 再加 zero point 会溢出，就是这个原因。
+上面的 accumulator 里出现了 $-20565$、$19032$，int8 存不下，int16 也只是勉强。一般地，$K$ 个 int8 乘积相加，最大可以到 $K\times128\times128$；$K=4096$ 时是 $6.7\times10^7$，要 int32。Bias 存 int32，$M_0$ 是 32-bit 的 fixed-point 数。“int8”说的是 weight 和 activation 在 memory 里的格式，计算中间值都更宽。2026 版 Lab 4 的 `quantized_linear` 也是这样写的：在 CPU 上先把两个 int8 tensor 转成 int32 再做 linear（注释写着 8-bit multiplication with 32-bit accumulation）；GPU 上 PyTorch 没有 integer 的 linear，就用 float 模拟。减 zero point 项、乘 scale、加 $Z_Y$ 都在宽的类型里做，最后一步才 round、clamp 到 int8 的范围、转成 int8。
 :::
 
 ### QAT：让 training 看见 quantization
@@ -526,20 +616,20 @@ Weight 只取 $\pm1$（binary）时，乘法变成加减；weight 和 activation
 
 $$\hat W=\begin{pmatrix}1.5&-1.5&1.5&0\\0&0&-1.5&1.5\\-1.5&1.5&0&-1.5\\1.5&0&1.5&1.5\end{pmatrix},\qquad\frac{\|W-\hat W\|_F}{\|W\|_F}=0.279$$
 
-ResNet-18 在 ImageNet 上的 top-1：full precision 69.6%，binary（BWN）60.8%，ternary（TWN）65.3%，scale 可学的 TTQ 66.7%。
+ResNet-18 在 ImageNet 上的 top-1：full precision 69.6%，binary（BWN）60.8%，ternary（TWN）65.3%，TTQ 66.6%（TTQ 把正负两边的 scale 换成两个可以 train 的 parameter $w_p$、$w_n$）。
 
 :::back
 Quantization 省下的是第 1 站那两本账里的 bytes（model size、memory traffic）和 operation 的位宽。Per-input-channel 的 scale 提不到 sum 外面这件事，是[第 4 站](#llmq)的出发点。
 :::
 
 :::from
-数据类型、k-means 与 linear quantization、$S$ 和 $Z$ 的推导、2-bit 的例子（同一个 $4\times4$ matrix，$S=1.07$、$Z=-1$）、quantized matrix multiplication 的推导、$M=2^{-n}M_0$、bias 的处理、rounding 与 clipping 的取舍，按 [erectbranch 的 Lecture 5 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec05/summary01/)；per-channel、calibration 的三种办法按 [Lecture 6 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec06/summary01)；QAT、STE、binary 和 ternary（含 TWN 的 0.73 与 1.5、ResNet-18 的表）按[另一篇 Lecture 6 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec06/summary02)。Compression rate formula、3.2、35 倍与 49 倍出自 [Deep Compression](https://ar5iv.labs.arxiv.org/html/1510.00149)。Lab 的 k-means 数字出自 [Quantization lab 镜像](https://tinyml-kor.github.io/blog/posts/labs/lab02.html)。k-means 的迭代过程、各 bit 数的 error 表、Laplace 的 clipping 曲线、per-channel 的例子和 integer matmul 的完整数值是为这一页算的。
+按位宽拆开的 energy table、k-means 的例子（同一个 $4\times4$ matrix、codebook $(-1,0,1.5,2)$、20 B 与 3.2 倍、最大 error 0.14）、linear quantization 与 $S$、$Z$ 的推导、2-bit 的例子（$S=1.07$、$Z=\mathrm{round}(-2-(-1.08)/1.07)=-1$），按 [2024 版 Lecture 5 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf)（全文读了）。Per-tensor 与 per-channel 的 2.28 / 2.08、100 倍的失败情形、三类 range 的选法、Laplace 的 2.83b / 3.89b / 5.03b、QAT 与 STE、BWN / TWN / TTQ（TWN 的 0.73 与 1.5、ResNet-18 的 69.6 / 60.8 / 65.3 / 66.6）按 2024 版 Lecture 6 的 slides（全文读了；上一版把 TTQ 写成 66.7%，是错的）。Quantized matrix multiplication 的推导、$M=2^{-n}M_0$、bias 的处理按 [erectbranch 的 Lecture 5 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec05/summary01/)，与 2026 版 Lab 4 notebook 里 “Quantized Inference” 一节的推导一致。Compression rate formula、35 倍与 49 倍出自 [Deep Compression](https://ar5iv.labs.arxiv.org/html/1510.00149)。k-means 的 lab 数字出自 2024 版 [Quantization lab 镜像](https://tinyml-kor.github.io/blog/posts/labs/lab02.html)。k-means 的迭代过程、各 bit 数的 error 表、Laplace 的精确 clipping 曲线和 $\alpha e^\alpha=3\cdot4^M$ 的求解、row 2 缩小 100 倍的 per-channel 例子、integer matmul 的完整数值是为这一页算的。
 :::
 
 ## [llmq] LLM 的 quantization：outlier、SmoothQuant 与 AWQ
 
 :::skip
-快速路线必读（Lecture 13，Lab 5 跑的就是 AWQ 的 int4 模型）。能说出 activation 里的 outlier channel 为什么让 per-tensor int8 失效、SmoothQuant 把难度挪到了哪里、AWQ 为什么只量化 weight，并按 decode 的 bytes 判断 W4A16 与 W8A8 谁快，就可以去第 5 站。
+快速路线必读（Lecture 13；2026 版 Lab 4 的后半就是在 OPT-1.3B 上一步步实现 AWQ）。能说出 activation 里的 outlier channel 为什么让 per-tensor int8 失效、SmoothQuant 把难度挪到了哪里、AWQ 为什么只量化 weight，并按 decode 的 bytes 判断 W4A16 与 W8A8 谁快，就可以去第 5 站。
 :::
 
 ### W8A8 在 6.7B 之后坏掉了
@@ -602,7 +692,11 @@ $\mathrm{diag}(s)^{-1}$ 可以 offline 折进前一个 LayerNorm 的参数，$\m
 
 SmoothQuant 让 int8 的 GEMM 能用，省的是 compute 和一半的 bytes。但第 1 站算过，batch size 为 1 的 decode 是 memory-bound 的，那里算力本来就闲着。对它来说更有效的是把 weight 压得更短，activation 保持 fp16：W4A16。计算时把 4-bit 的 weight 在片上解回 fp16 再乘，多出的这点计算在 memory-bound 的情况下是免费的。
 
-课上的比较：在小 batch 下，W4A16 的 compute intensity 比 W8A8 高；AWQ 论文的 roofline 估计是，fp16 的 decode 约 1 FLOP/byte，weight 换成 4 bit 后约 4 FLOP/byte。
+Lecture 13 的 slides 把两者的分工写得很直接：W8A8 适合 batch serving（例如 batch size 128），单个 query 的 LLM inference 仍然高度 memory-bound，这时要的是 low-bit weight-only quantization。2026 版 Lab 4 的 notebook 用 A100 和 LLaMA-65B 算了一遍：batch 1 的 decode 是一个 $[1,8192]\times[8192,8192]$ 的 GEMV，FLOPs 是 $2\times8192^2$，fp16 的 weight 是 $2\times8192^2$ byte，
+
+$$I=\frac{2\times8192^2}{2\times8192^2}=1\ \text{FLOP/byte},\qquad\frac{312\times10^{12}\ \text{FLOPS}}{2\times10^{12}\ \text{byte/s}}=156\ \text{FLOP/byte}$$
+
+（notebook 的分母按每个 weight 1 byte 记，得 2，结论一样）差两个数量级。AWQ 论文的 roofline 估计是，fp16 的 decode 约 1 FLOP/byte，weight 换成 4 bit 后约 4 FLOP/byte：同样的 FLOPs，搬的 bytes 少到四分之一。
 
 :::wrong W8A8 的 activation 也是 8-bit，所以比 W4A16 快
 看 decode 一个 token 搬多少 byte。Llama-2-7B 的 weight 在 W8A8 下是 6.74 GB；在 W4A16 下，linear layer 按 group size 128 存 4-bit weight 加一个 fp16 scale（每个 weight 平均 4.125 bit），embedding 留 fp16，合计 3.86 GB。Activation 每层只有几千个数，可以忽略。在 204.8 GB/s 的 Jetson AGX Orin 上，两者的下界是 32.9 ms 和 18.9 ms，W4A16 快 1.7 倍。W8A8 的优势在 batch 大、compute-bound 的服务端；课上也是这样定位的：SmoothQuant 适合大 batch 的 serving，不适合单个 query 的 on-device 场景。
@@ -619,7 +713,7 @@ Weight 量化到 3 bit（INT3，group size 128，round-to-nearest），OPT-6.7B 
 | weight norm 最大的 channel | 22.37 |
 | 随机 | 24.23 |
 
-决定一个 weight 重不重要的是它乘的 activation，而不是它自己的大小。这和第 2 站 magnitude pruning 的假设（各个 input 大小差不多）正好相反：在 LLM 里，input 的大小差别很大。
+决定一个 weight 重不重要的是它乘的 activation，而不是它自己的大小。这和第 2 站 magnitude pruning 的假设（各个 input 大小差不多）正好相反：在 LLM 里，input 的大小差别很大。第 2 站的 Wanda 用的是同一个观察，Lecture 13 也把它和 AWQ 放在一起讲。
 
 但 mixed precision（1% FP16、99% INT3）在 hardware 上很难高效实现。AWQ 换了一个办法：不留 FP16，而是把 salient channel 的 weight 放大 $s$ 倍、对应的 activation 缩小 $s$ 倍，再一起量化。为什么这能减小 error？
 
@@ -634,6 +728,16 @@ $$Q(ws)\cdot\frac{x}{s}-wx=\Delta'\cdot\varepsilon'\cdot\frac{x}{s}$$
 $\Delta'$ 是放大后 group 的新 $\Delta$。只放大一个 channel 时，group 里的最大值通常不在这个 channel 上，$\Delta'\approx\Delta$；$\varepsilon'$ 的平均大小仍约 0.25。所以 error 之比约为
 
 $$\frac{\Delta'}{\Delta}\cdot\frac{1}{s}$$
+
+2026 版 Lab 4 的 notebook 用一个 3-bit 的例子算了一遍。一个 group 里最大的 $|w|$ 是 4，所以 $\Delta=4/2^{3-1}=1$，格点是整数。要看的 weight 是 1.4，它乘的 input 在三个 token 上都是 2。不放大时 $Q(1.4)=1$，rounding error 是 $|1.4-1.0|=0.4$，三个 token 的 error 加起来是
+
+$$\Delta\cdot0.4\cdot(2+2+2)=2.4$$
+
+把这个 channel 放大 $s=2$：weight 变成 2.8，仍小于 4，$\Delta$ 不变；$Q(2.8)=3$，rounding error 是 $|2.8-3.0|=0.2$；input 缩成 1，
+
+$$\Delta\cdot0.2\cdot(1+1+1)=0.6$$
+
+降到四分之一。其中一半来自 $1/s$；另一半是这个数恰好 round 得更准（0.4 变 0.2），平均来说 rounding error 不随 $s$ 变，改善的期望值只有 $1/s$。
 
 $s>1$ 时 salient channel 的 error 变小。但 $s$ 太大时，这个 channel 的 weight 会变成 group 的最大值，$\Delta'$ 跟着变大，group 里其他 weight 的 error 全部变大。论文在 OPT-6.7B 上的实测：
 
@@ -657,7 +761,13 @@ $s>1$ 时 salient channel 的 error 变小。但 $s$ 太大时，这个 channel 
 
 Salient weight 的 error 随 $s$ 一直下降，其余 weight 的 error 随 $s$ 上升，output error 在 1.5 到 2 之间最小，和论文的趋势一致。
 
-实际的 $s$ 不是手挑的。AWQ 让每个 channel 的 $s$ 由它的平均 activation 大小 $s_X$ 决定：$s=s_X^{\alpha}$，在 $[0,1]$ 上对 $\alpha$ 做 grid search，目标是这一层量化后的 output 和原来的差最小。不需要 backpropagation，只需要一小批 calibration data。放大的 $1/s$ 同样可以折进前一个 operation。
+实际的 $s$ 不是手挑的。AWQ 让每个 channel 的 $s$ 由它的平均 activation 大小 $s_X$（这个 input channel 上 $|x|$ 的 mean）决定：
+
+$$\mathbf{s}=\mathbf{s}_X^{\alpha},\qquad\alpha^*=\arg\min_\alpha\big\|Q(\mathbf{W}\cdot\mathbf{s})(\mathbf{s}^{-1}\cdot\mathbf{X})-\mathbf{W}\mathbf{X}\big\|$$
+
+在 $[0,1]$ 上对 $\alpha$ 做 grid search，目标是这一块量化后的 output 和原来的差最小。$\alpha=0$ 就是不放大，$\alpha=1$ 是完全按 activation 放大。不需要 backpropagation，只需要一小批 calibration data。放大的 $1/s$ 同样可以折进前一个 operation：前面是 LayerNorm 就除进它的 weight 和 bias，前面是另一个 linear 就除进那个 linear 的 output row。Lab 4 的实现是：$\alpha$ 取 $0,0.05,\dots,0.95$ 共 20 个值；$\mathbf{s}$ 先 clamp 到不小于 $10^{-4}$（fc2 的 input 来自 ReLU，有些 channel 的 mean 恰好是 0），再除以 $\sqrt{\max(\mathbf{s})\cdot\min(\mathbf{s})}$，让最大和最小关于 1 对称；loss 是这一块 output 的 MSE。
+
+2026 版 Lab 4 在 OPT-1.3B 上（3 bit，group size 128）把这一节的每一步都走一遍，notebook 给了每一步应该得到的 perplexity：留 1% activation 最大的 channel 为 FP16，17.15；随机留 1%，超过 100；不留 FP16、把那 1% 的 channel 乘 2 再量化，18.93；按上面的 formula 搜 $\alpha$，17.92。
 
 结果：在 Hugging Face 的 FP16 实现之上，TinyChat 跑 AWQ 的 W4A16 模型平均快 3.2 到 3.3 倍，RTX 4090 上最多 3.9 倍，Jetson Orin 上 3.5 倍；Llama-2-70B 可以放进一块 64 GB 的 Jetson Orin。
 
@@ -666,7 +776,7 @@ Salient weight 的 error 随 $s$ 一直下降，其余 weight 的 error 随 $s$ 
 :::
 
 :::from
-“W8A8 在 6.7B 之后失效”、outlier 的观察、SmoothQuant 与 AWQ 的先后顺序和“SmoothQuant 适合 batch serving、W4A16 适合单 query”的定位，按 [erectbranch 的 2024 Lecture 13 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2024/lec13/summary01)。Per-channel activation scale 进不了 GEMM 的论证、smoothing formula、$\alpha$ 的取值和 OPT-175B 的结果出自 [SmoothQuant 论文](https://arxiv.org/html/2211.10438v7)。Salient channel 的表、error 推导、$s$ 的表、$\alpha$ 的 grid search、TinyChat 和 Jetson Orin 的数字出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)。$3\times4$ 的 smoothing 例子、AWQ 的模拟、W8A8 与 W4A16 在 Orin 上的 latency 下界是为这一页算的；Orin 的 204.8 GB/s 出自 NVIDIA 技术博客（开发者套件的数字）。
+“W8A8 在 6.7B 之后失效”、outlier 固定在少数 channel 上、SmoothQuant 与 AWQ 的先后顺序、“W8A8 适合 batch size 128 这类 batch serving，单 query 要 W4A16”，按 [2024 版 Lecture 13 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf)（全文读了），和上一版依据的 [erectbranch 的 2024 Lecture 13 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2024/lec13/summary01)一致。A100 与 LLaMA-65B 的 intensity、3-bit 的 2.4 → 0.6 例子、$\alpha$ 的 20 个格点和 $\mathbf{s}$ 的归一化、scale 折进 LayerNorm 和前一个 linear 的写法、OPT-1.3B 的四个目标 perplexity，出自 [2026 版 Lab 4 的 notebook](https://colab.research.google.com/drive/1r26Togpim59OcHDCD2UInWYQZKz6_wSO)。Per-channel activation scale 进不了 GEMM 的论证、smoothing formula、$\alpha$ 的取值和 OPT-175B 的结果出自 [SmoothQuant 论文](https://arxiv.org/html/2211.10438v7)。Salient channel 的表、error 推导、$s$ 的表、$\alpha$ 的 grid search、TinyChat 和 Jetson Orin 的数字出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)。$3\times4$ 的 smoothing 例子、AWQ 的模拟、W8A8 与 W4A16 在 Orin 上的 latency 下界是为这一页算的；Orin 的 204.8 GB/s 出自 NVIDIA 技术博客（开发者套件的数字）。
 :::
 
 ## [nas] Neural architecture search 与 knowledge distillation
@@ -714,6 +824,13 @@ $$7371^5\approx2.2\times10^{19}$$
 和论文给的“约 $2\times10^{19}$ 个 sub-network”一致。逐个 train 不可能。办法是 weight sharing：train 一个最大的 supernet，所有 sub-network 都是它的一部分，直接继承它的 weight。OFA 的 progressive shrinking 按这个顺序放开：先 train 最大的网络（kernel 7、depth 4、expand 6），再允许 kernel 变小，再允许 depth 变浅，再允许 width 变窄；最大网络 train 好之后，用它做 teacher 给 sub-network 做 knowledge distillation（本站后半部分）。
 
 要给一块新 hardware 挑结构时，不再 train 任何东西：用一个 latency lookup table（在那块 hardware 上把每种 layer 测一遍）预测 sub-network 的 latency，用一个小的 accuracy predictor（三层 MLP，在 16K 个 sub-network 上 train，test RMSE 0.21%）预测 accuracy，在两个 predictor 上做 evolutionary search。
+
+2026 版 Lab 3 让你亲手搭这套东西，目标换成 microcontroller。Supernet 是用 OFA 方式 train 好的 MCUNetV2（第 7 站），任务是 Visual Wake Words（判断图里有没有人，二分类）。Search space：每个 block 的 kernel 取 3、5、7，expand ratio 取 3、4、6；每个 stage 的 depth 可以比 base depth 多 0 到 2；整体 width 取 0.5、0.75、1.0 倍；input resolution 取 96 到 160；notebook 说总共超过 $10^{19}$ 个 sub-network。两个 predictor 都要自己写：
+
+- **Efficiency predictor**：MCU 上的约束是 MACs 和 peak memory（第 7 站），这两个都能对着网络结构直接数出来，用不着 lookup table。Notebook 提供 `count_net_flops` 和 `count_peak_activation_size` 两个计数函数，你把它们包成一个 predictor，再写“是否满足约束”的判断。
+- **Accuracy predictor**：把 sub-network 编成 one-hot vector（resolution、width 各一段；每个 block 的 kernel size 3 维、expand ratio 3 维，被跳过的 block 填全 0），喂进一个三层、每层 400 个 unit 的 MLP。训练数据是事先准备好的 50,000 对（结构，accuracy），40,000 对 train、10,000 对 validation；regression 的目标不是 accuracy 本身，而是它减去这 50,000 个的平均值，用 L1 loss。
+
+然后在两个 predictor 上分别写 random search 和 evolutionary search（mutation 加 crossover，每代留下 accuracy 最高的一部分当 parent），在“MACs 不超过 50M / 100M”“peak memory 不超过 256 KB / 512 KB”下各搜一次。最后一题要同时满足 250 KB 和 60M MACs，并且 accuracy 不低于 92%，notebook 特意把默认的 evolution 参数设得很弱，要你自己调。
 
 成本对比（40 个部署场景）：
 
@@ -771,7 +888,7 @@ MACs 与 bytes 的对比用的是[第 1 站](#eff)的 roofline。TinyNAS 在 mic
 :::
 
 :::from
-MobileNetV2、NASNet-A、AmoebaNet-A 的 140/180/190 ms、ProxylessNAS 的 lookup table、HAT 的 network-wise profiling、progressive shrinking 的顺序，按 [erectbranch 的 Lecture 8 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec08)。OFA 的 search space、$2\times10^{19}$、predictor、成本表和 80.0% 出自 [Once-for-All 论文](https://ar5iv.labs.arxiv.org/html/1908.09791)。Temperature 的例子（5 和 1，0.982 与 0.599）、teacher/student 的设定、match 中间层的各种做法按 [erectbranch 的 Lecture 10 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec10/summary01)。Gradient formula、$T^2$ 的理由、high-temperature limit、MNIST 和语音的数字出自 [Hinton 等的论文](https://ar5iv.labs.arxiv.org/html/1503.02531)。Depthwise 的 MACs 与 bytes 表、$7371^5$ 的计算、三类例子和它的 gradient 是为这一页算的。没有读到 NAS lab 的 notebook。
+MobileNetV2、NASNet-A、AmoebaNet-A 的 140/180/190 ms、ProxylessNAS 的 lookup table、HAT 的 network-wise profiling、progressive shrinking 的顺序，按 [erectbranch 的 Lecture 8 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec08)。OFA 的 search space、$2\times10^{19}$、predictor、成本表和 80.0% 出自 [Once-for-All 论文](https://ar5iv.labs.arxiv.org/html/1908.09791)。Temperature 的例子（5 和 1，0.982 与 0.599）、teacher/student 的设定、match 中间层的各种做法按 [erectbranch 的 Lecture 10 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2022/lec10/summary01)。Gradient formula、$T^2$ 的理由、high-temperature limit、MNIST 和语音的数字出自 [Hinton 等的论文](https://ar5iv.labs.arxiv.org/html/1503.02531)。Depthwise 的 MACs 与 bytes 表、$7371^5$ 的计算、三类例子和它的 gradient 是为这一页算的。2026 版 Lab 3 的 search space、两个 predictor、50,000 对数据、L1 loss、250 KB / 60M MACs / 92% 出自 [notebook 原文](https://colab.research.google.com/drive/1g_o6v2EErRJKZx5pmX3r8dCsInVkVC7h)（上一版没读到，这次读了全文）。这一站对应的 2024 版 Lecture 7、8、9 slides 这次没有读（三个 PDF 都超过 Drive 工具的下载上限，只能整篇取文字，这次没有排上），2026 版在 Dropbox 上连不上，所以 140 / 180 / 190 ms 这组数仍只有 erectbranch 的笔记作依据；2026 版的 Knowledge Distillation 是 Lecture 9。
 :::
 
 ## [gen] LLM 与 diffusion 的高效推理
@@ -816,7 +933,7 @@ $B=16$、$N=4096$ 时从 160 GiB 降到 20 GiB。Query head 的数目不变，�
 这一小节是 serving 系统的内容，单机部署用不太到。跳过它会少掉 PagedAttention 的动机。
 :::
 
-Serving 时同时处理很多 request，每个 request 最终会生成多少 token 事先不知道。如果按最大长度预留连续的 memory，例如 2048 个 token，Llama-2-7B 一个 request 要预留 $2048\times512$ KiB $=1$ GiB；实际只生成到 300 个 token 时用了 150 MiB，85% 被浪费。课上引用的统计是 KV cache 的 memory 有 60% 到 80% 浪费在这类碎片和预留上。vLLM 的 PagedAttention 借用 operating system 的 paging：把 KV cache 切成固定大小的 block（例如每块 16 个 token），用一张 block table 把逻辑上连续的 block 映射到物理上不连续的位置，用满一块再分一块。每个 request 最多浪费不满的最后一块，16 个 token 是 8 MiB。
+Serving 时同时处理很多 request，每个 request 最终会生成多少 token 事先不知道。如果按最大长度预留连续的 memory，例如 2048 个 token，Llama-2-7B 一个 request 要预留 $2048\times512$ KiB $=1$ GiB；实际只生成到 300 个 token 时用了 150 MiB，85% 被浪费。Lecture 13 把浪费分成三种：不知道 output 多长而多分配的（internal fragmentation）；现在没用、以后才用到的（reservation）；不同 request 长度不一、中间留下的空隙（external fragmentation）。erectbranch 的笔记记下的统计是 KV cache 的 memory 有 60% 到 80% 浪费在这几项上。vLLM 的 PagedAttention 借用 operating system 的 paging：把 KV cache 切成固定大小的 block（例如每块 16 个 token），用一张 block table 把逻辑上连续的 block 映射到物理上不连续的位置，用满一块再分一块。每个 request 最多浪费不满的最后一块，16 个 token 是 8 MiB。
 
 ### Speculative decoding：一次 forward 产出几个 token
 
@@ -898,7 +1015,7 @@ Roofline 和 arithmetic intensity 来自[第 1 站](#eff)；smoothing 来自[第
 :::
 
 :::from
-KV cache 的 formula、Llama-2 的每 token 512 KB / 800 KB / 2.5 MB、MHA/MQA/GQA 与 $G=H/8$，按 [erectbranch 的 Lecture 12 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2023/lec12/summary02)；KV cache 60–80% 的浪费、PagedAttention、speculative decoding 的流程，按 [Lecture 13 的 serving 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2024/lec13/summary04)。接受规则、residual 分布、$\alpha$ 的定义、期望 token 数与 speedup 的 formula、T5-XXL 的 2–3 倍出自 [Leviathan 等的论文](https://ar5iv.labs.arxiv.org/html/2211.17192)（证明的附录没读到，上面的证明是我自己补的两行）。Diffusion 为什么 compute-bound、W4A4、low-rank branch、57% 与 5–10%、FLUX.1 的数字出自 [SVDQuant 论文](https://arxiv.org/html/2411.05007v4)。2026 版 diffusion 两讲（Lecture 17–18）的 slides 没读到，所以不确定课上是否按这个顺序讲 SVDQuant；它是 Song Han 组的工作。KV cache 的图、GQA 下 70B 的 320 KiB、paged 的例子、三个 token 的核对、speedup 表、$I=1117$ 和 SVD 的小实验是为这一页算的。
+KV cache 的 formula、Llama-2 的每 token 512 KB / 800 KB / 2.5 MB、MHA/MQA/GQA 与 $G=H/8$，按 [erectbranch 的 Lecture 12 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2023/lec12/summary02)（2024 版 Lecture 12 的 slides 这次没读）。KV cache 浪费的三种来源、PagedAttention 借 operating system 的 paging、speculative decoding 的流程（draft model 例如 7B、target model 例如 175B，“2–3 倍且 output 相同”），按 [2024 版 Lecture 13 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf)；60–80% 这个数只在 [erectbranch 的 serving 笔记](https://erectbranch.github.io/MIT-Efficient-AI/notes/2024/lec13/summary04)里见到。接受规则、residual 分布、$\alpha$ 的定义、期望 token 数与 speedup 的 formula、T5-XXL 的 2–3 倍出自 [Leviathan 等的论文](https://ar5iv.labs.arxiv.org/html/2211.17192)；这次读到了附录 A.1 的证明，上面的证明和它的步骤一致（论文把被拒绝的总概率记作 $1-\beta$，$\beta=\sum_x\min(p(x),q(x))$）。Diffusion 为什么 compute-bound、W4A4、low-rank branch、57% 与 5–10%、FLUX.1 的数字出自 [SVDQuant 论文](https://arxiv.org/html/2411.05007v4)。2026 版 diffusion 两讲（Lecture 17–18）的 slides 在 Dropbox 上，没读到；2024 版那个 Drive 文件夹里也没有 diffusion 一讲。所以不确定课上是否按这个顺序讲 SVDQuant；它是 Song Han 组的工作。KV cache 的图、GQA 下 70B 的 320 KiB、paged 的例子、三个 token 的核对、speedup 表、$I=1117$ 和 SVD 的小实验是为这一页算的。
 :::
 
 ## [mcu] Microcontroller 上的 deep learning：MCUNet 与 TinyEngine
@@ -909,11 +1026,11 @@ KV cache 的 formula、Llama-2 的每 token 512 KB / 800 KB / 2.5 MB、MHA/MQA/G
 
 ### 两块 memory，两种约束
 
-课上用的典型 microcontroller 是 STM32F746：一个 ARM Cortex-M7 core，320 kB SRAM，1 MB Flash。Flash 只能读，适合放 weight；SRAM 能读能写，activation 只能放这里。于是有两个互不相干的约束：
+课上用的典型 microcontroller 是 STM32F746：一个 ARM Cortex-M7 core，216 MHz，8 KB 的 L1 cache，320 kB SRAM，1 MB Flash，没有 operating system（Lecture 11 拿它和 64 GB memory 的 MacBook Pro 对比）。Flash 只能读，适合放 weight；SRAM 能读能写，activation 只能放这里。Lecture 10 给了一个简化的估算：Flash 用量等于 model size，是静态的，整个模型都要放下；SRAM 用量等于当前 layer 的 input activation 加 output activation，每层不同，要看的是 peak；weight 不算在 SRAM 里，因为可以一部分一部分地从 Flash 取（这个估算不含临时 buffer 和程序本身）。于是有两个互不相干的约束：
 
 $$\text{model size}\le\text{Flash},\qquad\text{peak activation}\le\text{SRAM}$$
 
-MCUNet 论文说 microcontroller 的 memory 比手机小约 3 个数量级。ResNet-50 超出 storage 限制 100 倍；MobileNetV2 的 peak memory 超出 22 倍，int8 量化之后仍然要 5.3 倍。
+手机有 4 GB memory，这里是 320 kB，小 $4\times10^9/320{,}000=12{,}500$ 倍，slides 上写约 13,000 倍。MCUNet 论文说，ResNet-50 超出 1 MB Flash 的 storage 限制 100 倍；MobileNetV2 的 peak memory 超出 22 倍，int8 量化之后仍然要 5.3 倍。
 
 ### 算一遍 MobileNetV2 的 peak activation
 
@@ -927,11 +1044,11 @@ $$\underbrace{16\times112\times112}_{200{,}704}+\underbrace{96\times112\times112
 
 ::fig[m6940-invres] 这一层的 input、output 与 SRAM。看 output 写到第几个 channel 时越过 SRAM 的虚线。
 
-按 in + out 硬算，peak 是 1470 KiB，在第 2 个 block 的 depthwise。如果 depthwise 能原地计算（下面 TinyEngine 那部分），它只需要 input 那么多加一点，peak 落到 expand 那一层的 1372 KiB。这正是 MCUNetV2 论文 Table 1 里 MobileNetV2 的 peak SRAM 1372 kB，$1372/256=5.36$ 也就是 MCUNet 说的“int8 之后仍要 5.3 倍”（对 256 kB 的预算而言）。
+按 in + out 硬算，peak 是 1470 KiB，在第 2 个 block 的 depthwise。如果 depthwise 能原地计算（下面 TinyEngine 那部分），它只需要 input 那么多加一点，peak 落到 expand 那一层的 1372 KiB。这和 MCUNetV2 论文 Table 1、Lecture 10 slides 上 MobileNetV2 的 peak SRAM 1372 kB 对得上（“按 in-place depthwise 计”是我对这个对应的解释，论文没有写它怎么数的）。拿 1372 KiB 和 320 kB 比是 4.4 倍，比 MCUNet 说的 5.3 倍小；论文和 slides 都没给出 5.3 倍是怎么数的，差别可能来自这个简化估算不算的临时 buffer，我没有核实。
 
 ::fig[m6940-mcupeak] MobileNetV2（int8，224 input，depthwise 按 in-place 计）每个 block 的 peak activation。stem 和前 4 个 block 都超过 500 KiB，之后的都在 200 KiB 以下。
 
-这个分布极不均衡：前几个 block 的 resolution 大，后面的 resolution 小、channel 多，activation 变小、weight 变大。MCUNetV2 说第三个 block 的 memory 是网络其余部分的约 8 倍；上图里 1372 KiB 和后面 13 个 block 中最大的 196 KiB 之比是 7.0。
+这个分布极不均衡：前几个 block 的 resolution 大，后面的 resolution 小、channel 多，activation 变小、weight 变大。MCUNetV2 说只有前 5 个 block 的 peak 很高（超过 450 kB），开头这一段的 peak 是网络其余部分的 8 倍。上图里正好是 stem 和 block 1–4 这 5 个超过 500 KiB；1372 KiB 和后面 13 个 block 中最大的 196 KiB 之比是 7.0。
 
 Peak activation 随 input resolution 的平方缩小。同样按 in-place depthwise 计：
 
@@ -941,7 +1058,13 @@ Peak activation 随 input resolution 的平方缩小。同样按 in-place depthw
 
 ### TinyNAS：先挑 search space
 
-Resolution 和 width 都能让模型塞进去，问题是挑哪个组合 accuracy 最高。MCUNet 的 TinyNAS 分两步。第一步挑 search space：input resolution $R$ 取 48 到 224，width multiplier $W$ 取 0.2 到 1.0，共 $12\times9=108$ 个候选空间。每个空间里随机采样一些满足 memory 约束的网络，看它们的 FLOPs 分布：在同样的 memory 约束下，一个空间里的网络能做的计算越多，accuracy 通常越高。论文的例子里，一个空间的前 20% 网络 FLOPs 在 50.3M 以上，另一个只有 32.3M，前者的最终 accuracy 高 4.5%。第二步在挑好的空间里做 one-shot NAS（和第 5 站的 weight sharing 一样），搜索成本比逐个 train 低 200 倍。
+Resolution 和 width 都能让模型塞进去，问题是挑哪个组合 accuracy 最高。MCUNet 的 TinyNAS 分两步。第一步挑 search space：input resolution $R$ 取 48 到 224，width multiplier $w$ 取 0.2 到 1.0，共 $12\times9=108$ 个候选空间。每个空间里随机采样一些满足 memory 约束的网络，看它们的 FLOPs 分布：在同样的 memory 约束下，一个空间里的网络能做的计算越多，accuracy 通常越高。论文的例子里，一个空间的前 20% 网络 FLOPs 在 50.3M 以上，另一个只有 32.3M，前者的最终 accuracy 高 4.5%。第二步在挑好的空间里做 one-shot NAS（和第 5 站的 weight sharing 一样），搜索成本比逐个 train 低 200 倍。
+
+Lecture 10 的 slides 列出了不同 SRAM、Flash 组合下搜出的最好配置，规律是：SRAM 不变、Flash 变大时，width 变大、resolution 变小；Flash 不变、SRAM 变大时，resolution 变大。这可以从两个约束直接推出来。Width multiplier $w$ 同时缩放一个 layer 的 $c_i$ 和 $c_o$，weight 正比于 $w^2$，和 resolution $R$ 无关；activation 正比于 $c\times h\times w_\text{map}$，即正比于 $w\,R^2$。所以 Flash 只限制 $w$，SRAM 限制 $w\,R^2$。拿上面算的 MobileNetV2 估一下（peak 在 $w=1$、$R=224$ 时是 1372 KiB），320 kB 的 SRAM 要求
+
+$$w\Big(\frac{R}{224}\Big)^2\le\frac{320{,}000}{1372\times1024}=0.2278,\qquad R_\text{max}(w)=224\sqrt{\frac{0.2278}{w}}$$
+
+$w=1$ 时 $R_\text{max}=107$，$w=0.5$ 时 $R_\text{max}=151$。Flash 变大允许更大的 $w$，SRAM 没变，$R$ 就得变小；SRAM 变大，右边的 0.2278 变大，$R$ 跟着变大。Slides 还比较了 TinyNAS 搜出的网络和 MobileNetV2 在前两个 stage 的逐 block peak memory：TinyNAS 的更平均，同样的 SRAM 能放下更大的模型（图上标着 2.2 倍和 1.6 倍，从图的文字看是两者各自的 max 与 average 之比，图本身我看不到）。
 
 ### TinyEngine：把 buffer 排好
 
@@ -955,11 +1078,13 @@ Model 搜好了，还要一个 inference engine 把它跑起来，engine 本身�
 
 $$2\times144\times3136=903{,}168\ \text{byte}=882\ \text{KiB}\quad\longrightarrow\quad145\times3136=454{,}720\ \text{byte}=444\ \text{KiB}$$
 
-几乎减半。论文实测 in-place depthwise 让 memory 少 1.6 倍。
+几乎减半。Lecture 11 的 slides 把它写成 peak memory 从 $2\times C\times H\times W$ 降到 $(1+C)\times H\times W$；论文实测 in-place depthwise 让 memory 少 1.6 倍。Slides 也说明了为什么要专门处理 depthwise：inverted residual block 用 depthwise 省了 model size 和 FLOPs，却让 peak memory 变成 3 到 6 倍（expand 之后的 tensor 是 input 的 $t$ 倍）。
 
-**Kernel specialization。** 按 kernel size 把 loop 展开（$3\times3$ 展开成 9 段），把 conv、padding、ReLU、BN 融合成一个 kernel。
+**Data layout 按 layer 选。** Lecture 11 讲的是 TinyEngine 对两种 layer 用两种排法。Pointwise（$1\times1$）conv 的每个 output 是同一个像素位置上所有 channel 的加权和，activation 按 NHWC 排（同一个像素的各 channel 挨着放），读的时候是连续的。Depthwise conv 每个 output channel 只用自己那个 channel 的一个 $3\times3$ 邻域，按 NCHW 排（同一个 channel 的整张图挨着放）才连续，也正好配合上面一个 channel 一个 channel 做的 in-place 写法。
 
-TinyEngine 合起来让 peak memory 少 3.4 倍，比 TF-Lite Micro 和 CMSIS-NN 快 1.7 到 3.3 倍。MCUNet 在 STM32F746 上的 ImageNet top-1 是 63.5%，在 STM32H743（512 kB SRAM、2 MB Flash）上 4-bit 量化做到 70.7%。
+**Kernel specialization。** 按 kernel size 把 loop 展开（$3\times3$ 展开成 9 段），把 conv、padding、ReLU、BN 融合成一个 kernel。Im2col 把 convolution 改写成矩阵乘、好用 GEMM kernel，代价是要额外的 memory 存展开后的 input；在 SRAM 只有几百 kB 的地方，这正是上面 memory scheduling 要管住的那块 buffer。
+
+TinyEngine 合起来让 peak memory 少 3.4 倍，比 TF-Lite Micro 和 CMSIS-NN 快 1.7 到 3.3 倍。MCUNet 用 4-bit 量化，在 STM32F746（320 kB SRAM、1 MB Flash）上的 ImageNet top-1 是 63.5%，在 STM32H743（512 kB SRAM、2 MB Flash）上是 70.7%，是第一个在商用 MCU 上超过 70% 的。
 
 :::wrong MobileNetV2 只有 3.4M 个 parameter，int8 后 3.4 MB，换一块 Flash 大一点的 MCU 就能跑
 Flash 只管 weight。真正卡住的是 SRAM：上面算出 peak activation 是 1372 KiB，STM32F746 的 SRAM 是 320 kB，差 4 倍多，和 Flash 多大无关。即使把 weight 压到 1 MB 以内，模型照样跑不起来。在 MCU 上先算 peak activation。
@@ -977,14 +1102,14 @@ $$\Big(\frac{34}{28}\Big)^2=1.47$$
 
 ::fig[m6940-patch] Patch-based inference：看左边的框一块块扫过 input，每个 patch 带着一圈和邻居重叠的 halo 跑完前几个 block，右边的 feature map 一块块拼满；后面的 block 照常逐层执行。
 
-MCUNetV2 论文：MobileNetV2 的 peak SRAM 从 1372 kB 降到 172 kB（8 倍），整体计算多出约 10%（patch 段内部多出 42%）。再把前面这一段的 receptive field 缩小（用小 kernel、少几个 block），把缺的 receptive field 补到后面的 layer-by-layer 段，overhead 降到 3%，accuracy 不变。结果：STM32H743 上 ImageNet 71.8%；Visual Wake Words 在 32 kB SRAM 下超过 90%。
+MCUNetV2 论文：MobileNetV2 的 peak SRAM 从 1372 kB 降到 172 kB（8 倍），整体计算多出约 10%（patch 段内部多出 42%）；Lecture 10 的 slides 上是 MACs 从 301M 变成 330M，$330/301=1.096$。再把前面这一段的 receptive field 缩小（用小 kernel、少几个 block），把缺的 receptive field 补到后面的 layer-by-layer 段，overhead 降到 3%，accuracy 不变。结果：STM32H743（512 kB SRAM）上 ImageNet 71.8%；Visual Wake Words 要做到 90% 的 accuracy，MCUNet 需要 119 kB 的 SRAM，MCUNetV2 只要 30 kB（slides 的数）。2026 版 Lab 3 用的 supernet 就是 MCUNetV2 的。
 
 :::back
 Peak activation 的定义来自[第 1 站](#eff)。TinyNAS 的 weight sharing 和[第 5 站](#nas)的 OFA 是同一个思路。4-bit 量化来自[第 3 站](#quant)。
 :::
 
 :::from
-STM32F746 的规格、Flash 与 SRAM 的分工、100 倍 / 22 倍 / 5.3 倍、TinyNAS 的 108 个空间和 FLOPs heuristic、TinyEngine 的 65% / 22% / 4.5 倍、memory scheduling 的两个 formula、$2N\to N+1$、3.4 倍与 1.7–3.3 倍、63.5% 与 70.7%，出自 [MCUNet 论文](https://ar5iv.labs.arxiv.org/html/2007.10319)。不均衡的 memory 分布、1372 kB → 172 kB、10% 与 42%、receptive field redistribution、71.8% 出自 [MCUNetV2 论文](https://arxiv.org/html/2110.15352v2)。Lecture 10–11 的讲次顺序和 TinyEngine 的几个名词核对了 [gozhiyuan 的笔记](https://gozhiyuan.github.io/tinyml/large-language-model/2024/10/20/mit-tinyml-10.html)，那份笔记没有数字；slides 没读到。MobileNetV2 的逐层计算、1372 KiB 与论文数字的对应（“按 in-place depthwise 计”是我的推断）、resolution 表、882 → 444 KiB、halo 的例子是为这一页算的。MobileNetV2 的 block 配置凭我自己的知识。
+Flash 与 SRAM 的分工和简化的估算法、13,000 倍、MobileNetV2-0.75 与 ResNet-18 的对比、TinyNAS 的 FLOPs 分布（50.3M 与 32.3M）、SRAM / Flash 变大时 width 和 resolution 怎么变、TinyNAS 的 peak 更平均、1372 kB → 172 kB 与 8 倍、patch 之后 MACs 301M → 330M（多 10%），按 [2024 版 Lecture 10 的 slides](https://drive.google.com/drive/folders/1A3P6IBuS8wCzLlpdRiQBO9b1uoK3pnPf)（全文读了）。STM32F746 的 216 MHz 与 8 KB L1、inverted residual 让 peak 变成 3–6 倍、$2CHW\to(1+C)HW$、NHWC 与 NCHW 的选择、im2col 的额外 memory，按 2024 版 Lecture 11 的 slides（全文读了）。100 倍 / 22 倍 / 5.3 倍、TinyNAS 的 108 个空间、TinyEngine 的 65% / 22% / 4.5 倍、memory scheduling 的两个 formula、1.6 倍、3.4 倍与 1.7–3.3 倍、63.5% 与 70.7%（两者都是 4-bit，上一版没写清 63.5% 的 bit 数）出自 [MCUNet 论文](https://ar5iv.labs.arxiv.org/html/2007.10319)。前 5 个 block 超过 450 kB、10% 与 42%、receptive field redistribution 后 3%、STM32H743 上 71.8% 出自 [MCUNetV2 论文](https://arxiv.org/html/2110.15352v2)。MobileNetV2 的 block 配置（$t,c,n,s$）上一版凭记忆写，这次对着 [MobileNetV2 论文](https://ar5iv.labs.arxiv.org/html/1801.04381) 的 Table 2 核过，一致；“memory 由 input 加 output 的最大值决定”也是那篇论文的说法。上一版说“1372/256 = 5.36 就是 MCUNet 的 5.3 倍”，那是我拼凑出来的对应，MCUNet 的预算是 320 kB，这次删掉了。MobileNetV2 的逐层计算、resolution 表、$R_\text{max}(w)$ 的估算、882 → 444 KiB、halo 的例子是为这一页算的。
 :::
 
 ## [robot] 接到机器人：Jetson 级硬件上的 policy
@@ -1003,7 +1128,7 @@ NVIDIA 给出的两个 Orin 模块：
 | memory | 64 GB | 8 GB |
 | 功耗 | 15–60 W | 10–20 W |
 
-同一篇博客给出 AGX Orin 开发者套件（32 GB DRAM）的 memory bandwidth 是 204.8 GB/s。和第 1 站的 RTX 4090（1 TB/s）比，bandwidth 是它的五分之一。Sparse 和 dense 的 TOPS 差 2 倍，指的是第 2 站的 2:4 sparsity。
+同一篇博客给出 AGX Orin 开发者套件（32 GB DRAM）的 memory bandwidth 是 204.8 GB/s。和第 1 站的 RTX 4090（1 TB/s）比，bandwidth 是它的五分之一。Sparse 和 dense 的 TOPS 差 2 倍，指的是第 2 站的 2:4 sparsity。课程自己也拿 Jetson 举例：2026 版 Lab 4 的 notebook 开头说 8 GB DRAM 的 Jetson Orin Nano 连最小的 LLaMA-2 的 half precision 都放不下（第一次事故）；Lecture 13 的 slides 展示了在只有约 7 GB 可用 memory 的 Orin Nano 上用 AWQ 加 TinyChat 跑 7B 模型。
 
 ### 算一个 VLA 每一步要多久
 
@@ -1034,7 +1159,7 @@ OpenVLA 论文在 8 个 BridgeData V2 任务上（每个 80 次 rollout）比较
 在 A5000 上，int8 只跑到约 1.2 Hz，int4 约 3 Hz。
 
 :::wrong int8 一定比 int4 准、比 bf16 快
-这张表里 int8 的 success rate 最低，速度也最慢。论文的解释是 int8 加进去的 quantization operation 有额外开销，inference 变慢，success rate 的下降也归因于这一点。按这个解释，问题出在速度：在 5 Hz 的 non-blocking controller 下，policy 给出 action 太晚（这一句是我的理解）。这和第 4 站的结论一致：同样是“8-bit”，实现方式决定了它是省时间还是费时间。论文没有说明 int8 用的是哪种实现，我没有核对。
+这张表里 int8 的 success rate 最低，速度也最慢。论文说 8-bit quantization 在多数 GPU 上都让 inference 变慢，原因是加进去的 quantization operation 有额外开销；success rate 的下降也归因于速度：离线在 training data 上量 token accuracy，int8 和 int4 都与 bf16 相当，所以掉的不是模型本身的精度，而是 action 给得太慢。这和第 4 站的结论一致：同样是“8-bit”，实现方式决定了它是省时间还是费时间。论文只写了“用为 LLM serving 开发的 quantization 方法以低精度载入 weight”，引的是 LLM.int8() 和 QLoRA，没有点名用的哪个库。
 :::
 
 int4 的 success rate 和 bf16 相当，memory 是它的 42%，正是第 4 站 W4A16 的情形。
@@ -1052,70 +1177,113 @@ AWQ 论文用 TinyChat 在 Jetson Orin 上跑 W4A16：相对 FP16 最多 3.5 倍
 - **必须实测的**：MACs 预测不了 latency（第 5 站）；int8 可能比 bf16 慢（上面 OpenVLA 的例子）；Jetson 的功耗模式会改变频率。部署前在目标设备上量端到端的 control frequency，而不是看 parameter 数或 FLOPs。
 
 :::from
-Orin 的规格出自 [NVIDIA 技术博客](https://developer.nvidia.com/blog/delivering-server-class-performance-at-the-edge-with-nvidia-jetson-orin)（NVIDIA 产品页的抓取被拒）。OpenVLA 的结构、7 个 action token、256 个 bin、5 Hz 与 15 Hz、4090 上 6 Hz、量化表、A5000 上的频率和对 int8 的解释出自 [OpenVLA 论文](https://arxiv.org/html/2406.09246v3)。Orin 上的 3.5 倍、VILA 的 token/s、70B 放进 64 GB 出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)；TinyChatEngine 支持 Jetson AGX Orin 出自它的 [README](https://github.com/mit-han-lab/tinychatengine)。延迟下界的表格和最后一节的分类是我用前几站的方法算出和推出的，没有实测核对。
+Orin 的规格出自 [NVIDIA 技术博客](https://developer.nvidia.com/blog/delivering-server-class-performance-at-the-edge-with-nvidia-jetson-orin)（NVIDIA 产品页的抓取被拒）。Orin Nano 放不下 fp16 的 LLaMA-2 出自 [2026 版 Lab 4 的 notebook](https://colab.research.google.com/drive/1r26Togpim59OcHDCD2UInWYQZKz6_wSO)，约 7 GB 上跑 7B 出自 2024 版 Lecture 13 的 slides。OpenVLA 的结构、7 个 action token、256 个 bin、5 Hz 与 15 Hz、4090 上 6 Hz、量化表、A5000 上的频率和对 int8 的解释出自 [OpenVLA 论文](https://arxiv.org/html/2406.09246v3)；这次重读了量化一节，上一版标为“我的理解”的那句改成了论文自己的论证（离线 token accuracy 相当，所以归因于速度），int8 的实现只查到它引用了 LLM.int8() 和 QLoRA。Orin 上的 3.5 倍、VILA 的 token/s、70B 放进 64 GB 出自 [AWQ 论文](https://arxiv.org/html/2306.00978v5)；TinyChatEngine 支持 Jetson AGX Orin 出自它的 [README](https://github.com/mit-han-lab/tinychatengine)。延迟下界的表格和最后一节的分类是我用前几站的方法算出和推出的，没有实测核对。
 :::
 
 ## 作业
 
-Fall 2026 有 6 个 lab（Lab 0 到 Lab 5）和一个 final project。Lab 个人完成，6 个 late day 不扣分，用完后每晚一天扣一半，至少交 4 个 lab 才能 pass。外部学习者没有 autograder，只能靠 notebook 里的检查和自己对照结果。Colab notebook 要登录 Google 才看得到正文；下面关于 Pruning 和 Quantization lab 的具体内容来自 2024 版（当时编号 Lab 1、Lab 2）的社区镜像，2026 版可能有改动。
+Fall 2026 的评分规则是 5 个 lab（Lab 1 到 Lab 5）加一个 final project。Lab 个人完成，可以讨论，但要写明合作者；6 个 late day 不扣分，用完之后每晚一天扣 50%，再超出两天记 0 分；5 个 lab 至少交 4 个才能 pass。日程上另有一个 Lab 0（9 月 15 日发、24 日交），是 PyTorch 热身。外部学习者没有 autograder，只能靠 notebook 里的 public test 和 handout 写出的目标数对照。Lab 0、2、3、4 是 Colab notebook，第一个 cell 会 mount 你的 Google Drive，并把工作目录设成 Drive 里的一个文件夹。下面的内容来自 2026 版的 notebook 和 handout 原文；notebook 不带运行结果，所以除了 notebook 自己写明的目标数，这里没有 2026 版的运行数字。
 
-### Lab 0（2026）
+### Lab 0：PyTorch 热身
 
-- **内容**：课程主页没有写题目，notebook 正文这次没有读到。按它的发布时间（第 2 讲之后）和 2024 版的同名 lab，应当是 PyTorch 的热身，这是推测。
-- **算力**：Colab notebook。
-- **优先级**：会写 PyTorch training loop 就可以跳。
+- **内容**：在 CIFAR-10 上从头 train 一个 VGG-11 的变体：8 个 conv-bn-relu（channel 64、128、256、256、512、512、512、512），中间 4 个 maxpool，classifier 是一个 $512\to10$ 的 linear。要写的只有 Q1.1，补全 `forward`：$32\times32$ 的图经过 4 次 maxpool 变成 $2\times2$，要先把这个 feature map pool 成 512 维，再进 classifier（public test 只检查 output 的 shape 是 $(1,10)$）。Q1.2 报告最好的 accuracy。
+- **设定**：notebook 用 `torchprofile` 数出 9.2M parameter、606M MACs（第 2 站逐层算过同样的数）；SGD（learning rate 0.4，momentum 0.9，weight decay $5\times10^{-4}$），batch 512，20 个 epoch，learning rate 从 0 线性升到第 6 个 epoch 的 0.4，再线性降到 0；目标 accuracy 超过 92.5%，notebook 说大约要 10 分钟。
+- **算力**：Colab 的 T4 GPU。
+- **优先级**：会写 PyTorch training loop 的话跑一遍即可。这个 VGG 正是 2024 版 pruning 和 quantization lab 里被压缩的那个模型，第 2、3 站的 VGG 数字都来自它。
 
 ### Lab 1：GPU Basics（2026 新增）
 
-- **内容**：以 zip 发布，这次没有读到内容。
-- **优先级**：有余力再做。它和 Lab 5 的 kernel 优化有关，但具体要求未知。
+- 课程主页上是一个 Dropbox 上的 zip（9 月 22 日发、10 月 1 日交）。这次 Dropbox 连不上，内容没有读到，这里不写它的要求。
 
-### Lab 2：Pruning（2026 编号；2024 是 Lab 1）
+### Lab 2：Pruning
 
-- **从零实现**：magnitude-based 的 fine-grained pruning（用 `torch.kthvalue` 求 threshold、生成 mask）；对每个 conv 和 FC layer 做 sensitivity scan 并选 sparsity；channel pruning（保留前若干个 output channel，同步裁 BatchNorm 和下一层的 input channel）；按 Frobenius norm 排序 channel；fine-tune；测 MACs、model size 和 CPU latency。
-- **做完会什么**：第 2 站的全部内容，以及“为什么 fine-grained 不提速、channel pruning 提速”的实测体会。
-- **时间与算力**：handout 没给时间，调研条目估计 4 到 6 小时。Notebook 调用 `.cuda()`，要 Colab 的 GPU runtime，免费的 T4 够用；latency 在 CPU 上测。
+- **从零实现**（11 题，100 分；Q3 和 Q5 不计分）：
+  - Q1：看 Gemma-3-270M 的 FFN weight histogram（默认画第 0、8、17 层），说出各层分布的共同特点，以及这些特点为什么有利于 pruning。
+  - Q2：`fine_grained_prune`。`num_zeros` 用 `round(numel × sparsity)`，importance 取 absolute value，threshold 用 `torch.kthvalue` 取第 `num_zeros` 小的值，`mask = importance > threshold`。Q3 改 `target_sparsity`，让 $5\times5$ 的测试 tensor 只剩 10 个 nonzero。
+  - Q4：读 18 个 FFN layer 的 sensitivity 曲线（perplexity 对 sparsity）回答三个问题；Q5 自己选每层的 sparsity（见第 2 站）。
+  - Q6、Q7：写出 Wanda 的 unstructured mask（sparsity 0.6），和 magnitude pruning 比较，读论文解释为什么好。
+  - Q8、Q9：FFN neuron 的 magnitude importance 和 Wanda importance，各剪掉 30% 的 neuron 比较 perplexity，再 fine-tune 25 步。
+  - Q10：比较一层 MLP 在 GPU 上的 latency 降幅和 MAC 降幅。Q11：比较 fine-grained 与 channel pruning，并回答在 smartphone 上选哪个。
+- **做完会什么**：第 2 站的全部内容，包括 Wanda 和 FFN 上的 structured pruning。
+- **时间与算力**：notebook 要求 runtime 选 T4 GPU（或更好）、runtime version 2025.10；model 以 fp32 载入，数据是 WikiText-2。Gemma 要先在 Hugging Face 上接受 license，建一个 read token，存进 Colab 的 Secrets（名字是 `HF_TOKEN`，打开 Notebook access）；notebook 特意提醒不要把 token 贴进 cell，否则它会随作业一起交上去。Notebook 没给所需时间。
 - **优先级**：先做。
 - **提示**：
-  - Fine-grained pruning 的约束是 model size 不超过 dense 的 25%、accuracy 不低于 92.5%。镜像里的一组可行答案是：第一个 conv 0，接下来四个 0.5，再两个 0.8，最后一个 conv 0.9，classifier 0；剪完 87.00%，fine-tune 后 92.80%。（来源：2024 版 lab 镜像）
-  - `mask = importance > threshold` 在有并列值时会多剪一点，镜像里目标 0.75 实测 0.76，属于正常。（来源：lab 镜像）
-  - Fine-tune 时，每次 `optimizer.step()` 之后都要把 mask 乘回 weight，否则被剪掉的 weight 会重新长出来。Sensitivity scan 每试一个组合后要恢复原始 weight，否则后面的扫描是在已经剪过的模型上做的。（来源：调研条目引用的镜像；我这次读镜像时没有核到这两条的原文，但按 pruning 的流程它们必然成立）
-  - Channel pruning 要同步改四个 BatchNorm tensor（weight、bias、running mean、running var）和下一层 conv 的 `weight[:, :n_keep]`；排序时三处用同一个 permutation。排序后 dense accuracy 应当仍是 92.95%，不是就说明三处没对齐。（来源：lab 镜像）
-  - 只剪不排序，accuracy 掉到 28.14%；排序后 36.81%；fine-tune 5 个 epoch 回到 92.18%。看到暴跌先别怀疑实现，先看 fine-tune 之后的数。（来源：lab 镜像）
-  - 30% channel pruning 的实测：MACs 1.99 倍、parameter 1.84 倍、latency 1.86 倍。Q8 问为什么 MACs 接近 2 倍、latency 稍少，按第 2 站的 $0.7^2$ 和第 1 站的 memory 账回答。（来源：lab 镜像；解释是本页的）
+  - Q3：测试 tensor 有 25 个数，要剩 10 个，就是剪 15 个，`round(25 × s)` 要等于 15，$s=0.6$。这时第 15 小的 absolute value 是 0.25，大于它的正好 10 个（两个 0.36 并列，都大于 0.25，不受影响）。Q2 的默认测试是 $s=0.75$：`round(18.75)` 是 19，threshold 0.39，剩 6 个。（来源：notebook 的测试 tensor；计算是本页的）
+  - `fine_grained_prune` 是原地改 tensor 的（`tensor.mul_(mask)`）。Sensitivity scan 的代码已经在每试完一个 sparsity 后把 weight 拷回去；其余地方要从 dense 模型重来，先调 `recover_model()`。（来源：notebook 代码）
+  - Fine-tune 用的 `train` 已经在 `optimizer.step()` 之前把 gradient 乘上 mask，不用自己再乘 weight（第 2 站）。（来源：notebook 代码）
+  - Wanda 的 mask 按论文在每个 output（weight 的每个 row）内部排序，每个 row 剪同样多。Hook 收集的是每个 input channel 的平方和，开根号才是 $\|X_j\|_2$，不过开不开根号不影响排序。（来源：Wanda 论文；notebook 的 hook 代码）
+  - `apply_structured_pruning` 用 `torch.topk(..., sorted=False)` 选出要留的 neuron，再 `torch.sort` 排回原来的顺序，保证 gate、up 的 row 和 down 的 column 用同一组、同一顺序的 index（第 2 站的 :::edge）。你只需要给出每个 neuron 的 score。（来源：notebook 代码）
+  - Q10 的 hint：MAC 只数矩阵乘，MLP 还有 activation function、elementwise 乘法和 memory 搬运；剪完的 shape 能不能让 GPU 一样吃满也有影响。两种结论都算对，解释要和你量到的数一致。（来源：notebook）
 
-### Lab 3：Neural Architecture Search（2026 编号）
+### Lab 3：Neural Architecture Search
 
-- **内容**：notebook 正文没有读到。调研条目建议先跳；部署时很少需要自己跑 NAS。
-- **优先级**：有余力再做。做的话先读第 5 站，并把 OFA 论文里的 latency lookup table 和 accuracy predictor 看懂。
+- **从零实现**（10 题，100 分）：Q1 手动采样几个 sub-network、改 resolution，说出哪个维度对 accuracy 影响最大；Q2 efficiency predictor（MACs 以百万计、peak memory 以 KB 计）；Q3 accuracy predictor 的 MLP（3 层、每层 400 个 unit、ReLU，最后 $400\to1$ 的一层已给）；Q4 它的 training 和 validation loop（Adam、L1 loss、10 个 epoch），要求 predicted 和 measured accuracy 呈线性关系；Q5、Q6 random search；Q7 evolutionary search 的 crossover 和按 accuracy 排序、保留 parent；Q8 调 evolution 的参数并描述发现；Q9 在 peak memory 不超过 250 KB、MACs 不超过 60M 的约束下搜到 accuracy 不低于 92% 的网络；Q10 判断“peak activation 不超过 256 KB 且 MACs 不超过 15M”“peak activation 不超过 64 KB”这两个约束在这个 search space 里能否满足。
+- **做完会什么**：第 5 站的 OFA 流程和第 7 站的 MCU 约束，合在一起用一次。
+- **时间与算力**：用 `cuda:0`，要 GPU runtime；第一个 cell 会从 Dropbox 下载 MCUNet 的代码和 VWW 数据集。Notebook 说抽一个 sub-network 测 accuracy 不到一分钟，accuracy predictor 的 training 要 1 到 2 分钟；没有给总时间。
+- **优先级**：值得做。部署时很少自己跑 NAS，但 Q2 和 Q10 逼你把 MACs、peak memory 和结构的关系想清楚。
+- **提示**：
+  - Q2 的 input shape 是 `(1, 3, image_size, image_size)`，`image_size` 从 sub-network 的配置里取；两个计数函数的用法和前面 `evaluate_sub_network` 里的一样，最小和最大 sub-network 的结果应当和那里打印的一致。（来源：notebook）
+  - Q3 第一层的 input 维度不是 400，而是 `arch_encoder.n_dim`。（来源：notebook）
+  - 抽出来的 sub-network 在测 accuracy 前要重新 calibrate BatchNorm 的统计量（`calib_bn`，用 holdout 的那一半 validation set），`evaluate_sub_network` 已经这样做了。Supernet 里的 running mean 和 running var 是所有 sub-network 混在一起统计的，对某一个具体的 sub-network 并不对。（来源：notebook 代码；原因是本页的解释）
+  - Q9 的默认参数（population 10、跑 10 代、parent 和 mutation 都是 10%）是故意设弱的，notebook 明说要调；random search 那边每次采 300 个，可以拿来对照 population 和代数该给多少。（来源：notebook；对照的办法是本页的建议）
+  - Q10：MACs、peak activation 随 kernel、expand ratio、depth、width、resolution 中任何一个变大都不会变小，所以先用 efficiency predictor 量每个维度都取最小值的 sub-network（`sample_function=min`）。它都满足不了的约束，这个 search space 里就没有网络能满足。（来源：本页的建议）
 
-### Lab 4：Quantization（2026 编号；2024 是 Lab 2）
+### Lab 4：Quantization
 
-- **从零实现**：k-means quantization（用 `fast_pytorch_kmeans`）和 codebook 更新（每个 centroid 取所属 weight 的 mean）；linear quantization 的 `linear_quantize`、scale 与 zero point；int32 bias；`quantized_linear` 和 `quantized_conv2d`；BatchNorm fusion、activation range calibration、input preprocessing，最后把 VGG 变成 integer-only 的 int8 模型。
-- **做完会什么**：第 3 站的全部内容，以及 integer-only inference 每一步的数据类型。
-- **时间与算力**：handout 没给时间，调研条目估计 5 到 8 小时。用到 `.cuda()`，要 Colab GPU runtime。
+- **从零实现**（6 题，100 分）：
+  - Part A，linear quantization（50 分）：Q1 `linear_quantize`；Q2 从四个候选里选出 $S$ 和 $Z$ 的正确 formula，再写出由 tensor 的 min、max 求 $S$ 和 $Z$ 的函数；Q3 weight 的 symmetric scale（$S=|r|_\text{max}/q_\text{max}$）和 per-output-channel 的版本；Q4 `quantized_linear`。
+  - Part B，在 OPT-1.3B 上实现 AWQ（50 分）：Q5 留 1% salient channel 为 FP16、改成随机留 1%、解释为什么 salient channel 重要；Q6 放大 salient channel、试 $s=1,2,3,4$ 并解释 perplexity 为什么先降后升、实现 $\alpha$ 的 grid search。
+- **做完会什么**：第 3 站的 linear quantization 和 integer matmul，第 4 站 AWQ 的每一步。2024 版的 k-means quantization、BatchNorm fusion 和 integer-only 的 VGG 这一版都没有了。
+- **时间与算力**：OPT-1.3B 以 fp32 载入，要 GPU runtime。Calibration 用 `mit-han-lab/pile-val-backup` 里 256 个不超过 512 token 的 sample；perplexity 在 WikiText-2 test set 的前 40 段、每段 2048 个 token 上算。Notebook 没给时间。
 - **优先级**：先做。
 - **提示**：
-  - k-means 不 fine-tune 时 4-bit 是 79.07%，2-bit 是 10.00%；fine-tune 后 92.47% 和 91.17%。2-bit 的崩溃是预期现象。（来源：lab 镜像）
-  - Zero point 的写法是 `qmin - round(fp_min / scale)`，再 clamp 到 $[q_\text{min},q_\text{max}]$。（来源：lab 镜像）
-  - Bias 用 int32，`bias_scale = weight_scale * input_scale`，zero point 为 0；input zero point 带来的修正项折进 bias：linear 是 `quantized_bias - quantized_weight.sum(1) * input_zero_point`，conv 是对 `(1, 2, 3)` 三个维度求和。这就是第 3 站推导里的 $-Z_Xq_W\mathbf{1}$。（来源：lab 镜像）
-  - 输出要先在 int32 里加上 zero point 并 clamp 到 int8 范围，再 cast 成 int8；先 cast 再加会溢出或 wraparound。（来源：调研条目，部分来自镜像代码，部分是经验；理由见第 3 站的 :::wrong）
-  - 先 fuse BatchNorm 再收集 activation range（fuse 后 backbone 从 29 层变成 21 层，accuracy 仍是 92.95%）。Input 图像在 $(0,1)$ 内，要用 `x * 255 - 128` 映射到 int8 再 clamp，漏掉这一步整个模型的 accuracy 会很低。最终 int8 模型 92.90%。（来源：lab 镜像）
+  - Q1：$Z$ 是 integer、$r/S$ 是 float，要先把 $r/S$ round 成 integer 再加 $Z$，最后 clamp 到 $[q_\text{min},q_\text{max}]$、转成 int8。（来源：notebook 的 hint）
+  - Q2：$S=(r_\text{max}-r_\text{min})/(q_\text{max}-q_\text{min})$，$Z=\mathrm{round}(q_\text{min}-r_\text{min}/S)$，再 clamp 到量化范围（第 3 站的推导）。测试的数可以手算核对：$r\in[-0.25,0.75]$、2 bit，$S=1/(1-(-2))=1/3$，$Z=\mathrm{round}(-2-(-0.25)\times3)=\mathrm{round}(-1.25)=-1$。（来源：notebook 的测试参数；计算是本页的）
+  - Q4：notebook 写明要减去 $Z_\text{input}\sum_\text{in}q_\text{weight}$，每个 output channel 一个值，就是第 3 站的 $Z_Xq_W\mathbf{1}$；漏掉它，测试会报 output 差了几个 quantization step。`weight_scale` 的 shape 是 `[oc, 1]`，output 是 `[batch, oc]`，相乘前要 reshape。（来源：notebook）
+  - Part B 的 `pseudo_quantize_tensor` 用的是 asymmetric 的 min-max（量化到 $[0,2^b-1]$，带 zero point），第 4 站推导时用的是 symmetric 的 $\Delta=\max|w|/2^{N-1}$；“放大一个 channel 通常不改变 group 的范围”对两种都成立，结论一样。Model size 的算法是每个 weight $b$ bit，每 128 个再加 16 bit 的 scale 和 4 bit 的 zero point。（来源：notebook 代码；比较是本页的）
+  - Q5 的 importance 是每个 input channel 上 $|x|$ 的 mean（calibration 时用 hook 收集），用 `torch.topk` 取前 1%；要保护的是 weight 的 column（`m.weight.data[:, idx]`），不是 row。留 FP16 的目标 perplexity 是 17.15，随机留 1% 应当超过 100。（来源：notebook）
+  - Q6.2 用第 4 站的 $\frac{\Delta'}{\Delta}\cdot\frac1s$ 解释：$s$ 小时 $\Delta'$ 不变，error 按 $1/s$ 降；$s$ 大到 salient weight 变成 group 的最大值，$\Delta'$ 变大，group 里其余 weight 的 error 一起变大。$s=2$ 的目标是 18.93，搜 $\alpha$ 的目标是 17.92。（来源：notebook）
 
-### Lab 5：LLM Deployment on Laptop（TinyChatEngine）
+### Lab 5：Optimize LLM on Edge Devices（TinyChatEngine）
 
-- **从零实现**：在 TinyChatEngine 里部署 AWQ 量化的 LLaMA2-7B-chat，给 linear kernel 依次加上 loop unrolling、multithreading、SIMD，测每一步对端到端 latency 的影响。提交用 `git diff` 生成的 patch（命名 `{studentID}-{ISA}.patch`，ISA 取 x86 或 ARM）和报告。
-- **做完会什么**：第 4 站 W4A16 在 CPU 上的真实样子，int4 weight 怎样在 SIMD register 里解包，以及 memory-bound 的 kernel 该怎么优化。
-- **时间与算力**：详细步骤在 tutorial 链接的 Google Doc 里，这次没读到（要 JavaScript）；调研条目估计 8 到 12 小时。不需要 GPU，x86 或 ARM 的笔记本都行。按第 4 站的算法，int4 的 7B 模型约 3.9 GB，磁盘和 memory 要留出几 GB。
+- **内容**：在自己的电脑上用 TinyChatEngine 部署 4-bit 的 LLaMA2-7B-chat，给它的 linear kernel 写 5 个版本：loop unrolling、multithreading、SIMD programming、multithreading 加 loop unrolling、全部合在一起，各自在 `kernels/starter_code/` 下一个文件，有 `TODO` 标记。`./evaluate.sh <版本名>` 编译、检查结果是否和 reference 一致，并报告 GOPs；同时生成一个 `chat` 可执行文件，可以直接和模型对话。
+- **评分**：每个版本 20 分，其中 correctness 15 分（看 `evaluate.sh` 的输出），报告 5 分（量出这个版本在你电脑上的提速并解释原因）。提交按 template 写的报告（PDF，贴上每个版本的代码和 GOPs），以及一个 `git diff` 生成的 patch，命名 `{studentID}-{ISA}.patch`，ISA 填 x86 或 ARM。
+- **做完会什么**：Lecture 11 的 loop unrolling、multithreading、SIMD 在一个真实的 LLM kernel 上各值多少，以及 int4 weight 怎样在 SIMD register 里解包。
+- **时间与算力**：handout 的最低要求是 macOS、Linux 或 Windows，x86 或 ARM（Apple M1/M2），8 GB memory，5 GB 可用磁盘；不需要 GPU。没有给所需时间。
 - **优先级**：先做。这是这门课里唯一能直接搬到 Jetson、Raspberry Pi 上的作业。
+
+**这个 kernel 在算什么。** 它是 W4A8，不是第 4 站 GPU 上的 W4A16：activation 也在运行时量化成 int8，乘法本身是 integer 的。Reduction 的那一维 $k$ 每 32 个分成一个 block（handout 说 group size 是 32），weight 和 activation 在每个 block 上各有一个 fp32 的 scale。Weight 是 symmetric 的 4 bit，存成 0 到 15，固定的 zero point 是 8。所以 output 的一个 entry 是
+
+$$C_{rc}=\sum_{b}s^{A}_{r,b}\,s^{B}_{c,b}\sum_{k\in b}q^{A}_{rk}\,\big(q^{B}_{ck}-8\big)$$
+
+里面的 sum 是 32 个 int8 乘 int8，累加在 int32 里；每个 block 结束时乘一次两个 scale，加到 fp32 的 accumulator 上。Reference 版本就是这个三重 loop。
+
+::fig[m6940-int4pack] ARM（QM_ARM）的 weight layout：一个 block 的 32 个 4-bit weight 存在 16 个 byte 里，byte $i$ 的低 4 bit 是 $w_i$、高 4 bit 是 $w_{i+16}$。一次 AND 和一次 shift 就把整个 128-bit register 拆成前后两半。
+
+ARM 的 layout 是为 128-bit SIMD 准备的：16 个 byte 装一个 block，byte $i$ 的低 4 bit 是 $w_i$，高 4 bit 是 $w_{i+16}$。和 `0x0F` 做 AND 得到 $w_0,\dots,w_{15}$，右移 4 bit 得到 $w_{16},\dots,w_{31}$，各减 8 变成 $-8$ 到 7，正好对上连续的 32 个 int8 activation 的前一半和后一半。例如 byte `0xB3`（二进制 1011 0011）：低 4 bit 是 3，减 8 得 $-5$；高 4 bit 是 11，减 8 得 3。x86 的 layout 对应 256-bit 的 AVX2：32 个 byte 装两个 block，byte $i$ 的低 4 bit 是 $w_i$、高 4 bit 是 $w_{i+32}$。这个重排在模型转换时 offline 做好，运行时不用再排。
+
+**每个 token 要读多少 byte。** Llama-2-7B 的 linear layer 加上 output head 共 $32\times(4\times4096^2+3\times4096\times11008)+32000\times4096=6{,}607{,}077{,}376$ 个 weight，embedding 不量化（每个 token 只查一个 row）。Kernel 每 32 个 weight 读 16 byte 的 weight 和 4 byte 的 scale：
+
+$$6{,}607{,}077{,}376\times\frac{16+4}{32}=4.13\times10^{9}\ \text{byte}$$
+
+Batch 1 的 decode 里每个 weight 只用一次（第 1 站），kernel 写得再快，每个 token 的 latency 也不会低于 4.13 GB 除以你机器的 memory bandwidth。几种优化缩短的是实测 latency 和这个下界之间的距离，量一下 `./chat` 每秒出几个 token 就知道还差多少。（模型文件里每个 block 还存了一个恒为 0 的 fp32 offset，这个 kernel 不读它。）
+
 - **提示**：
-  - 先确认自己机器的 ISA，只改对应的 SIMD 路径（x86 是 AVX，ARM 是 NEON），patch 名字里写对。（来源：tinychat-tutorial README）
-  - macOS 要先用 Homebrew 装 boost 和 llvm，Apple Silicon 还要装 Xcode 以获得 Metal compiler；CUDA 设备要按自己 GPU 的 compute capability 改 `llm/Makefile` 里的 `-gencode arch=compute_xx,code=sm_xx`。（来源：TinyChatEngine README）
-  - ARM 的 int4 layout 是为 128-bit SIMD 准备的：weight 被交错成 $[w_0,w_{16},w_1,w_{17},\dots,w_{15},w_{31}]$，一个 byte 的低 4 bit 和高 4 bit 分别属于前半和后半，用一次 AND（`0x0F`）和一次 shift（`>> 4`）就能同时解出 16 对。例如 byte `0xB3`（二进制 1011 0011）解出低位 3、高位 11，再按 $r=S(q-Z)$ 换回 real number。这个重排是在模型转换时 offline 做的。x86 的 layout 对应 256-bit SIMD。（来源：TinyChatEngine README；数值例子是本页的）
-  - 报告要分别给出每一步优化的提速，所以每加一种优化就单独测一次、记下数字，不要三种一起改完才测。（来源：tinychat-tutorial README 对报告的要求）
-  - 每加一步先对比参考输出确认结果没变，再测速度；笔记本测速时插电、多跑几次取稳定值，降频会让同一份代码的 latency 波动很大。（来源：经验）
-  - 优化完的 kernel 仍然是 memory-bound 的：按第 1 站的账，下界是 3.9 GB 除以你机器的 memory bandwidth。实测的每 token latency 离这个下界有多远，说明 kernel 还剩多少空间。（来源：本页的推论）
+  - 先跑 `./evaluate.sh reference`，确认能编译、sanity check 通过。Handout 给的示例输出是 reference 跑 100 次共 1511 ms、平均 15.1 ms、17.3 GOPs。（来源：handout）
+  - 只需要写自己机器那个 ISA 的分支（`QM_x86` 或 `QM_ARM`），下载 model 时 `--QM` 也选对应的，patch 名字里写对。Handout 建议按 loop unrolling、multithreading、SIMD、multithreading 加 loop unrolling、全部这个顺序写。（来源：handout）
+  - x86 的 SIMD 版要用 `_mm256_maddubs_epi16`，它要求一边是 unsigned byte。Starter code 的办法是先对 weight 取 absolute value（`_mm256_sign_epi8(w, w)`），再按 weight 的 sign 翻转 activation 的 sign，乘积不变：$|w|\cdot\big(\mathrm{sign}(w)\,a\big)=w\,a$。ARM 版用 `vdotq_s32` 直接做 int8 的 dot product。（来源：simd_programming.cc）
+  - Lecture 11 在 Intel Xeon 4114 上用 fp32 的 matmul 量过这几种技巧：loop reordering 12 倍，loop tiling 19 倍，loop unrolling（$j$ 展开 8、$k$ 展开 4）2.85 倍，4 个 thread 4.1 倍。Unrolling 省的是 loop 本身的开销：展开 4 次，pointer 运算和 loop 判断都从 $N^3$ 次降到 $N^3/4$ 次，代价是最内层的代码长 4 倍。那是 fp32 的大 matmul，每个数会被重复用很多次；Lab 5 的 kernel 在 batch 1 时每个 weight 只用一次，越往后优化越会撞上上面 4.13 GB 的下界，提速不会照搬这几个倍数。报告里解释提速时可以用这个下界。（来源：2024 版 Lecture 11 的 slides；后半是本页的推论）
+  - 报告要分别写每个版本的 GOPs，所以每写完一个就单独跑一次 `./evaluate.sh <版本名>` 记下数字，不要五个都改完才测。（来源：handout 和 report template）
+  - 笔记本测速时插电、多跑几次取稳定值，降频会让同一份代码的 latency 波动很大。（来源：经验）
+  - macOS 要先 `brew install boost` 和 `brew install llvm`；Windows 用 MSYS2 装 g++、make、unzip、git；下载 model 的脚本需要 Python 的 `requests` 和 `tqdm`。（来源：handout）
 
 ### Final project
 
-分组完成，三部分：proposal（Fall 2026 截止 11 月 19 日）、poster presentation（12 月 3 日至 10 日）、final report（12 月 13 日）。可以从课程给的 project idea 列表里选，也可以自己提；列表是一个公开的 Google Doc，这次没有读到正文。对这一页的读者，一个自然的题目是第 8 站的问题：把一个 VLA 或视觉 encoder 量化到 int4，部署到 Jetson 上，测出端到端的 control frequency，和第 8 站的下界对照。
+3 到 5 人一组，三部分：proposal（Fall 2026 截止 11 月 19 日）、poster presentation（12 月 3、8、10 日的课上）、final report（12 月 13 日）。课程 10 月 29 日发了 project idea 列表，共 11 个题目，多数列了联系人；也可以自己提。和这一页关系最近的几个：
+
+- **Project 5，LLM Quantization and Serving**：以 AWQ 和 SmoothQuant 为起点做 weight 和 activation 都是 4 bit 的 group quantization，在 WikiText-2 上缩小与 FP16 的 perplexity 差距；或者用 FP16 保护 salient weight channel 和 activation outlier、其余 4 bit 的 mixed precision；或者把 QServe（W4A8KV4）做成在线 serving。直接接第 4 站和 Lab 4。
+- **Project 3，EfficientViT-SAM**：把它部署到 iOS 或 Android 手机上（model conversion、quantization、hardware acceleration），或者用 knowledge distillation 把更强的 segmentation model（例如 SAM 3）的能力传给它。对机器人的视觉部分最有参考价值。
+- **Project 7，DuoAttention for VLM**：只给少数 retrieval head 保留完整的 KV cache、其余 head 用固定长度的 cache，把这个做法从 LLM 扩展到 LLaVA、VILA 这类 VLM。接第 6 站的 KV cache。
+- **Project 9，SparseSpec**：reasoning model 用自己做 draft 的 speculative decoding（draft 时用 sparse attention）。接第 6 站的 speculative decoding。
+
+自己提的话，第 8 站的问题是一个自然的题目：把一个 VLA 或视觉 encoder 量化到 int4，部署到 Jetson 上，测出端到端的 control frequency，和第 8 站的下界对照。
