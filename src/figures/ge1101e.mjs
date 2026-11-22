@@ -1,8 +1,8 @@
 import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, axes, apath, acircle, anim, f1 } from '../lib/svg.mjs';
 
 const R = Math.PI / 180;
-// 近 3.58 Ma 的 normal polarity 区间（Ma），其余为 reversed。年代取通行的 geomagnetic polarity timescale 的近似值。
-const NORMAL = [[0, 0.78], [0.99, 1.07], [1.78, 1.95], [2.58, 3.04], [3.11, 3.22], [3.33, 3.58]];
+// 近 3.58 Ma 的 normal polarity 区间（Ma），其余为 reversed。年代取 Cande and Kent (1995)，按 Wikipedia 的 List of geomagnetic reversals。
+const NORMAL = [[0, 0.78], [0.99, 1.07], [1.77, 1.95], [2.14, 2.15], [2.581, 3.04], [3.11, 3.22], [3.33, 3.58]];
 const AMAX = 3.58;
 const isNormal = (a) => NORMAL.some(([x, y]) => a >= x && a < y);
 
@@ -233,13 +233,14 @@ function rockA() {
   const L = cum[cum.length - 1], T = 10, kt = cum.map((c) => c / L);
   stops.forEach(([i, s, [nx, ny]], j) => {
     const a = kt[i], b = j + 1 < stops.length ? kt[stops[j + 1][0]] : 1;
-    const y = 50 + j * 17;
+    const y = 54 + j * 16;
     o += circle(nx, ny, 8, 'paper') + text(nx, ny + 4, String(j + 1), 'ts', 'middle');
     o += `<text x="316" y="${y}" class="ts" text-anchor="start" opacity="${j === 0 ? 0 : 1}">${j + 1}. ${s}${showWin([[0, a], [b, 1]].filter(([p, q]) => q > p), T)}</text>`;
     o += `<text x="316" y="${y}" class="tl" text-anchor="start" opacity="${j === 0 ? 1 : 0}">${j + 1}. ${s}${showWin([[a, b]], T)}</text>`;
   });
   o += acircle(route.map((p) => p[0]), route.map((p) => p[1]), kt, T, 6, 'ink-f');
-  o += text(20, 22, '一颗 mineral grain 的一圈：每一段都要 10⁶ 到 10⁸ 年', 'tb', 'start');
+  o += text(20, 18, '一颗 mineral grain 的一圈', 'tb', 'start');
+  o += text(20, 35, 'Singapore 的例子：Bukit Timah Granite 约 240 Ma 结晶，碎屑在 Pleistocene 才堆成 Old Alluvium', 'ts', 'start');
   return svgA(560, 306, o, '动图：一颗 mineral grain 从 granite 里出发，经 uplift、weathering、river 搬运、海底沉积、burial、metamorphism、melting，再随 magma 回到 granite');
 }
 
@@ -445,7 +446,7 @@ export function hydro(C, k, n = 2) {
   return out;
 }
 function hydrograph() {
-  const fo = hydro(0.3, 1.0), ur = hydro(0.9, 0.25);
+  const fo = hydro(0.45, 1.0), ur = hydro(0.9, 0.25);
   const pk = (a) => a.reduce((m, p) => (p[1] > m[1] ? p : m), [0, 0]);
   const pf = pk(fo), pu = pk(ur);
   const st = lin(0, 6, 270, 540), sq = lin(0, 12, 250, 70);
@@ -454,23 +455,23 @@ function hydrograph() {
   o += rect(st(0), 18, st(1) - st(0), 16, 'solid') + text(st(1) + 6, 31, 'rain：50 mm，1 h', 'ts', 'start');
   o += path(d(fo.filter((p) => p[0] <= 6).map(([t, q]) => [st(t), sq(q)])), 'ink-b');
   o += path(d(ur.filter((p) => p[0] <= 6).map(([t, q]) => [st(t), sq(q)])), 'ln');
-  o += text(st(pu[0]) + 8, sq(pu[1]) + 4, 'paved：peak ' + pu[1].toFixed(1) + ' m³/s，' + pu[0].toFixed(1) + ' h', 'tl', 'start');
-  o += text(st(pf[0]) + 8, sq(pf[1]) - 22, 'forest：peak ' + pf[1].toFixed(1) + ' m³/s，' + pf[0].toFixed(1) + ' h', 'tb', 'start');
+  o += text(st(pu[0]) + 8, sq(pu[1]) + 4, 'urban：peak ' + pu[1].toFixed(1) + ' m³/s，' + pu[0].toFixed(1) + ' h', 'tl', 'start');
+  o += text(st(pf[0]) + 8, sq(pf[1]) - 22, 'vegetated：peak ' + pf[1].toFixed(1) + ' m³/s，' + pf[0].toFixed(1) + ' h', 'tb', 'start');
   // 左：两块 catchment
   const tile = (y, cls, lab, sub2) => {
     let q = rect(30, y, 200, 70, cls, 6);
     q += text(130, y + 30, lab, 'tb', 'middle') + text(130, y + 50, sub2, 'ts', 'middle');
     return q;
   };
-  o += tile(60, 'wash', 'forest', 'C = 0.3，k = 1 h');
+  o += tile(60, 'wash', 'vegetated', 'C = 0.45，k = 1 h');
   for (let i = 0; i < 9; i++) o += circle(46 + i * 21, 72, 5, 'wash-strong');
-  o += tile(170, 'wash2', 'paved + drains', 'C = 0.9，k = 0.25 h');
+  o += tile(170, 'wash2', 'urban + drains', 'C = 0.9，k = 0.25 h');
   for (let i = 0; i < 4; i++) o += line(40 + i * 50, 232, 70 + i * 50, 232, 'mute');
-  o += text(130, 268, '同样 1 km²，同一场雨', 'ts', 'middle');
-  return svg(560, 280, o, '同一场 1 小时 50 mm 的雨落在 1 平方公里上：forest catchment 的 peak discharge 约 ' + pf[1].toFixed(1) + '，paved catchment 约 ' + pu[1].toFixed(1) + ' 立方米每秒，而且来得更早');
+  o += text(130, 268, '同样 1 km²，同一场雨；C 按 PUB 的 code', 'ts', 'middle');
+  return svg(560, 280, o, '同一场 1 小时 50 mm 的雨落在 1 平方公里上：vegetated catchment 的 peak discharge 约 ' + pf[1].toFixed(1) + '，urban catchment 约 ' + pu[1].toFixed(1) + ' 立方米每秒，而且来得更早');
 }
 
-// ---------- 第 5 站：Sunda shelf，sea level 从 −120 m 回升 ----------
+// ---------- 第 5 站：Sunda shelf，sea level 从 21 ka 的 −116 m 回升（Sathiamurthy and Voris 2006） ----------
 function sundaA() {
   // 示意的 bathymetry：Singapore（左）到 Borneo（右），水平约 700 km
   const prof = (x) => {
@@ -482,11 +483,16 @@ function sundaA() {
   const sx = lin(0, 700, 40, 520), sy = lin(30, -140, 40, 220);
   let o = '';
   const gd = []; for (let x = 0; x <= 700; x += 5) gd.push([x, prof(x)]);
-  // 时间序列：19 ka 时 −120 m，按平均 10 mm/yr 升到 7 ka 的 0 m
-  const T = 9, ages = []; for (let a = 19; a >= 7 - 1e-9; a -= 0.5) ages.push(a);
-  const slAt = (a) => -120 + (120 * (19 - a)) / 12;
-  const kt = [0, 1.5 / T], sls = [-120, -120];
-  ages.forEach((a, i) => { kt.push((1.5 + (5.5 * i) / (ages.length - 1)) / T); sls.push(slAt(a)); });
+  // 时间序列：Sathiamurthy and Voris (2006) 给 Sunda shelf 的 sea level（ka, m），按 Field Museum 页面上的表；今天取 0
+  const SV = [[21, -116], [18.02, -110], [16.8, -105], [15.58, -100], [14.58, -95], [14.48, -90], [14.39, -85], [14.3, -80], [13.92, -75], [13.54, -70], [13.17, -65], [12.75, -60], [12.31, -55], [11.56, -50], [11.23, -45], [10.88, -40], [10.55, -35], [10.21, -30], [9.87, -25], [9.53, -20], [9.19, -15], [8.38, -10], [7.24, -5], [6.07, 0], [4.2, 5], [0, 0]];
+  const slAt = (a) => { for (let i = 1; i < SV.length; i++) if (a >= SV[i][0]) { const [a0, z0] = SV[i - 1], [a1, z1] = SV[i]; return z0 + ((z1 - z0) * (a0 - a)) / (a0 - a1); } return 0; };
+  // 按真实时间播放：21 ka 到今天用 PLAY 秒，前后各停一会儿
+  const HOLD = 1.5, PLAY = 8.4, T = HOLD + PLAY + 1.6;
+  const tOf = (a) => (HOLD + (PLAY * (21 - a)) / 21) / T;
+  // 每 0.5 kyr 一帧，再加上序列本身的各点（meltwater pulse 1A 那几帧就来自这些点）
+  const ages = [...new Set([...Array.from({ length: 43 }, (_, i) => 21 - i * 0.5), ...SV.map((p) => p[0])].map((a) => Math.round(a * 100) / 100))].sort((x, y) => y - x);
+  const kt = [0], sls = [slAt(21)];
+  ages.forEach((a) => { kt.push(tOf(a)); sls.push(slAt(a)); });
   kt.push(1); sls.push(0);
   // 水体：sea level 线以下、地形以上
   const waterD = (sl) => {
@@ -503,16 +509,19 @@ function sundaA() {
   o += apath(sls.map((sl) => d([[sx(0), sy(sl)], [sx(700), sy(sl)]])), kt, T, 'ln');
   for (const z of [0, -50, -100]) o += line(sx(0) - 4, sy(z), sx(0), sy(z), 'axis') + text(sx(0) - 7, sy(z) + 4, z + ' m', 'ts', 'end');
   o += text(sx(0), sy(30) - 6, 'Singapore', 'tb', 'start') + text(sx(700), sy(30) - 6, 'Borneo', 'tb', 'end');
-  o += text(sx(330) + 34, sy(-98), 'paleo-river valley', 'ts', 'start');
-  // 读数
-  o += `<text x="280" y="262" class="tb" text-anchor="middle">19 ka：sea level −120 m，shelf 大部分是陆地${showWin([[0, kt[3]]], T)}</text>`;
-  for (let i = 1; i < ages.length; i += 2) {
-    const k0 = kt[2 + i], k1 = kt[Math.min(2 + i + 2, kt.length - 2)];
-    o += `<text x="280" y="262" class="t" text-anchor="middle" opacity="0">${ages[i].toFixed(1)} ka：sea level ${Math.round(slAt(ages[i]))} m${showWin([[k0, k1]], T)}</text>`;
+  o += text(sx(330), sy(-133), 'paleo-river valley', 'ts', 'middle');
+  // 读数：每 1 kyr 换一次；meltwater pulse 1A 和 mid-Holocene 高位单独标
+  const lab = (x0, x1, str, cls) => `<text x="280" y="262" class="${cls}" text-anchor="middle" opacity="${x0 <= 0 ? 1 : 0}">${str}${showWin([[x0, x1]], T)}</text>`;
+  o += lab(0, tOf(20), '21 ka：Sunda shelf 的 sea level −116 m，shelf 大部分是陆地', 'tb');
+  for (let a = 20; a >= 1; a--) {
+    if (a === 15 || a === 14 || a === 5 || a === 4) continue;
+    o += lab(tOf(a), tOf(a - 1), a + ' ka：sea level ' + Math.round(slAt(a)) + ' m', 't');
   }
-  o += `<text x="280" y="262" class="tl" text-anchor="middle" opacity="0">7 ka：接近今天的 sea level，shelf 全部被淹${showWin([[kt[kt.length - 2], 1]], T)}</text>`;
-  o += text(280, 284, '示意的 profile，竖向放大约 1500 倍；sea level 按平均 10 mm/yr 线性回升', 'ts', 'middle');
-  return svgA(560, 292, o, '动图：Singapore 到 Borneo 之间 Sunda shelf 的示意截面，sea level 从 19 ka 的负 120 米升到 7 ka 的今天水平，shelf 从陆地变成浅海');
+  o += lab(tOf(15), tOf(13), '14.6–14.3 ka：meltwater pulse 1A，280 年升 15 m', 'tl');
+  o += lab(tOf(5), tOf(3), '4.2 ka：比今天高约 5 m（mid-Holocene）', 'tl');
+  o += lab(tOf(0), 1, '今天：shelf 全部是浅海', 'tl');
+  o += text(280, 284, '示意的 profile，竖向放大约 1500 倍；sea level 按 Sathiamurthy 和 Voris 的序列，按真实时间播放', 'ts', 'middle');
+  return svgA(560, 292, o, '动图：Singapore 到 Borneo 之间 Sunda shelf 的示意截面，sea level 从 21 ka 的负 116 米升到 6 ka 的今天水平、4.2 ka 高出 5 米再回落，shelf 从陆地变成浅海；14.6 到 14.3 ka 有一次快速上升');
 }
 
 // ---------- 第 6 站：两家 firm 的 marginal abatement cost ----------
