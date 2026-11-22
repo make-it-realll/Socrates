@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, acircle, ashow } from '../lib/svg.mjs';
 
 const sup = (k) => String(k).split('').map((c) => (c === '-' ? '⁻' : '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c])).join('');
 
@@ -412,7 +412,176 @@ function boost() {
   return svg(560, 274, o, 'AdaBoost 的 training error、test error 和 training error 的 bound 随轮数变化：training error 在第 85 轮变为 0，test error 之后继续下降，到第 562 轮约 4.2%');
 }
 
+
+// ---------- 动图 ----------
+// 帧分组：第 k 帧显示的内容
+const frameG = (on, kt, T, body) => `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+
+// 开头第一个现象：1000 个抛硬币的 classifier，挑 training error 最小的
+function pick() {
+  let s = 20260521;
+  const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  const errs = [];
+  for (let j = 0; j < 1000; j++) { let w = 0; for (let i = 0; i < 100; i++) if (rnd() < 0.5) w++; errs.push(w / 100); }
+  const ks = [1, 3, 10, 30, 100, 300, 1000];
+  const hold = 2.2, step = 1.1, T = step * (ks.length - 1) + hold;
+  const kt = ks.map((_, i) => (step * i) / T);
+  const sx = lin(0.25, 0.75, 40, 540), Y = 210;
+  let o = '';
+  o += text(280, 20, '每个 classifier 抛硬币定 label：true error 全是 0.5', 'tb', 'middle');
+  // 轴
+  o += line(sx(0.25), Y, sx(0.75), Y, 'axis');
+  for (const v of [0.3, 0.4, 0.5, 0.6, 0.7]) o += line(sx(v), Y, sx(v), Y + 4, 'axis') + text(sx(v), Y + 18, v.toFixed(1), 'ts', 'middle');
+  o += text(sx(0.75), Y + 34, '在 100 个 training example 上的 training error', 'ts', 'end');
+  o += line(sx(0.5), 52, sx(0.5), Y, 'dash') + text(sx(0.5) + 6, 62, 'true error = 0.5', 'ts', 'start');
+  // 点：同一 training error 的点往上叠
+  const cnt = {};
+  const yOf = (e) => { cnt[e] = (cnt[e] || 0) + 1; return Y - 4 - (cnt[e] - 1) * 1.7; };
+  const pos = errs.map((e) => [sx(e) + (rnd() - 0.5) * 3, 0]);
+  errs.forEach((e, j) => { pos[j][1] = yOf(e); });
+  ks.forEach((k, f) => {
+    const lo = f ? ks[f - 1] : 0;
+    let g = '';
+    for (let j = lo; j < k; j++) g += circle(pos[j][0], pos[j][1], 1.6, 'mute-f');
+    o += frameG(ks.map((_, i) => i >= f), kt, T, g);
+  });
+  // min 的标记
+  ks.forEach((k, f) => {
+    let jm = 0; for (let j = 1; j < k; j++) if (errs[j] < errs[jm]) jm = j;
+    const m = errs[jm], x = sx(m);
+    let g = arrow(x, 100, x, pos[jm][1] - 5, 'ln', 6) + circle(pos[jm][0], pos[jm][1], 3, 'ln-f');
+    g += text(x, 92, 'ERM 选它：' + m.toFixed(2), 'tl', m < 0.4 ? 'start' : 'middle');
+    g += text(40, 44, `试了 ${k} 个 classifier，最小的 training error 是 ${m.toFixed(2)}`, 't', 'start');
+    o += frameG(ks.map((_, i) => i === f), kt, T, g);
+  });
+  o += text(280, 270, '挑的个数越多，最小值离 0.5 越远；被挑中的那个 true error 仍是 0.5。', 'ts', 'middle');
+  return svgA(560, 278, o, '动图：随机 classifier 的个数从 1 增加到 1000，它们的 training error 堆在 0.5 附近，最小的那个一路降到 0.34 左右，而 true error 一直是 0.5');
+}
+
+// 第 4 站：gradient descent 一步一步走
+function gdA() {
+  const step = 0.32, N = 24, hold = 1.8, T = step * N + hold;
+  const kt = [], idx = [];
+  for (let k = 0; k <= N; k++) { kt.push((step * k) / T); idx.push(k); }
+  kt.push(1); idx.push(N);
+  let o = '';
+  const panel = (X0, t, nmax, title, note, outNote) => {
+    const W = 240, H = 190, Y0 = 40;
+    const sx = lin(-1.9, 1.9, X0, X0 + W), sy = lin(-0.35, 1.2, Y0 + H, Y0);
+    const box = [X0, Y0, X0 + W, Y0 + H];
+    o += rect(X0, Y0, W, H, 'frame');
+    o += line(sx(-1.9), sy(0), sx(1.9), sy(0), 'grid') + line(sx(0), sy(-0.35), sx(0), sy(1.2), 'grid');
+    for (const c of [0.1, 0.5, 1.5, 5.5, 12]) {
+      const pts = [];
+      for (let i = 0; i <= 360; i++) { const a = (2 * Math.PI * i) / 360; pts.push([sx(Math.sqrt(c / 5) * Math.cos(a)), sy(Math.sqrt(2 * c) * Math.sin(a))]); }
+      o += clipped(pts, box, 'mute');
+    }
+    let x = [1, 1];
+    const ps = [x];
+    for (let k = 0; k < nmax; k++) { x = [x[0] - t * 10 * x[0], x[1] - t * x[1]]; ps.push(x); }
+    const at = (k) => ps[Math.min(k, nmax)];
+    const q = (p) => [sx(p[0]), sy(p[1])];
+    // 走过的路（离散地变长）+ 当前点（沿每一步的直线滑过去）
+    o += clipped(ps.map(q), box, 'ln-dash');
+    o += apath(idx.map((k) => d(ps.slice(0, Math.min(k, nmax) + 1).map(q)) || 'M0 0'), kt, T, 'ln', true);
+    o += circle(sx(1), sy(1), 3, 'ink-f') + text(sx(1) + 7, sy(1) - 6, 'x₀', 'ts');
+    o += circle(sx(0), sy(0), 3.5, 'ink paper-f');
+    o += acircle(idx.map((k) => q(at(k))[0]), idx.map((k) => q(at(k))[1]), kt, T, 5, 'ln-f');
+    o += text(X0 + W / 2, 18, title, 'tb', 'middle') + text(X0 + W / 2, 34, note, 'ts', 'middle');
+    o += text(X0 + W, Y0 + H + 16, 'x₁', 'ts', 'end') + text(sx(0) + 5, Y0 + 12, 'x₂', 'ts');
+    // 读数：随帧切换
+    const fmt = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(3);
+    const shown = [...new Set(idx)];
+    for (const k of shown) {
+      const p = at(k);
+      const s = k > nmax ? outNote : `k = ${k}　x = (${fmt(p[0])}, ${fmt(p[1])})`;
+      o += `<text x="${X0}" y="${Y0 + H + 16}" class="ts" text-anchor="start" opacity="${k === 0 ? 1 : 0}">${s}${ashow(idx.map((j) => j === k), kt, T)}</text>`;
+    }
+  };
+  panel(30, 2 / 11, 24, 't = 2/11：zigzag 地 converge', 'x₁ 每步乘 −9/11，x₂ 每步乘 9/11', '');
+  panel(290, 0.21, 6, 't = 0.21：diverge', 'x₁ 每步乘 −1.1，越弹越远', 'k = 7 起 |x₁| > 1.9，跑出框外');
+  o += text(280, 268, '灰色 ellipse 是 f 的 contour；实心小点是 x₀ = (1, 1)，空心点是 minimum (0, 0)', 'ts', 'middle');
+  return svgA(560, 278, o, '动图：在 ill-conditioned 的 quadratic function 上一步一步做 gradient descent；step size 为 2/11 时点来回穿过谷底并 converge，step size 为 0.21 时来回的幅度越来越大，第 7 步跑出画面');
+}
+
+// 第 5 站：Perceptron 一次一次更新
+function percA() {
+  const S = 31, O = [125, 200];
+  const P = ([x, y]) => [O[0] + x * S, O[1] - y * S];
+  const BX = [-2.6, -2.4, 3.6, 5.6];
+  let o = '';
+  // 正半平面 {w·x > 0}，裁到框里
+  const half = (w) => {
+    let poly0 = [[BX[0], BX[1]], [BX[2], BX[1]], [BX[2], BX[3]], [BX[0], BX[3]]];
+    const f = (p) => w[0] * p[0] + w[1] * p[1];
+    const out = [];
+    for (let i = 0; i < 4; i++) {
+      const a = poly0[i], b = poly0[(i + 1) % 4], fa = f(a), fb = f(b);
+      if (fa >= 0) out.push(a);
+      if ((fa >= 0) !== (fb >= 0)) { const s = fa / (fa - fb); out.push([a[0] + s * (b[0] - a[0]), a[1] + s * (b[1] - a[1])]); }
+    }
+    return out;
+  };
+  const bline = (w) => {
+    const pts = half(w).filter((p) => Math.abs(w[0] * p[0] + w[1] * p[1]) < 1e-9);
+    return pts.length === 2 ? line(...P(pts[0]), ...P(pts[1]), 'ln-dash') : '';
+  };
+  const W = [[0, 0], [1, 2], [-1, 3], [2, 4], [0, 5]];
+  const X = [[[1, 2], 1, 'x₁'], [[3, 1], 1, 'x₂'], [[-1, -2], -1, 'x₃'], [[2, -1], -1, 'x₄']];
+  const upd = [[1, 0, '第 1 遍'], [2, 3, '第 1 遍'], [3, 1, '第 2 遍'], [4, 3, '第 2 遍']]; // k, 犯错的点, 第几遍
+  const frames = [1, 2, 3, 4, 5]; // 5 = 第 3 遍全对
+  const step = 2.0, T = step * frames.length + 0.8;
+  const kt = frames.map((_, i) => (step * i) / T);
+  const show = (f) => frames.map((g) => g === f);
+  const upto = (f) => frames.map((g) => g >= f);
+  // 每帧的 half-plane 与 boundary
+  frames.forEach((f) => {
+    const w = W[Math.min(f, 4)];
+    o += frameG(show(f), kt, T, path(d(half(w).map(P)) + 'Z', 'wash'));
+  });
+  for (let g = -2; g <= 3; g++) o += line(...P([g, -2.4]), ...P([g, 5.6]), 'grid');
+  for (let g = -2; g <= 5; g++) o += line(...P([-2.6, g]), ...P([3.6, g]), 'grid');
+  o += line(O[0], P([0, -2.4])[1], O[0], P([0, 5.6])[1], 'axis') + line(P([-2.6, 0])[0], O[1], P([3.6, 0])[0], O[1], 'axis');
+  frames.forEach((f) => {
+    const k = Math.min(f, 4), w = W[k], wp = W[k - 1];
+    let g = bline(w);
+    if (f <= 4) {
+      const [, xi] = upd[k - 1], [p, y] = X[xi];
+      if (k > 1) g += arrow(O[0], O[1], ...P(wp), 'mute', 6) + text(P(wp)[0] + (k - 1 <= 2 ? -12 : 8), P(wp)[1] - 4, `w${'₀₁₂₃'[k - 1]}`, 'ts', k - 1 <= 2 ? 'end' : 'start');
+      g += arrow(...P(wp), ...P(w), 'ink dash', 6); // + y·x
+      g += circle(...P(p), 10, 'ln');
+      const yx = [y * p[0], y * p[1]], mid = P([(wp[0] + w[0]) / 2, (wp[1] + w[1]) / 2]);
+      g += text(mid[0] + 6, mid[1] + 4, (y > 0 ? '+' : '−') + X[xi][2], 'ts', 'start');
+    }
+    const L = k <= 2;
+    g += arrow(O[0], O[1], ...P(w), 'ln', 6) + text(P(w)[0] + (L ? -13 : 8), P(w)[1] + (L ? -6 : 4), `w${'₀₁₂₃₄'[k]} = (${w[0] < 0 ? '−' : ''}${Math.abs(w[0])}, ${w[1]})`, 'tl', L ? 'end' : 'start');
+    o += frameG(show(f), kt, T, g);
+  });
+  for (const [p, y, n] of X) { const q = P(p); o += circle(q[0], q[1], 5.5, y > 0 ? 'ink-f' : 'ink paper-f'); o += text(q[0] + 9, q[1] + (p[1] < -1.5 ? 4 : 15), n, 't'); }
+  // 右边：状态与表
+  const tx = 300;
+  o += text(tx, 22, '实心 label +1，空心 label −1', 'ts');
+  o += text(tx, 40, '浅色是 ⟨w, x⟩ > 0 的一侧，虚线是 boundary', 'ts');
+  o += text(tx, 58, 'w* = (0, 1)，γ = 1，R = √10，bound (R/γ)² = 10', 'ts');
+  const st = [
+    '第 1 遍：x₁ 上 ⟨w₀, x₁⟩ = 0，犯错 → w₁ = w₀ + x₁',
+    '第 1 遍：x₄ 上 −⟨w₁, x₄⟩ = 0，犯错 → w₂ = w₁ − x₄',
+    '第 2 遍：x₂ 上 ⟨w₂, x₂⟩ = 0，犯错 → w₃ = w₂ + x₂',
+    '第 2 遍：x₄ 上 −⟨w₃, x₄⟩ = 0，犯错 → w₄ = w₃ − x₄',
+    '第 3 遍：四个点都在正确的一侧，停止',
+  ];
+  st.forEach((s, i) => { o += `<text x="${tx}" y="88" class="tl" text-anchor="start" opacity="${i ? 0 : 1}">${s}${ashow(show(i + 1), kt, T)}</text>`; });
+  o += text(tx, 118, 'k', 'tb') + text(tx + 50, 118, '⟨w*, wₖ⟩ ≥ k', 'tb') + text(tx + 150, 118, '‖wₖ‖² ≤ 10k', 'tb');
+  [[1, 2, 5], [2, 3, 10], [3, 4, 20], [4, 5, 25]].forEach(([k, a, b], i) => {
+    const y = 142 + i * 22;
+    o += frameG(upto(k), kt, T, text(tx, y, String(k), 't') + text(tx + 50, y, `${a} ≥ ${k}`, 't') + text(tx + 150, y, `${b} ≤ ${10 * k}`, 't'));
+  });
+  o += text(tx, 246, '虚线箭头是这一次加上的 y·x；', 'ts') + text(tx, 264, '灰箭头是更新前的 w。', 'ts');
+  return svgA(560, 278, o, '动图：Perceptron 在四个点上一次一次更新：每一帧圈出犯错的点，weight vector 加上 y 乘 x，从 (1, 2) 经 (−1, 3)、(2, 4) 转到 (0, 5)，浅色半平面和 boundary 跟着转，最后四个点全部分对');
+}
+
 export default {
+  'cs3264-pick': pick,
   'cs3264-tail': tail,
   'cs3264-sandwich': sandwich,
   'cs3264-krr3': krr3,
@@ -420,8 +589,8 @@ export default {
   'cs3264-shatter': shatter,
   'cs3264-rad': radfig,
   'cs3264-ramp': ramp,
-  'cs3264-gd': gd,
-  'cs3264-perc': perc,
+  'cs3264-gd': gdA,
+  'cs3264-perc': percA,
   'cs3264-regret': regret,
   'cs3264-krr': krr,
   'cs3264-beta': beta,

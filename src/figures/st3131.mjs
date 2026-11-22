@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, area, axes, apath, acircle, ashow } from '../lib/svg.mjs';
 
 // ---------- 数据（来源见 ST3131.md 各站的 :::from） ----------
 // Penn State STAT 501 Lesson 1：10 个学生的 height（inch）与 weight（lb）
@@ -174,18 +174,26 @@ function recall() {
 function influence() {
   const sx = lin(61.5, 76.5, 60, 360), sy = lin(110, 215, 262, 24);
   const all = slr(HT, WT), drop = slr(HT.slice(0, 9), WT.slice(0, 9));
-  let o = axes({ sx, sy, x0: 61.5, x1: 76.5, y0: 110, y1: 215, xt: [63, 66, 69, 72, 75], yt: [120, 140, 160, 180, 200], xl: 'height（inch）', yl: 'weight（lb）', grid: true });
-  o += line(sx(62), sy(all.b0 + all.b1 * 62), sx(76.2), sy(all.b0 + all.b1 * 76.2), 'ln');
-  o += line(sx(62), sy(drop.b0 + drop.b1 * 62), sx(76.2), sy(drop.b0 + drop.b1 * 76.2), 'dash');
-  HT.forEach((h, i) => { o += circle(sx(h), sy(WT[i]), i === 9 ? 6 : 4.5, i === 9 ? 'ln paper-f' : 'ink-f'); });
   const pr = drop.b0 + drop.b1 * 75;
+  // 动图：第 10 个学生的 weight 从 208 慢慢降到“去掉它的 line”预测的值，再回来
+  const N = 24, T = 6, kt = [], ys = [];
+  for (let i = 0; i <= N; i++) { kt.push(i / N); ys.push(208 - (208 - pr) * (1 - Math.cos((2 * Math.PI * i) / N)) / 2); }
+  const fitW = (y10) => slr(HT, [...WT.slice(0, 9), y10]);
+  let o = axes({ sx, sy, x0: 61.5, x1: 76.5, y0: 110, y1: 215, xt: [63, 66, 69, 72, 75], yt: [120, 140, 160, 180, 200], xl: 'height（inch）', yl: 'weight（lb）', grid: true });
+  o += line(sx(62), sy(drop.b0 + drop.b1 * 62), sx(76.2), sy(drop.b0 + drop.b1 * 76.2), 'dash');
+  o += apath(ys.map((y) => { const f = fitW(y); return d([[sx(62), sy(f.b0 + f.b1 * 62)], [sx(76.2), sy(f.b0 + f.b1 * 76.2)]]); }), kt, T, 'ln');
+  HT.slice(0, 9).forEach((h, i) => { o += circle(sx(h), sy(WT[i]), 4.5, 'ink-f'); });
   o += line(sx(75) + 10, sy(208), sx(75) + 10, sy(pr), 'ink-b') + text(sx(75) + 15, (sy(208) + sy(pr)) / 2 + 4, '21.4', 'ts');
-  o += text(395, 46, '空心点：第 10 个学生', 'tb') + text(395, 66, '75 inch，208 lb', 't');
+  o += acircle(ys.map(() => sx(75)), ys.map(sy), kt, T, 6, 'ln paper-f');
+  o += text(395, 46, '空心点：第 10 个学生', 'tb') + text(395, 66, '75 inch，实际 208 lb', 't');
   o += text(395, 90, 'leverage h = 0.335', 't') + text(395, 110, 'residual e = 14.2', 't') + text(395, 130, "Cook's D = 1.03", 't');
-  o += line(395, 160, 425, 160, 'ln') + text(432, 164, '10 个点：slope ' + all.b1.toFixed(2), 't');
-  o += line(395, 184, 425, 184, 'dash') + text(432, 188, '去掉它：slope ' + drop.b1.toFixed(2), 't');
-  o += text(395, 222, '短竖线：去掉它之后的 line', 'ts') + text(395, 240, '预测它的 weight 会差 21.4，', 'ts') + text(395, 258, '即 e / (1 − h)', 'ts');
-  return svg(560, 306, o, '去掉第 10 个学生之后 slope 从 6.14 变成 5.25；这个点的 leverage 是 0.335，Cook 距离是 1.03');
+  ys.slice(0, N).forEach((y, i) => {
+    const on = kt.map((_, j) => j === i);
+    o += `<g opacity="${i ? 0 : 1}">${text(395, 160, '它的 weight = ' + y.toFixed(1) + ' lb', 'tl') + text(395, 180, '实线 slope = ' + fitW(y).b1.toFixed(2), 'tl')}${ashow(on, kt, T)}</g>`;
+  });
+  o += line(395, 204, 425, 204, 'dash') + text(432, 208, '去掉它：slope ' + drop.b1.toFixed(2), 't');
+  o += text(395, 232, '短竖线：去掉它之后的 line', 'ts') + text(395, 250, '预测它的 weight 会差 21.4，', 'ts') + text(395, 268, '即 e / (1 − h)', 'ts');
+  return svgA(560, 306, o, '动图：第 10 个学生（75 inch）的 weight 从 208 lb 降到去掉它之后的 line 所预测的 186.6 lb 再回来，实线 slope 跟着在 6.14 和 5.25 之间变；这个点的 leverage 是 0.335，Cook 距离是 1.03');
 }
 
 // 第 6 站：(β2, β4) 的 joint confidence region 与两个单独的 interval
@@ -404,8 +412,81 @@ function twoway() {
   return svg(560, 285, o, '2 乘 2 的例子：A1 的 cell mean 从 11 到 15，A2 从 14 到 26。A 的作用在 B1 是 3，在 B2 是 11，两条 line 不平行');
 }
 
+
+// ---------- 动图 ----------
+// 开头第二件：Anscombe 的四组 data 轮流变形，fitted line 和输出不变
+function anscombeA() {
+  const xs = [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5];
+  const S = [
+    ['I', '大致 linear', xs, [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68]],
+    ['II', '其实是一条 curve', xs, [9.14, 8.14, 8.74, 8.77, 9.26, 8.1, 6.13, 3.1, 9.13, 7.26, 4.74]],
+    ['III', '一个 outlier 把 line 拽歪', xs, [7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73]],
+    ['IV', 'slope 全由 x = 19 那一个点决定', [8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8], [6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.5, 5.56, 7.91, 6.89]],
+  ];
+  const hold = 2.4, mv = 1.0, T = 4 * (hold + mv);
+  const kt = [], seq = [];
+  for (let k = 0; k < 4; k++) { kt.push((k * (hold + mv)) / T, (k * (hold + mv) + hold) / T); seq.push(k, k); }
+  kt.push(1); seq.push(0);
+  const sx = lin(2, 20, 50, 330), sy = lin(2, 14, 250, 40);
+  let o = axes({ sx, sy, x0: 2, x1: 20, y0: 2, y1: 14, xt: [5, 10, 15, 20], yt: [4, 8, 12], xl: 'x', yl: 'y', grid: true });
+  const F = S.map(([, , x, y]) => {
+    const f = slr(x, y), yb = mean(y), sst = y.reduce((s, v) => s + (v - yb) ** 2, 0);
+    return { ...f, r2: 1 - f.sse / sst, se: Math.sqrt(f.sse / 9 / f.sxx) };
+  });
+  o += apath(seq.map((k) => d([[sx(2), sy(F[k].b0 + 2 * F[k].b1)], [sx(20), sy(F[k].b0 + 20 * F[k].b1)]])), kt, T, 'ln');
+  for (let i = 0; i < 11; i++) o += acircle(seq.map((k) => sx(S[k][2][i])), seq.map((k) => sy(S[k][3][i])), kt, T, 4, 'ink-f');
+  const X = 356;
+  o += text(X, 44, '四组 data 的 regression 输出', 'tb');
+  const show = (k) => seq.map((j, i) => j === k && i < seq.length - 1 && i % 2 === 0 || (j === k && i % 2 === 1));
+  S.forEach(([nm, note], k) => {
+    const f = F[k];
+    const g = text(X, 72, `ŷ = ${f.b0.toFixed(2)} + ${f.b1.toFixed(3)}x`, 't') + text(X, 94, `R² = ${f.r2.toFixed(2)}`, 't') + text(X, 116, `SE(b₁) = ${f.se.toFixed(3)}`, 't')
+      + text(X, 170, `第 ${nm} 组`, 'tl') + text(X, 192, note, 'tl');
+    o += `<g opacity="${k ? 0 : 1}">${g}${ashow(seq.map((j) => j === k), kt, T)}</g>`;
+  });
+  o += text(X, 136, '（四组算到这个精度都一样）', 'ts');
+  o += text(X, 236, '数字一样，点完全不同：', 'ts') + text(X, 254, '只看输出看不出哪一组能用。', 'ts');
+  return svgA(560, 286, o, '动图：同一张图里 11 个点在 Anscombe 的四组 data 之间移动，fitted line 始终是 y 等于 3 加 0.5 x，R 方 0.67，slope 的 standard error 0.118；四组分别是大致 linear、curve、有一个 outlier、slope 由一个点决定');
+}
+
+// 第 1 站：line 绕 (x̄, ȳ) 转，residual 的 square 面积之和就是 SSE
+function fitA() {
+  const f = slr(HT, WT), yb = mean(WT);
+  const sx = lin(61.5, 76.5, 60, 330), sy = lin(100, 225, 262, 24);
+  const N = 60, T = 7, kt = [], bs = [];
+  for (let i = 0; i <= N; i++) { kt.push(i / N); bs.push(f.b1 + 1.4 * Math.sin((2 * Math.PI * i) / N)); }
+  const sseOf = (b) => HT.reduce((s, h, i) => s + (WT[i] - yb - b * (h - f.xb)) ** 2, 0);
+  let o = axes({ sx, sy, x0: 61.5, x1: 76.5, y0: 100, y1: 225, xt: [63, 66, 69, 72, 75], yt: [120, 160, 200], xl: 'height（inch）', yl: 'weight（lb）', grid: true });
+  const alt = (h) => -331.2 + 7.1 * h;
+  o += line(sx(62), sy(alt(62)), sx(76.2), sy(alt(76.2)), 'dash');
+  const at = (b, h) => yb + b * (h - f.xb);
+  // residual 的 square：边长 = residual 在图上的长度，贴在竖线右边
+  const sq = (b) => HT.map((h, i) => {
+    const x = sx(h) + (i === 4 || i === 6 ? 3 : 0), y1 = sy(WT[i]), y2 = sy(at(b, h)), s = Math.abs(y2 - y1);
+    return d([[x, y1], [x + s, y1], [x + s, y2], [x, y2]]) + 'Z';
+  }).join('');
+  const res = (b) => HT.map((h, i) => { const x = sx(h) + (i === 4 || i === 6 ? 3 : 0); return d([[x, sy(WT[i])], [x, sy(at(b, h))]]); }).join('');
+  o += apath(bs.map(sq), kt, T, 'wash');
+  o += apath(bs.map(res), kt, T, 'ink-b');
+  o += apath(bs.map((b) => d([[sx(62), sy(at(b, 62))], [sx(76.2), sy(at(b, 76.2))]])), kt, T, 'ln');
+  HT.forEach((h, i) => { o += circle(sx(h), sy(WT[i]), 4, 'ink-f'); });
+  o += circle(sx(f.xb), sy(yb), 3.5, 'paper') + text(sx(f.xb) + 8, sy(yb) + 18, '(x̄, ȳ)', 'ts');
+  // 右边：SSE 随 slope 的变化
+  const px = lin(f.b1 - 1.6, f.b1 + 1.6, 392, 548), py = lin(500, 900, 196, 40);
+  o += axes({ sx: px, sy: py, x0: f.b1 - 1.6, x1: f.b1 + 1.6, y0: 500, y1: 900, xt: [[5, '5'], [6, '6'], [7, '7']], yt: [600, 800], yl: 'SSE' });
+  o += text(548, 228, 'slope b₁', 'ts', 'end');
+  o += path(curve(sseOf, f.b1 - 1.45, f.b1 + 1.45, px, py), 'ink');
+  o += line(px(f.b1), py(f.sse), px(f.b1), py(500), 'dash') + text(px(f.b1) + 4, py(f.sse) + 16, 'minimum ' + f.sse.toFixed(1), 'ts');
+  o += acircle(bs.map(px), bs.map((b) => py(sseOf(b))), kt, T, 5, 'ln-f');
+  o += text(392, 256, '实线绕 (x̄, ȳ) 转；浅色方块的', 'ts') + text(392, 272, '面积之和就是 SSE。', 'ts');
+  o += text(392, 292, `least squares：ŷ = ${f.b0.toFixed(2)} + ${f.b1.toFixed(4)}x`, 'ts');
+  o += text(sx(61.9), sy(214), '虚线：ŷ = −331.2 + 7.1x，SSE = ' + HT.reduce((s, h, i) => s + (WT[i] - alt(h)) ** 2, 0).toFixed(1), 'ts');
+  return svgA(560, 300, o, '动图：10 个学生的 height 和 weight；一条 line 绕 sample mean 点来回转，每个 residual 画成一个正方形，方块总面积就是 SSE；右边 SSE 对 slope 的 parabola 上的点跟着动，slope 等于 6.14 时 SSE 最小，为 597.4');
+}
+
 export default {
-  'st3131-fit': fit,
+  'st3131-anscombe0': anscombeA,
+  'st3131-fit': fitA,
   'st3131-bands': bands,
   'st3131-avplot': avplot,
   'st3131-triangle': triangle,

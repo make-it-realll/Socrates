@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, arrow, curve, area } from '../lib/svg.mjs';
+import { svg, svgA, lin, logx, d, path, line, rect, circle, poly, text, arrow, curve, area, apath, acircle, ashow } from '../lib/svg.mjs';
 
 const sha = (b) => createHash('sha256').update(b).digest();
 const hex8 = (b) => b.toString('hex').slice(0, 8);
@@ -423,15 +423,146 @@ function mintBurn() {
   return svg(560, 258, o, 'Custodial stablecoin 的三步：custodian 收到 USD 后 mint，用户之间 on-chain transfer，redeem 时 custodian 付出 USD 并 burn；每一步 off-chain 的 reserve 都等于 on-chain 的 supply');
 }
 
+
+// ---------- 动图 ----------
+const k5 = (t) => Math.round(t * 1e5) / 1e5;
+// spans：[[a, b], ...]（已除以 T，b = null 表示到最后），在这些时间段里显示
+const gshow = (spans, T, body) => {
+  const vals = [], kts = [];
+  if (spans[0][0] > 0) { vals.push(0); kts.push(0); }
+  for (const [a, b] of spans) { vals.push(1); kts.push(a); if (b !== null && b < 1) { vals.push(0); kts.push(b); } }
+  return `<g opacity="${vals[0]}">${body}<animate attributeName="opacity" values="${vals.join(';')}" keyTimes="${kts.map(k5).join(';')}" dur="${T}s" repeatCount="indefinite" calcMode="discrete"/></g>`;
+};
+
+// 第 5 站：reentrancy 一步一步走（先停在走完的样子，再从头演）
+function reentA() {
+  const xa = 110, xb = 290, L = 5, Y0 = 78, gap = 38;
+  const H = 3, st = 0.9, nS = 2 * L + L, T = H + nS * st + 1.6;
+  const tk = (s) => (H + (s - 1) * st) / T; // 第 s 步（1 起）开始
+  const final = (s) => [[0, H / T], [tk(s), null]]; // 开头的“全貌”+ 第 s 步之后
+  let o = '';
+  o += rect(xa - 66, 20, 132, 30, 'paper', 6) + text(xa, 40, 'Attacker contract', 'tb', 'middle');
+  o += rect(xb - 66, 20, 132, 30, 'paper', 6) + text(xb, 40, 'Bank contract', 'tb', 'middle');
+  o += line(xa, 50, xa, 286, 'dash') + line(xb, 50, xb, 286, 'dash');
+  for (let k = 1; k <= L; k++) {
+    const y = Y0 + (k - 1) * gap;
+    o += gshow(final(2 * k - 1), T, arrow(xa, y, xb, y, 'ink', 6) + text((xa + xb) / 2, y - 4, `第 ${k} 层 withdrawAll()`, 'ts', 'middle') + text(xb + 8, y + 4, 'amount = 75 ✓', 'ts'));
+    o += gshow(final(2 * k), T, arrow(xb, y + 17, xa, y + 17, 'ln', 6) + text((xa + xb) / 2, y + 13, 'call{value: 75}', 'ts', 'middle') + text(xa - 8, y + 21, k < L ? 'receive() 再调' : '不再调用', k < L ? 'ts' : 'tl', 'end'));
+    // 返回：第 k 层在第 2L + (L − k + 1) 步执行 balances[A] = 0
+    o += gshow(final(2 * L + (L - k + 1)), T, text(xb + 8, y + 21, '返回，清零', 'tl'));
+  }
+  // 右边：状态
+  const X = 465, sy = lin(0, 375, 250, 124);
+  o += text(X + 10, 66, '状态', 'tb', 'middle');
+  o += line(X - 40, sy(0), X + 60, sy(0), 'axis');
+  o += text(X - 18, 268, 'Bank', 'ts', 'middle') + text(X + 38, 268, 'Attacker', 'ts', 'middle');
+  const states = [], spans = [];
+  // s = 0（全貌）、1..nS
+  const bankAt = (s) => 375 - 75 * Math.min(L, Math.floor(s / 2));
+  const balAt = (s) => (s > 2 * L ? 0 : 75);
+  const seqS = [nS, ...Array.from({ length: nS }, (_, i) => i + 1)];
+  const ktS = [0, ...Array.from({ length: nS }, (_, i) => tk(i + 1))];
+  const bar = (x, v) => d([[x - 14, sy(0)], [x + 14, sy(0)], [x + 14, sy(v)], [x - 14, sy(v)]]) + 'Z';
+  o += apath(seqS.map((s) => bar(X - 18, bankAt(s))), ktS, T, 'solid2', true);
+  o += apath(seqS.map((s) => bar(X + 38, 375 - bankAt(s))), ktS, T, 'solid', true);
+  seqS.forEach((s, i) => {
+    const span = i === 0 ? [[0, ktS[1]]] : [[ktS[i], i < seqS.length - 1 ? ktS[i + 1] : null]];
+    const b = bankAt(s), bal = balAt(s);
+    o += gshow(span, T, text(X - 18, sy(b) - 6, String(b), 'ts', 'middle') + text(X + 38, sy(375 - b) - 6, String(375 - b), 'tl', 'middle')
+      + text(X + 10, 86, `balances[A] = ${bal}`, bal ? 'tl' : 't', 'middle'));
+  });
+  o += text(280, 306, '五层都在 balances[A] 改成 0 之前读到 75；ETH 搬空之后才一层层返回、清零', 'ts', 'middle');
+  return svgA(560, 314, o, '动图：reentrancy 攻击一步步执行。Attacker 调 withdrawAll，Bank 检查 balance 是 75，先转 75，attacker 的 receive 又调 withdrawAll；五层之后 Bank 的 375 Wei 全部到了 attacker，这时各层才依次返回并把 balance 清零');
+}
+
+// 第 6 站：卖 ETH 时 pool 沿 curve 移动，旁边是 pool 里两种 token 的量
+function ammA() {
+  const k = 100 * 300000;
+  const sx = lin(60, 170, 70, 380), sy = lin(120000, 520000, 250, 30);
+  const xs = []; for (let x = 100; x <= 150 + 1e-9; x += 2) xs.push(x);
+  const st = 0.22, hold = 2.6, T = st * (xs.length - 1) + hold + 0.4;
+  const kt = xs.map((_, i) => (st * i) / T); kt.push((st * (xs.length - 1) + hold) / T, 1);
+  const seq = [...xs, 150, 100];
+  let o = '';
+  for (const v of [200000, 300000, 400000, 500000]) o += line(sx(60), sy(v), sx(170), sy(v), 'grid') + text(64, sy(v) + 4, (v / 1000) + 'k', 'ts', 'end');
+  for (const v of [60, 80, 100, 110, 130, 150, 170]) o += line(sx(v), sy(120000), sx(v), sy(120000) + 4, 'axis') + text(sx(v), sy(120000) + 18, String(v), 'ts', 'middle');
+  o += line(sx(60), sy(120000), sx(170), sy(120000), 'axis') + line(sx(60), sy(120000), sx(60), sy(520000), 'axis');
+  o += path(curve((x) => k / x, 60, 170, sx, sy), 'ink');
+  const A = [100, 300000], B = [110, k / 110], C = [150, k / 150];
+  o += line(sx(78), sy(300000 + 3000 * 22), sx(122), sy(300000 - 3000 * 22), 'dash');
+  o += line(sx(A[0]), sy(A[1]), sx(C[0]), sy(C[1]), 'mute') + line(sx(A[0]), sy(A[1]), sx(B[0]), sy(B[1]), 'ln');
+  o += apath(seq.map((x) => d([[sx(100), sy(300000)], [sx(x), sy(k / x)]])), kt, T, 'ink-b');
+  o += circle(sx(A[0]), sy(A[1]), 4.5, 'ink-f') + circle(sx(B[0]), sy(B[1]), 4, 'ln-f') + circle(sx(C[0]), sy(C[1]), 4, 'ink-f');
+  o += text(sx(A[0]) - 4, sy(A[1]) - 10, 'A', 'tb', 'end') + text(sx(B[0]) + 2, sy(B[1]) + 20, 'B', 'tl') + text(sx(C[0]) + 2, sy(C[1]) - 10, 'C', 'tb');
+  o += acircle(seq.map(sx), seq.map((x) => sy(k / x)), kt, T, 6, 'ln-f');
+  o += text(sx(64), sy(150000), 'x · y = 3 × 10⁷', 'tb');
+  o += text(sx(170), 284, 'x：pool 里的 ETH', 'ts', 'end') + text(70, 18, 'y：pool 里的 USDC', 'ts');
+  // 右边：pool 的两个“罐子”
+  const tx = [418, 478], th = lin(0, 1, 236, 112);
+  const lv = [(x) => x / 170, (x) => (k / x) / 500000];
+  ['ETH', 'USDC'].forEach((nm, j) => {
+    o += apath(seq.map((x) => d([[tx[j], th(0)], [tx[j] + 40, th(0)], [tx[j] + 40, th(lv[j](x))], [tx[j], th(lv[j](x))]]) + 'Z'), kt, T, j ? 'wash-strong' : 'solid2');
+    o += rect(tx[j], th(1), 40, th(0) - th(1), 'frame', 3) + text(tx[j] + 20, 254, nm, 'tb', 'middle');
+  });
+  o += text(398, 98, 'pool 里的量：', 'ts');
+  xs.forEach((x, i) => {
+    const on = seq.map((v, j) => v === x && j < seq.length - 1);
+    const dy = 300000 - k / x;
+    let g = i ? text(398, 24, `Alice 已卖 ${x - 100} ETH`, 'tl') + text(398, 42, `拿到 ${Math.round(dy).toLocaleString('en-US')} USDC`, 'ts') + text(398, 58, `average price ${(dy / (x - 100)).toFixed(0)}`, 'ts') + text(398, 74, `此刻 marginal price ${(k / x / x).toFixed(0)}`, 'ts')
+      : text(398, 24, 'Alice 还没卖：在 A 点', 'tl') + text(398, 42, 'marginal price = y/x = 3000', 'ts');
+    g += text(tx[0] + 20, th(lv[0](x)) - 5, String(x), 'ts', 'middle') + text(tx[1] + 20, th(lv[1](x)) - 5, Math.round(k / x / 1000) + 'k', 'ts', 'middle');
+    o += `<g opacity="${i ? 0 : 1}">${g}${ashow(on, kt, T)}</g>`;
+  });
+  return svgA(560, 294, o, '动图：Alice 往 pool 里一点点卖 ETH，pool 的状态从 A 沿 curve x 乘 y 等于三千万走到 C；从 A 拉出的 chord 越来越平，右边 ETH 罐子变满、USDC 罐子变空，average price 从 3000 降到 2000');
+}
+
+
+// 第 2 站：fork 之后的赛跑，一个 block 一个 block 地 mine（q = 0.3，seed 固定）
+function forkA() {
+  let a = 2 >>> 0;
+  const rnd = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const M = 7, who = []; for (let i = 0; i < M; i++) who.push(rnd() < 0.7 ? 'H' : 'A');
+  const H = 2.6, st = 1.2, T = H + M * st + 2.4;
+  const tk = (i) => (H + i * st) / T; // 第 i 个新 block（0 起）出现
+  const bw = 28, bh = 26, gap = 8, P = bw + gap;
+  const yh = 52, ya = 150, y0 = 101;
+  let o = '';
+  const blk = (x, y, s, cls) => rect(x, y, bw, bh, cls, 4) + (s ? text(x + bw / 2, y + 17, s, 'ts', 'middle') : '');
+  o += blk(20, y0, '…', 'paper') + blk(20 + P, y0, 'B', 'paper') + line(20 + bw, y0 + bh / 2, 20 + P, y0 + bh / 2, 'ink');
+  const fx = 20 + 2 * P, bx = 20 + P + bw;
+  o += path(d([[bx, y0 + bh / 2], [fx - 6, yh + bh / 2], [fx, yh + bh / 2]]), 'ink');
+  o += path(d([[bx, y0 + bh / 2], [fx - 6, ya + bh / 2], [fx, ya + bh / 2]]), 'dash');
+  for (let i = 0; i < 6; i++) o += blk(fx + i * P, yh, i ? '' : 'tx1', i ? 'paper' : 'wash') + (i ? line(fx + i * P - gap, yh + bh / 2, fx + i * P, yh + bh / 2, 'ink') : '');
+  for (let i = 0; i < 4; i++) o += blk(fx + i * P, ya, i ? '' : 'tx2', i ? 'wash2' : 'wash-strong') + (i ? line(fx + i * P - gap, ya + bh / 2, fx + i * P, ya + bh / 2, 'dash') : '');
+  let nh = 6, na = 4, z = 2;
+  const zs = [2];
+  who.forEach((w, i) => {
+    const span = [[tk(i), null]];
+    if (w === 'H') { const x = fx + nh * P; o += gshow(span, T, blk(x, yh, '', 'solid') + line(x - gap, yh + bh / 2, x, yh + bh / 2, 'ink')); nh++; z++; }
+    else { const x = fx + na * P; o += gshow(span, T, blk(x, ya, '', 'solid') + line(x - gap, ya + bh / 2, x, ya + bh / 2, 'dash')); na++; z--; }
+    zs.push(z);
+  });
+  o += text(fx, yh - 10, 'honest chain（公开，tx1 之后已有 6 个）', 'tb') + text(fx, ya + bh + 18, 'attacker 的 branch（私下 mine，tx2 把同一个 coin 付回自己）', 'tb');
+  const r = 3 / 7;
+  zs.forEach((zz, i) => {
+    const span = i === 0 ? [[0, tk(0)]] : [[tk(i - 1), i < M ? tk(i) : null]];
+    const head = i === 0 ? '开始：attacker 落后 2 个 block' : `第 ${i} 个新 block 由 ${who[i - 1] === 'H' ? 'honest node' : 'attacker'} mine 到（深色）`;
+    o += gshow(span, T, text(20, 222, head, i && who[i - 1] === 'A' ? 'tl' : 't')
+      + text(20, 242, `deficit z = ${zz}：从这里最终追平的 probability (3/7)${'⁰¹²³⁴⁵⁶⁷⁸⁹'[zz]} = ${(r ** zz).toFixed(3)}`, 'ts'));
+  });
+  o += text(20, 266, '每个新 block 以 p = 0.7 归 honest、以 q = 0.3 归 attacker（固定 seed 抽出的一次）', 'ts');
+  return svgA(560, 274, o, '动图：double spend 的赛跑。从 honest chain 领先 2 个 block 开始，新 block 一个个以 0.7 和 0.3 的 probability 分别接在 honest chain 和 attacker 的 branch 上；这一次 attacker 先追近到只差 1 个，随后被越拉越远，deficit 到 5');
+}
+
 export default {
   'is4302-chain': chain,
   'is4302-merkle': merkle,
-  'is4302-fork': fork,
+  'is4302-fork': forkA,
   'is4302-race': race,
   'is4302-quorum': quorum,
   'is4302-utxo': utxo,
-  'is4302-reent': reent,
-  'is4302-amm': amm,
+  'is4302-reent': reentA,
+  'is4302-amm': ammA,
   'is4302-il': il,
   'is4302-peg': peg,
   'is4302-tiers': tiers,

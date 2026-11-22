@@ -1,4 +1,4 @@
-import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, ashow } from '../lib/svg.mjs';
 
 // ---- 数值工具：图里的 curve 和点全部由这些 function 算出来 ----
 const G7 = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
@@ -307,7 +307,142 @@ function wald() {
   return svg(560, yb + 74, o, 'n 等于 10、p 等于 0.1 时，x 从 0 到 4 各自算出的 plug-in interval 和解 quadratic 的 interval。x 等于 0 时 plug-in 缩成一个点 0，盖不住 0.1，这一种情形的 probability 是 0.349');
 }
 
+
+// ---------- 动图 ----------
+const kt5 = (t) => Math.round(t * 1e5) / 1e5;
+// 在 [t0, t1) 之间显示（t 都已除以 T）；t1 = null 表示一直到最后
+const during = (spans) => {
+  // spans: [[a,b],...]，按时间排；返回 values/keyTimes 的 discrete 动画
+  const vals = [], kts = [];
+  let cur = 0;
+  if (!spans.length || spans[0][0] > 0) { vals.push(0); kts.push(0); }
+  for (const [a, b] of spans) {
+    if (a === 0) { vals.push(1); kts.push(0); } else { vals.push(1); kts.push(a); }
+    if (b !== null && b < 1) { vals.push(0); kts.push(b); }
+  }
+  return { vals, kts };
+};
+const gshow = (spans, T, body) => {
+  const { vals, kts } = during(spans);
+  return `<g opacity="${vals[0]}">${body}<animate attributeName="opacity" values="${vals.join(';')}" keyTimes="${kts.map(kt5).join(';')}" dur="${T}s" repeatCount="indefinite" calcMode="discrete"/></g>`;
+};
+
+// 开头第一件事：9 种 sample，除以 2 的平均只有 σ² 的一半
+function nine() {
+  const vals = [1, 2, 6], S = [];
+  for (const a of vals) for (const b of vals) { const m = (a + b) / 2; S.push({ a, b, m, v: ((a - m) ** 2 + (b - m) ** 2) / 2 }); }
+  const H = 3, st = 1.3, T = H + 9 * st;
+  const tk = (k) => (H + (k - 1) * st) / T; // 第 k 步开始
+  let o = text(20, 18, 'population 是 1、2、6（各 1/3），μ = 3，σ² = 14/3；有放回抽 2 个，共 9 种 sample', 'ts');
+  S.forEach((s, i) => {
+    const x = 20 + (i % 3) * 126, y = 30 + Math.floor(i / 3) * 70;
+    const px = (v) => x + 10 + v * 14.5, Y = y + 34;
+    o += gshow([[tk(i + 1), i < 8 ? tk(i + 2) : null]], T, rect(x, y, 118, 62, 'wash', 4));
+    o += rect(x, y, 118, 62, 'frame', 4);
+    o += text(x + 6, y + 15, `(${s.a}, ${s.b})`, 'tb');
+    o += line(px(0), Y, px(7), Y, 'axis');
+    o += line(px(3), Y - 9, px(3), Y + 9, 'dash');
+    o += line(px(s.a), Y, px(s.m), Y, 'ln') + line(px(s.b), Y, px(s.m), Y, 'ln');
+    o += line(px(s.m), Y - 11, px(s.m), Y + 11, 'ink-b');
+    o += circle(px(s.a), Y, 3.5, 'ink-f') + (s.a === s.b ? circle(px(s.a), Y, 6.5, 'ink') : circle(px(s.b), Y, 3.5, 'ink-f'));
+    o += text(x + 112, y + 15, `x̄ = ${s.m}`, 'ts', 'end');
+    o += text(x + 6, y + 57, `Σ(xᵢ − x̄)² ÷ 2 = ${s.v}`, 'ts');
+  });
+  o += text(20, 260, '粗竖线是 x̄，虚线是 μ = 3；彩色线段是各点到 x̄ 的距离，', 'ts') + text(20, 276, '它总比到 μ 的距离短。', 'ts');
+  // 右边：累计平均
+  const sy = lin(0, 5, 236, 80), bx = 420;
+  o += line(bx - 6, sy(0), bx + 50, sy(0), 'axis');
+  for (const v of [0, 1, 2, 3, 4, 5]) o += line(bx - 10, sy(v), bx - 6, sy(v), 'axis') + text(bx - 13, sy(v) + 4, String(v), 'ts', 'end');
+  o += line(bx - 6, sy(14 / 3), bx + 56, sy(14 / 3), 'dash') + text(bx + 58, sy(14 / 3) + 4, 'σ² = 4.67', 'ts');
+  o += text(bx - 6, 48, '÷2 的值，', 'ts') + text(bx - 6, 62, '前 k 种的平均', 'ts');
+  const run = []; let acc = 0; S.forEach((s, i) => { acc += s.v; run.push(acc / (i + 1)); });
+  const bar = (v) => d([[bx, sy(0)], [bx + 40, sy(0)], [bx + 40, sy(v)], [bx, sy(v)]]) + 'Z';
+  const seq = [7 / 3, ...run], kts = [0, ...S.map((_, i) => tk(i + 1))];
+  o += apath(seq.map(bar), kts, T, 'solid', true);
+  const fm = (v) => (Math.round(v * 100) / 100).toString();
+  seq.forEach((v, j) => {
+    const span = j === 0 ? [[0, tk(1)]] : [[tk(j), j < 9 ? tk(j + 1) : null]];
+    const lab = j === 0 || j === 9 ? '7/3 ≈ 2.33' : fm(v);
+    o += gshow(span, T, text(bx + 46, sy(v) + 4, lab, 'tl') + (j === 0 || j === 9 ? text(bx - 10, 262, '9 种的平均 = 7/3，', 'tl') + text(bx - 10, 278, '只有 σ² 的一半', 'tl') : text(bx - 10, 262, `已加上 ${j} 种`, 'ts')));
+  });
+  return svgA(560, 284, o, '动图：population 1、2、6，有放回抽 2 个的 9 种 sample 一个个亮起来，每格画出两个数、sample mean 和 true mean；右边的柱子是除以 2 的 estimate 的累计平均，最后停在 7/3，只有 true variance 14/3 的一半');
+}
+
+// 第 6 站：一次一次做 experiment，interval 一条条排出来
+function coverA() {
+  const R = rng(2132), mu = 1.5, sigma = 1.2, n = 10, tc = 2.262157;
+  const D = [];
+  for (let r = 0; r < 100; r++) {
+    const x = Array.from({ length: n }, () => mu + sigma * R.normal());
+    const m = x.reduce((a, b) => a + b, 0) / n;
+    const s = Math.sqrt(x.reduce((a, b) => a + (b - m) ** 2, 0) / (n - 1));
+    const h = (tc * s) / Math.sqrt(n);
+    D.push({ x, m, lo: m - h, hi: m + h, miss: mu < m - h || mu > m + h });
+  }
+  const lo = Math.min(...D.map((v) => Math.min(v.lo, ...v.x))), hi = Math.max(...D.map((v) => Math.max(v.hi, ...v.x)));
+  const sx = lin(0, 101, 150, 548), sy = lin(Math.floor(lo), Math.ceil(hi), 250, 50);
+  const H = 3, st = 0.14, T = H + 100 * st;
+  const tk = (i) => (H + i * st) / T; // 第 i 次（0 起）出现的时刻
+  let o = '';
+  for (let v = Math.floor(lo); v <= Math.ceil(hi); v++) o += line(40, sy(v), sx(101), sy(v), 'grid') + text(36, sy(v) + 4, String(v).replace('-', '−'), 'ts', 'end');
+  o += line(40, sy(mu), sx(101), sy(mu), 'ink');
+  o += rect(44, 40, 82, 220, 'frame', 4);
+  o += text(85, 28, '这一次的 10 个', 'ts', 'middle') + text(sx(50), 28, '每次的 interval 依次排开；横线是 true μ = 1.5', 'ts', 'middle');
+  let miss = 0;
+  D.forEach((v, i) => {
+    if (v.miss) miss++;
+    const cls = v.miss ? 'ln' : 'mute';
+    const iv = line(sx(i + 1), sy(v.lo), sx(i + 1), sy(v.hi), cls) + circle(sx(i + 1), sy(v.m), 1.6, v.miss ? 'ln-f' : 'mute-f');
+    o += i === 0 ? iv : gshow([[0, tk(0)], [tk(i), null]], T, iv);
+    // 左边：这一次的 sample
+    let g = '';
+    v.x.forEach((x, j) => { g += circle(58 + (j % 5) * 6 + (j >= 5 ? 3 : 0), sy(x), 2.6, 'ink-f'); });
+    g += line(96, sy(v.m), 116, sy(v.m), 'ink-b') + line(106, sy(v.lo), 106, sy(v.hi), v.miss ? 'ln' : 'ink') + line(102, sy(v.lo), 110, sy(v.lo), 'ink') + line(102, sy(v.hi), 110, sy(v.hi), 'ink');
+    g += text(85, 276, `第 ${i + 1} 次：${v.miss ? '没盖住' : '盖住了'}`, v.miss ? 'tl' : 'ts', 'middle');
+    g += text(sx(101), 276, `至今 ${i + 1} 个 interval，${miss} 个没盖住 μ`, 'ts', 'end');
+    o += gshow(i === 99 ? [[0, tk(0)], [tk(99), null]] : [[tk(i), tk(i + 1)]], T, g);
+  });
+  return svgA(560, 284, o, `动图：每次从 N(1.5, 1.44) 抽 10 个 observation，左边显示这一次的 10 个点、sample mean 和 95% t interval，右边把 100 次的 interval 一条条排开；最终 ${miss} 个没有盖住 true mean`);
+}
+
+// 第 7 站：cutoff 左右移动，α 和 β 此消彼长
+function errorsA() {
+  const n = 124;
+  const sx = lin(44.5, 94.5, 40, 540), sy = lin(0, 0.085, 205, 40);
+  const w = sx(1) - sx(0);
+  const cs = [72, 73, 74, 75, 76, 75, 74, 73, 72, 71, 70, 69, 68, 69, 70, 71];
+  const H = 2.4, st = 0.8, T = H + (cs.length - 1) * st + st;
+  const kt = cs.map((_, i) => (i ? H + (i - 1) * st : 0) / T);
+  const A = (c) => { let s = 0; for (let k = c; k <= n; k++) s += binom(k, n, 0.5); return s; };
+  const B = (c) => { let s = 0; for (let k = 0; k < c; k++) s += binom(k, n, 0.6); return s; };
+  const bs = lin(0, 0.6, 0, 210);
+  let o = '';
+  const uniq = [...new Set(cs)];
+  for (const c of uniq) {
+    let g = '';
+    for (let k = 45; k <= 94; k++) {
+      if (k < c) g += rect(sx(k - 0.5), sy(binom(k, n, 0.6)), w, sy(0) - sy(binom(k, n, 0.6)), 'wash');
+      else g += rect(sx(k - 0.5), sy(binom(k, n, 0.5)), w, sy(0) - sy(binom(k, n, 0.5)), 'solid2');
+    }
+    g += line(sx(c - 0.5), sy(0), sx(c - 0.5), sy(0.085), 'dash');
+    g += text(sx(c - 0.5) + 6, sy(0.085) + 10, 'reject H₀：' + it('X') + ' ≥ ' + c, 'tb') + text(sx(c - 0.5) - 6, sy(0.085) + 10, '不 reject', 't', 'end');
+    const a = A(c), b = B(c);
+    g += rect(150, 232, bs(a), 12, 'solid2') + text(144, 242, 'α（type I error）', 't', 'end') + text(150 + bs(a) + 6, 242, a.toFixed(3), 't');
+    g += rect(150, 256, bs(b), 12, 'wash-strong') + text(144, 266, 'β（type II error）', 'tl', 'end') + text(150 + bs(b) + 6, 266, b.toFixed(3), 'tl');
+    o += `<g opacity="${c === cs[0] ? 1 : 0}">${g}${ashow(cs.map((x) => x === c), kt, T)}</g>`;
+  }
+  const step = (p, cls) => { const pts = []; for (let k = 45; k <= 94; k++) { const y = sy(binom(k, n, p)); pts.push([sx(k - 0.5), y], [sx(k + 0.5), y]); } return path(d(pts), cls); };
+  o += step(0.5, 'ink') + step(0.6, 'ln');
+  o += line(sx(44.5), sy(0), sx(94.5), sy(0), 'axis');
+  for (const k of [50, 62, 80, 90]) o += line(sx(k), sy(0), sx(k), sy(0) + 4, 'axis') + text(sx(k), sy(0) + 17, String(k), 'ts', 'middle');
+  o += text(sx(45), sy(0.06), 'H₀：' + it('p') + ' = 0.5', 'tb') + text(sx(94), sy(0.06), 'H₁：' + it('p') + ' = 0.6', 'tl', 'end');
+  o += text(40, 16, it('X') + ' = 124 对 couple 里向右的对数；黑色阶梯是 H₀ 下的 pmf，红色是 H₁ 下的', 'ts');
+  o += text(400, 266, '深色 = α，浅色 = β', 'ts');
+  return svgA(560, 276, o, '动图：null p 等于 0.5 与 alternative p 等于 0.6 下 X 的两个 binomial pmf，cutoff 从 72 右移到 76 再左移到 68；cutoff 右侧 null 下的深色面积 alpha 和左侧 alternative 下的浅色面积 beta 一个变小另一个就变大，下方两根柱子显示数值');
+}
+
 export default {
+  'st2132-nine': nine,
   'st2132-chi2': chi2,
   'st2132-tdist': tdist,
   'st2132-lik': lik,
@@ -315,8 +450,8 @@ export default {
   'st2132-twoest': twoest,
   'st2132-curv': curv,
   'st2132-partition': partition,
-  'st2132-cover': cover,
-  'st2132-errors': errors,
+  'st2132-cover': coverA,
+  'st2132-errors': errorsA,
   'st2132-power': power,
   'st2132-wilks': wilks,
   'st2132-paired': paired,

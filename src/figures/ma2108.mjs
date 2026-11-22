@@ -1,4 +1,4 @@
-import { svg, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes } from '../lib/svg.mjs';
+import { svg, svgA, lin, logx, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, apath, acircle, ashow } from '../lib/svg.mjs';
 
 const SUB = '₀₁₂₃₄₅₆₇₈₉';
 const sub = (n) => String(n).split('').map((c) => SUB[+c]).join('');
@@ -436,7 +436,115 @@ function bump() {
   return svg(560, 262, o, 'f_n(x) = nx/(1+n²x²) 在 n = 1, 2, 4, 8, 16, 32 时的 graph：每条在 x=1/n 处达到 1/2，峰的位置向 0 移动');
 }
 
+
+// ---------- 动图 ----------
+const grp = (first, on, kt, T, body) => `<g opacity="${first ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+
+// 开头第四件：n 越来越大，xⁿ 的 graph 越来越贴着两条边，limit 却断开
+function xnA() {
+  const sx = lin(0, 1, 60, 400), sy = lin(0, 1.06, 222, 30);
+  const ns = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 25, 32, 40, 50, 64, 80, 100, 128];
+  const st = 0.45, hold = 2.4, T = st * (ns.length - 1) + hold + 0.5;
+  const kt = ns.map((_, i) => (st * i) / T);
+  kt.push((st * (ns.length - 1) + hold) / T, 1);
+  const seq = [...ns, ns[ns.length - 1], 1];
+  let o = axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 1.06, xt: [[0, '0'], [0.5, '0.5'], [0.9, '0.9'], [1, '1']], yt: [[0.5, '0.5'], [1, '1']], xl: 'x' });
+  // limit function
+  o += line(sx(0), sy(0), sx(1), sy(0), 'ln') + circle(sx(1), sy(0), 4, 'paper') + circle(sx(1), sy(1), 4.5, 'ln-f');
+  o += text(sx(1) + 10, sy(1) + 4, 'f(1) = 1', 'tl') + text(sx(1) + 10, sy(0) + 4, '[0, 1) 上 f = 0', 'tl');
+  // xⁿ：用同一组 x 采样，n 变化时形状线性插值
+  const pts = []; for (let i = 0; i <= 300; i++) pts.push(i / 300);
+  const shape = (n) => d(pts.map((x) => [sx(x), sy(x ** n)]));
+  o += apath(seq.map(shape), kt, T, 'ink-b');
+  for (const x0 of [0.5, 0.9]) o += line(sx(x0), sy(0), sx(x0), sy(1.06), 'grid');
+  o += acircle(seq.map(() => sx(0.9)), seq.map((n) => sy(0.9 ** n)), kt, T, 4, 'ink-f');
+  o += acircle(seq.map(() => sx(0.5)), seq.map((n) => sy(0.5 ** n)), kt, T, 4, 'ink-f');
+  const X = 420;
+  o += text(X, 100, '粗线：fₙ(x) = xⁿ', 'tb');
+  ns.forEach((n, i) => {
+    const on = seq.map((m, j) => m === n && j < seq.length - 1);
+    o += grp(i === 0, on, kt, T, text(X, 126, `n = ${n}`, 'tl') + text(X, 148, `fₙ(0.5) = ${(0.5 ** n).toPrecision(2)}`, 't') + text(X, 168, `fₙ(0.9) = ${(0.9 ** n).toPrecision(2)}`, 't'));
+  });
+  o += text(X, 188, 'fₙ(1) = 1', 't');
+  o += text(60, 18, '每个 fₙ 都 continuous；n → ∞ 时每个点上的值趋向彩色的 f', 'ts');
+  return svgA(560, 256, o, '动图：x 的 n 次方在 0 到 1 上的 graph，n 从 1 增加到 128，curve 越来越贴着横轴再在 1 附近陡升；limit function 在 0 到 1 的左闭右开区间上是 0，在 1 处是 1，graph 断开');
+}
+
+// 第 2 站：ε 变小，N 跟着变大
+function epsbandA() {
+  const M = 60;
+  const sx = lin(0, M + 1, 55, 530), sy = lin(-0.4, 1.65, 225, 22);
+  const x = (n) => (2 + (-1) ** n) / n;
+  const epss = [0.2, 0.15, 0.1, 0.5, 0.3, 0.2];
+  const lastOut = (e) => { let k = 0; for (let n = 1; n <= 400; n++) if (Math.abs(x(n)) >= e) k = n; return k; };
+  const hold = 2.2, T = hold * (epss.length - 1);
+  const kt = epss.map((_, i) => (hold * i) / T);
+  kt[kt.length - 1] = 1;
+  let o = '';
+  const uniq = [...new Set(epss)];
+  uniq.forEach((e) => {
+    const on = epss.map((v, i) => v === e && i < epss.length - 1);
+    o += grp(e === epss[0], on, kt, T, rect(sx(0), sy(e), sx(M + 1) - sx(0), sy(-e) - sy(e), 'wash'));
+  });
+  o += axes({ sx, sy, x0: 0, x1: M + 1, y0: -0.4, y1: 1.65, xt: [1, 10, 20, 30, 40, 50, 60], yt: [[0, '0'], [0.5, '0.5'], [1, '1'], [1.5, '1.5']], xAt: -0.4, xl: 'n' });
+  o += line(sx(0), sy(0), sx(M + 1), sy(0), 'mute');
+  for (let n = 1; n <= M; n++) o += circle(sx(n), sy(x(n)), 2.8, 'ink-f');
+  uniq.forEach((e) => {
+    const on = epss.map((v, i) => v === e && i < epss.length - 1);
+    const N = lastOut(e) + 1, Np = Math.floor(3 / e + 1e-9) + 1;
+    let g = line(sx(0), sy(e), sx(M + 1), sy(e), 'ln-dash') + line(sx(0), sy(-e), sx(M + 1), sy(-e), 'ln-dash');
+    for (let n = N; n <= M; n++) g += circle(sx(n), sy(x(n)), 2.8, 'ln-f');
+    g += line(sx(N), sy(-0.4), sx(N), sy(0.62), 'dash');
+    g += text(sx(N) + 6, sy(0.54), `N = ${N}`, 'tb');
+    g += text(sx(N) + 6, sy(0.54) + 16, '从这里起全在 band 里', 'ts');
+    g += text(530, 40, `ε = ${e}：最小能用的 N 是 ${N}`, 'tl', 'end');
+    g += text(530, 58, `proof 里的 n > 3/ε 给出 N = ${Np}`, 'ts', 'end');
+    if (e === 0.2) {
+      g += text(sx(7), sy(-0.33), 'x₇ = 0.143', 'ts', 'middle') + line(sx(7), sy(x(7)) + 4, sx(7), sy(-0.25), 'mute');
+      g += line(sx(8) + 3, sy(x(8)) - 4, sx(9.6), sy(0.72), 'mute') + text(sx(9.8), sy(0.74), 'x₈ = 0.375：进去过又出来', 'ts');
+    }
+    o += grp(e === epss[0], on, kt, T, g);
+  });
+  o += text(55, 18, 'xₙ = (2 + (−1)ⁿ) / n，limit 是 0；浅色是 (−ε, ε)', 'tb');
+  return svgA(560, 262, o, '动图：sequence 二加负一的 n 次方再除以 n 的前 60 个 term，0 周围的 band 半径 epsilon 依次取 0.2、0.15、0.1、0.5、0.3；epsilon 越小，所有 term 都留在 band 里的起点 N 越大，分别是 15、21、31、7、11');
+}
+
+// 第 6 站：ε 变小，δ 跟着变小
+function epsdeltaA() {
+  const sx = lin(1.4, 2.6, 70, 380), sy = lin(1.8, 6.9, 232, 22);
+  const f = (x) => x * x;
+  const epss = [1, 0.6, 0.3, 1];
+  const hold = 2.4, T = hold * (epss.length - 1);
+  const kt = epss.map((_, i) => (hold * i) / T); kt[kt.length - 1] = 1;
+  let o = '';
+  const uniq = [1, 0.6, 0.3];
+  const on = (e) => epss.map((v, i) => v === e && i < epss.length - 1);
+  uniq.forEach((e) => {
+    const dl = Math.min(1, e / 5);
+    o += grp(e === 1, on(e), kt, T, rect(sx(1.4), sy(4 + e), sx(2.6) - sx(1.4), sy(4 - e) - sy(4 + e), 'wash2') + rect(sx(2 - dl), sy(6.9), 2 * (sx(2 + dl) - sx(2)), sy(1.8) - sy(6.9), 'wash'));
+  });
+  o += axes({ sx, sy, x0: 1.4, x1: 2.6, y0: 1.8, y1: 6.9, xt: [[1.6, '1.6'], [2, 'c = 2'], [2.4, '2.4']], yt: [[3, '3'], [4, 'f(c) = 4'], [5, '5'], [6, '6']] });
+  o += path(curve(f, 1.4, 2.6, sx, sy), 'ink');
+  uniq.forEach((e) => {
+    const dl = Math.min(1, e / 5), dmax = Math.sqrt(4 + e) - 2;
+    let g = line(sx(1.4), sy(4 - e), sx(2.6), sy(4 - e), 'dash') + line(sx(1.4), sy(4 + e), sx(2.6), sy(4 + e), 'dash');
+    g += line(sx(2 - dl), sy(1.8), sx(2 - dl), sy(6.9), 'ln-dash') + line(sx(2 + dl), sy(1.8), sx(2 + dl), sy(6.9), 'ln-dash');
+    g += path(curve(f, 2 - dl, 2 + dl, sx, sy), 'ln');
+    for (const v of [Math.sqrt(4 - e), Math.sqrt(4 + e)]) g += circle(sx(v), sy(f(v)), 4, 'paper');
+    const X = 396;
+    g += text(X, 44, `ε = ${e}`, 'tl') + text(X, 64, `δ = min{1, ε/5} = ${dl.toFixed(2)}`, 'tb');
+    g += text(X, 96, `x 在 (${(2 - dl).toFixed(2)}, ${(2 + dl).toFixed(2)}) 里时，`, 'ts') + text(X, 113, `x² 在 (${f(2 - dl).toFixed(2)}, ${f(2 + dl).toFixed(2)}) 里，`, 'ts') + text(X, 130, `没有离开 (${4 - e}, ${4 + e})。`, 'ts');
+    g += text(X, 162, '空心点：curve 离开水平 band', 'ts') + text(X, 179, '的位置。能用的最大的 δ 是', 'ts') + text(X, 196, `√(4 + ε) − 2 = ${dmax.toFixed(3)}。`, 'ts');
+    o += grp(e === 1, on(e), kt, T, g);
+  });
+  o += circle(sx(2), sy(4), 4, 'ink-f');
+  o += text(sx(2.43), sy(6.35), 'y = x²', 't', 'end');
+  o += text(396, 236, '灰色横 band：f(c) ± ε', 'ts') + text(396, 252, '彩色竖 band：c ± δ', 'ts');
+  return svgA(560, 262, o, '动图：x 平方在 c 等于 2 附近的 graph；epsilon 依次取 1、0.6、0.3，水平 band 变窄，delta 等于 min(1, epsilon/5) 跟着变成 0.2、0.12、0.06，竖直 band 里的那段 curve 始终落在水平 band 里');
+}
+
 export default {
+  'ma2108-xn0': xnA,
   'ma2108-rearr': rearr,
   'ma2108-tries': tries,
   'ma2108-density': density,
@@ -444,12 +552,12 @@ export default {
   'ma2108-ivtfail': ivtfail,
   'ma2108-bump': bump,
   'ma2108-sqrt2': sqrt2,
-  'ma2108-epsband': epsband,
+  'ma2108-epsband': epsbandA,
   'ma2108-mct': mct,
   'ma2108-bisect': bisect,
   'ma2108-limsup': limsup,
   'ma2108-harmonic': harmonic,
-  'ma2108-epsdelta': epsdelta,
+  'ma2108-epsdelta': epsdeltaA,
   'ma2108-evt': evt,
   'ma2108-unif': unif,
   'ma2108-ball': ball,
