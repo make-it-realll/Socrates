@@ -13,7 +13,7 @@ function chain() {
     ['fact creation', '写下什么由当事人定：', 'record 里他总占上风'],
     ['fact assembly', '哪些 paper 被留下、', '归在一起'],
     ['fact retrieval', '选编突出 western policy，', '压缩 eastern policy'],
-    ['retrospective significance', '原件若在 1945 年毁掉，', '没有人能质疑这个版本'],
+    ['retrospective significance', '原件和 Bernhard 版都失传的话，', '没有人能质疑这个版本'],
   ];
   const x = 16, w = 316, h = 46, gap = 40;
   let o = '';
@@ -42,8 +42,8 @@ function donation() {
   const marks = [
     [58, '“satraps”', 'Roman 的 government 里', '没有这个官职'],
     [108, '“see of Constantinople”', '同一份 text 说', '这座城还没有建'],
-    [158, '“universal pope”', '当时还不是 Rome 的 bishop', '专用的 title'],
-    [208, '“consul IV, with Gallicanus”', '315 年与 317 年，', '两个年份对不上'],
+    [158, '“universal Pope”', '当时还不是 Rome 的 bishop', '专用的 title'],
+    [208, '“province of Byzantia”', 'Byzantium 当时是', '一座 town'],
   ];
   // 灰色的“正文”行
   for (let y = py + 14; y < py + ph - 6; y += 10) {
@@ -60,13 +60,13 @@ function donation() {
   o += rect(16, by, 210, 46, 'wash2', 6) + text(28, by + 19, '它自称', 'tb') + text(28, by + 37, 'Constantine，约 315–317 年', 'ts');
   o += arrow(232, by + 23, 300, by + 23, 'ln') + text(266, by + 15, '约 440 年', 'ts', 'middle');
   o += rect(306, by, 238, 46, 'wash', 6) + text(318, by + 19, 'Criticism 之后', 'tl') + text(318, by + 37, '8 世纪中后期的 papal chancery', 'ts');
-  return svg(560, by + 58, o, 'Donation of Constantine 的 text 里四处用语：satraps、see of Constantinople、universal pope、Constantine 第四次任 consul 与 Gallicanus 同任，每一处都不可能出自 4 世纪初');
+  return svg(560, by + 58, o, 'Donation of Constantine 的 text 里 Valla 指出的四处用语：satraps、see of Constantinople、universal Pope、province of Byzantia，每一处都不可能出自 4 世纪初');
 }
 
 // 从事情发生到被写下来隔了多久（年，log scale）
 function gap() {
   const items = [
-    ['Japanese 驻军 diary（1942）', '记当月的 Sook Ching', 0],
+    ['Kawamura 的 diary（1942）', '记 2 月 21–23 日的 screening', 0],
     ['1819 年的 treaty', '它本身是那次签字的一部分', 0],
     ['Coras, Arrest Memorable（1561）', '记 1560 年的 trial', 1],
     ['Farquhar 的 Memorial（1824）', '记 1819 年的选址', 5],
@@ -243,40 +243,62 @@ function founding() {
   return svg(560, y2 + 70, o, '上面一条放大 1819 年 1 月 27 日到 2 月 8 日：28 日船队到达，28 或 29 日第一次上岸，30 日签 provisional agreement，2 月 6 日签 treaty，7 日 Raffles 离开；下面一条是之后的几年，Farquhar 任 Resident 1,544 天，1824 年的 treaty 取代了 1819 年的');
 }
 
-// Sook Ching 的 death toll：各份 source 给的数字
+// Sook Ching 的 death toll：各份 source 给的数字，以及 Kawamura 的报告覆盖了 15 天里的哪几天
 function toll() {
-  const sx = lin(0, 50000, 240, 530);
+  const sx = lin(0, 50000, 250, 530);
   let o = '';
-  const top = 70, rh = 30;
-  o += line(sx(5000), 40, sx(50000), 40, 'ink') + line(sx(5000), 36, sx(5000), 44, 'ink') + line(sx(50000), 36, sx(50000), 44, 'ink');
-  o += text(sx(27500), 32, '最低和最高相差十倍', 'tb', 'middle');
-  o += text(16, 30, '黑点：执行一方', 'ts') + text(16, 47, '深色条：受害一方；浅色条：secondary', 'ts');
-  for (const v of [0, 10000, 20000, 30000, 40000, 50000]) o += line(sx(v), top - 14, sx(v), top + 4 * rh + 14, 'grid');
+  // 顶部：当时的 record 与受害一方的估计相差十倍
+  o += line(sx(5000), 30, sx(50000), 30, 'ink') + line(sx(5000), 26, sx(5000), 34, 'ink') + line(sx(50000), 26, sx(50000), 34, 'ink');
+  o += text((sx(5000) + sx(50000)) / 2, 22, '5,000 到 50,000：相差 ' + (50000 / 5000) + ' 倍', 'tb', 'middle');
   const rows = [
-    ['驻军的 diary（2 月 23 日）', 'p', 5000, '5,000'],
-    ['Japanese 政府战后的说法', 'p', 6000, '≤ 6,000'],
-    ['Hishakari 战后转述', 'p', 25000, '约 25,000'],
-    ['Chinese community 的估计', 'r', [40000, 50000], '40,000–50,000'],
-    ['后来的 historian 通常给的', 's', [25000, 50000], '25,000–50,000'],
+    ['h', '执行一方，当时的 record'],
+    ['p', 'Kawamura 的 diary（到 2 月 23 日）', [5000], '5,000'],
+    ['o', '25th Army 的 record（1942 年 5 月 28 日）', [11110], '11,110（bombing 与 purge 合计）'],
+    ['h', '执行一方，战后的说法'],
+    ['p', 'Ministry of Justice 官员（1963 年见报）', [800], '800'],
+    ['p', 'Onishi 的回忆录（1970 年代）', [1000], '约 1,000'],
+    ['p', 'Foreign Ministry 的不同文件', [3000, 5000], '3,000 或 5,000'],
+    ['p', 'Japan 政府', [6000], '不超过 6,000'],
+    ['h', '转述与受害一方的估计'],
+    ['p', 'Hishakari 战后的转述', [25000], '约 25,000'],
+    ['r', 'Singapore 一方', [40000, 50000], '40,000–50,000'],
+    ['h', 'Secondary'],
+    ['s', '后来的 historian 通常给的', [25000, 50000], '25,000–50,000'],
+    ['m', 'Hayashi（2009）', [5000], '至少 5,000，上限给不出'],
   ];
-  rows.forEach(([lab, kind, v, vl], i) => {
-    const y = top + i * rh;
-    o += text(228, y + 4, lab, 'ts', 'end');
-    if (kind === 'p') o += circle(sx(v), y, 5, 'ink-f') + text(sx(v) + 10, y + 4, vl, 't');
-    else {
-      o += rect(sx(v[0]), y - 7, sx(v[1]) - sx(v[0]), 14, kind === 'r' ? 'solid' : 'wash-strong', 3);
-      o += text(sx(v[0]) - 8, y + 4, vl, kind === 'r' ? 'tl' : 't', 'end');
+  let y = 58;
+  for (const [k, lab, v, vl] of rows) {
+    if (k === 'h') { o += text(16, y + 4, lab, 'tl'); y += 22; continue; }
+    o += text(238, y + 4, lab, 'ts', 'end');
+    if (k === 'p') {
+      for (const x of v) o += circle(sx(x), y, 4.5, 'ink-f');
+      o += text(sx(v[v.length - 1]) + 10, y + 4, vl, 't');
+    } else if (k === 'o') {
+      o += circle(sx(v[0]), y, 4.5, 'ink paper-f') + text(sx(v[0]) + 10, y + 4, vl, 't');
+    } else if (k === 'r' || k === 's') {
+      o += rect(sx(v[0]), y - 7, sx(v[1]) - sx(v[0]), 14, k === 'r' ? 'solid' : 'wash-strong', 3);
+      o += text(sx(v[0]) - 8, y + 4, vl, k === 'r' ? 'tl' : 't', 'end');
+    } else if (k === 'm') {
+      o += arrow(sx(v[0]), y, sx(14000), y, 'dash') + circle(sx(v[0]), y, 4.5, 'ink-f');
+      o += text(sx(14000) + 8, y + 4, vl, 't');
     }
-  });
-  const ya = top + 4 * rh + 18;
+    y += 24;
+  }
+  const ya = y - 6;
   o += line(sx(0), ya, sx(50000), ya, 'axis');
   for (const v of [0, 10000, 20000, 30000, 40000, 50000]) o += line(sx(v), ya, sx(v), ya + 4, 'axis') + text(sx(v), ya + 18, v.toLocaleString('en-US'), 'ts', 'middle');
-  // 15 天
-  const yd = ya + 52, bw = 30, bx = 40;
-  o += text(16, yd - 10, '行动一共 15 天（2 月 18 日至 3 月 4 日），diary 的数字只记到第 6 天', 'tb');
-  for (let k = 0; k < 15; k++) o += rect(bx + k * (bw + 2), yd, bw, 20, k < 6 ? 'wash-strong' : 'paper', 2);
-  for (const k of [1, 6, 15]) o += text(bx + (k - 1) * (bw + 2) + bw / 2, yd + 36, '第 ' + k + ' 天', 'ts', 'middle');
-  return svg(560, yd + 46, o, 'Sook Ching 死亡人数的各种数字：执行一方 diary 记的 5,000、Japanese 政府说的不超过 6,000、Hishakari 转述的约 25,000，Chinese community 估计的 40,000 到 50,000，historian 通常给的 25,000 到 50,000；diary 的记载只覆盖 15 天行动中的前 6 天');
+  // 下半：2 月 18 日到 3 月 4 日
+  const nd = 15, bw = 30, bx = 40, cx = (k) => bx + (k - 1) * (bw + 2);
+  const yd = ya + 78;
+  o += text(16, yd - 34, '2 月 18 日到 3 月 4 日，一共 ' + nd + ' 天', 'tb');
+  for (let k = 1; k <= nd; k++) o += rect(cx(k), yd, bw, 20, k >= 4 && k <= 6 ? 'wash-strong' : 'paper', 2);
+  o += text(cx(4), yd - 8, 'Kempeitai：市区', 'ts');
+  o += rect(cx(9) - 3, yd - 3, cx(11) + bw - cx(9) + 6, 26, 'dash', 3);
+  o += text(cx(9) - 3, yd - 8, 'Imperial Guard：郊区（2 月底，日子不详）', 'ts');
+  o += text(cx(1) + bw / 2, yd + 34, '18 日', 'ts', 'middle') + text(cx(nd) + bw / 2, yd + 34, '3 月 4 日', 'ts', 'middle');
+  o += line(cx(6) + bw / 2, yd + 22, cx(6) + bw / 2, yd + 40, 'ink') + circle(cx(6) + bw / 2, yd + 40, 3, 'ink-f');
+  o += text(cx(6) + bw / 2 + 8, yd + 52, '23 日：Kawamura 向 Yamashita 报告 5,000', 't');
+  return svg(560, yd + 60, o, 'Sook Ching 死亡人数的各种数字：执行一方当时的 record 有 Kawamura diary 的 5,000 和 25th Army 把 bombing 与 purge 合计的 11,110；战后 Japan 一方的说法从 800 到不超过 6,000；Hishakari 转述约 25,000；Singapore 一方 40,000 到 50,000；historian 通常给 25,000 到 50,000，Hayashi 只给下限 5,000。下面是 2 月 18 日到 3 月 4 日的 15 天，Kawamura 的报告停在第 6 天，郊区的 screening 在 2 月底');
 }
 
 // 1914 年 6 月 28 日：Latin Bridge 路口（示意，不按比例）
@@ -362,8 +384,8 @@ function guerre() {
   o += row(y, 'Martin Guerre');
   o += line(sx(1538), y, sx(1548), y, 'ink-b') + line(sx(1548), y, sx(1560), y, 'dash');
   o += circle(sx(1538), y, 4.5, 'ink-f') + circle(sx(1548), y, 4.5, 'ink-f') + circle(sx(1557), y, 4.5, 'ink paper-f') + circle(sx(1560.4), y, 5, 'ink-f');
-  o += text(sx(1538) - 4, y - 12, '1538 结婚，约 14 岁', 'ts') + text(sx(1548) - 4, y - 28, '1548 被指偷粮，离家', 'ts');
-  o += text(sx(1557) + 4, y - 12, '1557 当兵负伤，截肢', 'ts', 'end') + text(sx(1560.4), y + 20, '拄着木腿回来', 'ts', 'end');
+  o += text(sx(1538) - 4, y + 20, '约 1538 结婚，Martin 约 14 岁', 'ts') + text(sx(1548) - 4, y - 28, '1548 被指偷粮，离家', 'ts');
+  o += text(sx(1557) + 4, y - 12, '1557 在 St Quentin 负伤，截肢', 'ts', 'end') + text(sx(1560.4), y + 20, '拄着木腿回来', 'ts', 'end');
   // Bertrande
   y = 140;
   o += row(y, 'Bertrande', 'de Rols');
@@ -384,7 +406,7 @@ function guerre() {
   const yb = ya + 40;
   o += line(sx(1548), yb, sx(1560), yb, 'ink') + line(sx(1548), yb - 4, sx(1548), yb + 4, 'ink') + line(sx(1560), yb - 4, sx(1560), yb + 4, 'ink');
   o += text(sx(1554), yb - 7, '这个 case 涉及的：一个 village 的十二年', 'ts', 'middle');
-  return svg(560, yb + 12, o, 'Martin Guerre 一案的时间线：1538 年 Martin 与 Bertrande 结婚，1548 年 Martin 出走，1556 年 Arnaud du Tilh 冒充他来到 Artigat 并被接受，1557 年 Martin 在外负伤，1560 年受审期间 Martin 回来，Arnaud 被宣判并处死');
+  return svg(560, yb + 12, o, 'Martin Guerre 一案的时间线：约 1538 年 Martin 与 Bertrande 结婚，1548 年 Martin 出走，1556 年 Arnaud du Tilh 冒充他来到 Artigat 并被接受，1557 年 Martin 在外负伤，1560 年受审期间 Martin 回来，Arnaud 被宣判并处死');
 }
 
 export default {
