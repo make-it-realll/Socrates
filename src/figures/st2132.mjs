@@ -441,6 +441,59 @@ function errorsA() {
   return svgA(560, 276, o, '动图：null p 等于 0.5 与 alternative p 等于 0.6 下 X 的两个 binomial pmf，cutoff 从 72 右移到 76 再左移到 68；cutoff 右侧 null 下的深色面积 alpha 和左侧 alternative 下的浅色面积 beta 一个变小另一个就变大，下方两根柱子显示数值');
 }
 
+// parametric bootstrap：把 Gamma 的 MOM estimate 当成真值，simulate 10,000 次
+function gammaDraw(r, a) {
+  if (a < 1) return gammaDraw(r, a + 1) * Math.pow(r.u(), 1 / a);
+  const dd = a - 1 / 3, c = 1 / Math.sqrt(9 * dd);
+  for (;;) {
+    const x = r.normal(), v0 = 1 + c * x;
+    if (v0 <= 0) continue;
+    const v = v0 * v0 * v0, u = r.u();
+    if (Math.log(u) < 0.5 * x * x + dd - dd * v + dd * Math.log(v)) return dd * v;
+  }
+}
+export function bootData() {
+  const xb = 0.224, s2 = 0.1338, lam = xb / s2, al = (xb * xb) / s2, n = 227, B = 10000;
+  const r = rng(2132), L = [], A = [];
+  for (let b = 0; b < B; b++) {
+    let s = 0, ss = 0;
+    for (let i = 0; i < n; i++) { const x = gammaDraw(r, al) / lam; s += x; ss += x * x; }
+    const m = s / n, v = ss / n - m * m;
+    L.push(m / v); A.push((m * m) / v);
+  }
+  const avg = (X) => X.reduce((a, b) => a + b, 0) / B;
+  const sdv = (X) => { const mu = avg(X); return Math.sqrt(X.reduce((a, b) => a + (b - mu) ** 2, 0) / (B - 1)); };
+  const mean = avg(L), sd = sdv(L);
+  return { lam, al, L, mean, sd, amean: avg(A), asd: sdv(A) };
+}
+function boot() {
+  const { lam, L, mean, sd } = bootData();
+  let o = '';
+  // 左边：两个 world
+  o += rect(14, 30, 196, 74, 'paper', 6);
+  o += text(24, 50, '真实 world', 'tb') + text(24, 70, '(' + it('α') + ', ' + it('λ') + ') 未知', 't') + text(24, 92, '227 个降雨量 → estimate 1.67', 't');
+  o += arrow(112, 108, 112, 142, 'ink');
+  o += text(122, 130, '把 estimate 当真值', 'ts');
+  o += rect(14, 146, 196, 96, 'wash', 6);
+  o += text(24, 166, '假想 world', 'tl') + text(24, 186, '(' + it('α') + ', ' + it('λ') + ') = (0.375, 1.67)', 't');
+  o += text(24, 208, '抽 227 个数，算一个 estimate', 't') + text(24, 230, '重复 10,000 次', 't');
+  o += arrow(214, 194, 246, 194, 'ink');
+  // 右边：histogram
+  const x0 = 0.6, x1 = 3.8, w = 0.1, nb = Math.round((x1 - x0) / w);
+  const cnt = new Array(nb).fill(0);
+  for (const v of L) { const k = Math.floor((v - x0) / w); if (k >= 0 && k < nb) cnt[k]++; }
+  const ymax = 1300;
+  const sx = lin(x0, x1, 262, 546), sy = lin(0, ymax, 240, 40);
+  o += axes({ sx, sy, x0, x1, y0: 0, y1: ymax, xt: [[1, '1'], [1.5, '1.5'], [2, '2'], [2.5, '2.5'], [3, '3']], yt: [] });
+  cnt.forEach((c, k) => { if (c) o += rect(sx(x0 + k * w) + 0.5, sy(c), sx(x0 + w) - sx(x0) - 1, sy(0) - sy(c), 'wash-strong'); });
+  o += line(sx(lam), sy(0), sx(lam), sy(ymax * 0.98), 'ink-b') + text(sx(lam) - 4, sy(ymax * 0.98) + 2, '1.67', 'tb', 'end');
+  o += line(sx(mean), sy(0), sx(mean), sy(ymax * 0.98), 'ln-dash') + text(sx(mean) + 4, sy(ymax * 0.98) + 2, 'mean ' + mean.toFixed(3), 'tl');
+  o += text(sx(2.2), sy(ymax * 0.62), 'bias ≈ ' + (mean - lam).toFixed(3), 't') + text(sx(2.2), sy(ymax * 0.52), 'standard error ≈ ' + sd.toFixed(3), 't');
+  o += text(546, 262, 'estimate', 'ts', 'end');
+  o += text(262, 22, '假想 world 里 10,000 个 estimate 的 histogram', 'tb');
+  return svg(560, 270, o, 'Parametric bootstrap 示意：左边从真实 world 得到 estimate 1.67，把它当成真值造出假想 world；右边是在假想 world 里 simulate 一万次得到的 lambda hat 的 histogram，偏右，mean 约 ' + mean.toFixed(2) + '，standard deviation 约 ' + sd.toFixed(2));
+}
+
 export default {
   'st2132-nine': nine,
   'st2132-chi2': chi2,
@@ -458,4 +511,5 @@ export default {
   'st2132-fivepts': fivepts,
   'st2132-sleepdots': sleepdots,
   'st2132-wald': wald,
+  'st2132-boot': boot,
 };

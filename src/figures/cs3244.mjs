@@ -140,7 +140,7 @@ function l1l2() {
   return svg(560, 288, o, '同一个 loss，在 L2 ball 上的 solution 两个 weight 都不为零，在 L1 的 diamond 上 solution 落在 corner，第二个 weight 恰好为零');
 }
 
-// 第 4 站：12 个点上的 maximum-margin separator（QP 实解：w = (−7/8, 5/8)，b = 1）
+// 第 6 站：12 个点上的 maximum-margin separator（QP 实解：w = (−7/8, 5/8)，b = 1）
 const SVP = [[1, 4], [2, 5], [1.5, 6], [3, 5.5], [2.5, 3.5], [4, 6]], SVN = [[3, 1], [4, 2], [5, 1.5], [4.5, 3], [6, 3], [5.5, 4.5]];
 function svmfig() {
   const w = [-0.875, 0.625], b = 1;
@@ -169,7 +169,7 @@ function svmfig() {
   return svg(560, 300, o, '十二个点上的 maximum-margin separator，三个 support vector 落在 margin 的边上，其余点在 margin 之外');
 }
 
-// 第 4 站：kernel (xᵀz)²：输入空间里的 circle 是 (x₁², x₂²) 空间里的一条 line
+// 第 6 站：kernel (xᵀz)²：输入空间里的 circle 是 (x₁², x₂²) 空间里的一条 line
 const KIN = [[0.5, 0.2], [-0.5, 0.2], [0.3, -0.5], [-0.3, -0.5], [0, 0.6]];
 const KOUT = [[1.8, 0.4], [-1.8, 0.4], [1.0, 1.6], [-1.0, 1.6], [1.2, -1.4], [-1.2, -1.4], [0, -2.0]];
 function kernel() {
@@ -200,7 +200,7 @@ function kernel() {
   return svg(560, 332, o, '左图的点在平面上内外两圈，一条 line 分不开；映射到 x1 平方、x2 平方之后，内圈和外圈被一条 line 分开，回到原平面就是一个 circle');
 }
 
-// 第 5 站：B 个 tree 平均之后的 variance（python 实算：300 个 dataset × 100 棵 tree）
+// 第 7 站：B 个 tree 平均之后的 variance（python 实算：300 个 dataset × 100 棵 tree）
 const BAGB = [1, 2, 5, 10, 20, 50, 100];
 const BAG = { s2: 11.148, rho: 0.1147, sim: [11.169, 6.392, 3.262, 2.309, 1.784, 1.499, 1.378] };
 const RF6 = { s2: 12.265, rho: 0.0775, sim: [12.241, 6.648, 3.177, 2.123, 1.523, 1.187, 1.064] };
@@ -221,7 +221,7 @@ function bagvar() {
   return svg(560, 290, o, 'Bagging 与 random forest 的 prediction variance 随 tree 的个数下降，但分别停在 rho 乘 sigma 平方这个下限；random forest 的下限更低');
 }
 
-// 第 6 站：20 层 ReLU network（宽 256）里 activation 的 RMS（python 实算）
+// 第 8 站：20 层 ReLU network（宽 256）里 activation 的 RMS（python 实算）
 const INIT = {
   small: [0.114, 0.0126, 0.00147, 0.00017, 1.78e-5, 1.89e-6, 2.29e-7, 2.51e-8, 2.97e-9, 3.4e-10, 3.77e-11, 4.01e-12, 4.37e-13, 5.24e-14, 6.12e-15, 6.64e-16, 7.12e-17, 7.73e-18, 8.26e-19, 9.58e-20],
   xav: [0.709, 0.521, 0.371, 0.248, 0.175, 0.129, 0.0865, 0.0567, 0.0395, 0.0269, 0.0183, 0.013, 0.00952, 0.00597, 0.00433, 0.00304, 0.00239, 0.0018, 0.0011, 0.000771],
@@ -242,7 +242,7 @@ function initfig() {
   return svg(560, 290, o, '二十层 ReLU network 中 activation 的大小：weight 的 standard deviation 取 0.01 时每层缩小约九倍，取 1/n 的 variance 时每层缩小约 0.71 倍，取 2/n 时保持不变');
 }
 
-// 第 7 站：k-means 在二维 data 上的迭代（data 和迭代都在这里算）
+// 第 9 站：k-means 在二维 data 上的迭代（data 和迭代都在这里算）
 function kmeansData() {
   const R = rng(20240607), X = [];
   const centers = [[1.5, 1.5], [4.6, 1.8], [3.0, 4.4]];
@@ -280,7 +280,7 @@ function kmeansfig() {
   return svg(560, 266, o, 'k-means 在三团二维 data 上的 iteration：从很差的初始 center 出发，几轮之后 center 落到三团 data 的中间，distortion J 一路下降');
 }
 
-// 第 7 站：EM 在 x = {1, 2, 3, 5, 8, 9} 上的几轮
+// 第 9 站：EM 在 x = {1, 2, 3, 5, 8, 9} 上的几轮
 function emfig() {
   const X = [1, 2, 3, 5, 8, 9];
   const N = (x, m, v) => Math.exp(-((x - m) ** 2) / (2 * v)) / Math.sqrt(2 * Math.PI * v);
@@ -310,7 +310,7 @@ function emfig() {
   return svg(560, 286, o, 'EM 在六个一维 data point 上的 iteration：mixture density 从两个等宽的 Gaussian 开始，converge 时左边的 component 宽而右边的窄，log-likelihood 一路上升');
 }
 
-// 第 8 站：PCA 的第一个方向与 least squares line 的对比
+// 第 10 站：PCA 的第一个方向与 least squares line 的对比
 function pcafig() {
   const X = [[1, 2], [2, 1], [3, 4], [4, 3], [5, 6], [6, 5]], m = [3.5, 3.5];
   const sx = lin(0, 7, 70, 330), sy = lin(0, 7, 258, 28);
@@ -397,7 +397,7 @@ function loocv() {
   return svg(560, 294, o, '三个点 (1,1)、(2,2)、(3,2)。每次去掉一个点，用其余两点 fit，虚线是 fit 出的 line 或 constant，竖线是被去掉那个点的 residual。Line 的 E_cv 是 0.75，constant 是 0.5');
 }
 
-// 第 4 站：三个点的 hard-margin SVM（手解）
+// 第 6 站：三个点的 hard-margin SVM（手解）
 function svm3() {
   const sx = lin(-0.8, 2.8, 60, 340), sy = lin(-0.8, 2.8, 280, 20);
   let o = axes({ sx, sy, x0: -0.8, x1: 2.8, y0: -0.8, y1: 2.8, xl: 'x₁', yl: 'x₂', xAt: 0, yAt: 0 });
@@ -415,7 +415,7 @@ function svm3() {
   return svg(560, 300, o, '三个点 (0,0) 标减一、(2,0) 和 (0,2) 标加一。Maximum-margin boundary 是 x1+x2=1，两条 margin 线 x1+x2=0 和 x1+x2=2 恰好穿过三个点，margin 是 0.707');
 }
 
-// 第 5 站：AdaBoost 三轮（stump 按正文的选择）
+// 第 7 站：AdaBoost 三轮（stump 按正文的选择）
 function adaboost() {
   const Y = [1, 1, 1, -1, -1, -1, -1, 1, 1, 1], N = 10;
   const stumps = [[(x) => (x <= 3.5 ? 1 : -1), 'x ≤ 3.5 为 +'], [(x) => (x > 7.5 ? 1 : -1), 'x > 7.5 为 +'], [() => 1, '全部为 +']];
@@ -449,7 +449,7 @@ function adaboost() {
   return svg(560, yF + 32, o, 'AdaBoost 在 10 个点上的三轮。第一轮 weight 全是 0.1，判错 8、9、10；第二轮这三个点变重，选 x 大于 7.5 为加；第三轮 4 到 7 最轻，选全部为加。三轮加权后三段的 F 是 0.526、负 0.321、0.978');
 }
 
-// 第 6 站：2-2-2 network 的 forward 与 backward（正文的数）
+// 第 8 站：2-2-2 network 的 forward 与 backward（正文的数）
 function backprop() {
   const x = [1, 2], W1 = [[0.5, -0.4], [0.1, 0.4]], W2 = [[1, -1], [0.5, 0.5]], y = [1, 0];
   const z1 = W1.map((r) => r[0] * x[0] + r[1] * x[1]), a1 = z1.map((v) => Math.max(0, v));
@@ -590,7 +590,7 @@ function coinsA() {
   return svgA(560, 300, o, '动图：1000 枚公平的 coin 各掷 10 次，每重做一次实验，常常有一两枚 10 次全是正面；它们只是碰巧，下一次仍是一半对一半');
 }
 
-// 第 7 站：k-means 一步步走：assignment 与 update 交替，右边 J 同步
+// 第 9 站：k-means 一步步走：assignment 与 update 交替，右边 J 同步
 function kmeansA() {
   const X = kmeansData();
   let mu = [[0.6, 4.6], [1.2, 4.0], [5.4, 0.6]];
@@ -638,6 +638,111 @@ function kmeansA() {
   return svgA(560, 298, o, 'k-means 在三团二维 data 上一步步执行：assignment 和 update 交替，center 从很差的初始位置移到三团 data 中间，右边的 distortion J 每半步都下降');
 }
 
+// 第 4 站：Tutorial 1 的 8 个点，新点 (1,1) 的 3-NN 与 7-NN
+function knnfig() {
+  const P = [[0, 1, 1], [1, 0, 1], [1, 2, 1], [2, 3, 1], [0, 2, 0], [2, 2, 0], [-1, 1, 0], [1, -1, 0]];
+  const q = [1, 1];
+  const sx = lin(-1.8, 3.2, 40, 330), sy = lin(-1.8, 3.6, 300, 14);
+  const u = sx(1) - sx(0);
+  let o = axes({ sx, sy, x0: -1.8, x1: 3.2, y0: -1.8, y1: 3.6, xt: [[-1, '−1'], 1, 2, 3], yt: [[-1, '−1'], 1, 2, 3], xAt: 0, yAt: 0 });
+  const dist = P.map(([x, y, c]) => [Math.hypot(x - q[0], y - q[1]), c]).sort((a, b) => a[0] - b[0]);
+  const r3 = dist[2][0], r7 = dist[6][0];
+  o += `<ellipse cx="${sx(1)}" cy="${sy(1)}" rx="${(r7 + 0.12) * u}" ry="${(r7 + 0.12) * (sy(0) - sy(1))}" class="ln-dash"/>`;
+  o += `<ellipse cx="${sx(1)}" cy="${sy(1)}" rx="${(r3 + 0.12) * u}" ry="${(r3 + 0.12) * (sy(0) - sy(1))}" class="wash"/>`;
+  for (const [x, y, c] of P) o += c ? circle(sx(x), sy(y), 6.5, 'ink-f') : circle(sx(x), sy(y), 6.5, 'paper');
+  o += rect(sx(1) - 6, sy(1) - 6, 12, 12, 'solid');
+  o += text(sx(1) + 10, sy(1) - 9, '(1, 1)', 'tb');
+  o += text(sx(2.25), sy(3) + 4, '(2, 3)', 'ts');
+  const cnt = (k) => { const v = dist.slice(0, k).reduce((a, [, c]) => a + c, 0); return [v, k - v]; };
+  const [a3, b3] = cnt(3), [a7, b7] = cnt(7);
+  const X = 360;
+  o += circle(X + 6, 40, 6.5, 'ink-f') + text(X + 20, 45, 'label 1', 't') + circle(X + 96, 40, 6.5, 'paper') + text(X + 110, 45, 'label 0', 't');
+  o += rect(X, 74, 24, 16, 'wash') + text(X + 32, 87, `k = 3：半径 ${r3}`, 'tb');
+  o += text(X + 32, 106, `${a3} 票 1，${b3} 票 0 → 预测 1`, 't');
+  o += line(X, 146, X + 24, 146, 'ln-dash') + text(X + 32, 150, `k = 7：半径 ${r7}`, 'tl');
+  o += text(X + 32, 169, `${a7} 票 1，${b7} 票 0 → 预测 0`, 't');
+  o += text(X, 214, 'distance 1：三个 1', 'ts') + text(X, 232, `distance √2 = ${Math.SQRT2.toFixed(3)}：两个 0`, 'ts');
+  o += text(X, 250, 'distance 2：两个 0', 'ts') + text(X, 268, `distance √5 = ${Math.sqrt(5).toFixed(3)}：(2, 3)`, 'ts');
+  return svg(560, 318, o, 'Tutorial 1 的八个点和新点 (1,1)：半径 1 的圆里三个点都是 label 1，3-NN 预测 1；半径 2 的圆里有三个 1 和四个 0，7-NN 预测 0');
+}
+
+// 第 4 站：20 个 equispaced 点上 k = 1、3、15 的 k-NN regression
+function knnfit() {
+  const N = 20, xs = Array.from({ length: N }, (_, i) => -1 + (2 * i) / (N - 1));
+  const R = rng(7);
+  const ys = xs.map((x) => Math.sin(Math.PI * x) + 0.3 * R.n());
+  const pred = (x0, k) => {
+    const idx = xs.map((x, i) => [Math.abs(x - x0) + 1e-9 * i, i]).sort((a, b) => a[0] - b[0]).slice(0, k);
+    return idx.reduce((a, [, i]) => a + ys[i], 0) / k;
+  };
+  let o = '';
+  const panel = (x0, k) => {
+    const sx = lin(-1, 1, x0 + 8, x0 + 168), sy = lin(-1.9, 1.9, 250, 50);
+    o += rect(x0 + 8, 50, 160, 200, 'frame') + line(x0 + 8, sy(0), x0 + 168, sy(0), 'grid');
+    o += path(curve((x) => Math.sin(Math.PI * x), -1, 1, sx, sy), 'dash');
+    const pts = [];
+    for (let i = 0; i <= 400; i++) { const x = -1 + i / 200; pts.push([sx(x), sy(pred(x, k))]); }
+    o += path(d(pts), 'ln');
+    xs.forEach((x, i) => { o += circle(sx(x), sy(ys[i]), 2.8, 'ink-f'); });
+    let ein = 0; xs.forEach((x, i) => { ein += (ys[i] - pred(x, k)) ** 2 / N; });
+    o += text(x0 + 88, 22, `k = ${k}`, 'tb', 'middle') + text(x0 + 88, 40, `这一组 data 的 E_in = ${ein.toFixed(3)}`, 'ts', 'middle');
+  };
+  panel(0, 1); panel(186, 3); panel(372, 15);
+  o += text(280, 276, '虚线是 target sin(πx)，彩线是 k-NN 的 prediction，黑点是 σ = 0.3 的一组 training data', 'ts', 'middle');
+  o += text(280, 294, 'Expected E_test（同样的 x，重抽 noise）：k = 1 是 0.180，k = 3 是 0.130，k = 15 是 0.389', 'ts', 'middle');
+  return svg(560, 304, o, '同一组二十个点上 k 等于 1、3、15 的 k-NN regression：k 等于 1 时 prediction 是穿过每个点的阶梯，k 等于 15 时两端被拉平');
+}
+
+// 第 4 站：curse of dimensionality，e_p(r) = r^(1/p)
+function curse() {
+  const sx = lin(0, 0.6, 70, 400), sy = lin(0, 1, 260, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 0.6, y0: 0, y1: 1, xt: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6].map((v) => [v, String(v)]), yt: [0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, String(v)]), xl: '要装下的 data 比例 r', grid: true });
+  const ps = [[1, 'mute'], [2, 'ink'], [3, 'ink'], [10, 'ln']];
+  for (const [p, cls] of ps) {
+    o += path(curve((r) => Math.pow(r, 1 / p), 0, 0.6, sx, sy, 300), cls);
+    const y = Math.pow(0.6, 1 / p);
+    o += text(sx(0.6) + 8, sy(y) + 4, `p = ${p}`, p === 10 ? 'tl' : 'ts');
+  }
+  for (const r of [0.01, 0.1]) {
+    const e = Math.pow(r, 0.1);
+    o += circle(sx(r), sy(e), 4, 'ln-f');
+    o += line(sx(r), sy(e), sx(r), sy(0), 'grid');
+  }
+  o += text(sx(0.27), sy(0.15), `两个圆点（p = 10）：r = 0.01 时 e = ${Math.pow(0.01, 0.1).toFixed(2)}，`, 'tl');
+  o += text(sx(0.27), sy(0.07), `r = 0.1 时 e = ${Math.pow(0.1, 0.1).toFixed(2)}`, 'tl');
+  o += text(64, 18, 'cube 的 edge length e', 'ts');
+  o += text(440, 150, '每个 feature 的', 'ts') + text(440, 166, '取值范围是 [0, 1]', 'ts');
+  return svg(560, 300, o, '在 p 维 unit hypercube 里装下比例 r 的 data 所需的 edge length r 的 1/p 次方：p 等于 10 时，r 等于 0.01 已经要 0.63，r 等于 0.1 要 0.79');
+}
+
+// 第 5 站：Fawcett 的 20 个 instance 的 ROC curve
+const FAW = [['p', 0.9], ['p', 0.8], ['n', 0.7], ['p', 0.6], ['p', 0.55], ['p', 0.54], ['n', 0.53], ['n', 0.52], ['p', 0.51], ['n', 0.505], ['p', 0.4], ['n', 0.39], ['p', 0.38], ['n', 0.37], ['n', 0.36], ['n', 0.35], ['p', 0.34], ['n', 0.33], ['p', 0.3], ['n', 0.1]];
+function roc() {
+  const P = FAW.filter((v) => v[0] === 'p').length, Nn = FAW.length - P;
+  const sx = lin(0, 1, 70, 330), sy = lin(0, 1, 290, 30);
+  let o = '';
+  let tp = 0, fp = 0, auc = 0;
+  const pts = [[0, 0]];
+  for (const [c] of FAW) { if (c === 'p') tp++; else { auc += tp; fp++; } pts.push([fp / Nn, tp / P]); }
+  auc /= P * Nn;
+  const ar = [[sx(0), sy(0)], ...pts.map(([x, y]) => [sx(x), sy(y)]), [sx(1), sy(0)]];
+  o += path(d(ar) + 'Z', 'wash');
+  o += axes({ sx, sy, x0: 0, x1: 1, y0: 0, y1: 1, xt: [0, 0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, String(v)]), yt: [0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, String(v)]), xl: 'FPR', grid: true });
+  o += line(sx(0), sy(0), sx(1), sy(1), 'dash');
+  o += path(d(pts.map(([x, y]) => [sx(x), sy(y)])), 'ln');
+  pts.forEach(([x, y]) => { o += circle(sx(x), sy(y), 2.6, 'ln-f'); });
+  o += circle(sx(0.1), sy(0.5), 6, 'paper') + line(sx(0.1), sy(0.5) - 7, sx(0.1), sy(0.82), 'mute');
+  o += text(sx(0.03), sy(0.92), 'τ = 0.54：(0.1, 0.5)', 'tb') + text(sx(0.03), sy(0.86), 'accuracy 0.70', 'tb');
+  o += text(sx(0.55), sy(0.22), `AUC = ${auc.toFixed(2)}`, 'tl', 'middle');
+  o += text(sx(0.62), sy(0.5), '乱猜（对角线）', 'ts');
+  o += text(64, 18, 'TPR（recall）', 'ts');
+  const X = 360;
+  o += text(X, 120, '从 (0, 0) 出发，', 'ts') + text(X, 138, '按 score 从高到低：', 'ts');
+  o += text(X, 162, 'p：往上 1/10', 'ts') + text(X, 180, 'n：往右 1/10', 'ts');
+  o += text(X, 210, 'AUC = 68 / 100：', 'ts') + text(X, 228, '随机一对 (p, n)，', 'ts') + text(X, 246, 'p 的 score 更高的', 'ts') + text(X, 264, 'probability', 'ts');
+  return svg(560, 330, o, 'Fawcett 例子的 ROC curve：一条从原点到右上角的阶梯，threshold 0.54 对应点 (0.1, 0.5)，曲线下面积 0.68');
+}
+
 export default {
   'cs3244-overfit': overfitA,
   'cs3244-twopts': twoptsA,
@@ -660,4 +765,8 @@ export default {
   'cs3244-svm3': svm3,
   'cs3244-adaboost': adaboost,
   'cs3244-backprop': backprop,
+  'cs3244-knn': knnfig,
+  'cs3244-knnfit': knnfit,
+  'cs3244-curse': curse,
+  'cs3244-roc': roc,
 };

@@ -252,31 +252,27 @@ function sgns() {
 
 // Viterbi trellis：Janet will back the bill
 function viterbi() {
-  const tags = ['NNP', 'MD', 'VB', 'JJ', 'NN', 'RB', 'DT'];
-  const A = {
-    '<s>': [0.2767, 0.0006, 0.0031, 0.0453, 0.0449, 0.0510, 0.2026],
-    NNP: [0.3777, 0.0110, 0.0009, 0.0084, 0.0584, 0.0090, 0.0025],
-    MD: [0.0008, 0.0002, 0.7968, 0.0005, 0.0008, 0.1698, 0.0041],
-    VB: [0.0322, 0.0005, 0.0050, 0.0837, 0.0615, 0.0514, 0.2231],
-    JJ: [0.0366, 0.0004, 0.0001, 0.0733, 0.4509, 0.0036, 0.0036],
-    NN: [0.0096, 0.0176, 0.0014, 0.0086, 0.1216, 0.0177, 0.0068],
-    RB: [0.0068, 0.0102, 0.1011, 0.1012, 0.0120, 0.0728, 0.0479],
-    DT: [0.1147, 0.0021, 0.0002, 0.2157, 0.4744, 0.0102, 0.0017],
-  };
-  const B = { NNP: [0.000032, 0, 0, 0.000048, 0], MD: [0, 0.308431, 0, 0, 0], VB: [0, 0.000028, 0.000672, 0, 0.000028], JJ: [0, 0, 0.00034, 0, 0], NN: [0, 0.0002, 0.000223, 0, 0.002337], RB: [0, 0, 0.010446, 0, 0], DT: [0, 0, 0, 0.506099, 0] };
-  const words = ['Janet', 'will', 'back', 'the', 'bill'];
-  const v = [Object.fromEntries(tags.map((t, j) => [t, A['<s>'][j] * B[t][0]]))], bp = [{}];
+  // 课上的 toy model：the fans love the show
+  const tags = ['DT', 'NN', 'VB'];
+  const PI = { DT: 0.8, NN: 0.2, VB: 0 };
+  const A = { DT: [0, 0.8, 0.2], NN: [0, 0.5, 0.5], VB: [0.5, 0.5, 0] };
+  const B = { DT: [0.2, 0, 0, 0], NN: [0, 0.05, 0.3, 0.1], VB: [0, 0.25, 0.15, 0.3] };
+  const wi = { the: 0, fans: 1, love: 2, show: 3 };
+  const words = ['the', 'fans', 'love', 'the', 'show'];
+  const v = [Object.fromEntries(tags.map((t) => [t, PI[t] * B[t][wi[words[0]]]]))], bp = [{}];
   for (let i = 1; i < 5; i++) {
     v.push({}); bp.push({});
     tags.forEach((t, j) => {
       let best = tags[0];
       for (const s of tags) if (v[i - 1][s] * A[s][j] > v[i - 1][best] * A[best][j]) best = s;
-      v[i][t] = v[i - 1][best] * A[best][j] * B[t][i]; bp[i][t] = best;
+      v[i][t] = v[i - 1][best] * A[best][j] * B[t][wi[words[i]]]; bp[i][t] = best;
     });
   }
   let last = tags[0]; for (const t of tags) if (v[4][t] > v[4][last]) last = t;
   const pathT = [last]; for (let i = 4; i > 0; i--) pathT.unshift(bp[i][pathT[0]]);
-  const cx = (i) => 112 + i * 104, cy = (j) => 44 + j * 31, bw = 84, bh = 22;
+  const colMax = v.map((col) => tags.reduce((m, t) => (col[t] > col[m] ? t : m), tags[0]));
+  const fmt = (x) => (x >= 0.001 ? String(+x.toPrecision(2)) : sci(x, 3));
+  const cx = (i) => 100 + i * 106, cy = (j) => 52 + j * 46, bw = 86, bh = 26;
   // 帧 s：0 = 全部算完、路径已标出（静态图）；1–5 = 逐列填 v；6–10 = 从最后一列沿 backpointer 往回走
   const dur = [3.2, 1.6, 1.6, 1.6, 1.6, 1.6, 0.9, 0.9, 0.9, 0.9, 2.6], T = dur.reduce((a, b) => a + b, 0);
   const kt = [0]; for (let k = 0; k < dur.length - 1; k++) kt.push(kt[k] + dur[k] / T);
@@ -285,7 +281,7 @@ function viterbi() {
   const lit = (i, s) => s === 0 || (s >= 6 && i >= 10 - s);
   const g = (body, on) => `<g>${body}${ashow(S.map(on), kt, T)}</g>`;
   let o = '';
-  words.forEach((w, i) => { o += text(cx(i), 20, w, 'tb', 'middle'); });
+  words.forEach((w, i) => { o += text(cx(i), 22, w, 'tb', 'middle'); });
   tags.forEach((t, j) => { o += text(14, cy(j) + 5, t, 'ts'); });
   for (let i = 1; i < 5; i++) for (const t of tags) if (v[i][t] > 0) {
     const s0 = bp[i][t], j0 = tags.indexOf(s0), j1 = tags.indexOf(t);
@@ -296,24 +292,29 @@ function viterbi() {
   for (let i = 0; i < 5; i++) tags.forEach((t, j) => {
     const val = v[i][t];
     if (val > 0) {
-      const plain = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'paper', 4) + text(cx(i), cy(j) + 5, sci(val), 'ts', 'middle');
+      const plain = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'paper', 4) + text(cx(i), cy(j) + 5, fmt(val), 't', 'middle');
       if (pathT[i] === t) {
-        const hot = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'wash', 4) + rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'frame', 4) + text(cx(i), cy(j) + 5, sci(val), 'tb', 'middle');
+        const hot = rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'wash', 4) + rect(cx(i) - bw / 2, cy(j) - bh / 2, bw, bh, 'frame', 4) + text(cx(i), cy(j) + 5, fmt(val), 'tb', 'middle');
         o += g(plain, (s) => filled(i, s) && !lit(i, s)) + g(hot, (s) => lit(i, s));
       } else o += g(plain, (s) => filled(i, s));
     } else o += circle(cx(i), cy(j), 2, 'mute-f');
   });
-  // 正在填的那一列 / 正在回溯的那一格
+  // 正在填的那一列
   const colX = S.map((s) => f1(s >= 1 && s <= 5 ? cx(s - 1) - bw / 2 - 6 : -200));
-  o += `<rect x="${colX[0]}" y="${cy(0) - bh / 2 - 6}" width="${bw + 12}" height="${cy(6) - cy(0) + bh + 12}" rx="6" class="ln-dash">${anim('x', colX, kt, T, true)}</rect>`;
-  const jr = tags.indexOf('RB');
-  o += g(rect(cx(2) - bw / 2 - 4, cy(jr) - bh / 2 - 4, bw + 8, bh + 8, 'dash', 6) + text(cx(2), cy(6) + 26, 'back 这一列最大的是 RB', 'ts', 'middle'), (s) => s === 0 || s >= 8);
-  const Y = cy(6) + 50;
-  o += g(text(280, Y, `最优路径 ${pathT.join(' → ')}，probability ${sci(v[4][last])}`, 't', 'middle'), (s) => s === 0 || s === 10);
-  o += g(text(280, Y, '第 1 列：v = a(&lt;s&gt;, tag) × b(tag, Janet)', 'tl', 'middle'), (s) => s === 1);
+  o += `<rect x="${colX[0]}" y="${cy(0) - bh / 2 - 6}" width="${bw + 12}" height="${cy(2) - cy(0) + bh + 12}" rx="6" class="ln-dash">${anim('x', colX, kt, T, true)}</rect>`;
+  // 不在最优路径上的列最大值
+  let trap = '';
+  for (let i = 0; i < 5; i++) if (colMax[i] !== pathT[i]) {
+    const j = tags.indexOf(colMax[i]);
+    trap += rect(cx(i) - bw / 2 - 4, cy(j) - bh / 2 - 4, bw + 8, bh + 8, 'dash', 6);
+  }
+  const Y1 = cy(2) + 40, Y = cy(2) + 64;
+  o += g(trap + text(280, Y1, '虚线框：这一列最大的格子，但不在最优路径上', 'ts', 'middle'), (s) => s === 0 || s >= 8);
+  o += g(text(280, Y, `最优路径 ${pathT.join(' → ')}，probability ${sci(v[4][last], 3)}`, 't', 'middle'), (s) => s === 0 || s === 10);
+  o += g(text(280, Y, '第 1 列：v = π(tag) × b(tag, the)', 'tl', 'middle'), (s) => s === 1);
   for (let i = 1; i < 5; i++) o += g(text(280, Y, `第 ${i + 1} 列（${words[i]}）：每格从前一列挑 v × a 最大的那格（灰线），再乘 b`, 'tl', 'middle'), (s) => s === i + 1);
   o += g(text(280, Y, '从最后一列最大的格子出发，沿灰线往回走', 'tl', 'middle'), (s) => s >= 6 && s <= 9);
-  return svgA(560, cy(6) + 60, o, '动图：Viterbi trellis，Janet will back the bill。先一列一列填出每个 tag 的最优前缀 probability，每格连回前一列的 backpointer；再从最后一列最大的 NN 沿 backpointer 往回走，得到 NNP MD VB DT NN；back 处 RB 的值最大却不在最优路径上');
+  return svgA(560, Y + 14, o, `动图：Viterbi trellis，课上的 the fans love the show。先一列一列填出每个 tag 的最优前缀 probability，每格连回前一列的 backpointer；再从最后一列最大的 NN 沿 backpointer 往回走，得到 ${pathT.join(' ')}；fans 列最大的 VB 和 love 列最大的 NN 都不在最优路径上`);
 }
 
 // encoder-decoder 的 bottleneck 与 attention
@@ -511,6 +512,64 @@ function lora() {
   return svg(560, y0 + S + 44, o, 'LoRA：冻结的 d 乘 k 的 weight matrix W 加上一个 d 乘 r 的 B 与 r 乘 k 的 A 的乘积，只训练 B 和 A');
 }
 
+// 一个 token 的 top-2 routing
+function moe() {
+  const z = [0.3, -0.4, 0.1, -1.0, 0.9, 1.2];
+  const ez = z.map(Math.exp), S = ez.reduce((a, b) => a + b, 0), G = ez.map((e) => e / S);
+  const top = [...G.keys()].sort((a, b) => G[b] - G[a]).slice(0, 2);
+  const tsum = top.reduce((a, i) => a + G[i], 0), W = G.map((g, i) => (top.includes(i) ? g / tsum : 0));
+  const Eout = { 4: [1, 0], 5: [0, 2] };
+  const y = [0, 1].map((k) => top.reduce((a, i) => a + W[i] * Eout[i][k], 0));
+  const ry = (i) => 52 + i * 32, bx = 120, sc = lin(0, 0.4, 0, 120);
+  let o = text(bx, 22, 'gate：G(x)', 'tb') + text(330, 22, 'expert', 'tb');
+  o += rect(14, ry(2) + 2, 56, 30, 'paper', 4) + text(42, ry(2) + 22, 'token x', 't', 'middle');
+  o += arrow(72, ry(2) + 17, bx - 8, ry(2) + 17, 'mute');
+  G.forEach((g, i) => {
+    const on = top.includes(i), yy = ry(i);
+    o += rect(bx, yy + 6, sc(g), 18, on ? 'solid' : 'wash2', 2);
+    o += text(bx + sc(g) + 6, yy + 20, g.toFixed(3), on ? 'tb' : 'ts');
+    o += rect(330, yy + 2, 58, 26, on ? 'wash' : 'wash2', 4);
+    if (on) o += rect(330, yy + 2, 58, 26, 'frame', 4);
+    o += text(359, yy + 20, `E${i + 1}`, on ? 'tb' : 'ts', 'middle');
+    if (on) o += arrow(bx + sc(g) + 52, yy + 15, 326, yy + 15, 'ln');
+  });
+  const sx = 452, sy = (ry(4) + ry(5)) / 2 + 15;
+  o += circle(sx, sy, 13, 'paper') + text(sx, sy + 5, 'Σ', 'tb', 'middle');
+  top.forEach((i) => {
+    const yy = ry(i) + 15;
+    o += arrow(390, yy, sx - 14, sy + (yy < sy ? -6 : 6), 'ln');
+    o += text(414, yy + (yy < sy ? -6 : 16), `× ${W[i].toFixed(3)}`, 'tl', 'middle');
+  });
+  o += text(sx + 20, sy + 5, 'y', 'tb');
+  const yb = ry(5) + 52;
+  o += text(280, yb, `top-2：E6 与 E5，${top.map((i) => G[i].toFixed(4)).join(' + ')} = ${tsum.toFixed(4)}，除以它得 weight ${top.map((i) => W[i].toFixed(3)).join('、')}`, 'ts', 'middle');
+  o += text(280, yb + 20, `y = ${W[4].toFixed(3)}·E5(x) + ${W[5].toFixed(3)}·E6(x) = (${y[0].toFixed(3)}, ${y[1].toFixed(3)})；灰色的 E1 到 E4 这一次不计算`, 'ts', 'middle');
+  return svg(560, yb + 30, o, 'Sparse MoE 的 top-2 routing：gate 给 6 个 expert 的 probability，只保留最大的 E6 和 E5，重新 normalize 后作为 weight 把两个 expert 的 output 加起来');
+}
+
+// distillation：hard label 与 teacher 的 soft label
+function kd() {
+  const toks = ['movie', 'film', 'show', 'the'], zt = [4, 3, 2, -1];
+  const sm = (zz, t) => { const e = zz.map((v) => Math.exp(v / t)); const s = e.reduce((a, b) => a + b, 0); return e.map((v) => v / s); };
+  const panels = [['hard label', [1, 0, 0, 0]], ['teacher，τ = 1', sm(zt, 1)], ['teacher，τ = 2', sm(zt, 2)]];
+  const H = 130, base = 170, pw = 170, bw = 28;
+  const sy = lin(0, 1, base, base - H);
+  let o = '';
+  panels.forEach(([name, p], k) => {
+    const x0 = 22 + k * (pw + 12);
+    o += text(x0 + pw / 2, 20, name, 'tb', 'middle');
+    o += line(x0, base, x0 + pw, base, 'axis');
+    p.forEach((v, i) => {
+      const x = x0 + 12 + i * 40;
+      if (v > 0) o += rect(x, sy(v), bw, base - sy(v), k === 0 ? 'ink-f' : 'solid', 2);
+      o += text(x + bw / 2, sy(v) - 6, v.toFixed(v === 0 || v === 1 ? 0 : 3), 'ts', 'middle');
+      o += text(x + bw / 2, base + 16, toks[i], 'ts', 'middle');
+    });
+  });
+  o += text(280, base + 40, 'teacher logit (4, 3, 2, −1)；τ 越大，film、show 分到的越多，the 仍然最少', 'ts', 'middle');
+  return svg(560, base + 50, o, 'Knowledge distillation 的 target：hard label 只有 movie 是 1；teacher 在温度 1 和 2 下的 soft label 给 film 和 show 明显的份额，the 几乎为 0');
+}
+
 export default {
   'cs4248-bpe': bpe,
   'cs4248-bpeencode': bpeencode,
@@ -527,4 +586,6 @@ export default {
   'cs4248-isoflop': isoflop,
   'cs4248-dpo': dpo,
   'cs4248-lora': lora,
+  'cs4248-moe': moe,
+  'cs4248-kd': kd,
 };

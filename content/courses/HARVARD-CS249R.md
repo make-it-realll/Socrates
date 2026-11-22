@@ -1,7 +1,7 @@
 ---
 code: HARVARD-CS249R
 evidence: syllabus
-evidenceNote: "前沿公开课，没有 NUS 大纲，也不是一期有固定日程的课。分站按 MLSysBook Volume I 的 16 周 semester plan（Instructor Hub 的 foundations syllabus），侧重其中和 edge deployment 有关的章节；材料全部来自 2026 年 11 月 clone 下来的 harvard-edge/cs249r_book 仓库（教材源文件、TinyTorch 20 个 module 的源码和 guide、Raspberry Pi 与 XIAO ESP32S3 的 kit lab）。教材正文里的很多数字由仓库里的 mlsysim 在构建时算出，源文件只有变量名，这些数字本页没有引用，改用 lab 里的实测数、论文里的数和我自己算的数。另外读了 MIT 6.172 Lecture 1、Stanford CS329S 的 distribution shift 讲义、MLPerf Inference 论文和 TensorFlow Lite Micro 论文。没有找到公开的课堂录像。"
+evidenceNote: "前沿公开课，没有 NUS 大纲，也不是一期有固定日程的课。分站按 MLSysBook Volume I 的 16 周 semester plan（Instructor Hub 的 foundations syllabus），侧重其中和 edge deployment 有关的章节；材料全部来自 harvard-edge/cs249r_book 仓库（2026 年 11 月 20 日的 commit 重新 clone 核对过）：教材源文件、TinyTorch 20 个 module 的 guide（全部 20 页的 “When it fails” 都对过）和部分源码、Raspberry Pi 五个 kit lab 与 XIAO ESP32S3 KWS lab 的源文件、Co-Labs 的 learning path 和 Lab 01 的 instructor note。教材正文的数字由 mlsysim 在构建时算出，源文件只有变量名；这次读了 mlsysim 的 scenario 定义，引用的几个教材例子（1500 km 的 robot arm、2/8/1 s 的 iron law）数字取自那里，其余数字是 lab 实测、论文和我自己算的。另外读了 MIT 6.172 Lecture 1、Stanford CS329S 的 distribution shift 讲义、MLPerf Inference、TensorFlow Lite Micro、CMSIS-NN 和 Mohan et al. 的 data stall 论文，以及 PyTorch DataLoader 文档。没有找到公开的课堂录像；Co-Labs 是在浏览器里跑的交互 notebook，我只读了源码里的题目和结构，没有实际跑。"
 exam: "无考试；以作业为主。Instructor Hub 给的建议比例是：TinyTorch module（8 个，autograde）35%，lab 的 Decision Log（短的书面分析）25%，lab 里开放的 design challenge 20%，capstone（把一个应用 deploy 到几种 hardware 上并写 design report）20%；每次开课自己定。"
 subskills:
   - id: env
@@ -42,19 +42,22 @@ subskills:
 open:
   - label: "MLSysBook Volume I: Introduction to Machine Learning Systems（Vijay Janapa Reddi），2026 版源文件"
     url: "https://mlsysbook.ai/vol1/"
-    note: "从 GitHub 仓库 clone 后按需读了源文件的正文部分：Introduction 的 iron law 一节、System Paradigms 的 physical constraints 和 tier 对比、Data Engineering 的 training-serving consistency 与 feeding problem、ML Frameworks 的 dispatch overhead 与 micro runtime、Model Serving 的 Little's law、M/M/1 与 batching、Benchmarking 的 MLPerf 与 edge benchmark、ML Operations 的 edge deployment 与 staged rollout。各章其余部分没读。"
+    note: "从 GitHub 仓库 clone 后按需读了源文件的正文部分：Introduction 的 silent degradation 与 iron law 两节（全文）、System Paradigms 的 physical constraints、distance penalty 和 tier 对比、ML Lifecycle 的六个阶段与 constraint propagation、Data Engineering 的 data cascade、training-serving consistency 与 feeding problem、ML Frameworks 的 dispatch overhead 与 overhead ratio、Hardware Acceleration 的 tensor layout（NCHW 与 NHWC）、Model Serving 的 Little's law、M/M/1 的 mean 与 p99、batching 的两种 trigger、Benchmarking 的 percentile、warm-up 与 “1 W AI” 的例子、ML Operations 的 canary、Knight Capital、WCET、OTA 与 graceful degradation。各章其余部分没读。"
   - label: "MLSysBook Instructor Hub：Introduction to ML Systems 的 16 周 syllabus 与 Edge AI reading list"
     url: "https://mlsysbook.ai/instructors/foundations-syllabus.html"
-    note: "读了全文（仓库里的源文件）。分站顺序和 frontmatter 的考核比例来自这里。"
+    note: "读了全文（仓库里的源文件），以及同目录下的 Edge AI reading list。分站顺序和 frontmatter 的考核比例来自这里。"
   - label: "TinyTorch：20 个 module 的源码与 guide（harvard-edge/cs249r_book 仓库的 tinytorch/ 目录）"
     url: "https://github.com/harvard-edge/cs249r_book"
-    note: "读了 README、Getting Started、Module 05、09、14 到 20 的 guide 页（含每个 module 的 “When it fails”），以及 Module 14、17、19 源码里的讲解部分。第 3、6 站和“作业”一节的主要来源。"
-  - label: "MLSysBook Hardware Kits：Raspberry Pi 的 Setup、Image Classification、Object Detection、Small Language Models 实验；XIAO ESP32S3 的 Keyword Spotting 实验"
+    note: "读了 README、Getting Started（含 milestone 表）、全部 20 个 module guide 的 Overview、时间与前置、“What you'll build” 和 “When it fails”，以及 Module 14、17、19 源码里的讲解部分。第 3、6 站和“作业”一节的主要来源。"
+  - label: "MLSysBook Hardware Kits：Raspberry Pi 的 Setup、Image Classification、Object Detection、Small Language Models、Vision-Language Models 实验；XIAO ESP32S3 的 Keyword Spotting 实验"
     url: "https://mlsysbook.ai/kits/contents/raspi/raspi.html"
-    note: "Object Detection 读了大部分，开头三个例子和第 4 站的 export 对比都来自它；Setup 读了温度和 power 一节；其余只读了和 latency、preprocessing 有关的段落。VLM 实验只看了计时结果。"
+    note: "Object Detection 读了 YOLO 部分全文（含 export 对比、imgsz 规则、cold 与 warm 两次运行）和 SSD、FOMO 的结果；Setup 读了 swap（zram 对 swap file）、温度和 power 测量两节；Image Classification 读了 int8 input 的 preprocessing 代码和 latency；SLM 读了 Ollama 的计时和温度；VLM 读了 Florence-2 的介绍、计时汇总和 memory；KWS 读了 PSRAM、MFCC 和部署，Edge Impulse 的 on-device performance 截图也看了。"
+  - label: "MLSysBook Co-Labs：Volume I 的 17 个交互 lab（labs/ 目录）"
+    url: "https://mlsysbook.ai/labs/"
+    note: "读了 README、Lab 01 的 instructor note、Lab 02 的源码和 Volume I learning path（每个 lab 的 part 与问题）。没有在浏览器里实际跑过。“作业”一节的 Co-Labs 部分来自这里。"
   - label: "MIT 6.172 Performance Engineering of Software Systems（Fall 2018）Lecture 1：Introduction and Matrix Multiplication"
     url: "https://ocw.mit.edu/courses/6-172-performance-engineering-of-software-systems-fall-2018/d0c73dd51c79b95196a2e6faa824e1b4_MIT6_172F18_lec1.pdf"
-    note: "读了 slides 全文。第 3 站的 loop order、tiling 和那张 11 个版本的表来自这里。"
+    note: "读了 slides 全文，其中机器规格、loop order 的六种时间与 miss rate、tile size 表和最后的汇总表又逐项核对了一遍。第 3 站的 loop order、tiling 和那张 11 个版本的表来自这里。"
   - label: "Stanford CS329S Machine Learning Systems Design（Chip Huyen）：Data Distribution Shifts and Monitoring 讲义"
     url: "https://huyenchip.com/2022/02/07/data-distribution-shifts-and-monitoring.html"
     note: "读了全文。第 7 站的 failure 分类、三种 shift、two-sample test 和 time window 的讲法来自这里。"
@@ -64,6 +67,15 @@ open:
   - label: "David et al.：TensorFlow Lite Micro: Embedded Machine Learning on TinyML Systems"
     url: "https://arxiv.org/pdf/2010.08678"
     note: "读了 arena、memory planner 和 benchmark 几节。第 1、4 站。"
+  - label: "Lai, Suda, Chandra：CMSIS-NN: Efficient Neural Network Kernels for Arm Cortex-M CPUs"
+    url: "https://ar5iv.labs.arxiv.org/html/1801.06601"
+    note: "只读了 convolution 一节里 partial im2col 和 data layout 的段落。第 3 站。"
+  - label: "Mohan et al.：Analyzing and Mitigating Data Stalls in DNN Training（VLDB 2021）"
+    url: "https://ar5iv.labs.arxiv.org/html/2007.06775"
+    note: "读了 abstract、introduction 和主要发现的表（前 100,000 个字符），后半部分没读。第 2 站 feeding problem 的数字。"
+  - label: "PyTorch 文档：torch.utils.data（2.2 版）"
+    url: "https://docs.pytorch.org/docs/2.2/data.html"
+    note: "只读了 DataLoader 的 num_workers、prefetch_factor、pin_memory、persistent_workers 和 multi-process data loading 一节。第 2 站。"
 sources:
   - label: "harvard-edge/cs249r_book（教材、TinyTorch、kits 的源仓库）"
     url: "https://github.com/harvard-edge/cs249r_book"
@@ -119,13 +131,19 @@ $$t_\text{RTT}\ge\frac{2\times\text{distance}}{200{,}000\ \text{km/s}}$$
 
 到 Mumbai 3904 km，往返至少 39.0 ms；到 Tokyo 5311 km，至少 53.1 ms；到 San Francisco 13582 km，至少 135.8 ms。离开 Singapore 的任何一个 region 都已经是周期的两倍以上。Singapore 本地也有 cloud region，fiber 只有几十 km，传播时间不到 1 ms；这时限制换成了 Wi-Fi 和 internet 上的排队与抖动，它们没有可靠的上界，网络断掉时 robot 也必须能动（这一句是凭我自己的知识写的）。所以 control loop 里的 model 只能放在 robot 身上，或者放在同一个局域网里的 edge server 上。
 
+教材自己的例子更严：工厂里一台 robot arm 的 safety stop 要在看到人之后 10 ms 内完成，model 放在 1500 km 外的 regional cloud 上。光往返一次就要
+
+$$\frac{2\times1500\ \text{km}}{200{,}000\ \text{km/s}}=0.015\ \text{s}=15\ \text{ms}$$
+
+还没开始 inference 就已经超了 5 ms。教材的结论也只到这一步：把 model 搬到 arm 旁边，只是去掉了传播这一项，sensing、inference、control 整条路径还要另外对着 deadline 核一遍。
+
 这是第一条物理限制，教材叫它 light barrier。另外两条是 power wall 和 memory wall。
 
 **Power wall。** CMOS 电路的 dynamic power 是 $P\propto CV^2f$，$C$ 是被开关的 capacitance，$V$ 是 voltage，$f$ 是 frequency。Frequency 提高时 voltage 也要跟着提高，晶体管才能可靠地翻转；近似地取 $V\propto f$，就得到
 
 $$P\propto f^3$$
 
-Frequency 提高 50%，power 变成 $1.5^3=3.375$ 倍，这些功率全部变成热，要靠散热片和外壳带走。一台没有风扇的小 robot 能散多少热，决定了它能持续跑多快。第 6 站会用这条关系算 energy。
+教材的说法是 frequency 加倍，dynamic power 大约变成 $2^3=8$ 倍。Frequency 提高 50%，power 变成 $1.5^3=3.375$ 倍，这些功率全部变成热，要靠散热片和外壳带走。一台没有风扇的小 robot 能散多少热，决定了它能持续跑多快。第 6 站会用这条关系算 energy。
 
 **Memory wall。** Model 和 activation 必须放得进 device 的 memory，每次 inference 还要把 weight 搬一遍。MIT 6.5940 的[第 1 站](../courses/MIT-6.5940.html#eff)已经从 roofline 讲过：decode 这类 workload 的速度由 bandwidth 决定，不由算力决定。
 
@@ -148,7 +166,15 @@ Frequency 提高 50%，power 变成 $1.5^3=3.375$ 倍，这些功率全部变成
 
 $$T=\underbrace{\frac{D_\text{vol}}{BW}}_\text{memory}+\underbrace{\frac{O}{R_\text{peak}\cdot\eta}}_\text{compute}+\underbrace{L_\text{lat}}_\text{overhead}$$
 
-$D_\text{vol}$ 是搬运的 bytes，$BW$ 是 bandwidth；$O$ 是 operation 数，$R_\text{peak}$ 是peak FLOPS，$\eta$ 是实际达到的比例；$L_\text{lat}$ 是 dispatch、schedule、序列化之类的固定开销。搬运和计算能重叠时，前两项的和换成两者中大的那个：
+$D_\text{vol}$ 是搬运的 bytes，$BW$ 是 bandwidth；$O$ 是 operation 数，$R_\text{peak}$ 是peak FLOPS，$\eta$ 是实际达到的比例；$L_\text{lat}$ 是 dispatch、schedule、序列化之类的固定开销。这个和式假设三件事依次发生。
+
+教材在它前面还有一个乘积形式，按 data、algorithm、machine 三个因子拆：
+
+$$T=\frac{\text{Samples}}{\text{Task}}\times\frac{\text{FLOPs}}{\text{Sample}}\times\frac{\text{Seconds}}{\text{FLOP}}$$
+
+前两个因子相乘就是 $O$。把上面的和式除以 $O$，得到的正是第三个因子：实际每个 FLOP 花的时间，它由 memory、compute、overhead 三项一起决定，而不是 datasheet 上的 $1/R_\text{peak}$。两种写法是同一条 law。乘积形式说明了为什么 inference 比 training 难跑满：training 一个 step 有成千上万个 sample 共用一次 weight 读取和一次 dispatch，Samples/Task 大，摊下来的 Seconds/FLOP 接近硬件下限；inference 的 Samples/Task 常常是 1，同样的 weight 读取和 overhead 只摊给一个 sample，Seconds/FLOP 就大得多。
+
+搬运和计算能重叠时（hardware 一边算当前这块 data、一边搬下一块），和式里前两项换成两者中大的那个：
 
 $$T\ge\max\!\left(\frac{D_\text{vol}}{BW},\ \frac{O}{R_\text{peak}\cdot\eta}\right)+L_\text{lat}$$
 
@@ -171,6 +197,12 @@ MIT 6.5940 只用了 max 那一部分。这里多出来的 $L_\text{lat}$ 在 se
 
 $$\text{speedup}=\frac{1}{(1-p)+p/s}$$
 
+先用教材的例子检验：搬运 2 s、计算 8 s、overhead 1 s，共 11 s，算力加倍。计算变成 4 s，总时间 $2+4+1=7$ s，不是一半的 5.5 s。用公式，$p=8/11$，$s=2$：
+
+$$\frac{1}{3/11+4/11}=\frac{11}{7}=1.571$$
+
+正好是 11 s 除以 7 s。
+
 第二次运行里 $p=519.3/1263.6=0.411$。
 
 - $s=2$：$1/(0.589+0.2055)=1.259$，总时间从 1263.6 ms 降到 1004.0 ms。
@@ -184,7 +216,7 @@ Peak FLOPS 只进 iron law 的 compute 一项，而且只对 model 那一段起�
 :::
 
 :::from
-Light barrier、power wall、memory wall 的提法，四档 deployment 和九个数量级，iron law 的两种写法和它与 Amdahl's law 的关系，按 MLSysBook Volume I 的 Introduction（“Iron Law of ML Systems”一节）和 System Paradigms（“Physical Constraints on Deployment”）的源文件；教材里的具体数字由 mlsysim 生成，我没有引用。三个城市的距离和 RTT 是我用 haversine 公式算的（Earth radius 6371 km）。表里的 device 数字：Jetson Orin NX 的 memory 和 power 取自 [MIT 6.5940 那一页](../courses/MIT-6.5940.html#robot)引用的 NVIDIA 博客，Pi 5 的 power 取自 kit 的 Setup 实验，ESP32-S3 的 SRAM 和 PSRAM 取自 XIAO ESP32S3 的 KWS 实验，手机的 3–5 W 取自教材 Benchmarking 一章；cloud 一行和“一台 robot 用到两三档”是凭我自己的知识写的。TFLM 的 cycle 数出自 [TFLM 论文](https://arxiv.org/pdf/2010.08678)的 Table 2，换算成时间是我算的（论文给的 Hotword 占比是 4.1%，和表里的差一致）。Pi 的三段时间出自 [Object Detection 实验](https://mlsysbook.ai/kits/contents/raspi/object_detection/object_detection.html)，Amdahl 的计算是为这一页做的。
+Light barrier、power wall（含“frequency 加倍、power 约 8 倍”）、memory wall 的提法，四档 deployment 和九个数量级，iron law 的乘积形式、和式、重叠时的 max 形式和它与 Amdahl's law 的关系，按 MLSysBook Volume I 的 Introduction（“Iron Law of ML Systems”一节，全文）和 System Paradigms（“Physical Constraints on Deployment”和 distance penalty 的例子）的源文件。教材正文里的数字由 mlsysim 生成；robot arm 的 1500 km 与 10 ms、iron law 的 2/8/1 s 取自仓库里 mlsysim 的 scenario 定义（`RoboticArmRegionalCloud`、`IronLawComputeHeavyExample`），15 ms 和 1.571 是我按教材的公式算的。乘积形式对 training 和 inference 的对比按教材那一节的两条说明改写。三个城市的距离和 RTT 是我用 haversine 公式算的（Earth radius 6371 km）。表里的 device 数字：Jetson Orin NX 的 memory 和 power 取自 [MIT 6.5940 那一页](../courses/MIT-6.5940.html#robot)引用的 NVIDIA 博客，Pi 5 的 power 取自 kit 的 Setup 实验，ESP32-S3 的 SRAM 和 PSRAM 取自 XIAO ESP32S3 的 KWS 实验，手机的 3–5 W 是教材 System Paradigms 一章 power wall 一段引用的 mobile TDP（数值在 mlsysim 的 platform registry 里）；cloud 一行和“一台 robot 用到两三档”是凭我自己的知识写的。TFLM 的 cycle 数出自 [TFLM 论文](https://arxiv.org/pdf/2010.08678)的 Table 2，换算成时间是我算的（论文给的 Hotword 占比是 4.1%，和表里的差一致）。Pi 的三段时间出自 [Object Detection 实验](https://mlsysbook.ai/kits/contents/raspi/object_detection/object_detection.html)，Amdahl 的计算是为这一页做的。
 :::
 
 ## [data] ML lifecycle 与 data engineering
@@ -196,6 +228,8 @@ Light barrier、power wall、memory wall 的提法，四档 deployment 和九个
 ### Lifecycle 是一个环
 
 普通软件的需求写在 spec 里，代码满足 spec 就完成了。ML 系统的“需求”有一大半写在 data 里，而 data 所描述的世界会变。所以 ML 的 lifecycle 是一个环：problem definition → data collection 与 preparation → model development → evaluation → deployment → monitoring，monitoring 发现问题后回到 data。教材强调的是环上的约束会往回传：deployment 目标定下来以后，它会改写前面每一步。
+
+教材用一个时间线说明约束不往回传时会怎样。一个给乡村诊所做 diabetic retinopathy screening 的团队：第 90 天 validation sensitivity 92%，第 120 天调 architecture 调到 94%，第 150 天交给 deployment 工程师，第 151 天发现 model 要 4 GB memory，第 152 天才去查目标 device：诊所里的 edge device 一共 4 到 8 GB，和操作系统、camera pipeline、诊所软件共用，IT 只给 model 留了约 500 MB。第 153 天，五个月的工作作废。Model 的 accuracy 没有问题，问题是 500 MB 这条约束在第一天就该决定哪些 architecture 值得考虑。教材把这叫 constraint propagation principle：越晚发现的约束，要回头返工的阶段越多。
 
 拿开头的 detector 走一遍。Deployment 目标是 Pi Zero 2 W、int8、320×320。这条约束往回传：
 
@@ -248,14 +282,16 @@ Robot 的 demonstration 是一段一段录的，30 fps 下相邻两个 frame 只
 
 $$\max\!\left(\frac{t_L}{W},\ t_C\right)$$
 
-要让 GPU 不等，需要 $W\ge t_L/t_C=1.5$，取 2。教材把这个缺口叫 feeding problem，并指出它是真实存在的：对九个常用 vision 和 audio model 的测量发现，training time 常常被等待 data 占据。在 PyTorch 里对应的旋钮是 `DataLoader` 的 `num_workers` 和 `prefetch_factor`；多开 worker 的代价是 CPU core 和 host memory，在 Jetson 这类 CPU 只有几个 core 的 device 上，worker 还会和 robot 的其他进程抢 core。
+要让 GPU 不等，需要 $W\ge t_L/t_C=1.5$，取 2。教材把这个缺口叫 feeding problem，并指出它是量出来的，不是假想的：Mohan et al. 测了九个常用的 vision 和 audio model（ShuffleNetv2、AlexNet、ResNet18、SqueezeNet、MobileNetv2、ResNet50、VGG11、SSD+Res18、M5），很多情况下 training time 的大头是 data stall。论文把它分成两种：prep stall（等 decode 和 augmentation，最多占一个 epoch 的 65%，主要花在重复 decode 上）和 fetch stall（等 I/O，blocking I/O 占 epoch 的 10% 到 70%）；要喂饱一块 GPU，preprocessing 需要每块 GPU 3 到 24 个 CPU core，ResNet50 这样计算重的 model 3 到 4 个就够。这正是上面 $t_L/t_C$ 的道理：model 越轻，$t_C$ 越小，要的 worker 越多。
+
+在 PyTorch 里对应的旋钮是 `DataLoader` 的 `num_workers` 和 `prefetch_factor`。`num_workers` 的默认值是 0，意思是在主进程里读 data，也就是上面“不 prefetch”那种排法；设成正整数才会开出那么多个 worker 进程，每个 worker 预先读好 `prefetch_factor` 个 batch（有 worker 时默认 2），所以一共最多预取 $2W$ 个 batch。多开 worker 的代价是 CPU core 和 host memory，在 Jetson 这类 CPU 只有几个 core 的 device 上，worker 还会和 robot 的其他进程抢 core（这一句是凭我自己的知识写的）。
 
 :::edge Decode 放在哪里
-一张 JPEG 在磁盘上可能只有几十 KB，decode 成 fp32 tensor 后是 $3\times224\times224\times4=602{,}112$ byte，大约放大一个数量级。在 CPU 上 decode 并转成 fp32 再传给 GPU，搬运的是放大后的 bytes；只传 uint8 像素、到 GPU 上再转 fp32，就少搬四倍。教材的说法是：compression 用 CPU 的 decode 工作换 storage bandwidth，每一处都要算清楚是哪边先成为瓶颈。
+一张 JPEG 在磁盘上可能只有几十 KB，decode 成 fp32 tensor 后是 $3\times224\times224\times4=602{,}112$ byte，大约放大一个数量级。在 CPU 上 decode 并转成 fp32 再传给 GPU，搬运的是放大后的 bytes；只传 uint8 像素、到 GPU 上再转 fp32，就少搬四倍。教材的说法是：compression 用 CPU 的 decode 工作换 storage bandwidth，每一处都要算清楚是哪边先成为瓶颈。反过来把 decode 好的 tensor 存在磁盘上省掉 decode，storage 就要按放大后的 bytes 供货，而且 augmentation 的 random crop 被固定了，每个 epoch 看到的是同一份。
 :::
 
 :::from
-Lifecycle 的六个阶段和“约束往回传”（constraint propagation）、data cascade、consistency imperative 与 training-serving skew 的定义、parity test、feature state 只在 training split 上 fit、KWS 里同一说话人的 near-duplicate、feeding problem 和 compression 用 CPU 换 bandwidth，按 MLSysBook Volume I 的 ML Lifecycle 与 Data Engineering 两章源文件（“Training-serving consistency”“The feeding problem”两节读得最细）。九个 model 的测量是教材引用的 Mohan et al. 2021，我没有读原文。Batch size 为 1 时 standardization 退化成 0、episode split 的图、dataloader 的三种排法和 $\max(t_L/W,t_C)$ 是我为这一页构造的例子；`num_workers`、`prefetch_factor` 的用法和 Jetson 上抢 core 的说法是凭我自己的知识写的。Detector 的 deployment 约束取自 Object Detection 实验。
+Lifecycle 的六个阶段、constraint propagation principle 和 diabetic retinopathy 的时间线，按 MLSysBook Volume I 的 ML Lifecycle 一章源文件；data cascade（教材在 Data Engineering 一章定义，引 Sambasivan et al. 2021）、consistency imperative 与 training-serving skew 的定义（教材的例子正是 serving 时按 batch 重算 mean 和 variance）、parity test、feature state 只在 training split 上 fit、KWS 里同一说话人的 near-duplicate、feeding problem、compression 用 CPU 换 bandwidth 和预存 decode 后 tensor 的代价，按 Data Engineering 一章源文件（“Training-serving consistency”“The feeding problem”两节读得最细）。九个 model、65%、10–70%、3 到 24 个 core 出自 [Mohan et al. 的论文](https://ar5iv.labs.arxiv.org/html/2007.06775)的 abstract、Table 1 和第 4.3 节。`num_workers` 默认 0、`prefetch_factor` 默认 2 和“共 $2W$ 个 batch”出自 [PyTorch 2.2 的 DataLoader 文档](https://docs.pytorch.org/docs/2.2/data.html)。Batch size 为 1 时 standardization 退化成 0 的算式、episode split 的图、dataloader 的三种排法和 $\max(t_L/W,t_C)$ 是我为这一页构造的例子（教材在 data ingestion 一节给了同样的 slowest-stage bound）；Jetson 上抢 core 的说法是凭我自己的知识写的。Detector 的 deployment 约束取自 Object Detection 实验。
 :::
 
 ## [kernel] 从 framework 到 kernel
@@ -314,7 +350,7 @@ for (int i = 0; i < n; ++i)
       C[i][j] += A[i][k] * B[k][j];
 ```
 
-C 的二维 array 是 row-major：`B[k][j]` 和 `B[k][j+1]` 在 memory 里挨着，`B[k][j]` 和 `B[k+1][j]` 相隔一整行，也就是 $4096\times8=32{,}768$ byte。CPU 从 DRAM 读 data，一次读一整条 64 byte 的 cache line，也就是 8 个 double（cache 的基本结构见 [CS2100 的 cache 一站](../courses/CS2100.html#cache)）。
+C 的二维 array 是 row-major：`B[k][j]` 和 `B[k][j+1]` 在 memory 里挨着，`B[k][j]` 和 `B[k+1][j]` 相隔一整行，也就是 $4096\times8=32{,}768$ byte。CPU 从 DRAM 读 data，一次读一整块连续的 memory，叫 cache line；在 6.172 用的 Haswell 上一条 line 是 64 byte，也就是 8 个 double（cache 的基本结构见 [CS2100 的 cache 一站](../courses/CS2100.html#cache)）。
 
 最内层循环是 `k`。每加 1，`B[k][j]` 就跳到下一行，落在另一条 cache line 上。这条 line 搬进来 8 个数，这一步只用了 1 个，剩下 7 个等到下次要用时早已被挤出 cache（B 有 $4096^2\times8=134$ MB，比 25 MB 的 L3 大得多）。搬进来的 bytes 只用上 12.5%。
 
@@ -331,7 +367,18 @@ for (int i = 0; i < n; ++i)
 
 ::fig[cs249r-cache] 两种 loop order 下，最内层循环 8 步读 B 的哪些数、搬进了多少条 cache line。为了画得下，这里一条 line 只装 4 个数。
 
-6.172 用 Cachegrind 量了 last-level cache 的 miss rate：两种快的顺序（i,k,j 和 k,i,j）约 1.0%，最慢的两种（j,k,i 和 k,j,i）约 15.4%，时间从 1155.77 s 降到 177.68 s。
+6.172 把六种顺序都跑了，并用 Cachegrind 量了 last-level cache 的 miss rate：
+
+| loop order（外 → 内） | 时间（s） | LLC miss rate | 最内层循环沿哪里走 |
+|---|---|---|---|
+| i, k, j | 177.68 | 1.0% | B 和 C 的一行，连续 |
+| k, i, j | 179.21 | 1.0% | B 和 C 的一行，连续 |
+| j, i, k | 1080.61 | 8.6% | A 的一行连续，B 的一列跳行 |
+| i, j, k | 1155.77 | 7.7% | A 的一行连续，B 的一列跳行 |
+| k, j, i | 3032.82 | 15.4% | A 和 C 的一列，都跳行 |
+| j, k, i | 3056.63 | 15.4% | A 和 C 的一列，都跳行 |
+
+最后一列是按上面 row-major 的分析推的：最内层的 index 是 `j` 时，B 和 C 都沿行走，全部连续；是 `k` 时，A 连续、B 跳行；是 `i` 时，A 和 C 都跳行，最慢。最快和最慢差 $3056.63/177.68=17.2$ 倍，multiply-add 一个没少。
 
 ### Tiling：让搬进来的数被反复用
 
@@ -382,14 +429,14 @@ $$X_\text{col}\in\mathbb R^{(N\,H_\text{out}W_\text{out})\times(C_\text{in}K^2)}
 - Input：$4\times32\times32\times32=131{,}072$ 个 fp32，524,288 byte，约 0.52 MB。
 - $X_\text{col}$：$(4\times32\times32)\times(32\times9)=4096\times288=1{,}179{,}648$ 个，4,718,592 byte，约 4.72 MB，是 input 的 9 倍。
 
-在有几 GB memory 的 Pi 或 Jetson 上这没问题。在一块几百 KB SRAM 的 MCU 上，展开整个 input 是不可能的，MCU 的 kernel 库（例如 CMSIS-NN）只展开很少几个 patch 就算一次，用多次小的 GEMM 换 memory（这一句是凭我自己的知识写的）。
+在有几 GB memory 的 Pi 或 Jetson 上这没问题。在一块几百 KB SRAM 的 MCU 上，展开整个 input 是不可能的。Arm 给 Cortex-M 写的 kernel 库 CMSIS-NN 用的是 partial im2col：每次只展开很少几列（论文举的是 2 列），刚好够让 matrix multiplication 的 kernel 跑到最快，展开的 buffer 却很小。论文里的 CIFAR-10 network 如果不用 partial im2col，memory footprint 约 332 KB，放不进那块板子。
 
 :::edge Tensor 的 layout 与 stride
-Framework 里的 tensor 是一块连续 memory 加上 shape 和 stride。Shape $(1,3,4,4)$ 的 NCHW tensor，stride 是 $(48,16,4,1)$ 个元素：沿 W 走一步跨 1 个，沿 H 跨 4 个，沿 C 跨 16 个。Transpose 只改 stride，不搬 data，所以很快；但 transpose 之后沿最后一维已经不再连续，下一个 kernel 要么按跳跃的地址读（上面 i,j,k 那种情形），要么先 `contiguous()` 复制一份。同一个 convolution 在 NCHW 和 NHWC 两种 layout 下哪个快，取决于 kernel 库是为哪种写的；ARM CPU 上的 TFLite 和 NCNN 用的是 channel 在最后一维的 layout（这一点是凭我自己的知识写的）。导出时 layout 不匹配，runtime 会在 operation 之间插 transpose，第 4 站会看到这类隐藏的开销。
+Framework 里的 tensor 是一块连续 memory 加上 shape 和 stride。Shape $(1,3,4,4)$ 的 NCHW tensor，stride 是 $(48,16,4,1)$ 个元素：沿 W 走一步跨 1 个，沿 H 跨 4 个，沿 C 跨 16 个。Transpose 只改 stride，不搬 data，所以很快；但 transpose 之后沿最后一维已经不再连续，下一个 kernel 要么按跳跃的地址读（上面 i,j,k 那种情形），要么先 `contiguous()` 复制一份。同一个 convolution 在 NCHW 和 NHWC 两种 layout 下哪个快，取决于 kernel 库是为哪种写的。教材的对照是：PyTorch 的 tensor 默认 NCHW，TensorFlow（以及由它导出的 TFLite）默认 NHWC；NHWC 把同一个像素的所有 channel 放在一起，适合 CPU 上沿 channel 做 SIMD，也适合 Tensor Core 上把 convolution 变成 GEMM 时沿 channel 求和。CMSIS-NN 选的也是 HWC，理由是同一个像素的 data 连续，im2col 复制时可以整块搬。导出时 layout 不匹配，runtime 会在 operation 之间插 transpose，第 4 站会看到这类隐藏的开销。
 :::
 
 :::from
-那张 11 行的表、i,j,k 与 i,k,j 的 cache 分析、Cachegrind 的 miss rate、tile size 表和“两级 cache 要靠实验调”，按 [MIT 6.172 Lecture 1](https://ocw.mit.edu/courses/6-172-performance-engineering-of-software-systems-fall-2018/d0c73dd51c79b95196a2e6faa824e1b4_MIT6_172F18_lec1.pdf) 的 slides（slides 上 Java 一页写 2,738 s，汇总表写 2387.32 s，我用的是汇总表；i,j,k 的 miss rate 在抓到的文字里是乱码，所以没写）。L1 的 tile 推导、im2col 的 3×3 例子和 9 倍放大、“Python 里写 tiling 没有用”和“离开 interpreter 就是全部 speedup”，按 TinyTorch Module 17 的源码与 guide。Eager execution 的 dispatch overhead 和 overhead-bound 的分类按 MLSysBook 的 ML Frameworks 一章。NumPy 的计时是我自己在本页写作环境里量的，换一台机器数字会变，结论（overhead 占绝大部分）不会。$2n^3/t$ 的搬运量推导、550 GB 和 17.2 GB 是我算的。
+那张 11 行的表、i,j,k 与 i,k,j 的 cache 分析、Cachegrind 的 miss rate、tile size 表和“两级 cache 要靠实验调”，按 [MIT 6.172 Lecture 1](https://ocw.mit.edu/courses/6-172-performance-engineering-of-software-systems-fall-2018/d0c73dd51c79b95196a2e6faa824e1b4_MIT6_172F18_lec1.pdf) 的 slides（slides 上 Java 一页写 2,738 s，汇总表写 2387.32 s，slides 自己没解释，我用的是汇总表；六种顺序的时间在 slides 30 和 33–35，miss rate 在 slide 36，抓到的文字里 miss rate 表的行与数的对应是乱的，是按每种顺序的单项时间对上的；“最内层沿哪里走”一列是我按 row-major 推的；64 byte 的 line size 是凭我自己的知识写的，slides 只说 cache line 是连续的一块）。L1 的 tile 推导、im2col 的 3×3 例子和 9 倍放大、“Python 里写 tiling 没有用”和“离开 interpreter 就是全部 speedup”，按 TinyTorch Module 17 的源码与 guide。Eager execution 的 dispatch overhead 和 overhead-bound 的分类（host 时间与 device 时间之比大于 1）按 MLSysBook 的 ML Frameworks 一章；NCHW 与 NHWC 的对照按 Hardware Acceleration 一章的 tensor layout 一节；partial im2col、“2 列”、332 KB 和 HWC 的理由出自 [CMSIS-NN 论文](https://ar5iv.labs.arxiv.org/html/1801.06601)（论文把 CHW 叫 channel last、HWC 叫 channel first，和通常的叫法相反，本页按通常的叫法）。NumPy 的计时是我自己在本页写作环境里量的，换一台机器数字会变，结论（overhead 占绝大部分）不会。$2n^3/t$ 的搬运量推导、550 GB 和 17.2 GB 是我算的。
 :::
 
 ## [deploy] On-device deployment：export、runtime 与 memory planning
@@ -448,6 +495,14 @@ $$\frac{200}{0.003922}=51{,}000,\qquad q=\operatorname{clip}(51{,}000-128)=127$$
 
 不只这一个像素。任何不为 0 的像素，$r/S\ge255$，加上 $-128$ 之后至少是 127，全部 clip 到 127；值为 0 的像素是 $-128$。整张图变成了只有两个值的剪影，model 照样输出 box。还要注意 model 的 input 也可能是 uint8（Image Classification 实验里就有这样的 model），那时直接送 0–255 的像素，不做任何换算。先读 input details 的 dtype 再决定怎么处理。
 
+:::edge Kit 的代码没有 round
+Image Classification 实验里这一步写的是 `(img_array / scale + zero_point).clip(-128, 127).astype(np.int8)`。`astype` 不做 round，直接把小数部分砍掉（向 0 截断）。沿用上面取的 $S=1/255$：TFLite 把 scale 存成 float32，就是 $0.003921569$，不是精确的 $1/255$，代码里 `img_array` 也是 float32，所以 200 这个像素算出来是
+
+$$\frac{200/255}{0.003921569}-128=199.99998-128=71.99998$$
+
+截断成 71，而 round 是 72。我用 float32 把 0 到 255 全部算了一遍：193 到 255 这 63 个值都比 round 的结果小 1，其余相同（负数一侧向 0 截断，$-1.0000076$ 截成 $-1$，碰巧是对的）。差一个 quantization step，也就是 $1/255$，对 classification 影响很小；但这是 train 时的 quantization（round）和 serving 时的 preprocessing（截断）不一致，属于第 2 站说的 skew，要和 parity test 对得上就该写成 `np.round(...)` 再 `clip`、再 `astype`。
+:::
+
 ### Tensor arena：把 memory 在初始化时排好
 
 MCU 上没有操作系统帮你管 memory，长期运行时反复 `malloc` 和 `free` 还会产生 fragmentation。TensorFlow Lite Micro 的做法是：application 提供一整块固定大小的 memory，叫 tensor arena，所有 tensor 在初始化时一次排好位置，inference 期间不再分配。Arena 从两头用：一头放整个 interpreter 生命周期都要的东西（persistent），另一头放 inference 中间的 tensor（non-persistent）；两头相遇就是 arena 不够，初始化时报错。
@@ -488,7 +543,7 @@ Arena 一共 256 KB；每个 tensor 各占一块要 $48+64+128+64+64+16=384$ KB�
 JIT 的 runtime 更明显：TinyTorch Module 19 指出，`torch.compile`、JAX 这类栈第一次调用还要付 tracing 和 compilation 的时间，常常比其他开销大几个数量级。
 
 :::from
-“imgsz 三处必须一致”、export 固定 input shape、YOLO11n 与 YOLO26n 在不同格式下的表、4/3 的像素修正和“model 与导出路径要一起选”、int8 input 的 preprocessing 代码、cold 与 warm 两次运行的表和它的解释，出自 [Raspberry Pi kit 的 Object Detection 实验](https://mlsysbook.ai/kits/contents/raspi/object_detection/object_detection.html)；uint8 input 的情形出自 Image Classification 实验。2.27 倍和 1.11 倍、int8 换算的数值例子（$S$、$Z$ 是我取的）是我算的。Tensor arena 的两头结构、lifetime、first-fit decreasing、“最优排法未解决”、不支持 dynamic shape、不做运行时分配是为了避免 fragmentation、VWW 的 arena 大小，出自 [TFLM 论文](https://arxiv.org/pdf/2010.08678)第 4.4 节和 Table 3；六个 tensor 的例子是我构造并用代码排的。JIT 的 warm-up 一句出自 TinyTorch Module 19 源码。
+“imgsz 三处必须一致”、export 固定 input shape、YOLO11n 与 YOLO26n 在不同格式下的表、4/3 的像素修正和“model 与导出路径要一起选”、int8 input 的 preprocessing 代码、cold 与 warm 两次运行的表和它的解释，出自 [Raspberry Pi kit 的 Object Detection 实验](https://mlsysbook.ai/kits/contents/raspi/object_detection/object_detection.html)；uint8 input 的情形和 `astype` 那一行代码出自 Image Classification 实验（实验按 dtype 分 uint8、int8、float32 三支处理）。2.27 倍和 1.11 倍（kit 自己的说法是“more than half”和“roughly 10%”）、int8 换算的数值例子（$S$、$Z$ 是我取的）和 63 个截断不一致的像素值是我算的；“scale 存成 float32”和“train 时是 round”是凭我自己对 TFLite quantization 约定的了解写的，没有去读 schema 和 converter 的源码核对。Tensor arena 的两头结构、lifetime、first-fit decreasing、“最优排法未解决”、不支持 dynamic shape、不做运行时分配是为了避免 fragmentation、VWW 的 arena 大小，出自 [TFLM 论文](https://arxiv.org/pdf/2010.08678)第 4.4 节和 Table 3；六个 tensor 的例子是我构造并用代码排的。JIT 的 warm-up 一句出自 TinyTorch Module 19 源码。
 :::
 
 ## [serve] Serving：latency budget、pipeline 与 batching
@@ -541,7 +596,11 @@ $$W=\frac{1}{\mu-\lambda}=\frac{S}{1-\rho}$$
 
 $S=1/\mu$ 是服务时间。代进去，$W=10/(1-0.8)=50$ ms，$L=80\times0.05=4$：平均有 4 个 request 在 server 上，一个在算，其余在等。
 
-这个模型里 $W$ 本身服从 rate 为 $\mu-\lambda$ 的 exponential distribution，所以第 $p$ 个 percentile 是 $W\ln\frac{1}{1-p}$，p99 是 $W\ln100=4.6\,W$：
+平均数不够，还要看尾巴。这个模型里一个 request 在系统里的时间 $T$ 服从 mean 为 $W$ 的 exponential distribution，$P(T\le t)=1-e^{-t/W}$。令它等于 $p$：
+
+$$1-e^{-t_p/W}=p\quad\Longrightarrow\quad e^{-t_p/W}=1-p\quad\Longrightarrow\quad t_p=W\ln\frac{1}{1-p}$$
+
+p90 是 $W\ln10=2.30\,W$，p99 是 $W\ln100=4.61\,W$：
 
 | $\rho$ | 平均 $W$ | p90 | p99 |
 |---|---|---|---|
@@ -579,7 +638,7 @@ $B=4$：$3/(2\times0.2)+12=7.5+12=19.5$ ms。$B=8$：$7/0.4+16=33.5$ ms，throug
 :::
 
 :::from
-Little's law、M/M/1 的 $W=S/(1-\rho)$、count-triggered batcher 的 $(B-1)/(2\lambda)+T(B)$、dual-trigger batcher 的定义，以及“utilization 接近 1 时 latency 崩溃、要留 headroom”的论证，按 MLSysBook Volume I 的 Model Serving 一章（“Queuing Theory”和“Throughput Optimization”两节）的源文件；教材里的具体场景数字由 mlsysim 生成，我没有用。M/M/1 的 percentile 公式、camera pipeline、FIFO 积压、8 台 robot、$T(B)=8+B$ 和 batcher 的模拟都是我为这一页构造和计算的。“Robot 宁可丢 frame”的说法是凭我自己的知识写的，教材没有这一节。
+Little's law（及它不依赖 distribution、只要求稳定的条件）、M/M/1 的 $W=S/(1-\rho)$、latency 服从 exponential 所以 p99 是 $W\ln100\approx4.6\,W$、count-triggered batcher 的 $(B-1)/(2\lambda)+T(B)$、dual-trigger batcher 的定义，以及“utilization 接近 1 时 latency 崩溃、要留 headroom”的论证，按 MLSysBook Volume I 的 Model Serving 一章（“Queuing Theory”和“Throughput Optimization”两节）的源文件；教材的场景是 H100 上的 ResNet-50，具体数字由 mlsysim 生成，我没有用。表里任意 percentile 的 $W\ln\frac{1}{1-p}$ 是把教材的 p99 推导换成一般的 $p$；camera pipeline、FIFO 积压、8 台 robot、$T(B)=8+B$ 和 batcher 的模拟都是我为这一页构造和计算的。“Robot 宁可丢 frame”的说法是凭我自己的知识写的，教材没有这一节。
 :::
 
 ## [bench] Benchmarking、profiling 与 energy
@@ -592,7 +651,7 @@ Little's law、M/M/1 的 $W=S/(1-\rho)$、count-triggered batcher 的 $(B-1)/(2\
 
 开头第二件事说明，同一条命令的两次运行可以差五倍。一个可信的 latency 数字至少要做到：
 
-1. **Warm-up。** 先跑几次不计时。第一次付的是 page fault、library 加载、cache 和 branch predictor 的冷启动、CPU 从低频升到高频（DVFS）；JIT 的栈还有 compilation。TinyTorch Module 14 用 3 到 10 次 warm-up。
+1. **Warm-up。** 先跑几次不计时。第一次付的是 first-touch page fault、library 加载、L1/L2/L3 里还没有这些 data、BLAS 的 thread pool 还没起来；JIT 的栈还有 kernel compilation。TinyTorch Module 14 的表说头几次通常慢 5 到 20 倍，建议 3 到 10 次 warm-up（它的 `measure_latency` 默认 10 次 warm-up、100 次计时）。
 2. **重复很多次，看 distribution。** OS 的中断、garbage collection、别的进程抢 cache，都会让个别几次变慢。Latency 的 distribution 是右偏的，有一条长尾。
 3. **报 median 和 percentile，不只报 mean。**
 
@@ -632,7 +691,7 @@ p99 要的 sample 是 p90 的 11 倍，因为尾巴上的 sample 少。拿 100 �
 
 第 1 站的 Amdahl's law 说，加速之前先要知道每一段占多少。开头的 detector 在 Zero 2 W 上：preprocess 19%，inference 41%，postprocess 40%。这里最值得先动的是 postprocess：把 confidence threshold 调高减少进入 NMS 的 box，或者换一个不需要 NMS 的 head（第 4 站 YOLO26 的 end-to-end head 把 postprocess 从 192 ms 降到 36 ms）。
 
-MCU 上也一样。XIAO ESP32S3 的 keyword spotting 实验里，Edge Impulse 对 MFCC 这一步 preprocessing 估计的时间是 675 ms（按 ESP-EYE 估的，实验作者说实际会更短），比 model 本身长得多；要缩短 latency，先回去改 FFT length 和 coefficient 个数，而不是改 model。
+MCU 上也一样。XIAO ESP32S3 的 keyword spotting 实验里，Edge Impulse 对 MFCC 这一步 preprocessing 估计的时间是 675 ms（按 ESP-EYE 估的，它的 CPU 是更老的 Xtensa LX6，实验作者说实际会更短），而同一页截图里 int8 model 本身的 on-device 估计是 inference 6 ms、peak RAM 3.7 KB、flash 27.1 KB。按这两个估计，preprocessing 是 model 的 $675/6=112.5$ 倍。要缩短 latency，先回去改 FFT length（实验建议降到 256）和 coefficient 个数，model 再快一倍，总时间也只少 3 ms。
 
 TinyTorch Module 14 写的 profiler 统计的是 parameter 数、FLOPs、memory 和 latency 四样，并用 arithmetic intensity 判断每层是 memory-bound 还是 compute-bound（方法见 [MIT 6.5940 的第 1 站](../courses/MIT-6.5940.html#eff)）。
 
@@ -646,7 +705,7 @@ $$P_\text{avg}=0.3\times8.5+0.7\times3.25=4.83\ \text{W}$$
 
 一块 50 Wh 的电池能用 $50/4.83=10.4$ 小时；一直满负载是 $50/8.5=5.9$ 小时。Idle power 占了平均值的一半，这是“只看 active power”的 benchmark 会漏掉的。
 
-**Thermal throttling。** Kit 写明 Raspberry Pi 在 80 °C 开始 throttle，85 °C 是硬上限；跑 Llama 3.2 这类 small language model 时，装了主动散热的 Pi 5 也会升到 70–75 °C。教材 Benchmarking 一章的例子是一块宣称“1 W AI”的芯片：短时间测和宣传一致，连续跑几分钟后结温升高、throttle，steady state 的 throughput 掉下来。所以 edge device 的 benchmark 要连续跑到温度稳定，并报告散热条件。
+**Thermal throttling。** Kit 写明 Raspberry Pi 在 80 °C 开始 throttle，85 °C 是硬上限。Setup 实验里，装了主动散热的 Pi 5 跑 Llama 3.2 3B 时升到 70–75 °C、10–11 W；VLM 实验里跑 Florence-2 时 CPU 温度能到 80 °C 以上，已经在 throttle 的边上。教材 Benchmarking 一章的例子是一块宣称“1 W AI”的芯片：短时间测和宣传一致，连续跑几分钟后结温升高、throttle，steady state 的 throughput 掉下来。所以 edge device 的 benchmark 要连续跑到温度稳定，并报告散热条件。
 
 ### DVFS：跑满再睡，还是慢慢跑
 
@@ -677,7 +736,7 @@ $$E_\text{周期}=P_s\times33.3\ \text{ms}+kWf^2$$
 :::
 
 :::from
-Warm-up 的几种原因和 3 到 10 次、报 median、benchmark harness 控制了和没控制的噪声、$t$ 与 1.96 的 13%、throughput $=1/\text{latency}$ 只在 single-stream 成立，按 TinyTorch Module 14 和 19 的源码讲解部分；capstone 的 85% 门槛出自 Module 20 的 guide。四种 scenario、24,576 与 270,336 的算法、至少 60 秒的理由和 accuracy 门槛，出自 [MLPerf Inference 论文](https://ar5iv.labs.arxiv.org/html/1911.02549)（论文说的是 DVFS 和 power management 的平衡态，没提 thermal throttling）。Pi 5 的 power 表和 80/85 °C、SLM 时 70–75 °C 出自 kit 的 Setup 与 Small Language Models 实验；“1 W AI”的例子和 peak 与 sustained 的区别出自教材 Benchmarking 一章；675 ms 出自 XIAO ESP32S3 的 KWS 实验。Latency 的 histogram 是我造的 data；duty cycle、电池、DVFS 的两种情形和所有数值是我算的；“对应的 robot 场景”一列是我加的。
+Warm-up 的几种原因、5 到 20 倍、3 到 10 次和 `measure_latency` 的默认值、报 median、benchmark harness 控制了和没控制的噪声、$t$ 与 1.96 的 13%、throughput $=1/\text{latency}$ 只在 single-stream 成立，按 TinyTorch Module 14 和 19 的源码讲解部分；capstone 的 85% 门槛出自 Module 20 的 guide。四种 scenario、24,576 与 270,336 的算法、至少 60 秒的理由和 accuracy 门槛，出自 [MLPerf Inference 论文](https://ar5iv.labs.arxiv.org/html/1911.02549)（论文说的是 DVFS 和 power management 的平衡态，没提 thermal throttling）。Pi 5 的 power 表、80/85 °C、跑 Llama 3.2 3B 时 70–75 °C 与 10–11 W 出自 kit 的 Setup 实验，80 °C 以上出自 VLM 实验；“1 W AI”的例子和 peak 与 sustained 的区别出自教材 Benchmarking 一章；675 ms 出自 XIAO ESP32S3 的 KWS 实验正文，6 ms、3.7 KB、27.1 KB 是我从同一实验里 Edge Impulse 的 model 页面截图读的，112.5 倍是我算的。Latency 的 histogram 是我造的 data；duty cycle、电池、DVFS 的两种情形和所有数值是我算的；“对应的 robot 场景”一列是我加的。
 :::
 
 ## [ops] MLOps 与 robustness
@@ -745,7 +804,7 @@ Cloud 上的 service 出了问题，换回旧版本只是改一下路由。Edge 
 1. **Dual-bank flash。** device 一直从 Bank A 运行，同时把新的 model 和 runtime 写进 Bank B。
 2. **切换后由 watchdog 和 self-test 看着。** 切到 Bank B 后，hardware watchdog timer 和启动后的自检盯住最初的若干次 inference；如果出现 memory fault、卡死或者超出 latency budget，自动切回 Bank A。
 3. **Staged rollout。** 先推给一小部分 device（canary），telemetry 没有问题再扩大。
-4. **核对版本。** 每台 device 报告它实际加载的 bundle 的 hash，和 model registry 里发布的版本比对，不一致的 device 不接流量。教材举的 Knight Capital 事故里，一台服务器跑了旧版本，造成 4.6 亿美元的损失。
+4. **核对版本。** 每台 device 报告它实际加载的 bundle 的 hash，和 model registry 里发布的版本比对，不一致的 device 不接流量。教材举的 Knight Capital 事故（2012 年）：一次部署把 order-routing 软件更新到了 8 台 production server 中的 7 台，漏了第 8 台，约 45 分钟里 212 个 parent order 产生了几百万个 child order，损失超过 4.6 亿美元。
 
 Safety-critical 的 device 还要把 worst-case execution time 列进发布条件，因为 thermal throttling 和 memory contention 会把个别几次 inference 推过 deadline，而平均 latency 看不出来。
 
@@ -757,9 +816,9 @@ $$n=\frac{(z_{0.975}+z_{0.8})^2\,\big[p_1(1-p_1)+p_2(1-p_2)\big]}{(p_1-p_2)^2}=\
 
 ### 现场的 fallback
 
-Edge 上的 model 做出的决定直接变成动作，不能像 cloud 的 training job 那样回滚到上一个 checkpoint。教材举的 2018 年 Tempe 事故：自动驾驶测试车在撞击前 5.6 秒就检测到了行人，但分类在 vehicle、other、bicycle 之间反复跳，每跳一次 path prediction 就丢掉之前的 tracking history，直到撞击前 1.2 秒才认出即将碰撞。每一个 frame 的检测本身都“有输出”，失败出在 frame 与 frame 之间不稳定的 prediction 和下游对它的处理。
+Edge 上的 model 做出的决定直接变成动作，不能像 cloud 的 training job 那样回滚到上一个 checkpoint。教材举的 2018 年 Tempe 事故：自动驾驶测试车在撞击前 5.6 秒就检测到了行人，但分类在 vehicle、other、bicycle 之间反复跳，每跳一次 path prediction 就丢掉之前的 tracking history，直到撞击前 1.2 秒才认出即将碰撞；认出之后系统又压住动作一秒、没有提醒安全员，之后才报警并计划缓慢减速，安全员没来得及介入。每一个 frame 的检测本身都“有输出”，失败出在 frame 与 frame 之间不稳定的 prediction、下游对它的处理和 fallback 的时机。
 
-教材的要求是：主路径不能支持决策时，要有一条独立的 fallback（一个本地的、基于传感器的 controller，或者一个验证过的安全动作），而且它要在 deadline 之前给出结果。热量或电量不够时，runtime 要能主动降级：降低 input 的采样率、跳过可选的 stage、换一个更浅的 model。对 robot arm 来说，最常见的 fallback 就是减速并停到安全姿态。
+Volume II 的要求是：主路径不能支持决策时，要有一条独立的 fallback（一个本地的、基于传感器的 controller，或者一个验证过的安全动作），而且它要在 deadline 之前给出结果；一个答得很好但赶不上 deadline 的远端 model 不算 fallback。Volume I 的 ML Operations 一章补上了资源一侧：热量或电量不够时，edge 的 runtime 要能主动降级（graceful degradation）：降低 input 的采样率、跳过可选的 stage、换一个更浅的 model，每一级降级都要事先对着应用的安全和质量要求验证过。对 robot arm 来说，最常见的 fallback 就是减速并停到安全姿态（这一句是凭我自己的知识写的）。
 
 ### Bit flip：一个数怎样变成 $10^{37}$
 
@@ -784,12 +843,12 @@ Precision 和对 bit flip 的敏感程度是两回事。fp32 用 exponent 换来
 :::
 
 :::from
-Failure 的两类、Google 的 96 次故障（60 次不直接和 ML 有关，36 是我减出来的）、三种 shift 的分解和 house price、cancer screening 一类例子的讲法、监控的几层、KS test 只适用于一维、降维、小 sample 的经验法则、cumulative 与 sliding window、alert fatigue，按 [CS329S 的讲义](https://huyenchip.com/2022/02/07/data-distribution-shifts-and-monitoring.html)；三种 shift 的 robot 例子、confidence 那两组数、$D=0.5$ 和两个 critical value、15 小时与 3 小时的例子是我构造并计算的，KS critical value 用的是大 sample 近似。Dual-bank flash、watchdog、staged rollout、bundle hash、Knight Capital、WCET 出自 MLSysBook Volume I 的 ML Operations 一章；canary 的 sample 量是我按 two-proportion test 的标准公式算的（教材只说“需要几千次 inference”）。Tempe 事故、fallback 的要求和 0.042 翻转 bit 30 的例子出自 Volume II 的 Robust AI 一章；$1.43\times10^{37}$、int8 的对照和 $\pm0.5$ 的 scale 是我算的和取的。
+Failure 的两类、Google 的 96 次故障（60 次不直接和 ML 有关，36 是我减出来的）、三种 shift 的分解和 house price、cancer screening 一类例子的讲法、监控的几层、KS test 只适用于一维、降维、小 sample 的经验法则、cumulative 与 sliding window、alert fatigue，按 [CS329S 的讲义](https://huyenchip.com/2022/02/07/data-distribution-shifts-and-monitoring.html)；三种 shift 的 robot 例子、confidence 那两组数、$D=0.5$ 和两个 critical value、15 小时与 3 小时的例子是我构造并计算的，KS critical value 用的是大 sample 近似。Dual-bank flash、watchdog、staged rollout、bundle hash、Knight Capital（7/8 台、45 分钟、212 个 parent order、超过 4.6 亿美元）、WCET、graceful degradation 的三种做法出自 MLSysBook Volume I 的 ML Operations 一章；canary 的 sample 量是我按 two-proportion test 的标准公式算的（教材只说看出很小的 accuracy 差别“可能需要几千次 inference”）。Tempe 事故（5.6 秒、三种分类、1.2 秒、压住动作一秒）、fallback 的要求和 0.042 翻转 bit 30 的例子出自 Volume II 的 Robust AI 一章；$1.43\times10^{37}$、int8 的对照和 $\pm0.5$ 的 scale 是我算的和取的。
 :::
 
 ## 作业
 
-CS249r 不是一期有固定日程的课，没有统一的 deadline 和 autograder。作业有两类：TinyTorch 的 20 个 module（在自己机器上跑，只要 CPU），和 Hardware Kits 的实验（要买板子）。Instructor Hub 的 semester plan 里前 11 周各配一个 TinyTorch module，capstone 是把一个应用 deploy 到几种 hardware 上并写 design report。
+CS249r 不是一期有固定日程的课，没有统一的 deadline 和 autograder。作业有三类：TinyTorch 的 20 个 module（在自己机器上跑，只要 CPU）；教材每章配的 Co-Lab（浏览器里跑的交互 notebook，交的是 Decision Log）；Hardware Kits 的实验（要买板子）。Instructor Hub 的 semester plan 里每周读一章、做对应的 Co-Lab，前 11 周还各配一个 TinyTorch module，由老师决定布置哪些；capstone 是把一个应用 deploy 到几种 hardware 上并写 design report。
 
 TinyTorch 的共同提示（来源：Getting Started 页）：
 
@@ -798,17 +857,36 @@ TinyTorch 的共同提示（来源：Getting Started 页）：
 - `tito module start 01` 默认打开的 notebook 里答案已经填好，适合从头读到尾。要自己写，用 `tito module start 01 --exercise`（或 `--assignment`），它会去掉答案、生成空的 stub。
 - `tito module test N` 只跑 notebook 里的测试；`tito module complete N` 再跑一遍，把代码导出到 `tinytorch` package，对 package 跑第二组测试，并记为完成。后面的 module 依赖导出的代码，所以每个都要 complete。
 - 只用 NumPy，CPU 就够，免费 Colab 也能跑。README 说用纯 NumPy train CIFAR-10 的快速版本能到 37%（随机猜是 10%），不要期待 PyTorch 的速度。
-- 完成特定 module 会解锁 milestone：Module 08 之后是 1986 年的 MLP，09 之后是 1998 年的 CNN，13 之后是 Transformer，17 之后是 Custom Kernels（把自己的 tiled、fused、im2col kernel 和 C++ SIMD、Apple Metal、Triton 的实现比），19 之后是 MLPerf 风格的测量。
+- 完成特定 module 会解锁 milestone（`tito milestone run <name>`）：Module 03 之后是 1958 年的 perceptron（只有 forward，weight 是随机的）和 1969 年的 XOR crisis，08 之后是 1986 年的 MLP，09 之后是 1998 年的 CNN，13 之后是 Transformer 和 TinyGPT，17 之后是 Custom Kernels（把自己的 tiled、fused、im2col kernel 放到不规则的 shape 上检查，再和 C++ SIMD、Apple Metal、Triton 的实现比时间），19 之后是 MLPerf 风格的测量。
+- Module 是按顺序依赖的，跳不过去：每个 guide 写明了前置：Module 14 要求 01 到 13，15 到 18 要求 01 到 14，19 要求 01 到 18，capstone 要求 01 到 13 和 19。所以只想做后面的 Optimization tier，也得先把前面的 module（包括 10 到 13 的 language model 部分）用带答案的默认 notebook complete 一遍。（来源：各 module guide 的前置一栏）
 
 ### TinyTorch Part I：Module 01–08（Tensor 到 Training）
 
 - **从零实现**：Tensor、activation、Linear 等 layer、loss、DataLoader、autograd、SGD 与 Adam、training loop。
 - **做完会什么**：一个能 train MLP 的 framework。Autograd 的原理见 [Karpathy 那一页的第 1 站](../courses/KARPATHY-Z2H.html#micrograd)。
-- **时间**：guide 上各 module 是 3 到 8 小时，Module 01 是 4–6 小时，Module 06（autograd）6–8 小时。合计约 35–50 小时。
-- **优先级**：已经写过 micrograd 或 CMU 10-714 的 needle 的话，可以用默认带答案的 notebook 快速读过并 complete（后面的 module 要依赖它们），把时间留给 Part IV。
+- **时间**：guide 上 01 到 08 依次是 4–6、3–5、5–7、4–6、3–5、6–8、3–5、5–7 小时，合计 33–49 小时。
+- **优先级**：已经写过 micrograd 或 CMU 10-714 的 needle 的话，可以用默认带答案的 notebook 快速读过并 complete（后面的 module 要依赖它们），把时间留给 Optimization tier（Module 14–19）。
 - **提示**（来源：各 module guide 的 “When it fails”）：
+  - Module 01：`__init__` 要用 `np.array(data, dtype=np.float32)` 统一成 float32，并设好 `shape`、`size`、`dtype`，后面每个 operation 都读它们。
+  - Module 02：sigmoid 直接写 `1 / (1 + np.exp(-x))` 在很大的负数上 overflow，先算 `np.exp(-np.abs(x))` 再按符号分两支；softmax 先减每行的 max，并且沿 `self.dim` 用 `keepdims=True` 求和。
+  - Module 03：TinyTorch 的 `Linear` 把 weight 存成 `(in_features, out_features)`，forward 是 `x.matmul(self.weight)`，不要 transpose；dropout 要写成 `x * mask`，留在 Module 06 能求导的路径上。
+  - Module 04：cross-entropy 用 `LogSoftmax`（先减 max），guide 的例子是 logits $[1000,1002,1001]$，直接 exp 会 overflow，减去 1002 后得 loss 约 0.4076。
   - Module 05：最后一个不满的 batch 不能丢，用 `range(0, len(indices), self.batch_size)` 走 index；`__iter__` 要把 sample list 交给 `_collate_batch` 叠成 tensor；`shuffle` 为真时每个 epoch 开头都要重新 shuffle。
   - Module 06：$C=AB$ 的 backward 是 $\partial A=\partial C\,B^\top$，忘了 transpose 在方阵上给出错的数，在非方阵上直接 shape 不匹配；MSE 的 gradient 是 $2(p-t)/N$，少了 2 或 $N$ 都只差一个常数倍，测试会报出来。
+  - Module 07：Adam 的 bias correction 要除以 $1-\beta_1^t$ 和 $1-\beta_2^t$，而且先把步数 $t$ 加 1 再算，否则第一步 $t=0$，$1-\beta_1^0=0$，得到 inf。
+  - Module 08：最后不满 `accumulation_steps` 的那几个 batch 的 gradient 也要在循环结束后 update 一次；`self.epoch` 要在每个 epoch 末尾加 1，learning rate 的 schedule 读的是它。
+
+### TinyTorch Module 10–13：Tokenization 到 Transformer
+
+- **从零实现**：character-level tokenizer 和 BPE tokenizer（10）；embedding layer 和 sinusoidal positional encoding（11）；scaled dot-product attention 和 multi-head attention（12）；layer norm、transformer block 和一个能 `generate` 的 GPT（13）。
+- **做完会什么**：一个能 train 和生成文本的小 GPT，以及几个后面要用的 systems 事实：vocabulary 越小 sequence 越长，attention 的 $QK^\top$ 是 $n\times n$，cost 随 sequence 长度平方增长（12 的 guide）；guide 13 的配置（768 宽、12 个 block、50,000 个 token 的 vocabulary）约 163M parameter，其中 block 只占 85M，其余在 token table 和 language head。
+- **时间**：4–6、3–5、5–7、8–10 小时，合计 20–28 小时（guide）。
+- **优先级**：Optimization tier 的前置，必须 complete；做过 CS336 或 Karpathy 那一页的 [GPT](../courses/KARPATHY-Z2H.html#gpt) 和 [tokenizer](../courses/KARPATHY-Z2H.html#tok) 两站的话用带答案的 notebook 读过即可，没做过的话值得自己写 12 和 13。
+- **提示**（来源：各 module guide 的 “When it fails”）：
+  - Module 10：数 byte pair 时每个 word 要乘它在 corpus 里的出现次数 `freq`；merge 之后 index 要前进 2 而不是 1，否则 pair 的第二个 symbol 被用了两次；相邻 pair 是 `range(len(tokens) - 1)`，别漏最后一对。
+  - Module 11：embedding 的 backward 要用 `np.add.at(grad_weight, indices, grad)`，`grad_weight[indices] += grad` 在同一个 ID 出现两次时只加一次；positional encoding 偶数维是 sin、奇数维是 cos，frequency 是 `exp(-log(10000) * 2i / d)`，维数越高越慢。
+  - Module 12：softmax 沿 key 那一维（`dim=-1`）归一化；causal mask 要在 softmax 之前加上。
+  - Module 13：layer norm 沿 feature 维（`axis=-1`）求 mean 和 variance，不是沿 batch 维；分母是 `np.sqrt(variance + eps)`。
 
 ### TinyTorch Module 09：Convolutions
 
@@ -873,15 +951,35 @@ TinyTorch 的共同提示（来源：Getting Started 页）：
   - Capstone 的五个 event 各有门槛：Latency Sprint 和 Memory Challenge 要 accuracy 至少 85%，Accuracy Contest 要 median latency 低于 100 ms、model 小于 10 MB，Extreme Push 要 accuracy 至少 80%。没有综合分，accuracy、latency、storage 要分开看。（来源：Module 20 guide）
   - 用 TinyDigits 时在 `datasets/tinydigits/test.pkl` 的 200 个 sample 上评估，并把 dataset、split、preprocessing 和结果一起记下来；module 开头的演示用的是 100 个合成 sample，不是 TinyDigits 的 accuracy。（来源：Module 20 guide）
 
+### Co-Labs：每章一个 lab，交 Decision Log
+
+- **内容**：Volume I 有 17 个 lab（Lab 00 是上手，01 到 16 各对一章），在浏览器里用 WebAssembly 跑，不用安装。每个 lab 分 A 到 E 几个 part，每个 part 先锁定一个 prediction（单选或填数，不能写自由文字），再动 lab 里的控件做对照实验，把“基线”和“改了一个条件”的两次结果存下来，写一段解释；最后写一个推荐（或者“暂缓”），说清被否掉的方案和什么情况下会改主意，下载下来交。计算由 mlsysim 做，lab 开始时选一个 track（TinyML、Mobile、Edge、Cloud），同样的问题在不同 track 上数字不同。
+- **和本页对应的几个**（题目取自 Volume I 的 learning path）：
+  - Lab 01（Introduction）：runtime 正常但 population 变了，怎样证明 task quality 受影响；哪一项时间值得先优化（memory、compute、overhead 三段的堆叠条）。对应第 1 站。
+  - Lab 02（System Paradigms，“Where should inference run?”）：remote path 的 upload、传播、计算、download 四段里，改哪一段能赶上 deadline；换更快的 processor 还是换 memory；duty cycle 和电量；最后在 raw data 不许离开 device 时重新选 placement。对应第 1 站。
+  - Lab 04（Data Engineering）：split 和 preprocessing 怎样让 accuracy 更高、证据却更弱（leakage）；execution 为什么在等 data。对应第 2 站。
+  - Lab 07（ML Frameworks，“The Framework Tax”）：同样的计算量、不同的 dispatch 次数；compilation 什么时候回本；fusion 省掉了什么；runtime 能不能执行这个 graph 的每个 operation。对应第 3、4 站。
+  - Lab 12（Benchmarking）：局部的 speedup 有没有改善整条用户路径；要测多少次；持续运行后赢家还是不是赢家；变快之后行为还对不对。对应第 6 站。
+  - Lab 13（Model Serving）：bursty 的 demand 下 headroom 够不够；什么时候等着凑 batch 值得；weight 放得下不等于并发的 request 放得下；overload 时怎样保住有用的服务。对应第 5 站。
+  - Lab 14（ML Operations）：proxy 报警算不算 outcome 失败；canary 在 outcome 证据攒够之前能不能放得下；快速回滚 routing 算不算恢复。对应第 7 站。
+- **所需**：浏览器。Lab 01 的 instructor note 估计一个 lab 约 50–55 分钟，并注明这是设计时的估计，还没有学生试过。
+- **优先级**：值得做，尤其是 02、07、13：它们正好是本页第 1、3、5 站的计算，lab 让你在 prediction 先锁定的条件下看自己错在哪。
+- **提示**（来源：labs 的 README、landing page 和 Lab 01 instructor note）：
+  - 第一次打开要下载 runtime 和依赖，可能要几分钟。
+  - 存下来的对照是冻结的，之后再动控件不会改它；但改了前面 part 的条件，后面 part 存的结论会被标成过期，要重新存。
+  - 一次只改一个条件再存；改了两个以上，lab 会提示这组对照分不开两个因素的作用。
+  - Instructor note 明确说：完成的标准是用对照证据为一个决定辩护，不要求把每个模拟系统都调成可行；一开始猜错的 prediction 要留着，它就是证据。
+
 ### Raspberry Pi kit：Setup 与 Image Classification
 
 - **内容**：给 Pi 装系统、远程连接、测温度和 power；用 TFLite 跑 MobileNet 分类，再用 Edge Impulse 做 transfer learning 并 deploy int8 model。
 - **所需**：Raspberry Pi Zero 2 W（约 15 美元）、Pi 4（4 GB，约 55 美元）或 Pi 5（4 GB 约 60 美元，8 GB 约 80 美元），价格来自 Instructor Hub；一张 SD 卡和 camera。时间页面没写，我估计各 3–5 小时。
 - **优先级**：先做（后面的实验都建立在它上面）。
 - **提示**：
-  - 先看 input details 的 dtype：uint8 的 model 直接送 0–255 像素，int8 的要先除以 255 再按 scale 和 zero point 换算，float32 的除以 255。（来源：Image Classification 实验）
+  - 先看 input details 的 dtype：uint8 的 model 直接送 0–255 像素，int8 的要先除以 255 再按 scale 和 zero point 换算，float32 的除以 255。（来源：Image Classification 实验）实验代码换算时用 `astype` 截断，不是 round，亮的那四分之一像素会差一个 step，见[第 4 站](#deploy)的边界情况。（来源：我自己算的）
   - Kit 给的参考：Edge Impulse Studio 对 transfer learning 得到的 model 估计 Pi 4 上约 35 ms；实测 Pi Zero 上 160×160 的 int8 model 约 125 ms，是 Pi 5 的 3 到 4 倍。（来源：Image Classification 实验）
-  - Setup 实验里有一个脚本，每隔一段时间读 SoC 的温度（`thermal_zone0` 下的 `temp`）和 power，算平均值和标准差；做后面任何 benchmark 时都开着它。（来源：Setup 实验）
+  - Setup 实验里有一个 Pi 5 用的脚本 `avg_temp_power.sh`：每秒一次、共 50 次，用 `vcgencmd measure_temp` 读温度，用 `vcgencmd pmic_read_adc` 读各条 PMIC rail 的 voltage 和 current，把 $\sum V_iI_i$ 加起来，再按 $1.1451P+0.5879$ 线性校正成估计的整板 power，输出平均值和标准差。它量到的是 board 核心的 power，不含 USB 设备和电源损耗。Idle 的例子是 47.25 °C、估计 3.235 W。做后面任何 benchmark 时都开着它。（来源：Setup 实验）
+  - Pi Zero 2 W 上做 ML 要把默认的 zram 关掉，改用 SD 卡上的 2 GB swap file。zram 是放在 RAM 里的压缩 swap，Zero 2 W 只有约 415 MB 可用，zram 占掉约三分之一，真正腾不出 memory。实验量到 YOLO11n 在 320 下 zram 7562 ms 对 swap file 1946 ms，640 下 13541 ms 对 5426 ms，开着 zram 时 Python 进程还会被 OOM killer 杀掉。（来源：Setup 实验）
 
 ### Raspberry Pi kit：Object Detection
 
@@ -895,7 +993,8 @@ TinyTorch 的共同提示（来源：Getting Started 页）：
   - 不同 model 的差别是数量级的：SSD-MobileNet 在 Pi Zero 上 0.5 到 1.3 秒一个 frame，FOMO 在 Pi 4 上 8 ms，大约快 60 倍。
   - Confidence threshold 调低会出现重复的框，要做 NMS；YOLO26 默认的 end-to-end head 不需要 NMS，`iou` 参数对它无效。
   - NCNN 不一定更快：YOLO26 导出到 NCNN 会被换成 one-to-many head，比原来的 PyTorch 版本还慢，用 ONNX 才保留 end-to-end head。
-  - 在 Zero 2 W 上做 NCNN 的转换要在 terminal 里跑，不要在 Jupyter 里：转换工具 `pnnx` 会占满四个 core 一分钟以上，并在 PyTorch 之外另外分配 memory。
+  - 在 Zero 2 W 上做 NCNN 的转换要在 terminal 里跑，不要在 Jupyter 里：转换工具 `pnnx` 会占满四个 core 一分钟以上，并在 PyTorch 之外另外分配 memory，在已经载了几个 model 的 notebook 里跑，板子反复重启；从 SSH 直接跑约 90 秒完成。
+  - 装 Ultralytics 用普通的包就够，`ultralytics[export]` 会额外装 TensorFlow、OpenVINO、CoreMLTools，在 Zero 2 W 上装很久而且本实验用不到；NCNN 导出需要的 `pnnx` 会在用到时自己下载。
   - 长方形的图要压扁成正方形，不要裁剪；Edge Impulse 免费版的 data 集不能导出到别的平台，所以实验用 Roboflow 管理 data。
 
 ### Raspberry Pi kit：Small Language Models 与 Vision-Language Models
@@ -904,9 +1003,10 @@ TinyTorch 的共同提示（来源：Getting Started 页）：
 - **所需**：Pi 5（kit 说 GenAI 实验需要 Pi 5）和主动散热器。时间我估计各 3–5 小时。
 - **优先级**：有余力再做。
 - **提示**：
-  - 一定装主动散热器：Pi 在 80 °C 开始 throttle，85 °C 是上限；装了散热器跑 SLM 时也会到 70 °C 左右。（来源：Small Language Models 实验）
-  - Ollama 加 `--verbose` 会分别报 prompt eval rate 和 eval rate。Kit 在 Pi 5 上量到 Llama 3.2 1B 的 eval rate 约 9 token/s，3B 约 5.3 token/s；prompt 的处理和生成落在 roofline 的两侧，见 [MIT 6.5940 第 1 站](../courses/MIT-6.5940.html#eff)。（来源：Small Language Models 实验）
-  - Florence-2 在 Pi 5 上每个任务十几秒到几十秒，referring expression segmentation 要 207 秒，只适合离线处理，不能进 control loop。（来源：VLM 实验的计时输出）
+  - 一定装主动散热器：Pi 在 80 °C 开始 throttle，85 °C 是上限；Active Cooler 的风扇在 60 °C 打开、67.5 °C 加速。装了散热器跑 SLM 时 CPU 100% 也会到将近 70 °C。（来源：Small Language Models 实验）
+  - Ollama 加 `--verbose` 会分别报 prompt eval rate 和 eval rate。Kit 在 Pi 5 上量到 Llama 3.2 1B 的 prompt eval rate 19.46 token/s、eval rate 8.99 token/s，3B 的 eval rate 5.3 token/s，Phi-3.5 3.8B 只有 2.25 token/s。处理 prompt 时一次喂进很多 token，weight 读一遍能算很多个 token；生成时每个 token 都要把 weight 读一遍，所以生成比处理 prompt 慢（这个解释是我加的，roofline 的讲法见 [MIT 6.5940 第 1 站](../courses/MIT-6.5940.html#eff)）。在 Pi 5 的 CPU 上两者只差约 2 倍。（来源：Small Language Models 实验）
+  - 读 `--verbose` 的输出要按 token 算。Kit 那次 1B 的运行：prompt 32 个 token 用了 1.645 s，生成 8 个 token 用了 0.890 s，kit 的正文据此说 prompt 的处理“占了大头”、生成“计算量更小”。按每个 token 算正好相反：prompt 每个 token $1.645/32=51$ ms，生成每个 token $0.890/8=111$ ms。Prompt 的总时间长，只是因为它的 token 多。（来源：Small Language Models 实验的数，除法是我算的）
+  - Florence-2 在 Pi 5 上：caption 16–17 秒，object detection 20–41 秒，OCR 37–38 秒，segmentation 83–207 秒，只适合离线处理，不能进 control loop。跑 object detection 时四个 core 全满、memory 用到 5 GB 以上，实验建议把 swap 加到 2 GB；温度能到 80 °C 以上。（来源：VLM 实验的 latency 汇总）
 
 ### MCU kit：XIAO ESP32S3、Nicla Vision、Grove Vision AI V2
 
@@ -917,4 +1017,6 @@ TinyTorch 的共同提示（来源：Getting Started 页）：
 - **提示**（来源：XIAO ESP32S3 的 KWS 实验）：
   - 必须在 Arduino IDE 里打开 PSRAM（`Tools > PSRAM: OPI PSRAM`），录音的 buffer 用 `ps_malloc` 分在 PSRAM 上。
   - 实验要求 `esp32 by Espressif Systems` 的 library 停在页面指定的版本（页面写作 2.017），不要升级。
-  - MFCC 的 preprocessing 估计要 675 ms，比 model 长得多；要降 latency 先改 FFT length 和 coefficient 个数。
+  - XIAO ESP32S3 Sense 板上是 8 MB PSRAM 和 8 MB flash；芯片内部的 RAM 只有几百 KB。
+  - MFCC 的 preprocessing 估计要 675 ms，model 本身估计 6 ms；要降 latency 先改 FFT length（实验建议降到 256）和 coefficient 个数。
+  - 部署后的 sketch 会打印 `DSP`、`Classification`、`Anomaly` 三段各多少 ms，拿它核对上面两个估计。

@@ -125,7 +125,7 @@ sources:
 | 6 | 从零写 GPT | 7 | ng-video-lecture、nanoGPT |
 | 7 | GPT tokenizer | 8 | minbpe |
 
-已有页面讲过的部分这里只给链接：chain rule 在一个 2-2-1 network 上的逐个 weight 推导在 [CS2109S 第 9 站](../courses/CS2109S.html#nn)；matrix 形式的 backward、softmax 加 cross-entropy 的 gradient 是 $p-y$、ReLU 的 $2/n$ initialization 在 [CS3244 第 6 站](../courses/CS3244.html#nn)；perplexity 和 n-gram 的 smoothing 在 [CS4248 第 2 站](../courses/CS4248.html#ngram)；attention 的 formula、$\sqrt{d_k}$ 的来历、Transformer block 的 parameter 数在 [CS4248 第 6 站](../courses/CS4248.html#attn)；BPE training 的增量实现和 tie-breaking 在 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)。这一页的篇幅留给这门课自己的东西：从零写出来的每一行 code 在做什么，以及怎样知道它写对了。
+已有页面讲过的部分这里只给链接：chain rule 在一个 2-2-1 network 上的逐个 weight 推导在 [CS2109S 第 9 站](../courses/CS2109S.html#nn)；matrix 形式的 backward、softmax 加 cross-entropy 的 gradient 是 $p-y$、ReLU 的 $2/n$ initialization 在 [CS3244 第 8 站](../courses/CS3244.html#nn)；perplexity 和 n-gram 的 smoothing 在 [CS4248 第 2 站](../courses/CS4248.html#ngram)；attention 的 formula、$\sqrt{d_k}$ 的来历、Transformer block 的 parameter 数在 [CS4248 第 6 站](../courses/CS4248.html#attn)；BPE training 的增量实现和 tie-breaking 在 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)。这一页的篇幅留给这门课自己的东西：从零写出来的每一行 code 在做什么，以及怎样知道它写对了。
 
 只有十几个小时时的路线：第 6、7 站必读，第 3 站必读；backprop 还不熟练时加上第 1 站。第 2 站的 bigram 部分和第 5 站可以先跳，每站开头写了跳过的代价。
 
@@ -336,7 +336,7 @@ Input 是当前 character 的 index，先变成 one-hot vector：长度 27，只
 
 Logits 可以是任何实数，要变成 probability，先取 exp（全变成正数，扮演 count 的角色），再除以总和。这两步合起来叫 softmax。所以 $W$ 的一行就是“log count”，$W_{ij}=\ln N_{ij}$ 时 network 和 count model 一模一样。
 
-Loss 还是 NLL。[CS3244 第 6 站](../courses/CS3244.html#nn)推过 softmax 加 cross-entropy 对 logits 的 gradient 是 $p-y$（$y$ 是正确答案的 one-hot）。这里每个 example 的 loss 带着 $1/n$，所有 input 是 character $i$ 的 example 都落在 $W$ 的第 $i$ 行，把它们的 gradient 加起来：
+Loss 还是 NLL。[CS3244 第 8 站](../courses/CS3244.html#nn)推过 softmax 加 cross-entropy 对 logits 的 gradient 是 $p-y$（$y$ 是正确答案的 one-hot）。这里每个 example 的 loss 带着 $1/n$，所有 input 是 character $i$ 的 example 都落在 $W$ 的第 $i$ 行，把它们的 gradient 加起来：
 
 $$\frac{\partial\,\text{NLL}}{\partial W_{ij}}=\frac1n\sum_{x=i}\big(p_{ij}-[y=j]\big)=\frac{n_i\,p_{ij}-N_{ij}}{n}$$
 
@@ -420,7 +420,7 @@ $$\mathrm{Var}(s)=\sum_{i=1}^n\mathrm{Var}(w_ix_i)=\sum_{i=1}^n\mathrm{Var}(w_i)
 
 第二个等号用了 mean 为 0：一般地 $\mathrm{Var}(wx)=\mathbb E[w]^2\mathrm{Var}(x)+\mathbb E[x]^2\mathrm{Var}(w)+\mathrm{Var}(w)\mathrm{Var}(x)$，前两项是 0。要让 $\mathrm{Var}(s)=\mathrm{Var}(x)$，就要 $\mathrm{Var}(w)=1/n$，也就是 standard normal 乘 $1/\sqrt n$。为这一页叠 5 个这样的 linear layer（没有 nonlinearity），output 的 std 依次是 1.005、1.02、1.002、1.046、1.088，一直守在 1 附近；不除以 $\sqrt n$ 的话，一个 $1000\times1000$ 的 standard normal matrix 乘一个 standard normal vector，std 就变成 $\sqrt{1000}=31.6$（notebook 末尾一个视频里没讲的 bonus cell 实测是 31.0）。
 
-tanh 会把分布往里收：input 的 std 是 1 时，output 的 std 明显小于 1。一层层叠下去，每层都缩一点。补偿的办法是给 weight 再乘一个 gain，PyTorch 给 tanh 定的 gain 是 $5/3$。ReLU 把一半的 input 变成 0，补偿的 gain 是 $\sqrt2$，[CS3244 第 6 站](../courses/CS3244.html#nn)推过这个 $2/n$。
+tanh 会把分布往里收：input 的 std 是 1 时，output 的 std 明显小于 1。一层层叠下去，每层都缩一点。补偿的办法是给 weight 再乘一个 gain，PyTorch 给 tanh 定的 gain 是 $5/3$。ReLU 把一半的 input 变成 0，补偿的 gain 是 $\sqrt2$，[CS3244 第 8 站](../courses/CS3244.html#nn)推过这个 $2/n$。
 
 ::fig[z2h-deep] 5 层、每层 100 个 unit 的 tanh MLP，只做一次 forward。三列只差 gain。
 
@@ -552,7 +552,7 @@ $$\frac{\partial L}{\partial h_{ik}}=\sum_{j=1}^{27}\frac{\partial L}{\partial\,
 
 ### Cross-entropy 一次推完
 
-把 `logit_maxes` 到 `loss` 的七行合起来，[CS3244 第 6 站](../courses/CS3244.html#nn)推过对一个 example，loss 对 logits 的 gradient 是 $p-y$。Loss 是 batch 的平均，每个 example 带一个 $1/n$：
+把 `logit_maxes` 到 `loss` 的七行合起来，[CS3244 第 8 站](../courses/CS3244.html#nn)推过对一个 example，loss 对 logits 的 gradient 是 $p-y$。Loss 是 batch 的平均，每个 example 带一个 $1/n$：
 
 ```python
 dlogits = F.softmax(logits, 1)

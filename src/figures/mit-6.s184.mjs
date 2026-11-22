@@ -348,18 +348,18 @@ function latent() {
   o += text(20, 26, '先 train VAE，然后冻结', 'tb');
   box(20, 40, 90, 44, 'x', '1×32×32');
   o += arrow(112, 62, 140, 62, 'ink');
-  box(142, 40, 96, 44, 'Encoder', 'μ_φ(x)');
+  box(142, 40, 96, 44, 'Encoder', 'μ_φ(x), σ_φ');
   o += arrow(240, 62, 268, 62, 'ink');
   o += rect(270, 40, 96, 44, 'wash', 6) + text(318, 58, 'latent z', 't', 'middle') + text(318, 74, '128×4×4', 'ts', 'middle');
   o += arrow(368, 62, 396, 62, 'ink');
-  box(398, 40, 96, 44, 'Decoder', '→ 1×32×32');
+  box(398, 40, 96, 44, 'Decoder', 'mean μ_θ(z)');
   o += text(20, 124, 'Training：在 latent 上做和 pixel space 一模一样的 CFG flow matching', 'tb');
-  box(20, 138, 150, 44, 'z = μ_φ(x)', 'torch.no_grad()');
+  box(20, 138, 150, 44, 'z = μ_φ(x) + σ_φ ε′', 'torch.no_grad()');
   o += arrow(172, 160, 200, 160, 'ink');
   box(202, 138, 150, 44, 'x_t = t z + (1−t) ε', '');
   o += arrow(354, 160, 382, 160, 'ink');
   box(384, 138, 156, 44, '‖u_θ − (z − ε)‖²', 'latent DiT，patch 1');
-  o += text(20, 222, 'Sampling：noise → latent DiT 的 ODE → z → Decoder → 图像', 'tb');
+  o += text(20, 222, 'Sampling：noise → latent DiT 的 ODE → z → Decoder 的 mean → 图像', 'tb');
   o += text(20, 244, '16 个 token 而不是 64 个；真正的大 model 里，同样的设计把 token 数压低几百倍', 'ts');
   return svg(560, 256, o, 'Latent diffusion 的流程：先 train VAE，把图像编码成 latent；在 latent 上做 flow matching；sampling 时先在 latent 里解 ODE，再用 decoder decode成图像');
 }
@@ -439,6 +439,69 @@ function fourQ() {
   return svg(560, 252, o, '在 t 等于 0.5、x 等于 0.6 处，predicted noise、x 和 denoiser output D 在一条数轴上，x 是两者的中点，vector field 等于 D 减去 predicted noise');
 }
 
+// ---------- 第 8 站：两句话 dataset {AB, BA} 的 masked CTMC，t = 0.5 ----------
+function ctmc2() {
+  const t = 0.5, c = 1 / (1 - t); // κ_t = t，κ̇/(1−κ) = 1/(1−t)
+  let o = '';
+  const st = (x, y, a, b, cls = 'paper', dash = false) => {
+    const cell = (cx, s) => rect(cx, y - 13, 26, 26, s === 'M' ? 'wash2' : cls, 3) + text(cx + 13, y + 5, s, s === 'M' ? 'ts' : 'tb', 'middle');
+    let g = cell(x, a) + cell(x + 28, b);
+    if (dash) g = rect(x - 4, y - 17, 62, 34, 'dash', 5) + g;
+    return g;
+  };
+  const MMx = 30, MMy = 150, midX = 230, ys = [50, 110, 190, 250], endX = 450;
+  o += st(MMx, MMy, 'M', 'M');
+  o += text(MMx + 27, MMy + 34, 'x = MM', 'ts', 'middle');
+  const mids = [['A', 'M', 'AB'], ['M', 'B', 'AB'], ['B', 'M', 'BA'], ['M', 'A', 'BA']];
+  const endY = { AB: 80, BA: 220 };
+  // 从 MM 出发：每条 rate = c · posterior(1/2)
+  mids.forEach(([a, b, e], i) => {
+    o += st(midX, ys[i], a, b);
+    o += arrow(MMx + 58, MMy + (ys[i] - MMy) * 0.12, midX - 6, ys[i], 'ink');
+    { const x1 = MMx + 58, y1 = MMy + (ys[i] - MMy) * 0.12, x2 = midX - 6, y2 = ys[i], f = 0.6;
+      o += text(x1 + (x2 - x1) * f - 4, y1 + (y2 - y1) * f + (i < 2 ? -8 : 16), String(c * 0.5), 'tl', 'middle'); }
+    // 第二个 token：posterior 已确定，rate = c · 1
+    o += arrow(midX + 60, ys[i], endX - 6, endY[e] + (ys[i] < endY[e] ? -6 : 6) * 0 + (i % 2 ? 6 : -6), 'ink');
+    o += text((midX + 60 + endX) / 2, (ys[i] + endY[e]) / 2 + (i % 2 ? 14 : -6), String(c), 'tl', 'middle');
+  });
+  o += st(endX, endY.AB, 'A', 'B', 'wash') + text(endX + 66, endY.AB + 5, 'data', 'ts');
+  o += st(endX, endY.BA, 'B', 'A', 'wash') + text(endX + 66, endY.BA + 5, 'data', 'ts');
+  // parallel Euler 才会到的两个 state
+  o += st(endX, 150, 'A', 'A', 'paper', true) + st(endX, 286, 'B', 'B', 'paper', true);
+  o += path(`M${MMx + 27} ${MMy + 40} Q ${180} ${320} ${endX - 8} 288`, 'dash');
+  o += path(`M${MMx + 50} ${MMy - 2} Q ${330} ${150} ${endX - 8} 150`, 'dash');
+  o += text(endX + 66, 155, '不是 data', 'ts') + text(endX + 66, 291, '不是 data', 'ts');
+  o += text(MMx, 22, 't = 0.5，系数 1/(1 − t) = 2：rate = 2 ×（posterior − δ）', 'tb');
+  o += text(MMx, 316, '实线：一次改一个 token 的 rate。虚线：parallel Euler 一步同时改两个，h = 0.1 时 probability 0.02', 'ts');
+  return svg(560, 326, o, '两句话 dataset 的 masked CTMC 在 t 等于 0.5 时的状态图：从全 mask 状态出发，每个位置以 rate 1 变成 A 或 B，剩下的位置以 rate 2 变成唯一相容的 token，终点是 AB 或 BA；同时改两个位置才会到达不是 data 的 AA 和 BB');
+}
+
+// ---------- 第 8 站：masked diffusion 的一条 trajectory（κ_t = t） ----------
+function mdlm() {
+  const toks = ['The', 'cat', 'sat', 'on', 'the', 'mat', '.'];
+  // uniform 的 unmask 时刻 τ_j（P(τ_j > t) = 1 − t），用可复现的 uniform
+  let a = 20260130 >>> 0;
+  const uni = () => { a = (a + 0x6d2b79f5) >>> 0; let q = a; q = Math.imul(q ^ (q >>> 15), q | 1); q ^= q + Math.imul(q ^ (q >>> 7), q | 61); return ((q ^ (q >>> 14)) >>> 0) / 4294967296; };
+  const tau = toks.map(() => uni());
+  const ts = [0, 0.25, 0.5, 0.75, 1];
+  const x0 = 64, w = 58;
+  let o = '';
+  ts.forEach((t, r) => {
+    const y = 40 + r * 44;
+    o += text(x0 - 12, y + 5, 't = ' + t, 'ts', 'end');
+    toks.forEach((s, j) => {
+      const on = tau[j] <= t;
+      o += rect(x0 + j * w, y - 15, w - 6, 30, on ? 'wash' : 'wash2', 4) + text(x0 + j * w + (w - 6) / 2, y + 5, on ? s : '[M]', on ? 'tb' : 'ts', 'middle');
+    });
+    const nm = toks.filter((_, j) => tau[j] > t).length;
+    o += text(x0 + 7 * w + 4, y + 5, nm + ' 个 mask', 'ts');
+  });
+  const yt = 40 + 5 * 44 + 8;
+  toks.forEach((_, j) => { o += text(x0 + j * w + (w - 6) / 2, yt, 'τ = ' + tau[j].toFixed(2), 'ts', 'middle'); });
+  o += text(280, yt + 26, '每个 token 在自己的 τ 处被 unmask，之后不再改变；任意时刻 mask 的比例的期望是 1 − t', 'ts', 'middle');
+  return svg(560, yt + 36, o, 'Masked diffusion language model 的一条 trajectory：句子 The cat sat on the mat 在 t 等于 0、0.25、0.5、0.75、1 时的样子，各个 token 在各自 uniform 的时刻被揭开');
+}
+
 export default {
   'mit6s184-ou': ou,
   'mit6s184-paths': paths,
@@ -454,4 +517,6 @@ export default {
   'mit6s184-fail1': fail1,
   'mit6s184-cfgfield': cfgField,
   'mit6s184-four': fourQ,
+  'mit6s184-ctmc2': ctmc2,
+  'mit6s184-mdlm': mdlm,
 };

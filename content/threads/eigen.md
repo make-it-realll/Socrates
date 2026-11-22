@@ -196,7 +196,7 @@ Pendulum 的 upright 和 toggle switch 中间那个 fixed point 几何上完全�
 
 ### CS3244、CS4243、MIT-6.4210：matrix 拿来量
 
-[CS3244 第 8 站](../courses/CS3244.html#pca)用 Lagrange multiplier 从“让 $u^\top Su$ 最大”推出 $Su=\lambda u$，这是骨架里 Rayleigh quotient 的结论，并用 Pythagorean theorem 说明同一个方向让 reconstruction error 最小。[CS4243 第 8 站](../courses/CS4243.html#recog)加了两样：4096 维的 covariance 算不动时，改求 $S^\top S$（100×100）的 eigenvector $v$，$Sv$ 就是 $SS^\top$ 的 eigenvector；variance 最大的方向可能只是光照，对识别毫无用处。也有要最小的：[CS4243 第 2 站](../courses/CS4243.html#feature)的 Harris detector 看 $M$ 的 $\lambda_{\min}$，[MIT-6.4210 第 4 站](../courses/MIT-6.4210.html#grasp)取邻域 covariance $W$ 最小的 eigenvalue 的 eigenvector 作 surface normal。
+[CS3244 第 10 站](../courses/CS3244.html#pca)用 Lagrange multiplier 从“让 $u^\top Su$ 最大”推出 $Su=\lambda u$，这是骨架里 Rayleigh quotient 的结论，并用 Pythagorean theorem 说明同一个方向让 reconstruction error 最小。[CS4243 第 8 站](../courses/CS4243.html#recog)加了两样：4096 维的 covariance 算不动时，改求 $S^\top S$（100×100）的 eigenvector $v$，$Sv$ 就是 $SS^\top$ 的 eigenvector；variance 最大的方向可能只是光照，对识别毫无用处。也有要最小的：[CS4243 第 2 站](../courses/CS4243.html#feature)的 Harris detector 看 $M$ 的 $\lambda_{\min}$，[MIT-6.4210 第 4 站](../courses/MIT-6.4210.html#grasp)取邻域 covariance $W$ 最小的 eigenvalue 的 eigenvector 作 surface normal。
 
 ### DSA3102 与 CS2109S：gradient descent
 

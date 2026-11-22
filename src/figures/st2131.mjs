@@ -397,7 +397,32 @@ function posterior() {
   return svgA(560, 312, o, '动图：coin 依次出 H T H H，再出 H T T T；每次 head 把 Beta 的第一个 parameter 加 1，每次 tail 把第二个加 1，density 从平的 Beta(1,1) 变到 Beta(4,2)，再变到 Beta(5,5)，越来越窄');
 }
 
+// 第 1 站：stars and bars。8 个一样的球，7 个空隙里选 4 个插隔板，切成 5 段
+function stars() {
+  const n = 8, bars = [2, 3, 6, 7]; // 隔板插在第 i 个球之后
+  const sp = 52, x0 = 280 - ((n - 1) * sp) / 2, y = 92;
+  const bx = (i) => x0 + (i - 0.5) * sp; // 第 i 个球之后的空隙
+  let o = text(280, 24, `8 个一样的球之间有 ${n - 1} 个空隙，选 ${bars.length} 个插隔板：C(${n - 1}, ${bars.length}) = ${C(n - 1, bars.length)}`, 'tb', 'middle');
+  for (let i = 1; i < n; i++) {
+    const on = bars.includes(i);
+    if (on) o += line(bx(i), y - 30, bx(i), y + 30, 'ink-b');
+    else o += line(bx(i), y + 12, bx(i), y + 20, 'mute');
+    o += text(bx(i), y + 46, String(i), on ? 'tb' : 'ts', 'middle');
+  }
+  for (let i = 0; i < n; i++) o += circle(x0 + i * sp, y, 13, 'solid');
+  o += text(x0 - 30, y + 46, '空隙', 'ts', 'end');
+  const cuts = [0, ...bars, n];
+  for (let s = 0; s < cuts.length - 1; s++) {
+    const a = x0 + cuts[s] * sp - sp / 2 + 6, b = x0 + (cuts[s + 1] - 1) * sp + sp / 2 - 6;
+    o += path(d([[a, 154], [a, 162], [b, 162], [b, 154]]), 'mute');
+    o += text((a + b) / 2, 182, `box ${s + 1}`, 'ts', 'middle') + text((a + b) / 2, 200, String(cuts[s + 1] - cuts[s]), 'tl', 'middle');
+  }
+  o += text(280, 230, `这一种插法对应 (${cuts.slice(1).map((c, s) => c - cuts[s]).join(', ')})，和为 ${n}；隔板不插两端、不重叠，所以每个 box 至少一个`, 'ts', 'middle');
+  return svg(560, 244, o, '8 个一样的球排成一行，球之间的 7 个空隙里有 4 个插了隔板，把球切成 2、1、3、1、1 五段，对应 5 个 box 里的球数');
+}
+
 export default {
+  'st2131-stars': stars,
   'st2131-inclusion': inclusion,
   'st2131-cond': cond,
   'st2131-bayes': bayes,

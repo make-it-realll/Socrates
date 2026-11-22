@@ -1,8 +1,8 @@
 ---
 code: MIT-6.S184
 evidence: syllabus
-evidenceNote: "MIT IAP 2026 一期（6.S184/6.S975，Peter Holderrieth 主讲，lab 由 Ron Shprints、Ezra Erives 负责）。讲法跟着课程的 lecture notes（2026 版，arXiv 2506.02070）第 1 到 6 章和三个 lab notebook（GitHub eje24/iap-diffusion-labs 的 2026 branch）。Lecture video 没有看；Lecture 5（discrete diffusion）这一页没有写。快速路线、可跳过的部分和作业时间的估计来自本站的调研条目，作业提示逐条对着 notebook 核对过。"
-exam: "无考试；以三个 lab 为主。Lab 是 Jupyter notebook，保留输出导出成 PDF，经 Canvas 交到 Gradescope（课程主页的说明）。"
+evidenceNote: "MIT IAP 2026 一期（6.S184/6.S975，Peter Holderrieth 主讲，lab 由 Ron Shprints、Ezra Erives 负责）。讲法跟着课程的 lecture notes（2026 版，84 页，PDF 生成于 2026-03-18，arXiv 2506.02070）全部 7 章和附录 B，以及三个 lab notebook。Notes 和 5 讲 slides 的 PDF 取自课程网站的源码仓库 eje24/iap-diffusion-class，用 pdftotext 逐页读了原文（slides 里画成图片的 formula 读不出来，只能读到文字）；lab 读的是 eje24/iap-diffusion-labs 2026 branch 的 labs/ 和 solutions/，并用 Google Drive 下载了课程主页上的三个 lab 链接，与 GitHub 版本逐 cell 比对，内容相同。Lecture video 没有看。快速路线、可跳过的部分和作业时间的估计来自本站的调研条目，作业提示逐条对着 notebook 核对过。"
+exam: "无考试；以三个 lab 为主。Lab 是 Jupyter notebook，保留输出导出成 PDF，经 Canvas 交到 Gradescope（课程主页的说明）；Lecture 1 slides 的 logistics 页写的是 come to lecture、do the labs（necessary to pass）。"
 subskills:
   - id: ode
     name: Generation as sampling、ODE 与 SDE
@@ -39,19 +39,27 @@ subskills:
     l3: "能说出 DiT 的 data flow：patchify、DiT block、depatchify，以及 $t$、$y$ 从哪里进入。"
     l4: "能解释 adaLN-Zero 为什么让 block 初始时是 identity，并算出 latent space 能省多少 attention 的计算。"
     l5: "能推出 VAE 的 KL term 的 closed form，并说明 latent 的 rate–distortion trade-off 怎样影响生成质量。"
+  - id: ctmc
+    name: Discrete diffusion：CTMC 与 discrete flow matching
+    l3: "能写出 rate matrix 的两个条件和 CTMC 的 Euler 一步 $1_{y=x}+hQ_t(y\\mid x)$，以及 masked diffusion 的 training loss。"
+    l4: "能对一个小 dataset 算出 factorized mixture path 的 marginal rate，并用 Kolmogorov forward equation 核对它走出 marginal path。"
+    l5: "能从 KFE 推出 discrete marginalization trick，并算出 parallel per-token Euler 生成非 data 序列的 probability。"
 open:
   - label: "MIT 6.S184 lecture notes（Holderrieth, Erives，2026 版）"
     url: "https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf"
-    note: "全页的主线。用 WebFetch 分节读了第 1 到 6 章和附录 A、B、E；工具返回的是逐节的详细转述（含全部 formula），不是逐字原文。第 7 章只读了概要。"
+    note: "全页的主线。PDF 从课程网站源码仓库 eje24/iap-diffusion-class 的 2026/docs/ 取得，pdftotext 转成文字后逐页读了第 1 到 7 章和附录 B（Fokker–Planck 的证明），定理、例子、算法编号都对着原文核过。"
   - label: "MIT 6.S184 课程主页（IAP 2026）"
     url: "https://diffusion.csail.mit.edu/2026/"
     note: "讲次安排、lab 链接、先修要求、提交方式。"
-  - label: "MIT 6.S184 Lecture 1 slides"
-    url: "https://diffusion.csail.mit.edu/2026/docs/20260120_Lecture_01.pdf"
-    note: "只读了 slide 标题和例子清单，用来核对第 1 站的顺序。"
+  - label: "MIT 6.S184 Lecture 1、4、5 slides"
+    url: "https://diffusion.csail.mit.edu/2026/docs/20260130_Lecture_05.pdf"
+    note: "同一个仓库里的 5 份 slides 都转成文字读过；Lecture 1（Picard–Lindelöf、logistics）、Lecture 4（Stable Diffusion 与 FLUX 2.0 的 latent shape、两个案例的要点、latent 用 mean 编码的说法）、Lecture 5（discrete diffusion 的讲次结构和与 autoregressive 的对比）用到了正文里。Slides 里的 formula 是图片，读不到。"
+  - label: "GitHub eje24/iap-diffusion-class（课程网站源码）"
+    url: "https://github.com/eje24/iap-diffusion-class"
+    note: "notes 和 slides PDF 的来源。"
   - label: "GitHub eje24/iap-diffusion-labs（2026 branch）"
     url: "https://github.com/eje24/iap-diffusion-labs/tree/2026"
-    note: "三个 lab 的 notebook 和 solutions 全部读过（clone 下来逐个 cell 读），作业一节的提示大多出自这里和 README 的 changelog。"
+    note: "三个 lab 的 notebook 和 solutions 全部读过（clone 下来逐个 cell 读），作业一节的提示大多出自这里和 README 的 changelog。课程主页上的 Google Drive / Colab 版本（Lab 2 的文件修改于 2026-03-16）也下载下来逐 cell 比对过，与 labs/ 相同。"
 sources:
   - label: "Holderrieth & Erives, An Introduction to Flow Matching and Diffusion Models（arXiv 2506.02070）"
     url: "https://arxiv.org/abs/2506.02070v1"
@@ -69,7 +77,7 @@ sources:
 
 这门课的答案是：不要一步走到。让每个 noise 沿着一个 ODE（或 SDE）走一段连续的路，在 $t=0$ 时是 noise，在 $t=1$ 时是 data。只要学会每个时刻、每个位置该往哪个方向走（一个 vector field），就能把整条路拼出来。难点在于这个 vector field 本身也算不出来；flow matching 的关键一步是证明：可以对着一个对单个 data point 写得出来的 target 做最普通的 regression，学到的恰好是那个算不出来的 vector field。
 
-全页的顺序跟着课程的讲次：先把“生成”说成“从 distribution 里 sample”，并准备好 ODE 和 SDE（第 1 站）；构造一条从 noise 到 data 的 probability path 和它的 vector field（第 2 站）；用 flow matching loss 把它学出来（第 3 站）；换成 score 的说法，得到 diffusion model 和 SDE sampling（第 4、5 站）；加上 prompt，得到 classifier-free guidance（第 6 站）；最后看真正的图像和视频 model 用什么 network、为什么要到 latent space 里做（第 7 站）。课程的 Lecture 5 讲 discrete diffusion（用在文字上），这一页没有写。课程本身没有讲 robot policy，这一页也不补。
+全页的顺序跟着课程的讲次：先把“生成”说成“从 distribution 里 sample”，并准备好 ODE 和 SDE（第 1 站）；构造一条从 noise 到 data 的 probability path 和它的 vector field（第 2 站）；用 flow matching loss 把它学出来（第 3 站）；换成 score 的说法，得到 diffusion model 和 SDE sampling（第 4、5 站）；加上 prompt，得到 classifier-free guidance（第 6 站）；再看真正的图像和视频 model 用什么 network、为什么要到 latent space 里做（第 7 站）；最后把同一套做法搬到文字这种 discrete data 上（第 8 站，Lecture 5 和 notes 第 7 章，notes 标为 optional）。课程本身没有讲 robot policy，这一页也不补。
 
 整页的数大多是对上面那个两个 bump 的例子精确算出来的（第 2 站另用一个只有两个点的 dataset）：它的每一个 vector field、score 都有 closed form，所以可以拿“学到的东西”和“真正的答案”逐个对照。Lab 2 用的二维 5-mode Gaussian mixture 出现在第 3 站。
 
@@ -95,7 +103,7 @@ $$\frac{d}{dt}X_t=u_t(X_t),\qquad X_0=x_0$$
 
 把所有起点一起看，记 $\psi_t(x_0)$ 为从 $x_0$ 出发、到时刻 $t$ 的位置，$\psi_t$ 叫 flow。Vector field、ODE、flow 是同一个东西的三种说法。
 
-Existence and uniqueness theorem：$u$ continuously differentiable 且 derivative 有界时，ODE 的 solution 存在且唯一。Neural network 一般满足这个条件。唯一性有一个马上要用的 corollary：**两条 trajectory 不会相交**。如果两条在某个时刻 $s$ 到达同一点，那么从这一点出发的 solution 只有一个，它们之后就是同一条，往回看也是同一条，所以本来就是同一个起点。
+Existence and uniqueness theorem（notes 的 Theorem 3；Lecture 1 slides 称为 Picard–Lindelöf theorem，并指出只要 $u$ 是 Lipschitz 就够）：$u$ continuously differentiable 且 derivative 有界时，ODE 的 solution 存在且唯一，而且每个 $\psi_t$ 都是 diffeomorphism（可逆，正反两个方向都 continuously differentiable）。Neural network 一般满足这个条件。唯一性有一个马上要用的 corollary：**两条 trajectory 不会相交**。如果两条在某个时刻 $s$ 到达同一点，那么从这一点出发的 solution 只有一个，它们之后就是同一条，往回看也是同一条，所以本来就是同一个起点。
 
 最简单的例子是 $u_t(x)=-\theta x$。猜 $X_t=x_0e^{-\theta t}$，求 derivative 得 $-\theta x_0e^{-\theta t}=-\theta X_t$，满足 ODE，所以 flow 是 $\psi_t(x_0)=e^{-\theta t}x_0$：所有点按同一个比例向 0 收缩。
 
@@ -159,7 +167,7 @@ $$V\,(2\theta h-\theta^2h^2)=\sigma^2h\qquad\Longrightarrow\qquad V=\frac{\sigma
 
 Mean 每步乘 $(1-\theta h)$，趋于 0。所以 OU process converge 到 $N\big(0,\tfrac{\sigma^2}{2\theta}\big)$，converge 到一个 distribution，而不是一个点。Lab 1 把 $D=\sigma^2/(2\theta)$ 作为提示，就是这个数。
 
-用 Lab 1 的设置核对：$\theta=0.25$，$\sigma=0.5$，于是 $D=0.5$；$h=0.01$ 时上面的 $V=0.25/(0.5-0.000625)=0.5006$。500 条 trajectory 从 $-10$ 到 $10$ 均匀取起点，走到 $T=40$（4000 步，numpy `default_rng(0)`），终点的 sample variance 是 0.481，和 0.5 的差在 500 个 sample 的 sampling error（约 0.03）之内。只走到 $T=10$ 时 variance 是 0.744：mean 还剩 $e^{-0.25\times10}=0.082$ 倍的起点，起点本身的 spread 还没收干净。
+用 Lab 1 的设置核对：$\theta=0.25$，$\sigma=0.5$，于是 $D=0.5$；$h=0.01$ 时上面的 $V=0.25/(0.5-0.000625)=0.5006$。500 条 trajectory 从 $-10$ 到 $10$ 均匀取起点，走到 $T=40$（4000 步，numpy `default_rng(0)`），终点的 sample variance 是 0.481，和 0.5 的差在 500 个 sample 的 sampling error（约 0.03）之内。只走到 $T=10$（Lab 1 那个 cell 自己的 `simulation_time`，1000 个 time point）时 variance 是 0.744：mean 还剩 $e^{-0.25\times10}=0.082$ 倍的起点，起点本身的 spread 还没收干净。
 
 ::fig[mit6s184-ou] 11 条 OU trajectory。$\sigma=0$ 时（虚线）每条都收缩到 0；$\sigma=0.5$ 时它们在约 $\pm2\sqrt D=\pm1.41$ 的带子里停下来，各自不停地抖动，但整体的 distribution 不再变化。
 
@@ -186,7 +194,7 @@ Euler–Maruyama 在 $\sigma_t=0$ 时和 Euler 一字不差。Lab 1 的 notebook
 :::
 
 :::from
-顺序和例子（vector 表示 data、生成即 sampling、linear ODE、Euler、Brownian motion、OU、Euler–Maruyama）跟着 [6.S184 lecture notes](https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf) 第 1、2 章和 [Lecture 1 slides](https://diffusion.csail.mit.edu/2026/docs/20260120_Lecture_01.pdf)。OU 的参数和“converge 到 distribution 而不是点”的问题来自 Lab 1 notebook；Langevin 与 OU 的等价是 Lab 1 第 3.2 题。开头三次失败、“一维 flow 就是 quantile map”的论证、stationary variance 的离散推导、Euler 的数表和 OU 的 simulation 是为这一页算的。
+顺序和例子（vector 表示 data、生成即 sampling、linear ODE、Euler、Brownian motion、OU、Euler–Maruyama）跟着 [6.S184 lecture notes](https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf) 第 1、2 章（Theorem 3、5，Example 4、6，Algorithm 1、2，原文逐段读过）和 [Lecture 1 slides](https://diffusion.csail.mit.edu/2026/docs/20260120_Lecture_01.pdf)（文字部分读过，Picard–Lindelöf 和 Lipschitz 的说法出自这里）。OU 的参数和“converge 到 distribution 而不是点”的问题来自 Lab 1 notebook；Langevin 与 OU 的等价是 Lab 1 第 3.2 题。开头三次失败、“一维 flow 就是 quantile map”的论证、stationary variance 的离散推导、Euler 的数表和 OU 的 simulation 是为这一页算的。
 :::
 
 ## [path] Probability path 与 marginal vector field
@@ -609,7 +617,7 @@ $$h<\frac{0.8}{\sigma^2}$$
 $\sigma=4$ 时 $h<0.05$，即 $n>20$：$n=10$ diverge，$n=20$ 恰在边界上（std 1.07），$n=50$ 才正常。$\sigma=2$ 时要 $h<0.2$，$n=10$ 已经满足，但 std 0.638 说明离边界不远时虽不 diverge、error 也大。
 
 :::wrong Marginal 和 $\sigma$ 无关，所以 $\sigma$ 随便取
-连续时间的定理只保证 exact 的 field 和 score、无限小的 step size 下 marginal 不变。实际上 $\sigma$ 越大，drift 里的 $\tfrac12\sigma^2\nabla\log p_t$ 越陡，需要的 step size 按 $1/\sigma^2$ 缩小；而且 network 学到的 score 有 error，这个 error 被 $\tfrac12\sigma^2$ 放大。Notes 的说法是：对一个 train 好的 model，存在一个经验上最好的 $\sigma_t$，太大的 $\sigma_t$ 需要“prohibitively small”的 step size。上表 $\sigma=4$ 那一行就是数值上的例子。
+连续时间的定理只保证 exact 的 field 和 score、无限小的 step size 下 marginal 不变。实际上 $\sigma$ 越大，drift 里的 $\tfrac12\sigma^2\nabla\log p_t$ 越陡，需要的 step size 按 $1/\sigma^2$ 缩小；而且 network 学到的 score 有 error，这个 error 被 $\tfrac12\sigma^2$ 放大。Notes 的说法是：对一个 train 好的 model，存在一个经验上最好的 $\sigma_t$，太大的 $\sigma_t$ 需要“prohibitively small”的 step size；脚注特意强调，“最好的 $\sigma_t$”是 model 没 train 完美、compute 有限造成的，连续时间的极限里不存在这样的最优值。上表 $\sigma=4$ 那一行就是 simulation error 这一半的数值例子（这里的 field 和 score 都是 exact 的，没有 training error）。
 :::
 
 :::edge Conditional SDE 在 $t\to1$ 时会爆
@@ -660,7 +668,7 @@ $$x=\alpha_t\,D_t(x)+\beta_t\,\hat\varepsilon_t(x),\qquad\hat\varepsilon_t(x)=\m
 
 $$\nabla\log p_t(x)=\frac{\alpha_tD_t(x)-x}{\beta_t^2}$$
 
-（这个式子常叫 Tweedie's formula。）所以四个量都由 $D_t(x)$ 和 $x$ linear 地决定，知道一个就知道全部。Notes 的 Remark 16 正是这样说的：它们都只依赖 posterior mean $\mathbb E[z\mid x]$。
+（这个式子常叫 Tweedie's formula。）所以四个量都由 $D_t(x)$ 和 $x$ linear 地决定，知道一个就知道全部。Notes 的 Remark 16 正是这样说的：它们都只依赖 posterior mean $\mathbb E[z\mid x]$，并给出从 field 换回 denoiser 的式子 $D_t(x)=\dfrac{\beta_tu_t(x)-\dot\beta_tx}{\dot\alpha_t\beta_t-\alpha_t\dot\beta_t}$。CondOT 时分母是 $(1-t)+t=1$，于是 $D_t(x)=(1-t)u_t(x)+x$；代 $t=0.5$、$x=0.6$、$u=2.3453$，得 $D=1.7727$，和下面直接算的一致。
 
 在本页的例子上逐个核对，$t=0.5$、$x=0.6$。Component 内 $z$ 和 $x$ 是 jointly Gaussian，$\mathbb E[z\mid x,k]=\mu_k+\dfrac{\mathrm{Cov}(z,x)}{\mathrm{Var}(x)}(x-t\mu_k)=\mu_k+\dfrac{ts^2}{v_t}(x-t\mu_k)$，即 $+$ 那边是 $2+0.4\times(-0.4)=1.84$，$-$ 那边是 $-2+0.4\times1.6=-1.36$。用上一站的 $w_\pm$ 加权：
 
@@ -785,7 +793,7 @@ Guided CFM loss、“guided”这个词的用法、vanilla guidance 不够的两
 ## [arch] Architecture、latent space 与大规模系统
 
 :::skip
-快速路线里 DiT 部分必读（Lecture 4 前半，Lab 3 Part 3），VAE 和 latent diffusion 部分（Lab 3 Part 4、5）时间不够可以只读结论。能画出 DiT 的 data flow、说出 adaLN-Zero 为什么让 training 稳定、算出 latent space 省下多少 attention 计算，就读完这一页了。
+快速路线里 DiT 部分必读（Lecture 4 的 Section 7“Neural network architectures”，Lab 3 Part 3；slides 里 latent space 讲在前、architecture 讲在后，这里按 notes 第 6 章的顺序先讲 network），VAE 和 latent diffusion 部分（Lab 3 Part 4、5）时间不够可以只读结论。能画出 DiT 的 data flow、说出 adaLN-Zero 为什么让 training 稳定、算出 latent space 省下多少 attention 计算，就可以去第 8 站。
 :::
 
 ### Network 吃什么、吐什么
@@ -836,6 +844,8 @@ MLP、residual connection 和 backpropagation 见 [CS3244 的 neural network 一
 
 先 train 一个 autoencoder 把图像压缩到 latent，再在 latent 里做 flow matching。按每边压缩 16 倍、保留 3 个 channel，latent 是 $3\times64\times64=12{,}288$ 维，是原来的 $1/256$。同样 patch size 2，token 数是 $32^2=1024$，attention matrix 的 entry 数是原来的 $(262144/1024)^2=65{,}536$ 分之一。
 
+这个 $3\times64\times64$ 是 notes 举的数。Lecture 4 的 slides 给了两个真实 model 的 shape：Stable Diffusion 把 $[3,256,256]$ 编码成 $[4,32,32]$，总维数少了 $196608/4096=48$ 倍；FLUX 2.0 把 $[3,1024,1024]$ 编码成 $[32,64,64]$，总维数是 $131{,}072$，只少了 24 倍。FLUX 的空间分辨率同样每边缩小 16 倍，patch size 2 时也是 1024 个 token，省下的 attention 计算和上面一样，但 channel 从 3 加到了 32。省 compute 的主要是空间分辨率，不是总维数。
+
 只用 reconstruction loss training 的 autoencoder 不够：它只保证能还原，不保证 latent 的 distribution 好学，latent 可能被拉伸到任意的 scale、在空间里散得不规则。所以要用 variational autoencoder（VAE）。
 
 ### VAE
@@ -844,7 +854,7 @@ MLP、residual connection 和 backpropagation 见 [CS3244 的 neural network 一
 这一小节是 VAE 的细节（对应 Lab 3 Part 4）。跳过的话，只需记住：VAE 的 loss 是 reconstruction 加上 $\beta$ 倍的 KL，后者把 latent 拉向 $N(0,I)$。
 :::
 
-Encoder 不输出一个点，而输出一个 Gaussian：$q_\phi(z\mid x)=N\big(\mu_\phi(x),\mathrm{diag}(\sigma^2_\phi(x))\big)$；decoder 是 $p_\theta(x\mid z)=N\big(\mu_\theta(z),\sigma^2I\big)$。Loss 有两项：
+Encoder 不输出一个点，而输出一个 Gaussian：$q_\phi(z\mid x)=N\big(\mu_\phi(x),\mathrm{diag}(\sigma^2_\phi(x))\big)$；decoder 一般也是 Gaussian，$p_\theta(x\mid z)=N\big(\mu_\theta(z),\sigma_\theta^2(z)I\big)$。Notes 指出 learn 一个随输入变化的 variance 数值上很脆弱，很多实现（包括 lab）把 $\sigma_\phi$、$\sigma_\theta$ 都换成与输入无关、可学习的 scalar：Lab 3 的 encoder 和 decoder 各有一个 `self.logvar = nn.Parameter(torch.zeros(()))`。下面先按 decoder variance 固定为 $\sigma^2$ 写。Loss 有两项：
 
 $$\mathcal L_{\text{VAE}}=\underbrace{\mathbb E_{z\sim q_\phi(\cdot\mid x)}\big[-\log p_\theta(x\mid z)\big]}_{\text{reconstruction}}+\beta\,\underbrace{D_{\text{KL}}\big(q_\phi(\cdot\mid x)\,\|\,N(0,I_k)\big)}_{\text{prior}}$$
 
@@ -858,41 +868,212 @@ $$D_{\text{KL}}(q\,\|\,p)=\mathbb E_q\big[\log q(z)-\log p(z)\big]=\mathbb E_q\B
 
 $$D_{\text{KL}}=-\tfrac12\log\sigma^2-\tfrac12+\tfrac12(\sigma^2+\mu^2)=\tfrac12\big(\sigma^2+\mu^2-1-\log\sigma^2\big)$$
 
-Diagonal Gaussian 的各个 coordinate 独立，KL 是各 coordinate 的和。例如 $\mu=(1,0)$、$\sigma^2=(0.25,1)$：第一维 $\tfrac12(0.25+1-1-\log0.25)=\tfrac12(0.25+1.386)=0.818$，第二维 $\tfrac12(1+0-1-0)=0$，合计 0.818。第二维和 prior 完全一样，没有携带任何关于 $x$ 的信息，KL 就是 0。
+Diagonal Gaussian 的各个 coordinate 独立，KL 是各 coordinate 的和（notes 的 Example 31 写成 $\tfrac12K(\sigma^2)+\tfrac12\|\mu\|^2$，$K(\alpha)=\sum_i(\alpha_i-\log\alpha_i-1)$，是同一个式子）。例如 $\mu=(1,0)$、$\sigma^2=(0.25,1)$：第一维 $\tfrac12(0.25+1-1-\log0.25)=\tfrac12(0.25+1.386)=0.818$，第二维 $\tfrac12(1+0-1-0)=0$，合计 0.818。第二维和 prior 完全一样，没有携带任何关于 $x$ 的信息，KL 就是 0。Lab 3 的 solution 写的是 `beta * (z_mean.pow(2) + torch.exp(z_logvar) - z_logvar - 1).mean()`：对所有 entry 取平均而不是求和，也没有 $\tfrac12$，差别只是一个常数倍，并进了 $\beta$。
 
 training 时要对 $z\sim q_\phi$ 求 gradient。办法是 reparameterization：$z=\mu_\phi(x)+\sigma_\phi(x)\odot\varepsilon$，$\varepsilon\sim N(0,I)$，随机性全部移到与 $\phi$ 无关的 $\varepsilon$ 上，gradient 可以穿过 $\mu_\phi$ 和 $\sigma_\phi$。
 
-两项互相拉扯，叫 rate–distortion trade-off：$\beta$ 大，latent 规整好学，但携带的信息少，重建模糊，极端时所有 latent 都等于 prior（posterior collapse）；$\beta$ 小，重建清楚，latent 却难学。生成质量的上限由 decoder 的重建质量决定。Notes 提到实践中常见的处理：KL 的 weight 从小慢慢加大（warm-up）、现代的 autoencoder 用很小的 $\beta$、pixel MSE 容易模糊所以另加 perceptual 或 adversarial loss。
+两项互相拉扯，叫 rate–distortion trade-off：$\beta$ 大，latent 规整好学，但携带的信息少，重建模糊，极端时所有 latent 都等于 prior（posterior collapse）；$\beta$ 小，重建清楚，latent 却难学。生成质量的上限由 decoder 的重建质量决定。Notes 提到实践中常见的处理：KL warm-up（$\beta$ 从 0 开始，在最初几个 epoch 里加到目标值）、现代的 autoencoder 都用很小的 $\beta\ll1$、pixel MSE 容易模糊所以另加 perceptual loss 或 adversarial loss（后者更锐利，但 optimization 更不稳定）。
 
 Lab 3 的 VAE 是 4 个 encoder block、channel 依次为 16、32、64、128，前三个 block 各 downsample 一次，所以 $32\times32$ 变成 $4\times4$，latent 是 $128\times4\times4=2048$ 个数，比原图的 1024 个 pixel 还多。这里省下的是 token 数：latent DiT 用 patch size 1，只有 16 个 token，pixel DiT 是 64 个。Notebook train VAE 的那个 cell 设的是 $\beta=10$（class 的 default 是 0.1）。
 
 ### Latent flow matching 与两个案例
 
-VAE train 好之后冻结。Latent 上的 training 和 pixel 上一模一样，只是 data 换成 $z=\mu_\phi(x)$；sampling 时在 latent 里解 ODE，最后用 decoder decode。Lab 3 的提示是 encode 时要包在 `torch.no_grad()` 里。
+VAE train 好之后冻结。Latent 上的 training 和 pixel 上一模一样，只是 data 换成 latent。Latent 取哪一个，课程里有两种说法：notes 的 Remark 32 说 training 时从 $q_\phi(z\mid x)$ 里 sample，Lab 3 的 solution 也是这样做的（`zz = z_mean + torch.exp(0.5 * z_logvar) * torch.randn_like(z_mean)`）；Lecture 4 slides 的 recipe 写的是“for VAE simply take the mean prediction”，即 $z=\mu_\phi(x)$。做 Lab 3 时照 solution。Sampling 时在 latent 里解 ODE，再用 decoder 的 mean $\mu_\theta(z)$ decode，notes 说取 mean 而不是再 sample 一次，是为了不把 decoder 的 noise 带进图像。Lab 3 的提示是 encode 时要包在 `torch.no_grad()` 里。
 
-::fig[mit6s184-latent] Latent diffusion 的两个阶段。Lab 3 的数：图像 $1\times32\times32$，latent $128\times4\times4$，latent DiT 只有 16 个 token。
+::fig[mit6s184-latent] Latent diffusion 的两个阶段。Lab 3 的数：图像 $1\times32\times32$，latent $128\times4\times4$，latent DiT 只有 16 个 token；training 时 latent 是从 $q_\phi(z\mid x)$ 里 sample 的，decode 时取 decoder 的 mean。
 
 Notes 第 6.3 节的两个案例都是这一页讲过的东西拼起来的：
 
 | | Stable Diffusion 3 | Meta Movie Gen Video |
 |---|---|---|
-| Training objective | conditional flow matching | conditional flow matching，$\alpha_t=t$、$\beta_t=1-t$ |
-| Latent | pretrained autoencoder | temporal autoencoder，时间、高、宽各压缩 8 倍，合计 $8^3=512$ 倍；长视频按时间分块 encode（temporal tiling） |
-| Network | MM-DiT，image patch 与 text 一起做 attention，最大 8B parameter | 类似 DiT，self-attention 加对 text 的 cross-attention，最大 30B parameter |
-| Prompt | CLIP embedding 与 T5-XXL 的 sequence embedding | UL2、ByT5、MetaCLIP 三个 text encoder |
-| Sampling | 50 步 Euler，CFG scale 2.0 到 5.0 | （读到的摘要里没有） |
+| Training objective | conditional flow matching（作者论文里给 noise 的 conditioning 用了另一套记号，notes 的脚注说算法相同），CFG training | conditional flow matching，$\alpha_t=t$、$\beta_t=1-t$；slides 写明也用 CFG |
+| Latent | pretrained autoencoder | frozen 的 temporal autoencoder，时间、高、宽各压缩 8 倍，合计 $8^3=512$ 倍；长视频按时间分块 encode 再拼接（temporal tiling） |
+| Network | MM-DiT，image patch 与 text 一起做 attention，最大 8B parameter | DiT-like，在时间和空间上 patchify，self-attention 加对 text 的 cross-attention，最大 30B parameter；slides 说用了 6144 块 H100 |
+| Prompt | 三种 text embedding，包括 CLIP（整句一个粗的 embedding）和 T5-XXL encoder 的 sequence output（逐 token 的细节） | UL2（text reasoning）、ByT5（character 级，用于画面里要出现指定文字）、MetaCLIP 三种 |
+| Sampling | 50 步 Euler，CFG scale 2.0 到 5.0 | notes 和 slides 都没有写步数 |
 
 :::wrong Latent 一定比原图小，所以 latent diffusion 的好处是“维数低”
-Lab 3 的 latent 有 2048 个数，比 1024 个 pixel 多。真正决定计算量的是 token 数（attention 按 $N^2$ 增长）和 latent 是否好学：VAE 把空间分辨率压低、把信息搬进 channel，让每个 token 承载更多内容，同时 KL 让 latent 的 distribution 规整。大 model 里 latent 的总维数也确实小得多（上面的 256 倍），但两件事不能混为一谈。
+Lab 3 的 latent 有 2048 个数，比 1024 个 pixel 多。真正决定计算量的是 token 数（attention 按 $N^2$ 增长）和 latent 是否好学：VAE 把空间分辨率压低、把信息搬进 channel，让每个 token 承载更多内容，同时 KL 让 latent 的 distribution 规整。大 model 里 latent 的总维数也确实小一些，但幅度差别很大：notes 的例子少 256 倍，Stable Diffusion 少 48 倍，FLUX 2.0 只少 24 倍，三者的空间分辨率却都每边缩小 8 到 16 倍。两件事不能混为一谈。
 :::
 
 :::from
-Network 的 input/output、Fourier time embedding 及其“high-frequency time dependence”的理由、patchify、DiT block 的结构（adaLN 的 $(1+\gamma)\odot\mathrm{Norm}(x)+\beta$、gate、class-conditioned DiT 不用 cross-attention）、为什么要到 latent space、VAE 的 loss、KL、reparameterization、rate–distortion、$\beta$ 的实践说明、SD3 与 Movie Gen 的数字来自 [notes](https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf) 第 6 章（6.2 节以后只读到工具返回的摘要）。Lab 3 的 DiT、VAE 设置、adaLN-Zero 的实现与注释、`torch.no_grad()` 的提示来自 Lab 3 notebook 和 solutions。$u_t(0.6)$ 的数表、token 数与 attention 的比较、KL 的例子、“latent 比原图大”的观察是为这一页算的。
+Network 的 input/output、Fourier time embedding 及其“high-frequency time dependence”的理由、patchify、DiT block 的结构（adaLN 的 $(1+\gamma)\odot\mathrm{Norm}(x)+\beta$、gate、class-conditioned DiT 不用 cross-attention）、为什么要到 latent space、VAE 的 loss、KL、reparameterization、rate–distortion、$\beta$ 的实践说明、SD3 与 Movie Gen 的数字来自 [notes](https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf) 第 6 章（6.1 到 6.3 节原文逐段读过；上一版只读到 6.2 节以后的摘要，“latent 取 $\mu_\phi(x)$”就是那时写错的，现在按 Remark 32 和 Lab 3 solution 改正）。Stable Diffusion 与 FLUX 2.0 的 latent shape、“take the mean prediction”的说法、Movie Gen 的 CFG 与 GPU 数来自 [Lecture 4 slides](https://diffusion.csail.mit.edu/2026/docs/20260128_Lecture_04_edited.pdf) 的文字。Lab 3 的 DiT、VAE 设置（scalar logvar、KL 的写法、latent 的 sample 方式）、adaLN-Zero 的实现与注释、`torch.no_grad()` 的提示来自 Lab 3 notebook 和 solutions。$u_t(0.6)$ 的数表、token 数与 attention 的比较、各 model 压缩倍数的换算、KL 的例子、“latent 比原图大”的观察是为这一页算的。
+:::
+
+## [ctmc] Discrete diffusion：CTMC 与 discrete flow matching
+
+:::skip
+快速路线里不读（调研条目把 Lecture 5 列为可跳过，notes 第 7 章自己也标为 optional）；代价是不知道 diffusion language model 是怎么来的，对做连续 action 的 robot policy 影响小。能写出 rate matrix 的 Euler 一步，能对 $\{AB,BA\}$ 这个两句话的 dataset 算出 masked diffusion 的 marginal rate，并说出 parallel unmask 为什么会生成 $AA$，就读完这一页了。
+:::
+
+### 文字没有方向
+
+一句话是一串 token。Vocabulary 是 $\mathcal V=\{v_1,\dots,v_V\}$，sequence length 是 $d$，所有可能的句子构成 state space $S=\mathcal V^d$。DNA 是 $V=4$，文字的 $V$ 是 tokenizer 的大小。
+
+前七站的每一步都是 $X_{t+h}=X_t+h\,u_t(X_t)$：从当前位置朝一个方向走一小段。在 $S$ 里这句话没有意义。“cat”加上 0.1 倍的某个 velocity 不是任何 token；也没有 Gaussian noise 可以加。Notes 说 discrete state space 里不存在 SDE（“discrete diffusion”里并没有数学意义上的 diffusion），Lecture 5 slides 补上一句：也没有 flow/ODE。能做的只有一件事：从一个 state **跳**到另一个 state。所以要换一种 process：continuous-time Markov chain（CTMC）。$X_t$ 在 $S$ 里取值，满足 Markov property（给定现在，未来与过去无关），它的全部行为由 transition probability $p_{t+h\mid t}(y\mid x)=P(X_{t+h}=y\mid X_t=x)$ 和起点的 distribution 决定。
+
+这一站要做的，是把第 2、3 站的三步原样搬过来：path、marginalization trick、simulation-free 的 loss。
+
+### Rate matrix：discrete 版的 vector field
+
+Vector field 说的是“每一刻往哪个方向走、走多快”。CTMC 里对应的是 rate matrix $Q_t(y\mid x)$：每一刻从 $x$ 跳到 $y$ 的速率。它要满足两个条件（notes 的 (85)(86)）：
+
+$$Q_t(y\mid x)\ge0\quad(y\ne x),\qquad Q_t(x\mid x)=-\sum_{y\ne x}Q_t(y\mid x)$$
+
+CTMC “跟着” $Q_t$ 走，意思是 transition probability 在 $h=0$ 处的 derivative 就是 rate：
+
+$$\frac{d}{dh}\,p_{t+h\mid t}(y\mid x)\Big|_{h=0}=Q_t(y\mid x)$$
+
+两个条件正是从这里来的。$h=0$ 时还没有时间流逝，$p_{t\mid t}(y\mid x)=0$（$y\ne x$）；probability 不能变成负的，所以它在 0 处的 derivative 不能为负，这就是第一个条件。对所有 $y\ne x$ 求和，$\sum_{y\ne x}p_{t+h\mid t}(y\mid x)=1-p_{t+h\mid t}(x\mid x)$，两边对 $h$ 求 derivative 就得 $\sum_{y\ne x}Q_t(y\mid x)=-Q_t(x\mid x)$，这是第二个条件：留在 $x$ 的 rate 恰好抵消离开 $x$ 的总 rate。反过来，notes 的 Theorem 33 保证：任给一个 bounded、对 $t$ continuous 的 rate matrix，有唯一的 CTMC 跟着它走（第 1 站 ODE 唯一性的 discrete 版）。
+
+Notes 的 Example 34 是最小的例子：两个 state $\{a,b\}$，互相以 rate $\lambda$ 翻转，
+
+$$Q=\begin{pmatrix}-\lambda&\lambda\\\lambda&-\lambda\end{pmatrix},\qquad P(X_{t+h}=a\mid X_t=a)=\tfrac12\big(1+e^{-2\lambda h}\big)$$
+
+立刻核对定义：对 $h$ 求 derivative 得 $-\lambda e^{-2\lambda h}$，在 $h=0$ 是 $-\lambda=Q(a\mid a)$。$h\to\infty$ 时它趋于 $\tfrac12$：chain 忘掉了起点，$\lambda$ 越大忘得越快。
+
+### CTMC 的 Euler 一步
+
+一般的 $Q_t$ 写不出 transition probability，只能像 Euler 那样用 first-order 近似：
+
+$$p_{t+h\mid t}(y\mid x)\approx\tilde p_{t+h\mid t}(y\mid x)=1_{y=x}+h\,Q_t(y\mid x)$$
+
+由两个条件，$\tilde p$ 对 $y$ 求和是 $1+h\cdot0=1$；off-diagonal 非负；留在原地的那一项是 $1-h\sum_{y\ne x}Q_t(y\mid x)$，只要 $h$ 小到 $h\sum_{y\ne x}Q_t(y\mid x)\le1$，它也非负。这时 $\tilde p$ 是一个合法的 categorical distribution，从里面 sample 下一个 state 就是一步 simulation（notes 的 (88)）。
+
+在 two-state 例子上看它有多准，$\lambda=1$：
+
+| $h$ | exact $\tfrac12(1+e^{-2h})$ | Euler $1-h$ | error |
+|---|---|---|---|
+| 0.5 | 0.683940 | 0.5 | 0.184 |
+| 0.1 | 0.909365 | 0.9 | 0.00937 |
+| 0.01 | 0.990099 | 0.99 | 0.000099 |
+
+$h$ 缩小 10 倍，一步的 error 缩小约 100 倍：一步 error 是 $O(h^2)$，走到固定时间要 $1/h$ 步，总 error 是 $O(h)$，和第 1 站 Euler 的 first-order 一样。
+
+### Factorized：一次只改一个 token
+
+用 neural network 表示 $Q_t$ 时，network 吃进当前的 $x$，吐出整个 column $\{Q_t(y\mid x)\}_{y\in S}$，因为 Euler 一步需要所有可能的下一个 state。可是 $|S|=V^d$：$V=4$、$d=10$ 的 DNA 片段，一个 column 就有 $4^{10}=1{,}048{,}576$ 个数；真实的 $V$ 和 $d$ 根本存不下。
+
+办法是只允许“一次改一个位置”的跳跃：$x$ 和 $y$ 有两个以上位置不同时，规定 $Q_t(y\mid x)=0$。和 $x$ 至多差一个 token 的 $y$ 叫 $x$ 的 neighbor。这样的 factorized CTMC 只需要一个 $d\times V$ 的表 $Q_t(v,j\mid x)$：第 $j$ 行是“把第 $j$ 个 token 换成 $v$”的 rate，每一行各自满足 rate matrix 的两个条件。上面的 DNA 例子从一百万个数降到 $10\times4=40$ 个数，一个 output 维数为 $V$、sequence length 为 $d$ 的 transformer 正好吐出这个形状。
+
+Simulation 也随之 factorize（notes 的 Algorithm 7）：每个位置 $j$ 独立地按自己那一行做 Euler 一步，$\tilde p_j(v\mid x_j)=h\,q_j(v)$（$v\ne x_j$），留在原地的 probability 是 $1-h\sum_{v\ne x_j}q_j(v)$。所有位置并行。Notes 指出它和完整 CTMC 的 Euler 一步在 first order 上一致，但允许两个位置在同一步里同时改变，这件事的 probability 是 $O(h^2)$。这个 $O(h^2)$ 在下面的例子里会变成一个看得见的错误。
+
+### Probability path：不搬运，只是淡入淡出
+
+和第 2 站一样，先固定一个 data point $z\in S$。Discrete conditional probability path 是一族 distribution $p_t(\cdot\mid z)$，满足 $p_0(\cdot\mid z)=p_{\text{init}}$、$p_1(\cdot\mid z)=\delta_z$；marginal path 是 $p_t(x)=\sum_zp_t(x\mid z)p_{\text{data}}(z)$，同样有 $p_0=p_{\text{init}}$、$p_1=p_{\text{data}}$。
+
+几乎所有 discrete diffusion 用的都是 factorized mixture path（notes 的 Example 35）。取一个 scheduler $\kappa_t$，$\kappa_0=0$，$\kappa_1=1$，$\dot\kappa_t\ge0$：
+
+$$p_t(x\mid z)=\prod_{j=1}^d\Big[(1-\kappa_t)\,p^{(j)}_{\text{init}}(x_j)+\kappa_t\,\delta_{z_j}(x_j)\Big]$$
+
+Sample 它只要每个位置掷一次硬币：$m_j\sim\mathrm{Bernoulli}(\kappa_t)$，$\xi_j\sim p^{(j)}_{\text{init}}$，$x_j=m_jz_j+(1-m_j)\xi_j$。每个 token 以 probability $1-\kappa_t$ 被换成 noise，$t=0$ 时全部换掉，$t=1$ 时一个不换。它和 Gaussian path 一样随 $t$ 逐渐销毁信息，不同在于 probability mass 没有被“搬”过去：$p_{\text{init}}$ 的 weight $1-\kappa_t$ 减小，$\delta_z$ 的 weight $\kappa_t$ 增大，slides 的说法是 probability 被 “teleported”。
+
+### Kolmogorov forward equation
+
+第 2 站靠 continuity equation 判断“一个 vector field 是否走出一条 path”。CTMC 的对应物是 Kolmogorov forward equation（KFE，notes 的 Proposition 2）：$X_0\sim p_0$ 的 CTMC 满足 $X_t\sim p_t$ 对所有 $t$ 成立，当且仅当
+
+$$\frac{d}{dt}p_t(x)=\sum_{y\in S}Q_t(x\mid y)\,p_t(y)$$
+
+必要性的推导只有四步：$\tfrac{d}{dt}p_t(x)=\tfrac{d}{dh}p_{t+h}(x)\big|_{h=0}$；把 $p_{t+h}(x)$ 写成 $\sum_yp_{t+h\mid t}(x\mid y)p_t(y)$；derivative 移进求和；用 rate 的定义。充分性：把 $p_t$ 看成 $\mathbb R^{|S|}$ 里的 vector，KFE 就是 linear ODE $\tfrac{d}{dt}p_t=Q_tp_t$，初值给定后 solution 唯一（第 1 站）。把 $y=x$ 那一项拆出来，右边是“从别处流进 $x$ 的 rate”减去“从 $x$ 流出的 rate”，slides 称为 net inflow，和 continuity equation 的 $-\mathrm{div}(p_tu_t)$ 同一个意思。
+
+### Conditional rate matrix
+
+哪个 rate matrix 走出 factorized mixture path？Path 和下面的 rate 都按位置 factorize，所以只看 $d=1$。Notes 的 Example 37 给出
+
+$$Q^z_t(v\mid x)=\frac{\dot\kappa_t}{1-\kappa_t}\big(\delta_z(v)-\delta_x(v)\big)$$
+
+先检查它是 rate matrix：$v\ne x$ 时它是 $\tfrac{\dot\kappa_t}{1-\kappa_t}\delta_z(v)\ge0$；对角线是 $\tfrac{\dot\kappa_t}{1-\kappa_t}(\delta_z(x)-1)$，正好是 off-diagonal 之和的相反数。读法：当前 token 已经是 $z$ 时 rate 全为 0；不是 $z$ 时，只能跳到 $z$，rate 是 $\dot\kappa_t/(1-\kappa_t)$。
+
+再用 KFE 验证它走出 path。左边：
+
+$$\frac{d}{dt}p_t(x\mid z)=\frac{d}{dt}\Big[(1-\kappa_t)p_{\text{init}}(x)+\kappa_t\delta_z(x)\Big]=\dot\kappa_t\big(\delta_z(x)-p_{\text{init}}(x)\big)$$
+
+由 path 的定义，$p_{\text{init}}(x)=\dfrac{p_t(x\mid z)-\kappa_t\delta_z(x)}{1-\kappa_t}$，代回去：
+
+$$\dot\kappa_t\Big(\delta_z(x)-\frac{p_t(x\mid z)-\kappa_t\delta_z(x)}{1-\kappa_t}\Big)=\frac{\dot\kappa_t}{1-\kappa_t}\Big(\delta_z(x)(1-\kappa_t)+\kappa_t\delta_z(x)-p_t(x\mid z)\Big)=\frac{\dot\kappa_t}{1-\kappa_t}\big(\delta_z(x)-p_t(x\mid z)\big)$$
+
+右边：
+
+$$\sum_yQ^z_t(x\mid y)\,p_t(y\mid z)=\frac{\dot\kappa_t}{1-\kappa_t}\Big(\delta_z(x)\sum_yp_t(y\mid z)-\sum_y\delta_y(x)p_t(y\mid z)\Big)=\frac{\dot\kappa_t}{1-\kappa_t}\big(\delta_z(x)-p_t(x\mid z)\big)$$
+
+两边相等。（Notes 的证明走的是另一串等式，结论相同；这里的写法更短。）
+
+:::edge Rate 在 $t\to1$ 时爆掉
+$\dot\kappa_t/(1-\kappa_t)$ 在 $t\to1$ 时趋于无穷，slides 专门标了 “rates explode at $t=1$”，和第 2 站 $(z-x)/(1-t)$ 的分母是同一回事：剩下的时间越少，还没到 $z$ 的 token 越要赶紧跳。取 $\kappa_t=t$、uniform 的 time grid 时，第 $k$ 步一个尚未到位的 token 跳过去的 probability 是 $h/(1-kh)=1/(n-k)$，最后一步恰好是 1，Euler 的 $\tilde p$ 始终合法。换成 $\kappa_t=1-(1-t)^3$ 时 rate 是 $3/(1-t)$，最后一步 $h\cdot3/h=3>1$，$\tilde p$ 留在原地的那一项变成 $-2$，必须截断或换 time grid。（这个 edge 是这一页自己算的，notes 没有讨论。）
+:::
+
+### Discrete marginalization trick
+
+有了 conditional rate，marginal rate 的构造和第 2 站一字不差（notes 的 Theorem 36）：
+
+$$Q_t(y\mid x)=\sum_{z\in S}Q^z_t(y\mid x)\,p_{1\mid t}(z\mid x),\qquad p_{1\mid t}(z\mid x)=\frac{p_t(x\mid z)\,p_{\text{data}}(z)}{p_t(x)}$$
+
+还是 posterior weighted average：看到时刻 $t$ 的 noisy 句子 $x$，按它来自每个 data point $z$ 的 posterior，把各自的 conditional rate 平均。证明也和第 2 站一样，只是 integral 换成求和、continuity equation 换成 KFE：
+
+$$\begin{aligned}\frac{d}{dt}p_t(x)&=\sum_z\frac{d}{dt}p_t(x\mid z)\,p_{\text{data}}(z)=\sum_z\sum_yQ^z_t(x\mid y)\,p_t(y\mid z)\,p_{\text{data}}(z)\\&=\sum_yp_t(y)\sum_zQ^z_t(x\mid y)\frac{p_t(y\mid z)\,p_{\text{data}}(z)}{p_t(y)}=\sum_yp_t(y)\,Q_t(x\mid y)\end{aligned}$$
+
+第一个等号交换求和与 derivative，第二个用每个 conditional 的 KFE，第三个乘除 $p_t(y)$，第四个是 marginal rate 的定义。所以 marginal rate 满足 KFE，它的 CTMC 从 $p_{\text{init}}$ 走到 $p_{\text{data}}$。
+
+对 factorized mixture path，代入 conditional rate，求和可以做出来（notes 的 Theorem 38）。每个 $Q^z_t$ 都只在 neighbor 之间非零，平均之后仍然如此，所以 marginal rate 也是 factorized 的；第 $j$ 个位置换成 $v$ 的 rate 是
+
+$$Q_t(v,j\mid x)=\sum_z\frac{\dot\kappa_t}{1-\kappa_t}\big(\delta_{z_j}(v)-\delta_{x_j}(v)\big)p_{1\mid t}(z\mid x)=\frac{\dot\kappa_t}{1-\kappa_t}\Big(p_{1\mid t}(z_j=v\mid x)-\delta_{x_j}(v)\Big)$$
+
+第二个等号：$\delta_{z_j}(v)$ 对 posterior 的平均就是“第 $j$ 个干净 token 等于 $v$”的 posterior probability；$\delta_{x_j}(v)$ 与 $z$ 无关，posterior 求和为 1。整个 rate 里唯一不知道的量是 $p_{1\mid t}(z_j=v\mid x)$：给定整句 noisy 的 $x$，第 $j$ 个位置原本是什么 token 的 probability。它的角色和第 5 站的 denoiser $\mathbb E[z\mid x]$ 完全相同。
+
+### 一个能手算的例子
+
+Dataset 只有两句话：$AB$ 和 $BA$，各占一半。Vocabulary 是 $\{A,B\}$ 加一个 mask token $M$，$p_{\text{init}}=\delta_{MM}$（所有位置都是 mask），$\kappa_t=t$，于是 $\dot\kappa_t/(1-\kappa_t)=1/(1-t)$。
+
+在 $t=0.5$，rate 前面的系数是 2。
+
+- $x=MM$：两个位置都被 mask，$x$ 不提供任何信息，posterior 等于 prior，$p_{1\mid t}(z_1=A\mid x)=p_{1\mid t}(z_1=B\mid x)=\tfrac12$。所以 $Q(A,1\mid x)=2\times\tfrac12=1$，$Q(B,1\mid x)=1$，$Q(M,1\mid x)=2\times(0-1)=-2$；第 2 个位置一样。
+- $x=AM$：第一个 token 是 $A$，只有 $AB$ 与它相容，posterior 全押在 $AB$ 上。第 2 个位置 $Q(B,2\mid x)=2$，$Q(A,2\mid x)=0$；第 1 个位置 $p_{1\mid t}(z_1=A\mid x)=1=\delta_{x_1}(A)$，rate 全是 0。
+
+::fig[mit6s184-ctmc2] $t=0.5$ 时这个 CTMC 的全部 state 和 rate。实线箭头是 marginal rate 允许的单 token 跳跃，旁边是 rate；从 $MM$ 出发的每条路都通向 $AB$ 或 $BA$。虚线是 parallel Euler 才会走的一步跳两格，终点 $AA$、$BB$ 不是 data。
+
+用 KFE 核对这条 marginal path。每个 token 独立地以 probability $1-\kappa_t=1-t$ 被 mask，所以 $p_t(MM)=(1-t)^2$，左边 $\tfrac{d}{dt}(1-t)^2=-2(1-t)$。右边：没有任何 state 跳进 $MM$，从 $MM$ 流出的四条 rate 在一般的 $t$ 是 $\tfrac{1}{1-t}\cdot\tfrac12$，合计 $\tfrac{2}{1-t}$，净流入是 $-\tfrac{2}{1-t}(1-t)^2=-2(1-t)$。相同。
+
+Euler 一步，$h=0.1$，从 $t=0.5$ 的 $MM$ 出发：每个位置变成 $A$、$B$ 的 probability 各是 $h\times1=0.1$，留在 $M$ 是 $0.8$。两个位置独立地掷，同时被 unmask 的 probability 是 $0.2^2=0.04$，其中一半（$AA$ 或 $BB$）是 $0.02$。
+
+### Training：每个位置做 classification
+
+Marginal rate 只依赖 $p_{1\mid t}(z_j=v\mid x)$，所以只需要一个 network $p^\theta_{1\mid t}$：input 是 noisy 句子 $x$（和 $t$），output 是 $d\times V$ 的表，每一行过一次 softmax，就是“第 $j$ 个位置原本是哪个 token”的 distribution。这是 $d$ 个并排的 classifier，自然用 cross-entropy train（notes 的 Discrete Flow Matching loss 和 Algorithm 8）：
+
+$$\mathcal L_{\text{DFM}}(\theta)=\mathbb E_{z\sim p_{\text{data}},\ t\sim U[0,1],\ x\sim p_t(\cdot\mid z)}\Big[-\sum_{j=1}^d\log p^\theta_{1\mid t}(z_j\mid x)\Big]$$
+
+一个 training step：取一句 $z$，采 $t$，每个位置以 probability $\kappa_t$ 保留、否则换成 noise，network 对每个位置预测原来的 token，算 cross-entropy。和第 3 站一样 simulation-free：continuous flow matching 是 regression，discrete flow matching 是 classification。Training 之后，把 $p^\theta_{1\mid t}$ 代进上面的 marginal rate，用 Algorithm 7 sample。
+
+和第 3 站一样，loss 降不到 0。在上面的例子里，$x=MM$ 时最好的 prediction 是每个位置 $\tfrac12$ 对 $\tfrac12$，两个位置各贡献 $\log2$；只剩一个 mask 时剩下那个 token 已经确定，贡献 0；没有 mask 时也是 0。$x=MM$ 的 probability 是 $(1-t)^2$，所以最低的 loss 是
+
+$$\int_0^1(1-t)^2\cdot2\log2\,dt=\frac{2\log2}{3}=0.4621$$
+
+### Masked diffusion language model
+
+上面的例子就是 masked diffusion language model（MDLM，notes 的 Example 39）：vocabulary 加一个 $[\text{mask}]$，$p_{\text{init}}=\delta_{[\text{mask}]^d}$，sampling 从全是 mask 的句子开始，token 一个个“显影”。
+
+这个 path 上有一个性质，看 rate 就能推出来：noisy 的 $x_j$ 要么是 $[\text{mask}]$，要么就是 $z_j$ 本身。所以一旦 $x_j\ne[\text{mask}]$，每个 posterior 不为 0 的 $z$ 都有 $z_j=x_j$，$p_{1\mid t}(z_j=x_j\mid x)=1$，这个位置的 rate 全是 0。**Token 一旦被 unmask，就再也不会改变**。Sampling 中早先填错的 token 后面无法修正。取 uniform 的 $p_{\text{init}}$ 时没有这个限制，noisy 的 token 可能本来就不是 $z_j$，之后还能跳。
+
+::fig[mit6s184-mdlm] Notes Figure 20 的句子在 $\kappa_t=t$ 的 masked path 上。每个 token 独立地在一个 uniform 的时刻 $\tau_j$ 被 unmask（$P(\tau_j>t)=1-t$，就是上面 KFE 算出的 masked probability），之后保持不变。
+
+Lecture 5 slides 最后把它和 autoregressive model 对比：可以一步生成多个 token、可以按任意顺序生成（也许能用来编辑文字）、可以设计新的 path；代价是没有 KV caching，要学会任意顺序生成更难，而从左到右本身是合理的语义顺序。Slides 把这几条都写成问句，没有给结论。第一条“并行”的代价，上面的例子已经能算出来。
+
+:::wrong Parallel unmask 时每个 token 都按 exact posterior 采，所以生成的一定是 data
+在 $\{AB,BA\}$ 上用 exact 的 $p_{1\mid t}$、uniform grid 走 $n$ 步 Algorithm 7。第 $k$ 步（$t_k=k/n$）开始时两个位置都还是 mask 的 probability：每个位置每步被 unmask 的 probability 是 $1/(n-i)$，留下来的连乘 $\prod_{i<k}\frac{n-i-1}{n-i}=\frac{n-k}{n}$，两个位置独立，所以是 $\big(\frac{n-k}{n}\big)^2$。这一步两个位置同时被 unmask 的 probability 是 $\big(\frac{1}{n-k}\big)^2$，其中一半落在 $AA$ 或 $BB$。合起来，第 $k$ 步贡献 $\big(\frac{n-k}{n}\big)^2\cdot\frac{1}{(n-k)^2}\cdot\frac12=\frac{1}{2n^2}$，$n$ 步共
+$$P(\text{生成 }AA\text{ 或 }BB)=\frac{1}{2n}$$
+1 步时是 $\tfrac12$（两个位置各自掷硬币），10 步是 0.05，100 步是 0.005。每一步各位置的 marginal 都对，错在两个位置的 joint：同一步里它们都按“对方还是 mask”时的 posterior 采，互相看不见。Exact 的 CTMC 一次只跳一个 token，第二个 token 跳之前已经看到第一个，永远不会生成 $AA$。这就是 notes 说的 $O(h^2)$ 同时更新，$n$ 步累积成 $O(h)$。
+:::
+
+:::back
+Probability path、marginalization trick 和 continuity equation 见[第 2 站](#path)；simulation-free 的 loss 和“loss 降不到 0”见[第 3 站](#fm)；posterior 作为唯一未知量，对应[第 5 站](#dsm)的 denoiser。
+:::
+
+:::from
+CTMC 的定义、rate matrix 的两个条件及其由来、Theorem 33、Example 34、Euler 近似 (88)、factorized CTMC 与 Algorithm 7（含 $O(h^2)$ 同时更新的说法）、factorized mixture path（Example 35）、KFE（Proposition 2）及其证明、Example 37 的 conditional rate、Theorem 36、38 及证明、$\mathcal L_{\text{DFM}}$、Algorithm 8、MDLM（Example 39）来自 [notes](https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf) 第 7 章（原文逐段读过）。“no SDE/ODE in discrete space”、“teleported”、“rates explode at $t=1$”、net inflow 的说法和与 autoregressive 的对比来自 [Lecture 5 slides](https://diffusion.csail.mit.edu/2026/docs/20260130_Lecture_05.pdf) 的文字（slides 里的 formula 和图读不到）。Notes 的例子是二维 chessboard 和一句英文；$\{AB,BA\}$ 这个 dataset、它的 rate、KFE 核对、最低 loss $2\log2/3$、parallel Euler 的 $1/(2n)$、“unmask 后不再改变”的推导、two-state 例子的数表、DNA 的计数、conditional rate 的较短的 KFE 验证和 $\kappa_t=1-(1-t)^3$ 的 edge 是为这一页算的。Lecture 5 的 video 没有看。
 :::
 
 ## 作业
 
-三个 lab 都是 Jupyter notebook，课程主页给的是 Google Drive / Colab 链接，GitHub 仓库 [eje24/iap-diffusion-labs](https://github.com/eje24/iap-diffusion-labs/tree/2026) 的 2026 branch 里有 `labs/`（要填的版本）和 `solutions/`（完整答案，公开）。没有 autograder：每个 notebook 都画出 ground truth 和你的结果并排的图，对得上就算对。下面的提示注明了出处：“notebook”指 2026 branch 的 `labs/*.ipynb`，“solution”指 `solutions/`，“changelog”指仓库 README，“经验”是这一页自己的判断。所需时间除 notebook 自己写的以外都是估计。
+三个 lab 都是 Jupyter notebook，课程主页给的是 Google Drive / Colab 链接，GitHub 仓库 [eje24/iap-diffusion-labs](https://github.com/eje24/iap-diffusion-labs/tree/2026) 的 2026 branch 里有 `labs/`（要填的版本）和 `solutions/`（完整答案，公开）；三个 Drive / Colab 链接下载下来和 `labs/` 逐 cell 比对过，内容相同。Lecture 5（第 8 站）没有对应的 lab。没有 autograder：每个 notebook 都画出 ground truth 和你的结果并排的图，对得上就算对。下面的提示注明了出处：“notebook”指 2026 branch 的 `labs/*.ipynb`，“solution”指 `solutions/`，“changelog”指仓库 README，“经验”是这一页自己的判断。所需时间除 notebook 自己写的以外都是估计。
 
 ### Lab 1：Simulating ODEs and SDEs（值得做）
 
@@ -905,9 +1086,9 @@ Network 的 input/output、Fourier time embedding 及其“high-frequency time d
 **提示。**
 
 - Euler–Maruyama 的 noise 项是 $\sqrt h\,\sigma_t\,z_t$（notebook 正文的 formula）。Notebook 也指出 diffusion coefficient 为 0 时它应当和 Euler 完全一样，用这一点检查自己的 `step`。
-- OU 那几题，notebook 提示盯住 $D=\sigma^2/(2\theta)$，并有一组图把 $D$ 相同、$\sigma$ 不同的参数放在一起比较（notebook）。按第 1 站的推导，$D$ 相同时终点的 distribution 宽度相同，$\sigma$ 只影响 converge 得多快。
+- OU 那几题，notebook 提示盯住 $D=\sigma^2/(2\theta)$，并有一个 $3\times3$ 的图把 $D\in\{0.25,1,4\}$ 与 $\sigma\in\{1,2,10\}$ 交叉比较，$\theta$ 取 $\sigma^2/(2D)$，simulation time 取 $15/\sigma^2$（notebook 的代码）。按第 1 站的推导，$D$ 相同时终点的 distribution 宽度相同；converge 的速度由 $\theta=\sigma^2/(2D)$ 决定，正比于 $\sigma^2$，而 notebook 恰好把时间按 $1/\sigma^2$ 缩放，所以同一行的三张图应该长得几乎一样（后半句是自己的推导）。
 - Langevin 的 drift 用 `self.density.score(xt)`，`Density` 基类已经用 `vmap(jacrev(...))` 实现了 score，不用自己求导（notebook 的代码）。
-- Lab 的 Langevin 例子是从 $N(0,20I)$ 出发、目标是相距很远的 5 个 mode。Langevin 很难跨越 mode 之间的低 density 区域，各 mode 最终的比例主要由起点落在哪个“领地”决定，未必等于 target 的 weight（经验）。
+- Lab 的 Langevin 例子是从 $N(0,20I)$ 出发、$\sigma=0.6$、目标是 std 0.75、散布在 scale 15 范围内的 5 个 mode，走到 $t=5$（notebook 的代码）。Langevin 很难跨越 mode 之间的低 density 区域，各 mode 最终的比例主要由起点落在哪个“领地”决定，未必等于 target 的 weight（经验）。
 - 可选的动画 cell 需要 `ffmpeg`，notebook 说用 `conda install -c conda-forge ffmpeg`，`pip install ffmpeg` 一般不行。
 - Changelog 记录过 Langevin dynamics 的 timestep bug（2025 年 3 月修复）和用 Colab + Chrome 导出 PDF 会被截断的问题；交作业前打开 PDF 检查是否完整。
 
@@ -923,7 +1104,7 @@ Network 的 input/output、Fourier time embedding 及其“high-frequency time d
 
 - Loss 会 converge 但不会到 0（notebook 两次加粗强调）。本页第 3 站算过，下限是 target 的平均 conditional variance；Lab 2 的 data 尺度更大（mode 在半径 10 的 circle 上），平台值也会更高。判断对不对看 notebook 画出的“学到的 marginal”与“ground-truth marginal”是否吻合。
 - Conditional SDE 那题，notebook 的说明是：$\sigma$ 不太大时就可能出怪事，因为 $t\to1$ 时 $\beta_t\to0$，score 项 $(\alpha_tz-x)/\beta_t^2$ diverge，并随 $\sigma^2$ 放大；实践中取 $\sigma_t=\beta_t$。具体到这个 lab 的 path，按第 4 站的算法，最后一步的 Euler coefficient 是 $(1+\sigma^2)/2$，$\sigma^2>3$ 时那一步会把偏差放大；cell 里默认 $\sigma=2.5$，一维实算终点与 $z$ 的平均距离是 0.22，$\sigma=0$ 时是 0.014。所以看到的是“变宽”而不是爆炸（这两句是自己算的）。
-- 仓库 changelog 写着 2026 年 1 月修复了 `ConditionalVectorFieldSDE` 和 `LangevinFlowSDE` 的 diffusion coefficient 被乘了两次 noise 的 bug（“doubly stochastic”）。但 2026 branch 当前的 `labs/lab_two.ipynb` 里，这两个 class 的 `diffusion_coefficient` 仍然返回 `self.sigma * torch.randn_like(x)`，而 `solutions/` 里已改为 `return self.sigma`；`EulerMaruyamaSimulator.step` 自己会再乘一次 `torch.randn_like`。用的如果是这个版本，把那两行改成返回 `self.sigma`（核对 notebook 与 solution 的结果；课程主页的 Google Drive 版本没能打开核对）。
+- 仓库 changelog 写着 2026 年 1 月修复了 `ConditionalVectorFieldSDE` 和 `LangevinFlowSDE` 的 diffusion coefficient 被乘了两次 noise 的 bug（“doubly stochastic”）。但 2026 branch 当前的 `labs/lab_two.ipynb` 里，这两个 class 的 `diffusion_coefficient` 仍然返回 `self.sigma * torch.randn_like(x)`，而 `solutions/` 里已改为 `return self.sigma`；`EulerMaruyamaSimulator.step` 自己会再乘一次 `torch.randn_like`。课程主页链接的 Google Drive 版本（文件修改于 2026-03-16）下载下来逐 cell 比对过，和 `labs/lab_two.ipynb` 完全相同，同样还是 `self.sigma * torch.randn_like(x)`。所以不管从哪里拿 notebook，都把这两行改成返回 `self.sigma`（核对 notebook、Drive 版本与 solution 的结果）。
 - 第 3.3 题的记号和 notes 是反的：notebook 写 $u=a_tx+b_t\nabla\log p_t$，$a_t=\dot\alpha_t/\alpha_t$；notes 写 $u=a_t\nabla\log p_t+b_tx$，$b_t=\dot\alpha_t/\alpha_t$（对照 notebook 与 notes）。公式本身一致，照抄 coefficient 时别混。
 - 同一题 notebook 说分母 $\beta_t^2\dot\alpha_t-\alpha_t\dot\beta_t\beta_t$ 在 $t=1$ 为 0。数学上它等于 $1-t/2$，在 $t=1$ 是 $1/2$；之所以在代码里变成 0，是因为 `SquareRootBeta.dt` 在分母里加了 $10^{-4}$，$t=1$ 时 $\dot\beta_t$ 是有限的 $-5000$，乘上 $\beta_1=0$ 得 0。照 notebook 的做法用 $t=1-\epsilon$ 即可（推导是自己做的）。
 - Linear path 的 conditional field $(z-x)/(1-t)$ 只在 $[0,1)$ 上有定义，notebook 的 docstring 写明了；`torch.rand` 采的 $t$ 不会等于 1，但自己写的 time grid 和画图要避开端点。
@@ -942,6 +1123,6 @@ Network 的 input/output、Fourier time embedding 及其“high-frequency time d
 - Solution 采 $t$ 时乘了 $(1-\epsilon)$，$\epsilon=10^{-3}$：这个 lab 的 path 是 $\beta_t=1-t$，conditional field 里除以 $\beta_t$，$t$ 不能取到 1（solution；理由见第 2 站最后的 edge）。
 - 先跑 Sanity Check 2.4（三类二维 Gaussian mixture + MLP）确认 CFG trainer 和 guided ODE 没问题，再上 MNIST。Notebook 建议 2.2 和 2.3 两题一起做、用 2.4 检查；图像上的 bug 很难从 sample 里看出来（后半句是经验）。
 - adaLN-Zero：notebook 说把 conditioning MLP 的最后一层 zero-init 即可，这对稳定 training 有帮助；modulation 写成 $x\mapsto x(1+\gamma)+\beta$，$\gamma,\beta,\alpha$ 的形状是 `b d`，要 broadcast 到 `b n d`。Positional encoding 推荐 `nn.Parameter(torch.randn(n_tokens, dim))`；feed-forward 的 hidden dimension 常用 `[dim, 4*dim, dim]`（都是 notebook 的 hints）。Solution 里 $t$ 和 $y$ 的 embedding 是直接相加后送进每层的 adaLN。
-- Latent trainer 里 `vae.encode` 要包在 `torch.no_grad()` 下（notebook 的 hint）；否则 VAE 的计算图会被一起保留，GPU memory 明显上涨（经验）。
+- Latent trainer 里 `vae.encode` 要包在 `torch.no_grad()` 下（notebook 的 hint）；否则 VAE 的计算图会被一起保留，GPU memory 明显上涨（经验）。Solution 拿到 `z_mean, z_logvar` 后再加一次 reparameterization noise，`z_mean + torch.exp(0.5 * z_logvar) * torch.randn_like(z_mean)`，用 sample 而不是 mean 作为 latent data（solution；和 notes 的 Remark 32 一致，Lecture 4 slides 的说法是取 mean，见第 7 站）。Latent DiT 是 patch size 1、8 层、hidden 256、10000 步（solution）。
 - `MNISTSampler.sample` 每次在 Python 里逐张取图、做 resize 和 normalize，batch 256、两万步时 CPU 端可能成为瓶颈（看代码得出的判断，没有实测）。
 - Changelog 记录过 guidance embedding 的维度 bug 和 solution 里 sample conditioning variable 的 bug，都已修复；卡住时对照 2026 branch 的 solution。

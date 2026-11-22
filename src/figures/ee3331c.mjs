@@ -125,6 +125,22 @@ function zero() {
   return svg(560, 272, o, '同一对 pole（ζ 等于 0.5）加上不同位置的 zero：zero 越靠近 origin，overshoot 越大');
 }
 
+// 5b. Right half-plane zero：undershoot
+function nmp() {
+  const T = 6, sx = lin(0, T, 60, 400), sy = lin(-0.5, 1.5, 230, 25);
+  let o = axes({ sx, sy, x0: 0, x1: T, y0: -0.5, y1: 1.5, xt: [0, 1, 2, 3, 4, 5, 6], yt: [-0.5, 0, 0.5, 1, 1.5].map((v) => [v, String(v).replace('-', '−')]), xAt: 0, grid: true });
+  const rhp = step([-2, 4], [1, 2, 4], T, 6000), lhp = step([2, 4], [1, 2, 4], T, 6000);
+  o += path(plotPts(lhp, sx, sy), 'ink') + path(plotPts(rhp, sx, sy), 'ln');
+  const lo = rhp.reduce((a, p) => (p[1] < a[1] ? p : a));
+  o += circle(sx(lo[0]), sy(lo[1]), 4, 'ln-f') + text(sx(lo[0]) + 10, sy(lo[1]) + 5, '最低 ' + lo[1].toFixed(2).replace('-', '−') + '（t = ' + lo[0].toFixed(2) + ' s）', 'tl', 'start');
+  const mp = (r) => ((Math.max(...r.map((p) => p[1])) - 1) * 100).toFixed(1);
+  o += line(418, 60, 440, 60, 'ln') + text(446, 64, 'zero 在 +2', 'tl') + text(446, 82, 'overshoot ' + mp(rhp) + '%', 'ts');
+  o += line(418, 110, 440, 110, 'ink') + text(446, 114, 'zero 在 −2', 't') + text(446, 132, 'overshoot ' + mp(lhp) + '%', 'ts');
+  o += text(418, 176, 'denominator 都是', 'ts') + text(418, 194, 's² + 2s + 4，', 'ts') + text(418, 212, 'DC gain 都是 1', 'ts');
+  o += text(sx(T), 262, 'time（s）', 'ts', 'end');
+  return svg(560, 272, o, 'Right half-plane zero 的 step response：zero 在 +2 时 output 先往负方向走到约 −0.28 再上升；zero 在 −2 时直接上升、overshoot 更大');
+}
+
 // 6. 真实 plant 的 root locus
 function rlocus() {
   const sx = lin(-24, 4, 30, 530), sy = lin(-9, 9, 330, 20);
@@ -458,6 +474,7 @@ export default {
   'ee3331c-region': region,
   'ee3331c-pstep': pstep,
   'ee3331c-zero': zero,
+  'ee3331c-nmp': nmp,
   'ee3331c-rlocus': rlocus,
   'ee3331c-angle': angle,
   'ee3331c-nyquist': nyquist,

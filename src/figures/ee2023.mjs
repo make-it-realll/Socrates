@@ -280,22 +280,24 @@ function modulation() {
 function sampling() {
   const fx = lin(-40, 40, 30, 540);
   let o = '';
-  const panel = (yb, fs, title, clash) => {
+  const panel = (yb, fs, title, clash, stack = false) => {
     o += line(30, yb, 540, yb, 'axis') + text(30, yb - 58, title, 'tb');
-    const band = (a, b, cls) => { const lo = Math.max(a, -40), hi = Math.min(b, 40); if (hi > lo) o += rect(fx(lo), yb - 36, fx(hi) - fx(lo), 36, cls); };
-    for (let k = -4; k <= 4; k++) {
-      band(11 + k * fs, 19 + k * fs, k === 0 ? 'solid' : 'band-p');
-      band(-19 + k * fs, -11 + k * fs, k === 0 ? 'solid2' : 'band-n');
+    const hP = stack ? 22 : 36, yN = stack ? yb - 44 : yb - 36;
+    const band = (a, b, cls, y0, h) => { const lo = Math.max(a, -40), hi = Math.min(b, 40); if (hi > lo) o += rect(fx(lo), y0, fx(hi) - fx(lo), h, cls); };
+    for (let k = -8; k <= 8; k++) {
+      band(11 + k * fs, 19 + k * fs, k === 0 ? 'solid' : 'band-p', yb - hP, hP);
+      band(-19 + k * fs, -11 + k * fs, k === 0 ? 'solid2' : 'band-n', yN, hP);
     }
     for (const [a, b] of clash) o += line(fx(a), yb - 42, fx(b), yb - 42, 'ink-b') + line(fx(a), yb - 46, fx(a), yb - 38, 'ink') + line(fx(b), yb - 46, fx(b), yb - 38, 'ink');
     for (const v of [-38, -19, -11, 0, 11, 19, 38]) o += line(fx(v), yb, fx(v), yb + 4, 'axis') + text(fx(v), yb + 17, minus(v), 'ts', 'middle');
   };
   panel(80, 19, 'fₛ = 19 Hz：replica 最多首尾相接，不 overlap', []);
   panel(190, 18, 'fₛ = 18 Hz：粗线标出的地方两个 band 叠在一起，aliasing', [[-19, -17], [-1, 1], [17, 19]]);
-  o += rect(30, 222, 14, 10, 'solid') + text(50, 231, '原来的 positive band [11, 19]，浅色是它的 replica', 'ts');
-  o += rect(30, 240, 14, 10, 'solid2') + text(50, 249, '原来的 negative band [−19, −11]，浅色是它的 replica', 'ts');
-  o += text(540, 249, 'f（Hz）', 'ts', 'end');
-  return svg(560, 258, o, 'Bandpass signal 占据 11 到 19 Hz；sampling rate 为 19 Hz 时 replica 恰好不 overlap，18 Hz 时 replica 重叠产生 aliasing');
+  panel(300, 10, 'fₛ = 10 Hz = 2 × 15 / 3：每个位置上两份完全重合，内容相同，只是加倍', [], true);
+  o += rect(30, 332, 14, 10, 'solid') + text(50, 341, '原来的 positive band [11, 19]，浅色是它的 replica', 'ts');
+  o += rect(30, 350, 14, 10, 'solid2') + text(50, 359, '原来的 negative band [−19, −11]，浅色是它的 replica', 'ts');
+  o += text(540, 359, 'f（Hz）', 'ts', 'end');
+  return svg(560, 368, o, 'Bandpass signal 占据 11 到 19 Hz；sampling rate 为 19 Hz 时 replica 恰好不 overlap，18 Hz 时 replica 部分重叠产生 aliasing，10 Hz 时 negative band 的 replica 与 positive band 完全重合');
 }
 
 // 开头第二件事：t = 0 才接上的 cos t 通过 RC circuit
@@ -577,6 +579,82 @@ function samplesA() {
   return svgA(560, 274, o, '动图：每 0.1 毫秒取一个 sample。左边轮子上，6 kHz 的 spoke 每次转 216 度，4 kHz 的每次转 144 度，两根 spoke 左右对称、高度相同；右边两条 cos 在每个 sample 上取同一个值');
 }
 
+// Feedback：G = 1/(s² − 1)，controller 为 K（左）或 K(s + 3)（右），closed-loop pole 随 K 移动
+function feedbackA() {
+  let o = '';
+  // block diagram
+  const yc = 46;
+  o += text(30, yc + 5, it('x'), 't') + arrow(44, yc, 88, yc, 'ink');
+  o += circle(100, yc, 11, 'paper') + text(100, yc + 5, '+', 'ts', 'middle') + text(84, yc + 28, '−', 'tb', 'middle');
+  o += arrow(111, yc, 158, yc, 'ink') + text(134, yc - 8, it('e'), 't', 'middle');
+  o += rect(158, yc - 18, 84, 36, 'paper', 5) + text(200, yc + 5, `${it('C')}(${it('s')})`, 't', 'middle') + text(200, yc - 24, 'controller', 'ts', 'middle');
+  o += arrow(242, yc, 282, yc, 'ink');
+  o += rect(282, yc - 18, 126, 36, 'paper', 5) + text(345, yc + 5, `${it('G')}(${it('s')}) = 1 / (${it('s')}² − 1)`, 't', 'middle') + text(345, yc - 24, 'plant', 'ts', 'middle');
+  o += arrow(408, yc, 490, yc, 'ink') + text(498, yc + 5, it('y'), 't');
+  o += path(d([[450, yc], [450, yc + 40], [100, yc + 40]]), 'ink') + arrow(100, yc + 40, 100, yc + 13, 'ink');
+  o += text(452, yc + 56, 'sensor：量出 ' + it('y') + '，拿去和 ' + it('x') + ' 相减', 'ts', 'end');
+  // 两张 s-plane，同一比例
+  const pxu = 27, yT = 132, yB = yT + 6.4 * pxu;
+  const sy = lin(-3.2, 3.2, yB, yT);
+  const plane = (x0px, re0, re1, title) => {
+    const sx = lin(re0, re1, x0px, x0px + (re1 - re0) * pxu);
+    o += rect(sx(re0), yT, sx(0) - sx(re0), yB - yT, 'wash');
+    o += line(sx(re0), sy(0), sx(re1), sy(0), 'axis') + line(sx(0), yT, sx(0), yB, 'axis');
+    o += text(sx(re1), sy(0) - 6, 'Re', 'ts', 'end') + text(sx(0) + 5, yT + 11, 'Im', 'ts');
+    o += text(x0px, yT - 14, title, 'tb');
+    return sx;
+  };
+  const sxL = plane(28, -3, 2, `${it('C')} = ${it('K')}`);
+  const sxR = plane(250, -8, 2, `${it('C')} = ${it('K')}(${it('s')} + 3)`);
+  const tickX = (sx, v, s) => line(sx(v), sy(0), sx(v), sy(0) + 4, 'axis') + text(sx(v), sy(0) + 16, s, 'ts', 'middle');
+  o += tickX(sxL, -1, '−1') + tickX(sxL, 1, '1');
+  for (const v of [-7, -5, -1]) o += tickX(sxR, v, minus(v));
+  o += tickX(sxR, 1, '1');
+  const X = (sx, x, y) => line(sx(x) - 5, sy(y) - 5, sx(x) + 5, sy(y) + 5, 'ink-b') + line(sx(x) - 5, sy(y) + 5, sx(x) + 5, sy(y) - 5, 'ink-b');
+  // closed-loop pole
+  const polesL = (K) => (K < 1 ? [[Math.sqrt(1 - K), 0], [-Math.sqrt(1 - K), 0]] : [[0, Math.sqrt(K - 1)], [0, -Math.sqrt(K - 1)]]);
+  const polesR = (K) => {
+    const disc = K * K - 4 * (3 * K - 1);
+    return disc >= 0 ? [[(-K + Math.sqrt(disc)) / 2, 0], [(-K - Math.sqrt(disc)) / 2, 0]] : [[-K / 2, Math.sqrt(-disc) / 2], [-K / 2, -Math.sqrt(-disc) / 2]];
+  };
+  // 轨迹（细线，K 取得很密）
+  const extra = [6 - Math.sqrt(32), 6 + Math.sqrt(32)];
+  const trace = (fn, Kmax, sx) => {
+    for (const i of [0, 1]) {
+      const pts = [];
+      const Ks = Array.from({ length: 601 }, (_, j) => Kmax * (j / 600) ** 2).concat(extra.filter((K) => K <= Kmax)).sort((a, b) => a - b);
+      for (const K of Ks) { const p = fn(K)[i]; pts.push([sx(p[0]), sy(p[1])]); }
+      o += path(d(pts), 'mute');
+    }
+  };
+  trace(polesL, 5, sxL); trace(polesR, 12, sxR);
+  o += X(sxL, 1, 0) + X(sxL, -1, 0) + X(sxR, 1, 0) + X(sxR, -1, 0);
+  o += circle(sxR(-3), sy(0), 5.5, 'ln paper-f') + text(sxR(-3), sy(0) + 18, 'zero −3', 'tl', 'middle');
+  // 标两个静态的点
+  for (const [x, y] of polesR(2)) o += circle(sxR(x), sy(y), 3, 'ink-f');
+  o += text(sxR(-1.25), sy(1.45), it('K') + ' = 2：−1 ± j2', 'ts', 'end');
+  o += text(sxL(0) + 7, sy(2) + 4, it('K') + ' = 5：± j2', 'ts');
+  o += circle(sxL(0), sy(2), 3, 'ink-f') + circle(sxL(0), sy(-2), 3, 'ink-f');
+  // 动画
+  const N = 48, dur = 9, us = Array.from({ length: N + 1 }, (_, i) => i / N), kt = us;
+  const KL = us.map((u) => 5 * u * u), KR = us.map((u) => 12 * u * u);
+  for (const i of [0, 1]) {
+    const pl = KL.map((K) => polesL(K)[i]), pr = KR.map((K) => polesR(K)[i]);
+    o += acircle(pl.map((p) => sxL(p[0])), pl.map((p) => sy(p[1])), kt, dur, 5, 'solid');
+    o += acircle(pr.map((p) => sxR(p[0])), pr.map((p) => sy(p[1])), kt, dur, 5, 'solid');
+  }
+  for (let i = 0; i <= N; i++) {
+    const on = us.map((_, j) => j === i);
+    o += `<text x="${sxL(2)}" y="${yT - 14}" class="ts" text-anchor="end" opacity="${i === 0 ? 1 : 0}"><tspan class="i">K</tspan> = ${KL[i].toFixed(2)}${ashow(on, kt, dur)}</text>`;
+    o += `<text x="${sxR(2)}" y="${yT - 14}" class="ts" text-anchor="end" opacity="${i === 0 ? 1 : 0}"><tspan class="i">K</tspan> = ${KR[i].toFixed(2)}${ashow(on, kt, dur)}</text>`;
+  }
+  o += text(28, yB + 34, it('K') + ' < 1：一个 pole 在 right half-plane', 'ts');
+  o += text(28, yB + 50, it('K') + ' > 1：两个都在 imaginary axis 上', 'ts');
+  o += text(250, yB + 34, it('K') + ' > 1/3：两个都在 left half-plane（阴影）', 'ts');
+  o += text(250, yB + 50, it('K') + ' = 12 时到 −5 和 −7', 'ts');
+  return svgA(560, yB + 60, o, '动图：block diagram 是 error 经过 controller 进入 plant 1/(s²−1)，output 反馈回来相减。下面两张 s-plane：controller 为 K 时，两个 closed-loop pole 从 ±1 向 origin 靠拢后沿 imaginary axis 分开，进不了 left half-plane；controller 为 K(s+3) 时，K 大于 1/3 后两个 pole 都进入 left half-plane，K=2 时在 −1±j2');
+}
+
 export default {
   'ee2023-switchon': switchonA,
   'ee2023-strips': strips,
@@ -598,4 +676,5 @@ export default {
   'ee2023-alias': alias,
   'ee2023-modulation': modulation,
   'ee2023-sampling': sampling,
+  'ee2023-feedback': feedbackA,
 };

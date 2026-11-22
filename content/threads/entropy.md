@@ -143,7 +143,7 @@ Penalty 是 reverse 方向的 $D(\pi\|\pi_{\text{ref}})$，它不阻止 $\pi$ �
 | [CS2109S 第 6 站](../courses/CS2109S.html#logreg)、[CS3244 第 3、6 站](../courses/CS3244.html#nn) | cross-entropy loss | $J(w)$，$h_w(x)$；$-\sum_ky_k\ln p_k$ | $e$ | 骨架一，$q$ 是 conditional 的 |
 | [ST2132 第 2、8 站](../courses/ST2132.html#lrt) | likelihood、generalized likelihood ratio | $\ell(\theta)$，$\Lambda$，$2\sum_jO_j\ln(O_j/E_j)$ | $e$ | 骨架一；桥 2 |
 | [CS4248 第 2、7 站](../courses/CS4248.html#pretrain)、[KARPATHY-Z2H 第 2 站](../courses/KARPATHY-Z2H.html#lm)、[STANFORD-CS336 第 4 站](../courses/STANFORD-CS336.html#train) | perplexity、NLL、next-token cross-entropy | $\mathrm{PP}(W)$，$L$，$\ell_i$ | $e$ | 骨架一 |
-| [CS3244 第 7 站](../courses/CS3244.html#em) | ELBO（用 Jensen 推出） | $\mathcal F(q,\theta)$，$r_{nj}$ | $e$ | 骨架二；桥 3 |
+| [CS3244 第 9 站](../courses/CS3244.html#em) | ELBO（用 Jensen 推出） | $\mathcal F(q,\theta)$，$r_{nj}$ | $e$ | 骨架二；桥 3 |
 | [CORNELL-CS5788 第 1、2 站](../courses/CORNELL-CS5788.html#vae)、[MIT-6.S978 第 2 站](../courses/MIT-6.S978.html#vae) | forward 与 reverse KL、ELBO | $D_{\text{KL}}(p^*\Vert p_\theta)$，$q(z\mid x)$ | $e$ | 骨架一、二 |
 | [MIT-6.S184 第 7 站](../courses/MIT-6.S184.html#arch) | VAE 的 KL term、rate–distortion | $\beta\,D_{\text{KL}}(q_\phi\Vert N(0,I))$ | $e$ | 桥 4 |
 | [CS4248 第 8 站](../courses/CS4248.html#post)、[MODERN-RL 第 6 站](../courses/MODERN-RL.html#finetune)、[BERKELEY-CS285 第 10 站](../courses/BERKELEY-CS285.html#llm) | KL penalty、KL-regularized objective | $\beta\,\mathrm{KL}(\pi\Vert\pi_{\text{ref}})$，$\pi^*$，$Z$ | $e$ | 骨架二；桥 5 |
@@ -163,7 +163,7 @@ Penalty 是 reverse 方向的 $D(\pi\|\pi_{\text{ref}})$，它不阻止 $\pi$ �
 
 [CS2109S 第 6 站](../courses/CS2109S.html#logreg)的 cross-entropy loss $J(w)$ 是骨架一的账单，只是 $q$ 换成了 conditional 的 $q(y\mid x)=h_w(x)^y\big(1-h_w(x)\big)^{1-y}$：发送和接收的两边都看得见 $x$，要传的只是 label。那一站四个点的 optimum 是 $J=0.5869$ nat，每个 label 0.847 bit；不看 $x$、按 $\hat p(y=1)=\tfrac12$ encode 要 1 bit，看了 $x$ 每个 label 省 0.153 bit。账单的 lower bound 是 data 上的 conditional entropy：那四个 $x$ 各只出现一次，它是 0。$y=0,1,0,1$ 时 linear 的 decision boundary 够不着这个 lower bound，账单停在 0.5869；那一站的 edge case 把 label 换成 $y=0,0,1,1$，sigmoid 这一族可以无限逼近 0，可它永远给错的 label 留一点 probability，任何有限的 $w$ 都还在付钱，于是 $J\to0$ 而 $w$ 越来越大。
 
-[CS3244 第 3 站](../courses/CS3244.html#reg)把这件事说成“loss 的选择就是 noise model 的选择”：Gaussian noise 的 negative log-likelihood 是 squared error，Bernoulli 的是 cross-entropy。[第 6 站](../courses/CS3244.html#nn)推出 softmax 加 cross-entropy 对 logits 的 gradient 是 $p-y$。换成骨架的记号，$y$ 是 data 的 distribution（one-hot，平均起来是 $\hat p$），那一站的 $p$ 是 model 的 $q$，gradient 是 $q-\hat p$，等于 0 正是 Gibbs inequality 取等的 condition $q=\hat p$。[KARPATHY-Z2H 第 2 站](../courses/KARPATHY-Z2H.html#lm)发现 gradient descent 的终点恰好是 count model，是同一个等号。[CS3244 第 7 站](../courses/CS3244.html#em)用 Jensen's inequality 推出 EM 的 ELBO，没有写 gap 是多少，第 3 座桥补上。[CS2109S 第 4 站](../courses/CS2109S.html#dt)的 information gain 看起来是另一回事，第 1 座桥说明它也是这笔账。
+[CS3244 第 3 站](../courses/CS3244.html#reg)把这件事说成“loss 的选择就是 noise model 的选择”：Gaussian noise 的 negative log-likelihood 是 squared error，Bernoulli 的是 cross-entropy。[第 8 站](../courses/CS3244.html#nn)推出 softmax 加 cross-entropy 对 logits 的 gradient 是 $p-y$。换成骨架的记号，$y$ 是 data 的 distribution（one-hot，平均起来是 $\hat p$），那一站的 $p$ 是 model 的 $q$，gradient 是 $q-\hat p$，等于 0 正是 Gibbs inequality 取等的 condition $q=\hat p$。[KARPATHY-Z2H 第 2 站](../courses/KARPATHY-Z2H.html#lm)发现 gradient descent 的终点恰好是 count model，是同一个等号。[CS3244 第 9 站](../courses/CS3244.html#em)用 Jensen's inequality 推出 EM 的 ELBO，没有写 gap 是多少，第 3 座桥补上。[CS2109S 第 4 站](../courses/CS2109S.html#dt)的 information gain 看起来是另一回事，第 1 座桥说明它也是这笔账。
 
 ### ST2132：MLE 好不好，以及拿 likelihood 做 test
 
@@ -221,7 +221,7 @@ Bernoulli 在 0.5 处 $I=4$，$\tfrac12\times4\times0.1452^2=0.0421$，乘 248 �
 
 ### 桥 3：EM 每一轮的 gap 是 responsibility 之间的 KL
 
-[CS3244 第 7 站](../courses/CS3244.html#em)对 6 个点 $\{1,2,3,5,8,9\}$ 跑了一轮 EM，并核对 $\ell(\theta_1)=-13.744$ 比 $\mathcal F(r^{(0)},\theta_1)=-13.759$ 高一点，“因为 $r^{(0)}$ 已经不是 $\theta_1$ 下的 posterior，bound 不再贴紧”。差多少，骨架二的 likelihood 读法给出精确的数。
+[CS3244 第 9 站](../courses/CS3244.html#em)对 6 个点 $\{1,2,3,5,8,9\}$ 跑了一轮 EM，并核对 $\ell(\theta_1)=-13.744$ 比 $\mathcal F(r^{(0)},\theta_1)=-13.759$ 高一点，“因为 $r^{(0)}$ 已经不是 $\theta_1$ 下的 posterior，bound 不再贴紧”。差多少，骨架二的 likelihood 读法给出精确的数。
 
 CS3244 的 $\mathcal F(q,\theta)=\sum_{n,j}q_n(j)\ln\frac{\pi_j\mathcal N_j(x_n)}{q_n(j)}$，而 $\pi_j\mathcal N_j(x_n)=p_\theta(x_n,z_n=j)$，所以对每个点，$\mathcal F$ 的那一项就是 $\mathbb E_{q_n}[\ln p_\theta(x_n,z)]+H(q_n)=\mathbb E_{q_n}[\ln p_\theta(x_n\mid z)]-D(q_n\|p_\theta(z))$，即 ELBO。由 identity，
 

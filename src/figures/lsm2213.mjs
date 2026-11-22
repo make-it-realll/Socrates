@@ -451,17 +451,24 @@ function bliss() {
   o += line(250, 62, 250, 104, 'ln') + circle(250, 62, 4, 'ln-f') + text(250, 120, 'stimulate', 'tl', 'middle');
   o += line(470, 84, 470, 104, 'ink') + circle(470, 84, 4, 'ink-f') + text(470, 120, 'record', 'tb', 'middle');
   o += text(470, 136, 'population EPSP、spike', 'ts', 'middle') + text(470, 150, '的大小与 latency', 'ts', 'middle');
-  // protocol 时间轴
+  // protocol 时间轴：上一行是受 conditioning 的 pathway，下一行是 control pathway
   const y = 196;
+  o += text(20, 166, 'experimental pathway', 'tb');
   o += line(20, y, 540, y, 'axis');
   for (let x = 30; x < 180; x += 24) o += line(x, y - 14, x, y, 'ink');
-  o += text(100, y + 18, 'test stimulus：baseline', 'ts', 'middle');
+  o += text(100, y + 18, 'test stimulus（每 2–3 s 一个）', 'ts', 'middle');
   for (const x0 of [200, 236]) { o += rect(x0, y - 22, 24, 22, 'solid', 2); }
   o += text(248, y + 18, 'conditioning train', 'tl', 'middle') + text(248, y + 34, '100 Hz × 3–4 s，或 10–20 Hz × 10–15 s', 'ts', 'middle');
   for (let x = 290; x < 540; x += 24) o += line(x, y - 14, x, y, 'ink');
   o += text(420, y + 18, '同样的 test stimulus：30 min – 10 h', 'ts', 'middle');
-  o += text(20, 256, '18 只 anesthetized rabbit，15 只出现持续增强', 't');
-  return svg(560, 268, o, 'Bliss 与 Lømo 1973 年的 design：在 perforant path 上 stimulate，在 dentate gyrus 记录 granule cell 群体的 response；先测 baseline，再给高频 conditioning train，之后继续用同样的 test stimulus 测几十分钟到十小时');
+  const yc = 282;
+  o += text(20, 252, 'control pathway（早期是另一侧 hippocampus）', 'tb');
+  o += line(20, yc, 540, yc, 'axis');
+  for (let x = 30; x < 540; x += 24) if (x < 190 || x > 310) o += line(x, yc - 14, x, yc, 'mute');
+  o += text(248, yc - 4, '不给 conditioning', 'ts', 'middle');
+  o += text(280, yc + 18, '只给 test stimulus，用来监测整体 excitability 的漂移', 'ts', 'middle');
+  o += text(20, 330, '18 只 rabbit 里 15 只、35 条 conditioning 过的 pathway 里 24 条，出现 ≥ 30 min 的增强', 't');
+  return svg(560, 342, o, 'Bliss 与 Lømo 1973 年的 design：在 perforant path 上 stimulate，在 dentate gyrus 记录 granule cell 群体的 response；先测 baseline，再给高频 conditioning train，之后继续用同样的 test stimulus 测几十分钟到十小时；另一条 control pathway 只给 test stimulus');
 }
 
 // ---------- 第 6 站：Hermann grid 的 lateral inhibition ----------
