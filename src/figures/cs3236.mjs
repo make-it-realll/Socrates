@@ -141,7 +141,7 @@ function kraft() {
   const nx = (dd, j) => { const span = 8 >> dd; return (lx(j * span) + lx(j * span + span - 1)) / 2; };
   const used = { '0': 'code', '100': 'code', '101': 'code' };
   const state = (s) => { if (used[s]) return 'code'; if (s.startsWith('0') && s.length > 1) return 'below'; if (s.startsWith('11')) return 'free'; return 'inner'; };
-  let o = text(280, 18, 'Source p = (0.7, 0.15, 0.15) 的 Shannon code：ℓ = ⌈log₂ 1/p⌉ = 1, 3, 3', 'tb', 'middle');
+  let o = text(280, 18, 'Source p = (0.7, 0.15, 0.15) 的 Shannon–Fano code：ℓ = ⌈log₂ 1/p⌉ = 1, 3, 3', 'tb', 'middle');
   const nodes = [];
   for (let dd = 0; dd <= 3; dd++) for (let j = 0; j < 1 << dd; j++) nodes.push([dd, j, dd ? j.toString(2).padStart(dd, '0') : '']);
   for (const [dd, j, s] of nodes) if (dd < 3) for (const b of [0, 1]) {
@@ -361,6 +361,131 @@ function hammingA() {
   return svgA(560, 286, o, '动图：Hamming 7,4 code 的三个 circle。发送 1100011，channel flip 第 3 位，circle 2 和 3 的 parity 变成 odd，syndrome 011 指向 u3，把它 flip 回来');
 }
 
+
+// ---------- 第 7 站：continuous 的 X 按 Δ quantize ----------
+const phi = (x) => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+// 用 Simpson 积分算一格的 probability
+const cell = (a, b) => { const m = 40, h = (b - a) / m; let s = phi(a) + phi(b); for (let i = 1; i < m; i++) s += (i % 2 ? 4 : 2) * phi(a + i * h); return (s * h) / 3; };
+const Hq = (D) => { let H = 0; for (let k = Math.floor(-9 / D); k * D < 9; k++) { const q = cell(k * D, (k + 1) * D); if (q > 0) H -= q * log2(q); } return H; };
+function quant() {
+  const D = 0.5, sx = lin(-3.5, 3.5, 30, 290), sy = lin(0, 0.45, 210, 40);
+  let o = text(160, 22, 'X ~ N(0, 1)，按 Δ = 0.5 切格子', 'tb', 'middle');
+  for (let k = -7; k < 7; k++) {
+    const a = k * D, q = cell(a, a + D), hgt = q / D;
+    o += rect(sx(a), sy(hgt), sx(a + D) - sx(a), sy(0) - sy(hgt), k === 1 ? 'wash-strong' : 'wash');
+  }
+  o += path(curve(phi, -3.5, 3.5, sx, sy, 200), 'ln');
+  o += line(sx(-3.5), sy(0), sx(3.5), sy(0), 'axis');
+  for (const v of [-3, -2, -1, 0, 1, 2, 3]) o += line(sx(v), sy(0), sx(v), sy(0) + 4, 'axis') + text(sx(v), sy(0) + 17, String(v), 'ts', 'middle');
+  const q1 = cell(0.5, 1);
+  o += line(sx(0.75), sy(q1 / D) - 2, sx(1.3), 84, 'mute') + text(sx(1.3) + 3, 64, '这一格的 probability', 'ts', 'start') + text(sx(1.3) + 3, 80, '≈ f(x)·Δ = ' + q1.toFixed(3), 'ts', 'start');
+  o += text(sx(-3.4), 64, 'f(x)', 'tl', 'start');
+  // 右：H(X_Δ) 与 H(X_Δ) + log Δ
+  const ks = [0, 1, 2, 3, 4, 5, 6, 7], hh = 0.5 * log2(2 * Math.PI * Math.E);
+  const rx = lin(0, 7, 352, 540), ry = lin(0, 10, 210, 40);
+  o += axes({ sx: rx, sy: ry, x0: 0, x1: 7, y0: 0, y1: 10, xt: [[0, '1'], [1, '½'], [3, '⅛'], [5, '1/32'], [7, '1/128']], yt: [0, 2, 4, 6, 8, 10], xl: 'Δ', yl: 'bits' });
+  const pts = ks.map((k) => [k, Hq(2 ** -k)]);
+  o += path(d(pts.map(([k, v]) => [rx(k), ry(v)])), 'ink') + pts.map(([k, v]) => circle(rx(k), ry(v), 3, 'ink-f')).join('');
+  o += path(d(pts.map(([k, v]) => [rx(k), ry(v - k)])), 'ln') + pts.map(([k, v]) => circle(rx(k), ry(v - k), 3, 'ln-f')).join('');
+  o += text(rx(4.2), ry(Hq(2 ** -5)) - 4, 'H(X' + sub('Δ') + ')', 't', 'end');
+  o += text(rx(7), ry(hh) + 20, 'H(X' + sub('Δ') + ') + log₂ Δ → ' + hh.toFixed(3), 'tl', 'end');
+  o += text(280, 250, '格子每细一半，H(X' + sub('Δ') + ') 多约 1 bit；减去 log₂(1/Δ) 之后收敛到 h(X) = ½ log₂(2πe) = ' + hh.toFixed(3) + '。', 'ts', 'middle');
+  return svg(560, 258, o, '左边是标准 Gaussian density 按宽 0.5 的格子切开，每格的 probability 是那一条的面积；右边是格子变细时 quantized entropy 一直增加，而加上 log Delta 之后收敛到 2.047');
+}
+
+// ---------- 第 7 站：AWGN capacity 与硬判成 BSC ----------
+const erf = (x) => { // Abramowitz–Stegun 7.1.26，误差 < 1.5e-7
+  const sgn = x < 0 ? -1 : 1, t = 1 / (1 + 0.3275911 * Math.abs(x));
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return sgn * y;
+};
+const Qf = (x) => 0.5 * (1 - erf(x / Math.SQRT2));
+function awgn() {
+  const sx = lin(0, 16, 64, 532), sy = lin(0, 2.2, 236, 34);
+  const Cg = (s) => 0.5 * log2(1 + s), Cb = (s) => 1 - H2(Qf(Math.sqrt(s)));
+  let o = axes({ sx, sy, x0: 0, x1: 16, y0: 0, y1: 2.2, xt: [0, 1, 3, 7, 15], yt: [0, 0.5, 1, 1.5, 2], xl: 'P / σ²', yl: 'capacity（bits / channel use）', grid: true });
+  o += line(sx(0), sy(1), sx(16), sy(1), 'dash');
+  o += path(curve(Cg, 0, 16, sx, sy, 300), 'ln') + path(curve(Cb, 0.0001, 16, sx, sy, 300), 'ink-b');
+  for (const s of [1, 3, 15]) {
+    const a = Cg(s), b = Cb(s);
+    o += line(sx(s), sy(a), sx(s), sy(b), 'mute') + circle(sx(s), sy(a), 3.5, 'ln-f') + circle(sx(s), sy(b), 3.5, 'ink-f');
+    o += text(sx(s) - 7, sy(a) - 7, a.toFixed(2), 'tl', 'end') + text(sx(s) + 6, sy(b) + 15, b.toFixed(3), 'ts', 'start');
+  }
+  o += text(sx(9.5), sy(Cg(9.5)) - 12, 'AWGN：½ log₂(1 + P/σ²)', 'tl', 'end');
+  o += text(sx(10.6), sy(0.7), '发 ±√P、只看 sign：BSC，f = P(Z > √P)', 't', 'middle');
+  o += text(sx(11), sy(1) - 7, 'binary input 的上限 1 bit', 'ts', 'middle');
+  return svg(560, 270, o, 'AWGN channel 的 capacity 随 signal-to-noise ratio 按 log 增长，SNR 为 1、3、15 时为 0.5、1、2 bits；把它硬判成 BSC 的 capacity 分别是 0.369、0.750、0.999，永远不超过 1');
+}
+
+// ---------- 第 7 站：sphere packing ----------
+function sphere() {
+  // 左：x 与 z 几乎垂直，y 是斜边；长度按 √P : √σ² = √3 : 1 画
+  const O = [36, 236], P = 3, s2 = 1, sc = 58;
+  const ang = -Math.PI / 6, ux = [Math.cos(ang), Math.sin(ang)], uz = [Math.sin(ang), -Math.cos(ang)];
+  const X = [O[0] + sc * Math.sqrt(P) * ux[0], O[1] + sc * Math.sqrt(P) * ux[1]];
+  const rz = sc * Math.sqrt(s2), Y = [X[0] + rz * uz[0], X[1] + rz * uz[1]];
+  let o = text(130, 22, '一次传输：y = x + z', 'tb', 'middle');
+  o += circle(X[0], X[1], rz, 'wash') + circle(X[0], X[1], rz, 'mute');
+  o += arrow(O[0], O[1], X[0], X[1], 'ink-b') + arrow(X[0], X[1], Y[0], Y[1], 'ln') + arrow(O[0], O[1], Y[0], Y[1], 'dash');
+  const c = 9, p1 = [X[0] - c * ux[0], X[1] - c * ux[1]], p2 = [p1[0] + c * uz[0], p1[1] + c * uz[1]], p3 = [X[0] + c * uz[0], X[1] + c * uz[1]];
+  o += path(d([p1, p2, p3]), 'mute');
+  o += circle(O[0], O[1], 3, 'ink-f') + text(O[0], O[1] + 17, '0', 'ts', 'middle');
+  const mx = [(O[0] + X[0]) / 2, (O[1] + X[1]) / 2];
+  o += text(mx[0] + 14, mx[1] + 22, 'x', 'tb', 'start');
+  o += text(X[0] + rz * uz[0] / 2 + 10, X[1] + rz * uz[1] / 2 + 4, 'z', 'tl', 'start');
+  o += text((O[0] + Y[0]) / 2 - 10, (O[1] + Y[1]) / 2 - 4, 'y', 'tb', 'end');
+  o += text(150, 70, '‖x‖² ≤ nP', 't', 'start') + text(150, 88, '‖z‖² ≈ nσ²', 't', 'start') + text(150, 106, '‖y‖² ≈ n(P + σ²)', 't', 'start');
+  o += text(20, 272, '浅色圆：x 发出后 y 几乎总落在它附近', 'ts', 'start');
+  // 右：大 ball 里放 noise ball
+  const C = [420, 146], R = 112, k = 6, r = R / k; // r / R = √(σ² / (P + σ²))，P/σ² = k² − 1
+  o += text(C[0], 22, 'P/σ² = ' + (k * k - 1) + '：r / R = 1/' + k, 'tb', 'middle');
+  o += circle(C[0], C[1], R, 'wash2') + circle(C[0], C[1], R, 'ink');
+  const pts = [];
+  for (let row = -8; row <= 8; row++) for (let col = -8; col <= 8; col++) {
+    const x = C[0] + (col + (row % 2 ? 0.5 : 0)) * 2 * r, y = C[1] + row * r * Math.sqrt(3);
+    if (Math.hypot(x - C[0], y - C[1]) <= R - r + 0.5) pts.push([x, y]);
+  }
+  for (const [x, y] of pts) o += circle(x, y, r - 1.2, 'wash') + circle(x, y, 1.8, 'ink-f');
+  o += text(C[0], C[1] + R + 20, '大圆 radius √(n(P+σ²))，小圆 radius √(nσ²)', 'ts', 'middle');
+  o += text(C[0], C[1] + R + 36, '平面上上限 (R/r)² = ' + k * k + '，实际放下 ' + pts.length + ' 个', 'ts', 'middle');
+  return svg(560, 300, o, '左边是 codeword x、noise z 与收到的 y 组成的 right triangle；右边是在大圆里放互不重叠的小圆，半径之比为六分之一');
+}
+
+// ---------- 第 8 站：Reed–Solomon 的 key equation ----------
+function rs() {
+  const p = 7, Pc = [2, 3, 4], Ec = [1, 1, 1], ev = (c, t) => c.reduce((s, ci, i) => s + ci * t ** i, 0) % p;
+  const n = 7, bad = [2, 4], fake = { 2: 6, 4: 3 };
+  const Pv = [...Array(n)].map((_, i) => ev(Pc, i)), Rv = Pv.map((v, i) => (i in fake ? fake[i] : v));
+  const Ev = [...Array(n)].map((_, i) => ev(Ec, i)), RE = Rv.map((v, i) => (v * Ev[i]) % p), PE = Pv.map((v, i) => (v * Ev[i]) % p);
+  if (RE.some((v, i) => v !== PE[i])) throw new Error('rs: key equation fails');
+  if (bad.some((i) => Ev[i] !== 0) || Ev.some((v, i) => v === 0 && !bad.includes(i))) throw new Error('rs: E roots');
+  const X0 = 170, cw = 44, rows = [
+    ['i', [...Array(n)].map((_, i) => i), null],
+    ['发出 P(i) = 2 + 3i + 4i²', Pv, null],
+    ['收到 Rᵢ', Rv, bad],
+    ['E(i) = i² + i + 1', Ev, bad],
+    ['Rᵢ · E(i)', RE, null],
+    ['P(i) · E(i)', PE, null],
+  ];
+  let o = text(280, 18, '在 ℤ₇ 里（所有数 mod 7），第 2、4 位被改了', 'tb', 'middle');
+  rows.forEach(([lab, vals, hi], r) => {
+    const y = 48 + r * 36;
+    o += text(X0 - 12, y + 5, lab, r === 0 ? 'ts' : 't', 'end');
+    vals.forEach((v, i) => {
+      const x = X0 + i * cw;
+      if (r === 0) { o += text(x + cw / 2, y + 5, String(v), 'ts', 'middle'); return; }
+      const on = hi && hi.includes(i);
+      const cls = on ? (r === 2 ? 'solid' : 'wash-strong') : 'paper';
+      o += rect(x + 2, y - 13, cw - 4, 26, cls, 4) + text(x + cw / 2, y + 5, String(v), on && r === 2 ? 'tw' : 'tb', 'middle');
+    });
+  });
+  const yb = 48 + 4 * 36, xe = X0 + n * cw + 8;
+  o += path(d([[xe, yb - 12], [xe + 8, yb - 12], [xe + 8, yb + 36 + 12], [xe, yb + 36 + 12]]), 'ink');
+  o += text(xe + 14, yb + 14, '逐格', 'ts', 'start') + text(xe + 14, yb + 30, '相同', 'ts', 'start');
+  o += text(280, 270, '被改的位置 E(i) = 0，那里的错被乘没了；其余位置 Rᵢ = P(i)。所以 Q = P·E 满足 Q(i) = Rᵢ E(i)。', 'ts', 'middle');
+  return svg(560, 278, o, 'Reed-Solomon code 在 Z7 上的例子：发出 2 2 3 5 1 5 3，收到 2 2 6 5 3 5 3；error-locator polynomial E 在第 2、4 位为 0，所以 R 乘 E 与 P 乘 E 在七个点上逐格相同');
+}
+
 export default {
   'cs3236-tradeoff': tradeoff,
   'cs3236-questions': questions,
@@ -373,4 +498,8 @@ export default {
   'cs3236-bsc': bscA,
   'cs3236-packing': packing,
   'cs3236-hamming': hammingA,
+  'cs3236-quant': quant,
+  'cs3236-awgn': awgn,
+  'cs3236-sphere': sphere,
+  'cs3236-rs': rs,
 };

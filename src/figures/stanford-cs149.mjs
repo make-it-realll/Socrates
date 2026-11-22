@@ -28,20 +28,20 @@ function simdA() {
   const xs = [2.1, 0.7, -1.3, 0.4, -0.2, -3.0, -0.6, -1.1];
   const T = xs.map((x) => x > 0);
   const code = [
-    ['float x = A[i];', 'all'],
-    ['if (x > 0) {', 'all'],
-    ['  float tmp = exp(x, 5.f);', 'T'],
-    ['  tmp *= kMyConst1;', 'T'],
-    ['  x = tmp + kMyConst2;', 'T'],
+    ['float t = x[i];', 'all'],
+    ['if (t > 0.0) {', 'all'],
+    ['  t = t * t;', 'T'],
+    ['  t = t * 50.0;', 'T'],
+    ['  t = t + 100.0;', 'T'],
     ['} else {', null],
-    ['  float tmp = kMyConst1;', 'F'],
-    ['  x = 2.f * tmp;', 'F'],
+    ['  t = t + 30.0;', 'F'],
+    ['  t = t / 10.0;', 'F'],
     ['}', null],
-    ['result[i] = x;', 'all'],
+    ['y[i] = t;', 'all'],
   ];
   const L0 = 262, cw = 30, top = 62, rh = 24;
-  let o = text(12, 20, 'ISPC/CUDA 里一个 program instance 的代码', 'tb') + text(L0 + 4 * cw, 20, '8 条 SIMD lane', 'tb', 'middle');
-  o += text(L0 - 8, 44, 'x =', 'ts', 'end');
+  let o = text(12, 20, 'forall 循环体：一个 element 的代码', 'tb') + text(L0 + 4 * cw, 20, '8 条 SIMD lane', 'tb', 'middle');
+  o += text(L0 - 8, 44, 'x[i] =', 'ts', 'end');
   xs.forEach((x, k) => { o += text(L0 + k * cw + cw / 2, 44, (x < 0 ? '−' : '') + Math.abs(x).toFixed(1), 'ts', 'middle'); });
   // 每一行
   const steps = [];
@@ -175,6 +175,36 @@ function mandelImb() {
   o += line(X1 - 6, sy(1 / 3), X1 + 222, sy(1 / 3), 'dash') + text(X1 - 10, sy(1 / 3) + 4, '⅓', 'ts', 'end');
   o += line(X1 - 6, base, X1 + 230, base, 'axis');
   return svg(560, 290, o, `Mandelbrot view 1 的工作集中在中间的 row；3 个 thread 按 blocked 分，中间的 thread 拿到 ${(share3[1] * 100).toFixed(1)}%，speedup 上限 ${(1 / Math.max(...share3)).toFixed(2)}；按 row interleaved 分，每个约三分之一`);
+}
+
+// ---------- 第 4 站：Gauss-Seidel 的 anti-diagonal 依赖与 red-black 顺序 ----------
+function redblack() {
+  const n = 8, c = 26, y0 = 40;
+  let o = '';
+  // 左：每个 cell 最早能算的步数 = i + j - 1（i, j 从 1 数起）
+  const xL = 26, hiStep = 6;
+  o += text(xL + n * c / 2, 16, 'Gauss-Seidel：最早第几步能算', 'tb', 'middle');
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= n; j++) {
+    const st = i + j - 1, x = xL + (j - 1) * c, y = y0 + (i - 1) * c;
+    o += rect(x, y, c, c, st === hiStep ? 'solid' : 'paper');
+    o += text(x + c / 2, y + c / 2 + 5, String(st), st === hiStep ? 'tw' : 'ts', 'middle');
+  }
+  const cntHi = Math.min(hiStep, n, 2 * n - hiStep);
+  o += text(xL, y0 + n * c + 20, `深色是第 ${hiStep} 步：一条 anti-diagonal，${cntHi} 个 cell`, 'ts');
+  o += text(xL, y0 + n * c + 37, `共 ${2 * n - 1} 步；第 1 步和第 ${2 * n - 1} 步各只有 1 个 cell`, 'ts');
+  // 右：red-black
+  const xR = 316;
+  let nr = 0;
+  o += text(xR + n * c / 2, 16, 'Red-black：两个 phase', 'tb', 'middle');
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= n; j++) {
+    const red = (i + j) % 2 === 0, x = xR + (j - 1) * c, y = y0 + (i - 1) * c;
+    if (red) nr++;
+    o += rect(x, y, c, c, red ? 'solid' : 'wash');
+    o += text(x + c / 2, y + c / 2 + 5, red ? 'R' : 'B', red ? 'tw' : 'ts', 'middle');
+  }
+  o += text(xR, y0 + n * c + 20, `phase 1：${nr} 个红格同时算（邻居全是黑格）`, 'ts');
+  o += text(xR, y0 + n * c + 37, `phase 2：${n * n - nr} 个黑格同时算（邻居全是红格）`, 'ts');
+  return svg(560, y0 + n * c + 44, o, `8 乘 8 的 grid：Gauss-Seidel 按 anti-diagonal 推进，共 ${2 * n - 1} 步；red-black 把它变成两个各 ${nr} 个 cell 的 phase`);
 }
 
 // ---------- 第 4 站：grid solver 的两种分法，要收多少 ghost cell ----------
@@ -322,6 +352,7 @@ function msiA() {
     { act: 'P3 read x', bus: 'BusRd', from: 'memory', st: ['S', '–', 'S'], val: ['0', '', '0'], mem: '0', edges: [['I', 'S', 2]], src: 'M', dst: [2] },
     { act: 'P3 write x = 1', bus: 'BusRdX', from: 'memory', st: ['I', '–', 'M'], val: ['', '', '1'], mem: '0', edges: [['S', 'M', 2], ['S', 'I', 0]], src: 'M', dst: [2] },
     { act: 'P1 read x', bus: 'BusRd（P3 回 BusWB）', from: 'P3 的 cache', st: ['S', '–', 'S'], val: ['1', '', '1'], mem: '1', edges: [['I', 'S', 0], ['M', 'S', 2]], src: 2, dst: [0] },
+    { act: 'P1 read x', bus: '无', from: 'P1 自己的 cache（S，hit）', st: ['S', '–', 'S'], val: ['1', '', '1'], mem: '1', edges: [], src: null, dst: [], hl: [0] },
     { act: 'P2 write x = 2', bus: 'BusRdX', from: 'memory', st: ['I', 'M', 'I'], val: ['', '2', ''], mem: '1', edges: [['I', 'M', 1], ['S', 'I', 0], ['S', 'I', 2]], src: 'M', dst: [1] },
   ];
   const n = steps.length, hold = 2.4, dur = n * hold;
@@ -337,7 +368,7 @@ function msiA() {
     o += line(x, PY + 74, x, BUSY, 'ink');
     steps.forEach((s, i) => {
       const lab = s.st[p] === '–' ? '（没有）' : s.st[p] + (s.val[p] ? '，值 ' + s.val[p] : '');
-      const req = s.dst.includes(p);
+      const req = (s.hl || s.dst).includes(p);
       o += `<text x="${x}" y="${PY + 68}" class="${req ? 'tl' : 't'}" text-anchor="middle">${lab}${ashow(on(i), kt, dur)}</text>`;
     });
   });
@@ -383,7 +414,7 @@ function msiA() {
   }
   o += text(S.M[0] + 30, S.M[1] - 8, 'M：PrRd、PrWr 都不上 bus', 'ts', 'start');
   o += text(S.S[0], S.S[1] + 40, 'S：PrRd 不上 bus', 'ts', 'middle');
-  return svgA(560, 410, o, '动图：三个 processor 依次读写同一个 x，每一步 bus 上的 transaction、各 cache 里 x 的 state，以及 MSI state diagram 上走过的 transition');
+  return svgA(560, 410, o, '动图：三个 processor 依次读写同一个 x 共六步，每一步 bus 上的 transaction、各 cache 里 x 的 state，以及 MSI state diagram 上走过的 transition');
 }
 
 // ---------- 第 6 站：false sharing ----------
@@ -445,7 +476,7 @@ function systolic() {
   for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) {
     const x = X0 + k * c, y = Y0 + r * c;
     o += rect(x + 6, y + 6, c - 12, c - 12, 'paper', 4);
-    o += text(x + c / 2, y + c / 2 - 2, `w${k + 1}${r + 1}`, 't', 'middle');
+    o += text(x + c / 2, y + c / 2 - 2, `w${k}${r}`, 't', 'middle');
     o += text(x + c / 2, y + c / 2 + 14, `cycle ${r + k}`, 'ts', 'middle');
     if (k < n - 1) o += arrow(x + c - 6, y + c / 2 - 10, x + c + 6, y + c / 2 - 10, 'mute', 5);
     if (r < n - 1) o += arrow(x + c / 2 + 18, y + c - 6, x + c / 2 + 18, y + c + 6, 'ln', 5);
@@ -453,20 +484,20 @@ function systolic() {
   for (let r = 0; r < n; r++) {
     const y = Y0 + r * c + c / 2 - 10;
     o += arrow(X0 - 40, y, X0 + 6, y, 'mute', 5);
-    o += text(X0 - 46, y + 4, `x${r + 1}（cycle ${r} 进）`, 't', 'end');
+    o += text(X0 - 46, y + 4, `x${r}（cycle ${r} 进）`, 't', 'end');
   }
   for (let k = 0; k < n; k++) {
     const x = X0 + k * c + c / 2 + 18;
     o += arrow(x, Y0 + n * c - 6, x, Y0 + n * c + 18, 'ln', 5);
-    o += text(x, Y0 + n * c + 34, `y${k + 1}`, 'tl', 'middle');
+    o += text(x, Y0 + n * c + 34, `y${k}`, 'tl', 'middle');
     o += text(x, Y0 + n * c + 50, `cycle ${k + n} 出`, 'ts', 'middle');
   }
   o += text(X0 + n * c + 14, Y0 + 20, 'x 向右传一格，', 'ts') + text(X0 + n * c + 14, Y0 + 36, '部分和向下传一格；', 'ts');
   o += text(X0 + n * c + 14, Y0 + 60, '每个 PE 每个 cycle', 'ts') + text(X0 + n * c + 14, Y0 + 76, '只做一次 multiply-add，', 'ts');
   o += text(X0 + n * c + 14, Y0 + 92, '只和邻居说话。', 'ts');
-  o += text(X0 + n * c + 14, Y0 + 130, '第 r 行第 k 列的 PE', 'ts') + text(X0 + n * c + 14, Y0 + 146, '在 cycle r+k 收到 x', 'ts');
-  o += text(X0 + n * c + 14, Y0 + 162, '和 y 的部分和。', 'ts');
-  return svg(560, Y0 + n * c + 58, o, '4×4 systolic array：x 从左边错开一拍进入、向右流，部分和沿每一列向下流，第 k 列在 cycle k+4 输出 y_k');
+  o += text(X0 + n * c + 14, Y0 + 130, '第 r 行第 k 列的 PE 存 wkr，', 'ts') + text(X0 + n * c + 14, Y0 + 146, '在 cycle r+k 收到 xr', 'ts');
+  o += text(X0 + n * c + 14, Y0 + 162, '和 yk 的部分和。', 'ts');
+  return svg(560, Y0 + n * c + 58, o, '4×4 systolic array：x 从左边错开一拍进入、向右流，部分和沿每一列向下流，第 k 列在 cycle k+4 输出 y_k，k 从 0 数起');
 }
 
 // ---------- 第 8 站：Halide 的 compute_at：一个 output tile 要多少 blurx ----------
@@ -494,6 +525,7 @@ export default {
   'cs149-mthread': mthread,
   'cs149-gang': gang,
   'cs149-mandel': mandelImb,
+  'cs149-redblack': redblack,
   'cs149-grid': grid,
   'cs149-conv': conv,
   'cs149-warp': warpA,

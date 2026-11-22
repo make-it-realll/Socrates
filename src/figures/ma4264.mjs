@@ -485,7 +485,216 @@ function core() {
   return svg(560, 278, o, '三个 player 分 100 的所有方法构成一个三角形；core 是 x3 等于 0 且 x2 不超过 20 的一段边，从 (100,0,0) 到 (80,20,0)；Shapley value 63.3、23.3、13.3 落在三角形内部，不在 core 上');
 }
 
+// ---------- 第 2 站：homogeneous Bertrand 没有 best response ----------
+function bertrand() {
+  const a = 2, c = 1, pj = 1.4;
+  const mono = (p) => (p - c) * (a - p);
+  const prof = (p) => (p < pj ? mono(p) : p === pj ? mono(p) / 2 : 0);
+  // 核对正文里的数
+  const chk = [[1.39, 0.2379], [1.399, 0.239799], [1.4, 0.12]];
+  for (const [p, v] of chk) if (Math.abs(prof(p) - v) > 1e-9) throw new Error('bertrand 数字不对');
+  const sx = lin(1, 2, 60, 330), sy = lin(0, 0.3, 250, 30);
+  let o = axes({ sx, sy, x0: 1, x1: 2, y0: 0, y1: 0.3, xt: [[1, 'c = 1'], [1.4, '1.4'], [1.5, '1.5'], [2, '2']], yt: [[0.12, '0.12'], [0.24, '0.24']], grid: true, xl: 'firm i 的 price pᵢ' });
+  o += text(60, 16, 'pⱼ = 1.4 时 firm i 的 profit', 'tb');
+  o += path(curve(mono, pj, 2, sx, sy, 120), 'dash');
+  o += path(curve(mono, 1, pj - 1e-6, sx, sy, 160), 'ln');
+  o += line(sx(pj), sy(0), sx(2), sy(0), 'ln');
+  o += line(sx(pj), sy(0), sx(pj), sy(0.29), 'dash');
+  o += circle(sx(pj), sy(mono(pj)), 4.5, 'paper') + circle(sx(pj), sy(mono(pj) / 2), 4.5, 'ln-f');
+  o += text(sx(1.62), sy(mono(1.62)) - 8, '独占时的 profit', 'ts', 'start');
+  o += text(sx(1.04), sy(0.03), 'pᵢ < 1.4：独占', 'ts', 'start');
+  o += text(sx(pj) + 8, sy(mono(pj) / 2) + 4, '相等：分一半', 'ts', 'start');
+  o += text(sx(1.72), sy(0) - 8, '更贵：卖不出去', 'ts', 'middle');
+  const X = 370;
+  o += text(X, 60, '空心点 0.24 是 sup', 'tb') + text(X, 78, '从左边无限逼近，取不到', 'ts');
+  o += text(X, 110, 'pᵢ = 1.39：0.2379', 't') + text(X, 128, 'pᵢ = 1.399：0.239799', 't') + text(X, 146, 'pᵢ = 1.4：0.12', 't');
+  o += text(X, 182, '没有最大值，', 'tl') + text(X, 200, '所以没有 best response', 'tl');
+  return svg(560, 282, o, 'a 等于 2、c 等于 1、对方定价 1.4 时，firm i 的 profit 随自己 price 的变化：低于 1.4 时沿着独占的 profit 曲线上升，逼近 0.24；恰好 1.4 时只有一半 0.12；高于 1.4 时为 0');
+}
+
+// ---------- 第 8 站：SPE 排除不了的 L（14.12 Figure 16.2） ----------
+function pbetree() {
+  const leaf = { X: [2, 6], TL: [0, 1], TR: [3, 2], BL: [-1, 3], BR: [1, 5] };
+  // 核对：在 information set 上 R 对每个 μ 都更好
+  for (const mu of [0, 0.5, 1]) {
+    const L = mu * leaf.TL[1] + (1 - mu) * leaf.BL[1], R = mu * leaf.TR[1] + (1 - mu) * leaf.BR[1];
+    if (!(R - L > 0)) throw new Error('pbetree 数字不对');
+  }
+  let o = '';
+  const Rt = [170, 40], Xl = [50, 118], T = [120, 132], B = [240, 132];
+  const lv = { TL: [80, 222], TR: [160, 222], BL: [200, 222], BR: [280, 222] };
+  o += line(...Rt, ...Xl, 'ink') + line(...Rt, ...T, 'ln') + line(...Rt, ...B, 'ink');
+  o += line(...T, ...lv.TL, 'ink') + line(...T, ...lv.TR, 'ln') + line(...B, ...lv.BL, 'ink') + line(...B, ...lv.BR, 'ln');
+  o += `<rect x="96" y="116" width="168" height="32" rx="16" class="dash"/>`;
+  for (const p of [Rt, T, B]) o += circle(...p, 5, 'ink-f');
+  o += text(Rt[0], Rt[1] - 12, 'P1', 'tb', 'middle');
+  o += text(180, 108, 'P2', 'tb', 'middle');
+  o += text((Rt[0] + Xl[0]) / 2 - 6, (Rt[1] + Xl[1]) / 2, 'X', 't', 'end');
+  o += text((Rt[0] + T[0]) / 2 - 6, (Rt[1] + T[1]) / 2 + 2, 'T', 'tl', 'end') + text((Rt[0] + B[0]) / 2 + 6, (Rt[1] + B[1]) / 2 + 2, 'B', 't', 'start');
+  o += text(Xl[0], Xl[1] + 20, pay(...leaf.X), 't', 'middle');
+  o += text(T[0], T[1] + 66, '[μ]', 'ts', 'middle') + text(B[0], B[1] + 66, '[1 − μ]', 'ts', 'middle');
+  for (const [k, [x, y]] of Object.entries(lv)) {
+    const par = k[0] === 'T' ? T : B, left = k[1] === 'L';
+    o += text((par[0] + x) / 2 + (left ? -5 : 5), (par[1] + y) / 2 + 12, left ? 'L' : 'R', left ? 'ts' : 'tl', left ? 'end' : 'start');
+    o += text(x, y + 20, pay(...leaf[k]), 't', 'middle');
+  }
+  const Xc = 330;
+  o += text(Xc, 50, 'P2 在 information set 上', 'tb');
+  o += text(Xc, 76, 'L：μ · 1 + (1 − μ) · 3 = 3 − 2μ', 't');
+  o += text(Xc, 98, 'R：μ · 2 + (1 − μ) · 5 = 5 − 3μ', 't');
+  o += text(Xc, 124, 'R − L = 2 − μ ≥ 1', 'tl');
+  o += text(Xc, 150, '任何 belief 下 R 都更好', 'ts');
+  o += text(Xc, 184, '(X, L)：是 SPE，不是 PBE', 't');
+  o += text(Xc, 206, '(T, R)，μ = 1：唯一的 PBE', 'tl');
+  return svg(560, 252, o, 'P1 在 X、T、B 中选，X 结束得 2、6；T、B 之后 P2 在同一个 information set 上选 L 或 R；右边算出 P2 在任何 belief 下 R 都比 L 好，彩线是唯一的 PBE：T 和 R');
+}
+
+// ---------- 第 8 站：signaling game 的 tree（Tutorial 8 Ex 4 和 Beer–Quiche 共用） ----------
+// pay[type][msg][act] = [sender, receiver]；type 0 在上，msg 0 在左，act 0 在外侧上方
+function sigTree({ types, prior, msgs, acts, P, belL, belR }) {
+  const N = [280, 148], S = [[280, 72], [280, 224]], RX = [158, 402], LX = [70, 490];
+  let o = '';
+  o += circle(...N, 6, 'paper') + text(N[0] + 12, N[1] + 5, 'Nature', 'tb', 'start');
+  for (let t = 0; t < 2; t++) {
+    o += line(N[0], N[1] + (t ? 6 : -6), S[t][0], S[t][1] + (t ? -5 : 5), 'ink');
+    o += text(N[0] - 8, (N[1] + S[t][1]) / 2 + 4, prior[t], 'ts', 'end');
+    o += circle(...S[t], 5, 'ink-f') + text(S[t][0], S[t][1] + (t ? 22 : -12), types[t], 'tb', 'middle');
+  }
+  // receiver 的 information set
+  for (let m = 0; m < 2; m++) o += line(RX[m], S[0][1], RX[m], S[1][1], 'dash');
+  o += text(RX[0] - 10, N[1] + 4, 'Receiver', 'ts', 'end') + text(RX[1] + 10, N[1] + 4, 'Receiver', 'ts', 'start');
+  const bel = [belL, belR];
+  const node = (t, m) => [RX[m], S[t][1]];
+  const leafPt = (t, m, a) => [LX[m], S[t][1] + (a ? 32 : -32)];
+  for (let t = 0; t < 2; t++) for (let m = 0; m < 2; m++) {
+    const [x, y] = node(t, m);
+    o += line(...S[t], x, y, 'ink');
+    o += text((S[t][0] + x) / 2, y - 7, msgs[m], 'ts', 'middle');
+    for (let a = 0; a < 2; a++) {
+      const [lx, ly] = leafPt(t, m, a);
+      o += line(x, y, lx, ly, 'ink');
+      o += text((x + lx) / 2 + (m ? 6 : -6), (y + ly) / 2 + (a ? 16 : -10), acts[a], 'ts', m ? 'start' : 'end');
+      o += text(lx + (m ? 6 : -6), ly + 5, pay(...P[t][m][a]), 't', m ? 'start' : 'end');
+    }
+    o += circle(x, y, 4.5, 'ink-f');
+    o += text(x + (m ? -8 : 8), y + (t ? 18 : -10), bel[m][t], 'ts', m ? 'end' : 'start');
+  }
+  // 高亮：sender 的 message 选择 snd[t]，receiver 在 message m 之后的 action rec[m]（null 表示不画）
+  const hi = (snd, rec, cls = 'ln', offCls = 'ln-dash') => {
+    let h = '';
+    for (let t = 0; t < 2; t++) h += line(...S[t], ...node(t, snd[t]), cls);
+    for (let m = 0; m < 2; m++) {
+      if (rec[m] == null) continue;
+      const on = snd.includes(m);
+      for (let t = 0; t < 2; t++) h += line(...node(t, m), ...leafPt(t, m, rec[m]), on ? cls : offCls);
+    }
+    return h;
+  };
+  return { o, hi };
+}
+
+// 逐个 sender strategy 找 PBE：返回 [{snd, rec, ok, why}]
+function solveSig(prior, P) {
+  const res = [];
+  for (const snd of [[0, 0], [0, 1], [1, 0], [1, 1]]) {
+    const rec = [null, null];
+    for (let m = 0; m < 2; m++) {
+      const ts = [0, 1].filter((t) => snd[t] === m);
+      if (!ts.length) continue;
+      const tot = ts.reduce((s, t) => s + prior[t], 0);
+      const ev = (a) => ts.reduce((s, t) => s + (prior[t] / tot) * P[t][m][a][1], 0);
+      rec[m] = ev(0) >= ev(1) ? 0 : 1;
+    }
+    // path 外的 message：找一个 receiver action 让所有 type 都不偏离
+    const off = [0, 1].find((m) => rec[m] == null);
+    let ok = false, offAct = null;
+    const stays = (r) => [0, 1].every((t) => P[t][snd[t]][r[snd[t]]][0] >= P[t][1 - snd[t]][r[1 - snd[t]]][0]);
+    if (off == null) ok = stays(rec);
+    else for (const a of [0, 1]) { const r = rec.slice(); r[off] = a; if (stays(r)) { ok = true; offAct = a; } }
+    res.push({ snd, rec, ok, off, offAct });
+  }
+  return res;
+}
+
+function signalA() {
+  const P = [[[[1, 2], [2, 0]], [[0, 1], [3, 0]]], [[[0, 0], [3, 1]], [[1, 0], [2, 2]]]];
+  const prior = [0.5, 0.5];
+  const sol = solveSig(prior, P);
+  const okOnes = sol.filter((s) => s.ok);
+  if (okOnes.length !== 1 || okOnes[0].snd.join('') !== '11' || okOnes[0].offAct !== 0) throw new Error('signaling 的解不对');
+  const { o: base, hi } = sigTree({ types: ['t₁', 't₂'], prior: ['½', '½'], msgs: ['L', 'R'], acts: ['u', 'd'], P, belL: ['[p]', '[1 − p]'], belR: ['[q]', '[1 − q]'] });
+  // 顺序：RR（答案）、LL、LR、RL、RR
+  const order = [[1, 1], [0, 0], [0, 1], [1, 0], [1, 1]];
+  const holds = [4.5, 3.6, 3.6, 3.6, 3.2], { kt, T } = tlD(holds);
+  const idx = [0, 1, 2, 3, 4, 4];
+  let o = base;
+  const caps = {
+    '11': ['RR：q = ½ ≤ ⅔，R 之后选 d；t₁ 得 3，t₂ 得 2', 'L 在 path 外：取 p ≥ ⅓，L 之后选 u，t₂ 改发 L 只得 0。是 PBE'],
+    '00': ['LL：p = ½ ≥ ⅓，L 之后选 u；t₂ 只得 0', 't₂ 改发 R，遇到 u 得 1，遇到 d 得 2。不是 PBE'],
+    '01': ['LR：p = 1，L 之后选 u；q = 0，R 之后选 d', 't₁ 只得 1，改发 R 会遇到 d，得 3。不是 PBE'],
+    '10': ['RL：p = 0，L 之后选 d；q = 1，R 之后选 u', 't₁ 只得 0，改发 L 会遇到 d，得 2。不是 PBE'],
+  };
+  order.forEach((snd, k) => {
+    const s = sol.find((x) => x.snd.join('') === snd.join(''));
+    const rec = s.rec.slice();
+    if (s.ok && s.off != null) rec[s.off] = s.offAct;
+    const on = idx.map((j) => j === k || (k === 0 && j === 4));
+    if (k === 4) return;
+    o += gshow(on, kt, T, hi(snd, rec));
+    const key = snd.join('');
+    o += gshow(on, kt, T, text(280, 292, caps[key][0], 't', 'middle') + text(280, 312, caps[key][1], 'ts', 'middle'));
+  });
+  return svgA(560, 320, o, '动图：signaling game 的 tree，Nature 在中间抽出 t1 或 t2，sender 向左发 L 或向右发 R，receiver 在左右两个 information set 上选 u 或 d；依次检查 RR、LL、LR、RL 四个 sender strategy，只有 RR 配上 L 之后 u、R 之后 d 是 PBE');
+}
+
+function beer() {
+  // type：strong（上）、weak（下）；msg：Beer（左）、Quiche（右）；act：duel（上）、不 duel（下）
+  const P = [[[[1, 0], [3, 1]], [[0, 0], [2, 1]]], [[[0, 1], [2, 0]], [[1, 1], [3, 0]]]];
+  const sol = solveSig([0.9, 0.1], P);
+  const ok = sol.filter((s) => s.ok).map((s) => s.snd.join(''));
+  if (ok.join(',') !== '00,11') throw new Error('Beer–Quiche 的解不对');
+  const { o: base, hi } = sigTree({ types: ['strong', 'weak'], prior: ['0.9', '0.1'], msgs: ['Beer', 'Quiche'], acts: ['duel', 'not'], P, belL: ['[0.9]', '[0.1]'], belR: ['[1 − μ]', '[μ]'] });
+  let o = base + hi([0, 0], [1, 0]);
+  o += text(280, 292, '彩线：两种 type 都点 Beer，Beer 之后不 duel（0.1 < 0.9）', 't', 'middle');
+  o += text(280, 312, '虚彩线：Quiche 在 path 外，μ ≥ ½ 时 duel，weak 改点 Quiche 只得 1 < 2', 'ts', 'middle');
+  return svg(560, 320, o, 'Beer–Quiche 的 signaling game：strong 的 prior 0.9、weak 0.1，sender 点 Beer 或 Quiche，receiver 决定 duel 与否；彩线是两种 type 都点 Beer、Beer 之后不 duel、Quiche 之后 duel 的 pooling equilibrium');
+}
+
+// ---------- 第 9 站：Nash bargaining solution 是切点 ----------
+function nash() {
+  const sx = lin(0, 1.15, 60, 320), sy = lin(0, 1.15, 262, 30);
+  let o = axes({ sx, sy, x0: 0, x1: 1.15, y0: 0, y1: 1.15, xt: [0, [1 / Math.sqrt(3), '1/√3'], 1], yt: [[2 / 3, '2/3'], 1], xl: 'u₁ = √x₁' });
+  o += text(sx(0) - 4, sy(1.15) - 10, 'u₂ = x₂', 'ts');
+  const bd = (u) => 1 - u * u;
+  const pts = [[sx(0), sy(0)]];
+  for (let i = 0; i <= 120; i++) { const u = i / 120; pts.push([sx(u), sy(bd(u))]); }
+  o += poly(pts, 'wash') + path(curve(bd, 0, 1, sx, sy, 160), 'ink-b');
+  const ks = 2 / (3 * Math.sqrt(3));
+  // 核对：切点处 level curve 与边界的 slope 相同
+  const u0 = 1 / Math.sqrt(3);
+  if (Math.abs(-2 * u0 - (-ks / (u0 * u0))) > 1e-9) throw new Error('Nash 切点不对');
+  for (const k of [0.15, 0.27]) o += path(curve((u) => k / u, k / 1.1, 1.1, sx, sy, 200), 'mute');
+  o += path(curve((u) => ks / u, ks / 1.1, 1.1, sx, sy, 200), 'ln');
+  o += path(curve((u) => 0.5 / u, 0.5 / 1.1, 1.1, sx, sy, 200), 'dash');
+  o += circle(sx(u0), sy(2 / 3), 5, 'ink-f');
+  o += line(sx(u0), sy(0), sx(u0), sy(2 / 3), 'grid') + line(sx(0), sy(2 / 3), sx(u0), sy(2 / 3), 'grid');
+  o += text(sx(0.2), sy(0.2) + 4, 'F', 'tbig', 'middle');
+  o += text(sx(1.1) + 4, sy(ks / 1.1) + 4, 'u₁u₂ ≈ 0.385', 'tl', 'start');
+  o += text(sx(1.1) + 4, sy(0.5 / 1.1) - 2, '0.5：够不着 F', 'ts', 'start');
+  o += text(sx(1.1) + 4, sy(0.27 / 1.1) + 10, '0.27', 'ts', 'start');
+  const X = 420;
+  o += text(X, 140, '粗黑线：F 的边界', 'ts') + text(X, 158, 'u₂ = 1 − u₁²', 't');
+  o += text(X, 60, '切点 (1/√3, 2/3)', 'tb');
+  o += text(X, 82, '换回钱：', 'ts') + text(X, 100, 'x₁ = 1/3，x₂ = 2/3', 't');
+  return svg(560, 296, o, 'u1、u2 plane 上的 feasible set F，边界是 u2 等于 1 减 u1 的平方；几条 Nash product 的 level curve u1 u2 等于常数，其中等于约 0.385 的那条与边界相切于 1/√3、2/3');
+}
+
 export default {
+  'ma4264-bertrand': bertrand,
+  'ma4264-pbetree': pbetree,
+  'ma4264-signal': signalA,
+  'ma4264-beer': beer,
+  'ma4264-nash': nash,
   'ma4264-iesds': iesdsA,
   'ma4264-mixdom': mixdom,
   'ma4264-brdyn': brdynA,

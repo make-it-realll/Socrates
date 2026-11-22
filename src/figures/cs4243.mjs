@@ -245,7 +245,63 @@ function distort() {
   return svg(560, 340, o, '640 乘 480 的 image 上，pinhole 下的直格子和 barrel distortion 后的格子对比；中心几乎重合，角落偏差最大');
 }
 
+function weakpersp() {
+  let o = '';
+  const Zimg = 0.5; // 画图用的 image plane 位置（只是示意，pixel 值用 f = 500 算）
+  const uP = (X, Z) => K.f * X / Z + K.cx;
+  const panel = (x0, Zs, title, Zmax) => {
+    const X = 0.2, Z0 = (Zs[0] + Zs[1]) / 2;
+    const sx = lin(0, Zmax, x0 + 14, x0 + 258), sy = lin(-0.03, 0.24, 196, 52);
+    o += text(x0 + 136, 22, title, 'tb', 'middle');
+    o += line(sx(0), sy(0), sx(Zmax), sy(0), 'axis') + text(sx(Zmax), sy(0) + 16, it('Z'), 't', 'end');
+    o += line(sx(Zimg), sy(-0.03), sx(Zimg), sy(0.24), 'ink');
+    o += line(sx(Z0), sy(-0.03), sx(Z0), sy(0.24), 'dash') + text(sx(Z0), sy(0.24) - 6, 'Z₀ = ' + Z0.toFixed(2), 'ts', 'middle');
+    o += circle(sx(0), sy(0), 4, 'ink-f');
+    // weak perspective：沿 Z 压到 Z0，再从 O 投影
+    for (const Z of Zs) o += line(sx(Z), sy(X), sx(Z0), sy(X), 'dash');
+    o += line(sx(0), sy(0), sx(Z0), sy(X), 'dash');
+    for (const Z of Zs) o += line(sx(0), sy(0), sx(Z), sy(X), 'ln');
+    for (const Z of Zs) o += circle(sx(Z), sy(X), 4, 'ln-f');
+    o += circle(sx(Z0), sy(X), 3.5, 'ink paper-f');
+    for (const Z of Zs) o += circle(sx(Zimg), sy(Zimg * X / Z), 3.2, 'ln-f');
+    o += circle(sx(Zimg), sy(Zimg * X / Z0), 3.2, 'ink paper-f');
+    if (Zs[1] - Zs[0] < 0.5) o += text(sx(Zs[0]) - 10, sy(X) - 8, `Z = ${Zs[0].toFixed(1)}、${Zs[1].toFixed(1)}`, 'ts', 'end');
+    else for (const Z of Zs) o += text(sx(Z) + (Z === Zs[0] ? 8 : 0), sy(X) + 18, `Z = ${Z}`, 'ts', Z === Zs[0] ? 'start' : 'middle');
+    o += text(x0 + 14, 222, `perspective：u = ${uP(X, Zs[0]).toFixed(1)}、${uP(X, Zs[1]).toFixed(1)}`, 'tl');
+    o += text(x0 + 14, 240, `weak perspective：u = ${uP(X, Z0).toFixed(1)}`, 'ts');
+  };
+  panel(4, [2.0, 2.1], '杯子：深 0.1 m，在 2 m 外', 2.4);
+  panel(288, [1, 4], '走廊：从 1 m 到 4 m', 4.3);
+  o += text(18, 44, 'image plane', 'ts');
+  o += text(280, 262, '俯视，X 方向放大；彩线：perspective 的 ray；虚线：先压到 Z₀ 再投影', 'ts', 'middle');
+  return svg(560, 270, o, '俯视对比 perspective 和 weak perspective：一个只有 0.1 m 深的杯子，两种 model 落在 image 上几乎同一处；一条从 1 m 到 4 m 的走廊，两种 model 差 60 和 15 pixel');
+}
+
 // ---------- 第 4 站 ----------
+function blend() {
+  let o = '';
+  const sx = lin(200, 440, 70, 530);
+  // 上：两张 image 在 output frame 里的位置
+  o += rect(sx(200), 30, sx(340) - sx(200), 34, 'wash2');
+  o += rect(sx(300), 74, sx(440) - sx(300), 34, 'wash2');
+  o += rect(sx(300), 30, sx(340) - sx(300), 78, 'wash');
+  o += rect(sx(200), 30, sx(340) - sx(200), 34, 'frame') + rect(sx(300), 74, sx(440) - sx(300), 34, 'frame');
+  o += text(sx(250), 52, 'I₁：120', 't', 'middle') + text(sx(390), 96, 'I₂：100', 't', 'middle');
+  o += text(sx(320), 22, 'overlap', 'ts', 'middle');
+  // 下：沿一个 row 的 intensity
+  const sy = lin(95, 125, 270, 140);
+  o += axes({ sx, sy, x0: 200, x1: 440, y0: 95, y1: 125, xt: [200, 300, 340, 440], yt: [100, 110, 120], xl: 'u（pixel）' });
+  const alpha = (u) => (u <= 300 ? 1 : u >= 340 ? 0 : (340 - u) / 40);
+  const C = (u) => alpha(u) * 120 + (1 - alpha(u)) * 100;
+  o += path(d([[sx(200), sy(120)], [sx(320), sy(120)], [sx(320), sy(100)], [sx(440), sy(100)]]), 'ln-dash');
+  o += path(curve(C, 200, 440, sx, sy), 'ln');
+  for (const u of [310, 330]) o += circle(sx(u), sy(C(u)), 3.5, 'ink-f') + text(sx(u) + 6, sy(C(u)) - 6, `${u}：${C(u)}`, 'ts');
+  o += line(sx(300), 108, sx(300), 270, 'grid') + line(sx(340), 108, sx(340), 270, 'grid');
+  o += line(380, 150, 404, 150, 'ln-dash') + text(410, 154, '在 u = 320 硬切换', 'ts');
+  o += line(380, 170, 404, 170, 'ln') + text(410, 174, 'alpha blending', 'ts');
+  return svg(560, 300, o, '两张 image 在 output 里重叠 40 个 pixel，一张亮 120、一张亮 100；硬切换在中间跳 20，alpha blending 在 overlap 里线性过渡');
+}
+
 function transforms() {
   let o = '';
   const sq = [[0, 0], [1, 0], [1, 1], [0, 1]];
@@ -523,7 +579,9 @@ export default {
   'cs4243-edge1d': edge1d,
   'cs4243-harris': harris,
   'cs4243-pinhole': pinhole,
+  'cs4243-weakpersp': weakpersp,
   'cs4243-distort': distort,
+  'cs4243-blend': blend,
   'cs4243-transforms': transforms,
   'cs4243-rectify': rectify,
   'cs4243-ransac': ransacline,

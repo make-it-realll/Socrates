@@ -558,6 +558,127 @@ function tree() {
   return svg(560, 276, o, 'SpecInfer 的 token tree：machine 下面分出 learning 和 translation 两支，共 7 个 token，按 DFS 编号。右边的 mask 里每个 token 只看见自己和祖先。LLM 接受了 learning 和 system，在 system 之后给出 optimization');
 }
 
+// ---------- 第 9 站：fine-tuning 的 memory 组成（Lecture 17 引用的 QST 论文的数） ----------
+function peftmem() {
+  const data = [
+    ['Full fine-tuning', 140, 420, 197],
+    ['QLoRA', 36, 13, 197],
+    ['LST', 140, 24, 78],
+    ['QST', 36, 4, 69],
+  ];
+  const parts = [['weights', 'wash2'], ['optimizer', 'wash'], ['activations', 'wash-strong']];
+  const base = 262, k = 0.27, bw = 40, col = 140;
+  let o = line(0, base, 560, base, 'axis');
+  data.forEach(([name, ...v], c) => {
+    const x = 6 + c * col;
+    let y = base;
+    const segs = [];
+    v.forEach((gb, i) => {
+      const h = gb * k;
+      o += rect(x, y - h, bw, h, parts[i][1], 0);
+      segs.push({ mid: y - h / 2, lab: `${parts[i][0]} ${gb}` });
+      y -= h;
+    });
+    // 标签从下往上排，彼此至少隔 14 px
+    let prev = base + 20;
+    for (const sg of segs) {
+      const ly = Math.min(sg.mid + 4, prev - 14);
+      if (Math.abs(ly - 4 - sg.mid) > 2) o += line(x + bw, sg.mid, x + bw + 5, ly - 4, 'mute');
+      o += text(x + bw + 6, ly, sg.lab, 'ts');
+      prev = ly;
+    }
+    const tot = v.reduce((a, b) => a + b, 0);
+    o += text(x + bw / 2, y - 6, `${tot} GB`, 'tb', 'middle');
+    o += text(x, base + 18, name, 't');
+  });
+  o += text(0, 300, '单位 GB。LoRA 一类方法压的是 weights 和 optimizer，activations 要靠 side tuning 才压得下去。', 'ts');
+  return svg(560, 306, o, 'Fine-tune 一个 70B model 的 memory：full fine-tuning 是 140 加 420 加 197 共 757 GB，QLoRA 是 36 加 13 加 197 共 246 GB，LST 是 140 加 24 加 78 共 242 GB，QST 是 36 加 4 加 69 共 109 GB');
+}
+
+// ---------- 第 10 站：MoE 的 permute、group GEMM 与 un-permute ----------
+function moe() {
+  const sel = [[0, 2], [0, 1], [0, 2], [1, 2]], E = 3;
+  // 按 expert 排序：mask.T 展平后做 prefix sum
+  const flat = [];
+  for (let e = 0; e < E; e++) for (let i = 0; i < sel.length; i++) flat.push(sel[i].includes(e) ? 1 : 0);
+  const cs = []; flat.reduce((a, v, j) => (cs[j] = a + v), 0);
+  const rows = [], pos = sel.map(() => []), indptr = [0];
+  for (let e = 0; e < E; e++) {
+    for (let i = 0; i < sel.length; i++) {
+      const j = e * sel.length + i;
+      if (flat[j]) { pos[i].push(cs[j] - 1); rows[cs[j] - 1] = { i, e }; }
+    }
+    indptr.push(cs[(e + 1) * sel.length - 1]);
+  }
+  const sub = (n) => '₀₁₂₃₄₅₆₇₈₉'[n];
+  let o = text(0, 14, 'routing', 'tb') + text(212, 14, 'data（按 expert 排好）', 'tb') + text(558, 14, 'un-permute 与 mixing', 'tb', 'end');
+  const IY = (i) => 44 + i * 62, RY = (r) => 28 + r * 30;
+  sel.forEach((s, i) => {
+    o += rect(0, IY(i), 104, 30, 'paper', 5) + text(52, IY(i) + 20, `x${sub(i)} → {${s.join(',')}}`, 't', 'middle');
+    pos[i].forEach((r) => { o += arrow(106, IY(i) + 15, 208, RY(r) + 12, 'mute', 5); });
+  });
+  rows.forEach(({ i, e }, r) => {
+    o += rect(212, RY(r), 70, 24, e === 1 ? 'wash2' : 'wash', 3) + text(222, RY(r) + 17, String(r), 'ts') + text(252, RY(r) + 17, `x${sub(i)}`, 't', 'middle');
+  });
+  for (let e = 0; e < E; e++) {
+    const y0 = RY(indptr[e]), y1 = RY(indptr[e + 1] - 1) + 24;
+    o += line(290, y0, 296, y0, 'ink') + line(296, y0, 296, y1, 'ink') + line(290, y1, 296, y1, 'ink');
+    o += text(302, (y0 + y1) / 2 - 2, `expert ${e}`, 'tb') + text(302, (y0 + y1) / 2 + 14, `× W${sub(e + 1)}，batch ${indptr[e + 1] - indptr[e]}`, 'ts');
+  }
+  sel.forEach((s, i) => {
+    o += text(440, IY(i) + 20, `y${sub(i)} = s₀ z${sub(pos[i][0])} + s₁ z${sub(pos[i][1])}`, 't');
+  });
+  o += text(212, 282, `indptr = [${indptr.join(', ')}]`, 'tl');
+  o += text(0, 306, `行号由 prefix sum 得出：cumsum = [${cs.join(', ')}]，mask 为 1 处取值减 1。`, 'ts');
+  return svg(560, 314, o, `MoE 的 batched 计算：4 个 instance 分别选 expert {0,2}、{0,1}、{0,2}、{1,2}，按 expert 排成 8 行，indptr 为 ${indptr.join('、')}；每个 expert 的 weight 只读一次做 group GEMM，再按行号送回各 instance 加权相加`);
+}
+
+// ---------- 第 11 站：MPK 的 task graph（normalization 与 linearization 之后） ----------
+function mpk() {
+  const tasks = [
+    ['Q₁', 'e0', 'e1'], ['Q₂', 'e0', 'e1'], ['K₁', 'e0', 'e1'], ['V₁', 'e0', 'e1'],
+    ['Q₃', 'e0', 'e2'], ['Q₄', 'e0', 'e2'], ['K₂', 'e0', 'e2'], ['V₂', 'e0', 'e2'],
+    ['A₁', 'e1', 'e3'], ['A₂', 'e2', 'e4'],
+    ['R₁', 'e3', null], ['D₁', 'e3', 'e5'], ['R₂', 'e4', null], ['D₂', 'e4', 'e5'],
+    ['O₁', 'e5', null], ['O₂', 'e5', null], ['O₃', 'e5', null], ['O₄', 'e5', null],
+  ];
+  // linearization：按依赖的 event 分组后连续编号（数组已按 event 排好），算出每个 event 的区间和通知次数
+  const ev = ['e0', 'e1', 'e2', 'e3', 'e4', 'e5'];
+  const range = {}, cnt = {};
+  for (const e of ev) {
+    const ids = tasks.map((t, k) => (t[1] === e ? k + 1 : 0)).filter(Boolean);
+    range[e] = [Math.min(...ids), Math.max(...ids)];
+    cnt[e] = tasks.filter((t) => t[2] === e).length;
+  }
+  const P = {};
+  const TY = (r) => 36 + r * 26;
+  tasks.slice(0, 8).forEach((t, r) => (P[t[0]] = [64, TY(r)]));
+  P['A₁'] = [196, TY(1.5)]; P['A₂'] = [196, TY(5.5)];
+  P['R₁'] = [326, TY(0.2)]; P['D₁'] = [326, TY(2.6)]; P['D₂'] = [326, TY(4.4)]; P['R₂'] = [326, TY(6.8)];
+  ['O₁', 'O₂', 'O₃', 'O₄'].forEach((n, k) => (P[n] = [470, TY(1.9 + k * 1.1)]));
+  const EP = { e0: [22, TY(3.5)], e1: [150, TY(1.5)], e2: [150, TY(5.5)], e3: [280, TY(1.5)], e4: [280, TY(5.5)], e5: [418, TY(3.5)] };
+  const W = 46, H = 20;
+  let o = '';
+  tasks.forEach(([n, dep, trg]) => {
+    const [x, y] = P[n];
+    o += line(EP[dep][0] + 12, EP[dep][1], x, y + H / 2, 'mute');
+    if (trg) o += line(x + W, y + H / 2, EP[trg][0] - 12, EP[trg][1], 'mute');
+  });
+  tasks.forEach(([n], k) => {
+    const [x, y] = P[n];
+    o += rect(x, y, W, H, n[0] === 'D' ? 'wash2' : 'paper', 4) + text(x + 4, y + 14, String(k + 1), 'ts') + text(x + W - 6, y + 15, n, 't', 'end');
+  });
+  for (const e of ev) {
+    const [x, y] = EP[e];
+    o += circle(x, y, 12, 'solid') + text(x, y + 5, 'e' + '₀₁₂₃₄₅'[+e[1]], 'tw', 'middle');
+    o += text(x, y - 17, e === 'e0' ? 'start' : `等 ${cnt[e]} 次`, 'tl', 'middle');
+  }
+  const lab = ev.map((e) => `e${'₀₁₂₃₄₅'[+e[1]]} → ${range[e][0] === range[e][1] ? range[e][0] : range[e][0] + '–' + range[e][1]}`).join('　');
+  o += text(0, 262, '每个 event 只存它触发的 task ID 区间：', 'ts') + text(0, 280, lab, 't');
+  o += text(0, 300, '格子左上的数是 linearization 之后的 task ID；灰色的 D₁、D₂ 是 normalization 插入的不做计算的 task。', 'ts');
+  return svg(560, 306, o, `MPK 的 task graph：e0 触发 Q、K、V 的 8 个 task，它们分两组通知 e1、e2，各要 4 次；A1、A2 分别通知 e3、e4；e3、e4 各启动一个 RMSNorm task 和一个空 task D，两个 D 通知 e5，e5 等 ${cnt.e5} 次后启动 O1 到 O4`);
+}
+
 export default {
   'cmu15442-graph': graph,
   'cmu15442-fuse': fuse,
@@ -573,4 +694,7 @@ export default {
   'cmu15442-paged': pagedA,
   'cmu15442-radix': radix,
   'cmu15442-tree': tree,
+  'cmu15442-peftmem': peftmem,
+  'cmu15442-moe': moe,
+  'cmu15442-mpk': mpk,
 };

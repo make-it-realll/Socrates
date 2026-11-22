@@ -1,12 +1,12 @@
 ---
 code: STANFORD-CS231N
 evidence: syllabus
-evidenceNote: "Stanford CS231n Deep Learning for Computer Vision，Spring 2026 一期（Fei-Fei Li、Ehsan Adeli、Justin Johnson 等）。讲法跟着课程自己的材料：cs231n.github.io 的 course notes（从 GitHub 仓库读的 markdown 原文：classification、convolutional-networks、neural-networks-2 与 -3、transfer-learning 的相关部分，linear-classify 的一部分）；2026 版 schedule；Lecture 2、5、6、8、9、12、13、14、16 的 slides（只读到抽取出来的文字，slides 上的图没有看到）；三个作业 2026 版的 handout，以及 starter code 里的 notebook 和 .py 文件。另外读了 Justin Johnson 在 Michigan EECS 498 的 detection slides（IoU、NMS、mAP），以及 ResNet、Identity Mappings、Group Norm、Faster R-CNN、Mask R-CNN、ViT、MoCo、DINO、MAE、effective receptive field 各篇论文里用到的段落（都是抽取的片段）。Lecture 3、4、7、10、11、15、17、18 的 slides 和全部录像没有读。"
-exam: "Spring 2026 有一次 in-class midterm（5 月 12 日）、三个作业和 final project，各部分的占比没有查。自学时没有考试，以作业为主。以当期课程网站为准。"
+evidenceNote: "Stanford CS231n Deep Learning for Computer Vision，Spring 2026 一期（Fei-Fei Li、Ehsan Adeli、Justin Johnson 等）。讲法跟着课程自己的材料：cs231n.github.io 的 course notes（从 GitHub 仓库 clone 下来读的 markdown 原文：classification、linear-classify、convolutional-networks、neural-networks-2 与 -3、transfer-learning）；2026 版的课程主页和 schedule；Lecture 2、3、5、6、7、8、9、10、11、12、13、14、15、16 的 slides（只读到抽取出来的文字，slides 上的图没有看到；Lecture 3 的 formula 在抽取的文字里缺失，用 notes 和 A1 的 optim.py 补）；三个作业 2026 版的 handout，以及 starter code 里的 notebook 和 .py 文件（从仓库里的 zip 解出来读的）。另外读了 Justin Johnson 在 Michigan EECS 498 的 detection slides（IoU、NMS、mAP），以及 ResNet、Identity Mappings、Group Norm、Faster R-CNN、Mask R-CNN、ViT、MoCo、DINO、MAE、effective receptive field 各篇论文里用到的段落和表（都是抽取的片段）。Lecture 4（backprop）只按 schedule 知道主题，没有读 slides；Lecture 17、18 在 schedule 上没有 slides；全部录像没有看。"
+exam: "Spring 2026：assignments 45%、in-class midterm 20%（5 月 12 日）、final project 35%，participation 最多 3% extra credit（课程主页的 grading breakdown）。自学时没有考试，以作业为主。"
 subskills:
   - id: classify
-    name: Data-driven classification：kNN、linear classifier 与 softmax loss
-    l3: "有提示能做：对两张小 image 算 L1 distance，对一组 score 算 softmax probability 和 loss。"
+    name: Data-driven classification：kNN、linear classifier、softmax loss 与 regularization
+    l3: "有提示能做：对两张小 image 算 L1 distance，对一组 score 算 softmax probability 和 loss，算两个 weight vector 的 L1 与 L2 penalty。"
     l4: "能独立做：写出 vectorized 的 kNN distance matrix 和 softmax loss 的 gradient，用 validation set 选 k，并说出初始 loss 应该是多少。"
     l5: "能讲给别人：pixel 空间的 distance 为什么和语义无关，linear classifier 的 template 解释，以及为什么 hyperparameter 不能在 test set 上选。"
   - id: conv
@@ -20,10 +20,10 @@ subskills:
     l4: "能独立做：逐层算出 VGG16 的 activation 和 parameter，比较三层 3×3 与一层 7×7，算出 bottleneck block 省下的 parameter。"
     l5: "能讲给别人：56 层的 plain network 为什么比 20 层差，residual connection 在 forward 和 backward 上各改变了什么。"
   - id: train
-    name: Training 的实践：initialization、normalization、augmentation 与调参
+    name: Training 的实践：initialization、optimizer、normalization、augmentation 与调参
     l3: "有提示能做：算出某个 weight scale 下 activation 每层放大多少倍，写出 BN、LN、GN 各在哪些数上取 mean。"
-    l4: "能独立做：实现 spatial BatchNorm、GroupNorm 和 inverted dropout，按 sanity check、overfit、learning rate、coarse-to-fine 的顺序调参。"
-    l5: "能讲给别人：Kaiming initialization 的 factor 2 从哪里来，BN 在 test time 为什么必须换成 running average，什么样的 augmentation 会改掉 label。"
+    l4: "能独立做：实现 SGD+momentum、RMSProp、带 bias correction 的 Adam，实现 spatial BatchNorm、GroupNorm 和 inverted dropout，按 sanity check、overfit、learning rate、coarse-to-fine 的顺序调参。"
+    l5: "能讲给别人：Kaiming initialization 的 factor 2 从哪里来，momentum 为什么让 ill-conditioned 的方向都按 $\\sqrt\\rho$ 收敛，Adam 不做 bias correction 时前几步会怎样，BN 在 test time 为什么必须换成 running average，什么样的 augmentation 会改掉 label。"
   - id: detect
     name: Detection 与 segmentation
     l3: "有提示能做：算两个 box 的 IoU，手走一遍 NMS，写出 transposed convolution 的 output。"
@@ -44,28 +44,48 @@ subskills:
     l3: "有提示能做：写出 rectified flow 的 $x_t$ 和 target $v$，由 noise schedule 算出任意 $t$ 的 $\\bar\\alpha_t$。"
     l4: "能独立做：实现 DDPM 的 q_sample、noise prediction loss、一步 sampling 和 classifier-free guidance。"
     l5: "能讲给别人：posterior $q(x_{t-1}\\mid x_t,x_0)$ 的 mean 和 variance 怎么推出来，sampling 时为什么要把预测的 $x_0$ clamp 住。"
+  - id: video
+    name: Video：3D convolution、two-stream 与 video Transformer
+    l3: "有提示能做：写出 late fusion、early fusion、3D CNN 每一步的 tensor shape，算一段 video 切成多少个 token。"
+    l4: "能独立做：算出三种 fusion 在 time 方向的 receptive field，证明 I3D 的 inflation 在静止 video 上和原来的 2D network 输出相同，比较 joint 与 divided space-time attention 的计算量。"
+    l5: "能讲给别人：为什么对 time 取平均分不出一段 video 是正放还是倒放，early fusion 为什么对 temporal shift 不 equivariant，以及 two-stream 里 motion 那一路为什么比 appearance 那一路强。"
 open:
   - label: "Stanford CS231n Spring 2026 schedule"
     url: "https://cs231n.stanford.edu/schedule.html"
     note: "各站对应哪一讲、作业的时间以这里为准。"
+  - label: "Stanford CS231n Spring 2026 课程主页"
+    url: "https://cs231n.stanford.edu/"
+    note: "考核的占比。"
   - label: "CS231n course notes（cs231n.github.io 的 GitHub 仓库）：Image Classification、Linear Classification、Convolutional Networks、Neural Networks Part 2 与 Part 3、Transfer Learning"
     url: "https://github.com/cs231n/cs231n.github.io"
-    note: "第 1 至 4 站的主要讲法来源。读的是仓库里的 markdown 原文；Convolutional Networks 读了全文，其余读了用到的小节。"
+    note: "第 1 至 4 站的主要讲法来源。读的是仓库里的 markdown 原文；Convolutional Networks 读了全文，其余读了用到的小节（Neural Networks Part 3 的 optimizer 一节读了全文）。"
   - label: "CS231n 2026 Lecture 2：Image Classification with Linear Classifiers（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_2.pdf"
     note: "第 1 站。只读到抽取的文字。"
+  - label: "CS231n 2026 Lecture 3：Regularization and Optimization（slides）"
+    url: "https://cs231n.stanford.edu/slides/2026/lecture_3.pdf"
+    note: "第 1 站的 regularization 和第 4 站的 optimizer。只读到抽取的文字，slides 上的 formula 没有抽出来。"
   - label: "CS231n 2026 Lecture 5：Image Classification with CNNs（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_5.pdf"
     note: "第 2、3 站。只读到抽取的文字。"
   - label: "CS231n 2026 Lecture 6：CNN Architectures（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_6.pdf"
-    note: "第 3、4 站。只读到抽取的文字。"
+    note: "第 3、4 站。只读到抽取的文字和全部 slide 标题；这一版没有 BatchNorm 的 slides。"
+  - label: "CS231n 2026 Lecture 7：Recurrent Neural Networks（slides）"
+    url: "https://cs231n.stanford.edu/slides/2026/lecture_7.pdf"
+    note: "只读了 slide 标题和关键的几页文字，用来核对开头给 RNN 的链接和 A2 Q5。"
   - label: "CS231n 2026 Lecture 8：Attention and Transformers（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_8.pdf"
     note: "第 6 站。只读到抽取的文字。"
   - label: "CS231n 2026 Lecture 9：Detection、Segmentation、Visualization（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_9.pdf"
     note: "第 5 站。只读到抽取的文字；visualization 和 adversarial example 部分没有用。"
+  - label: "CS231n 2026 Lecture 10：Video Understanding（slides）"
+    url: "https://cs231n.stanford.edu/slides/2026/lecture_10.pdf"
+    note: "第 9 站。只读到抽取的文字；I3D 那张 Kinetics-400 的表数字和方法对不上，没有用。"
+  - label: "CS231n 2026 Lecture 11：Large Scale Distributed Training；Lecture 15：3D Vision（slides）"
+    url: "https://cs231n.stanford.edu/slides/2026/lecture_11.pdf"
+    note: "只读了 slide 标题和关键的几页文字，用来核对开头给别的页面的链接（Lecture 15 的地址是同目录的 lecture_15.pdf）。"
   - label: "CS231n 2026 Lecture 12：Self-supervised Learning（slides）"
     url: "https://cs231n.stanford.edu/slides/2026/lecture_12.pdf"
     note: "第 7 站。只读到抽取的文字；DINO 在 slides 上只有标题，细节来自 A3 的 notebook 和 DINO 原文。"
@@ -86,7 +106,7 @@ open:
     note: "第 3 站的构造论证、bottleneck、global average pooling，以及 $x_L=x_l+\\sum F_i$ 的 gradient 分析（后一篇在 arXiv 1603.05027）。只读到抽取的段落。"
   - label: "Wu and He，Group Normalization"
     url: "https://arxiv.org/pdf/1803.08494"
-    note: "第 4 站的分组定义和 batch size 的表。"
+    note: "第 4 站的分组定义和 batch size 的表（Table 2，逐个数核对过）。"
   - label: "Ren et al.，Faster R-CNN；He et al.，Mask R-CNN"
     url: "https://arXiv.org/pdf/1506.01497.pdf"
     note: "第 5 站的 anchor 规则、box parameterization、RoI Align（后一篇在 arXiv 1703.06870）。只读到抽取的段落。"
@@ -95,7 +115,7 @@ open:
     note: "第 6 站的 inductive bias、model 规格、pretrain dataset 大小的对比、position embedding 的 ablation。"
   - label: "He et al.，Masked Autoencoders Are Scalable Vision Learners（MAE）"
     url: "https://arxiv.org/pdf/2111.06377v3"
-    note: "第 7 站 MAE 一节的全部数字。"
+    note: "第 7 站 MAE 一节的全部数字：Table 1、Table 2 逐行读过，masking ratio 的数取自 Figure 5 图里印的 data label。"
   - label: "He et al.，MoCo；Caron et al.，DINO"
     url: "https://arxiv.org/pdf/2104.14294"
     note: "第 7 站的 momentum encoder 与 ablation（MoCo 在 arXiv 1911.05722）、DINO 的 centering 与 sharpening。只读到抽取的段落。"
@@ -115,19 +135,20 @@ open:
 
 | 站 | 内容 | 对应 lecture | 对应作业 |
 |---|---|---|---|
-| 1 | kNN、linear classifier、softmax loss | 2、3 | A1 |
+| 1 | kNN、linear classifier、softmax loss、regularization | 2、3 | A1 |
 | 2、3 | Conv layer、receptive field、VGG 与 ResNet | 5、6 | A2 Q3、Q4 |
-| 4 | Initialization、normalization、augmentation、调参 | 3、6 | A1 Q5，A2 Q1、Q2、Q4 |
+| 4 | Activation、initialization、optimizer、normalization、augmentation、调参 | 3、6 | A1 Q5，A2 Q1、Q2、Q4 |
 | 5 | Detection 与 segmentation | 9 | A3 Q4 用到 IoU |
 | 6 | Vision Transformer | 8 | A3 Q1 |
 | 7 | Contrastive、CLIP、DINO、MAE | 12、16 | A3 Q2、Q4 |
 | 8 | Rectified flow、DDPM、latent diffusion | 13、14 | A3 Q3 |
+| 9 | Video：3D CNN、two-stream、video Transformer | 10 | 无 |
 
-这一页假定读者已经会 backpropagation 和 MLP。Computational graph 和 local derivative 在 [Karpathy Zero to Hero 的第 1 站](../courses/KARPATHY-Z2H.html#micrograd)，matrix 形式的 backprop、softmax 的 gradient $p-y$、initialization 的 variance 推导在 [CS3244 的 neural network 一站](../courses/CS3244.html#nn)，BatchNorm 的来历和 backward 在 [Zero to Hero 的第 3、4 站](../courses/KARPATHY-Z2H.html#stats)，Adam 与 AdamW 在 [CS336 的 training 一站](../courses/STANFORD-CS336.html#train)，attention 的 formula 和 $\sqrt{d_k}$ 在 [CS4248 的 self-attention 一站](../courses/CS4248.html#attn)，filtering 和 correlation 在 [CS4243 的第 1 站](../courses/CS4243.html#filter)。这些地方这一页只给链接。
+这一页假定读者已经会 backpropagation 和 MLP（Lecture 4）。Computational graph 和 local derivative 在 [Karpathy Zero to Hero 的第 1 站](../courses/KARPATHY-Z2H.html#micrograd)，matrix 形式的 backprop、softmax 的 gradient $p-y$、initialization 的 variance 推导在 [CS3244 的 neural network 一站](../courses/CS3244.html#nn)，BatchNorm 的来历和 backward 在 [Zero to Hero 的第 3、4 站](../courses/KARPATHY-Z2H.html#stats)，AdamW 与 warmup 加 cosine 的 schedule 在 [CS336 的 training 一站](../courses/STANFORD-CS336.html#train)，attention 的 formula 和 $\sqrt{d_k}$ 在 [CS4248 的 self-attention 一站](../courses/CS4248.html#attn)，filtering 和 correlation 在 [CS4243 的第 1 站](../courses/CS4243.html#filter)。课程另有三讲，这一页也只给链接：Lecture 7 的 RNN（recurrence、backprop through time、vanishing gradient 与 gradient clipping、LSTM）见 [CS4248 的 RNN 一站](../courses/CS4248.html#rnn)，A2 Q5 的 RNN captioning 用得到；Lecture 11 的 distributed training（data parallel、FSDP、activation checkpointing、tensor 与 pipeline parallelism、MFU）见 [CS336 的 resource accounting](../courses/STANFORD-CS336.html#account) 和 [parallelism](../courses/STANFORD-CS336.html#parallel) 两站；Lecture 15 的 3D vision（depth map、voxel、point cloud、mesh、implicit function、NeRF、3D Gaussian Splatting）见 [CMU 16-825 的 3D representation 一站](../courses/CMU-16825.html#repr) 和它后面几站。Lecture 17（world modeling）和 18（human-centered AI）在 schedule 上没有 slides，这一页没有写。
 
-只有十几个小时时的路线：第 2、3、4、6、7、8 站必读；会 linear classifier 和 softmax 的可以跳过第 1 站；第 5 站只在要做 detection 时读，A3 只用到其中的 IoU。每站开头写了跳过的代价。
+只有十几个小时时的路线：第 2、3、4、6、7、8 站必读；会 linear classifier 和 softmax 的可以跳过第 1 站；第 5 站只在要做 detection 时读，A3 只用到其中的 IoU；第 9 站没有对应的作业，做 video 或 robotics 时再读。每站开头写了跳过的代价。
 
-## [classify] Data-driven classification：kNN、linear classifier 与 softmax loss
+## [classify] Data-driven classification：kNN、linear classifier、softmax loss 与 regularization
 
 :::skip
 快速路线里可以跳过。能说出为什么 nearest neighbor 在 pixel 上不行、hyperparameter 为什么在 validation set 上选，能对一组 score 算出 softmax loss 并说出初始 loss 应该是 $\ln 10$，就可以去第 2 站。
@@ -211,10 +232,22 @@ $L$ 最小是 0（$p_y=1$），最大没有上限（$p_y\to0$）。
 
 实现时 score 先减去最大值。Score 是 1000 时 $e^{1000}$ 在 float64 里是 `inf`，`inf/inf` 得 `nan`。分子分母同乘 $e^{-\max_js_j}$，probability 不变，上面的例子变成对 $(-1.9,\ 0,\ -6.8)$ 取 exp，最大的一项恰好是 1，不会溢出。
 
-Loss 再加上 $\lambda\|W\|^2$ 做 regularization，用 SGD 沿 gradient 往下走，就是 A1 的 softmax classifier。
+### Regularization：score 一样时选哪个 $W$
+
+Softmax loss 只看 training set 上的 score，而让 training loss 一样低的 $W$ 往往不止一个。最简单的例子：$W$ 让每张 image 都分对、loss 已经很小，那么 $2W$ 把所有 score 放大一倍，正确 class 和其他 class 的差也放大一倍，loss 更小；一直放大下去，loss 趋于 0，$W$ 的大小没有上限。Data loss 自己不会在这些 $W$ 之间做选择。Lecture 3 的说法是，regularization 的作用是“不让 model 在 training data 上做得太好”，用一项只和 $W$ 有关的 penalty 表达偏好：
+
+$$L=\frac1N\sum_{i=1}^NL_i(W)+\lambda R(W)$$
+
+常用的是 L2，$R(W)=\sum_{k,l}W_{k,l}^2$；L1 是 $\sum|W_{k,l}|$；两者相加叫 elastic net。Notes 用一个例子说明 L2 偏好什么：input $x=(1,1,1,1)$，两个 weight vector
+
+$$w_1=(1,0,0,0),\qquad w_2=(0.25,0.25,0.25,0.25)$$
+
+给出同样的 score，$w_1\cdot x=w_2\cdot x=1$，data loss 分不出它们。L2 penalty 是 $1^2=1$ 对 $4\times0.25^2=0.25$，选 $w_2$：把 weight 摊到所有 input 上，每个 input 都用一点，而不是重押一个。L1 penalty 是 $1$ 对 $4\times0.25=1$，在这两个之间没有偏好；L1 一般把 weight 推向 sparse（很多项恰好为 0），只用少数几个 input，notes 的经验是不需要做 feature selection 时 L2 通常更好。
+
+L2 的 gradient 是 $2\lambda W$，SGD 每一步多减一项 $\eta\cdot2\lambda W$，等于每步把 $W$ 往 0 缩一个固定的比例，所以也叫 weight decay。A1 的 `softmax_loss` 写的正是 `loss / num_train + reg * np.sum(W * W)`，没有 $\tfrac12$，gradient 里要记得是 `2 * reg * W`。
 
 :::from
-[Lecture 2 slides](https://cs231n.stanford.edu/slides/2026/lecture_2.pdf)（只读到抽取的文字）给了这一站的顺序：data-driven、nearest neighbor 的 train $O(1)$ 与 predict $O(N)$、挑 hyperparameter 的四个想法和 $k\approx7$、$f(x,W)=Wx+b$ 的三种看法、4 个 pixel 的例子、3.2/5.1/−1.7 的 softmax 例子、loss 的最小最大值和初始值 $\log C$。Data-driven 的 `train`/`predict` 写法、nearest neighbor 在 CIFAR-10 上的 38.6% 和 35.4%、t-SNE 的观察、“test 慢 train 快正好反了”、validation set 的用法，来自 [notes 的 Image Classification](https://github.com/cs231n/cs231n.github.io/blob/master/classification.md)；template 的解释、ship 和两个头的 horse，来自 [notes 的 Linear Classification](https://github.com/cs231n/cs231n.github.io/blob/master/linear-classify.md)；初始 loss 2.302 的 sanity check 来自 [Neural Networks Part 3](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-3.md)。49,000/1,000/1,000 的切法、5,000/500 的子集和 27% 来自 A1 的 knn 与 softmax notebook。8×8 的 T、4 个 pixel 的例子里 ship 的重算、test set 上挑 $k$ 的那笔账，是为这一页算的。Lecture 3（regularization 和 optimization）没有读，optimizer 的部分只给了链接。
+[Lecture 2 slides](https://cs231n.stanford.edu/slides/2026/lecture_2.pdf)（只读到抽取的文字）给了这一站的顺序：data-driven、nearest neighbor 的 train $O(1)$ 与 predict $O(N)$、挑 hyperparameter 的四个想法和 $k\approx7$、$f(x,W)=Wx+b$ 的三种看法、4 个 pixel 的例子、3.2/5.1/−1.7 的 softmax 例子、loss 的最小最大值和初始值 $\log C$。Data-driven 的 `train`/`predict` 写法、nearest neighbor 在 CIFAR-10 上的 38.6% 和 35.4%、t-SNE 的观察、“test 慢 train 快正好反了”、validation set 的用法，来自 [notes 的 Image Classification](https://github.com/cs231n/cs231n.github.io/blob/master/classification.md)；template 的解释、ship 和两个头的 horse，来自 [notes 的 Linear Classification](https://github.com/cs231n/cs231n.github.io/blob/master/linear-classify.md)；初始 loss 2.302 的 sanity check 来自 [Neural Networks Part 3](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-3.md)。49,000/1,000/1,000 的切法、5,000/500 的子集和 27% 来自 A1 的 knn 与 softmax notebook。Notes 的 Linear Classification 印的 ship score 也是 61.95，和 slides 一样。Regularization 一节的顺序（“prevent the model from doing too well on training data”、L2/L1/elastic net、$W$ 与 $2W$）跟的是 [Lecture 3 slides](https://cs231n.stanford.edu/slides/2026/lecture_3.pdf)（只读到抽取的文字，formula 没有抽出来）；$x=(1,1,1,1)$ 的例子和 L2 的“diffuse”来自 notes 的 Linear Classification，L1 的 sparsity 和 weight decay 的说法来自 [Neural Networks Part 2](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-2.md)，`reg * np.sum(W * W)` 来自 A1 的 `softmax.py`。8×8 的 T、4 个 pixel 的例子里 ship 的重算、test set 上挑 $k$ 的那笔账、L1 对这两个 vector 打平的计算，是为这一页算的。
 :::
 
 ## [conv] Convolution layer：滑窗计算、output size 与 parameter sharing
@@ -424,7 +457,7 @@ Overfitting 的标志是 training error 低、test error 高。这里 56 层的 
 :::
 
 :::edge Receptive field 盖住了，不等于每个 pixel 用得一样多
-Receptive field 只说明哪些 pixel 能影响这个 unit。离中心近的 pixel 有很多条 path 通到 output，边缘的 pixel 只有很少几条，实际的影响集中在中间，分布接近 Gaussian。Luo et al. 证明，在 weight 都相同的简化情形下，理论 receptive field 随层数 $n$ 线性增长，有效的部分只按 $\sqrt n$ 增长，占比按 $1/\sqrt n$ 缩小。他们在 CamVid 上的 segmentation network 理论 receptive field 是 505×505，有效的部分在训练开始时直径约 100，训练后长到约 150。所以 conv5_3 的 196 不代表它对 196×196 均匀地看。
+Receptive field 只说明哪些 pixel 能影响这个 unit。离中心近的 pixel 有很多条 path 通到 output，边缘的 pixel 只有很少几条，实际的影响集中在中间，分布接近 Gaussian。Luo et al. 证明，在简化的情形下（stride 1、每层一个 channel、没有 non-linearity、每层用同一组非负的 weight），理论 receptive field 随层数 $n$ 线性增长，有效的部分只按 $\sqrt n$ 增长，占比按 $1/\sqrt n$ 缩小。他们在 CamVid 上的 segmentation network 理论 receptive field 是 505×505，有效的部分在训练开始时直径约 100，训练后长到约 150。所以 conv5_3 的 196 不代表它对 196×196 均匀地看。
 :::
 
 :::back
@@ -432,14 +465,20 @@ Receptive field 只说明哪些 pixel 能影响这个 unit。离中心近的 pix
 :::
 
 :::from
-$1+L(K-1)$ 和“在 network 内部 downsample”来自 [Lecture 5 slides](https://cs231n.stanford.edu/slides/2026/lecture_5.pdf)。三层 3×3 与一层 7×7 的比较（$27C^2$ 对 $49C^2$、更多 non-linearity）、VGG16 逐层的表、“memory 在前、parameter 在后”、FC1 的 1 亿个 weight、layer sizing 的规则，来自 [notes 的 Convolutional Networks](https://github.com/cs231n/cs231n.github.io/blob/master/convolutional-networks.md)。56 层与 20 层、“这是 optimization 问题”、$H(x)=F(x)+x$、各段的 stride 2 和 channel 翻倍、18 到 152 层、ILSVRC 的几个 error，来自 [Lecture 6 slides](https://cs231n.stanford.edu/slides/2026/lecture_6.pdf)。“深的 model 至少能复制浅的”的构造论证、projection shortcut、bottleneck 的 256 与 64、identity shortcut 对 bottleneck 的重要性、global average pooling、FLOPs 和 6 个 model 的 ensemble，核对过 [ResNet 原文](https://arxiv.org/pdf/1512.03385)；$x_L=x_l+\sum F_i$、gradient 里的 1、$\prod\lambda_i$ 的论证来自 [Identity Mappings in Deep Residual Networks](https://arxiv.org/pdf/1603.05027)；edge 里的数字来自 [Luo et al. 的 effective receptive field 论文](https://arxiv.org/pdf/1701.04128)。这几篇都只读到了抽取的片段。Receptive field 的 recurrence 和图、VGG16 的数字、$0.8^{36}$ 与 $0.9^{50}$ 是为这一页算的。
+$1+L(K-1)$ 和“在 network 内部 downsample”来自 [Lecture 5 slides](https://cs231n.stanford.edu/slides/2026/lecture_5.pdf)。三层 3×3 与一层 7×7 的比较（$27C^2$ 对 $49C^2$、更多 non-linearity）、VGG16 逐层的表、“memory 在前、parameter 在后”、FC1 的 1 亿个 weight、layer sizing 的规则，来自 [notes 的 Convolutional Networks](https://github.com/cs231n/cs231n.github.io/blob/master/convolutional-networks.md)。56 层与 20 层、“这是 optimization 问题”、$H(x)=F(x)+x$、各段的 stride 2 和 channel 翻倍、18 到 152 层、ILSVRC 的几个 error，来自 [Lecture 6 slides](https://cs231n.stanford.edu/slides/2026/lecture_6.pdf)。“深的 model 至少能复制浅的”的构造论证、projection shortcut、bottleneck 的 256 与 64、identity shortcut 对 bottleneck 的重要性、global average pooling、FLOPs 和 6 个 model 的 ensemble，核对过 [ResNet 原文](https://arxiv.org/pdf/1512.03385)；$x_L=x_l+\sum F_i$、gradient 里的 1、$\prod\lambda_i$ 的论证来自 [Identity Mappings in Deep Residual Networks](https://arxiv.org/pdf/1603.05027)；edge 里的数字和成立的条件来自 [Luo et al. 的 effective receptive field 论文](https://arxiv.org/pdf/1701.04128)（这次核对了 505、100、150 和 $\sqrt n$ 的原句）。这几篇都只读到了抽取的片段。Receptive field 的 recurrence 和图、VGG16 的数字、$0.8^{36}$ 与 $0.9^{50}$ 是为这一页算的。
 :::
 
-## [train] Training 的实践：initialization、normalization、augmentation 与调参
+## [train] Training 的实践：initialization、optimizer、normalization、augmentation 与调参
 
 :::skip
-快速路线里 initialization 和 normalization 两节必读（A2 Q1 要实现）；dropout、augmentation、调参、transfer learning 四节值得读，做 A2 Q4 时要用。能算出一个 weight scale 下 activation 每层放大多少倍，说出 BN、LN、GN 的区别和 test time 的做法，就可以去第 5 站。
+快速路线里 initialization、optimizer 和 normalization 三节必读（A1 Q5、A2 Q1 要实现）；activation、dropout、augmentation、调参、transfer learning 几节值得读，做 A2 Q4 时要用。能算出一个 weight scale 下 activation 每层放大多少倍，说出 momentum 在 ill-conditioned 的 loss 上省了什么、Adam 的 bias correction 修的是什么，说出 BN、LN、GN 的区别和 test time 的做法，就可以去第 5 站。
 :::
+
+### Activation function：为什么默认是 ReLU 一类
+
+Lecture 6 先问每个 conv 或 linear layer 后面接什么 non-linearity。Sigmoid $\sigma(x)=1/(1+e^{-x})$ 的 derivative 是 $\sigma(x)(1-\sigma(x))$，在 $x=0$ 取最大值 $0.5\times0.5=0.25$，$|x|$ 大时趋于 0。Backward 每经过一层 sigmoid，gradient 至少乘上一个不超过 0.25 的数；就算每一层都恰好落在最好的 $x=0$，经过 10 层也只剩 $0.25^{10}=9.5\times10^{-7}$。Slides 的说法是，很大的正数或负数会把 gradient “kill” 掉，多层 sigmoid 的 gradient 越来越小。
+
+ReLU $\max(0,x)$ 在 $x>0$ 时 derivative 恰好是 1，gradient 原样通过，计算也只是一次比较。它的毛病有两个：output 不是 zero-centered（全是非负的，下面 initialization 一节就要处理这一点）；$x<0$ 时 derivative 是 0，一个 neuron 如果对所有 input 的 pre-activation 都是负的，它的 weight 再也收不到 gradient，slides 叫它 dead ReLU。GELU $x\,\Phi(x)$（$\Phi$ 是 standard Gaussian 的 CDF）在 0 附近是光滑的，负的一侧不完全是 0，代价是比 ReLU 计算量大；Transformer 里多用它，A3 的 `FeedForwardNetwork`（第 6 站的 ViT 用它）里就是 `nn.GELU()`，尽管 docstring 写的是 ReLU。
 
 ### Initialization：每层把 activation 放大多少倍
 
@@ -461,9 +500,65 @@ $$\mathrm{Var}(s)=\frac{D\,\sigma^2}{2}\,\mathrm{Var}(s')$$
 | 0.05 | 2.263 | 134 |
 | $\sqrt{2/4096}=0.0221$ | 1 | 1 |
 
-0.01 和 0.05 只差 5 倍，6 层之后差了一万多倍：一个让 activation 消失，一个让它爆炸。让每层乘以 1，就是 $\sigma=\sqrt{2/D_{\text{in}}}$，即 Kaiming initialization。Conv layer 的 $D_{\text{in}}$ 是一个 filter 的大小 $F\,F\,C_{\text{in}}$；3×3、64 个 input channel 时 $D_{\text{in}}=576$，$\sigma=0.059$。
+0.01 和 0.05 只差 5 倍，6 层之后差了一万多倍：一个让 activation 消失，一个让它爆炸。Slides 对这两种情形的描述正是 “all activations tend to zero for deeper network layers” 和 “activations blow up quickly”。Slides 没有写这个实验用的是哪种 activation；会 blow up 说明不是 tanh（tanh 的 output 限制在 $\pm1$ 之内，weight 太大只会 saturate），上表按 ReLU 算。让每层乘以 1，就是 $\sigma=\sqrt{2/D_{\text{in}}}$，即 slides 给的 Kaiming（MSRA）initialization，“ReLU correction: std = sqrt(2 / Din)”。Conv layer 的 $D_{\text{in}}$ 是一个 filter 的大小 $F\,F\,C_{\text{in}}$；3×3、64 个 input channel 时 $D_{\text{in}}=576$，$\sigma=0.059$。
 
 A1 的 FullyConnectedNets 要你手调 `weight_scale`，让 3 层和 5 层的 network 在 50 张 image 上 20 个 epoch 内 overfit 到 100%；5 层的那个对 `weight_scale` 敏感得多，原因就是上表的连乘。
+
+### Optimizer：SGD 在 ill-conditioned 的 loss 上走得慢
+
+SGD 每一步 $w\leftarrow w-\eta\nabla L$，用一个 minibatch（slides 说常用 32、64、128）估计 gradient。Lecture 3 列出它的三个问题：loss 在一个方向变得快、另一个方向变得慢时，前进很慢而且来回抖；local minimum 和 saddle point 上 gradient 为 0，走不动，而高维里 saddle point 多得多；minibatch 的 gradient 带 noise。第一个最常见，也最能算清楚。
+
+取一个最简单的 loss，两个方向的 curvature 差 100 倍：
+
+$$L(w)=\tfrac12\big(\lambda_1w_1^2+\lambda_2w_2^2\big),\qquad\lambda_1=1,\ \lambda_2=100,\qquad\nabla L=(\lambda_1w_1,\ \lambda_2w_2)$$
+
+两个坐标各走各的：$w_i\leftarrow w_i-\eta\lambda_iw_i=(1-\eta\lambda_i)\,w_i$，每一步乘上 $1-\eta\lambda_i$。陡的方向要不发散，需要 $|1-100\eta|<1$，即 $\eta<0.02$；这时平的方向每步至多缩成 $1-0.02=0.98$。两个方向的缩小因子绝对值相等时最好，$1-\eta\lambda_1=-(1-\eta\lambda_2)$，解出 $\eta=2/(\lambda_1+\lambda_2)=2/101=0.0198$，两个因子是 $0.9802$ 和 $-0.9802$。陡的方向符号每步翻转，就是来回抖；平的方向缩到 1% 要 $\ln0.01/\ln0.9802=230$ 步。一般地，最好的因子是 $(\kappa-1)/(\kappa+1)$，$\kappa=\lambda_{\max}/\lambda_{\min}$ 是 Hessian 的 condition number（slides 的说法是最大与最小 singular value 之比）：$\kappa$ 越大，越接近 1，越慢。
+
+**Momentum。** Notes 和 A1 的写法：
+
+$$v\leftarrow\rho\,v-\eta\nabla L(w),\qquad w\leftarrow w+v$$
+
+$v$ 从 0 开始，$\rho$ 通常取 0.9 或 0.99。还是一个坐标一个坐标看，记 $a=\eta\lambda$：$v_{k+1}=\rho v_k-a\,w_k$，$w_{k+1}=w_k+v_{k+1}=(1-a)\,w_k+\rho\,v_k$，写成 matrix
+
+$$\begin{pmatrix}w_{k+1}\\v_{k+1}\end{pmatrix}=\begin{pmatrix}1-a&\rho\\-a&\rho\end{pmatrix}\begin{pmatrix}w_k\\v_k\end{pmatrix}$$
+
+这个 matrix 的 trace 是 $1-a+\rho$，determinant 是 $(1-a)\rho+a\rho=\rho$。两个 eigenvalue $z_1,z_2$ 是 $z^2-(1-a+\rho)z+\rho=0$ 的根，乘积是 $\rho$。当 discriminant 为负，即 $(1+\rho-a)^2<4\rho$，两个根是一对 complex conjugate，$|z_1|=|z_2|=\sqrt\rho$。把 $|1+\rho-a|<2\sqrt\rho$ 解开：
+
+$$(1-\sqrt\rho)^2<\eta\lambda<(1+\sqrt\rho)^2$$
+
+只要 $\eta\lambda$ 落在这个区间里，这个方向每步就缩成 $\sqrt\rho$ 倍，和 $\lambda$ 是多少无关。$\rho=0.9$ 时区间是 $(0.0026,\ 3.80)$。用同一个 $\eta=0.0198$：$\eta\lambda_1=0.0198$，$\eta\lambda_2=1.98$，都在区间里，两个方向都按 $\sqrt{0.9}=0.949$ 缩小，缩到 1% 要 $\ln0.01/\ln0.949=87$ 步。
+
+::fig[stanford-cs231n-optim] 同一个 loss、同一个 learning rate 0.0198，从 $(10,1)$ 出发。SGD 在陡的方向来回抖，沿平的方向慢慢挪；momentum 在平的方向攒起速度，绕几圈落到最低点。
+
+实际从 $(10,1)$ 出发跑一遍：到 $w$ 离最低点的距离以后一直小于 0.1（初始的 1%），SGD 要 231 步，momentum 要 80 步。原因在 $v$ 上看得清：平的方向上 gradient 每步同号，$v$ 一直累加，gradient 不变时稳定在 $v=-\eta g/(1-\rho)$，是 SGD 一步的 10 倍；陡的方向上 gradient 每步变号，加进 $v$ 里互相抵消。Notes 的说法是，momentum 在 gradient 方向一致的方向上攒起速度。
+
+**AdaGrad 与 RMSProp。** 另一条路是给每个 parameter 自己的 step size。AdaGrad 把每个 parameter 的 gradient 平方累加进 `cache`，update 除以它的 square root：
+
+$$c\leftarrow c+g^2,\qquad w\leftarrow w-\eta\,\frac{g}{\sqrt c+\epsilon}$$
+
+（逐个 element 算）。上面的例子在 $(10,1)$ 处，gradient 是 $(10,100)$，第一步 $c=(100,\ 10^4)$，update 是 $\eta\cdot(10/10,\ 100/100)=(\eta,\eta)$：陡的方向和平的方向走一样大的步子，100 倍的 curvature 差被抹平了。问题是 $c$ 只增不减，gradient 大小不变时第 $t$ 步的 update 是 $\eta/\sqrt t$，一万步后只剩 1%，学不动了，这正是 A1 Inline Question 2 问的现象。RMSProp 把累加换成 moving average，slides 叫它 “leaky AdaGrad”：
+
+$$c\leftarrow\beta\,c+(1-\beta)\,g^2$$
+
+A1 的默认值 $\beta=0.99$（`decay_rate`），$c$ 记住的大约是最近一百步的 gradient 大小，step size 不会一直缩小。
+
+**Adam。** 把 momentum 和 RMSProp 合在一起：$m$ 是 gradient 的 moving average，$v$ 是 gradient 平方的 moving average，
+
+$$m\leftarrow\beta_1m+(1-\beta_1)g,\qquad v\leftarrow\beta_2v+(1-\beta_2)g^2,\qquad w\leftarrow w-\eta\,\frac{\hat m}{\sqrt{\hat v}+\epsilon}$$
+
+$$\hat m=\frac{m}{1-\beta_1^t},\qquad\hat v=\frac{v}{1-\beta_2^t}$$
+
+后两个式子是 bias correction。$m,v$ 从 0 开始，前几步被 0 拉低，而且两个被拉低的程度不同。设 gradient 一直是同一个 $g$：$t$ 步之后 $m=(1-\beta_1^t)\,g$，$v=(1-\beta_2^t)\,g^2$，不修正的 update 是
+
+$$\eta\,\frac{1-\beta_1^t}{\sqrt{1-\beta_2^t}}\,\mathrm{sign}(g)$$
+
+$\beta_1=0.9$、$\beta_2=0.999$ 时，$t=1$ 这个系数是 $0.1/\sqrt{0.001}=3.16$，$t=12$ 时最大，6.57，$t=1000$ 时还有 1.26，要几千步才回到 1。也就是说，不修正的 Adam 在刚开始、weight 还是 random 的时候，步子比设定的 learning rate 大 6 倍多。修正之后 $\hat m=g$，$\hat v=g^2$，每一步恰好是 $\eta$。Slides 的建议是 $\beta_1=0.9$、$\beta_2=0.999$、learning rate 1e−3 或 5e−4，对很多 model 都是很好的起点。
+
+Lecture 3 接着讲了 AdamW（weight decay 不进 $m$ 和 $v$，在 update 之外单独减）、learning rate schedule（step、cosine、linear、inverse sqrt，以及开头几千个 iteration 的 linear warmup）、“batch size 放大 $N$ 倍，初始 learning rate 也放大 $N$ 倍”的经验法则；AdamW 为什么要这样拆、warmup 和 cosine 的 formula 在 [CS336 的 training 一站](../courses/STANFORD-CS336.html#train)。Newton's method 用 Hessian 一步到位，但 $N$ 个 parameter 的 Hessian 有 $N^2$ 个数、求逆要 $O(N^3)$；notes 算过，一百万个 parameter 的 Hessian 要约 3725 GB 的 memory。Slides 的结论：默认用 Adam(W)，常常 learning rate 不变也能 work；SGD+momentum 有时更好，但 learning rate 和 schedule 要调得更细。
+
+:::edge RMSProp 只抹平沿坐标轴的 curvature 差
+上面的 loss 恰好是两个坐标各自独立的。把它转 45°，$L=\tfrac12\big(\lambda_1p^2+\lambda_2q^2\big)$，$p=(w_1+w_2)/\sqrt2$，$q=(w_1-w_2)/\sqrt2$：陡的方向是对角线，每个坐标的 gradient 里都混着陡和平两种成分，按坐标除以 $\sqrt c$ 已经分不开它们。Per-parameter 的方法只对“不同 parameter 的 gradient 大小不同”有效；Hessian 的 eigenvector 不沿坐标轴时，ill-conditioning 还在。Momentum 没有这个限制，它的推导只用到了 eigenvalue。
+:::
 
 ### BatchNorm 用在 conv 上
 
@@ -499,11 +594,13 @@ Batch 大时 BN 略好；batch size 2 时 BN 的 error 比 GN 高 10.6 个点。
 
 ### Dropout
 
-Training 时每次 forward 随机把一部分 neuron 的 output 置 0，test time 全部保留。Test time 不丢，output 的 expectation 就和 training 时不一样，所以要补一个 scale。现在通用的做法是 inverted dropout：training 时以 probability $p$ 保留，保留下来的除以 $p$，
+Training 时每次 forward 随机把一部分 neuron 的 output 置 0（slides 说丢掉的 probability 常用 0.5），test time 全部保留。Slides 给了两种理解：network 不能依赖任何一个 feature，只好学出冗余的 representation；每个 0/1 的 mask 是一个共用 parameter 的子 model，一个 4096 个 unit 的 FC layer 就有 $2^{4096}$ 个，training 是在训练它们的 ensemble。
+
+Test time 不丢，output 的 expectation 就和 training 时不一样。以 probability $p$ 保留时，training 时一个 activation $x$ 的 expectation 是 $px$，test time 是 $x$。Lecture 6 的做法是 test time 乘上 $p$，slides 的总结是 “drop in train time, scale at test time”。A2 要实现的是等价的另一种写法，inverted dropout，把 scale 挪到 training 时：保留下来的除以 $p$，
 
 $$\mathbb E\Big[\frac{m}{p}\,x\Big]=\frac{p}{p}\,x=x,\qquad m\sim\text{Bernoulli}(p)$$
 
-Test time 什么也不用改。$p=0.5$ 时，一个值为 2.0 的 activation 在 training 时变成 0 或 4.0，expectation 仍是 2.0。注意 A2 的约定：`dropout_forward` 里的 `p` 是保留的 probability，PyTorch 的 `nn.Dropout(p)` 里的 `p` 是丢掉的 probability，两者正好相反。
+Test time 什么也不用改，部署的代码里不必记得 $p$。$p=0.5$ 时，一个值为 2.0 的 activation 在 training 时变成 0 或 4.0，expectation 仍是 2.0。A2 Dropout notebook 的 Inline Question 1 问的就是不除以 $p$ 会怎样：training 时 expectation 是 $px$，test time 是 $x$，test time 的 activation 系统性地大 $1/p$ 倍。注意 A2 的约定：`dropout_forward` 里的 `p` 是保留的 probability，PyTorch 的 `nn.Dropout(p)` 里的 `p` 是丢掉的 probability，两者正好相反。
 
 ### Data augmentation：把 invariance 写进 data
 
@@ -553,7 +650,7 @@ ImageNet 有 120 万张 image、1000 个 class。自己的 dataset 往往小得�
 Fine-tune 时 pretrained 的 layer 用比新加的 classifier 小的 learning rate，免得新 classifier 还没训练好时，它的 random gradient 把已经学好的 feature 冲坏。Lecture 6 的经验法则是：dataset 少于一百万张左右时，先找一个在大的相似 dataset 上训练过的 model 来 transfer。PyTorch 和 Hugging Face 都有现成的 model zoo。第 7 站讲怎样在没有 label 的 data 上得到这样的 pretrained model。
 
 :::from
-Initialization 的 variance 推导、$1/\sqrt n$ 和 ReLU 的 $2/n$、BN“相当于每层都做 preprocessing”、sanity check、update 与 weight 之比、log scale、random search 胜过 grid search、搜索范围的边界、coarse-to-fine，来自 [notes 的 Neural Networks Part 2](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-2.md) 与 [Part 3](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-3.md)；transfer learning 的四种情形和较小的 learning rate 来自 [notes 的 Transfer Learning](https://github.com/cs231n/cs231n.github.io/blob/master/transfer-learning.md)。6 层、4096 个 neuron、std 0.01 与 0.05 的实验设定，ResNet 的 augmentation 和 10-crop，Cutout，dropout 在 test time 的 scale，调参的 7 步，transfer learning 的表和一百万张的法则，来自 [Lecture 6 slides](https://cs231n.stanford.edu/slides/2026/lecture_6.pdf)；slides 上那个实验用的是什么 activation、得到什么曲线没有读到，上表是按 ReLU 为这一页算的。Spatial BN 合并位置的理由、reshape 的做法、LN 对 batch size 不敏感、dropout 的 `p` 是保留的 probability，来自 A2 的 notebook 和 `layers.py`。四种 normalization 的分组、$S_i$ 的统一写法、$G=32$ 和 batch size 的表来自 [Group Norm 论文](https://arxiv.org/pdf/1803.08494)（只读到抽取的片段）；crop 的计数、augmentation 的 wrong 是为这一页写的。
+Initialization 的 variance 推导、$1/\sqrt n$ 和 ReLU 的 $2/n$、BN“相当于每层都做 preprocessing”、sanity check、update 与 weight 之比、log scale、random search 胜过 grid search、搜索范围的边界、coarse-to-fine，来自 [notes 的 Neural Networks Part 2](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-2.md) 与 [Part 3](https://github.com/cs231n/cs231n.github.io/blob/master/neural-networks-3.md)；transfer learning 的四种情形和较小的 learning rate 来自 [notes 的 Transfer Learning](https://github.com/cs231n/cs231n.github.io/blob/master/transfer-learning.md)。Sigmoid、ReLU、GELU 的那几条性质（kill gradient、not zero-centered、dead ReLU、GELU 的计算量），6 层、4096 个 neuron、std 0.01 与 0.05 的实验设定和两句描述，Kaiming 的 $\sqrt{2/D_{\text{in}}}$，ResNet 的 augmentation 和 10-crop，Cutout，dropout 的两种理解、0.5 与 $2^{4096}$、“scale at test time”，调参的 7 步，transfer learning 的表和一百万张的法则，来自 [Lecture 6 slides](https://cs231n.stanford.edu/slides/2026/lecture_6.pdf)（读了抽取的文字和全部 slide 标题；这一版 slides 讲 normalization 时只讲了 LayerNorm 和一页 other normalization layers，没有 BatchNorm）；slides 上那个实验的 activation 没有写，上表是按 ReLU 为这一页算的。SGD 的三个问题、condition number、momentum 的 $\rho$ 取 0.9 或 0.99、“leaky AdaGrad”、Adam 的 bias correction 和 1e−3/5e−4 的建议、AdamW、几种 schedule 与 warmup、batch size 与 learning rate 的法则、Hessian 的 $O(N^2)$ 与 $O(N^3)$、“in practice”的结论，来自 [Lecture 3 slides](https://cs231n.stanford.edu/slides/2026/lecture_3.pdf)（只读到抽取的文字，formula 没有抽出来）；momentum、AdaGrad、RMSProp、Adam 的式子和 3725 GB 来自 Neural Networks Part 3 的 optimizer 一节，符号约定（`v = mu * v - lr * dw`、`decay_rate` 0.99、Adam 先加 `t` 再用）核对了 A1 的 `optim.py` 和 FullyConnectedNets notebook 里的测试数值。$0.25^{10}$、ill-conditioned 的二次 loss 上 SGD 与 momentum 的推导和 230、87、231、80 这几个步数、AdaGrad 第一步的 $(\eta,\eta)$、不修正时 3.16 与 6.57 的系数、转 45° 的 edge、动图，是为这一页算的。Spatial BN 合并位置的理由、reshape 的做法、LN 对 batch size 不敏感、dropout 的 `p` 是保留的 probability，来自 A2 的 notebook 和 `layers.py`。四种 normalization 的分组、$S_i$ 的统一写法、$G=32$ 和 batch size 的表来自 [Group Norm 论文](https://arxiv.org/pdf/1803.08494)（只读到抽取的片段）；crop 的计数、augmentation 的 wrong 是为这一页写的。
 :::
 
 ## [detect] Detection 与 segmentation
@@ -686,7 +783,7 @@ Mask 的 loss 是对每个 pixel 做 sigmoid 再算 binary cross-entropy，而�
 RoI Align 改的是 Fast R-CNN 裁 feature 的那一步。旧的 RoI Pool 把 region 的坐标 $x$ 换成 feature 坐标时取 $[x/16]$（16 是 feature map 的 stride，$[\cdot]$ 是 round）。一个左边缘在 59.2 pixel 的 region 落在 feature 坐标 3.7 处，round 成 4，相当于把 region 挪了 $0.3\times16=4.8$ 个 pixel。对 box 影响不大，对一张 28×28 的 mask 就是明显的错位。RoI Align 直接用 $x/16$，不 round，在每个 bin 里规则地取 4 个点，用 bilinear interpolation 算出那里的 feature 值。Mask R-CNN 论文的 ablation：只把 RoI Pool 换成 RoI Align，mask AP 从 26.9 升到 30.3，要求 IoU 0.75 的 AP 从 26.4 升到 31.5，提升主要在要求框得准的地方。
 
 :::from
-Sliding window 与 fully convolutional 的问题、先缩后放、transposed convolution 的 1D 例子 $(ax,ay,az+bx,by,bz)$ 和“stride 是 output 与 input 移动的比”、U-Net 的拼接、classification 加 localization 的两个头、R-CNN、Fast R-CNN、Faster R-CNN 的流程、640×480 得 20×15、$K\times20\times15$ 与 $4K\times20\times15$、取前 300、7×7×(5B+C)、DETR 的 bipartite matching、Mask R-CNN 的 14×14 与 28×28，来自 [Lecture 9 slides](https://cs231n.stanford.edu/slides/2026/lecture_9.pdf)；那份 slides 没有讲 IoU、NMS 和 mAP。IoU 的 0.5/0.7/0.9、NMS 的三步和 0.7、mAP 的计算步骤和 dog 的例子、sliding window 的计数 formula、“重叠时 NMS 会删掉好的 box”，来自 [Johnson 的 EECS 498 Lecture 15](https://web.eecs.umich.edu/~justincj/slides/eecs498/498_FA2019_lecture15.pdf)。$K=9$ 与三种 area、0.7 与 0.3 的两条规则、256 个 anchor 的抽样、$t_x,t_w$ 的写法与 smooth L1、2.8×10^4 个 parameter、198 ms，核对过 [Faster R-CNN 原文](https://arXiv.org/pdf/1506.01497.pdf)；RoI Pool 的 $[x/16]$、RoI Align 的 4 个采样点、mask loss 只用一张 mask、ablation 的数字来自 [Mask R-CNN 原文](https://arxiv.org/pdf/1703.06870)；COCO 上 21.2 与 27.2 来自 ResNet 原文。三篇都只读到抽取的片段。Transposed convolution 是 $M^\top$ 的推导、output 长度的 formula、动图和 NMS 图里的 box 与 IoU、8×10^10 个 box 的数，是为这一页算的。
+Sliding window 与 fully convolutional 的问题、先缩后放、transposed convolution 的 1D 例子 $(ax,ay,az+bx,by,bz)$ 和“stride 是 output 与 input 移动的比”、U-Net 的拼接、classification 加 localization 的两个头、R-CNN、Fast R-CNN、Faster R-CNN 的流程、640×480 得 20×15、$K\times20\times15$ 与 $4K\times20\times15$、取前 300、7×7×(5B+C)、DETR 的 bipartite matching、Mask R-CNN 的 14×14 与 28×28，来自 [Lecture 9 slides](https://cs231n.stanford.edu/slides/2026/lecture_9.pdf)；那份 slides 没有讲 IoU、NMS 和 mAP。IoU 的 0.5/0.7/0.9、NMS 的三步和 0.7、mAP 的计算步骤和 dog 的例子、sliding window 的计数 formula、“重叠时 NMS 会删掉好的 box”，来自 [Johnson 的 EECS 498 Lecture 15](https://web.eecs.umich.edu/~justincj/slides/eecs498/498_FA2019_lecture15.pdf)。$K=9$ 与三种 area、0.7 与 0.3 的两条规则、256 个 anchor 的抽样、$t_x,t_w$ 的写法与 smooth L1、2.8×10^4 个 parameter、198 ms，核对过 [Faster R-CNN 原文](https://arXiv.org/pdf/1506.01497.pdf)；RoI Pool 的 $[x/16]$、RoI Align 的 4 个采样点、mask loss 只用一张 mask、ablation 的数字来自 [Mask R-CNN 原文](https://arxiv.org/pdf/1703.06870)（Table 2(c) 这次逐行核对过，用的是 ResNet-50-C4、average aggregation 那一行）；COCO 上 21.2 与 27.2 来自 ResNet 原文。三篇都只读到抽取的片段。Transposed convolution 是 $M^\top$ 的推导、output 长度的 formula、动图和 NMS 图里的 box 与 IoU、8×10^10 个 box 的数，是为这一页算的。
 :::
 
 ## [vit] Vision Transformer
@@ -775,7 +872,7 @@ ViT 论文测了每个 head 的 attention 平均跨多远：最低几层已经�
 Patch 数随 image 边长的平方增长，$N^2$ 就是四次方。Memory 也一样：$H$ 个 head 的 attention matrix 有 $H\times N\times N$ 个数；Lecture 8 指出 FlashAttention 不存整个 matrix，把 memory 降到 $O(N)$，计算量不变。
 
 :::from
-Attention layer 的写法、permutation equivariance 的结论、pre-norm、MLP 的 $D\to4D\to D$、“self-attention 是唯一的交互”、ViT 切 patch 等价于 stride 16 的 conv、平均 pooling、四个 matmul 与 $O(N^2)$、FlashAttention，来自 [Lecture 8 slides](https://cs231n.stanford.edu/slides/2026/lecture_8.pdf)；slides 只给结论，permutation equivariance 和平均之后与顺序无关的推导是这一页写的。Inductive bias 的三条、Table 1 的规格、pretrain dataset 的对比与 overfit 的说法、position embedding 的 ablation、attention distance，来自 [ViT 论文](https://arxiv.org/pdf/2010.11929)。A3 的默认配置、平均 pooling、1D sinusoidal、0.45 的目标来自 A3 的 notebook 和 `transformer.py`。动图里的 token、计算量的表是为这一页算的。
+Attention layer 的写法、permutation equivariance 的结论、pre-norm、MLP 的 $D\to4D\to D$、“self-attention 是唯一的交互”、ViT 切 patch 等价于 stride 16 的 conv、平均 pooling、四个 matmul 与 $O(N^2)$、FlashAttention，来自 [Lecture 8 slides](https://cs231n.stanford.edu/slides/2026/lecture_8.pdf)；slides 只给结论，permutation equivariance 和平均之后与顺序无关的推导是这一页写的。Inductive bias 的三条、Table 1 的规格、pretrain dataset 的对比与 overfit 的说法、position embedding 的 ablation、attention distance，来自 [ViT 论文](https://arxiv.org/pdf/2010.11929)；这次回去核对了 Table 1、Table 8、inductive bias 那段和 overfit 的原句，Table 5 只读到 JFT-300M 那一列（84.15、87.12 对得上），ImageNet 和 ImageNet-21k 两列的四个数没有再读到原表。A3 的默认配置、平均 pooling、1D sinusoidal、0.45 的目标来自 A3 的 notebook 和 `transformer.py`。动图里的 token、计算量的表是为这一页算的。
 :::
 
 ## [ssl] Self-supervised learning：contrastive、CLIP、DINO 与 MAE
@@ -856,14 +953,14 @@ DINO 的 ViT 在没有任何 segmentation label 的情况下，class token 对 p
 
 几个设计都有理由。Encoder 不处理 mask token，sequence 只有原来的四分之一，加上 decoder 很轻（8 个 block、512 维，每个 token 的计算不到 encoder 的 10%），训练快得多：ViT-L 训练 800 个 epoch，encoder 带 mask token 要 42.4 小时，不带是 15.4 小时，快 2.8 倍。Encoder 带上 mask token 不仅慢，linear probe 也从 73.5% 掉到 59.6%，因为 downstream 时根本没有 mask token，训练和使用的 input 对不上。Loss 用 pixel 的 MSE，只算被遮的 patch；把每个 patch 的 pixel 先减去自己的 mean、除以 std 作为 target，fine-tune 从 84.9% 升到 85.4%。
 
-Masking ratio 的 ablation（ViT-L/16，ImageNet；数字是从论文的图上读的，是近似值）：
+Masking ratio 的 ablation（ViT-L/16，ImageNet-1K validation accuracy；数字是论文 Figure 5 里每个点旁边印的值）：
 
-| Masking ratio | 10% | 30% | 50% | 75% | 90% |
-|---|---|---|---|---|---|
-| Fine-tune | 83.2 | 83.4 | 84.9 | 84.9 | 83.0 |
-| Linear probe | 54.6 | 61.7 | 69.9 | 73.5 | 66.1 |
+| Masking ratio | 10% | 20% | 30% | 40% | 50% | 60% | 70% | 75% | 80% | 90% |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Fine-tune | 83.2 | 83.4 | 83.4 | 84.7 | 84.9 | 85.0 | 84.9 | 84.9 | 84.5 | 83.0 |
+| Linear probe | 54.6 | 58.9 | 61.7 | 67.0 | 69.9 | 71.8 | 73.2 | 73.5 | 71.8 | 66.1 |
 
-Fine-tune 在 40% 到 80% 之间都差不多，linear probe 在 75% 达到最高。
+Fine-tune 在 40% 到 80% 之间只差 0.5 个点，linear probe 在 75% 达到最高，从 10% 到 75% 涨了 18.9 个点。
 
 :::wrong MAE 的 linear probe 只有 73.5%，比 contrastive 方法低，说明它学到的 feature 差
 Linear probe 量的是 feature 能不能被一个 linear layer 直接分开。MAE 的 ViT-L fine-tune 到 84.9%，同一个 ViT-L 从头训练只有 82.5%，pretraining 实打实地多给了 2.4 个点；ViT-H 用 448 的分辨率 fine-tune 到 87.8%，只用 ImageNet-1K 的 data。它的 feature 需要再经过几层非线性才能用好，所以按 linear probe 排名吃亏，按 fine-tune 排名领先。选哪种 pretrained encoder，要看 downstream 是冻住用还是会 fine-tune。
@@ -874,7 +971,7 @@ Augmentation 的意义见[第 4 站](#train)；ViT 的 patch 和 class token 见
 :::
 
 :::from
-Pretext 与 downstream、linear probe 与 fine-tune、rotation 的 4-way classification、InfoNCE 是 $N$ 选 1 的 cross-entropy、SimCLR 的 augmentation 与 projection head 的结论、8192 的 batch size、MoCo 的 queue 与 momentum encoder、MoCo v2 用 256 超过 8192，来自 [Lecture 12 slides](https://cs231n.stanford.edu/slides/2026/lecture_12.pdf)；slides 上 DINO 只有标题。SimCLR loss 的写法、A3 的 augmentation、CLIP 的 similarity matrix 与 zero-shot、“第一个不用 ImageNet 超过 supervised”的说法、DINO 的 student–teacher 与 EMA、DINO segmentation 的 0.45/0.50/0.55，来自 A3 的 `Self_Supervised_Learning.ipynb` 和 `CLIP_DINO.ipynb`。MAE 一节的全部数字和“image 冗余大”的论证来自 [MAE 论文](https://arxiv.org/pdf/2111.06377v3)，masking ratio 的表是从论文的图读出的近似值。Queue、$(K+1)$-way 的说法、$\tau=0.07$、65,536、$m$ 的 ablation 和“key encoder 变得太快会失去一致性”，核对过 [MoCo 原文](https://arxiv.org/pdf/1911.05722)；$K=65{,}536$、multi-crop、$\lambda$ 的 schedule、两个 temperature、center 的更新、$h+D_{\text{KL}}$ 的拆分和 collapse 的 ablation、77.0 与 74.5，来自 [DINO 原文](https://arxiv.org/pdf/2104.14294)；CLIP 的 4 亿对、双向 InfoNCE、1-nearest neighbor 的说法、prompt 的 +1.3% 与 +5%、32K batch 的局限，来自 [Lecture 16 slides](https://cs231n.stanford.edu/slides/2026/lecture_16.pdf)。论文和 slides 都只读到抽取的片段。Temperature 的那笔账和图里的 embedding 是为这一页算的。
+Pretext 与 downstream、linear probe 与 fine-tune、rotation 的 4-way classification、InfoNCE 是 $N$ 选 1 的 cross-entropy、SimCLR 的 augmentation 与 projection head 的结论、8192 的 batch size、MoCo 的 queue 与 momentum encoder、MoCo v2 用 256 超过 8192，来自 [Lecture 12 slides](https://cs231n.stanford.edu/slides/2026/lecture_12.pdf)；slides 上 DINO 只有标题。SimCLR loss 的写法、A3 的 augmentation、CLIP 的 similarity matrix 与 zero-shot、“第一个不用 ImageNet 超过 supervised”的说法、DINO 的 student–teacher 与 EMA、DINO segmentation 的 0.45/0.50/0.55，来自 A3 的 `Self_Supervised_Learning.ipynb` 和 `CLIP_DINO.ipynb`。MAE 一节的全部数字和“image 冗余大”的论证来自 [MAE 论文](https://arxiv.org/pdf/2111.06377v3)，masking ratio 的表取自论文 Figure 5 里印的 data label（Table 1、Table 2 逐行核对过）。Queue、$(K+1)$-way 的说法、$\tau=0.07$、65,536、$m$ 的 ablation 和“key encoder 变得太快会失去一致性”，核对过 [MoCo 原文](https://arxiv.org/pdf/1911.05722)；$K=65{,}536$、multi-crop、$\lambda$ 的 schedule、两个 temperature、center 的更新、$h+D_{\text{KL}}$ 的拆分和 collapse 的 ablation、77.0 与 74.5，来自 [DINO 原文](https://arxiv.org/pdf/2104.14294)；CLIP 的 4 亿对、双向 InfoNCE、1-nearest neighbor 的说法、prompt 的 +1.3% 与 +5%、32K batch 的局限，来自 [Lecture 16 slides](https://cs231n.stanford.edu/slides/2026/lecture_16.pdf)。论文和 slides 都只读到抽取的片段。Temperature 的那笔账和图里的 embedding 是为这一页算的。
 :::
 
 ## [gen] 视觉里的 generative model：从 rectified flow 到 DDPM
@@ -885,7 +982,7 @@ Pretext 与 downstream、linear probe 与 fine-tune、rotation 的 4-way classif
 
 ### 这一站和别的页面怎么分工
 
-Lecture 13 先区分 discriminative model $p(y\mid x)$、generative model $p(x)$ 和 conditional generative model $p(x\mid y)$，再按“能不能算出 $p(x)$”给 generative model 分类：autoregressive model 能精确算，VAE 能算一个 lower bound，GAN 和 diffusion 只能 sample。这一讲细讲了 autoregressive model 和 VAE，Lecture 14 讲 GAN 和 diffusion。Autoregressive 用在 pixel 上为什么不行，slides 给了一个数：1024×1024 的 image 有 $1024\times1024\times3=3{,}145{,}728$ 个 subpixel，逐个生成就要三百多万步。VAE 的 ELBO、GAN 的 objective 与最优 discriminator、在 discrete latent 上做 autoregression，在 [MIT 6.S978 的页面](../courses/MIT-6.S978.html#vae)里各有一站（[VAE](../courses/MIT-6.S978.html#vae)、[GAN](../courses/MIT-6.S978.html#gan)、[autoregressive](../courses/MIT-6.S978.html#ar)），推导和 Lecture 13 的顺序一致，这里不重复。Diffusion 背后的 SDE、score matching 和 flow matching 在 [MIT 6.S184 的页面](../courses/MIT-6.S184.html#fm)。
+Lecture 13 先区分 discriminative model $p(y\mid x)$、generative model $p(x)$ 和 conditional generative model $p(x\mid y)$，再按“能不能算出 $p(x)$”给 generative model 分类：autoregressive model 能精确算，VAE 能算一个 lower bound，GAN 和 diffusion 只能 sample。这一讲细讲了 autoregressive model 和 VAE，Lecture 14 讲 GAN 和 diffusion。Autoregressive 用在 pixel 上为什么不行，slides 给了一个数：1024×1024 的 image 是一个约 3M 个 subpixel 的序列（$1024\times1024\times3=3{,}145{,}728$），逐个生成就要三百多万步。Lecture 14 讲 GAN 时给出了 minimax objective 和最优 discriminator $D^*_G(x)=p_{\text{data}}(x)/(p_{\text{data}}(x)+p_G(x))$，证明略去。VAE 的 ELBO、GAN 的 objective 与最优 discriminator、在 discrete latent 上做 autoregression，在 [MIT 6.S978 的页面](../courses/MIT-6.S978.html#vae)里各有一站（[VAE](../courses/MIT-6.S978.html#vae)、[GAN](../courses/MIT-6.S978.html#gan)、[autoregressive](../courses/MIT-6.S978.html#ar)），推导和 Lecture 13 的顺序一致，这里不重复。Diffusion 背后的 SDE、score matching 和 flow matching 在 [MIT 6.S184 的页面](../courses/MIT-6.S184.html#fm)。
 
 这一站先讲 Lecture 14 的写法，再讲 A3 Q3 要实现的 DDPM，每一块写到能直接对照 `gaussian_diffusion.py` 和 `unet.py`。两者是同一个框架下对 noise schedule 和 prediction target 的两种选择。
 
@@ -998,7 +1095,101 @@ U-Net 见[第 5 站](#detect)；CLIP 的 text encoder 见[第 7 站](#ssl)。
 :::
 
 :::from
-[Lecture 13 slides](https://cs231n.stanford.edu/slides/2026/lecture_13.pdf) 给了 generative model 的分类和 3,145,728 个 subpixel；[Lecture 14 slides](https://cs231n.stanford.edu/slides/2026/lecture_14.pdf) 给了 rectified flow 的 training 与 sampling、“network 学到的是平均”、logit-normal、$a(t),b(t),c(t),d(t)$ 的统一写法、$v_{\text{cfg}}$ 的形式、latent diffusion 的 8 倍与 16 个 channel、DiT 的 adaLN、FLUX.1 的尺寸（两份 slides 都只读到抽取的文字；Lecture 14 里没有 DDPM 的 $\bar\alpha_t$ 和 posterior）。DDPM 部分跟着 A3 的 `DDPM.ipynb`、`gaussian_diffusion.py`、`unet.py`：`q_sample` 的 closed form、`pred_noise` 与 `pred_x_start`、`p_losses` 的三步与 `loss_weight`、`q_posterior` 的三个 coefficient、clamp 到 $[-1,1]$、sigmoid schedule、CLIP 的 512 维 text embedding、context vector、`uncond_prob`、`cfg_forward` 注释里的 $(1+w)\varepsilon_c-w\varepsilon_\varnothing$、seen 与 unseen prompt 的例子。VAE、GAN、autoregressive 只给了到别的页面的链接。DDPM 是 VP、$\varepsilon$-prediction 这一对应、FLUX.1 的 token 数，两步合成的推导、posterior 的配方推导、linear schedule 的表、$t=500$ 的 coefficient、157 倍的放大、那张笑脸图是为这一页算的；linear schedule 的端点 0.0001 和 0.02 出自 A3 代码里的 `linear_beta_schedule`。
+[Lecture 13 slides](https://cs231n.stanford.edu/slides/2026/lecture_13.pdf) 给了 generative model 的分类和“1024x1024 image is a sequence of 3M subpixels”；[Lecture 14 slides](https://cs231n.stanford.edu/slides/2026/lecture_14.pdf) 给了 rectified flow 的 training 与 sampling、“network 学到的是平均”、logit-normal、$a(t),b(t),c(t),d(t)$ 的统一写法、$v_{\text{cfg}}$ 的形式、latent diffusion 的 8 倍与 16 个 channel、DiT 的 adaLN、FLUX.1 的尺寸（两份 slides 都只读到抽取的文字；Lecture 14 里没有 DDPM 的 $\bar\alpha_t$ 和 posterior）。DDPM 部分跟着 A3 的 `DDPM.ipynb`、`gaussian_diffusion.py`、`unet.py`：`q_sample` 的 closed form、`pred_noise` 与 `pred_x_start`、`p_losses` 的三步与 `loss_weight`、`q_posterior` 的三个 coefficient、clamp 到 $[-1,1]$、sigmoid schedule、CLIP 的 512 维 text embedding、context vector、`uncond_prob`、`cfg_forward` 注释里的 $(1+w)\varepsilon_c-w\varepsilon_\varnothing$、seen 与 unseen prompt 的例子。VAE、GAN、autoregressive 只给了到别的页面的链接。DDPM 是 VP、$\varepsilon$-prediction 这一对应、FLUX.1 的 token 数，两步合成的推导、posterior 的配方推导、linear schedule 的表、$t=500$ 的 coefficient、157 倍的放大、那张笑脸图是为这一页算的；linear schedule 的端点 0.0001 和 0.02 出自 A3 代码里的 `linear_beta_schedule`。
+:::
+
+## [video] Video：3D convolution、two-stream 与 video Transformer
+
+:::skip
+快速路线里可以跳过：三个作业都没有用到。做 video understanding，或者 robot learning 里 policy 的 input 是一段 video 时再读。能写出 late fusion 和 3D CNN 每一步的 shape、算出它们在 time 方向的 receptive field，推一遍 I3D 的 inflation，算出 divided space-time attention 省了多少，就读完了这一站。
+:::
+
+### Video 太大，只能一小段一小段地训练
+
+一段 video 是 $T$ 张 image，一个 $T\times3\times H\times W$ 的 tensor。Lecture 10 先算它有多大：一个 pixel 3 个 byte，每秒 30 帧，640×480 的 SD video 一分钟是
+
+$$640\times480\times3\times30\times60=1.66\times10^9\ \text{byte}$$
+
+约 1.5 GB（按 $2^{30}$ 算）；1920×1080 的 HD video 一分钟 $1.12\times10^{10}$ byte，约 10 GB。这放不进 GPU。办法是只拿短的、低帧率的 clip 训练：slides 的设定是 $T=16$、$H=W=112$，每秒 5 帧，一个 clip 覆盖 3.2 秒，$16\times112\times112\times3=602{,}112$ byte，588 KB。Test time 从同一段 video 里取几个 clip 分别跑，把 prediction 平均。
+
+任务是 video classification：给一个 clip 一个 action 或场景的 label。下面几种 architecture 的区别只在一件事：不同帧的信息在 network 的哪里、以什么方式合到一起。
+
+### 先不管 time：single-frame 与 late fusion
+
+最简单的是 single-frame CNN：对每一帧单独跑第 3 站那样的 2D CNN，test time 把各帧的 class probability 平均。Slides 说它常常是一个很强的 baseline。
+
+Late fusion 把合并推迟到最后。每一帧经过同一个 2D CNN，得到 $T\times D\times H'\times W'$ 的 frame feature，再合起来分类。合的办法有两种。一是全部 flatten 接一个 MLP：$T=16$、$D=512$、$H'=W'=7$ 时是 $16\times512\times7\times7=401{,}408$ 个数，接一个 4096 个 neuron 的 FC 就要 $1.64\times10^9$ 个 parameter，而且 $T$ 被写死在 FC 的形状里，换一个长度的 video 就用不了，slides 正是这样发问的。二是对 space 和 time 一起做 average pooling，得到一个 $D$ 维的 clip feature，再接一个 linear layer 出 $C$ 个 score，任意长度都能用。
+
+平均掉 time 有一个代价。设 $f$ 是逐帧的 feature，clip feature 是
+
+$$\bar f=\frac1T\sum_{t=1}^Tf(x_t)$$
+
+把帧的顺序倒过来，求和的项还是这些，$\bar f$ 一模一样。所以 late fusion 加 pooling 对一段 video 和它的倒放给出相同的 score，分不出“开门”和“关门”、“坐下”和“站起”。这和第 6 站没有 position embedding 的 ViT 是同一个论证。Slides 的说法是，这种 network 很难比较帧与帧之间的 low-level motion，适合靠场景就能判断的 class。
+
+### 3D convolution：filter 也沿 time 滑
+
+Slides 把 early fusion 做成 3D CNN：input 是 $3\times T\times H\times W$，每一层的 activation 是 $D\times T\times H\times W$，用 3D conv 和 3D pooling 一层层地把 time 合进来。3D conv 的 filter 多一个 time 方向的大小 $K_t$，形状是 $K_t\times C\times K\times K$，它在 $H$、$W$ 方向滑，也在 time 方向前后滑。
+
+Slides 的例子先回顾 2D：3×32×32 的 input，6 个 3×5×5 的 filter，output 6×28×28。换成 3D：input 是 $T=6$ 帧的 $6\times3\times32\times32$，5 个 $2\times3\times5\times5$ 的 filter，stride 1、不 pad。按第 2 站的 output size formula，spatial 是 $(32-5)/1+1=28$，time 是 $(6-2)/1+1=5$，output 是 $T'\times5\times28\times28$，$T'=5$。Parameter 是 $5\times(2\times3\times5\times5+1)=755$ 个。
+
+对照一下，如果只有 2D conv，也可以把 6 帧叠成 18 个 channel，用 5 个 $18\times5\times5$ 的 filter：output 是 5×28×28，没有 time 轴了，parameter 是 $5\times(18\times25+1)=2255$。多出来的 parameter 买到的是一件坏事：filter 里第 1、2 帧的 weight 和第 4、5 帧的 weight 是不同的数，同一个动作发生在 clip 的开头和发生在中间，要靠两组不同的 weight 去认。3D conv 在 time 方向共用一组 weight，第 2 站的 translation equivariance 论证原样搬到 time 上：动作晚两帧发生，output 也只是在 time 方向晚两格。
+
+::fig[stanford-cs231n-video] 从最上面的一个 unit 往下追，看它依赖哪几帧。左：late fusion，各帧在 2D CNN 里互不相干，到最后的 pooling 才第一次合到一起。右：$K_t=3$ 的 3D conv，每一层在 time 方向多看 2 帧。
+
+Time 方向的 receptive field 用第 3 站的 recurrence 就能算。$K_t=3$、stride 1 的 3D conv 叠 $L$ 层，time 方向是 $1+2L$ 帧，三层是 7 帧，和 spatial 方向一样慢慢长大。Late fusion 的 2D CNN 里 time 方向的 receptive field 一直是 1 帧，最后的 pooling 一下子变成全部 $T$ 帧。两者的差别不在最后看到了几帧，而在于帧与帧之间有没有经过 non-linearity 的比较：late fusion 只做了一次平均。
+
+### Two-stream：把 motion 单独算出来
+
+既然 motion 重要，就直接把它算出来喂给 network。Optical flow 给出相邻两帧之间每个 pixel 的位移，$F(x,y)=(dx,dy)$，是一张 2 个 channel 的 image。Two-stream network 有两路：spatial stream 看一张 RGB 帧，$3\times H\times W$；temporal stream 看 $T$ 帧之间的 $T-1$ 张 flow 叠在一起，$2(T-1)\times H\times W$，例如 $T=11$ 时是 20 个 channel。两路各出 class score，最后合并。
+
+Slides 给的 UCF-101 accuracy：
+
+| 方法 | accuracy（%） |
+|---|---|
+| 3D CNN | 65.4 |
+| Spatial stream（只看 RGB 帧） | 73.0 |
+| Temporal stream（只看 optical flow） | 83.7 |
+| 两路的 score 取平均 | 86.9 |
+| 两路的 score 用 SVM 合并 | 88.0 |
+
+只看 flow 的那一路比只看 RGB 的高 10.7 个点：同样的 action，motion 比外观更能说明问题，而 flow 把 motion 显式地交给了 network，不必从 pixel 的差里自己学。两路合起来又高 3.2 到 4.3 个点，外观和 motion 各有对方没有的信息。Slides 也指出，现在 video understanding 已经很少用 optical flow，它主要作为中间的 representation 出现，例如在 robotic control 里。
+
+:::wrong 3D CNN 看得到 motion，所以一定比逐帧的 2D CNN 强
+上表第一行和第二行就是反例：slides 上的 3D CNN 是 65.4%，只看单帧的 spatial stream 是 73.0%。能看到 motion 只说明 model 表达得出来，学不学得出来还取决于 data 和 initialization。Slides 把 single-frame CNN 称为“很强的 baseline”，一个新的 video model 要先和它比。下面的 I3D 正是想让 3D CNN 也用上 2D network 已经学好的东西。
+:::
+
+### I3D：把 2D network 的 weight 借过来
+
+2D CNN 有 ImageNet 上 pretrain 好的 weight，3D CNN 从头训练。I3D 的做法是把一个训练好的 2D network “inflate”成 3D：每个 $K_h\times K_w$ 的 conv 和 pooling 换成 $K_t\times K_h\times K_w$，weight 按 time 复制 $K_t$ 份再除以 $K_t$，
+
+$$w^{3\text{D}}[\tau,u,v,c]=\frac{1}{K_t}\,w^{2\text{D}}[u,v,c],\qquad\tau=0,\dots,K_t-1$$
+
+为什么除以 $K_t$？考虑一段每一帧都相同的 video，$x_t=x$。3D conv 在 time 位置 $t$ 的 output 是
+
+$$\sum_{\tau=0}^{K_t-1}\sum_{u,v,c}\frac{w^{2\text{D}}[u,v,c]}{K_t}\,x[i+u,\,j+v,\,c]+b=K_t\cdot\frac1{K_t}\sum_{u,v,c}w^{2\text{D}}[u,v,c]\,x[i+u,\,j+v,\,c]+b$$
+
+正好是 2D conv 在 $x$ 上的 output。ReLU 这样逐个 element 的操作、test time 的 BN 这样逐个 channel 的 affine function，都不改变“每帧相同”，time 方向的 pooling 也一样，所以一层层传上去，inflate 之后的 network 对这段静止的 video 给出的 score 和原来的 2D network 对 $x$ 给出的完全相同。Slides 说的就是这一点：对 constant 的 input，inflate 后的 network 和 2D network 输出相同。Training 从这个已经能认出 object 的起点出发，只需再学会用 time。代价是 parameter 多了 $K_t$ 倍：一个 64 进 64 出的 3×3 conv 有 $64\times64\times9=36{,}864$ 个 weight，inflate 成 3×3×3 是 110,592 个。
+
+:::edge Time 方向的边界
+上面的推导要求 time 方向的 window 整个落在 video 里。在 time 方向补 0 时，第一帧的 window（$K_t=3$）有一格是 padding，那里只得到 $\tfrac23$ 的 2D output。离边界 $(K_t-1)/2$ 帧以内的位置，“和 2D 相同”不再严格成立。
+:::
+
+### Video Transformer：token 太多
+
+第 6 站的 ViT 把一帧 224×224 切成 $14\times14=196$ 个 token。Slides 把它直接用到 video 上：16 帧的 clip 是 $196\times16=3136$ 个 token；5 分钟的 video 每秒取 1 帧（$T=300$）是 58,800 个；每秒 24 帧是 1,411,200 个。第 6 站算过，一层里 attention 的份额是 $2N^2D/(2N^2D+12ND^2)=N/(N+6D)$；$N=3136$、$D=768$ 时是 $3136/(3136+4608)=41\%$，接近一半，video 再长，attention 就占了绝大部分。
+
+Slides 把对策分成两类：改 attention，或者减少 token。
+
+**Divided space-time attention。** Joint attention 里每个 token 看全部 $N T$ 个 token。Divided attention 把一层拆成两步：先做 time attention，每个 token 只看其他帧同一个位置上的 $T$ 个 token；再做 space attention，只看同一帧的 $N$ 个 token。每个 token 看的个数从 $NT$ 降到 $N+T$，slides 写作 $O(NT)\to O(N+T)$。$N=196$、$T=16$ 时是 3136 对 212，少 14.8 倍。两步之后，一个 token 仍能间接拿到任何一帧任何位置的信息：先沿 time 拿到同一位置别的帧，再沿 space 从同一帧别的位置拿，别的位置已经在上一步汇集了它们各自的 time 信息。
+
+**减少 token。** Video Swin 只在局部的 space-time 小块里做 self-attention，层与层之间把小块错开，让信息跨块流动。MViT 用 conv 缩小 $K$ 和 $V$ 的 token 数（例如 4×4、stride 4 的 conv 把 56×56 的 grid 缩成 14×14），往上走时 spatial size 减半、channel 加倍（从 96 到 384），和第 3 站 CNN 的设计是同一个思路。ViViT 的 tubelet 让一个 token 跨 4 帧：token 数少 4 倍，3136 变成 784，attention 的 $N^2$ 那部分少 16 倍。
+
+:::back
+3D conv 的 output size 和 parameter 用的是[第 2 站](#conv)的 formula，time 方向的 receptive field 用的是[第 3 站](#arch)的 recurrence；patch token 和 attention 的计算量在[第 6 站](#vit)。
+:::
+
+:::from
+Video 的 tensor 形状、SD 与 HD 一分钟的大小、16 帧 112×112 每秒 5 帧的 clip 和 588 KB、test time 平均几个 clip、single-frame 是很强的 baseline、late fusion 的两种合并方式与“任意长度怎么办”、“难以比较 low-level motion”、early fusion 做成 3D CNN、2D 与 3D conv 的例子（3×32×32、6 个 3×5×5；$T=6$、5 个 2×3×5×5）、optical flow、two-stream 的 input 形状、UCF-101 的五个数、“optical flow 现在很少用”、I3D 的 inflation 和“constant input 时输出相同”、196/3136/58,800/1,411,200 个 token、divided attention 的 $O(NT)\to O(N+T)$、Video Swin、MViT 的 56 到 14 与 96 到 384、tubelet 的 4 帧，来自 [Lecture 10 slides](https://cs231n.stanford.edu/slides/2026/lecture_10.pdf)（只读到抽取的文字，图没有看到；I3D 在 Kinetics-400 上的那张表，抽出来的数字和方法对不上，没有用；后面的 temporal action localization、audio-visual、long-form video 几节没有写）。Flatten 之后 FC 的 parameter、倒放不变的论证、把 6 帧叠成 18 个 channel 的对照和 2255、time 方向 receptive field 的比较和图、inflation 为什么成立的推导和边界的 edge、parameter 多 $K_t$ 倍、attention 份额 41%、14.8 倍和 tubelet 的 16 倍，是为这一页算的。
 :::
 
 ## 作业
@@ -1007,7 +1198,7 @@ U-Net 见[第 5 站](#detect)；CLIP 的 text encoder 见[第 7 站](#ssl)。
 
 ### Assignment 1：kNN、softmax、两层与多层 network（值得做；重点是 Q2、Q3、Q5）
 
-**要从零写什么。** Q1：kNN 的 distance matrix，两层循环、一层循环、不用循环三种写法（不许用 `np.linalg.norm`），再用 5-fold cross-validation 选 $k$（第 1 站）。Q2：vectorized 的 softmax loss 和 gradient，用 SGD 训练并在 validation set 上调 learning rate 和 regularization（第 1 站）。Q3：affine、ReLU、softmax 几个 layer 的 forward 和 backward，拼成两层 network，用 `Solver` 训练并调参。Q4：在 color histogram 和 HOG feature 上训练 classifier，对比 raw pixel。Q5：任意深度的 fully connected network，以及 SGD+momentum、RMSProp、Adam 三个 update rule。
+**要从零写什么。** Q1：kNN 的 distance matrix，两层循环、一层循环、不用循环三种写法（不许用 `np.linalg.norm`），再用 5-fold cross-validation 选 $k$（第 1 站）。Q2：vectorized 的 softmax loss 和 gradient，用 SGD 训练并在 validation set 上调 learning rate 和 regularization（第 1 站）。Q3：affine、ReLU、softmax 几个 layer 的 forward 和 backward，拼成两层 network，用 `Solver` 训练并调参。Q4：在 color histogram 和 HOG feature 上训练 classifier，对比 raw pixel。Q5：任意深度的 fully connected network，以及 SGD+momentum、RMSProp、Adam 三个 update rule（第 4 站的 optimizer 一节）。
 
 **做完会什么。** Vectorized 的 NumPy；手写 backward 并用 numerical gradient 核对；第 4 站调参流程里的前两步。
 
@@ -1024,14 +1215,16 @@ U-Net 见[第 5 站](#detect)；CLIP 的 text encoder 见[第 7 站](#ssl)。
 - 每写完一个 layer 的 backward 就跑一次 gradient check：affine、ReLU、softmax 各项检查的预期在 1e−8 到 1e−12 之间，整个 network 的 parameter 在 1e−7 左右或更小。攒到整个 network 再查，很难定位是哪一层错了。（notebook；后半句是经验）
 - 两层 network 用默认参数约 36%，notebook 诊断为 learning rate 太低、model 太小；要求调到 validation 超过 48%，参考实现超过 52%。Q5 要求 validation 至少 50%。（notebook）
 - Q5 要先让 3 层和 5 层的 network 在 50 张 image 上 20 个 epoch 内达到 100% training accuracy，只调 learning rate 和 `weight_scale`；5 层的对 `weight_scale` 敏感得多，原因见第 4 站 initialization 一节的表。（notebook；后半句是经验）
+- `sgd_momentum` 的约定是 `v = momentum * v - learning_rate * dw`，`next_w = w + v`，notebook 的测试数值就是按这个算的；Lecture 3 指出另一种写法 $v\leftarrow\rho v+g$、$w\leftarrow w-\eta v$ 给出同样的 $w$ 序列（两种 $v$ 差一个 $-\eta$ 的倍数），但测试给的是一个非零的初始 velocity，换了写法就对不上。测试要求 error 小于 1e−8。（`optim.py`、notebook）
+- Adam 要写带 bias correction 的完整版，不是 notes 里先给的简化版；`t` 要在用到它之前先加 1。（notebook、`optim.py` 的注释）
 
 ### Assignment 2：BatchNorm、Dropout、CNN、PyTorch（先做；重点是 Q1、Q3、Q4）
 
-**要从零写什么。** Q1：BatchNorm 的 forward、按 computational graph 一步步写的 backward 和化简过的 backward，LayerNorm 的 forward 和 backward（第 4 站）。Q2：inverted dropout。Q3：naive 的 conv forward 和 backward、max pooling、spatial BatchNorm、spatial GroupNorm，拼成一个三层 ConvNet（第 2、4 站）。Q4：用 PyTorch 的三种 API 写 network，最后自己设计一个 network，在 CIFAR-10 上 10 个 epoch 内 validation accuracy 至少 70%。Q5：vanilla RNN 做 image captioning。
+**要从零写什么。** Q1：BatchNorm 的 forward、按 computational graph 一步步写的 backward 和化简过的 backward，LayerNorm 的 forward 和 backward（第 4 站）。Q2：inverted dropout。Q3：naive 的 conv forward 和 backward、max pooling、spatial BatchNorm、spatial GroupNorm，拼成一个三层 ConvNet（第 2、4 站）。Q4：用 PyTorch 的三种 API 写 network，最后自己设计一个 network，在 CIFAR-10 上 10 个 epoch 内 validation accuracy 至少 70%。Q5：用 PyTorch 写 vanilla RNN 的单步与整段 forward、word embedding，拼成 `CaptioningRNN` 在 COCO 上做 image captioning：image 先用 VGG-16 的 fc7 feature 表示（已预先算好），经一个 affine 变成 RNN 的 initial hidden state；backward 交给 autograd，不用手写。
 
 **做完会什么。** 第 2 站和第 4 站的每一个公式都在自己的代码里跑过一遍；能读懂 PyTorch 的 `nn.Module`、optimizer 和 training loop。
 
-**时间与算力。** Handout 没有给时间；估计 12 到 15 小时（调研时的估计）。Q1 到 Q3 在 CPU 上可以完成；Q4 在 Colab 的 GPU runtime 上快得多，要在 import 之前切换，因为切换会重启 kernel（notebook）。Q5 的 RNN captioning 可以跳过，A3 会用 Transformer 重做一遍（调研条目的判断）。
+**时间与算力。** Handout 没有给时间；估计 12 到 15 小时（调研时的估计）。Q1 到 Q3 在 CPU 上可以完成；Q4 在 Colab 的 GPU runtime 上快得多，要在 import 之前切换，因为切换会重启 kernel（notebook）。Q5 的 RNN captioning 可以跳过，A3 会用 Transformer 重做一遍（调研条目的判断）；要做的话，RNN 的讲法见 [CS4248 的 RNN 一站](../courses/CS4248.html#rnn)。
 
 **提示。**
 

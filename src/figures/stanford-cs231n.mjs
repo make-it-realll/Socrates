@@ -1,4 +1,4 @@
-import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, anim, ashow, f1 } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, anim, ashow, acircle, f1 } from '../lib/svg.mjs';
 
 // 小工具
 const rng = (seed) => () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -146,6 +146,85 @@ function vgg() {
   o += text(280, base + 64, '第一行：这一段 conv 或 FC 的 output 一共多少个数（activation）；第二行：这一段的 parameter 个数', 'ts', 'middle');
   o += text(280, base + 82, '方块高度按 spatial size 的 square root 画，宽度随 channel 数变宽', 'ts', 'middle');
   return svg(560, base + 88, o, 'VGG16 各段的 volume：activation 集中在前两段的 224 和 112 分辨率上，parameter 集中在第一个 FC 层的一亿零二百万个');
+}
+
+// ---------- 第 4 站：ill-conditioned 二次 loss 上的 SGD 与 momentum（动图） ----------
+const OPT = { l1: 1, l2: 100, eta: 2 / 101, rho: 0.9, x0: [10, 1] };
+const optRun = (rho, n) => {
+  let [x, y] = OPT.x0, vx = 0, vy = 0; const P = [[x, y]];
+  for (let k = 0; k < n; k++) { vx = rho * vx - OPT.eta * OPT.l1 * x; vy = rho * vy - OPT.eta * OPT.l2 * y; x += vx; y += vy; P.push([x, y]); }
+  return P;
+};
+const settle = (P, th) => { for (let i = 0; i < P.length; i++) if (P.slice(i).every(([x, y]) => Math.hypot(x, y) < th)) return i; return -1; };
+function optimA() {
+  const n = 100, step = 0.08, hold = 1.6, T = n * step + hold;
+  const kt = [...Array.from({ length: n + 1 }, (_, k) => (k * step) / T), 1];
+  const sx = lin(-3.5, 11.5, 70, 540);
+  const runs = [
+    { P: optRun(0, 400), title: 'SGD：η = 0.0198', y0: 44 },
+    { P: optRun(OPT.rho, 400), title: 'SGD + momentum：η = 0.0198，ρ = 0.9', y0: 196 },
+  ];
+  let o = '';
+  runs.forEach((R, ri) => {
+    const H = 104, sy = lin(-1.25, 1.25, R.y0 + H, R.y0), cy = sy(0), cx = sx(0);
+    o += text(70, R.y0 - 14, R.title, 'tb', 'start');
+    const s = settle(R.P, 0.1);
+    o += text(540, R.y0 - 14, '距离一直小于 0.1：从第 ' + s + ' 步起', ri ? 'tl' : 't', 'end');
+    const cid = 'cs231n-optclip-' + ri;
+    o += `<defs><clipPath id="${cid}"><rect x="70" y="${R.y0}" width="470" height="${H}"/></clipPath></defs><g clip-path="url(#${cid})">`;
+    for (const c of [2, 8, 18, 32]) {
+      const ax = sx(Math.sqrt(2 * c)) - cx, ay = cy - sy(Math.sqrt((2 * c) / OPT.l2));
+      o += `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(ax)}" ry="${f1(ay)}" class="grid"/>`;
+    }
+    o += '</g>';
+    o += line(cx - 5, cy, cx + 5, cy, 'ink') + line(cx, cy - 5, cx, cy + 5, 'ink');
+    o += rect(70, R.y0, 470, H, 'frame');
+    const pts = R.P.slice(0, n + 1);
+    o += path(d(pts.map(([x, y]) => [sx(x), sy(y)])), ri ? 'ln' : 'ink');
+    o += circle(sx(OPT.x0[0]), sy(OPT.x0[1]), 3.5, 'ink-f') + text(sx(OPT.x0[0]) + 8, sy(OPT.x0[1]) + 4, 'start', 'ts', 'start');
+    const xs = [...pts.map(([x]) => sx(x)), sx(pts[n][0])], ys = [...pts.map(([, y]) => sy(y)), sy(pts[n][1])];
+    o += acircle(xs, ys, kt, T, 5, 'solid');
+    // 每 10 步显示一次读数
+    for (let g = 0; g <= 10; g++) {
+      const on = kt.map((_, f) => Math.min(10, Math.floor(Math.min(f, n) / 10)) === g);
+      const [x, y] = pts[g * 10];
+      o += showT(66, R.y0 + H + 18, `step ${g * 10}：离最低点 ${Math.hypot(x, y).toFixed(2)}`, 'ts', 'start', on, kt, T);
+    }
+  });
+  o += text(30, 100, 'w₂', 'ts', 'middle') + text(30, 114, '陡', 'ts', 'middle') + text(30, 128, 'λ = 100', 'ts', 'middle');
+  o += text(30, 252, 'w₂', 'ts', 'middle') + text(30, 266, '陡', 'ts', 'middle') + text(30, 280, 'λ = 100', 'ts', 'middle');
+  o += text(540, 340, '横轴 w₁：平的方向，λ = 1。椭圆是 loss 的等高线，十字是最低点；竖轴放大了画。', 'ts', 'end');
+  return svgA(560, 348, o, '动图：loss 是二分之一乘 w1 平方加 100 倍 w2 平方，从 (10, 1) 出发、learning rate 0.0198。SGD 在陡的 w2 方向来回抖，沿 w1 慢慢挪，231 步后才一直留在 0.1 以内；momentum 绕几圈，80 步做到');
+}
+
+// ---------- 第 9 站：time 方向的 receptive field ----------
+function videoRF() {
+  const n = 9, c = 18, H = 18, gap = 36, yb = 196;
+  let o = '';
+  const row = (x0, y, nm, cells, hl, cls, note, noteCls) => {
+    o += text(x0 - 8, y + 13, nm, 'ts', 'end');
+    for (let k = 0; k < cells; k++) o += rect(x0 + k * c, y, c, H, hl(k) ? cls : 'paper');
+    if (note) o += text(x0 + n * c + 8, y + 13, note, noteCls || 'ts', 'start');
+  };
+  // 左：late fusion
+  const L0 = 76;
+  o += text(L0 + n * c / 2, 18, 'Late fusion（2D CNN + time pooling）', 'tb', 'middle');
+  const ly = (i) => yb - (4 - i) * gap; // i = 0 顶 … 4 底
+  o += rect(L0, ly(0), n * c, H, 'solid') + text(L0 - 8, ly(0) + 13, 'pool', 'ts', 'end') + text(L0 + n * c + 8, ly(0) + 13, '9 帧', 'tl', 'start');
+  ['conv3', 'conv2', 'conv1', 'frames'].forEach((nm, j) => row(L0, ly(j + 1), nm, n, () => true, 'wash-strong', j === 0 ? '每格 1 帧' : null));
+  for (let k = 0; k < n; k++) for (let j = 0; j < 4; j++) o += line(L0 + k * c + c / 2, ly(j) + H, L0 + k * c + c / 2, ly(j + 1), j === 0 ? 'ink' : 'mute');
+  // 右：3D CNN，K_t = 3
+  const R0 = 352, ry = (i) => yb - (3 - i) * gap;
+  o += text(R0 + n * c / 2, 18, '3D CNN（Kt = 3，stride 1）', 'tb', 'middle');
+  const spans = [[4, 4], [3, 5], [2, 6], [1, 7]];
+  ['conv3', 'conv2', 'conv1', 'frames'].forEach((nm, j) => {
+    const [lo, hi] = spans[j];
+    row(R0, ry(j), nm, n, (k) => k >= lo && k <= hi, j === 0 ? 'solid' : 'wash-strong', (hi - lo + 1) + ' 帧', j === 3 ? 'tl' : 'ts');
+    if (j > 0) { const [a, b] = spans[j - 1]; o += poly([[R0 + a * c, ry(j - 1) + H], [R0 + (b + 1) * c, ry(j - 1) + H], [R0 + (hi + 1) * c, ry(j)], [R0 + lo * c, ry(j)]], 'wash'); }
+  });
+  o += text(280, yb + 44, '左：帧与帧在 2D CNN 里互不相干，最后的平均才第一次把 9 帧合到一起。', 'ts', 'middle');
+  o += text(280, yb + 62, '右：每层 3D conv 在 time 方向多看 2 帧，三层是 1 + 2·3 = 7 帧。', 'ts', 'middle');
+  return svg(560, yb + 70, o, '从顶上一个 unit 往下追它依赖哪几帧：late fusion 在 2D CNN 里每格只依赖一帧，最后的 time pooling 才合并全部 9 帧；3D CNN 每层在 time 方向多看 2 帧，三层后是 7 帧');
 }
 
 // ---------- 第 4 站：BN、LN、IN、GN 各在哪些数上取 mean ----------
@@ -427,6 +506,8 @@ export default {
   'stanford-cs231n-conv': convA,
   'stanford-cs231n-rf': rfA,
   'stanford-cs231n-vgg': vgg,
+  'stanford-cs231n-optim': optimA,
+  'stanford-cs231n-video': videoRF,
   'stanford-cs231n-norms': norms,
   'stanford-cs231n-search': search,
   'stanford-cs231n-tconv': tconv,

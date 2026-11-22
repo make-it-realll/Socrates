@@ -1,6 +1,6 @@
 import { svg, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, area, axes, svgA, anim, ashow } from '../lib/svg.mjs';
 
-// ---------- 共用：两个 state 的 MDP（第 1、2、5 站） ----------
+// ---------- 共用：两个 state 的 MDP（第 2、3、6、8 站） ----------
 // A：stay（r = 1，留在 A）或 go（r = 0，去 B）；B：r = 2，0.9 留在 B，0.1 回到 A。
 function twostate() {
   const A = [150, 120], B = [400, 120], R = 34;
@@ -492,7 +492,7 @@ function tdblowA() {
   return svgA(560, 296, o, '动图：两个 state 共用 parameter w，value 是 w 和 2w；只在第一个 state 上做 TD update，w 去追 target 0.99 乘 2w，target 涨得更快，w 每次乘 1.098，25 次后从 10 涨到 104');
 }
 
-// 第 2 站：value iteration 一次次 sweep，value 和 greedy policy 一起变
+// 第 3 站：value iteration 一次次 sweep，value 和 greedy policy 一起变
 function viA() {
   const S = 74, H = 56, x0 = 20, y0 = 30, K = 12;
   const ks = [200, ...Array.from({ length: K + 1 }, (_, i) => i), 200];
@@ -538,6 +538,122 @@ function viA() {
   return svgA(560, 3 * H + y0 + 30, o, '动图：4 乘 3 gridworld 上 value iteration 一次次 sweep，非零的 value 从 +1 一圈圈往外扩，greedy policy 的箭头跟着出现和改变，最后停在 V*');
 }
 
+
+// ---------- 第 1 站：config_1 的 9 步 PDDL plan（handout 的第一版 domain，按 RESULT = (s − DEL) ∪ ADD 推） ----------
+function liftA() {
+  // state：电梯所在层、门是否开、p1 的位置（'L0'..'L2' 或 'in'）
+  const plan = [
+    ['move_up(level0, level1)', (s) => ({ ...s, at: 1 })],
+    ['move_up(level1, level2)', (s) => ({ ...s, at: 2 })],
+    ['open_door(level2)', (s) => ({ ...s, open: true })],
+    ['load(p1, level2)', (s) => ({ ...s, p: 'in' })],
+    ['close_door(level2)', (s) => ({ ...s, open: false })],
+    ['move_down(level2, level1)', (s) => ({ ...s, at: 1 })],
+    ['move_down(level1, level0)', (s) => ({ ...s, at: 0 })],
+    ['open_door(level0)', (s) => ({ ...s, open: true })],
+    ['unload(p1, level0)', (s) => ({ ...s, p: 'L0' })],
+  ];
+  const states = [{ at: 0, open: false, p: 'L2' }];
+  for (const [, f] of plan) states.push(f(states[states.length - 1]));
+  const facts = (s) => [`elevator_at(level${s.at})`, ...(s.p === 'in' ? [] : ['elevator_empty']), ...(s.open ? [`door_open(level${s.at})`] : []), s.p === 'in' ? 'person_in_elevator(p1)' : `person_at(p1, level${s.p[1]})`];
+  const F = frames(states.map((_, i) => (i === 0 ? 3.2 : i === states.length - 1 ? 3 : 1.5)));
+  const FH = 74, top = 34, sx0 = 74, SW = 78, wx = 172;
+  const fy = (l) => top + (2 - l) * FH;
+  let o = '';
+  // 楼层与井道
+  for (let l = 0; l <= 2; l++) {
+    o += line(20, fy(l) + FH, 206, fy(l) + FH, 'ink');
+    o += text(20, fy(l) + 20, 'level' + l, 'ts', 'start');
+  }
+  o += rect(sx0, top, SW, 3 * FH, 'wash2') + line(sx0, top, sx0, top + 3 * FH, 'frame') + line(sx0 + SW, top, sx0 + SW, top + 3 * FH, 'frame');
+  const person = (x, yb, cls) => circle(x, yb - 34, 6, cls) + rect(x - 6, yb - 27, 12, 20, cls, 3) + line(x - 3, yb - 7, x - 3, yb, 'ink') + line(x + 3, yb - 7, x + 3, yb, 'ink');
+  states.forEach((st, i) => {
+    let g = '';
+    const cy = fy(st.at) + 8, ch = FH - 8, cx = sx0 + 6, cw = SW - 12;
+    g += rect(cx, cy, cw, ch, 'paper', 3);
+    // 门：关着时两扇门板合拢，开着时滑到两边；乘客画在门板前面，好让人看见他在电梯里
+    const dw = st.open ? 7 : cw / 2;
+    g += rect(cx, cy, dw, ch, 'wash-strong') + rect(cx + cw - dw, cy, dw, ch, 'wash-strong');
+    if (st.p === 'in') g += person(cx + cw / 2, cy + ch - 4, 'solid');
+    g += text(20, fy(st.at) + 40, st.open ? 'door open' : 'door closed', st.open ? 'tl' : 'ts', 'start');
+    if (st.p !== 'in') g += person(wx + 12, fy(+st.p[1]) + FH, st.p === 'L0' ? 'ln-f' : 'solid');
+    if (st.p === 'L2') g += text(wx + 12, fy(2) + 12, 'p1', 'tb', 'middle');
+    if (st.p === 'L0') g += text(wx + 12, fy(0) + 12, 'p1 到了', 'tl', 'middle');
+    o += gshow(g, F, states.map((_, j) => j === i));
+  });
+  // 右边：plan 列表（当前一步高亮）与 state 的 fact
+  const px = 222;
+  o += text(px, 22, 'BFS 找到的 plan（9 步）', 'tb', 'start');
+  plan.forEach(([name], k) => {
+    const y = 42 + k * 19;
+    o += text(px, y, `${k + 1}. ${name}`, 'ts', 'start');
+    o += gshow(rect(px - 6, y - 13, 186, 17, 'wash', 3) + text(px, y, `${k + 1}. ${name}`, 'tl', 'start'), F, states.map((_, j) => j === k + 1));
+  });
+  const qx = 420;
+  o += text(qx, 22, 'state 里为真的 fact', 'tb', 'start');
+  states.forEach((st, i) => {
+    let g = '';
+    facts(st).forEach((f, k) => { g += text(qx, 42 + k * 19, f, 't', 'start'); });
+    g += text(qx, 42 + 4 * 19 + 8, i === 0 ? '初始 state s₀' : `第 ${i} 步之后`, i === 0 ? 'tb' : 'tl', 'start');
+    if (i === states.length - 1) g += text(qx, 42 + 5 * 19 + 8, 'goal 满足', 'tl', 'start');
+    o += gshow(g, F, states.map((_, j) => j === i));
+  });
+  o += text(280, top + 3 * FH + 26, '电梯只能关着门移动，乘客只能在开着门时进出；不变的 adjacent_up / adjacent_down 没有列出。', 'ts', 'middle');
+  return svgA(560, top + 3 * FH + 34, o, '动图：3 层楼，电梯从 level0 出发，上到 level2 开门接 p1，关门下到 level0，开门放 p1，共 9 个 action，右边列出每一步之后为真的 fact');
+}
+
+// ---------- 第 1 站：Assignment 1 的 HTN，一个乘客的接送怎样拆开 ----------
+function htn() {
+  let o = '';
+  const box = (x, y, w, h, s, cls, tcls = 't', s2 = '', t2 = 'ts') => rect(x - w / 2, y - h / 2, w, h, cls, 5) + rect(x - w / 2, y - h / 2, w, h, cls === 'wash' ? 'ink' : 'frame', 5) + (s2 ? text(x, y - 3, s, tcls, 'middle') + text(x, y + 13, s2, t2, 'middle') : text(x, y + 4, s, tcls, 'middle'));
+  const half = (cx, task, mOn, mOff, prims, offList, note) => {
+    o += box(cx, 34, 236, 30, task, 'wash-strong', 'tb');
+    const mx1 = cx - 66, mx2 = cx + 66;
+    o += line(cx - 30, 49, mx1, 86, 'ln') + line(cx + 30, 49, mx2, 86, 'dash');
+    o += box(mx1, 104, 124, 38, mOn, 'wash', 'ts', note, 'tl') + box(mx2, 104, 124, 38, mOff, 'paper-f', 'ts', '不适用');
+    prims.forEach((p, k) => {
+      const y = 150 + k * 32;
+      o += line(mx1, k === 0 ? 123 : y - 20, mx1, y - 12, 'ln');
+      o += box(mx1, y, 124, 24, p, 'paper-f', 't');
+    });
+    offList.forEach((p, k) => { o += text(mx2, 150 + k * 20, p, 'ts', 'middle'); });
+  };
+  half(140, 'pickup_person(p1, level2)', 'from other floor', 'from current floor', ['move_elevator', 'open_door', 'load', 'close_door'], ['open_door', 'load', 'close_door'], '电梯在 level0');
+  half(420, 'deliver_person(p1, level0)', 'to other floor', 'at current floor', ['move_elevator', 'open_door', 'unload', 'close_door'], ['open_door', 'unload', 'close_door'], '电梯在 level2');
+  o += line(280, 18, 280, 270, 'grid');
+  o += text(280, 290, '初始 task network 是这两个 task 依次排好。每个 task 按电梯在不在那一层选 method，', 'ts', 'middle');
+  o += text(280, 307, '拆完是 8 个 primitive action：move_elevator 一次跨两层，省两步；送完多关一次门，多一步。', 'ts', 'middle');
+  return svg(560, 316, o, 'HTN 分解：pickup_person 和 deliver_person 两个 abstract task，各有两个 method，按电梯是否已在那一层选择，选中的 method 拆成 move_elevator、open_door、load 或 unload、close_door');
+}
+
+// ---------- 第 8 站：PPO 的 clipped surrogate，单个 sample ----------
+function clip() {
+  const eps = 0.2, cl = (r) => Math.min(1 + eps, Math.max(1 - eps, r));
+  let o = '';
+  const panel = (x0, A, title) => {
+    const sx = lin(0, 2, x0 + 30, x0 + 240), y0 = A > 0 ? -0.2 : -2.2, y1 = A > 0 ? 2.2 : 0.2;
+    const sy = lin(y0, y1, 236, 40);
+    o += axes({ sx, sy, x0: 0, x1: 2, y0, y1, xt: [[0, '0'], [0.8, '0.8'], [1.2, '1.2'], [2, '2']], yt: A > 0 ? [[0, '0'], [1, '1'], [2, '2']] : [[0, '0'], [-1, '−1'], [-2, '−2']], xAt: 0, yAt: 0 });
+    for (const r of [0.8, 1.2]) o += line(sx(r), sy(y0), sx(r), sy(y1), 'grid');
+    o += path(curve((r) => r * A, 0, 2, sx, sy, 2), 'dash');
+    const L = (r) => Math.min(r * A, cl(r) * A);
+    o += path(curve(L, 0, 2, sx, sy, 400), 'ln');
+    o += circle(sx(1), sy(A), 4, 'ink-f') + (A > 0 ? text(sx(1) - 8, sy(1) - 8, 'r = 1', 'ts', 'end') : text(sx(1) + 6, sy(-1) - 8, 'r = 1', 'ts', 'start'));
+    o += text(x0 + 30, 22, title, 'tb', 'start');
+    if (A > 0) {
+      o += text(sx(1.25), sy(1.2) + 18, '平的：gradient 0', 'tl', 'start');
+      o += text(sx(1.75), sy(2) - 6, 'r Â', 'ts', 'middle');
+    } else {
+      o += text(sx(0.04), sy(-0.8) + 20, '平的：', 'tl', 'start') + text(sx(0.04), sy(-0.8) + 38, 'gradient 0', 'tl', 'start');
+      o += text(sx(1.62), sy(-1.62) + 18, '仍有 gradient', 'tb', 'middle');
+    }
+    o += text(x0 + 240, 268, 'ratio r', 'ts', 'end');
+  };
+  panel(10, 1, 'Â = +1：r 超过 1.2 后不再奖励');
+  panel(290, -1, 'Â = −1：r 低于 0.8 后不再奖励');
+  return svg(560, 276, o, 'PPO 的 clipped objective：advantage 为正时 ratio 超过 1 加 epsilon 后变平，advantage 为负时 ratio 低于 1 减 epsilon 后变平，另一侧保持线性');
+}
+
 export default {
   'cs4246-greedy': greedyA,
   'cs4246-tdblow': tdblowA,
@@ -554,4 +670,7 @@ export default {
   'cs4246-triad': triad,
   'cs4246-pgvar': pgvar,
   'cs4246-mcts': mcts,
+  'cs4246-liftplan': liftA,
+  'cs4246-htn': htn,
+  'cs4246-clip': clip,
 };

@@ -1,4 +1,4 @@
-import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, anim, apath, acircle, ashow, f1 } from '../lib/svg.mjs';
+import { svg, svgA, lin, logx, d, path, line, rect, circle, poly, text, arrow, anim, apath, acircle, ashow, axes, curve, f1 } from '../lib/svg.mjs';
 
 // ---------- 共用：序列与 genetic code ----------
 const COMP = { A: 'T', T: 'A', G: 'C', C: 'G', U: 'A' };
@@ -147,6 +147,196 @@ function forkA() {
   o += text(X0, 214, 'Lagging strand：5′→3′ 只能向左，所以每露出一段就放一个 RNA primer（彩色短段），', 'ts', 'start');
   o += text(X0, 232, '往回合成到上一段为止，这一段叫 Okazaki fragment；primer 随后换成 DNA，ligase 封口。', 'ts', 'start');
   return svgA(560, 240, o, '动图：replication fork 向右移动，helicase 解开 parental DNA；上方 leading strand 连续延长，下方 lagging strand 每隔一段放一个 RNA primer，再向左合成 Okazaki fragment');
+}
+
+// ---------- 第 1 站：Griffith 的四组注射 ----------
+function griffith() {
+  let o = '';
+  // mouse：身体 + 头 + 耳 + 尾；dead 时躺倒（旋转 90°）
+  const mouse = (x, y, dead) => {
+    const b = `<ellipse cx="0" cy="0" rx="21" ry="13" class="paper"/>`
+      + `<circle cx="18" cy="-7" r="8.5" class="paper"/>`
+      + `<circle cx="22" cy="-15" r="4" class="paper"/>`
+      + `<path d="M-21 2 C-34 2 -34 -8 -28 -12" class="ink"/>`
+      + (dead ? line(22.5, -9, 26.5, -5, 'ink-s') + line(26.5, -9, 22.5, -5, 'ink-s') : `<circle cx="24.5" cy="-7" r="1.4" class="ink-f"/>`)
+      + [8, 0, -8].map((dx) => line(dx, dead ? -11 : 11, dx, dead ? -22 : 20, 'ink')).join('');
+    const g = dead
+      ? `<g transform="translate(${f1(x)} ${f1(y + 4)}) rotate(180 0 0)">${b}</g>`
+      : `<g transform="translate(${f1(x)} ${f1(y)})">${b}</g>`;
+    return g + line(x - 26, y + (dead ? 18 : 21), x + 26, y + (dead ? 18 : 21), 'mute');
+  };
+  // 一个注射物：S（有 capsule，光滑）/ R（无 capsule，粗糙）/ 加热杀死的 S
+  const cells = (x, y, kind) => {
+    let q = '';
+    const put = (dx, dy) => {
+      const cx = x + dx, cy = y + dy;
+      if (kind === 'R') {
+        const pts = [];
+        for (let i = 0; i < 9; i++) { const a = (i / 9) * 2 * Math.PI, r = i % 2 ? 4.2 : 7; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+        q += poly(pts, 'wash2') + poly(pts, 'frame');
+      } else {
+        q += circle(cx, cy, 7.5, kind === 'Sdead' ? 'wash2' : 'wash-strong') + circle(cx, cy, 7.5, 'frame');
+        q += circle(cx, cy, 4, kind === 'Sdead' ? 'paper-f' : 'solid');
+        if (kind === 'Sdead') q += line(cx - 5, cy - 5, cx + 5, cy + 5, 'mute') + line(cx + 5, cy - 5, cx - 5, cy + 5, 'mute');
+      }
+    };
+    for (const [dx, dy] of [[-10, -6], [8, -8], [0, 8], [16, 6]]) put(dx, dy);
+    return q;
+  };
+  const cols = [78, 218, 358, 498];
+  const data = [
+    [['活的 type II', '（R，无 capsule）'], ['R'], false, '活'],
+    [['活的 type III', '（S，有 capsule）'], ['S'], true, '死'],
+    [['加热杀死的', 'type III（S）'], ['Sdead'], false, '活'],
+    [['加热杀死的 S', '＋ 活的 R'], ['Sdead', 'R'], true, '死'],
+  ];
+  data.forEach(([lab, kinds, dead, res], j) => {
+    const x = cols[j];
+    o += rect(x - 66, 34, 132, 200, 'frame', 12);
+    o += text(x, 24, '第 ' + (j + 1) + ' 组', 'tb', 'middle');
+    kinds.forEach((k, i) => { o += cells(x - 18, 62 + i * 34, k); });
+    lab.forEach((s, i) => { o += text(x, 136 + i * 16, s, 'ts', 'middle'); });
+    o += mouse(x, 196, dead);
+    o += text(x, 250, 'mouse ' + res, dead ? 'tl' : 'ts', 'middle');
+  });
+  // 第 4 组的血里长出什么
+  o += arrow(cols[3], 260, cols[3], 288, 'ln');
+  o += text(cols[3] - 16, 296, '血里分离出活的、有 capsule 的 type III', 'tl', 'end');
+  o += circle(cols[3], 292, 7.5, 'wash-strong') + circle(cols[3], 292, 7.5, 'frame') + circle(cols[3], 292, 4, 'solid');
+  o += text(14, 324, '实心带亮圈 = 有 capsule 的 S；锯齿 = 无 capsule 的 R；打叉的灰圈 = 加热杀死的 S。', 'ts', 'start');
+  o += text(14, 342, '只有第 4 组死，而且长出来的是 donor 的 type III，不是注射进去的 type II：一个 trait 转移了过去。', 'ts', 'start');
+  return svg(560, 350, o,'Griffith 式的四组注射：活的 R 不致死，活的 S 致死，加热杀死的 S 不致死，加热杀死的 S 加活的 R 致死，并从血中分离出活的有 capsule 的 type III');
+}
+
+// ---------- 第 1 站：Avery 的 enzyme 实验与 N/P ----------
+function avery() {
+  let o = '';
+  o += text(150, 20, 'assay：R36A 加提取物，还变不变成 type III', 'tb', 'middle');
+  const rows = [
+    ['不处理', 1],
+    ['trypsin', 1],
+    ['chymotrypsin', 1],
+    ['ribonuclease（结晶）', 1],
+    ['DNA depolymerase', 0],
+    ['dog serum（未加热）', 0],
+    ['dog serum，60 °C', 1],
+  ];
+  rows.forEach(([name, ok], r) => {
+    const y = 52 + r * 34;
+    o += text(14, y + 5, name, 't', 'start');
+    o += rect(170, y - 13, 16, 26, 'paper', 4);
+    o += rect(172, y - 2, 12, 13, ok ? 'wash-strong' : 'wash2', 2);
+    if (ok) { o += circle(206, y, 7, 'wash-strong') + circle(206, y, 7, 'frame') + circle(206, y, 3.6, 'solid'); }
+    else { const pts0 = []; for (let i = 0; i < 9; i++) { const a = (i / 9) * 2 * Math.PI, rr = i % 2 ? 3.8 : 6.6; pts0.push([206 + rr * Math.cos(a), y + rr * Math.sin(a)]); } o += poly(pts0, 'wash2') + poly(pts0, 'frame'); }
+    o += text(220, y + 5, ok ? '变成 type III' : '不再转化', ok ? 'tl' : 'ts', 'start');
+  });
+  o += line(4, 300, 312, 300, 'grid');
+  o += text(14, 318, 'Protease 删掉 protein、RNase 删掉 RNA，活性都在；', 'ts', 'start');
+  o += text(14, 336, '只有删掉 DNA 的那一种处理让活性消失。', 'ts', 'start');
+  o += line(330, 34, 330, 308, 'grid');
+  // 右边：N/P 的刻度
+  const sy = lin(1.55, 1.95, 272, 56);
+  const AX = 400;
+  o += text(448, 20, 'N/P 能排除多少 protein', 'tb', 'middle');
+  o += line(AX, sy(1.55), AX, sy(1.95), 'axis');
+  for (const v of [1.6, 1.7, 1.8, 1.9]) o += line(AX - 4, sy(v), AX, sy(v), 'axis') + text(AX - 8, sy(v) + 4, v.toFixed(1), 'ts', 'end');
+  o += rect(AX + 2, sy(1.75), 22, sy(1.58) - sy(1.75), 'wash', 3);
+  o += line(AX + 2, sy(1.696), AX + 24, sy(1.696), 'ln');
+  const pts = [[1.731, '掺 2% protein'], [1.786, '掺 5%'], [1.886, '掺 10%']];
+  for (const [v, s] of pts) { o += line(AX + 24, sy(v), AX + 40, sy(v), 'dash') + circle(AX + 42, sy(v), 3.5, 'ink-f') + text(AX + 50, sy(v) + 4, s, 'ts', 'start'); }
+  o += line(AX + 2, sy(1.68), AX + 40, sy(1.63), 'mute') + text(AX + 46, sy(1.63) + 4, '纯 DNA 1.696', 'tl', 'start');
+  o += line(AX + 13, sy(1.575), AX + 40, sy(1.575), 'mute') + text(AX + 46, sy(1.575) + 4, '实测 1.58 到 1.75', 'ts', 'start');
+  o += text(342, 318, '实测的上限 1.75 对应约 3% 的 protein：', 'ts', 'start');
+  o += text(342, 336, '只能把 protein 压到百分之几，压不到零。', 'ts', 'start');
+  return svg(560, 344, o,'左边：trypsin、chymotrypsin、ribonuclease 处理后提取物仍能把 R 转化成 type III，DNA depolymerase 或未加热的 dog serum 处理后不能；右边：N/P 的实测范围 1.58 到 1.75 与纯 DNA 的 1.696、掺入 2%、5%、10% protein 时的预期值');
+}
+
+// ---------- 第 1 站：nucleosome ----------
+function nucleosome() {
+  let o = '';
+  const cx = 132, cy = 114, R = 44;
+  const nuc = (x, r) => {
+    let q = '';
+    q += circle(x, cy, r * 0.70, 'wash2') + circle(x, cy, r * 0.70, 'frame');
+    // 8 个 histone：里外两层各 4 个
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 4) * Math.PI + (k < 4 ? 0 : Math.PI / 4), rr = (k < 4 ? 0.40 : 0.24) * r;
+      q += circle(x + rr * Math.cos(a), cy + rr * Math.sin(a), r * 0.145, 'solid2');
+    }
+    // DNA 绕 1.7 圈：两条略微错开的弧
+    for (const k of [0, 1]) {
+      const rr = r - k * 6;
+      q += path(`M ${f1(x - rr)} ${f1(cy)} A ${f1(rr)} ${f1(rr * 0.88)} 0 1 1 ${f1(x + rr)} ${f1(cy)}`, 'ln');
+      q += path(`M ${f1(x + rr)} ${f1(cy)} A ${f1(rr)} ${f1(rr * 0.88)} 0 1 1 ${f1(x - rr)} ${f1(cy)}`, 'ln');
+    }
+    return q;
+  };
+  o += nuc(cx, R);
+  o += text(14, 28, 'histone octamer：H2A、H2B、H3、H4 各两个', 'ts', 'start');
+  o += arrow(104, 36, cx - 10, cy - 14, 'mute');
+  o += text(cx - R - 12, cy - 10, 'core DNA', 'tl', 'end') + text(cx - R - 12, cy + 6, '约 146 bp', 'ts', 'end') + text(cx - R - 12, cy + 22, '绕 1.7 圈', 'ts', 'end');
+  // 直径标注
+  const yd = cy + R + 16;
+  o += line(cx - R, yd, cx + R, yd, 'mute') + line(cx - R, yd - 4, cx - R, yd + 4, 'mute') + line(cx + R, yd - 4, cx + R, yd + 4, 'mute');
+  o += text(cx, yd + 18, '颗粒直径约 10 nm', 'ts', 'middle');
+  // 右边：串成一串
+  const xs = [330, 410, 490];
+  o += text(410, 44, '串珠状的纤维', 'tb', 'middle');
+  xs.forEach((x, i) => { o += nuc(x, 26); if (i) o += line(xs[i - 1] + 26, cy, x - 26, cy, 'ln'); });
+  o += line(xs[0] - 50, cy, xs[0] - 26, cy, 'ln') + line(xs[2] + 26, cy, xs[2] + 46, cy, 'ln');
+  o += arrow(370, cy + 36, 370, cy + 8, 'mute');
+  o += text(370, cy + 52, 'linker DNA 约 20 bp', 'ts', 'middle');
+  o += text(14, 230, '加上一个 H1，再多绕约 20 bp、凑成约 166 bp 和两整圈，这个单位叫 chromatosome。', 'ts', 'start');
+  o += text(14, 248, '166 bp 拉直是 166 × 0.34 = 56.4 nm，装进沿纤维轴只占约 10 nm 的一个重复单位。', 'ts', 'start');
+  return svg(560, 256, o,'一个 nucleosome：8 个 histone 组成的 octamer 外面绕着约 146 bp 的 DNA，绕 1.7 圈，颗粒直径约 10 nm；右边是几个 nucleosome 由约 20 bp 的 linker DNA 串成的纤维');
+}
+
+// ---------- 第 1 站：compaction 的各级长度 ----------
+function compact() {
+  let o = '';
+  const BP = 2.5e8, nm = BP * 0.34; // chromosome 1 拉直的长度，单位 nm
+  const levels = [
+    ['裸 DNA（2 nm）', 1],
+    ['nucleosome 串珠（约 10 nm）', 7],
+    ['30 nm fiber', 31],
+    ['loop 与 scaffold', 1200],
+    ['metaphase chromosome', 10000],
+  ];
+  const fmt = (v) => (v >= 1e7 ? (v / 1e7).toFixed(1).replace('.0', '') + ' cm' : v >= 1e6 ? (v / 1e6).toFixed(1).replace('.0', '') + ' mm' : v >= 1e4 ? (v / 1e3).toFixed(0) + ' μm' : v >= 1e3 ? (v / 1e3).toFixed(1) + ' μm' : v.toFixed(0) + ' nm');
+  const fmtN = (f) => (f >= 1e4 ? '10 000' : String(f));
+  const sx = logx(8.5e3, 8.5e7, 196, 462), y0 = 60, dy = 44;
+  o += text(280, 22, 'Chromosome 1（2.5 × 10⁸ bp）在各级结构下的长度', 'tb', 'middle');
+  for (const t of [1e4, 1e5, 1e6, 1e7]) o += line(sx(t), y0 - 16, sx(t), y0 + dy * 4 + 16, 'grid') + text(sx(t), y0 - 24, fmt(t), 'ts', 'middle');
+  levels.forEach(([name, f], i) => {
+    const y = y0 + i * dy, L = nm / f;
+    o += text(190, y + 4, name, i === 4 ? 'tl' : 't', 'end');
+    o += rect(sx(Math.min(L, 8.5e7)) - 2, y - 7, 4, 14, 'solid');
+    o += line(196, y, sx(L), y, 'ln-dash');
+    o += text(sx(L) + 10, y + 4, fmt(L) + (f > 1 ? `（压 ${fmtN(f)} 倍）` : ''), i === 4 ? 'tl' : 'ts', 'start');
+  });
+  // 右侧：每一级画出样子
+  const px = 60, py = y0 + dy * 4 + 60, ly = 36;
+  o += line(px - 46, py, px + 46, py, 'ink-b');
+  o += text(px, py + ly, '裸 DNA', 'ts', 'middle');
+  const bead = (x, y, r) => circle(x, y, r, 'wash-strong') + circle(x, y, r, 'frame');
+  let x = 170;
+  o += line(x - 46, py, x + 46, py, 'ln');
+  for (const d0 of [-36, -12, 12, 36]) o += bead(x + d0, py, 8);
+  o += text(x, py + ly, '串珠', 'ts', 'middle');
+  x = 288;
+  for (let k = 0; k < 9; k++) { const a = (k / 9) * 2 * Math.PI * 2.2; o += bead(x - 30 + k * 7.5, py + 13 * Math.sin(a), 6.5); }
+  o += text(x, py + ly, '30 nm fiber', 'ts', 'middle');
+  x = 400;
+  o += line(x, py - 18, x, py + 18, 'ink-b');
+  for (let k = 0; k < 4; k++) { const yy = py - 14 + k * 9.5; o += path(`M ${x} ${f1(yy)} C ${x + 34} ${f1(yy - 7)} ${x + 34} ${f1(yy + 7)} ${x} ${f1(yy + 5)}`, 'ln'); o += path(`M ${x} ${f1(yy)} C ${x - 34} ${f1(yy - 7)} ${x - 34} ${f1(yy + 7)} ${x} ${f1(yy + 5)}`, 'ln'); }
+  o += text(x, py + ly, 'loop', 'ts', 'middle');
+  x = 500;
+  o += rect(x - 9, py - 20, 8, 40, 'solid', 4) + rect(x + 1, py - 20, 8, 40, 'solid', 4);
+  o += circle(x - 5, py - 4, 2.6, 'paper-f') + circle(x + 5, py - 4, 2.6, 'paper-f');
+  o += text(x, py + ly, 'metaphase', 'ts', 'middle');
+  o += text(14, py + 68, '10 000 : 1 的检验：8.5 cm / 10 000 = 8.5 μm，而 metaphase 时 chromosome 1 实测长约 10 μm。', 'ts', 'start');
+  o += text(14, py + 86, '30 nm fiber 的 31 倍和 loop 的 1200 倍是按“总共 10 000 倍”反推的量级，不是实测值。', 'ts', 'start');
+  return svg(560, py + 94, o, 'Chromosome 1 的 2.5 亿 bp 拉直是 8.5 cm，串成 nucleosome 后约 1.2 cm，30 nm fiber 约 2.7 mm，loop 级约 71 μm，metaphase chromosome 约 8.5 μm；下方画出每一级的结构');
 }
 
 // ---------- 第 2 站：Beadle–Tatum 式的 supplement 实验 ----------
@@ -373,6 +563,146 @@ function map3() {
   o += text(X2 + 75, 226, '两端不变，只有中间的 gene 换了边', 'ts', 'middle');
   o += text(X + L / 2, 226, '两个 interval 里各一次 crossover', 'ts', 'middle');
   return svg(560, 234, o, 'Three-point cross 得出的 genetic map：sh 和 cn 相距 2.15 cM，cn 和 vg 相距 7.4 cM；下方示意 double crossover 只把中间的 cn 换到另一条 chromosome 上');
+}
+
+// ---------- 第 4 站：interrupted mating（动图） ----------
+export const CONJ = [['T L', 8.5, null], ['azi', 9, 91], ['ton', 11, 72], ['lac', 18, 52], ['gal', 25, 29]];
+function conjugA() {
+  const T = 11, TMAX = 30; // 动画 11 秒走完 30 分钟
+  const tm = (min) => (min / TMAX) * T;
+  let o = '';
+  // ---- 上半：两个 cell 和中间的 bridge ----
+  const yC = 86, hC = 34;
+  const dL = [30, 190], dR = [330, 520]; // donor / recipient 的横向范围
+  o += rect(dL[0], yC - hC, dL[1] - dL[0], 2 * hC, 'paper', 28);
+  o += rect(dR[0], yC - hC, dR[1] - dR[0], 2 * hC, 'paper', 28);
+  o += rect(dL[1], yC - 7, dR[0] - dL[1], 14, 'paper', 4);
+  o += text(dL[0] + 6, yC - hC - 10, 'Hfr（donor）', 'tb', 'start');
+  o += text(dR[1] - 6, yC - hC - 10, 'F⁻（recipient）', 'tb', 'end');
+  o += text((dL[1] + dR[0]) / 2, yC + 30, 'conjugation bridge', 'ts', 'middle');
+  // donor 的环状 chromosome：origin 在右侧
+  const ox = 110, oy = yC, rr = 26;
+  o += circle(ox, oy, rr, 'wash') + circle(ox, oy, rr, 'frame');
+  o += text(ox, oy + 4, 'Hfr', 'ts', 'middle');
+  o += circle(ox + rr, oy, 4.5, 'solid') + text(ox + rr + 4, oy - 12, 'origin', 'ts', 'start');
+  // 进入 recipient 的那条线：长度随时间增加
+  const xin = (min) => Math.min(dR[0] + (min / TMAX) * (dR[1] - dR[0] - 14), dR[1] - 14);
+  const ks = [], xs = [];
+  for (let i = 0; i <= 30; i++) { ks.push(i / 30); xs.push(f1(xin((i / 30) * TMAX))); }
+  o += `<line x1="${dL[1] - 60}" y1="${yC}" x2="${xs[0]}" y2="${yC}" class="ln"><animate attributeName="x2" values="${xs.join(';')}" keyTimes="${ks.join(';')}" dur="${T}s" repeatCount="indefinite"/></line>`;
+  // marker：到时间就出现在 recipient 里
+  [['T L、azi', 9], ['ton', 11], ['lac', 18], ['gal', 25]].forEach(([name, min], i) => {
+    const x = xin(min), on = [], kt = [];
+    for (let k = 0; k <= 30; k++) { kt.push(k / 30); on.push((k / 30) * TMAX >= min); }
+    o += circle(x, yC, 5, 'paper') + text(x, yC - (i % 2 ? 14 : -22), name, 'ts', 'middle');
+    const body = circle(x, yC, 5, 'solid') + text(x, yC - (i % 2 ? 14 : -22), name, 'tl', 'middle');
+    o += `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
+  });
+  o += text(dR[0] + 4, yC + 48, '空心 = 还没进来，实心 = 已经进来', 'ts', 'start');
+  // ---- 下半：各 marker 的 recombinant 比例 ----
+  const x0 = 70, y1 = 222, y2 = 330;
+  const sx = lin(0, TMAX, x0, 500), sy = lin(0, 100, y2, y1);
+  o += axes({ sx, sy, x0: 0, x1: TMAX, y0: 0, y1: 100, xt: [0, 5, 10, 15, 20, 25, 30], yt: [[0, '0'], [25, '25'], [50, '50'], [75, '75'], [100, '100%']] });
+  o += text(x0 - 46, y1 - 14, '带这个 donor marker 的 recombinant 占多少', 'ts', 'start');
+  o += text(x0 - 46, y2 + 48, '横轴：把 conjugation 打断的时间（分钟）', 'ts', 'start');
+  const tau = 2.5;
+  CONJ.forEach(([name, min, pl]) => {
+    if (!pl) return;
+    const fn = (t) => (t <= min ? 0 : pl * (1 - Math.exp(-(t - min) / tau)));
+    o += path(curve(fn, 0, TMAX, sx, sy), 'ln');
+    o += line(sx(min), sy(0), sx(min), sy(6), 'dash');
+    o += text(sx(min), sy(0) + 30, min + ' 分', 'ts', 'middle');
+    o += text(506, sy(pl) + 4, name + ' ' + pl + '%', 'tl', 'start');
+  });
+  // 扫过的竖线 + 分钟读数
+  const lk = [], lx = [];
+  for (let i = 0; i <= 30; i++) { lk.push(i / 30); lx.push(f1(sx((i / 30) * TMAX))); }
+  o += `<line x1="${lx[0]}" y1="${f1(y1 - 18)}" x2="${lx[0]}" y2="${f1(y2)}" class="mute"><animate attributeName="x1" values="${lx.join(';')}" keyTimes="${lk.join(';')}" dur="${T}s" repeatCount="indefinite"/><animate attributeName="x2" values="${lx.join(';')}" keyTimes="${lk.join(';')}" dur="${T}s" repeatCount="indefinite"/></line>`;
+  void tm;
+  o += text(14, 396, '曲线的形状是示意；实测的是进入时间和最后的 plateau（Jacob 与 Wollman 1958 Table 2）。', 'ts', 'start');
+  o += text(14, 414, '越晚进来的 marker，plateau 越低：mating pair 一直在散开，转移得越久、断掉的越多。', 'ts', 'start');
+  return svgA(560, 422, o,'动图：Hfr 把 chromosome 从 origin 开始推进 F⁻，azi 在 9 分钟、ton 在 11 分钟、lac 在 18 分钟、gal 在 25 分钟进入；下方每个 marker 的 recombinant 比例在它进入之后才升起来，plateau 依次是 91%、72%、52%、29%');
+}
+
+// ---------- 第 4 站：transformation 的吸收与整合 ----------
+function transformFig() {
+  let o = '';
+  const xa = 292, xb = 512, mid = (xa + xb) / 2, W = xb - xa;
+  const steps = [
+    '① 一段 donor 的 double-stranded DNA',
+    '② 一条 strand 被降解，',
+    '③ 进来的 strand 和 chromosome',
+    '④ 两次 crossover 把它换进去，',
+  ];
+  const steps2 = ['   贴在 competent cell 的表面', '   另一条穿过膜进来', '   上同源的一段配对', '   换下来的那条被降解'];
+  const ys = [64, 134, 210, 286];
+  ys.forEach((y, i) => {
+    o += text(14, y - 6, steps[i], 'tb', 'start');
+    o += text(14, y + 12, steps2[i], 'ts', 'start');
+    if (i < 2) {
+      // 膜
+      o += line(xa - 24, y + 14, xb + 16, y + 14, 'ink-b');
+      o += text(xa - 30, y + 18, 'cell 膜', 'ts', 'end');
+    }
+    if (i === 0) {
+      o += line(xa, y - 10, xb, y - 10, 'ln') + line(xa, y - 2, xb, y - 2, 'ln');
+      o += text(xb, y - 20, 'donor 片段（a⁺）', 'tl', 'end');
+    }
+    if (i === 1) {
+      for (let k = 0; k < 7; k++) o += line(xa + (k * W) / 7, y - 16, xa + (k * W) / 7 + W / 12, y - 16, 'dash');
+      o += text(mid, y - 26, '这一条被降解', 'ts', 'middle');
+      o += line(xa, y - 4, xb, y - 4, 'ln');
+      o += arrow(mid, y - 2, mid, y + 12, 'mute');
+    }
+    if (i >= 2) {
+      o += line(xa - 50, y + 10, xb + 20, y + 10, 'ink-b');
+      if (i === 2) o += text(xb + 20, y + 28, 'chromosome', 'ts', 'end');
+    }
+    if (i === 2) {
+      o += line(xa, y - 6, xb, y - 6, 'ln');
+      for (let k = 0; k < 11; k++) o += line(xa + 10 + (k * W) / 11, y - 4, xa + 10 + (k * W) / 11, y + 8, 'dash');
+      o += text(mid, y - 16, '进来的 strand（a⁺）', 'tl', 'middle');
+
+    }
+    if (i === 3) {
+      o += line(xa, y + 10, xb, y + 10, 'ln');
+      for (const xx of [xa, xb]) o += line(xx - 9, y, xx + 9, y + 20, 'ink') + line(xx + 9, y, xx - 9, y + 20, 'ink');
+      o += text(mid, y - 6, '换进来的 a⁺', 'tl', 'middle');
+      o += line(xa + 40, y + 34, xb - 40, y + 34, 'dash');
+      o += text(mid, y + 50, '被换下来的 a⁻那条，被 enzyme 降解', 'ts', 'middle');
+    }
+  });
+  o += text(14, 364, '两次 crossover 的位置决定换进去多长一段；两个 gene 都落在同一个片段里，才可能一起换进去。', 'ts', 'start');
+  return svg(560, 372, o, '一段 donor 的 double-stranded DNA 贴在 competent cell 表面，一条 strand 被降解、另一条进入 cell 并和 chromosome 上同源的一段配对，再由两次 crossover 换进 chromosome');
+}
+
+// ---------- 第 4 站：cotransformation 定顺序 ----------
+function cotrans() {
+  let o = '';
+  const pairs = [['c', 'd', 1], ['a', 'd', 1], ['b', 'e', 1], ['c', 'e', 1], ['d', 'e', 0], ['b', 'c', 0], ['a', 'c', 0]];
+  o += text(14, 22, '两两检查：哪几对会一起转进去', 'tb', 'start');
+  pairs.forEach(([p, q, ok], i) => {
+    const x = 26 + (i % 4) * 134, y = 50 + Math.floor(i / 4) * 40;
+    o += rect(x, y - 15, 112, 30, ok ? 'wash' : 'paper-f', 7) + rect(x, y - 15, 112, 30, 'frame', 7);
+    o += text(x + 12, y + 5, p + '⁺ 与 ' + q + '⁺', 't', 'start');
+    o += text(x + 100, y + 5, ok ? '一起' : '不', ok ? 'tl' : 'ts', 'end');
+  });
+  // 推出的顺序
+  const order = ['a', 'd', 'c', 'e', 'b'], X = lin(0, 4, 110, 450), y0 = 182;
+  o += line(X(-0.4), y0, X(4.4), y0, 'ink-b');
+  order.forEach((g, i) => { o += line(X(i), y0 - 9, X(i), y0 + 9, 'ink-b') + text(X(i), y0 + 28, g, 'tb', 'middle'); });
+  // 相邻的一对画一条弧（cotransform），隔一个的画虚线
+  const arc = (i, j, up, cls) => {
+    const xa = X(i), xb = X(j), h = up ? -40 : 52;
+    return path(`M ${f1(xa)} ${f1(y0 + (up ? -10 : 10))} Q ${f1((xa + xb) / 2)} ${f1(y0 + h)} ${f1(xb)} ${f1(y0 + (up ? -10 : 10))}`, cls);
+  };
+  [[0, 1], [1, 2], [2, 3], [3, 4]].forEach(([i, j]) => { o += arc(i, j, true, 'ln'); });
+  [[1, 3], [2, 4]].forEach(([i, j]) => { o += arc(i, j, false, 'ln-dash'); });
+  o += text(X(2), y0 - 52, '相邻的四对：一起转进去', 'tl', 'middle');
+  o += text(X(2.5), y0 + 66, '隔着一个的：不会', 'ts', 'middle');
+  o += text(14, 272, 'c 与 d、c 与 e 都 cotransform 而 d 与 e 不，所以 c 在中间；b 与 e 而不与 c，所以 b 在 e 外侧；', 'ts', 'start');
+  o += text(14, 290, 'a 与 d 而不与 c，所以 a 在 d 外侧。只剩一种排法。', 'ts', 'start');
+  return svg(560, 298, o, 'Cotransformation 定顺序：c 与 d、a 与 d、b 与 e、c 与 e 会一起转进去，d 与 e、b 与 c、a 与 c 不会，唯一相容的顺序是 a–d–c–e–b');
 }
 
 // ---------- 第 5 站：Luria–Delbrück 两种 hypothesis ----------
@@ -731,6 +1061,448 @@ function transduce() {
   return svg(560, 344, o, 'P1 transduction 的四类 A+ transductant：A+B+C+、A+B+C−、A+B−C− 各需要两次 crossover，A+B−C+ 需要四次，最少见，由此可知 B 在中间');
 }
 
+// 一条有厚度的 worm：沿正弦曲线取样，向两侧各偏移出轮廓；头尖尾尖
+function wormBody(x, y, w, amp = 15, th = 5.5) {
+  const n = 48, top = [], bot = [];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, X = x + u * w, Y = y + amp * Math.sin(u * 2.1 * Math.PI);
+    const dY = amp * 2.1 * Math.PI * Math.cos(u * 2.1 * Math.PI) / w;
+    const L = Math.hypot(1, dY), nx = -dY / L, ny = 1 / L;
+    const t = th * Math.sin(Math.PI * Math.min(1, Math.max(0.04, u))) ** 0.45;
+    top.push([X + nx * t, Y + ny * t]); bot.push([X - nx * t, Y - ny * t]);
+  }
+  const pts = top.concat(bot.reverse());
+  return poly(pts, 'wash-strong') + poly(pts, 'frame');
+}
+
+// ---------- 第 8 站：Fire 与 Mello 的三组注射 ----------
+function rnaiFig() {
+  let o = '';
+  // 一只 worm：细长的 S 形身体，中间标出 gonad
+  const worm = wormBody;
+  o += text(14, 20, '往 gonad 里注射，看后代的 phenotype', 'tb', 'start');
+  o += worm(40, 58, 230);
+  o += text(40, 86, 'C. elegans 成虫', 'ts', 'start');
+  o += arrow(150, 108, 150, 70, 'ln') + text(156, 104, '注射', 'tl', 'start');
+  o += text(300, 44, 'unc-22 失效的 worm 会不停抽搐（twitching），', 'ts', 'start');
+  o += text(300, 62, '肉眼就能数有多少后代在抽。', 'ts', 'start');
+  // 四组的条形
+  const rows = [
+    ['只有 sense strand', 1, '3.6 × 10⁶ 个分子'],
+    ['只有 antisense strand', 11, '3.6 × 10⁶ 个分子'],
+    ['两条退火成的 dsRNA', 100, '3.6 × 10⁶ 个分子'],
+    ['dsRNA，剂量低 120 倍', 30, '3 × 10⁴ 个分子'],
+  ];
+  const sx = lin(0, 100, 250, 480), yb = 140;
+  o += text(250, yb - 14, '后代里抽搐的比例', 'ts', 'start');
+  rows.forEach(([name, v, dose], i) => {
+    const y = yb + i * 40;
+    o += text(242, y + 5, name, i >= 2 ? 'tl' : 't', 'end');
+    o += rect(sx(0), y - 10, sx(v) - sx(0), 20, i >= 2 ? 'solid' : 'wash2', 3);
+    o += text(sx(v) + 8, y + 5, v + '%', i >= 2 ? 'tl' : 'ts', 'start');
+    o += text(242, y + 21, dose, 'ts', 'end');
+  });
+  for (const v of [0, 50, 100]) o += line(sx(v), yb - 10, sx(v), yb + 3 * 40 + 12, 'grid') + text(sx(v), yb + 3 * 40 + 28, v + '%', 'ts', 'middle');
+  o += text(14, 330, 'Antisense 单独给只有 11%；dsRNA 给到 1/120 的量还有 30%。按 antisense model，加进来的 sense 那条', 'ts', 'start');
+  o += text(14, 348, '只会把 antisense 占住、让效果变差，实际相反。', 'ts', 'start');
+  return svg(560, 356, o, 'Fire 与 Mello 的三组注射：同样剂量下只注射 sense strand 的后代 1% 抽搐，只注射 antisense 的 11%，注射 dsRNA 的 100%；dsRNA 稀释 120 倍后仍有 30%');
+}
+
+// ---------- 第 8 站：Dicer 与 RISC（动图） ----------
+function dicerA() {
+  const T = 14, N = 7;
+  const kt = []; for (let i = 0; i < N; i++) kt.push(i / N);
+  let o = '';
+  const steps = [
+    '整条路：dsRNA → Dicer → siRNA → RISC → 切断 mRNA',
+    '① 长的 double-stranded RNA 进到 cell 里',
+    '② Dicer 把它切成约 21–23 nt 的 siRNA',
+    '③ 一条链装进 RISC，另一条丢掉',
+    '④ RISC 靠这条链找到互补的 mRNA',
+    '⑤ Argonaute 把 mRNA 切断，断片被降解',
+    '⑥ RISC 没有被消耗，接着去找下一条 mRNA',
+  ];
+  steps.forEach((s, i) => {
+    const on = kt.map((_, k) => k === i);
+    o += `<g opacity="${i === 0 ? 1 : 0}">${text(280, 22, s, 'tb', 'middle')}${ashow(on, kt, T)}</g>`;
+  });
+  const yA = 76, yB = 150, yC = 222;
+  const duplex = (x0, x1, y) => line(x0, y - 4, x1, y - 4, 'ln') + line(x0, y + 4, x1, y + 4, 'ln');
+  const risc = (x, y, lab) => `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="26" ry="17" class="paper"/>` + text(x, y + 4, lab, 'ts', 'middle');
+  // 第 0 帧：整条路一起画出来（静态截图看到的就是它）
+  const overview = () => {
+    let g = '';
+    g += duplex(40, 180, yA) + text(110, yA - 18, '长 dsRNA', 'tl', 'middle');
+    g += arrow(188, yA, 222, yA, 'mute') + risc(258, yA, 'Dicer');
+    g += arrow(294, yA, 326, yA, 'mute');
+    for (let j = 0; j < 4; j++) { const a = 336 + j * 54; g += duplex(a, a + 44, yA); }
+    g += text(420, yA - 18, 'siRNA，每条 21–23 nt', 'ts', 'middle');
+    g += arrow(420, yA + 16, 420, yB - 22, 'mute');
+    g += risc(420, yB, 'RISC') + line(394, yB + 14, 446, yB + 14, 'ln');
+    g += text(386, yB + 4, '装进去一条链', 'ts', 'end');
+    g += line(60, yC, 520, yC, 'ink-b') + text(60, yC - 16, 'target mRNA', 'ts', 'start');
+    g += risc(300, yC - 24, 'RISC');
+    g += line(294, yC - 10, 306, yC + 10, 'ln') + line(306, yC - 10, 294, yC + 10, 'ln');
+    g += text(340, yC + 38, 'Argonaute 在配上的地方切断，RISC 自己不消耗', 'tl', 'middle');
+    g += arrow(420, yB + 20, 330, yC - 44, 'mute');
+    return g;
+  };
+  // 每一帧画什么
+  const body = (k0) => {
+    const k = k0 - 1;
+    if (k < 0) return overview();
+    let g = '';
+    if (k === 0) g += duplex(120, 440, yA) + text(280, yA - 20, '长 dsRNA', 'tl', 'middle');
+    if (k >= 1) {
+      // 切成 6 段
+      for (let j = 0; j < 6; j++) { const a = 120 + j * 54, b = a + 44; g += duplex(a, b, yA); }
+      if (k === 1) { g += risc(280, yA - 42, 'Dicer'); for (let j = 1; j < 6; j++) { const x = 114 + j * 54; g += line(x, yA - 14, x, yA + 14, 'dash'); } g += text(470, yA + 4, '每段 21–23 nt', 'ts', 'start'); }
+    }
+    if (k >= 2) {
+      g += arrow(280, yA + 22, 280, yB - 26, 'mute');
+      g += risc(200, yB, 'RISC') + line(174, yB + 14, 226, yB + 14, 'ln');
+      if (k === 2) g += text(240, yB + 4, '装进去的是和 mRNA 互补的那条', 'ts', 'start') + line(320, yB - 14, 364, yB - 14, 'mute') + text(370, yB - 10, '另一条丢掉', 'ts', 'start');
+    }
+    if (k >= 3) {
+      const mx = k >= 5 ? 300 : 120;
+      g += line(60, yC, 520, yC, 'ink-b') + text(60, yC - 14, 'target mRNA', 'ts', 'start');
+      if (k === 3) { g += risc(mx + 80, yC - 24, 'RISC'); for (let j = 0; j < 7; j++) g += line(mx + 54 + j * 9, yC - 10, mx + 54 + j * 9, yC - 2, 'dash'); }
+      if (k === 4) { g += risc(mx + 80, yC - 24, 'RISC'); g += line(mx + 74, yC - 10, mx + 86, yC + 10, 'ln') + line(mx + 86, yC - 10, mx + 74, yC + 10, 'ln'); g += text(mx + 100, yC + 24, 'Argonaute 在这里切断', 'tl', 'start'); }
+      if (k === 5) {
+        g += risc(380, yC - 24, 'RISC');
+        g += line(120, yC + 34, 230, yC + 34, 'dash') + line(250, yC + 34, 300, yC + 34, 'dash') + text(310, yC + 38, '上一条的断片，正在被降解', 'ts', 'start');
+        g += arrow(300, yC - 34, 356, yC - 30, 'mute');
+      }
+    }
+    return g;
+  };
+  for (let k = 0; k < N; k++) { const on = kt.map((_, i) => i === k); o += `<g opacity="${k === 0 ? 1 : 0}">${body(k)}${ashow(on, kt, T)}</g>`; }
+  o += text(14, 290, '两级放大：一条长 dsRNA 切出几十条 siRNA；每个 RISC 切完一条 mRNA 还能切下一条。', 'ts', 'start');
+  o += text(14, 308, '所以每个 cell 里只剩几个分子，也足够把一个 gene 的 mRNA 清掉。', 'ts', 'start');
+  return svgA(560, 316, o, '动图：长的 dsRNA 被 Dicer 切成约 21 到 23 nt 的 siRNA，一条链装进 RISC，RISC 靠碱基配对找到 target mRNA，Argonaute 把它切断，RISC 本身不被消耗，接着切下一条');
+}
+
+// ---------- 第 9 站：Ti plasmid 与 T-DNA 的四步 ----------
+function tdna() {
+  let o = '';
+  const cx = 86, cy = 86;
+  // ① Ti plasmid：一个环，T-DNA 是其中一段
+  o += text(cx, 24, '① Ti plasmid（约 200 kb）', 'tb', 'middle');
+  o += circle(cx, cy, 42, 'paper');
+  // T-DNA 那一段弧
+  o += path(`M ${f1(cx - 42)} ${f1(cy)} A 42 42 0 0 1 ${f1(cx)} ${f1(cy - 42)}`, 'ln');
+  o += circle(cx - 42, cy, 4, 'ink-f') + circle(cx, cy - 42, 4, 'ink-f');
+  o += text(cx - 48, cy - 30, 'T-DNA', 'tl', 'end');
+  o += text(cx, cy + 4, 'Agrobacterium', 'ts', 'middle');
+  o += text(cx, cy + 62, '两端各一段 24 bp 的 border，', 'ts', 'middle');
+  o += text(cx, cy + 78, '只有它们之间会被转移', 'ts', 'middle');
+  // ② 改造后的 T-DNA
+  const x0 = 206, y2 = 72;
+  o += text(350, 24, '② 把致瘤的 gene 换掉', 'tb', 'middle');
+  o += line(x0, y2, x0 + 290, y2, 'ink-b');
+  const seg = [['border', 24, 'wash2'], ['要的 gene', 120, 'solid'], ['kanᴿ', 90, 'wash-strong'], ['border', 24, 'wash2']];
+  let xx = x0 + 16;
+  seg.forEach(([lab, w, cls]) => {
+    o += rect(xx, y2 - 13, w, 26, cls, 4) + rect(xx, y2 - 13, w, 26, 'frame', 4);
+    o += text(xx + w / 2, y2 + 5, lab, cls === 'solid' ? 'tw' : cls === 'wash-strong' ? 't' : 'ts', 'middle');
+    xx += w + 8;
+  });
+  o += text(350, y2 + 34, '致瘤的 gene 去掉，换上要的 gene 和一个 kanamycin resistance', 'ts', 'middle');
+  // ③ 感染叶盘 + 选择
+  const y3 = 232;
+  o += text(130, y3 - 46, '③ 感染叶盘，放在含 kanamycin 的培养基上', 'tb', 'middle');
+  const leaf = (x, y, r, dots) => {
+    let q = `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r)}" ry="${f1(r * 0.68)}" class="wash2"/><ellipse cx="${f1(x)}" cy="${f1(y)}" rx="${f1(r)}" ry="${f1(r * 0.68)}" class="frame"/>`;
+    q += line(x - r, y, x + r, y, 'mute');
+    for (const [dx, dy] of dots) q += circle(x + dx, y + dy, 3, 'ln-f');
+    return q;
+  };
+  o += leaf(66, y3, 46, [[-14, -6], [6, 8], [18, -8]]);
+  o += leaf(196, y3, 46, []);
+  o += text(66, y3 + 44, '拿到 kanᴿ：能分裂', 'tl', 'middle') + text(66, y3 + 60, '长成 callus', 'ts', 'middle');
+  o += text(196, y3 + 44, '没拿到：长不起来', 'ts', 'middle');
+  // ④ 长成植株
+  o += text(390, y3 - 46, '④ 诱导出芽和根，移到土里', 'tb', 'middle');
+  const px = 376, py = y3 + 30;
+  o += line(px, py, px, py - 58, 'ink-b');
+  for (const [a, b] of [[-1, 0], [1, 16], [-1, 32]]) {
+    const yy = py - 54 + b;
+    o += `<ellipse cx="${f1(px + a * 21)}" cy="${f1(yy)}" rx="19" ry="8.5" class="wash-strong" transform="rotate(${a * -18} ${f1(px + a * 21)} ${f1(yy)})"/>`;
+  }
+  o += rect(px - 36, py, 72, 14, 'wash2', 3);
+  o += text(px, py + 32, '土', 'ts', 'middle');
+  o += text(px + 56, py - 50, '通常只插进一个 copy，', 'ts', 'start') + text(px + 56, py - 32, '按 Mendel 的方式遗传', 'ts', 'start');
+  return svg(560, y3 + 86, o,'从 Ti plasmid 到 transgenic plant 的四步：Ti plasmid 上两段 24 bp border 之间的 T-DNA 会被转移；把致瘤 gene 换成目标 gene 和 kanamycin resistance；感染叶盘后在含 kanamycin 的培养基上只有转化成功的 cell 能长成 callus；再诱导出芽和根长成植株');
+}
+
+// ---------- 第 9 站：knockout mouse 的 positive-negative selection ----------
+function knockout() {
+  let o = '';
+  const L = 300, X = 150, H = 24;
+  const bar = (x, y, w, cls, lab, tw0) => rect(x, y - H / 2, w, H, cls, 4) + rect(x, y - H / 2, w, H, 'frame', 4) + (lab ? text(x + w / 2, y + 5, lab, tw0 || 'ts', 'middle') : '');
+  // ① construct
+  o += text(14, 20, '① construct：neoᴿ 插在 exon 2 里，tk 接在同源臂之外', 'tb', 'start');
+  let y = 56;
+  o += bar(X - 130, y, 80, 'wash2', 'tk', 'tb');
+  o += bar(X - 44, y, 90, 'wash', '同源臂');
+  o += bar(X + 50, y, 70, 'solid', 'neoᴿ', 'tw');
+  o += bar(X + 124, y, 90, 'wash', '同源臂');
+  o += line(X - 44, y + 20, X + 214, y + 20, 'mute') + text(X + 85, y + 36, '两段同源臂之间 = 会被换进去的部分', 'ts', 'middle');
+  // ② 两种结果
+  y = 150;
+  o += text(14, y - 34, '② 两种整合方式', 'tb', 'start');
+  o += text(14, y + 5, 'homologous', 'ts', 'start') + text(14, y + 21, 'recombination', 'ts', 'start');
+  o += line(X - 40, y, X + 300, y, 'ink-b');
+  o += bar(X + 50, y, 70, 'solid', 'neoᴿ', 'tw');
+  for (const xx of [X + 20, X + 150]) o += line(xx - 8, y - 14, xx + 8, y + 14, 'ink') + line(xx + 8, y - 14, xx - 8, y + 14, 'ink');
+  o += text(X + 310, y + 5, '有 neoᴿ，没有 tk', 'tl', 'start');
+  y = 214;
+  o += text(14, y + 5, '随机插入', 'ts', 'start');
+  o += line(X - 40, y, X + 300, y, 'ink-b');
+  o += bar(X + 10, y, 56, 'wash2', 'tk', 'tb');
+  o += bar(X + 70, y, 60, 'solid', 'neoᴿ', 'tw');
+  o += text(X + 310, y + 5, 'neoᴿ 和 tk 都在', 'ts', 'start');
+  // ③ 两种药
+  y = 286;
+  o += text(14, y - 24, '③ 两种药一起用', 'tb', 'start');
+  const cols = [['什么都没整合进去', 0, 0], ['随机插入', 1, 1], ['同源替换', 1, 0]];
+  const cw = 116, cx0 = 200;
+  o += text(14, y + 20, 'G418', 'tb', 'start') + text(58, y + 20, '没有 neoᴿ 的死', 'ts', 'start');
+  o += text(14, y + 44, 'ganciclovir', 'tb', 'start') + text(94, y + 44, '有 tk 的死', 'ts', 'start');
+  o += text(14, y + 70, '结果', 'tb', 'start');
+  cols.forEach(([name, hasNeo, hasTk], i) => {
+    const x = cx0 + i * cw;
+    o += text(x + cw / 2, y - 2, name, 'ts', 'middle');
+    o += text(x + cw / 2, y + 20, hasNeo ? '活' : '死', hasNeo ? 'ts' : 'tl', 'middle');
+    o += text(x + cw / 2, y + 44, hasTk ? '死' : '活', hasTk ? 'tl' : 'ts', 'middle');
+    const live = hasNeo && !hasTk;
+    o += text(x + cw / 2, y + 70, live ? '留下来' : '没了', live ? 'tl' : 'ts', 'middle');
+  });
+  o += text(14, y + 100, 'Crossover 发生在同源臂之内，臂外面的 tk 不会被带进 chromosome，', 'ts', 'start');
+  o += text(14, y + 118, '两种药才能把这两类分开。', 'ts', 'start');
+  return svg(560, y + 128, o,'Knockout mouse 的 positive-negative selection：construct 的 neoᴿ 插在 exon 2 里、tk 在同源臂之外；同源重组只换进两臂之间的部分所以没有 tk，随机插入则两者都有；G418 杀掉没有 neoᴿ 的 cell，ganciclovir 杀掉带 tk 的 cell，只剩同源替换的 cell');
+}
+
+// ---------- 第 9 站：GFP reporter ----------
+function gfpFig() {
+  let o = '';
+  o += text(140, 20, 'mec-7 promoter 接 GFP', 'tb', 'middle');
+  // construct
+  o += line(20, 44, 264, 44, 'ink-b');
+  o += rect(24, 32, 104, 24, 'paper-f', 4) + rect(24, 32, 104, 24, 'wash2', 4) + rect(24, 32, 104, 24, 'frame', 4) + text(76, 49, 'mec-7 promoter', 't', 'middle');
+  o += rect(132, 32, 64, 24, 'paper-f', 4) + rect(132, 32, 64, 24, 'solid', 4) + text(164, 49, 'GFP', 'tw', 'middle');
+  // worm：亮起来的 neuron
+  o += wormBody(20, 130, 250, 22, 7);
+  const wy = (u) => 130 + 22 * Math.sin(u * 2.1 * Math.PI);
+  [[0.16, 'ALML', 1], [0.34, 'PLML', 1], [0.60, 'AVM', -1], [0.80, 'PVM', -1]].forEach(([u, lab, side]) => {
+    const x = 20 + u * 250, y = wy(u);
+    o += circle(x, y, 6, 'solid') + text(x, y + side * 18 + 4, lab, 'tl', 'middle');
+  });
+  o += text(20, 196, '六个 touch receptor neuron 亮起来；', 'ts', 'start');
+  o += text(20, 214, '幼虫里最强的是 embryo 来源的 ALML、', 'ts', 'start');
+  o += text(20, 232, 'ALMR、PLML、PLMR 这四个。', 'ts', 'start');
+  // 光谱
+  const sx = lin(350, 580, 322, 530), sy = lin(0, 1, 180, 72);
+  o += axes({ sx, sy, x0: 350, x1: 580, y0: 0, y1: 1, xt: [[395, '395'], [470, '470'], [509, '509'], [560, '560 nm']], yt: [] });
+  o += text(316, 36, '激发（黑）与发射（绿）', 'tb', 'start');
+  o += text(316, 54, '形状是示意，峰的位置是实测', 'ts', 'start');
+  const gauss = (mu, s, h) => (x) => h * Math.exp(-((x - mu) ** 2) / (2 * s * s));
+  const ex = (x) => Math.max(gauss(395, 22, 1)(x), gauss(470, 18, 0.3)(x));
+  const em = (x) => Math.max(gauss(509, 16, 1)(x), gauss(540, 16, 0.45)(x));
+  o += path(curve(ex, 350, 580, sx, sy), 'ink');
+  o += path(curve(em, 350, 580, sx, sy), 'ln');
+  o += text(sx(395) - 2, sy(1) - 7, '395', 'ts', 'middle');
+  o += text(sx(509) + 2, sy(1) - 7, '509', 'tl', 'middle');
+  const yb2 = sy(0) + 30;
+  o += line(sx(395), yb2, sx(509), yb2, 'mute') + line(sx(395), yb2 - 4, sx(395), yb2 + 4, 'mute') + line(sx(509), yb2 - 4, sx(509), yb2 + 4, 'mute');
+  o += text(sx(452), yb2 + 18, '差 114 nm，即 0.70 eV', 'tl', 'middle');
+  o += text(316, 250, '差这么多，一块滤光片就能挡住照进去的光、', 'ts', 'start');
+  o += text(316, 268, '只放绿光出来，活着就能看。', 'ts', 'start');
+  return svg(560, 276, o,'左边：mec-7 promoter 驱动 GFP 之后，C. elegans 的几个 touch receptor neuron 亮起来；右边：激发峰 395 nm 带 470 nm 的次峰，发射峰 509 nm 带 540 nm 的肩，相差 114 nm');
+}
+
+// ---------- 第 10 站：coverage（动图） ----------
+function coverageA() {
+  const Cs = [1, 2, 3, 5, 8, 10], T = 12;
+  const kt = Cs.map((_, i) => i / Cs.length);
+  const G = 4.6e6, L = 150;
+  // 画一段 genome：宽 w 像素代表 Gseg 个 bp，read 按同一个 coverage 随机撒
+  const x0 = 30, w = 320, yTop = 126, rowH = 9, Gseg = 20000;
+  // 固定的随机数（可重复）
+  let s = 12345; const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const readsFor = (C) => { const n = Math.round((C * Gseg) / L); const a = []; for (let i = 0; i < n; i++) a.push(rnd()); return a.sort((p, q) => p - q); };
+  const sets = Cs.map((C) => readsFor(C));
+  let o = '';
+  o += text(14, 22, 'Coverage C 从 1 涨到 10：同一段 genome 上撒的 read', 'tb', 'start');
+  const px = (u) => x0 + u * w, pw = (L / Gseg) * w;
+  sets.forEach((rs, k) => {
+    let g = '';
+    // read 堆叠成几行
+    const rows = [];
+    rs.forEach((u) => {
+      let r = 0; while (rows[r] !== undefined && rows[r] > u) r++;
+      rows[r] = u + L / Gseg; g += rect(px(u), yTop + r * rowH, Math.max(pw, 1.2), rowH - 2.5, 'solid', 1);
+    });
+    // 没盖到的区间
+    let cov = 0, gaps = 0;
+    const sorted = rs;
+    let cur = 0;
+    for (const u of sorted) { if (u > cur) { gaps++; g += rect(px(cur), yTop - 18, (u - cur) * w, 9, 'wash2', 1); cov += 0; } cur = Math.max(cur, u + L / Gseg); }
+    if (cur < 1) { gaps++; g += rect(px(cur), yTop - 18, (1 - cur) * w, 9, 'wash2', 1); }
+    g += line(x0, yTop - 26, x0 + w, yTop - 26, 'ink-b');
+    g += text(14, yTop - 38, '这一段 genome（20 kb），灰条 = 没盖到的地方', 'ts', 'start');
+    g += text(14, 48, `C = ${Cs[k]}：整个 E. coli 要 ${Math.round((Cs[k] * G) / L).toLocaleString('en-US').replace(/,/g, ' ')} 条 read`, 'tb', 'start');
+    g += text(14, 68, `没盖到的碱基：${(100 * Math.exp(-Cs[k])).toFixed(2)}%，即 ${Math.round(G * Math.exp(-Cs[k])).toLocaleString('en-US').replace(/,/g, ' ')} 个`, 'tl', 'start');
+    const on = kt.map((_, i) => i === k);
+    o += `<g opacity="${k === 0 ? 1 : 0}">${g}${ashow(on, kt, T)}</g>`;
+  });
+  // 右边：e^-C 曲线
+  const sx = lin(0, 11, 420, 536), sy = lin(0, 1, 250, 112);
+  o += axes({ sx, sy, x0: 0, x1: 11, y0: 0, y1: 1, xt: [0, 5, [10, '10']], yt: [[0, '0'], [0.5, '0.5'], [1, '1']] });
+  o += path(curve((c) => Math.exp(-c), 0, 11, sx, sy), 'ln');
+  o += text(400, 92, '没盖到的比例 = e⁻ᶜ', 'ts', 'start');
+  o += text(540, 282, 'C', 'ts', 'end');
+  Cs.forEach((C, k) => {
+    const on = kt.map((_, i) => i === k);
+    const lft = C >= 8;
+    const g = circle(sx(C), sy(Math.exp(-C)), 5, 'solid') + text(sx(C) + (lft ? -10 : 10), sy(Math.exp(-C)) - 8, 'C = ' + C, 'tl', lft ? 'end' : 'start');
+    o += `<g opacity="${k === 0 ? 1 : 0}">${g}${ashow(on, kt, T)}</g>`;
+  });
+  o += text(14, 290, 'Coverage 每加 1，没盖到的比例就乘以 1/e ≈ 0.37。C = 10 时整个 E. coli 只剩约 209 个碱基没读到。', 'ts', 'start');
+  return svgA(560, 298, o, '动图：同一段 20 kb 的 genome 上，coverage 从 1 涨到 10 时 read 逐渐堆叠起来，没被盖到的区间越来越少；右边 e 的负 C 次方这条曲线上的点跟着移动');
+}
+
+// ---------- 第 10 站：TPM 的陷阱 ----------
+function tpmFig() {
+  let o = '';
+  const genes = ['A', 'B', 'C', 'H'];
+  const n1 = [400, 200, 100, 100], n2 = [400, 200, 100, 3300];
+  const cls = ['wash-strong', 'wash2', 'wash', 'solid'];
+  const panel = (x0, n, title) => {
+    let q = text(x0 + 110, 24, title, 'tb', 'middle');
+    const tot = n.reduce((a, b) => a + b, 0);
+    // 一管 RNA 画成一根竖着的柱子，按比例分段
+    const H = 170, yT = 48;
+    let acc = 0;
+    n.forEach((v, i) => {
+      const h = (v / tot) * H;
+      q += rect(x0 + 30, yT + acc, 56, h, cls[i], 2) + rect(x0 + 30, yT + acc, 56, h, 'frame', 2);
+      if (h > 14) q += text(x0 + 58, yT + acc + h / 2 + 5, genes[i], i === 3 ? 'tw' : 't', 'middle');
+      acc += h;
+    });
+    q += text(x0 + 58, yT + H + 18, `共 ${tot} 个分子`, 'ts', 'middle');
+    // TPM
+    q += text(x0 + 100, yT - 6, 'TPM', 'ts', 'start');
+    n.forEach((v, i) => {
+      const tpm = Math.round((1e6 * v) / tot);
+      q += text(x0 + 100, yT + 16 + i * 20, genes[i] + '  ' + tpm.toLocaleString('en-US').replace(/,/g, ' '), i === 3 ? 'tl' : 't', 'start');
+    });
+    return q;
+  };
+  o += panel(10, n1, 'sample 1');
+  o += line(282, 36, 282, 246, 'grid');
+  o += panel(292, n2, 'sample 2：只有 H 被诱导');
+  o += arrow(170, 268, 390, 268, 'ln');
+  o += text(280, 262, 'A、B、C 的分子数一个没变', 'tl', 'middle');
+  o += text(280, 292, 'TPM 却都降到 800 / 4000 = 0.2 倍：只看 TPM 会以为这三个 gene 下调了 5 倍。', 'ts', 'middle');
+  return svg(560, 302, o, '两管 RNA：A、B、C 的分子数都是 400、200、100，H 从 100 涨到 3300。TPM 随之从 500 000、250 000、125 000 变成 100 000、50 000、25 000，降到原来的 0.2 倍');
+}
+
+// ---------- 第 11 站：七种 model organism ----------
+function modelFig() {
+  let o = '';
+  // 每种生物画出来 + genome 大小与 gene 数
+  const dat = [
+    ['E. coli', '4.6 Mb', '4 377'],
+    ['S. cerevisiae', '12.5 Mb', '5 770'],
+    ['C. elegans', '100 Mb', '21 733'],
+    ['Drosophila', '123 Mb', '约 17 000'],
+    ['Arabidopsis', '135 Mb', '27 407'],
+    ['Mouse', '2 800 Mb', '约 23 000'],
+    ['Human', '3 300 Mb', '约 21 000'],
+  ];
+  const cols = [50, 128, 212, 296, 376, 452, 526];
+  const yD = 70;
+  // 画法
+  const draw = {
+    0: (x) => `<rect x="${f1(x - 16)}" y="${f1(yD - 7)}" width="32" height="14" rx="7" class="wash-strong"/><rect x="${f1(x - 16)}" y="${f1(yD - 7)}" width="32" height="14" rx="7" class="frame"/>` + [-1, 1].map((s) => path(`M ${f1(x + s * 16)} ${f1(yD)} C ${f1(x + s * 26)} ${f1(yD - 8)} ${f1(x + s * 30)} ${f1(yD + 8)} ${f1(x + s * 38)} ${f1(yD + 2)}`, 'mute')).join(''),
+    1: (x) => circle(x - 5, yD, 15, 'wash-strong') + circle(x - 5, yD, 15, 'frame') + circle(x + 14, yD - 9, 8, 'wash-strong') + circle(x + 14, yD - 9, 8, 'frame'),
+    2: (x) => wormBody(x - 34, yD, 68, 11, 4.5),
+    3: (x) => [-1, 1].map((s) => `<ellipse cx="${f1(x + 8)}" cy="${f1(yD + s * 8)}" rx="15" ry="5" class="wash2" transform="rotate(${s * 14} ${f1(x + 8)} ${f1(yD + s * 8)})"/><ellipse cx="${f1(x + 8)}" cy="${f1(yD + s * 8)}" rx="15" ry="5" class="frame" transform="rotate(${s * 14} ${f1(x + 8)} ${f1(yD + s * 8)})"/>`).join('')
+      + `<ellipse cx="${f1(x)}" cy="${f1(yD + 2)}" rx="13" ry="8" class="wash-strong"/><ellipse cx="${f1(x)}" cy="${f1(yD + 2)}" rx="13" ry="8" class="frame"/><circle cx="${f1(x - 14)}" cy="${f1(yD - 2)}" r="6.5" class="paper"/><circle cx="${f1(x - 16)}" cy="${f1(yD - 3)}" r="2" class="ink-f"/>`,
+    4: (x) => line(x, yD + 12, x, yD - 14, 'ink-b') + [[-1, -8], [1, -2], [-1, 4]].map(([s, dy]) => `<ellipse cx="${f1(x + s * 11)}" cy="${f1(yD + dy)}" rx="10" ry="5" class="wash-strong" transform="rotate(${s * -20} ${f1(x + s * 11)} ${f1(yD + dy)})"/>`).join('') + line(x - 10, yD + 13, x + 10, yD + 13, 'mute'),
+    5: (x) => `<ellipse cx="${f1(x)}" cy="${f1(yD)}" rx="17" ry="11" class="wash-strong"/><ellipse cx="${f1(x)}" cy="${f1(yD)}" rx="17" ry="11" class="frame"/><circle cx="${f1(x + 15)}" cy="${f1(yD - 6)}" r="7" class="paper"/><circle cx="${f1(x + 18)}" cy="${f1(yD - 13)}" r="3.4" class="paper"/><circle cx="${f1(x + 20)}" cy="${f1(yD - 6)}" r="1.4" class="ink-f"/>`
+      + [-7, 0, 7].map((dx) => line(x + dx, yD + 9, x + dx, yD + 17, 'ink')).join('')
+      + path(`M ${f1(x - 17)} ${f1(yD + 2)} C ${f1(x - 28)} ${f1(yD + 2)} ${f1(x - 28)} ${f1(yD - 7)} ${f1(x - 23)} ${f1(yD - 10)}`, 'ink'),
+    6: (x) => circle(x, yD - 12, 7, 'paper') + line(x, yD - 5, x, yD + 8, 'ink-b') + line(x - 9, yD + 1, x + 9, yD + 1, 'ink') + line(x, yD + 8, x - 7, yD + 20, 'ink') + line(x, yD + 8, x + 7, yD + 20, 'ink'),
+  };
+  dat.forEach(([name, g, n], i) => {
+    const x = cols[i];
+    o += draw[i](x);
+    o += text(x, 108, name, 'tb', 'middle');
+    o += text(x, 126, g, 'ts', 'middle');
+    o += text(x, 144, n, 'ts', 'middle');
+  });
+  o += text(14, 24, '七种常用的 model organism（图不按比例）。每种下面是 genome 大小和 gene 数。', 'ts', 'start');
+  // 下半：gene density
+  const sy = lin(0, 1000, 290, 186), x0 = 60, bw = 54;
+  o += text(14, 172, '每 Mb 有几个 gene', 'tb', 'start');
+  const dens = [943, 462, 217, 139, 203, 8.2, 6.4];
+  dens.forEach((v, i) => {
+    const x = x0 + i * 68;
+    o += rect(x, sy(v), bw, sy(0) - sy(v), 'solid', 2);
+    o += text(x + bw / 2, sy(v) - 6, v >= 10 ? String(Math.round(v)) : v.toFixed(1), 'tl', 'middle');
+    o += text(x + bw / 2, sy(0) + 16, ['E. coli', 'S. cer.', 'C. ele.', 'Droso.', 'Arab.', 'mouse', 'human'][i], 'ts', 'middle');
+  });
+  o += line(x0 - 6, sy(0), x0 + 6 * 68 + bw + 6, sy(0), 'axis');
+  o += text(14, 330, 'E. coli 平均每 1.1 kb 一个 gene，human 每 157 kb 一个。', 'ts', 'start');
+  o += text(14, 348, '多出来的是 intron、调控 sequence 和重复 sequence。', 'ts', 'start');
+  return svg(560, 356, o, '七种 model organism 的 genome 大小与 gene 数，以及每 Mb 的 gene 数：E. coli 943、酵母 462、线虫 217、拟南芥 203、果蝇 139、小鼠 8.2、人 6.4');
+}
+
+// ---------- 第 11 站：C-value paradox ----------
+function cvalue() {
+  let o = '';
+  const dat = [
+    ['D. melanogaster', 180, 17000],
+    ['Fugu rubripes', 400, null],
+    ['Boa constrictor', 2100, null],
+    ['Homo sapiens', 3100, 21000],
+    ['蝗虫 Schistocerca', 9300, null],
+    ['洋葱 Allium cepa', 18000, null],
+    ['蝾螈 Amphiuma', 84000, null],
+    ['肺鱼 Protopterus', 140000, null],
+    ['蕨 Ophioglossum', 160000, null],
+    ['Amoeba dubia', 670000, null],
+  ];
+  const sx = logx(100, 1e6, 200, 520), y0 = 44, dy = 23;
+  o += text(14, 20, 'Genome 大小（对数轴）', 'tb', 'start');
+  for (const t of [100, 1000, 1e4, 1e5, 1e6]) {
+    o += line(sx(t), y0 - 12, sx(t), y0 + dy * 9 + 10, 'grid');
+    o += text(sx(t), y0 - 16, t >= 1e4 ? (t / 1000) + ' Gb' : t + ' Mb', 'ts', 'middle');
+  }
+  dat.forEach(([name, mb], i) => {
+    const y = y0 + i * dy, hum = name === 'Homo sapiens';
+    o += text(194, y + 4, name, hum ? 'tl' : 't', 'end');
+    o += rect(sx(100), y - 7, sx(mb) - sx(100), 14, hum ? 'solid' : 'wash-strong', 2);
+    o += text(sx(mb) + 8, y + 4, mb >= 1000 ? (mb / 1000) + ' Gb' : mb + ' Mb', hum ? 'tl' : 'ts', 'start');
+  });
+  const yb = y0 + dy * 10 + 16;
+  o += text(14, yb, 'Gene 数（已知的几种）：', 'tb', 'start');
+  const gs = [['E. coli', 4377], ['酵母', 5770], ['果蝇', 17000], ['human', 21000], ['线虫', 21733], ['拟南芥', 27407], ['云杉', 28354]];
+  const sg = lin(0, 30000, 150, 520), yg = yb + 46;
+  o += line(150, yg, 520, yg, 'axis');
+  for (const t of [0, 10000, 20000, 30000]) o += line(sg(t), yg, sg(t), yg + 4, 'axis') + text(sg(t), yg + 18, t ? (t / 1000) + ' 000' : '0', 'ts', 'middle');
+  gs.forEach(([name, n], i) => {
+    const y = yg - 8 - i * 0;
+    o += circle(sg(n), y, 5, 'solid');
+    o += text(sg(n), y - 10 - (i % 3) * 16, name, 'tl', 'middle');
+  });
+  o += text(14, yg + 44, 'Amoeba 的 genome 是 human 的 216 倍，洋葱是 5.8 倍；而 gene 数全都挤在 2 万到 3 万之间。', 'ts', 'start');
+  o += text(14, yg + 62, '云杉的 DNA 是拟南芥的 145 倍，gene 只多约 900 个。', 'ts', 'start');
+  return svg(560, yg + 70, o, 'Genome 大小从果蝇的 180 Mb 到 Amoeba dubia 的 670 000 Mb 跨四个数量级，而已知的 gene 数从 E. coli 的 4 377 到云杉的 28 354，几种真核生物都挤在两万到三万之间');
+}
+
 // ---------- 第 7 站：Sanger sequencing 的 gel ----------
 function sanger() {
   const seq = GENE, n = seq.length;
@@ -756,6 +1528,10 @@ function sanger() {
 }
 
 export default {
+  'lsm2105-griffith': griffith,
+  'lsm2105-avery': avery,
+  'lsm2105-nucleosome': nucleosome,
+  'lsm2105-compact': compact,
   'lsm2105-duplex': duplex,
   'lsm2105-meselson': meselson,
   'lsm2105-fork': forkA,
@@ -769,6 +1545,9 @@ export default {
   'lsm2105-crossover': crossover,
   'lsm2105-map': map3,
   'lsm2105-transduce': transduce,
+  'lsm2105-conjug': conjugA,
+  'lsm2105-transform': transformFig,
+  'lsm2105-cotrans': cotrans,
   'lsm2105-luria': luria,
   'lsm2105-nondisj': nondisj,
   'lsm2105-lac': lacA,
@@ -776,4 +1555,13 @@ export default {
   'lsm2105-pcr': pcrA,
   'lsm2105-crispr': crisprA,
   'lsm2105-sanger': sanger,
+  'lsm2105-rnai': rnaiFig,
+  'lsm2105-dicer': dicerA,
+  'lsm2105-tdna': tdna,
+  'lsm2105-knockout': knockout,
+  'lsm2105-gfp': gfpFig,
+  'lsm2105-coverage': coverageA,
+  'lsm2105-tpm': tpmFig,
+  'lsm2105-model': modelFig,
+  'lsm2105-cvalue': cvalue,
 };

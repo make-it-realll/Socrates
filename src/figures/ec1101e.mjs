@@ -94,6 +94,56 @@ function tax() {
   return svg(560, 300, o, '每卷 12 元的 tax 在 demand 和 supply 之间打进一个 wedge：buyer 付 54，seller 得 42，quantity 从 20 降到 16；图中标出 consumer surplus、producer surplus、tax revenue 和 deadweight loss 三角形');
 }
 
+// 4b. 每卷 12 元的 subsidy：supply 下移 12，quantity 20 → 24，deadweight loss 在 equilibrium 右边
+function subsidy() {
+  const s = 12;
+  const PSs = (q) => PS(q) - s;                       // buyer 付的 price 下的 supply
+  const Q1 = (70 - (10 - s)) / 3, Pb = PD(Q1), Ps = Pb + s;   // 24, 46, 58
+  const dwl = 0.5 * (Q1 - 20) * (Ps - Pb);             // 24
+  const sx = lin(0, 36, 60, 340), sy = lin(0, 80, 262, 28);
+  let o = '';
+  o += poly([[sx(20), sy(50)], [sx(Q1), sy(Ps)], [sx(Q1), sy(Pb)]], 'solid2');
+  o += line(sx(0), sy(50), sx(20), sy(50), 'grid') + line(sx(20), sy(50), sx(20), sy(0), 'grid');
+  o += line(sx(0), sy(Ps), sx(Q1), sy(Ps), 'grid') + line(sx(0), sy(Pb), sx(Q1), sy(Pb), 'grid') + line(sx(Q1), sy(Pb), sx(Q1), sy(0), 'grid');
+  o += axes({ sx, sy, x0: 0, x1: 36, y0: 0, y1: 80, xt: [20, Q1, 30], yt: [10, Pb, 50, Ps, 70], xl: 'quantity Q（千卷 / 周）', yl: 'price P（元 / 卷）' });
+  o += seg(PS, 0, 34, sx, sy, 'ink-b') + seg(PSs, 1, 36, sx, sy, 'dash') + seg(PD, 0, 36, sx, sy, 'ln');
+  o += line(sx(Q1), sy(Ps), sx(Q1), sy(Pb), 'ink-b');
+  o += dot(sx, sy, Q1, Ps) + dot(sx, sy, Q1, Pb) + circle(sx(20), sy(50), 3.5, 'ink paper-f');
+  o += text(sx(33), sy(PS(33)) - 9, 'S', 'tb', 'end') + text(sx(31) + 8, sy(PSs(31)) + 16, 'S − 12', 'ts') + text(sx(35), sy(PD(35)) - 9, 'D', 'tl', 'end');
+  o += line(sx(22.6), sy(52), sx(19.6), sy(63), 'mute') + text(sx(17), sy(66), 'deadweight loss ' + dwl, 'ts', 'middle');
+  const tx = 362;
+  o += text(tx, 58, 'Subsidy = 12 元 / 卷', 'tb');
+  o += text(tx, 86, 'Buyer 付 ' + Pb + '（原来 50）', 't') + text(tx, 106, 'Seller 实得 ' + Ps + '（原来 50）', 't');
+  o += text(tx, 126, 'Quantity 从 20 增加到 ' + Q1, 't');
+  o += text(tx, 146, '竖线 ' + Ps + ' − ' + Pb + ' = ' + s + '，就是 subsidy', 'ts');
+  o += text(tx, 176, '政府支出 12 × ' + Q1 + ' = ' + s * Q1, 't');
+  o += text(tx, 206, '第 21 到 24 千卷：cost 高于', 'ts') + text(tx, 223, 'buyer 愿付的，只因为补了', 'ts') + text(tx, 240, '差价才成交。', 'ts');
+  return svg(560, 300, o, '每卷 12 元的 subsidy 使 supply 下移 12：quantity 从 20 增加到 24，buyer 付 46，seller 得 58，equilibrium 右边 supply 高于 demand 的三角形是 deadweight loss 24');
+}
+
+// 4c. Card & Krueger (1993) 的 difference-in-differences：每家店平均 FTE employment
+function cardkrueger() {
+  const PA = [23.33, 21.17], NJ = [20.44, 21.03];
+  const cf = NJ[0] + (PA[1] - PA[0]);                  // 18.28：跟着 Pennsylvania 变化时 New Jersey 会到的位置
+  const did = NJ[1] - cf;                              // 2.75
+  const sx = lin(0, 1, 150, 340), sy = lin(17, 24.5, 262, 34);
+  let o = '';
+  o += axes({ sx, sy, x0: -0.55, x1: 1.25, y0: 17, y1: 24.5, xt: [[0, '1992 年 2–3 月'], [1, '1992 年 11–12 月']], yt: [18, 20, 22, 24], yl: '每家店平均 FTE' });
+  o += line(sx(0.5), sy(17), sx(0.5), sy(24.5), 'grid') + text(sx(0.5), sy(24.5) - 8, '4 月 1 日：NJ 4.25 → 5.05', 'ts', 'middle');
+  o += line(sx(0), sy(PA[0]), sx(1), sy(PA[1]), 'ink-b') + line(sx(0), sy(NJ[0]), sx(1), sy(NJ[1]), 'ln') + line(sx(0), sy(NJ[0]), sx(1), sy(cf), 'ln-dash');
+  o += dot(sx, sy, 0, PA[0]) + dot(sx, sy, 1, PA[1]) + dot(sx, sy, 0, NJ[0], 'ln-f') + dot(sx, sy, 1, NJ[1], 'ln-f') + circle(sx(1), sy(cf), 4, 'ln paper-f');
+  o += text(sx(0) - 9, sy(PA[0]) + 4, 'PA ' + PA[0].toFixed(2), 'tb', 'end') + text(sx(0) - 9, sy(NJ[0]) + 4, 'NJ ' + NJ[0].toFixed(2), 'tl', 'end');
+  o += text(sx(1) + 9, sy(PA[1]) - 4, 'PA ' + PA[1].toFixed(2), 'tb') + text(sx(1) + 9, sy(NJ[1]) + 12, 'NJ ' + NJ[1].toFixed(2), 'tl');
+  o += text(sx(1) + 9, sy(cf) + 4, f2(cf), 'ts');
+  const bx = sx(1) + 80;
+  o += line(bx, sy(NJ[1]), bx, sy(cf), 'ink') + line(bx - 4, sy(NJ[1]), bx + 4, sy(NJ[1]), 'ink') + line(bx - 4, sy(cf), bx + 4, sy(cf), 'ink');
+  o += text(bx + 9, sy((NJ[1] + cf) / 2) - 4, 'DiD', 'tb') + text(bx + 9, sy((NJ[1] + cf) / 2) + 13, '= ' + f2(did), 'tb');
+  o += text(280, 306, 'PA 变化 −' + f2(PA[0] - PA[1]) + '，NJ 变化 +' + f2(NJ[1] - NJ[0]) + '；虚线是“NJ 若跟着 PA 一起变”的估计。', 'ts', 'middle');
+  o += text(280, 323, '数字出自 Card & Krueger (1993, NBER WP 4509) 的主要结果表。', 'ts', 'middle');
+  return svg(560, 334, o, 'Card 和 Krueger 的四个平均 FTE：Pennsylvania 从 23.33 降到 21.17，New Jersey 从 20.44 升到 21.03；如果 New Jersey 跟着 Pennsylvania 一起变化会降到 18.28，实际与之相差 2.75');
+}
+const f2 = (v) => v.toFixed(2);
+
 // 5. Minimum wage：competitive labor market 与 monopsony 的预测相反
 function minwage() {
   const LD = (l) => 20 - l, LS = (l) => 2 + l / 2, MCL = (l) => 2 + l;
@@ -358,6 +408,8 @@ export default {
   'ec1101e-sd': sd,
   'ec1101e-elast': elast,
   'ec1101e-tax': tax,
+  'ec1101e-subsidy': subsidy,
+  'ec1101e-cardkrueger': cardkrueger,
   'ec1101e-minwage': minwage,
   'ec1101e-cost': cost,
   'ec1101e-monopoly': monopoly,

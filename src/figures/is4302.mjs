@@ -335,7 +335,7 @@ function ffg() {
   o += text(X(n - 1) + bw + gap + bw, y + 5, '', 'ts');
   o += text(X(0), y + 66, 'Available chain：一直往前长，head 处的 fork 用 LMD GHOST 选', 'ts');
   o += text(30, 206, `1 slot = ${slot} s，1 epoch = ${perEpoch} slot = ${(slot * perEpoch / 60).toFixed(1)} 分钟（图里每个 epoch 只画 4 个 block）`, 't');
-  o += text(30, 228, '小额收款看 available chain，不必等；大额收款等到 finalize。', 't');
+  o += text(30, 228, '卖 boba 的小摊看 available chain，不必等；卖车的经销商等到 finalize。', 't');
   return svg(560, 240, o, 'Ethereum 的两层 ledger：底下的 available chain 一直增长，每个 epoch 开头的 checkpoint 经 2/3 投票后 finalize，finalized 部分是 available chain 的 prefix');
 }
 

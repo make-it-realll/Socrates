@@ -45,6 +45,38 @@ function bars() {
   return svg(560, 172, o, '选法 2 个 chocolate、0 个 lemon、6 个 sugar、2 个 glazed、2 个 plain 画成 12 个圆和 4 根竖线，对应 bit string 0011000000100100');
 }
 
+// ---------- 第 1 站：R(3,3) = 6 ----------
+function ramsey() {
+  let o = '';
+  // 左：K5，外圈 5-cycle 为红（ln），五角星为蓝（dash）
+  const c = [140, 118], R = 72;
+  const P = (k) => [c[0] + R * Math.sin((2 * Math.PI * k) / 5), c[1] - R * Math.cos((2 * Math.PI * k) / 5)];
+  for (let k = 0; k < 5; k++) o += line(...P(k), ...P((k + 2) % 5), 'dash');
+  for (let k = 0; k < 5; k++) o += line(...P(k), ...P((k + 1) % 5), 'ln');
+  for (let k = 0; k < 5; k++) o += vtx(...P(k), String(k + 1), 'paper', 'tb', 12);
+  // 检查：两种颜色都没有 triangle
+  const red = new Set(), blue = new Set();
+  for (let k = 0; k < 5; k++) { red.add([k, (k + 1) % 5].sort().join()); blue.add([k, (k + 2) % 5].sort().join()); }
+  for (const S of [red, blue]) for (let a = 0; a < 5; a++) for (let b = a + 1; b < 5; b++) for (let e = b + 1; e < 5; e++)
+    if (S.has([a, b].join()) && S.has([b, e].join()) && S.has([a, e].join())) throw new Error('ramsey: mono triangle in K5');
+  o += text(c[0], 22, 'K₅：没有同色 triangle', 'tb', 'middle');
+  o += text(c[0], 222, '实线（红）：1–2–3–4–5–1', 'ts', 'middle');
+  o += text(c[0], 240, '虚线（蓝）：1–3–5–2–4–1', 'ts', 'middle');
+  // 右：K6 里的 v 和它的 5 条 edge，3 条红
+  const v = [330, 124];
+  const nb = [[470, 64], [505, 124], [470, 184], [402, 192], [402, 56]];
+  const lab = ['x', 'y', 'z', '', ''];
+  for (let k = 0; k < 5; k++) o += line(...v, ...nb[k], k < 3 ? 'ln' : 'dash');
+  // x、y、z 之间：问号的三条 edge
+  o += line(...nb[0], ...nb[1], 'mute') + line(...nb[1], ...nb[2], 'mute') + line(...nb[0], ...nb[2], 'mute');
+  o += circle(...v, 13, 'paper') + vtx(...v, 'v', 'wash-strong ink-s', 'tb', 13);
+  for (let k = 0; k < 5; k++) o += vtx(...nb[k], lab[k], 'paper', 'tb', 12);
+  o += text(422, 22, 'K₆：看一个 vertex v', 'tb', 'middle');
+  o += text(415, 222, '5 条 edge 两种颜色，至少 3 条同色', 'ts', 'middle');
+  o += text(415, 240, 'x、y、z 之间有红 edge → 红 triangle，否则全蓝', 'ts', 'middle');
+  return svg(560, 250, o, '左：K5 的外圈 5-cycle 涂红、五角星涂蓝，没有同色 triangle；右：K6 中 vertex v 的 5 条 edge 至少 3 条同色，连向 x、y、z');
+}
+
 // ---------- 第 2 站：reflection principle ----------
 function lattice() {
   const u = 44, O = [52, 262], P = ([x, y]) => [O[0] + x * u, O[1] - y * u];
@@ -214,6 +246,54 @@ function walks() {
   return svg(560, 242, o, '4 个 vertex 的 graph：正方形 1-2-3-4 加 diagonal 1-3；从 1 到 3 长度为 2 的 walk 只有经过 2 和经过 4 两条');
 }
 
+// ---------- 第 6 站：G 不 connected，complement connected ----------
+function complement() {
+  const pos = (x0) => ({ 1: [x0, 70], 2: [x0 - 46, 150], 3: [x0 + 46, 150], 4: [x0 + 150, 70], 5: [x0 + 150, 150] });
+  const all = [];
+  for (let a = 1; a <= 5; a++) for (let b = a + 1; b <= 5; b++) all.push([a, b]);
+  const G = [[1, 2], [1, 3], [2, 3], [4, 5]];
+  const inG = (a, b) => G.some(([u, v]) => (u === a && v === b) || (u === b && v === a));
+  const comp = all.filter(([a, b]) => !inG(a, b));
+  if (comp.length !== 10 - G.length) throw new Error('complement: count');
+  let o = '';
+  const L = pos(70), R = { 1: [340, 52], 2: [340, 112], 3: [340, 172], 4: [490, 82], 5: [490, 142] };
+  for (const [a, b] of G) o += line(...L[a], ...L[b], 'ink-b');
+  for (const [a, b] of comp) o += line(...R[a], ...R[b], 'ln');
+  for (const v of [1, 2, 3, 4, 5]) o += vtx(...L[v], String(v), 'paper', 'tb', 13) + vtx(...R[v], String(v), 'paper', 'tb', 13);
+  o += text(L[1][0] + 75, 26, 'G：两个 component', 'tb', 'middle');
+  o += text(415, 26, 'G 的 complement', 'tb', 'middle');
+  o += text(L[1][0] + 75, 202, '4 条 edge', 'ts', 'middle');
+  o += text(415, 202, `C(5, 2) − 4 = ${comp.length} 条：{1, 2, 3} 与 {4, 5} 之间全连`, 'ts', 'middle');
+  o += text(280, 230, '1 和 2 在 G 里同一个 component，complement 里经过 4 连起来：1–4–2', 'ts', 'middle');
+  return svg(560, 240, o, '左：G 由 triangle 1-2-3 和 edge 4-5 组成；右：G 的 complement 是 {1,2,3} 与 {4,5} 之间的全部 6 条 edge，是 connected 的');
+}
+
+// ---------- 第 6 站：P4 是 self-complementary ----------
+function selfcomp() {
+  const pos = { 1: [0, 0], 2: [1, 0], 3: [1, 1], 4: [0, 1] };
+  const P4 = [[1, 2], [2, 3], [3, 4]];
+  const all = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]];
+  const has = (E, a, b) => E.some(([u, v]) => (u === a && v === b) || (u === b && v === a));
+  const C = all.filter(([a, b]) => !has(P4, a, b));
+  // 检查 f 是 isomorphism：P4 的 edge 映到 complement 的 edge
+  const f = { 1: 3, 2: 1, 3: 4, 4: 2 };
+  for (const [a, b] of all) if (has(P4, a, b) !== has(C, f[a], f[b])) throw new Error('selfcomp: f not iso');
+  let o = '';
+  const panel = (x0, E, cls, title) => {
+    const s = 96, Q = (v) => [x0 + pos[v][0] * s, 62 + pos[v][1] * s];
+    for (const [a, b] of E) o += line(...Q(a), ...Q(b), cls);
+    for (const v of [1, 2, 3, 4]) o += vtx(...Q(v), String(v), 'paper', 'tb', 13);
+    o += text(x0 + s / 2, 30, title, 'tb', 'middle');
+  };
+  panel(40, P4, 'ink-b', 'P₄：1–2–3–4');
+  panel(230, C, 'ln', 'complement：3–1–4–2');
+  const X = 400;
+  o += text(X, 70, 'f(1) = 3，f(2) = 1，', 't') + text(X, 90, 'f(3) = 4，f(4) = 2', 't');
+  o += text(X, 124, 'edge 12 → 31', 'ts') + text(X, 142, 'edge 23 → 14', 'ts') + text(X, 160, 'edge 34 → 42', 'ts');
+  o += text(X, 190, '三条都是 complement 的 edge', 'ts');
+  return svg(560, 206, o, 'P4 的 edge 是 12、23、34；它的 complement 的 edge 是 13、14、24，也是一条 path 3-1-4-2；isomorphism f 把 1、2、3、4 送到 3、1、4、2');
+}
+
 // ---------- 第 6 站：Euler circuit 的动图 ----------
 function eulerA() {
   const P = { A: [130, 56], B: [130, 206], C: [270, 131], D: [410, 56], E: [410, 206] };
@@ -379,6 +459,58 @@ function trees4() {
   return svg(560, 238, o, '顶点 1 到 4 上全部 16 个 labelled tree：12 个是 path，4 个是 star');
 }
 
+// ---------- 第 8 站：deletion–contraction ----------
+function delcon() {
+  const pos = { 1: [0, 0], 2: [1, 0], 3: [1, 1], 4: [0, 1] };
+  const E = [[1, 2], [1, 3], [1, 4], [2, 3], [3, 4]];
+  // 用代码数 spanning tree：G、G − e、G · e（multigraph，edge 带编号）
+  const countST = (n, edges) => {
+    let c = 0;
+    const m = edges.length;
+    for (let mask = 0; mask < 1 << m; mask++) {
+      const pick = edges.filter((_, i) => mask >> i & 1);
+      if (pick.length !== n - 1) continue;
+      const par = {}; const find = (x) => (par[x] === undefined || par[x] === x ? (par[x] = x) : (par[x] = find(par[x])));
+      let ok = true;
+      for (const [a, b] of pick) { const ra = find(a), rb = find(b); if (ra === rb) { ok = false; break; } par[ra] = rb; }
+      if (ok) c++;
+    }
+    return c;
+  };
+  const tG = countST(4, E), tDel = countST(4, E.filter(([a, b]) => !(a === 1 && b === 3)));
+  const con = E.filter(([a, b]) => !(a === 1 && b === 3)).map(([a, b]) => [a === 3 ? 1 : a, b === 3 ? 1 : b]); // 3 并进 1（记作 w）
+  const tCon = countST(3, con);
+  if (tG !== tDel + tCon) throw new Error('delcon: recurrence fails');
+  let o = '';
+  const s = 92, top = 58;
+  const panel = (x0, edges, hi) => {
+    const Q = (v) => [x0 + pos[v][0] * s, top + pos[v][1] * s];
+    for (const [a, b] of edges) o += line(...Q(a), ...Q(b), hi && a === 1 && b === 3 ? 'ln' : 'ink-b');
+    for (const v of [1, 2, 3, 4]) o += vtx(...Q(v), String(v), 'paper', 'tb', 13);
+    return Q;
+  };
+  const Q1 = panel(28, E, true);
+  const m = [(Q1(1)[0] + Q1(3)[0]) / 2, (Q1(1)[1] + Q1(3)[1]) / 2];
+  o += text(m[0] + 10, m[1] - 4, 'e', 'tl', 'start');
+  panel(222, E.filter(([a, b]) => !(a === 1 && b === 3)), false);
+  // G · e：w 在中间，2 在右上，4 在左下，各两条 parallel edge
+  const W = [462, 104], V2 = [520, 52], V4 = [404, 156];
+  const bend = (A, B, k) => {
+    const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy);
+    const cx = mx - (dy / L) * k, cy = my + (dx / L) * k;
+    return `M${f1(A[0])} ${f1(A[1])}Q${f1(cx)} ${f1(cy)} ${f1(B[0])} ${f1(B[1])}`;
+  };
+  for (const B of [V2, V4]) o += path(bend(W, B, 16), 'ink-b') + path(bend(W, B, -16), 'ink-b');
+  o += circle(...W, 14, 'paper') + vtx(...W, 'w', 'wash-strong ink-s', 'tb', 14) + vtx(...V2, '2', 'paper', 'tb', 13) + vtx(...V4, '4', 'paper', 'tb', 13);
+  o += text(74, 26, 'G', 'tb', 'middle') + text(268, 26, 'G − e', 'tb', 'middle') + text(462, 26, 'G · e（1、3 并成 w）', 'tb', 'middle');
+  o += text(74, 186, `τ(G) = ${tG}`, 'tl', 'middle');
+  o += text(268, 186, `4-cycle：τ = ${tDel}`, 't', 'middle');
+  o += text(462, 186, `到 2、到 4 各挑一条：τ = ${tCon}`, 't', 'middle');
+  o += text(170, 186, '=', 'tb', 'middle') + text(365, 186, '+', 'tb', 'middle');
+  o += text(280, 214, '不含 e 的 spanning tree 是 G − e 的；含 e 的收缩掉 e，一一对应到 G · e 的', 'ts', 'middle');
+  return svg(560, 224, o, 'G 是正方形 1-2-3-4 加 diagonal e = 1-3，有 8 个 spanning tree；G 删 e 是 4-cycle，有 4 个；G 收缩 e 后 w 到 2、到 4 各有两条 parallel edge，有 4 个');
+}
+
 // ---------- 第 8 站：Prüfer code 动图 ----------
 function pruferA() {
   const P = { 1: [190, 120], 2: [96, 52], 7: [96, 188], 3: [300, 120], 6: [410, 120], 4: [500, 52], 5: [500, 188] };
@@ -424,6 +556,10 @@ function pruferA() {
 
 export default {
   'ma2214-bars': bars,
+  'ma2214-ramsey': ramsey,
+  'ma2214-complement': complement,
+  'ma2214-selfcomp': selfcomp,
+  'ma2214-delcon': delcon,
   'ma2214-lattice': lattice,
   'ma2214-derange': derange,
   'ma2214-conv': conv,

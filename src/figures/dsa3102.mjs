@@ -101,6 +101,39 @@ function tangent() {
   return svg(560, 252, o, '左图 logistic loss 在 z 等于 0 处的 tangent 处处在 graph 下方；右图 quartic 在 x 等于 1 处的 tangent 在 x 等于 −5.44 处比 graph 高出 1173');
 }
 
+// ℓ1 ball 与 ℓ2 ball 碰到 feasible line x1 + 2x2 = 2
+function l1ball() {
+  const s = 82, ox = 150, oy = 196, sx = (x) => ox + s * x, sy = (y) => oy - s * y;
+  const a = [1, 2], b = 2;
+  const r2 = b / Math.hypot(...a), x2 = a.map((v) => (v * b) / (a[0] ** 2 + a[1] ** 2)); // ℓ2 solution
+  let o = line(sx(-1.6), sy(0), sx(2.5), sy(0), 'axis') + line(sx(0), sy(-1.15), sx(0), sy(1.95), 'axis');
+  o += text(sx(2.5), sy(0) + 16, 'x₁', 'ts', 'end') + text(sx(0) + 8, sy(1.95) + 10, 'x₂', 'ts');
+  for (const v of [-1, 1, 2]) o += line(sx(v), sy(0) - 3, sx(v), sy(0) + 3, 'axis') + text(sx(v), sy(0) + 16, v < 0 ? '−1' : String(v), 'ts', 'middle');
+  o += line(sx(0) - 3, sy(1), sx(0) + 3, sy(1), 'axis');
+  // 小一点的 ball：还没碰到 line
+  for (const r of [0.5]) {
+    o += poly([[r, 0], [0, r], [-r, 0], [0, -r]].map(([u, v]) => [sx(u), sy(v)]), 'grid');
+    o += circle(sx(0), sy(0), (s * r).toFixed(1), 'grid');
+  }
+  o += `<circle cx="${sx(0)}" cy="${sy(0)}" r="${(s * r2).toFixed(1)}" class="dash"/>`;
+  o += poly([[1, 0], [0, 1], [-1, 0], [0, -1]].map(([u, v]) => [sx(u), sy(v)]), 'ln');
+  // feasible line
+  const L = (x) => (b - a[0] * x) / a[1];
+  o += line(sx(-1.6), sy(L(-1.6)), sx(2.5), sy(L(2.5)), 'ink-b');
+  o += hl(sx(1.45), sy(L(1.45)) - 10, 'x₁ + 2x₂ = 2', 'tb');
+  o += circle(sx(0), sy(1), 5, 'ln-f') + circle(sx(x2[0]), sy(x2[1]), 4.5, 'ink-f');
+  o += text(sx(0) + 10, sy(1) - 12, 'ℓ₁：(0, 1)', 'tl');
+  o += line(sx(x2[0]) + 4, sy(x2[1]) - 4, sx(1.02), sy(0.93), 'mute');
+  o += text(sx(1.05), sy(0.9), `ℓ₂：(${x2[0].toFixed(1)}, ${x2[1].toFixed(1)})`, 'tb');
+  const tx = 360;
+  o += line(tx, 50, tx + 24, 50, 'ln') + text(tx + 32, 54, '‖x‖₁ = 1（菱形）', 't');
+  o += line(tx, 76, tx + 24, 76, 'dash') + text(tx + 32, 80, `‖x‖₂ = ${r2.toFixed(3)}（circle）`, 't');
+  o += line(tx, 102, tx + 24, 102, 'grid') + text(tx + 32, 106, '半径 0.5：还碰不到', 't');
+  o += text(tx, 146, '菱形先碰到 line 的是', 't') + text(tx, 166, 'vertex (0, 1)：x₁ = 0。', 't');
+  o += text(tx, 198, 'Circle 碰到的是切点', 't') + text(tx, 218, `(${x2[0].toFixed(1)}, ${x2[1].toFixed(1)})：两个 entry`, 't') + text(tx, 238, '都不为 0。', 't');
+  return svg(560, 300, o, '平面上的 line x1 + 2x2 = 2，ℓ1 norm 等于 1 的菱形在 vertex (0,1) 处碰到它，ℓ2 norm 等于 0.894 的 circle 在 (0.4, 0.8) 处与它相切');
+}
+
 // ---- 第 2 站 ----
 
 function subgrad() {
@@ -555,7 +588,64 @@ function gdpathA() {
   return svgA(560, 292, o, '动图：least squares 的 contour 上两条 gradient descent 的 path 一步一步走：step size 1/11 时第一步落到 valley 底再沿 valley 前进，0.17 时在 valley 两壁之间来回跳');
 }
 
+// 第 3 站：Newton method 就是对 f′ = tanh 求 root；两个起点
+function newtonA() {
+  const fp = Math.tanh, fpp = (x) => 1 / Math.cosh(x) ** 2;
+  let o = '';
+  const panel = (x0, X0, xr, id, title, note) => {
+    const W = 250, H = 200, top = 40, sx = lin(-xr, xr, x0, x0 + W), sy = lin(-1.15, 1.15, top + H, top);
+    o += `<clipPath id="${id}"><rect x="${x0}" y="${top}" width="${W}" height="${H}"/></clipPath>`;
+    o += rect(x0, top, W, H, 'frame') + text(x0 + W / 2, 28, title, 'tb', 'middle');
+    o += line(x0, sy(0), x0 + W, sy(0), 'axis') + line(sx(0), top, sx(0), top + H, 'axis');
+    o += path(curve(fp, -xr, xr, sx, sy), 'ink-b');
+    o += text(x0 + 6, sy(0.93), 'f′(x) = tanh x', 'ts');
+    // iterate
+    const xs = [X0];
+    for (let k = 0; k < 5; k++) xs.push(xs[k] - fp(xs[k]) / fpp(xs[k]));
+    // zigzag：(x_k, f′(x_k)) → (x_{k+1}, 0) → (x_{k+1}, f′(x_{k+1}))
+    const P = [[sx(xs[0]), sy(fp(xs[0]))]];
+    let shownK = 0;
+    for (let k = 0; k < 4; k++) {
+      if (Math.abs(xs[k + 1]) > xr * 1.02) break;
+      P.push([sx(xs[k + 1]), sy(0)], [sx(xs[k + 1]), sy(fp(xs[k + 1]))]);
+      shownK = k + 1;
+    }
+    let st = '';
+    for (let k = 0; k < shownK; k++) {
+      // 整条 tangent（淡）
+      const t = (x) => fp(xs[k]) + fpp(xs[k]) * (x - xs[k]);
+      st += path(clipped(t, -xr, xr, sx, sy, -1.15, 1.15), 'grid');
+      st += line(sx(xs[k + 1]), sy(0), sx(xs[k + 1]), sy(fp(xs[k + 1])), 'dash');
+    }
+    o += `<g clip-path="url(#${id})">${st}${path(d(P), 'mute')}</g>`;
+    const Wk = walk(P, { t0: 1.2, mv: 0.45, hold: 0.25, tail: 1.8 });
+    o += `<g clip-path="url(#${id})">${Wk.o}</g>`;
+    const used = { true: [sx(0)], false: [sx(0)] };
+    for (let k = 0; k <= shownK; k++) {
+      const X = sx(xs[k]);
+      o += circle(X, sy(0), 2.5, 'ink-f');
+      const up = fp(xs[k]) < 0, lab = `x${'₀₁₂₃₄₅'[k]}`, Y = sy(0) + (up ? -8 : 16);
+      const near = used[up].find((u) => Math.abs(u - X) < 16);
+      if (near === undefined) { used[up].push(X); o += text(X, Y, lab, 'ts', 'middle'); continue; }
+      if (Math.abs(near - sx(0)) < 1) continue;   // 挤在 0 附近的不标
+      o += X > near ? text(X + 7, Y, lab, 'ts') : text(X - 7, Y, lab, 'ts', 'end');
+    }
+    if (shownK < 4) {
+      const k = shownK + 1;
+      o += arrow(sx(xs[k - 1]), sy(0) + 26, xs[k] > 0 ? x0 + W - 4 : x0 + 4, sy(0) + 26, 'ln');
+      o += text(xs[k] > 0 ? x0 + W - 6 : x0 + 6, sy(0) + 44, `x${'₀₁₂₃₄₅'[k]} = ${xs[k].toFixed(2)}`, 'tl', xs[k] > 0 ? 'end' : 'start');
+    }
+    o += text(x0 + W / 2, top + H + 22, note(xs), 'ts', 'middle');
+  };
+  panel(20, 1, 1.3, 'dsa3102-nt-a', '从 x₀ = 1 出发：converge', (xs) => `x₁ = ${xs[1].toFixed(4)}，x₂ = ${xs[2].toFixed(4)}，x₃ = ${xs[3].toFixed(4)}`.replace(/-/g, '−'));
+  panel(290, 1.1, 2.0, 'dsa3102-nt-b', '从 x₀ = 1.1 出发：diverge', (xs) => `x₁ = ${xs[1].toFixed(4)}，x₂ = ${xs[2].toFixed(4)}，x₃ = ${xs[3].toFixed(4)}`.replace(/-/g, '−'));
+  o += text(280, 300, '灰线：在 xₖ 处 f′ 的 tangent；它与横轴的交点就是 xₖ₊₁。', 'ts', 'middle');
+  return svgA(560, 310, o, '动图：Newton method 求 tanh x 的 root。左边从 1 出发，tangent 与横轴的交点一次比一次靠近 0；右边从 1.1 出发，tangent 越来越平，交点越跳越远');
+}
+
 export default {
+  'dsa3102-l1': l1ball,
+  'dsa3102-newton': newtonA,
   'dsa3102-twosteps': twostepsA,
   'dsa3102-twomethods': twomethods,
   'dsa3102-kink': kink,

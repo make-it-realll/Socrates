@@ -20,6 +20,72 @@ const clipBox = ([cx, cy], [tx, ty], hw, hh, pad = 2) => {
 };
 const toward = ([x1, y1], [x2, y2], r) => { const L = Math.hypot(x2 - x1, y2 - y1); return [x1 + ((x2 - x1) * r) / L, y1 + ((y2 - y1) * r) / L]; };
 
+// ---------- 第 1 站：LRTA* 在一条走廊上 ----------
+// 7 个位置 x0..x6，goal 是 x6，每步 cost 1；h 是 admissible 的，但在 x3 有一个 local minimum。
+const LRTA = { h: [6, 5, 1, 0, 2, 1, 0], start: 3, goal: 6 };
+function lrtaRun() {
+  const { h, start, goal } = LRTA, n = h.length, H = {};
+  const nb = (x) => [x - 1, x + 1].filter((y) => y >= 0 && y < n);
+  const Hv = (y) => (y in H ? H[y] : h[y]);
+  const steps = []; let s = null, s1 = start;
+  while (s1 !== goal && steps.length < 30) {
+    if (!(s1 in H)) H[s1] = h[s1];
+    let upd = null;
+    if (s !== null) { const old = H[s]; const cs = nb(s).map((y) => [y, 1 + Hv(y)]); H[s] = Math.min(...cs.map((c) => c[1])); upd = { s, old, val: H[s], cs }; }
+    const cand = nb(s1).map((y) => [y, 1 + Hv(y)]);
+    const nx = cand.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
+    steps.push({ at: s1, upd, cand, next: nx, H: { ...H } });
+    s = s1; s1 = nx;
+  }
+  steps.push({ at: goal, upd: null, cand: null, next: null, H: { ...H } });
+  return steps;
+}
+function lrtaA() {
+  const { h } = LRTA, st = lrtaRun(), n = h.length;
+  const cw = 64, X0 = 76, CY = 92, ch = 54;
+  const cx = (i) => X0 + i * cw + cw / 2;
+  const nF = st.length + 1; // 帧 0：总结；帧 1..：每一步
+  const durs = [4.2, ...st.map(() => 2.8)], { kt, T } = frames(durs);
+  let o = text(16, 26, '初始 h', 'ts') + text(16, CY + 34, '当前 H', 'ts');
+  for (let i = 0; i < n; i++) {
+    o += rect(X0 + i * cw, CY, cw, ch, i === LRTA.goal ? 'wash' : 'paper') + text(cx(i), 26, String(h[i]), 'ts', 'middle') + text(cx(i), CY + ch + 18, 'x' + i, 'ts', 'middle');
+  }
+  o += text(cx(LRTA.goal), CY - 8, 'goal', 'tl', 'middle');
+  const path = st.map((s) => s.at);
+  const msg = (k) => {
+    const s = st[k];
+    if (!s.cand) return [`走到 x${s.at}：goal test 成功，停止，不再更新 H(x${st[k - 1].at})。`, ''];
+    const L1 = s.upd ? `从 x${s.upd.s} 走到 x${s.at}：更新 H(x${s.upd.s}) = min(${s.upd.cs.map((c) => `1 + ${c[1] - 1}`).join(', ')}) = ${s.upd.val}` + (s.upd.val !== s.upd.old ? `（原来 ${s.upd.old}）` : '（不变）') : `从 x${s.at} 出发，H(x${s.at}) = h(x${s.at}) = ${h[s.at]}，没有上一步可以更新。`;
+    const L2 = s.cand ? `在 x${s.at} 比较：${s.cand.map((c) => `去 x${c[0]} 是 ${c[1]}`).join('，')}，走向 x${s.next}。` : '到达 goal，停止。';
+    return [L1, L2];
+  };
+  for (let f = 0; f < nF; f++) {
+    let g = '';
+    const k = f === 0 ? st.length - 1 : f - 1, s = st[k];
+    for (let i = 0; i < n; i++) {
+      if (i === LRTA.goal) { g += text(cx(i), CY + 36, '0', 'tb', 'middle'); continue; }
+      const known = i in s.H, changed = known && s.H[i] !== h[i];
+      g += text(cx(i), CY + 36, String(known ? s.H[i] : h[i]), changed ? 'tl' : known ? 'tb' : 'ts', 'middle');
+    }
+    if (f === 0) {
+      // 走过的路线画在下面
+      let y = 196; const segs = path.slice(0, -1).map((a, j) => [a, path[j + 1]]);
+      segs.forEach(([a, b], j) => { const yy = y + j * 15; g += arrow(cx(a), yy, cx(b) + (b > a ? -8 : 8), yy, 'ink', 6) + circle(cx(a), yy, 3, 'ink-f'); });
+      g += text(16, y + 4, '路线', 'ts');
+      g += text(16, 296, `一共 ${segs.length} 步：x3 是 local minimum，H 被一步步抬高，直到往右看起来更便宜。`, 't');
+      g += text(16, 315, '彩色数字 = 被 LRTA* 改过的 H；黑色 = 到过但没变；浅色 = 还没到过，用初始 h。', 'ts');
+    } else {
+      g += circle(cx(s.at), CY + 14, 9, 'solid');
+      if (s.upd) g += rect(X0 + s.upd.s * cw + 3, CY + 3, cw - 6, ch - 6, 'ln', 4);
+      const [l1, l2] = msg(k);
+      g += text(16, 214, k === 0 ? '开始' : `第 ${k} 步`, 'tb') + text(16, 240, l1, 't') + text(16, 262, l2, 't');
+      g += text(16, 315, '圆点 = agent 现在的位置；粗框 = 刚被更新的 H。', 'ts');
+    }
+    o += grp(g, Array.from({ length: nF }, (_, j) => j === f), kt, T);
+  }
+  return svgA(560, 322, o, '动图：LRTA* 在 7 个位置的走廊上从 x3 出发，h 在 x3 是 0 形成 local minimum；agent 先往左到 x2，再回 x3，每次离开一个位置就把它的 H 改成一步 cost 加邻居的 H，x3 的 H 从 0 升到 3 后，agent 一路向右走到 x6');
+}
+
 // ---------- 第 1 站：grid world 和满足 KB 的 3 个 model ----------
 function wumpus() {
   const c = 62, X0 = 22, Y0 = 46;
@@ -308,8 +374,122 @@ function triples() {
       o += text(x0 + 88, y + 34, lines[0], act ? 'tl' : 'tb', 'middle') + text(x0 + 88, y + 52, lines[1], 'ts', 'middle') + text(x0 + 88, y + 68, lines[2], 'ts', 'middle');
     });
   });
-  o += text(280, 296, '虚线弧 = 这条 path 让两端 dependent（active）；没有弧 = blocked。数字都在第 4 站的 alarm network 上算出。', 'ts', 'middle');
+  o += text(280, 296, '虚线弧 = 这条 path 让两端 dependent（active）；没有弧 = blocked。数字都在这一站的 alarm network 上算出。', 'ts', 'middle');
   return svg(560, 302, o, '三种 triple：causal chain 和 common cause 在中间的 A 未观测时 active、观测后 blocked；common effect 正好相反，A 未观测时 blocked，观测后 active，即 explaining away');
+}
+
+// ---------- 第 7 站：从 data 学 CPT，atomic model 与 Bayesian network 对比 ----------
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const pv = (v, q) => (v ? q : 1 - q);
+const trueP = ([b, e, a, j, m]) => pv(b, BN.PB) * pv(e, BN.PE) * pv(a, BN.PA[`${b}${e}`]) * pv(j, BN.PJ[a]) * pv(m, BN.PM[a]);
+// 和正文一样：seed 3，50 个 training、50 个 test sample，pseudo-count 0.1
+function learnExperiment(seed = 3, n = 50, alpha = 0.1) {
+  const r = mulberry32(seed);
+  const draw = () => { const b = +(r() < BN.PB), e = +(r() < BN.PE), a = +(r() < BN.PA[`${b}${e}`]), j = +(r() < BN.PJ[a]), m = +(r() < BN.PM[a]); return [b, e, a, j, m]; };
+  const tr = Array.from({ length: n }, draw), te = Array.from({ length: n }, draw);
+  const key = (x) => x.join('');
+  const cnt = {}; for (const x of tr) cnt[key(x)] = (cnt[key(x)] || 0) + 1;
+  const atom = (x) => ((cnt[key(x)] || 0) + alpha) / (n + 32 * alpha);
+  const c = (f) => tr.filter(f).length, est = (num, den) => (num + alpha) / (den + 2 * alpha);
+  const q = { B: est(c((x) => x[0]), n), E: est(c((x) => x[1]), n), A: {}, J: [0, 1].map((a) => est(c((x) => x[2] === a && x[3]), c((x) => x[2] === a))), M: [0, 1].map((a) => est(c((x) => x[2] === a && x[4]), c((x) => x[2] === a))) };
+  for (const b of [0, 1]) for (const e of [0, 1]) q.A[`${b}${e}`] = est(c((x) => x[0] === b && x[1] === e && x[2]), c((x) => x[0] === b && x[1] === e));
+  const bnP = ([b, e, a, j, m]) => pv(b, q.B) * pv(e, q.E) * pv(a, q.A[`${b}${e}`]) * pv(j, q.J[a]) * pv(m, q.M[a]);
+  const rows = {}; for (const x of te) rows[key(x)] = (rows[key(x)] || 0) + 1;
+  const models = [['atomic', atom], ['Bayes net（学出来的）', bnP], ['真实的 network', trueP]];
+  const per = models.map(([name, f]) => ({ name, row: Object.fromEntries(Object.keys(rows).map((k) => [k, -Math.log2(f(k.split('').map(Number)))])) }));
+  per.forEach((p) => { p.total = Object.entries(rows).reduce((s, [k, m]) => s + m * p.row[k], 0); });
+  return { cnt, rows, per, q };
+}
+function learnBits() {
+  const { cnt, rows, per } = learnExperiment();
+  const names = { '00000': '全 F', '00010': '只有 J', '00011': 'J 和 M', '00001': '只有 M' };
+  let o = text(16, 22, 'training data（50 行）', 'tb') + text(300, 22, 'test data（50 行）', 'tb');
+  Object.entries(cnt).sort((a, b) => b[1] - a[1]).forEach(([k, m], i) => { o += text(16, 46 + i * 18, `${k}（${names[k]}）× ${m}`, 't'); });
+  Object.entries(rows).sort((a, b) => b[1] - a[1]).forEach(([k, m], i) => { o += text(300, 46 + i * 18, `${k}（${names[k]}）× ${m}`, (cnt[k] ? 't' : 'tl')); });
+  o += text(300, 46 + 3 * 18, '彩色 = training 里从没出现过', 'ts');
+  o += text(16, 118, '变量顺序 B E A J M，1 = true', 'ts');
+  const sx = lin(0, 26, 150, 540), y0 = 150, bh = 26, gap = 46;
+  o += text(16, y0 - 8, 'test data 的 −log₂ likelihood（bits，越小越好）', 'tb');
+  per.forEach((p, i) => {
+    const y = y0 + 10 + i * gap, rare = p.row['00001'] || 0, rest = p.total - rare;
+    o += text(140, y + 18, p.name, 't', 'end');
+    o += rect(sx(0), y, sx(rest) - sx(0), bh, 'wash') + rect(sx(rest), y, sx(p.total) - sx(rest), bh, 'solid');
+    o += text(sx(p.total) + 6, y + 18, p.total.toFixed(1), 'tb');
+    o += text(sx(rest) + (sx(p.total) - sx(rest)) / 2, y + 18, rare.toFixed(1), 'tw', 'middle');
+  });
+  o += text(16, y0 + 10 + 3 * gap + 6, '深色段 = “只有 M” 那一行一个人贡献的 bits；atomic model 没见过它，只能给 pseudo-count。', 'ts');
+  return svg(560, y0 + 3 * gap + 26, o, '左上是 50 行 training data 的计数，右上是 test data；下面三根横条是三个 model 在 test data 上的负 log likelihood，atomic 最长，学出来的 Bayesian network 次之，真实 network 最短；深色段是 training 里没出现过的那一行的代价');
+}
+
+// ---------- 第 8 站：observe 与 do ----------
+function seeDo() {
+  const r = 20;
+  const draw = (ox, cut) => {
+    const N = { B: [ox + 50, 70], E: [ox + 200, 70], A: [ox + 125, 150], J: [ox + 60, 235], M: [ox + 190, 235] };
+    let g = '';
+    for (const [a, b] of [['B', 'A'], ['E', 'A'], ['A', 'J'], ['A', 'M']]) {
+      const into = b === 'A';
+      if (into && cut) g += line(...toward(N[a], N[b], r), ...toward(N[b], N[a], r + 10), 'dash') + text((N[a][0] + N[b][0]) / 2 + (a === 'B' ? -14 : 14), (N[a][1] + N[b][1]) / 2, '✕', 'tl', 'middle');
+      else g += arrow(...toward(N[a], N[b], r), ...toward(N[b], N[a], r + 1), 'ink');
+    }
+    for (const [n, [x, y]] of Object.entries(N)) g += circle(x, y, r, n === 'A' ? 'solid2' : 'paper') + text(x, y + 5, n === 'A' ? '+a' : n, n === 'A' ? 'tw' : 'tb', 'middle');
+    return g;
+  };
+  let o = text(140, 22, 'observe：看到 alarm 响了', 'tb', 'middle') + text(420, 22, 'intervene：do(A = +a)', 'tb', 'middle');
+  o += draw(15, false) + draw(295, true);
+  o += line(280, 40, 280, 290, 'grid');
+  const f = (v, k) => v.toFixed(k);
+  o += text(140, 290, `P(+b | +a) = ${f(alarmP({ a: 1 }, { b: 1 }), 3)}`, 'tl', 'middle') + text(140, 310, `P(+j | +a) = ${f(alarmP({ a: 1 }, { j: 1 }), 2)}`, 't', 'middle');
+  o += text(420, 290, `P(+b | do(+a)) = P(+b) = ${BN.PB}`, 'tl', 'middle') + text(420, 310, `P(+j | do(+a)) = P(+j | +a) = ${f(BN.PJ[1], 2)}`, 't', 'middle');
+  o += text(420, 50, '指向 A 的 edge 被切断', 'ts', 'middle');
+  return svg(560, 320, o, '左边是 alarm network，观测到 alarm 响，burglary 的 probability 升到 0.374；右边是人为把 alarm 设成响，指向 A 的两条 edge 被切断，burglary 的 probability 仍是 prior 0.001，而 JohnCalls 的 probability 和观测时一样是 0.90');
+}
+
+// ---------- 第 8 站：Magical Garden 的 causal network ----------
+const GARDEN = {
+  N: { E: [120, 60], C: [120, 170], G: [120, 280], F: [290, 280], A: [290, 140], B: [425, 210], D: [505, 90], H: [505, 290] },
+  lab: { E: 'l', C: 'l', G: 'l', F: 'b', A: 't', B: 'b', D: 'r', H: 'b' },
+  name: { A: 'Apple', B: 'Butterfly', C: 'Caterpillar', D: 'Dew', E: 'Elf', F: 'Flowers', G: 'Glow', H: 'Honey' },
+  E: [['B', 'A'], ['C', 'A'], ['E', 'A'], ['F', 'A'], ['D', 'B'], ['F', 'B'], ['H', 'B'], ['E', 'C'], ['H', 'D'], ['G', 'F'], ['C', 'G']],
+};
+function gardenA() {
+  const { N, name, E } = GARDEN, r = 19;
+  const par = (v) => E.filter(([, b]) => b === v).map(([a]) => a), chd = (v) => E.filter(([a]) => a === v).map(([, b]) => b);
+  const mb = new Set([...par('B'), ...chd('B'), ...chd('B').flatMap(par)].filter((v) => v !== 'B'));
+  // B 到 A 的 backdoor path（第一步是指进 B 的 edge），用 DFS 找出来
+  const adj = (v) => [...par(v), ...chd(v)];
+  const all = []; const dfs = (p) => { const u = p[p.length - 1]; if (u === 'A') { all.push(p.slice()); return; } for (const w of adj(u)) if (!p.includes(w)) { p.push(w); dfs(p); p.pop(); } };
+  dfs(['B']);
+  const bd = all.filter((p) => par('B').includes(p[1])).sort((a, b) => a.length - b.length);
+  const frs = [{ kind: 'mb' }, ...bd.map((p) => ({ kind: 'path', p })), { kind: 'block' }];
+  const durs = frs.map((f) => (f.kind === 'mb' ? 4.4 : 3.0)), { kt, T } = frames(durs), nF = frs.length;
+  const edge = (a, b, cls) => arrow(...toward(N[a], N[b], r), ...toward(N[b], N[a], r + 1), cls, 7);
+  let o = '';
+  for (const [a, b] of E) o += edge(a, b, 'mute');
+  frs.forEach((fr, f) => {
+    let g = '';
+    const on = (fr.kind === 'path' || fr.kind === 'block') ? null : mb;
+    if (fr.kind === 'path') for (let i = 0; i + 1 < fr.p.length; i++) { const [a, b] = fr.p.slice(i, i + 2); const [u, v] = E.some(([x, y]) => x === a && y === b) ? [a, b] : [b, a]; g += edge(u, v, 'ln'); }
+    if (fr.kind === 'block') for (const p of bd) for (let i = 0; i + 1 < p.length; i++) { const [a, b] = p.slice(i, i + 2); const [u, v] = E.some(([x, y]) => x === a && y === b) ? [a, b] : [b, a]; g += edge(u, v, 'ln-dash'); }
+    for (const [n, [x, y]] of Object.entries(N)) {
+      let cls = 'paper', tc = 'tb';
+      if (n === 'B') { cls = 'solid'; tc = 'tw'; }
+      else if (on && on.has(n)) { cls = 'wash-strong'; }
+      if ((fr.kind === 'block' || fr.kind === 'path') && n === 'F') { cls = 'solid2'; tc = 'tw'; }
+      g += circle(x, y, r, cls) + text(x, y + 5, n, tc, 'middle');
+    }
+    const msgs = fr.kind === 'mb'
+      ? [`Markov blanket of B = parents {D, F, H} + child {A} + A 的其他 parents {C, E, F}`, `= {${[...mb].sort().join(', ')}}（浅色）。只有 G 在外面。`]
+      : fr.kind === 'path' ? [`backdoor path：${fr.p.map((v, i) => (i === 0 ? v : (E.some(([x, y]) => x === fr.p[i - 1] && y === v) ? ' → ' : ' ← ') + v)).join('')}`, 'F 在这条 path 上不是 collider：conditioning on F 就挡住它。']
+        : [`${bd.length} 条 backdoor path 都经过 F，F 在每条上都不是 collider，`, '也不是 B 的 descendant，所以 {F} 满足 backdoor criterion。'];
+    g += text(16, 338, msgs[0], 't') + text(16, 358, msgs[1], 't');
+    o += grp(g, Array.from({ length: nF }, (_, j) => j === f), kt, T);
+  });
+  for (const [n, [x, y]] of Object.entries(N)) {
+    const p = GARDEN.lab[n];
+    o += p === 'l' ? text(x - r - 6, y + 5, name[n], 'ts', 'end') : p === 'r' ? text(x + r + 6, y + 5, name[n], 'ts') : p === 't' ? text(x, y - r - 7, name[n], 'ts', 'middle') : text(x, y + r + 15, name[n], 'ts', 'middle');
+  }
+  return svgA(560, 366, o, '动图：Magical Garden 的 causal network，八个 node A 到 H。第一帧标出 Butterfly 的 Markov blanket，是除 Glow 以外的六个 node；之后逐条标出从 B 到 A 的三条 backdoor path，它们都经过 Flowers，conditioning on F 就全部挡住');
 }
 
 // ---------- 第 5 站：variable elimination 一步步走 ----------
@@ -530,6 +710,10 @@ function morra() {
 }
 
 export default {
+  'cs3263-lrta': lrtaA,
+  'cs3263-learn': learnBits,
+  'cs3263-seedo': seeDo,
+  'cs3263-garden': gardenA,
   'cs3263-wumpus': wumpus,
   'cs3263-resolution': resolutionA,
   'cs3263-fc': fcA,

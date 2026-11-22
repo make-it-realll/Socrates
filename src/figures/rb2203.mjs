@@ -564,7 +564,141 @@ function contact() {
   return svg(560, 278, o, '1 DOF 的 end-effector 从桌面上方 50 mm 出发，virtual spring 的 x_d 设在桌面下 25 mm；稳态压力 9.8 N');
 }
 
+// ---------- 第 2 站：Ziegler–Nichols 的两个实验，plant 1/(s+1)^3 ----------
+function zn() {
+  // y''' + 3y'' + 3y' + y = u，RK4
+  const run = (uFn, T, dt = 1e-3) => {
+    let s = [0, 0, 0]; const out = [];
+    const f = (t, s) => { const u = uFn(t, s[0]); return [s[1], s[2], u - 3 * s[2] - 3 * s[1] - s[0]]; };
+    for (let k = 0; k * dt <= T + 1e-9; k++) {
+      const t = k * dt; out.push([t, s[0]]);
+      const k1 = f(t, s), k2 = f(t + dt / 2, add(s, k1, dt / 2)), k3 = f(t + dt / 2, add(s, k2, dt / 2)), k4 = f(t + dt, add(s, k3, dt));
+      s = s.map((v, i) => v + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
+    }
+    return out;
+  };
+  let o = '';
+  // 左：open loop step response 与切线
+  const ys = (t) => 1 - Math.exp(-t) * (1 + t + t * t / 2), slope = 2 * Math.exp(-2), y2 = ys(2);
+  const L = 2 - y2 / slope, a = slope * 2 - y2;
+  const sx = lin(0, 8, 50, 255), sy = lin(-0.3, 1.1, 215, 40);
+  o += text(150, 20, 'step response method', 'tb', 'middle');
+  o += axes({ sx, sy, x0: 0, x1: 8, y0: -0.3, y1: 1.1, xt: [0, 2, 4, 6, 8], yt: [[0, '0'], [0.5, '0.5'], [1, '1']], xl: 't', grid: true });
+  o += line(sx(0), sy(0), sx(8), sy(0), 'axis') + line(sx(0), sy(1), sx(8), sy(1), 'dash');
+  const tEnd = 2 + (1.05 - y2) / slope;
+  o += line(sx(0), sy(-a), sx(tEnd), sy(1.05), 'ln-dash');
+  o += path(curve(ys, 0, 8, sx, sy), 'ln');
+  o += circle(sx(2), sy(y2), 3.5, 'ink-f') + text(sx(2) + 8, sy(y2) + 14, '最陡处 t = 2', 'ts');
+  o += circle(sx(L), sy(0), 3.5, 'ink-f') + text(sx(L) + 7, sy(0) + 15, 'L = ' + L.toFixed(3), 'ts');
+  o += circle(sx(0), sy(-a), 3.5, 'ink-f') + text(sx(0) + 8, sy(-a) + 4, '−a = −' + a.toFixed(3), 'ts');
+  o += text(sx(8), sy(1) - 7, 'final value 1', 'ts', 'end');
+  // 右：closed loop，P，K = Ku = 8
+  const Ku = 8, r = run((t, y) => Ku * (1 - y), 14);
+  const sx2 = lin(0, 14, 330, 545), sy2 = lin(0, 1.9, 215, 40);
+  o += text(437, 20, 'frequency response method', 'tb', 'middle');
+  o += axes({ sx: sx2, sy: sy2, x0: 0, x1: 14, y0: 0, y1: 1.9, xt: [0, 4, 8, 12], yt: [[0, '0'], [0.5, '0.5'], [1, '1'], [1.5, '1.5']], xl: 't', grid: true });
+  o += path(d(r.filter((_, i) => i % 20 === 0).map(([t, y]) => [sx2(t), sy2(y)])), 'ln');
+  const pk = r.filter((z, i) => i > 0 && i < r.length - 1 && z[1] > r[i - 1][1] && z[1] >= r[i + 1][1]);
+  const [p1, p2] = [pk[1], pk[2]], yA = Math.max(p1[1], p2[1]) + 0.12;
+  o += line(sx2(p1[0]), sy2(p1[1]), sx2(p1[0]), sy2(yA), 'mute') + line(sx2(p2[0]), sy2(p2[1]), sx2(p2[0]), sy2(yA), 'mute');
+  o += arrow(sx2((p1[0] + p2[0]) / 2), sy2(yA), sx2(p2[0]), sy2(yA), 'ink', 5) + arrow(sx2((p1[0] + p2[0]) / 2), sy2(yA), sx2(p1[0]), sy2(yA), 'ink', 5);
+  o += text(sx2((p1[0] + p2[0]) / 2), sy2(yA) - 7, 'Tᵤ = ' + (p2[0] - p1[0]).toFixed(2), 'ts', 'middle');
+  o += text(437, 252, 'P only，gain = Kᵤ = 8：amplitude 不变', 'ts', 'middle');
+  o += text(150, 252, '切线 = 积分器 + delay L', 'ts', 'middle');
+  return svg(560, 262, o, '左：1/(s+1)^3 的 open loop step response，在 t=2 的最陡处画切线，切线与 time axis 交于 L=0.805，与纵轴交于 -a=-0.218。右：只用 P、gain 为 8 时 closed loop 等幅振荡，相邻两个 peak 相隔 Tu=3.63');
+}
+
+// ---------- 第 2 站：velocity loop 套 position loop ----------
+function cascade() {
+  let o = '';
+  const y = 92;
+  const box = (x0, x1, s1, s2) => rect(x0, y - 20, x1 - x0, 40, 'paper', 4) + text((x0 + x1) / 2, y + (s2 ? -3 : 5), s1, 't', 'middle') + (s2 ? text((x0 + x1) / 2, y + 13, s2, 'ts', 'middle') : '');
+  const sum = (x, signs) => { let q = circle(x, y, 8, 'paper'); for (const [dx, dy, s0] of signs) q += text(x + dx, y + dy, s0, 'ts', 'middle'); return q; };
+  o += text(8, y - 8, 'θ' + sub('d'), 't') + arrow(8, y, 39, y, 'ink', 6);
+  o += sum(47, [[-14, -8, '+'], [-11, 22, '−']]);
+  o += arrow(55, y, 74, y, 'ink', 6) + box(74, 118, 'K' + sub('p'), '4000');
+  o += arrow(118, y, 139, y, 'ink', 6) + sum(147, [[-13, -8, '+'], [10, -12, '+']]);
+  o += arrow(147, 40, 147, y - 8, 'ink', 6) + text(147, 34, 'feedforward：G × dθ' + sub('d') + '/dt', 'ts', 'middle');
+  o += arrow(155, y, 185, y, 'ink', 6) + text(169, y + 18, 'ω*', 'ts', 'middle');
+  o += sum(193, [[-13, -8, '+'], [-11, 22, '−']]);
+  o += arrow(201, y, 216, y, 'ink', 6) + box(216, 262, 'K' + sub('m') + 'K' + sub('v'), '0.137');
+  o += arrow(262, y, 275, y, 'ink', 6) + box(275, 318, 'limit', '±0.9');
+  o += arrow(318, y, 335, y, 'ink', 6) + sum(343, [[-13, -8, '+'], [10, -12, '−']]);
+  o += arrow(343, 40, 343, y - 8, 'ink', 6) + text(343, 34, 'τ' + sub('d') + '（load）', 'ts', 'middle');
+  o += arrow(351, y, 366, y, 'ink', 6) + box(366, 432, '1/(Js + B)', 'motor');
+  o += line(432, y, 462, y, 'ink') + circle(450, y, 2.5, 'ink-f') + text(447, y - 8, 'ω' + sub('m'), 'ts', 'middle');
+  o += arrow(462, y, 463, y, 'ink', 6) + box(463, 520, '1/(G s)', 'gear');
+  o += arrow(520, y, 552, y, 'ink', 6) + text(546, y - 8, 'θ', 't', 'end') + circle(532, y, 2.5, 'ink-f');
+  // inner feedback
+  o += line(450, y, 450, y + 48, 'ink') + line(450, y + 48, 193, y + 48, 'ink') + arrow(193, y + 48, 193, y + 8, 'ink', 6);
+  o += text(321, y + 64, '里层：pole −237 rad/s', 'tl', 'middle');
+  // outer feedback
+  o += line(532, y, 532, y + 92, 'ink') + line(532, y + 92, 47, y + 92, 'ink') + arrow(47, y + 92, 47, y + 8, 'ink', 6);
+  o += text(290, y + 108, '外层：理想里层时 −K' + sub('p') + '/G = −37.1，合起来是 −45.7 与 −191.6', 'tl', 'middle');
+  return svg(560, 212, o, 'Cascade 结构的 block diagram：外层 Kp 把 angle error 换成 speed command，可加 G 乘 reference velocity 的 feedforward；里层 KmKv 把 speed error 换成 torque，经过 0.9 N·m 的 limit 和 load torque，驱动 motor 1/(Js+B)，再经 gear 积分成 link angle');
+}
+
+// ---------- 第 8 站：停到一个 pose ----------
+function pose() {
+  const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const sim = (law, x0, T = 25, dt = 1e-3) => {
+    let [x, y, th] = x0; const out = [];
+    for (let i = 0; i * dt <= T + 1e-9; i++) {
+      const rho = Math.hypot(x, y), phi = Math.atan2(-y, -x);
+      const v = 0.3 * rho, w = law === 'point' ? 1.0 * wrap(phi - th) : 1.0 * wrap(phi - th) - 0.4 * wrap(-phi);
+      if (i % 100 === 0) out.push([i * dt, x, y, th]);
+      x += v * Math.cos(th) * dt; y += v * Math.sin(th) * dt; th += w * dt;
+    }
+    return out;
+  };
+  const car = (X, Y, th, k = 0.85) => { const c = Math.cos(th), s = Math.sin(th);
+    return d([[11, 0], [5, 6], [-9, 6], [-9, -6], [5, -6]].map(([bx, by]) => [X + k * (bx * c - by * s), Y - k * (bx * s + by * c)])) + 'Z'; };
+  let o = '';
+  // 左：几何
+  const S = 150, gx = 220, gy = 178, X = (x) => gx + S * x, Y = (y) => gy - S * y;
+  const rp = [-0.85, 0.5], rth = 20 * Math.PI / 180, phi = Math.atan2(-rp[1], -rp[0]), al = phi - rth;
+  const arcP = (cx, cy, r, a0, a1) => { const p = []; for (let i = 0; i <= 24; i++) { const a = a0 + (a1 - a0) * i / 24; p.push([cx + r * Math.cos(a), cy - r * Math.sin(a)]); } return path(d(p), 'mute'); };
+  o += text(125, 20, 'ρ、α、β 的定义', 'tb', 'middle');
+  o += line(X(-1.0), Y(0), X(0.2), Y(0), 'grid');
+  o += line(X(rp[0]), Y(rp[1]), X(0), Y(0), 'dash');
+  o += line(X(rp[0]), Y(rp[1]), X(rp[0]) + 70 * Math.cos(rth), Y(rp[1]) - 70 * Math.sin(rth), 'mute') + text(X(rp[0]) + 74 * Math.cos(rth), Y(rp[1]) - 74 * Math.sin(rth) - 4, 'heading θ', 'ts');
+  o += line(X(rp[0]), Y(rp[1]), X(rp[0]) + 60, Y(rp[1]), 'grid');
+  o += path(car(X(rp[0]), Y(rp[1]), rth, 1.1), 'wash-strong');
+  o += arcP(X(rp[0]), Y(rp[1]), 44, phi, rth) + text(X(rp[0]) + 50 * Math.cos((phi + rth) / 2) + 4, Y(rp[1]) - 50 * Math.sin((phi + rth) / 2) + 4, 'α', 'tl');
+  o += arcP(X(rp[0]), Y(rp[1]), 28, phi, 0) + text(X(rp[0]) + 34, Y(rp[1]) + 17, 'φ', 'ts');
+  o += text((X(rp[0]) + X(0)) / 2 - 2, (Y(rp[1]) + Y(0)) / 2 + 18, 'ρ', 'tl', 'middle');
+  o += arcP(X(0), Y(0), 30, phi, 0) + text(X(0) + 34, Y(0) + 14, 'β = −φ', 'ts');
+  o += circle(X(0), Y(0), 4, 'ink-f') + arrow(X(0), Y(0), X(0) + 36, Y(0), 'ln', 6) + text(X(0) - 8, Y(0) + 18, '目标', 'ts', 'end');
+  o += text(125, 220, 'α = φ − θ：目标偏在车头左边多少', 'ts', 'middle') + text(125, 238, 'ρ、α、β 都为 0 时 θ = −α − β = 0', 'ts', 'middle');
+  // 右：两个起点，左右并排；目标都在各自 panel 的 origin
+  const S2 = 118, pre = 0.6, fast = 4, Tsim = 25, post = 1.6, T = pre + Tsim / fast + post;
+  const panels = [[[-1, 0.6, 0], 414, 117, 358, '起点 (−1, 0.6)，0°', 145], [[0.2, -1, Math.PI / 2], 484, 52, 497, '起点 (0.2, −1)，90°', 198]];
+  let anims = '';
+  for (const [x0, gx2, gy2, tx, title, ly] of panels) {
+    const Xr = (x) => gx2 + S2 * x, Yr = (y) => gy2 - S2 * y;
+    o += text(tx, 22, title, 'tb', 'middle');
+    const runs = [[sim('point', x0), 'mute', 'paper'], [sim('pose', x0), 'ln', 'wash-strong']];
+    for (const [r, cls] of runs) o += path(d(r.map((z) => [Xr(z[1]), Yr(z[2])])), cls);
+    o += circle(Xr(0), Yr(0), 3.5, 'ink-f') + arrow(Xr(0), Yr(0), Xr(0) + 26, Yr(0), 'ln', 5);
+    for (const [r, , ccls] of runs) {
+      const fr = r.filter((_, k) => k % 3 === 0 || k === r.length - 1);
+      const kt = [0, ...fr.map((z) => (pre + z[0] / fast) / T), 1], Z = [fr[0], ...fr, fr[fr.length - 1]];
+      anims += apath(Z.map((z) => car(Xr(z[1]), Yr(z[2]), z[3])), kt, T, ccls);
+    }
+    const pf = runs[0][0][runs[0][0].length - 1][3], deg0 = Math.round(wrap(pf) * 180 / Math.PI);
+    o += text(tx, ly, '灰车停在 ' + String(deg0).replace('-', '−') + '°，彩车 0°', 'ts', 'middle');
+  }
+  o += anims;
+  o += line(300, 196, 326, 196, 'mute') + text(332, 200, '开到一个点', 'ts');
+  o += line(300, 216, 326, 216, 'ln') + text(332, 220, 'polar coordinates law', 'ts');
+  o += text(300, 244, '两辆车同时出发，4 倍速', 'ts');
+  return svgA(560, 252, o, '动图。左：polar coordinates 的定义，ρ 是车到目标的距离，α 是车头方向与指向目标方向之差，β 是负的 φ。右：两个起点，两辆车同时出发，按 4 倍速播放；开到一个点的 controller 到达时车头朝向随起点而定，polar coordinates 的 law 到达时车头朝 +x');
+}
+
 export default {
+  'rb2203-zn': zn,
+  'rb2203-cascade': cascade,
+  'rb2203-pose': pose,
   'rb2203-three': three,
   'rb2203-jointj': jointj,
   'rb2203-samplede': samplede,
