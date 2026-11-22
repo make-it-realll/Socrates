@@ -1,4 +1,4 @@
-import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, axes, anim, ashow, f1 } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, curve, area, axes, anim, ashow, f1, sub } from '../lib/svg.mjs';
 
 const R = Math.PI / 180;
 const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -242,6 +242,61 @@ function pfA() {
   return svgA(560, 312, o, `动图：100 个 particle 在 10 米的 corridor 上，t 等于 0 时散布各处，随后逐步聚到 robot 的真实位置附近；t 等于 8 时 resample 后有 ${fr[8].near} 个在真实位置正负 0.5 米内`);
 }
 
+// ---------- 第 3 站：beam model 的四个成分（z* = 6 m，z_max = 30 m，σ = 0.2，λ = 0.5，weight 0.75/0.1/0.05/0.1） ----------
+const BM = { zs: 6, zmax: 30, sig: 0.2, lam: 0.5, a: [0.75, 0.1, 0.05, 0.1] };
+const erf = (x) => { // Abramowitz–Stegun 7.1.26，误差 < 1.5e-7
+  const t = 1 / (1 + 0.3275911 * Math.abs(x)), y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return x >= 0 ? y : -y;
+};
+const Phi = (x) => 0.5 * (1 + erf(x / Math.SQRT2));
+function beamParts(z) {
+  const { zs, zmax, sig, lam, a } = BM;
+  const etaH = 1 / (Phi((zmax - zs) / sig) - Phi((0 - zs) / sig)), etaS = 1 / (1 - Math.exp(-lam * zs));
+  const hit = a[0] * etaH * Math.exp(-((z - zs) ** 2) / (2 * sig * sig)) / (sig * Math.sqrt(2 * Math.PI));
+  const short = z <= zs ? a[1] * etaS * lam * Math.exp(-lam * z) : 0;
+  const rand = a[3] / zmax;
+  return { hit, short, rand, total: hit + short + rand };
+}
+function beam() {
+  const sx = lin(0, 10, 60, 540);
+  let o = '';
+  const rows = [36, 76, 116];
+  const robot = (y) => circle(sx(0) - 13, y, 9, 'paper') + line(sx(0) - 13, y, sx(0) - 4, y, 'ink-b');
+  const wall = (y, cls) => rect(sx(BM.zs), y - 13, 8, 26, cls);
+  // hit：打到 wall
+  o += robot(rows[0]) + wall(rows[0], 'solid2') + arrow(sx(0), rows[0], sx(BM.zs) - 1, rows[0], 'ln', 7);
+  o += text(sx(BM.zs) + 18, rows[0] + 4, `hit：读到 ${BM.zs} m 附近`, 'ts');
+  // short：被人挡住
+  const px = sx(3);
+  o += robot(rows[1]) + wall(rows[1], 'wash2') + circle(px, rows[1] - 10, 4.5, 'solid2') + rect(px - 4, rows[1] - 4, 8, 17, 'solid2', 2);
+  o += arrow(sx(0), rows[1], px - 6, rows[1], 'ln', 7);
+  o += text(sx(BM.zs) + 18, rows[1] + 4, 'short：人挡在前面，读到 3 m', 'ts');
+  // max：玻璃，没有回波
+  o += robot(rows[2]) + wall(rows[2], 'dash') + arrow(sx(0), rows[2], sx(10), rows[2], 'ln-dash', 7);
+  o += text(sx(BM.zs) + 18, rows[2] - 7, 'max：穿过玻璃，没有反射', 'ts') + text(sx(BM.zs) + 18, rows[2] + 17, `报 z${sub('max')} = ${BM.zmax} m`, 'ts');
+  // 下面：p(z)，y 截在 0.06
+  const Y1 = 0.06, sy = lin(0, Y1, 302, 166), cl = (v) => Math.min(v, Y1);
+  o += axes({ sx, sy, x0: 0, x1: 10, y0: 0, y1: Y1, xt: [0, 2, 4, 6, 8, 10], yt: [[0, '0'], [0.02, '0.02'], [0.04, '0.04'], [0.06, '0.06']], xl: 'z（m）', yl: 'p(z)' });
+  const r = beamParts(0).rand;
+  o += path(area(() => r, 0, 10, sx, sy), 'wash2');
+  const top = [], bot = [];
+  for (let i = 0; i <= 120; i++) { const z = (BM.zs * i) / 120; top.push([sx(z), sy(cl(r + beamParts(z).short))]); bot.unshift([sx(z), sy(r)]); }
+  o += path(d([...top, ...bot]) + 'Z', 'wash');
+  const hT = [], hB = [];
+  for (let i = 0; i <= 200; i++) { const z = BM.zs - 1 + (2 * i) / 200, q = beamParts(z); hT.push([sx(z), sy(cl(q.total))]); hB.unshift([sx(z), sy(r + q.short)]); }
+  o += path(d([...hT, ...hB]) + 'Z', 'wash-strong');
+  o += path(curve((z) => cl(beamParts(z).total), 0, 10, sx, sy, 1000), 'ink');
+  const pk = beamParts(BM.zs).total;
+  o += text(sx(6.85), sy(0.052), `hit：peak 高 ${pk.toFixed(2)}，`, 'ts') + text(sx(6.85), sy(0.052) + 16, '上面截掉了', 'ts');
+  o += text(sx(0.25), sy(0.012), `short：按 e<tspan class="sup" dy="-5">−${BM.lam}z</tspan><tspan dy="5"> 下降</tspan>`, 'ts') + text(sx(0.25), sy(0.012) + 15, `只到 z* = ${BM.zs} m 为止`, 'ts');
+  o += text(sx(9.9), sy(r) - 32, `rand：${BM.a[3]} / ${BM.zmax} = ${r.toFixed(5)}`, 'ts', 'end');
+  for (const z of [3, 9]) {
+    const v = beamParts(z).total;
+    o += circle(sx(z), sy(v), 4, 'ln-f') + text(z < 5 ? sx(z) + 7 : sx(z) - 7, sy(v) - 8, `p(${z}) = ${v.toFixed(5)}`, 'tl', z < 5 ? 'start' : 'end');
+  }
+  return svg(560, 340, o, `Beam model：同一条 beam 打到 wall、被人挡住、穿过玻璃三种结局，下方是混合后的 p(z)，读数 3 米时 ${beamParts(3).total.toFixed(4)}，9 米时 ${beamParts(9).total.toFixed(4)}`);
+}
+
 // ---------- 第 4 站：pose graph，左 dead reckoning，右加 loop closure 后的 Gauss–Newton ----------
 function posegraph() {
   let o = '';
@@ -324,6 +379,41 @@ function rrtA() {
   return svgA(560, 304, o, `动图：10 乘 10 米的地图中间一道 wall，只在 y 等于 3 附近留一个 gap；RRT 从左下角长出一棵 tree，${Rr.it} 次 sample 后穿过 gap 到右上角；shortcut 把 path 从 ${plen(Rr.path).toFixed(2)} 米拉直到 ${plen(sc).toFixed(2)} 米`);
 }
 
+// ---------- 页末 Lab 1：DSPA 的 FORWARD，(v, ω) = (1, 0) 持续 1 s，ω 以 0.05 的 probability 变成 ±π/2 ----------
+// motion model 是 handout 的式 (2)；终点按 grid 取整（base_planner.py 的 discrete_motion_predict）。
+function arcPose(x, y, th, v, w, t) {
+  if (w === 0) return [x + v * t * Math.cos(th), y + v * t * Math.sin(th), th];
+  return [x - (v / w) * Math.sin(th) + (v / w) * Math.sin(th + w * t), y + (v / w) * Math.cos(th) - (v / w) * Math.cos(th + w * t), th + w * t];
+}
+function dspa() {
+  const sx = lin(-0.5, 3.5, 20, 300), sy = lin(-0.5, 2.5, 230, 20);
+  let o = '';
+  for (let k = 0; k <= 4; k++) o += line(sx(k - 0.5), sy(-0.5), sx(k - 0.5), sy(2.5), 'grid');
+  for (let k = 0; k <= 3; k++) o += line(sx(-0.5), sy(k - 0.5), sx(3.5), sy(k - 0.5), 'grid');
+  for (let i = 0; i <= 3; i++) { o += text(sx(i), 250, String(i), 'ts', 'middle'); for (let j = 0; j <= 2; j++) o += circle(sx(i), sy(j), 1.8, 'mute-f'); }
+  for (let j = 0; j <= 2; j++) o += text(10, sy(j) + 4, String(j), 'ts', 'end');
+  o += text(sx(3.5), 268, 'x（格）', 'ts', 'end');
+  const cases = [[0, '0.9'], [Math.PI / 2, '0.05'], [-Math.PI / 2, '0.05']];
+  for (const [w, p] of cases) {
+    const pts = []; for (let i = 0; i <= 40; i++) { const [x, y] = arcPose(1, 1, 0, 1, w, i / 40); pts.push([sx(x), sy(y)]); }
+    o += path(d(pts), 'ln');
+    const [xe, ye, te] = arcPose(1, 1, 0, 1, w, 1), xr = Math.round(xe), yr = Math.round(ye), tr = Math.round(te / (Math.PI / 2)) * (Math.PI / 2);
+    if (w !== 0) o += line(sx(xe), sy(ye), sx(xr), sy(yr), 'dash') + circle(sx(xe), sy(ye), 4, 'paper');
+    o += arrow(sx(xr), sy(yr), sx(xr + 0.32 * Math.cos(tr)), sy(yr + 0.32 * Math.sin(tr)), 'ink', 6) + circle(sx(xr), sy(yr), 5, 'ln-f');
+    o += text(sx(xr) + 12, sy(yr) + (w > 0 ? -8 : w < 0 ? 18 : -8), p, 'tl');
+  }
+  o += circle(sx(1), sy(1), 11, 'paper') + line(sx(1), sy(1), sx(1) + 11, sy(1), 'ink-b');
+  const [xl, yl] = arcPose(1, 1, 0, 1, Math.PI / 2, 1), rr = 2 / Math.PI;
+  const tx = 326;
+  o += text(tx, 30, 'FORWARD：(v, ω) = (1, 0)，持续 1 s', 'tb');
+  o += text(tx, 56, '0.9：ω = 0，前进一格', 't') + text(tx, 78, '0.05：ω = π/2，向左偏', 't') + text(tx, 100, '0.05：ω = −π/2，向右偏', 't');
+  o += text(tx, 136, `向左偏时 arc 的 radius 是 2/π = ${rr.toFixed(3)}，`, 'ts');
+  o += text(tx, 154, `1 s 后到 (${xl.toFixed(3)}, ${yl.toFixed(3)})，heading 90°，`, 'ts');
+  o += text(tx, 172, `取整后是 (${Math.round(xl)}, ${Math.round(yl)})，朝上。`, 'ts');
+  o += text(tx, 206, '空心圆：连续的终点', 'ts') + text(tx, 224, '实心点和小箭头：取整后的 state', 'ts');
+  return svg(560, 276, o, `DSPA 的 FORWARD：从格点 (1, 1) 朝右出发，0.9 到 (2, 1)，0.05 沿 arc 到 (${xl.toFixed(2)}, ${yl.toFixed(2)}) 取整为 (2, 2) 朝上，0.05 到 (2, 0) 朝下`);
+}
+
 // ---------- 第 6 站：belief-space planning，两条 route 上的 2σ circle ----------
 function coastal() {
   const q = 0.01, Rm = 0.05 ** 2;
@@ -379,25 +469,32 @@ function despot() {
 // ---------- 第 7 站：系统结构（照 Bai et al. 2015 的 golf cart） ----------
 function arch() {
   let o = '';
-  const node = (x, y, w, a, b, cls = 'paper') => { o += rect(x, y, w, 40, cls, 6) + text(x + w / 2, y + 17, a, 'tb', 'middle') + text(x + w / 2, y + 32, b, 'ts', 'middle'); };
-  node(10, 20, 110, 'LiDAR', 'SICK LMS 291');
-  node(10, 120, 110, 'Camera, IMU,', 'wheel encoder');
+  const node = (x, y, w, a, b, cls = 'paper', h = 40) => { o += rect(x, y, w, h, cls, 6) + text(x + w / 2, y + (b ? h / 2 - 3 : h / 2 + 5), a, 'tb', 'middle') + (b ? text(x + w / 2, y + h / 2 + 12, b, 'ts', 'middle') : ''); };
+  // 数据流照论文 Section III：localization 用 LiDAR、wheel encoder、IMU；detector 用 LiDAR 加 camera；
+  // path planner 用 belief 做 cost map，把 path 交给 speed planner 和 pure pursuit；speed planner 把 acceleration 交给 PID。
+  node(10, 8, 110, 'Camera', 'webcam', 'paper', 36);
+  node(10, 70, 110, 'LiDAR', 'SICK LMS 291');
+  node(10, 132, 110, 'Wheel encoder,', 'IMU');
   node(160, 20, 120, 'Pedestrian', 'detector');
   node(160, 120, 120, 'Localization', 'AMCL（第 3 站）');
   node(320, 20, 110, 'Belief tracker', 'intention');
   node(320, 120, 110, 'Path planner', 'hybrid A*，2 Hz');
   node(460, 20, 92, 'Speed planner', 'DESPOT，3 Hz');
   node(460, 120, 92, 'Pure pursuit', 'steering');
-  node(400, 210, 152, 'Speed control（PID）', 'throttle, brake', 'wash');
-  node(160, 210, 160, 'Emergency brake', '< 0.5 m 就刹', 'wash');
+  node(400, 214, 146, 'Speed control', 'PID：throttle, brake', 'wash');
+  node(160, 214, 160, 'Emergency brake', '行人 < 0.5 m 就刹', 'wash');
   const A = (x1, y1, x2, y2) => { o += arrow(x1, y1, x2, y2, 'ink'); };
-  A(120, 40, 158, 40); A(120, 140, 158, 140); A(65, 60, 196, 118); A(280, 40, 318, 40); A(280, 140, 318, 140);
-  A(430, 40, 458, 40); A(430, 140, 458, 140); A(375, 60, 375, 118); A(506, 60, 506, 208); A(240, 160, 470, 208); A(40, 60, 190, 208);
-  o += text(380, 92, 'belief', 'ts', 'start') + text(502, 92, 'acceleration', 'ts', 'end');
-  o += text(10, 276, '每个方框是一个 ROS node，箭头是 topic（publish → subscribe）。', 'ts');
-  o += text(10, 294, '上面一排是 POMDP 的 belief 与 speed 规划，中间一排是 localization 与 steering，', 'ts');
-  o += text(10, 312, '底下两个是直接碰 actuator 的 node；emergency brake 不经过 planner。', 'ts');
-  return svg(560, 322, o, '一辆在行人中行驶的 golf cart 的软件结构：sensor、detector、belief tracker、DESPOT speed planner、path planner、pure pursuit、PID 和独立的 emergency brake，各自是一个 node');
+  A(120, 26, 158, 34); A(120, 82, 158, 50); A(120, 100, 158, 130); A(120, 152, 158, 148);
+  A(280, 40, 318, 40); A(280, 140, 318, 140); A(430, 40, 458, 40); A(375, 60, 375, 118);
+  A(430, 140, 458, 140); A(430, 126, 474, 62);
+  o += path(d([[10, 90], [2, 90], [2, 234]]), 'ink') + arrow(2, 234, 158, 234, 'ink');
+  o += path(d([[552, 40], [557, 40], [557, 234]]), 'ink') + arrow(557, 234, 548, 234, 'ink', 6);
+  A(250, 160, 420, 212);
+  o += text(380, 92, 'belief', 'ts', 'start') + text(441, 100, 'path', 'ts', 'end') + text(549, 92, 'acceleration', 'ts', 'end');
+  o += text(10, 284, '每个方框是一个 ROS node，箭头是 topic（publish → subscribe）。', 'ts');
+  o += text(10, 302, '上面一排推测行人去向、规划 speed，中间一排定位、规划 path 和 steering；', 'ts');
+  o += text(10, 320, '底下两个直接碰 actuator，emergency brake 不经过任何 planner。', 'ts');
+  return svg(560, 328, o, '一辆在行人中行驶的 golf cart 的软件结构：camera 和 LiDAR 进 pedestrian detector，LiDAR、wheel encoder 和 IMU 进 localization；belief tracker 的 belief 交给 path planner 和 DESPOT speed planner；path 交给 speed planner 和 pure pursuit；speed planner 的 acceleration 交给 PID；emergency brake 独立');
 }
 
 // ---------- 第 7 站：perception → planning → control 的 latency 预算 ----------
@@ -495,6 +592,7 @@ export default {
   'cs4278-cv': cv,
   'cs4278-ekf': ekf,
   'cs4278-pf': pfA,
+  'cs4278-beam': beam,
   'cs4278-posegraph': posegraph,
   'cs4278-rrt': rrtA,
   'cs4278-coastal': coastal,
@@ -503,4 +601,5 @@ export default {
   'cs4278-budget': budget,
   'cs4278-pp': pp,
   'cs4278-ppcar': ppCarA,
+  'cs4278-dspa': dspa,
 };
