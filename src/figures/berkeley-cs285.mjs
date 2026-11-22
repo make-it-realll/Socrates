@@ -379,6 +379,58 @@ function openloop() {
 }
 
 
+// 第 8 站：CQL 在一个 state 的例子上，α 从 0 到 ∞ 时 policy 的变化
+function cql() {
+  const pb = [0.7, 0.25, 0.05], rh = [0, 1, 2], rt = [0, 1, 0.5], g = 0.9;
+  // max Σπ r̂ − α Σ π²/π_β：π(a) = max(0, π_β(a)(r̂(a) − λ)/(2α))，λ 用二分定
+  const best = (al) => {
+    if (al === 0) return [0, 0, 1];
+    if (al === Infinity) return pb.slice();
+    const f = (l) => pb.map((p, i) => Math.max(0, (p * (rh[i] - l)) / (2 * al)));
+    let lo = -100, hi = 100;
+    for (let k = 0; k < 200; k++) { const m = (lo + hi) / 2; if (f(m).reduce((a, b) => a + b, 0) > 1) lo = m; else hi = m; }
+    return f((lo + hi) / 2);
+  };
+  let o = '';
+  // 左：data
+  o += text(20, 20, 'Data：一个 state，γ = 0.9', 'tb');
+  const bx = (i) => 40 + i * 58, base = 150, hgt = 100;
+  pb.forEach((p, i) => {
+    o += rect(bx(i), base - p * hgt, 40, p * hgt, i === 2 ? 'solid' : i === 1 ? 'wash-strong' : 'wash2');
+    o += rect(bx(i), base - hgt, 40, hgt, 'frame');
+    o += text(bx(i) + 20, base - p * hgt - 6, p.toFixed(2), 'ts', 'middle');
+    o += text(bx(i) + 20, base + 18, 'a = ' + i, 'tb', 'middle');
+    o += text(bx(i) + 20, base + 38, 'r̂ = ' + rh[i], i === 2 ? 'tl' : 't', 'middle');
+    o += text(bx(i) + 20, base + 56, 'r = ' + rt[i], 'ts', 'middle');
+  });
+  const PB = 'π<tspan class="sub" dy="3">β</tspan><tspan dy="-3">\u200b</tspan>';
+  o += text(20, 42, '柱高：behavior policy ' + PB, 'ts');
+  o += text(20, base + 82, 'a = 2 很少见，', 'ts') + text(20, base + 98, '估出的 r̂ 偏高了 1.5', 'ts');
+  // 右：各个 α 下的 policy
+  const X0 = 300, W = 170, rows = [[0, 'α = 0'], [0.05, '0.05'], [0.15, '0.15'], [0.3, '0.3'], [1, '1'], [Infinity, '∞']];
+  o += text(X0, 20, 'CQL 选出的 policy π', 'tb') + text(X0 + W + 12, 20, '真实 return', 'tb');
+  const cls = ['wash2', 'wash-strong', 'solid'];
+  rows.forEach(([al, lab], j) => {
+    const y = 40 + j * 34, p = best(al);
+    let x = X0;
+    p.forEach((q, i) => {
+      const w = q * W;
+      if (w > 0.5) {
+        o += rect(x, y, w, 22, cls[i]);
+        if (w > 26) o += text(x + w / 2, y + 15, q.toFixed(2), i === 2 ? 'tw' : 'ts', 'middle');
+      }
+      x += w;
+    });
+    o += rect(X0, y, W, 22, 'frame');
+    o += text(X0 - 8, y + 15, lab, 'ts', 'end');
+    const v = p.reduce((s, q, i) => s + q * rt[i], 0) / (1 - g);
+    o += text(X0 + W + 12, y + 15, v.toFixed(2), al === 0.15 ? 'tl' : 't', 'start');
+  });
+  o += text(X0, 40 + 6 * 34 + 14, '每条按 a = 0, 1, 2 分段；α = ∞ 就是 ' + PB, 'ts');
+  o += text(X0, 40 + 6 * 34 + 30, 'data 里最好的是一直选 a = 1：10.00', 'ts');
+  return svg(560, 290, o, 'CQL 的一个 state 例子：alpha 为 0 时 policy 全选 sample 偏高的 action 2，真实 return 5；alpha 为 0.15 时真实 return 最高 8.47；alpha 趋于无穷时退回 behavior policy，真实 return 2.75');
+}
+
 // ---------- 动图共用：按帧切换 ----------
 function frames(durs) {
   const T = durs.reduce((a, b) => a + b, 0), kt = [0];
@@ -511,4 +563,5 @@ export default {
   'cs285-cem': cem,
   'cs285-ood': oodA,
   'cs285-expectile': expectile,
+  'cs285-cql': cql,
 };

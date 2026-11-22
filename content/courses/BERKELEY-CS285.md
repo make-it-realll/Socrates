@@ -1,8 +1,8 @@
 ---
 code: BERKELEY-CS285
 evidence: syllabus
-evidenceNote: "前沿公开课，没有 NUS 大纲。分站和讲次以 Berkeley CS 185/285 Spring 2026（Sergey Levine）的课表和 slides 为准，作业以 Spring 2026 的 HW1–HW5 handout 为准；Spring 2026 没有公开录像，观看顺序对照 Fall 2023 的 YouTube playlist。Slides 通过抓取工具只读到文字，公式是图片，没有读到，推导是按 slides 的论证顺序自己补全并逐行核对的；Lecture 18（Offline RL Part 2）抓取被拒，用 Fall 2023 Lecture 16 的文字和 HW5 handout 代替。"
-exam: "自学没有考试，以作业为主。Spring 2026 课表里有两讲 Midterm Review，说明注册学生有 midterm；各部分的比例主页上没有写。Autograder（Gradescope）和 Modal 的算力额度只对注册学生开放，自学时用 handout 里给的目标数字自查。"
+evidenceNote: "前沿公开课，没有 NUS 大纲。分站和讲次以 Berkeley CS 185/285 Spring 2026（Sergey Levine）的课表和 slides 为准，作业以 Spring 2026 的 HW1–HW5 handout 和 GitHub 上的 starter code（README、pyproject、每个作业的代码骨架都读了）为准；Spring 2026 没有公开录像，观看顺序对照 Fall 2023 的 YouTube playlist。Slides 通过抓取工具只读到文字和 slide 标题，公式是图片，读不到；slides 上只有图的推导（performance difference、Fisher matrix、natural gradient、AWR 的 duality、CQL 的 bound）改为对照原论文（PPO、IQL、CQL、MOPO、RLPD、FQL、GAE、Dr. GRPO）核对，论文里也没有的按论证顺序自己补全并逐行核对。Lecture 4、11–13、19–25 没有读，页面也没有覆盖它们。"
+exam: "自学没有考试，以作业为主。Spring 2026 的 syllabus 写明注册学生的成绩由 5 份编程作业（50%，每份 10%）、final project（20%）、exam（20%）和每讲之后的 mini-quiz（10%）组成，midterm 在 4 月 15 日那一周。Autograder（Gradescope）和课程提供的 Modal 额度只对注册学生开放，自学时用 handout 里给的目标数字自查。"
 subskills:
   - id: il
     name: Imitation learning：expressive policy 与 goal-conditioned BC
@@ -40,14 +40,17 @@ subskills:
     l4: "能用一个例子算出 open-loop 与 closed-loop 的 value 差，用 Jacobian 连乘解释 backprop through model 为什么 explode 或 vanish。"
     l5: "能说明 model-based value expansion 怎样避开 off-policy n-step 的 bias，以及只用 latent dynamics loss train deterministic encoder 为什么会 collapse。"
   - id: offline
-    name: Offline RL：OOD action、policy constraint、IQL 与 FQL
+    name: Offline RL：OOD action、policy constraint、IQL、CQL 与 FQL
     l3: "能写出 SAC+BC、IQL、FQL 三个 actor loss，并由 reward 取 $\\{-1,0\\}$、$\\gamma=0.99$ 说出 Q 值应该落在什么范围。"
-    l4: "能用 linear Q 的例子算出 Q-learning 在 data 外的 max 怎样把 Q 值推到 90，能由 KL constraint 推出 AWR 的 weighted maximum likelihood。"
+    l4: "能用 linear Q 的例子算出 Q-learning 在 data 外的 max 怎样把 Q 值推到 90，能由 KL constraint 推出 AWR 的 weighted maximum likelihood，能由 CQL 的 objective 推出 tabular update 并在一个 state 的例子上算出它扣掉的 $\\chi^2$ penalty。"
     l5: "能由 expectile 的 first-order condition 算出 $\\tau\\to1$ 时它趋向 in-support 的 max，说明 IQL 为什么要分开 $V$ 和 $Q$，以及 FQL 为什么要把 flow policy distill 成 one-step policy。"
 open:
-  - label: "Berkeley CS 185/285 Deep Reinforcement Learning（Spring 2026，Sergey Levine）课程主页与 Lecture 2、3、5、6、7、8、9、10、14、15、16、17 的 slides"
+  - label: "Berkeley CS 185/285 Deep Reinforcement Learning（Spring 2026，Sergey Levine）课程主页、syllabus 与 Lecture 2、3、5、6、7、8、9、10、14、15、16、17、18 的 slides"
     url: "https://rail.eecs.berkeley.edu/deeprlcourse/"
-    note: "全页的分站和每站的论证顺序。抓取工具只给出 slides 的文字，公式是图片没有读到；Lecture 4、11–13、19–25 没有读；Lecture 18 抓取被拒。"
+    note: "全页的分站和每站的论证顺序；syllabus 给出成绩构成。抓取工具只给出 slides 的文字和标题，公式是图片没有读到，slide 编号也只在 Lecture 18 里读到；Lecture 4、11–13、19–25 没有读。"
+  - label: "CS 185/285 Spring 2026 starter code 仓库（git clone 后读了五个作业的 README、pyproject.toml 和代码骨架，以及两个 default final project 的骨架）"
+    url: "https://github.com/berkeleydeeprlcourse/homework_spring2026"
+    note: "环境和 Python 版本、HW2 与 HW3 怎样处理时限截断、HW3 的 tanh distribution、HW4 的 advantage 和 KL 骨架、HW5 的 checkpoint，以及 final project 里 Dr. GRPO 的说明。"
   - label: "CS 185/285 Spring 2026 HW1: Imitation Learning（handout）"
     url: "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf"
     note: "第 1 站 flow matching 的 loss 与 Euler sampling 的写法；作业一节。"
@@ -63,23 +66,47 @@ open:
   - label: "CS 185/285 Spring 2026 HW5: Offline RL（handout）"
     url: "https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf"
     note: "第 8 站 SAC+BC、IQL、FQL 的 loss 和 Q 值 sanity check；作业一节。"
-  - label: "CS 285 Fall 2023 课程主页（讲次表）与 Lecture 16: Offline RL Part 2 的 slides"
+  - label: "CS 285 Fall 2023 课程主页（讲次表）与 Lecture 6、Lecture 16 的 slides"
     url: "https://rail.eecs.berkeley.edu/deeprlcourse-fa23/"
-    note: "录像的观看顺序；第 8 站 explicit 与 implicit policy constraint、IQL、CQL 的讲法顺序和“用哪个 algorithm”的建议（只读到文字）。"
+    note: "录像的观看顺序；Lecture 6 off-policy actor-critic 一节和 Lecture 16 的 policy constraint、IQL、CQL 部分（都只读到文字）。"
   - label: "Schulman et al. 2016, High-Dimensional Continuous Control Using Generalized Advantage Estimation"
-    url: "https://ar5iv.labs.arxiv.org/html/1506.02438"
-    note: "第 3 站 TD residual、$k$-step estimator、GAE 的 closed form 和 $\\lambda=0,1$ 两端的性质。抓取到全文前 20 万字符，实验部分的具体数字没有读到。"
+    url: "https://arxiv.org/pdf/1506.02438v5"
+    note: "第 3 站 TD residual、$k$-step estimator、GAE 的 closed form、$\\lambda=0,1$ 两端的性质，以及实验里 best $\\lambda$ 的范围。"
+  - label: "Schulman et al. 2015, Trust Region Policy Optimization"
+    url: "https://arxiv.org/pdf/1502.05477v4"
+    note: "第 5 站 performance difference identity（引 Kakade 与 Langford 2002）的证明、Theorem 1、KL 的 quadratic approximation、conjugate gradient 与 line search、$\\delta=0.01$。"
+  - label: "Schulman et al. 2017, Proximal Policy Optimization Algorithms"
+    url: "https://arxiv.org/pdf/1707.06347"
+    note: "第 5 站 adaptive KL penalty 的规则、clip objective、entropy bonus 的系数。"
+  - label: "Liu et al. 2025, Understanding R1-Zero-Like Training: A Critical Perspective（Dr. GRPO）"
+    url: "https://arxiv.org/html/2503.20783v2"
+    note: "第 6 站 $1/T_i$ 和 std normalization 两种 bias。读了前 10 万字符（第 3 节在内）。"
   - label: "Kostrikov, Nair, Levine 2022, Offline Reinforcement Learning with Implicit Q-Learning"
-    url: "https://ar5iv.arxiv.org/html/2110.06169"
-    note: "第 8 站的 expectile loss、三个 loss 和 Lemma 1。只读了前 10 万字符，结果表没有读到。"
+    url: "https://arxiv.org/pdf/2110.06169"
+    note: "第 8 站的 expectile loss、三个 loss、Lemma 1、为什么要分开 $V$ 和 $Q$（第 4.2 节），以及 Appendix B 的 hyperparameter。"
+  - label: "Kumar, Zhou, Tucker, Levine 2020, Conservative Q-Learning for Offline Reinforcement Learning"
+    url: "https://arxiv.org/pdf/2006.04779"
+    note: "第 8 站 CQL 的两个 objective、Theorem 3.1 与 3.2、tabular 的 update。读了前 10 万字符；抓取工具提示部分记号是从上下文补的，用到的式子都按论文的推导重新核对过。"
+  - label: "Ball, Smith, Kostrikov, Levine 2023, Efficient Online Reinforcement Learning with Offline Data（RLPD）"
+    url: "https://arxiv.org/pdf/2302.02948"
+    note: "第 8 站 offline 到 online 的三个设计：symmetric sampling、LayerNorm、ensemble。"
+  - label: "Yu et al. 2020, MOPO: Model-based Offline Policy Optimization"
+    url: "https://arxiv.org/pdf/2005.13239"
+    note: "第 8 站 uncertainty-penalized reward 和 Theorem 4.4。"
   - label: "Park, Li, Levine 2025, Flow Q-Learning"
     url: "https://arxiv.org/pdf/2502.02538"
-    note: "第 8 站 FQL 的动机、loss、10 步 Euler 和与 IQL、ReBRAC 的对比数字。"
+    note: "第 8 站 FQL 的动机、loss、10 步 Euler、Table 2 里与 IQL、ReBRAC 的对比数字。"
+  - label: "OpenAI Spinning Up：Exercises 与 Exercise 2.2 的 solution"
+    url: "https://spinningup.openai.com/en/latest/spinningup/exercises.html"
+    note: "开头“更轻的几条路”和作业一节最后的 note。"
+  - label: "Hugging Face Deep RL Course 的 GitHub 仓库（README 的 maintenance notice、Unit 4 与 Unit 8 的 introduction）"
+    url: "https://www.github.com/huggingface/deep-rl-class"
+    note: "开头“更轻的几条路”。"
 sources:
-  - label: "CS 185/285 Spring 2026 的 starter code 仓库（GitHub；只看到目录，README 没有抓到）"
-    url: "https://github.com/berkeleydeeprlcourse/homework_spring2026"
   - label: "CS 285 Fall 2023 录像 playlist（YouTube）"
     url: "https://www.youtube.com/playlist?list=PL_iWQOsE6TfVYGEGiAOMaOzzv41Jfm_Ps"
+  - label: "Stanford CS224R Spring 2026 课程主页（只核对了讲次表）"
+    url: "https://cs224r.stanford.edu"
 ---
 
 先看三次训练。三次都没有报错，代码也都照着 formula 写对了。
@@ -125,7 +152,7 @@ Spring 2026 的 slides 是最新的，Fall 2023 有完整录像，两期的讲�
 | 8 | Lecture 17–18 Offline RL | Lecture 15–16 |
 
 :::note 更轻的几条路
-同样讲 deep RL 的公开课还有三门，下面的情况取自本站“前沿公开课”的调研条目，这一页没有重新核对。Stanford CS224R（Chelsea Finn，Spring 2026）比 CS285 短，更偏机器人：有 sim-to-real 和 RL for VLAs 两讲，HW2 在 Sawyer 锤钉子这种 sparse reward 的任务上对比 PPO 和 off-policy actor-critic，但作业只支持 Modal。Hugging Face Deep RL Course 是最快的上手路线，每个 unit 一个 Colab notebook，Unit 4 从零写 REINFORCE、Unit 8 照着 CleanRL 从零写 PPO；它已进入 low-maintenance 状态，Unit 7 不能用。OpenAI Spinning Up 的 Intro to RL Part 3 是篇幅最短的 policy gradient 推导，Exercise 2.2 “Silent Bug in DDPG”专门练习找出“能跑、不报错、就是不学”的 bug；它的安装依赖 2018 年的 gym 和 mujoco-py，只支持 Linux 和 macOS。时间只有一两个周末时，先做 Hugging Face 的 Unit 4 和 Unit 8 建立手感，再回到这一页。
+同样讲 deep RL 的公开课还有三门。Stanford CS224R（Chelsea Finn，Spring 2026）比 CS285 短，更偏机器人：课表里有 Lecture 16 “RL for Robots: Sim-to-Real Transfer”和 Lecture 17 “RL for VLAs”；据本站的调研条目（这一页没有重读 handout），它的 HW2 在 Sawyer 锤钉子这种 sparse reward 的任务上对比 PPO 和 off-policy actor-critic，handout 只支持在 Modal 上跑。Hugging Face Deep RL Course 是最快的上手路线：Unit 4 用 PyTorch 从零写 Monte Carlo REINFORCE，Unit 8 照着 CleanRL 的实现从零写 PPO 并在 LunarLander-v2 上测；仓库 README 说课程已进入 low-maintenance 状态，Unit 7 的 AI vs AI 对战和 leaderboard 不再工作（agent 仍然可以 train）。OpenAI Spinning Up 的 Exercise 2.2 “Silent Bug in DDPG”给一份带 bug 的 DDPG，跑 6 个 run（有 bug 与没 bug 各 3 个 seed，每个约 10 分钟），让你不看源码找出 bug 是什么；有 PyTorch 和 TensorFlow 两个版本。时间只有一两个周末时，先做 Hugging Face 的 Unit 4 和 Unit 8 建立手感，再回到这一页。
 :::
 
 ## [il] Imitation learning：expressive policy 与 goal-conditioned BC
@@ -231,10 +258,10 @@ Lecture 3 说 goal-conditioned BC 的 distribution shift 出现在两个地方�
 
 ::fig[cs285-relabel] 左：终点 $g=2$ 的 path 在第一步的分叉。右：10 步 random walk 的终点，也就是 relabel 之后 data 里各个 goal 的比例。
 
-Slide 28 给出的办法是把这个过程反复做：用当前的 goal-conditioned policy 去追 random 选的 goal，把实际到达的地方 relabel 成 goal 加进 data，再 train。Policy 每一轮都比 random walk 走得更远，下一轮的 data 就覆盖更远的 goal。Slide 30 提到同样的 relabeling 也用在 off-policy 的 value-based RL 里。
+标题为“Going beyond just imitation?”的那页 slide 给出的办法是把这个过程反复做：从 random policy 开始，用当前的 goal-conditioned policy 去追 random 选的 goal，把实际到达的地方 relabel 成 goal 加进 data，再 train，然后重复。Policy 每一轮都比 random walk 走得更远，下一轮的 data 就覆盖更远的 goal。后面一页“Also related (for later…)”说同样的 relabeling 也用在 off-policy 的 value-based RL 里，要等讲完那一类 algorithm 才看得懂。Lecture 3 举的大规模例子是 GNM（Shah 等，2022）：一个 goal-conditioned 的 navigation policy，用多种 robot 的 data 一起 train。
 
 :::edge 只用少量高质量 data 为什么也会失败
-Lecture 3 的例子：laundry folding 和 box building 各约 20 小时的 post-training data，strategy 一致、质量很高，单独拿来 train 却不行，robot 一出错就不知道怎么办；和约 10,000 小时 broad 但质量一般的 pre-training data 合起来才好用。这正是 compounding error 的情形：质量高的 data 恰恰很少包含“犯错之后怎么回来”的 state。Lecture 3 列的另一类 trick 是故意在 data 里加入犯错和纠正，错误本身有害，纠正的部分往往更有用。
+Lecture 3 的“pre-training and post-training data”一页：laundry folding 和 box building 各约 20 小时的 post-training data，strategy 一致、质量很高，单独拿来 train 却不行，robot 一出错就不知道怎么办；和约 10,000 小时 broad 但质量一般的 pre-training data 合起来才好用（slide 没有写是哪个 robot 或哪篇论文）。这正是 compounding error 的情形：质量高的 data 恰恰很少包含“犯错之后怎么回来”的 state。“Some common tricks”一页列的另一条是故意在 data 里加入犯错和纠正：错误本身有害，但纠正带来的好处往往比错误的害处大。
 :::
 
 :::back
@@ -242,7 +269,7 @@ MSE 的 minimizer 是 conditional mean、diffusion policy、一步 flow matching
 :::
 
 :::from
-分站顺序、“fit expert 失败的两个原因”、autoregressive discretization 和“why does this work?”的问题、“noise 必须被用上”、goal-conditioned BC 的 pipeline 和 data scale 的数字，来自 [Spring 2026 Lecture 3](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-3.pdf)；BC 是 maximum likelihood 来自 [Lecture 2](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-2.pdf)。两讲只读到文字，flow matching 的 slide 只有标题和插图出处，loss 与 Euler 公式取自 [HW1 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf)。两个 mode 的例子、$v^*$ 的 closed form、看不到 $\tau$ 时的 $\bar v$ 和两张数表、random walk 的 relabeling 计算都是为这一页推导并用 `python3 -I` 实际算的（seed 0）。
+分站顺序、“fit expert 失败的两个原因”、autoregressive discretization 和“why does this work?”的问题、“noise 必须被用上”、goal-conditioned BC 的 pipeline 和 data scale 的数字，来自 [Spring 2026 Lecture 3](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-3.pdf)；BC 是 maximum likelihood 来自 [Lecture 2](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-2.pdf)。两讲只读到文字和 slide 标题（slide 没有编号，文中用标题指认），flow matching 的几页（“Flow matching & diffusion”“Flow matching overview”“Flow matching policy training implementation”）只有标题、插图出处和“target velocity”这样的标注，loss 与 Euler 公式取自 [HW1 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw1.pdf)。Slide 问的“distribution shift 的第二个地方”slide 自己没有给答案，这里的答案（goal）是自己写的。两个 mode 的例子、$v^*$ 的 closed form、看不到 $\tau$ 时的 $\bar v$ 和两张数表、random walk 的 relabeling 计算都是为这一页推导并用 `python3 -I` 实际算的（seed 0）。
 :::
 
 ## [pg] Policy gradient 的 variance：causality、baseline 与 discount
@@ -424,11 +451,13 @@ $\lambda=0$ 的 bias 0.256 与 exact 的 0.252 相差 1.3 个 standard error。B
 ::fig[cs285-gae] Batch 为 100 个 episode 时 gradient estimate 的 error 拆成两部分：$\text{bias}^2$ 随 $\lambda$ 下降，$\text{variance}/100$ 在 $\lambda$ 接近 1 时上升，总和在 0.9 到 0.95 附近最低。
 
 :::wrong $\lambda=1$ 没有 bias，所以总该用 $\lambda=1$
-Batch 有限时要比的是 $\text{bias}^2+\text{variance}/N$。上表 $N=100$ 时 $\lambda=1$ 是 0.034，$\lambda=0.95$ 是 0.029：用一点 bias 换来的 variance 下降更划算。GAE 的论文也报告 best 的 $\lambda$ 明显低于 best 的 $\gamma$，作者的解释是 critic 还算准时，$\lambda$ 带来的 bias 远小于 $\gamma$ 带来的。HW2 的 LunarLander 实验扫 $\lambda\in\{0,0.95,0.98,0.99,1\}$，就是要你自己看到这个取舍。
+Batch 有限时要比的是 $\text{bias}^2+\text{variance}/N$。上表 $N=100$ 时 $\lambda=1$ 是 0.034，$\lambda=0.95$ 是 0.029：用一点 bias 换来的 variance 下降更划算。GAE 的论文也报告 best 的 $\lambda$ 明显低于 best 的 $\gamma$，作者的解释是 critic 还算准时，$\lambda$ 带来的 bias 远小于 $\gamma$ 带来的。论文的实验里，cart-pole 最好的是 $\lambda\in[0.92,0.99]$，3D biped 是 $\lambda\in[0.96,0.99]$（$\gamma\in[0.99,0.995]$），结论建议 $\lambda$ 取 $[0.9,0.99]$ 里的中间值，和上表的 0.9 到 0.95 对得上。HW2 的 LunarLander 实验扫 $\lambda\in\{0,0.95,0.98,0.99,1\}$，就是要你自己看到这个取舍。
 :::
 
 :::edge Episode 被时间截断不等于结束
-$\delta_{H-1}=r_{H-1}-\hat V(s_{H-1})$ 假设 $s_{H-1}$ 之后再也没有 reward。如果 episode 是因为达到最大步数被截断的（InvertedPendulum 撑满 1000 步），之后本来还有 reward，把它当 terminal 会让 critic 学到“快到时限的 state 价值低”，而 state 里并没有时间，critic 无从区分。Gymnasium 的 `step` 把 `terminated` 和 `truncated` 分开返回，截断时应当仍用 $\gamma\hat V(s_H)$ bootstrap。这一条是凭经验写的，HW2 的 starter code 怎样处理要看代码。
+$\delta_{H-1}=r_{H-1}-\hat V(s_{H-1})$ 假设 $s_{H-1}$ 之后再也没有 reward。如果 episode 是因为达到最大步数被截断的（InvertedPendulum 撑满 1000 步），之后本来还有 reward，把它当 terminal 会让 critic 学到“快到时限的 state 价值低”，而 state 里并没有时间，critic 无从区分。截断时正确的做法是仍用 $\gamma\hat V(s_H)$ bootstrap。
+
+两份作业的 starter code 在这里做法不同。HW2 和 HW3 用的都是旧版的 `gym==0.25.2`，`env.step` 返回 `(next_ob, rew, done, info)` 四项，时限截断时 `done` 也是 True，只在 `info["TimeLimit.truncated"]` 里留了记号。HW2 的 `sample_trajectory` 在 `done` 或达到 `max_length` 时结束 rollout，记下的 `terminals[i]` 在 trajectory 的最后一步一律为 1，GAE 那段的 hint 也只说“用 terminals 处理边界”，所以照 starter code 写，截断会被当成结束，正是上面说的那种简化。HW3 的 `run_sac.py` 和 `run_dqn.py` 存进 replay buffer 的是 `done and not info.get("TimeLimit.truncated", False)`，截断的 transition 照样 bootstrap。HW2 里这个简化的影响有限：HW2 的 critic 用 Monte Carlo 的 reward-to-go 当 target，只有 GAE 的 recursion 在最后一步少接了一项 $\gamma\hat V(s_H)$。
 :::
 
 ### Off-policy actor-critic：naive 的版本错在两处
@@ -438,7 +467,7 @@ On-policy actor-critic 每批 data 用完就扔。想用 replay buffer 里旧 po
 1. **Critic。** Buffer 里的 $a$ 来自旧 policy，$r+\gamma\hat V(s')$ 估的是旧 policy 在 $s$ 的 value，不是当前 policy 的。改成学 $Q(s,a)$：它以 action 为 condition，buffer 里的 $a$ 是谁选的都无所谓。Target 里的 next action 要从当前 policy 现抽：$y=r+\gamma Q_\phi(s',a')$，$a'\sim\pi_\theta(\cdot\mid s')$。
 2. **Actor。** $\nabla\log\pi_\theta(a\mid s)$ 要求 $a\sim\pi_\theta$，buffer 里的 $a$ 不是。改成对 buffer 里的每个 $s$ 现抽 $a^\pi\sim\pi_\theta(\cdot\mid s)$，用 $Q_\phi(s,a^\pi)$。
 
-剩下的 state distribution 仍然是旧的。通常的做法是接受它：buffer 里的 state 比当前 policy 会去的更广，在更广的 state 上把 policy 训好不是坏事（这个理由是凭自己的知识写的，slides 上这一页只读到标题）。
+剩下的 state distribution 仍然是旧的。Slide 在这里只问“Is there any remaining problem?”（Spring 2026 和 Fall 2023 的文字都只有这一句，答案在图里，没有读到）。通常的做法是接受它：buffer 里的 state 比当前 policy 会去的更广，在更广的 state 上把 policy 训好不是坏事。这个理由是凭自己的知识写的。
 
 Actor 的 gradient 有了 $Q_\phi$ 之后还可以换一种方式来求。把 sample 写成 $a=\mu_\theta(s)+\sigma_\theta(s)\varepsilon$，$\varepsilon\sim\mathcal N(0,I)$，randomness 全在 $\varepsilon$ 里，$\theta$ 只出现在一个可导的 function 里：
 
@@ -457,7 +486,7 @@ Actor-critic 用 TD error 当 weight、$\mathbb E[\delta_t]=A^\pi$ 在 [CS4246 �
 :::
 
 :::from
-“value 越准 variance 越低”、MC 与 bootstrapped target、critic 当 baseline 的练习、n-step 与 GAE 的动机、naive off-policy actor-critic 及两处修正、reparameterization 引出 SAC 的顺序来自 [Spring 2026 Lecture 6](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-6.pdf)（只读到文字）。n-step advantage、GAE 的 normalization 和 recursion 的写法来自 [HW2 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw2.pdf)。GAE 的 closed form、$\lambda=0,1$ 的性质、best $\lambda$ 低于 best $\gamma$ 来自 [GAE 论文](https://ar5iv.labs.arxiv.org/html/1506.02438)。Random walk 的例子、$\lambda=0$ 的 exact bias、250,000 个 episode 的数表、三种 gradient estimator 的 variance 都是为这一页推导和实算的；截断与结束的区别凭经验写。
+“value 越准 variance 越低”、MC 与 bootstrapped target、critic 当 baseline 的练习、n-step 与 GAE 的动机、naive off-policy actor-critic 及两处修正、reparameterization 引出 SAC 的顺序来自 [Spring 2026 Lecture 6](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-6.pdf)（只读到文字）。n-step advantage、GAE 的 normalization 和 recursion 的写法来自 [HW2 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw2.pdf)。GAE 的 closed form、$\lambda=0,1$ 的性质、best $\lambda$ 低于 best $\gamma$ 以及实验里 $\lambda$ 的范围来自 [GAE 论文](https://arxiv.org/pdf/1506.02438v5)。截断的处理对照的是 [starter code](https://github.com/berkeleydeeprlcourse/homework_spring2026) 里 HW2 的 `infrastructure/utils.py`、`agents/pg_agent.py` 和 HW3 的 `scripts/run_sac.py`、`scripts/run_dqn.py`。Random walk 的例子、$\lambda=0$ 的 exact bias、250,000 个 episode 的数表、三种 gradient estimator 的 variance 都是为这一页推导和实算的；off-policy 时 state distribution 那一句凭自己的知识写。
 :::
 
 ## [q] Q-learning 的实际做法：target network、n-step 与 SAC
@@ -473,14 +502,14 @@ Lecture 7 从 actor-critic 去掉 actor 得到 fitted Q-iteration：(1) 收集 t
 | Algorithm | (1) 收集 data | (2) 更新 target $\phi'$ | (3) regression |
 |---|---|---|---|
 | Online Q-learning | 每步一次 | 每步一次（$\phi'=\phi$） | 每步一次 |
-| DQN | 每步一次 | 慢：经典设置每 10,000 步一次 | 每步一次 |
+| DQN | 每步一次 | 慢：经典 DQN 每 10,000 步一次（HW3 的 config 是 1000 或 2000） | 每步一次 |
 | Fitted Q-iteration | 最外层 | 中间层 | 最内层，跑到 converge |
 
-每收集一条 transition 做几次 gradient step，叫 update-to-data（UTD）ratio。UTD 高，学得快、算得多；过高会 overfit 到 buffer 里那点 data，这和第 8 站 offline RL 的问题是同一个。
+每收集一条 transition 做几次 gradient step，叫 update-to-data（UTD）ratio。Lecture 8 的说法是 UTD 高，学得快、算得多；过高会“overfitting”到 buffer 里那点 data，这和第 8 站 offline RL 的问题是同一个。
 
 ### Q-learning 不是 gradient descent
 
-Q-learning 的 update 是 $\phi\leftarrow\phi-\alpha\,\nabla_\phi Q_\phi(s,a)\,\big(Q_\phi(s,a)-y\big)$，$y$ 里也有 $\phi$（或 $\phi'$），但不对它求 gradient。Lecture 8 说这正是 Q-learning 不是 gradient descent 的原因。那为什么不老老实实对 squared Bellman error 求完整的 gradient（这叫 residual gradient）？算一个例子。
+Q-learning 的 update 是 $\phi\leftarrow\phi-\alpha\,\nabla_\phi Q_\phi(s,a)\,\big(Q_\phi(s,a)-y\big)$，$y$ 里也有 $\phi$（或 $\phi'$），但不对它求 gradient。Lecture 8 写的是“Q-learning is not gradient descent!”，原因是“no gradient through target value”。那为什么不老老实实对 squared Bellman error 求完整的 gradient（这叫 residual gradient，slides 没有讲，下面是补充）？算一个例子。
 
 $s_0$ 以各一半的 probability 转到 $s_1$ 或 $s_2$，reward 0；$s_1$ 结束时得 1，$s_2$ 结束时得 0；$\gamma=1$。True value：$V_1=1$，$V_2=0$，$V_0=0.5$。每个 episode 产生两条 transition，residual gradient 最小化的是 sampled transition 上的 squared error 的 expectation：
 
@@ -504,11 +533,11 @@ $y$ 随 $\phi$ 一起动，regression 的目标就一直在跑。Target network 
 
 $$\phi'\leftarrow\phi'+\tau(\phi-\phi')=(1-\tau)\phi'+\tau\phi$$
 
-Hard update 的 lag 是锯齿形的，刚更新完为 0，更新前为 $K-1$，平均 $(K-1)/2$。Lecture 8 指出 Polyak update 的 lag 是恒定的。把 recursion 展开，$\phi'_t=\sum_{k\ge0}\tau(1-\tau)^k\phi_{t-k}$，$\phi'$ 是过去各个 $\phi$ 的 weighted average，weight 是 $k$ 步之前 $\tau(1-\tau)^k$。平均 lag 是
+Hard update 的 lag 是锯齿形的，刚更新完为 0，更新前为 $K-1$，平均 $(K-1)/2$。Lecture 8 的 slide 说这“feels weirdly uneven”，问能不能“always have the same lag”，给出的答案就是 Polyak update。把 recursion 展开，$\phi'_t=\sum_{k\ge0}\tau(1-\tau)^k\phi_{t-k}$，$\phi'$ 是过去各个 $\phi$ 的 weighted average，weight 是 $k$ 步之前 $\tau(1-\tau)^k$。平均 lag 是
 
 $$\sum_{k\ge0}k\,\tau(1-\tau)^k=\tau\cdot\frac{1-\tau}{\tau^2}=\frac{1-\tau}{\tau}$$
 
-（用了 $\sum_kkx^k=x/(1-x)^2$。）常用的 $\tau=0.005$ 对应平均 lag 199 步，和每 399 步 hard update 一次的平均 lag 相同。
+（用了 $\sum_kkx^k=x/(1-x)^2$。）HW3 所有 SAC config 里的 `soft_target_update_rate` 都是 $\tau=0.005$，对应平均 lag 199 步，和每 399 步 hard update 一次的平均 lag 相同。
 
 ### Double Q 与 n-step return
 
@@ -522,7 +551,7 @@ N-step return 让 reward 每次 backup 往前传 $n$ 步：
 
 $$y_t=\sum_{l=0}^{n-1}\gamma^lr_{t+l}+\gamma^n\max_aQ(s_{t+n},a)$$
 
-Lecture 8 说它帮助很大，但有 downside。Downside 在于 $r_{t+1},\dots,r_{t+n-1}$ 是 buffer 里那条 trajectory 上 behavior policy 的 action 拿到的，而 $Q^*$ 要求之后都按 optimal 行动。算一个例子：每个 state 都一样，optimal action 得 reward 1，另一个 action 得 0；behavior policy 以一半的 probability 选 optimal；$\gamma=0.9$。$Q^*(s,a^*)=1/(1-\gamma)=10$，behavior policy 自己的 $Q^\beta(s,a^*)=1+\gamma\cdot0.5/(1-\gamma)=5.5$。$n$-step target 的 expectation 是
+Lecture 8 的文字只说它“also help a lot, but have some downsides”，downside 是什么在图里，没有读到，下面是自己的分析。Downside 在于 $r_{t+1},\dots,r_{t+n-1}$ 是 buffer 里那条 trajectory 上 behavior policy 的 action 拿到的，而 $Q^*$ 要求之后都按 optimal 行动。算一个例子：每个 state 都一样，optimal action 得 reward 1，另一个 action 得 0；behavior policy 以一半的 probability 选 optimal；$\gamma=0.9$。$Q^*(s,a^*)=1/(1-\gamma)=10$，behavior policy 自己的 $Q^\beta(s,a^*)=1+\gamma\cdot0.5/(1-\gamma)=5.5$。$n$-step target 的 expectation 是
 
 $$\mathbb E[y]=1+0.5\sum_{l=1}^{n-1}\gamma^l+\gamma^nQ$$
 
@@ -540,15 +569,17 @@ $n=1$ 是 $Q^*$；$n$ 越大越接近 $Q^\beta=5.5$。Buffer 里的 data 接近�
 上表 $n=10$ 时 Q-learning converge 到 5.77，离 $Q^*=10$ 很远，而且再多的 data、再久的 training 都不会把它拉回来。这是 bias，不是 variance，它来自 target 里混进了 behavior policy 的 action，和 data 是 off-policy 这件事绑在一起。
 :::
 
-另外两条 tips（Lecture 8，部分出自 Schulman）：Bellman error 的 gradient 可能很大，用 Huber loss（error 超过某个阈值后 loss 变成 linear，gradient 的大小被截在阈值上）或 gradient clipping；不同 seed 的结果差别很大，至少跑几个 seed 再下结论。
+另外几条 tips（Lecture 8，slide 注明“partly borrowed from J. Schulman”）：Bellman error 的 gradient 可能很大，用 Huber loss（error 超过某个阈值后 loss 变成 linear，gradient 的大小被截在阈值上）或 gradient clipping，HW3 的 MsPacman config 就设了 `clip_grad_norm: 10.0`；exploration 和 learning rate 都从高往低 schedule，Adam 也有帮助；不同 seed 的结果差别很大，至少跑几个 seed 再下结论。
+
+Continuous action 时 $\max_{a'}Q(s',a')$ 本身就求不出来。Lecture 8 给了两条路：一是对每个 $s'$ 做 stochastic optimization，最简单的是抽一批 action 取最好的，更准的是 CEM 或 CMA-ES，slide 说这类方法“works OK, for up to about 40 dimensions”；二是“learn an approximate maximizer”，再 train 一个 network $\mu(s)\approx\arg\max_aQ(s,a)$，这就是 DDPG，也是 SAC 的 actor 在做的事。CEM 在第 7 站还会出现，它的 dimension 上限在那里算给你看。
 
 ### HW3 里 SAC 的每一个部件
 
-HW3 的 SAC 由四块拼成，variable 的名字照 handout：temperature 记作 $\beta$，$\mathcal H(\pi)=\mathbb E_{a\sim\pi}[-\log\pi(a\mid s)]$。
+HW3 的 SAC 由四块拼成，variable 的名字照 handout：temperature 在 Section 3.3 记作 $\beta$（Section 3.5 改记作 $\alpha$，代码里是 `temperature` 和 `log_alpha`），$\mathcal H(\pi)=\mathbb E_{a\sim\pi}[-\log\pi(a\mid s)]$。
 
-**Critic。** $y=r_t+\gamma(1-d_t)\big[Q_{\phi'}(s_{t+1},a_{t+1})+\beta\,\mathcal H(\pi(\cdot\mid s_{t+1}))\big]$，$a_{t+1}\sim\pi(\cdot\mid s_{t+1})$。实现时 $\mathcal H$ 用一个 sample 估：$-\log\pi(a_{t+1}\mid s_{t+1})$。
+**Critic。** $y\leftarrow r_t+\gamma(1-d_t)\big[Q_{\phi'}(s_{t+1},a_{t+1})+\beta\,\mathcal H(\pi(\cdot\mid s_{t+1}))\big]$，$a_{t+1}\sim\pi(\cdot\mid s_{t+1})$。实现时 $\mathcal H$ 用一个 sample 估：$-\log\pi(a_{t+1}\mid s_{t+1})$。
 
-**Actor。** 最大化 $Q\big(s,\tanh(\mu_\theta(s)+\sigma_\theta(s)\varepsilon)\big)+\beta\,\mathcal H$，用上一站的 reparameterization。
+**Actor。** Handout 写的是 $J_\pi=Q\big(s,\mu_\theta(s)+\sigma_\theta(s)\varepsilon\big)+\beta\,\mathcal H(\pi(a\mid s))$，loss 为 $-J_\pi$，用上一站的 reparameterization。所有 SAC config 都设了 `use_tanh: true`，实际送进 $Q$ 的 action 是 $\tanh(\mu_\theta+\sigma_\theta\varepsilon)$。
 
 **Tanh。** Action 被限制在 $[-1,1]$，所以先抽 $u\sim\mathcal N(\mu,\sigma^2)$ 再令 $a=\tanh u$。$a$ 的 density 要做 change of variables：$a$ 落在 $[a,a+da]$ 等价于 $u$ 落在 $[u,u+du]$，$du=da/(1-\tanh^2u)$，所以
 
@@ -558,7 +589,9 @@ $$\log\pi(a\mid s)=\log\mathcal N(u;\mu,\sigma^2)-\log\big(1-\tanh^2u\big)$$
 
 $$\log\big(1-\tanh^2u\big)=2\log2-2\log\big(e^u+e^{-u}\big)=2\big(\log2-u-\mathrm{softplus}(-2u)\big)$$
 
-**Entropy 的上界。** HW3 的 sanity check：只让 entropy 驱动 actor，1 维 tanh-squashed 的 action 的 entropy 应该升到约 $\log2\approx0.69$。为什么是 $\log2$？$[-1,1]$ 上的 uniform density 是 $\tfrac12$，任何 density $p$ 与它的 KL divergence 非负：
+最后一步：$\log(e^u+e^{-u})=u+\log(1+e^{-2u})=u+\mathrm{softplus}(-2u)$。这一项不用自己写。HW3 starter code 的 `make_tanh_transformed` 用 PyTorch 的 `TransformedDistribution` 加 `TanhTransform`，它的 `log_prob` 已经减去了这一项，PyTorch 源码里 `TanhTransform.log_abs_det_jacobian` 正是 `2.0 * (math.log(2.0) - x - softplus(-2.0 * x))`。推一遍是为了知道 `log_prob` 里有什么，以及下面那个 sanity check 的数从哪来。
+
+**Entropy 的上界。** HW3 Section 3.3 的 sanity check：跑 `sanity_invertedpendulum.yaml`，entropy 应该一直上升，接近 action space 能达到的最大 entropy，对 1 维 tanh-squashed 的 action 约为 $\log2\approx0.69$；handout 说明显高于或低于它就多半有 bug。为什么是 $\log2$？$[-1,1]$ 上的 uniform density 是 $\tfrac12$，任何 density $p$ 与它的 KL divergence 非负：
 
 $$0\le\int p\log\frac{p}{1/2}=-\mathcal H(p)+\log2\qquad\Longrightarrow\qquad\mathcal H(p)\le\log2$$
 
@@ -571,7 +604,7 @@ $$0\le\int p\log\frac{p}{1/2}=-\mathcal H(p)+\log2\qquad\Longrightarrow\qquad\ma
 
 ::fig[cs285-tanh] 左：$\sigma$ 不同时 $a=\tanh u$ 的 density。$\sigma$ 太大，mass 被推到 $\pm1$ 两端，entropy 反而下降。右：entropy 随 $\sigma$ 的变化，最大值 0.684 略低于 uniform 的 $\log2$。
 
-所以 sanity check 的读法是：升到 0.68 左右停住，正确；一路涨过 1、2 还在涨，几乎可以肯定是漏了 tanh 的修正项，你在最大化 Gaussian 自己的 entropy，$\sigma$ 越大越“好”；停在很低的值，检查 entropy 的 sign 和 $\beta$ 是否传进了 loss。
+所以 sanity check 的读法是这样的。升到 0.68 左右停住，正确。一路涨过 1、2 还在涨，说明你算的不是 $a=\tanh u$ 的 entropy，而是 $u$ 的：比如对 Gaussian 用了 closed-form 的 $\tfrac12\log(2\pi e\sigma^2)$，或者 `log_prob` 是在 tanh 之前的 $u$ 上算的，表的第二行就是这时看到的数，$\sigma$ 越大越“好”。不涨，停在初始值附近，先看 `entropy()` 里抽 sample 用的是不是 `.sample()`：$\hat{\mathcal H}=-\log\pi_\theta(a)$ 里 $a$ 被当成常数时，$\nabla_\theta\hat{\mathcal H}=-\nabla_\theta\log\pi_\theta(a)$，按[第 2 站](#pg)的 $\mathbb E_{a\sim\pi_\theta}[\nabla_\theta\log\pi_\theta(a)]=0$，entropy bonus 给 actor 的 gradient 在 expectation 上恰好是 0，只剩 noise。Starter code 在 `entropy()` 里留的提示就是“Think about whether to use .rsample() or .sample() here”。再往下查 entropy 的 sign，和 `update()` 里有没有真的调用 actor 的 update。
 
 **Temperature 自动调节。** HW3 把问题写成 constraint：最大化 return，同时要求 $\mathbb E[\mathcal H(\pi)]\ge\bar{\mathcal H}$，$\bar{\mathcal H}=-\dim(\mathcal A)$。$\beta$ 是这个 constraint 的 Lagrange multiplier，对它做 gradient descent 的 loss 是
 
@@ -580,7 +613,7 @@ $$J(\beta)=\mathbb E_{a\sim\pi}\big[-\beta\big(\log\pi(a\mid s)+\bar{\mathcal H}
 Entropy 高于目标时 derivative 为正，gradient descent 让 $\beta$ 变小，entropy 的 bonus 减弱；低于目标时 $\beta$ 变大。用 $\beta=\exp(\log\beta)$ 做 parameterization，保证它为正，对 $\log\beta$ 的 derivative 是 $\beta(\mathcal H-\bar{\mathcal H})$，同号。Fixed point 处 entropy 等于目标值。
 
 :::wrong 用 `.sample()` 抽 action 也行，反正 critic 会告诉 actor 哪里好
-`.sample()` 返回的 tensor 和 $\theta$ 之间没有 gradient 路径，actor loss 里的 $Q(s,a)$ 对 $\theta$ 的 gradient 是 0。$\log\pi_\theta(a\mid s)$ 那一项仍然有 gradient（$a$ 固定时 density 仍依赖 $\theta$），所以 loss 在变、training 在跑，actor 却只在调 entropy，完全不看 $Q$。上一站的 variance 比较说明了为什么要走 reparameterization 这条路，HW3 把这一条列为最容易犯的错。
+`.sample()` 返回的 tensor 和 $\theta$ 之间没有 gradient 路径，actor loss 里的 $Q(s,a)$ 对 $\theta$ 的 gradient 是 0。$\log\pi_\theta(a\mid s)$ 那一项仍然有 gradient（$a$ 固定时 density 仍依赖 $\theta$），所以 loss 在变、training 在跑，不报错。可是上面刚算过，对同一个被当成常数的 $a$，这一项的 gradient 在 expectation 上是 0。Actor 完全不看 $Q$；如果 entropy 也是在这个 $a$ 上估的，它连 entropy 都不在提高，每一步只收到 zero-mean 的 noise。上一站的 variance 比较说明了为什么要走 reparameterization 这条路；HW3 Section 3.4 写的是“Be careful to use the reparametrization trick for sampling!”，并提示用 `.rsample()`。
 :::
 
 :::back
@@ -588,7 +621,7 @@ Entropy 高于目标时 derivative 为正，gradient descent 让 $\beta$ 变小�
 :::
 
 :::from
-Fitted Q-iteration 的引出、三个 process 的视角和 UTD、“Q-learning is not gradient descent”、Polyak update 的“constant lag”、double Q 的推广、两组 practical tips、continuous action 的两种办法、fitted value iteration 不 converge 的结论，来自 [Spring 2026 Lecture 7](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-7.pdf) 和 [Lecture 8](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-8.pdf)（只读到文字）。DQN、Double DQN、SAC 四个部件的写法和 entropy 的 sanity check 来自 [HW3 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw3.pdf)。Residual gradient 的例子、Polyak lag 的推导、n-step 的 fixed point 表、tanh 的 change of variables 和 stable 写法、entropy 的 numerical integration 是按自己的知识写出并实际算的。
+Fitted Q-iteration 的引出、三个 process 的视角和 UTD、“Q-learning is not gradient descent”、DQN 每 10,000 步更新 target、hard update “weirdly uneven”的 lag 和 Polyak 的引出、double Q 的推广、两组 practical tips（Huber、clipping、schedule、多个 seed）、continuous action 的两种办法和“up to about 40 dimensions”、fitted value iteration 不 converge 的结论，来自 [Spring 2026 Lecture 7](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-7.pdf) 和 [Lecture 8](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-8.pdf)（只读到文字，overestimation 和 n-step 的 downside 两处只有标题和一句话）。DQN、Double DQN、SAC 四个部件的写法、两个 sanity check 和 `.rsample()` 的提示来自 [HW3 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw3.pdf)；target update 的周期、$\tau=0.005$、`TanhTransform` 和 `entropy()` 的提示来自 [starter code](https://github.com/berkeleydeeprlcourse/homework_spring2026) 的 HW3 config 和代码，`TanhTransform` 的 stable 写法核对的是 PyTorch 的 `torch/distributions/transforms.py`。Residual gradient 的例子、Polyak lag 的推导、n-step 的 downside 和 fixed point 表、tanh 的 change of variables、entropy 的 numerical integration、`.sample()` 时 gradient 为 0 的论证是按自己的知识写出并实际算的。
 :::
 
 ## [trpo] Advanced policy gradient：performance difference、natural gradient 与 PPO
@@ -699,7 +732,7 @@ Vanilla gradient $(2.18,-5.6)$ 主要指向“把 $\sigma$ 减小”，可是 $\
 
 ::fig[cs285-natgrad] 同一个 LQR 问题在 $(k,\sigma)$ 平面上的 gradient 方向（箭头都缩放成同样长）。左边 vanilla gradient 在大多数点上主要指向“$\sigma$ 变小”，先把 policy 变成 deterministic，再慢慢挪 $k$；右边 natural gradient 指向 optimum 所在的 $k^*=-0.588$。
 
-$F$ 是 $n\times n$ 的，$n$ 是 network 的 parameter 数，存不下也求不了 inverse。TRPO 用 conjugate gradient 解 $Fx=g$：conjugate gradient 只需要能算 $Fv$，而 $Fv$ 等于 KL 的 Hessian 乘 $v$，可以对 $\nabla\mathrm{KL}^\top v$ 再求一次 gradient 得到，不必写出 $F$。每次 $Fv$ 的代价和一次 backward pass 相当。
+$F$ 是 $n\times n$ 的，$n$ 是 network 的 parameter 数，存不下也求不了 inverse。TRPO 用 conjugate gradient 解 $Fx=g$：conjugate gradient 只需要能算 $Fv$，而 $Fv$ 等于 KL 的 Hessian 乘 $v$，可以对 $\nabla\mathrm{KL}^\top v$ 再求一次 gradient 得到，不必写出 $F$。每次 $Fv$ 的代价和一次 backward pass 相当。TRPO 论文的做法：conjugate gradient 迭代 10 次得到 $s\approx F^{-1}g$，$Fv$ 只用约 10% 的 data 估；step 长度取 $\sqrt{2\delta/(s^\top Fs)}$，正是上面的公式（$s^\top Fs=g^\top F^{-1}g$）；因为 quadratic 只是 approximation，再做 backtracking line search，把 step 指数缩小，直到 surrogate 确实变好、真实的 KL 也满足 constraint。所有实验都用 $\delta=0.01$。论文的 bound 用的是各个 state 上 KL 的最大值，系数 $2\epsilon\gamma/(1-\gamma)^2$ 大到按它走 step 会小得没法用，这是它改用 constraint、并把 max 换成平均 KL 的理由。
 
 ### PPO 的两种写法
 
@@ -707,14 +740,22 @@ TRPO 精确地解 constraint 问题，实现复杂。Lecture 10 讲了两条更�
 
 $$\max_{\theta'}\ \bar A(\theta')-\beta\,\mathbb E_s\big[\mathrm{KL}(\pi_{\theta'}\|\pi_\theta)\big]$$
 
-对同一批 data 做几个 epoch 的 SGD。PPO 论文里 $\beta$ 是 adaptive 的：一轮结束后，实测的 KL 超过目标的 1.5 倍就把 $\beta$ 加倍，低于目标的 $1/1.5$ 就减半（这个规则是凭自己的知识写的，没有在读到的 slides 里核对）。二是 clip：把 ratio 限制在 $[1-\epsilon,1+\epsilon]$ 之外不再给奖励，四种情况的逐一计算见 [RB4301](../courses/RB4301.html#ac)。Lecture 10 的总结是：clip 版本是 KL penalty 版本的一个 heuristic approximation，两者都在实现“policy 一次不要变太多”。实际的 PPO 是第 3 站的 GAE 加上 clip，再加一点 entropy regularization，同一批 data 做多个 epoch 的 minibatch 更新。第 6 站的 GRPO 就是把其中的 GAE 换成了 group baseline。
+对同一批 data 做几个 epoch 的 minibatch SGD。PPO 论文第 4 节的 $\beta$ 是 adaptive 的：每轮更新完算出新旧 policy 之间的平均 KL，记作 $d$，目标值记作 $d_{\text{targ}}$；$d<d_{\text{targ}}/1.5$ 就令 $\beta\leftarrow\beta/2$，$d>1.5\,d_{\text{targ}}$ 就令 $\beta\leftarrow2\beta$，新的 $\beta$ 用于下一轮。论文说 1.5 和 2 是 heuristic 选的，algorithm 对它们不敏感。
+
+二是 clip：
+
+$$L^{\text{CLIP}}(\theta)=\hat{\mathbb E}_t\Big[\min\big(r_t(\theta)\hat A_t,\ \mathrm{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat A_t\big)\Big],\qquad r_t(\theta)=\frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\text{old}}}(a_t\mid s_t)}$$
+
+把 ratio 推出 $[1-\epsilon,1+\epsilon]$ 之外不再给奖励，取 min 让它成为 unclipped objective 的一个 pessimistic 的下界；论文建议 $\epsilon=0.2$，四种情况的逐一计算见 [RB4301](../courses/RB4301.html#ac)。Lecture 10 的总结是：clip 版本是 KL penalty 版本的一个 heuristic approximation，两者都在实现“policy 一次不要变太多”。PPO 论文的实验里 KL penalty 版本不如 clip，作者只把它当作 baseline 保留。
+
+实际的 PPO 是第 3 站的 GAE 加上 clip，value function 与 policy 共用 network 时再加一项 value loss 和一项 entropy bonus：$L^{\text{CLIP}}-c_1L^{\text{VF}}+c_2S[\pi_\theta]$，Atari 实验用 $c_1=1$、$c_2=0.01$，同一批 data 做多个 epoch 的 minibatch 更新。第 6 站的 GRPO 就是把其中的 GAE 换成了 group baseline，并去掉了 value loss。
 
 :::back
 $2\varepsilon t$ 的 state distribution bound 和 PPO clip 的四种情况在 [RB4301 的 ac 站](../courses/RB4301.html#ac)；$\mathbb E[\nabla\log\pi]=0$ 在[第 2 站](#pg)。
 :::
 
 :::from
-“为什么喜欢 policy gradient”、每一步都要新 sample 的问题、importance sampling、weight 离开 1 之后 variance 爆炸、clipped importance weight 和 KL penalty 的 PPO 来自 [Spring 2026 Lecture 9](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-9.pdf)；“policy gradient as policy iteration”、bounding the distribution change（引 TRPO 论文）、“not a great bound, but a bound”、first-order 与 second-order expansion、Peters 与 Schaal 的图、conjugate gradient 来自 [Lecture 10](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-10.pdf)。两讲都只读到文字，没有看到图，performance difference lemma、Fisher matrix、natural gradient 的推导是按 slides 的顺序凭自己的知识补全的。IS 的数表、LQR 的 closed form、gradient 场和两种 step 的 KL 都是为这一页算的。
+“为什么喜欢 policy gradient”、每一步都要新 sample 的问题、importance sampling、weight 离开 1 之后 variance 爆炸、clipped importance weight 和 KL penalty 的 PPO 来自 [Spring 2026 Lecture 9](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-9.pdf)；“policy gradient as policy iteration”、bounding the distribution change（引 TRPO 论文）、“not a great bound, but a bound”、first-order 与 second-order expansion、Peters 与 Schaal 的图、conjugate gradient 来自 [Lecture 10](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-10.pdf)。两讲都只读到文字，没有看到图；performance difference lemma 的 telescoping 证明、KL 的 quadratic approximation、conjugate gradient 与 step 长度、$\delta=0.01$ 和 bound 的系数对照的是 [TRPO 论文](https://arxiv.org/pdf/1502.05477v4)（Eq. 1 与 Appendix A、Theorem 1、Appendix C），Fisher matrix 等于 KL 的 Hessian 的那一行 identity 和 natural gradient 的 Lagrangian 是自己补的推导。Adaptive $\beta$ 的规则、$L^{\text{CLIP}}$、$\epsilon=0.2$、KL penalty 不如 clip、$c_1,c_2$ 来自 [PPO 论文](https://arxiv.org/pdf/1707.06347) 第 3–5 节。IS 的数表、LQR 的 closed form、gradient 场和两种 step 的 KL 都是为这一页算的。
 :::
 
 ## [llm] LLM 上的 RL：KL regularization、GRPO 与 KL estimator
@@ -767,7 +808,7 @@ $$\mathbb E\Big[\nabla\log\pi(y_j)\Big(r_j-\frac1G\sum_kr_k\Big)\Big]=\Big(1-\fr
 
 $k\ne j$ 的 completion 和 $y_j$ 独立，expectation 分开，$\mathbb E[\nabla\log\pi(y_j)]=0$。结果是 true gradient 乘 $(1-1/G)$，方向不变。用 leave-one-out mean（不含自己）则完全 unbiased。
 
-**除以 std 改变了各 prompt 的权重。** Reward 是 0 或 1 时，一个 8 选 1 对的 group，$\mu=0.125$，$\sigma=\sqrt{0.125\times0.875}=0.331$，答对的那个 advantage 是 $0.875/0.331=2.65$，答错的各是 $-0.378$；一个 8 选 4 对的 group，$\sigma=0.5$，advantage 是 $\pm1$。难题上偶然答对的那一次被放大到 2.65 倍。
+**除以 std 改变了各 prompt 的权重。** Reward 是 0 或 1 时，一个 8 选 1 对的 group，$\mu=0.125$，$\sigma=\sqrt{0.125\times0.875}=0.331$，答对的那个 advantage 是 $0.875/0.331=2.65$，答错的各是 $-0.378$；一个 8 选 4 对的 group，$\sigma=0.5$，advantage 是 $\pm1$。难题上偶然答对的那一次被放大到 2.65 倍。Dr. GRPO 一文（Liu 等，2025）把这叫 question-level difficulty bias：std 小的题，也就是几乎总答对或几乎总答错的题，在 update 里得到更大的 weight。$G$ 个回答里只有 1 个对时，$\mu=1/G$，$\sigma=\sqrt{\tfrac1G\cdot\tfrac{G-1}G}=\tfrac{\sqrt{G-1}}G$，答对那个的 advantage 是 $\tfrac{(G-1)/G}{\sqrt{G-1}/G}=\sqrt{G-1}$，group 越大越极端。HW4 的 starter code 把 advantage clip 在 $[-5,5]$（`adv_clip=5.0`）：$G=8$ 时是 2.65，$G=16$ 时是 3.87，都不受影响；做 hyperparameter 变体时把 group 调到 32，这个数是 5.57，会被截到 5。
 
 **Reward 全相同的 group 没有信号。** 8 个回答全对或全错时 $r_{i,j}-\mu_i=0$，这个 prompt 的 gradient 恰好是 0。每个回答答对的 probability 为 $p$ 时，这件事的 probability 是 $p^8+(1-p)^8$：
 
@@ -787,9 +828,9 @@ $$L=-\frac1N\sum_iA_i\,\bar\ell_i+\beta\,\mathrm{KL}(\pi_\theta\|\pi_{\text{ref}
 
 $$L=-\frac1N\sum_i\frac1{T_i}\sum_t\min\big(\rho_{i,t}A_i,\ \mathrm{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)A_i\big)+\beta\,\mathrm{KL}$$
 
-HW4 用 $\epsilon=0.2$、$\beta=0.05$，同一个 rollout 做两个 PPO epoch。两个 math run 的 batch、minibatch、learning rate 都一样，唯一的 algorithm 差别就是这两个 epoch，所以 HW4 让你比较前 200 个 iteration 的曲线。
+HW4 用 $\epsilon=0.2$、$\beta=0.05$，同一个 rollout 做两个 PPO epoch。README 里两条 math 命令的 batch（8 个 prompt、每个 8 个回答）、minibatch、gradient accumulation、learning rate $3\times10^{-5}$、KL 系数都一样，algorithm 上的差别只有 GRPO 的两个 epoch 和 clip；GR-REINFORCE 跑 201 步，GRPO 跑 501 步，所以 HW4 让你比较前 200 个 iteration 的曲线。
 
-$1/T_i$ 的作用：handout 说是防止长的 completion 主导 loss。它也有副作用：每个 token 的 weight 是 $A_i/T_i$。两个答错的 completion，$A=-1$，长度 10 和 100，每个 token 分别被推开 $-0.1$ 和 $-0.01$，长的错误答案每个 token 受的惩罚只有十分之一。这是 2025 年 Dr. GRPO 一文对这种平均方式的批评（凭自己的知识写的，没有在读到的材料里核对）。
+$1/T_i$ 的作用：handout 说是防止长的 completion 主导 loss。它也有副作用：每个 token 的 weight 是 $A_i/T_i$。两个答错的 completion，$A=-1$，长度 10 和 100，每个 token 分别被推开 $-0.1$ 和 $-0.01$，长的错误答案每个 token 受的惩罚只有十分之一。Dr. GRPO 一文把这叫 response-level length bias：答对时短的回答得到更大的 update，答错时长的回答受罚更轻，policy 于是在答错的回答里偏好更长的。它的修正是把 $1/T_i$ 和上面的 std normalization 都去掉，advantage 只用 $r_{i,j}-\mu_i$，作者说这样回到了 PPO 的 objective，实验里答错的回答长度明显变短。CS285 Spring 2026 的 LLM RL default final project 就让你实现它，starter code 里 `DrGRPO` 的说明是“removes the GRPO sequence-length normalization and std scaling”。
 
 :::wrong Prompt token 也算进 loss 没关系，反正它们的 advantage 都一样
 Prompt 不是 policy 的 action，它们的 log-probability 乘上 advantage，会让 model 在答对时提高“生成这段 prompt”的 probability、答错时降低它，学的是和 task 无关的东西。长度上它还会淹没真正的信号：200 个 token 的 prompt 加 20 个 token 的回答，没有 mask 时 loss 里 91% 的 term 落在 prompt 上。HW4 的 checklist 要求只给 completion token 打分、prompt 和 padding 都 mask 掉，debugging tips 说 format copy 上 reward 到第 10 步还没涨，先查 mask 和 logprob 的对齐（position $t-1$ 的 logits 预测 token $t$）。
@@ -797,7 +838,7 @@ Prompt 不是 policy 的 action，它们的 log-probability 乘上 advantage，�
 
 ### KL 用 sample 估
 
-完整的 $\mathrm{KL}(\pi_\theta\|\pi_{\text{ref}})$ 要对整个 vocabulary 求和，每个位置都要两个 model 的完整 distribution，又贵又占 memory。HW4 只在 sample 出来的 token 上估。记 $\Delta(a)=\log\pi_{\text{ref}}(a)-\log\pi_\theta(a)$，$a\sim\pi_\theta$，三个常见的 estimator：
+完整的 $\mathrm{KL}(\pi_\theta\|\pi_{\text{ref}})$ 要对整个 vocabulary 求和，每个位置都要两个 model 的完整 distribution，又贵又占 memory。HW4 只在 sample 出来的 token 上估，$\pi_{\text{ref}}$ 的 log-probability 在 rollout 时就算好存下（`ref_logprobs`），update 时只需重算当前 policy 的。记 $\Delta(a)=\log\pi_{\text{ref}}(a)-\log\pi_\theta(a)$，$a\sim\pi_\theta$，三个常见的 estimator：
 
 $$k_1=-\Delta,\qquad k_2=\tfrac12\Delta^2,\qquad k_3=e^\Delta-\Delta-1$$
 
@@ -806,6 +847,8 @@ $$k_1=-\Delta,\qquad k_2=\tfrac12\Delta^2,\qquad k_3=e^\Delta-\Delta-1$$
 **$k_3$ 也 unbiased**：$\mathbb E_{\pi_\theta}[e^\Delta]=\sum_a\pi_\theta(a)\frac{\pi_{\text{ref}}(a)}{\pi_\theta(a)}=1$，所以 $\mathbb E[k_3]=1+\mathrm{KL}-1=\mathrm{KL}$。$e^\Delta-1$ 这一项 expectation 为 0，加上它不改变 mean，却和 $-\Delta$ 负相关，抵消掉一部分 noise。
 
 **$k_3$ 非负**：$e^x\ge1+x$ 对所有 $x$ 成立，所以 $e^\Delta-\Delta-1\ge0$。
+
+HW4 的 `approx_kl_from_logprobs` 用的就是 $k_3$：先把 $\Delta$ clamp 到 $[-20,20]$ 再取 exp，然后对整个 minibatch 里所有 completion token 取平均（不是先在每个 completion 内平均）。代码注释说 clamp 是为了 numerical stability 和控制 variance：$\Delta$ 大，意味着 sample 到的 token 在 $\pi_\theta$ 下 probability 极小、在 $\pi_{\text{ref}}$ 下却不小，$k_3$ 随 $e^\Delta$ 指数增长，$\Delta=20$ 时已是 $e^{20}\approx4.9\times10^8$，一个 token 就能淹没整个 minibatch 的 estimate。
 
 $k_2$ 不是 unbiased 的，KL 小时 approximately 正确。在一个 50 个 token 的 vocabulary 上实算（$\pi_\theta$ 的 logits 取 $\mathcal N(0,1)$，$\pi_{\text{ref}}$ 的 logits 再加 std 为 $s$ 的扰动，seed 0）：
 
@@ -832,7 +875,7 @@ PPO clip 见[第 5 站](#trpo)和 [RB4301](../courses/RB4301.html#ac)；$\pi\pro
 :::
 
 :::from
-One-step 与 token 级两种看法、value baseline 的两种做法、GRPO 这个名字、reference-model regularization 的两个理由、Bradley–Terry 和 verifier reward 来自 [Spring 2026 Lecture 14](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-14.pdf)（只读到文字，slides 只给了 GRPO 的名字，没有 formula）。Group advantage、两种 loss、KL estimator、reward 的构成、预期的数字和 debugging tips 来自 [HW4 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw4.pdf)。Optimal policy 的推导、mean 含自己时的 $(1-1/G)$、全相同 group 的 probability、三个 estimator 的数表和 $k_3$ 的 gradient 都是为这一页推导和实算的；Dr. GRPO 的批评凭自己的知识写。
+One-step 与 token 级两种看法、value baseline 的两种做法、GRPO 这个名字、reference-model regularization 的两个理由、Bradley–Terry 和 verifier reward 来自 [Spring 2026 Lecture 14](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-14.pdf)（只读到文字，slides 只给了 GRPO 的名字，没有 formula）。Group advantage、两种 loss、KL estimator、reward 的构成、预期的数字和 debugging tips 来自 [HW4 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw4.pdf)。Population std、advantage clip、KL 的 clamp 与平均方式、两条 math 命令的设置来自 [starter code](https://github.com/berkeleydeeprlcourse/homework_spring2026) 的 HW4 代码和 README。两种 bias 的名字和 Dr. GRPO 的修正来自 [Dr. GRPO 论文](https://arxiv.org/html/2503.20783v2) 第 3 节，final project 的 `rl/dr_grpo.py` 是同一件事在课程里的出处。Optimal policy 的推导、mean 含自己时的 $(1-1/G)$、$\sqrt{G-1}$、全相同 group 的 probability、三个 estimator 的数表和 $k_3$ 的 gradient 都是为这一页推导和实算的。
 :::
 
 ## [mbrl] Model-based RL：planning、model 上的 gradient 与 latent model
@@ -904,13 +947,13 @@ CEM、ensemble、MPC、MBPO 和 model error 的累积在 [RB4301 的 mpc 站](..
 :::
 
 :::from
-Open-loop 与 closed-loop、random shooting、CEM 的优缺点、其他 planning 方法、policy gradient 与 pathwise gradient 的比较、short rollout、Dyna、MBA/MVE/MBPO、latent space model 的组成和“deterministic encoder 为什么是坏主意”，来自 [Spring 2026 Lecture 16](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-16.pdf)；distributional shift、uncertainty、ensemble 的部分来自 [Lecture 15](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-15.pdf)，已在 RB4301 讲过。两讲只读到文字。抛硬币的例子、CEM 的 mean 变化和对比表（20 个 seed 的 median）、Jacobian 的数表、MVE 与 n-step 的对照、collapse 的论证是为这一页写的。
+Open-loop 与 closed-loop、random shooting、CEM 的优缺点、其他 planning 方法、policy gradient 与 pathwise gradient 的比较、short rollout、Dyna、MBA/MVE/MBPO、latent space model 的组成和“deterministic encoder 为什么是坏主意”，来自 [Spring 2026 Lecture 16](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-16.pdf)；distributional shift、uncertainty、ensemble 的部分来自 [Lecture 15](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-15.pdf)，已在 RB4301 讲过。两讲只读到文字：open-loop 一页只有“why is this suboptimal?”这个问题，pathwise gradient 的式子、MVE 的具体做法、latent model 的 training objective 都在图里没有读到（slide 只列出 MVE 是 Feinberg 等 2018、只问“How to train?”）。抛硬币的例子、CEM 的 mean 变化和对比表（20 个 seed 的 median）、Jacobian 的数表、MVE 的做法和它与 n-step 的对照、latent model 的 objective、collapse 的论证是为这一页按自己的知识写的。
 :::
 
-## [offline] Offline RL：OOD action、policy constraint、IQL 与 FQL
+## [offline] Offline RL：OOD action、policy constraint、IQL、CQL 与 FQL
 
 :::skip
-快速路线必读，HW5 依赖它，也是“用固定的 demonstration 和 rollout data 做 post-training”的理论基础。能用 linear Q 的例子说明 Q-learning 在 data 外的 max 会怎样、由 KL constraint 推出 AWR、算出 expectile 怎样趋向 in-support 的 max，并说出 FQL 为什么要 distill，就读完了这一页的讲义部分。
+快速路线必读，HW5 依赖它，也是“用固定的 demonstration 和 rollout data 做 post-training”的理论基础。能用 linear Q 的例子说明 Q-learning 在 data 外的 max 会怎样、由 KL constraint 推出 AWR、算出 expectile 怎样趋向 in-support 的 max，并说出 FQL 为什么要 distill，就读完了这一页的讲义部分。CQL、offline 到 online、model-based offline RL 三个小节是 Lecture 18 的后半，HW5 不考，快速路线可以先跳。
 :::
 
 ### 只有 data，不能试
@@ -930,7 +973,7 @@ Offline RL 只有一个固定的 dataset $\mathcal D$，由某个 behavior polic
 
 Fixed point 是 $w_0=9\gamma/(1-\gamma)=81$，$Q(9)=90$。Greedy policy 选 action 9，它从未出现在 data 里。如果 action 9 的真实 reward 是 0，按它行动得到的 return 是 0；而只在 data 的 action 里取 max（把 $\max$ 限制在 $\{0,1\}$），fixed point 是 $w_0=\gamma(w_0+1)$，即 $w_0=9$、$Q(1)=10$，正好是一直选 action 1 的真实 return。
 
-Online 时这不是问题：policy 去试 action 9，拿到 0，Q 被纠正。Offline 时没有这一步，max 不断地挑 extrapolation 最乐观的地方，bootstrapping 再把它传回所有 state。Lecture 17 引了一张 SAC 在 offline data 上的图：critic 估的 Q 值（log scale）远高于 policy 实际的 performance。
+Online 时这不是问题：policy 去试 action 9，拿到 0，Q 被纠正。Offline 时没有这一步，max 不断地挑 extrapolation 最乐观的地方，bootstrapping 再把它传回所有 state。Lecture 17 有一页“An example with soft actor-critic”：横轴是 data 的数量（log scale），一条线是 policy 实际做得多好，一条是它的 Q 值“认为”自己多好，slide 标着“massive overestimation”。
 
 ::fig[cs285-ood] 动图，和开头那张相同。Linear Q-function 在两个 data point 上 fit，max 取在 data 之外的 $a=9$。看右边的读数和表对上：前几轮每轮涨 7 到 8，越往后涨得越慢，60 轮后整条 line 抬到 81 到 90；只在 data 的 action 上取 max（黑线），$Q(1)$ 停在真实值 10。
 
@@ -938,7 +981,7 @@ Online 时这不是问题：policy 去试 action 9，拿到 0，Q 被纠正。Of
 上面的例子里两个 data point 的 target 是 exact 的，没有任何 sampling noise，Q 照样涨到 90。再多 $a=0,1$ 的 data 也只是让这两个点 fit 得更准，丝毫不约束 $a=9$ 处的 extrapolation。Lecture 17 说 sampling error 和 function approximation error 在普通 RL 里就有，offline 时变得严重得多，因为没有新 data 来纠正。
 :::
 
-Lecture 17 列了对付它的三条原则：policy constraint（让 policy 留在 data 附近）；pessimism，即让 Q 不 overestimate，CQL 的做法是在 Q 的 loss 里加一项，压低当前 policy 所选 action 上的 Q、抬高 dataset action 上的 Q，于是 data 外的 action 不会显得比 data 里的好；以及更新时根本不 query OOD action（如 IQL）。HW5 的三个 algorithm 分别属于第一条、第三条，以及第一条的一个更好的实现。
+Lecture 17 列了对付它的三条原则，Lecture 18 开头再列一遍，然后逐条展开：policy constraint（“train the policy so that it stays close to data”）；pessimism（“train the Q-function so that it doesn't overestimate”，代表是 CQL）；以及“set up the whole algorithm to avoid out-of-sample actions”（代表是 IQL）。HW5 的三个 algorithm 分别属于第一条、第三条，以及第一条的一个更好的实现；CQL 不在作业里，下面单独讲。
 
 ### Policy constraint：BC 项
 
@@ -948,11 +991,13 @@ $$L(\pi)=\mathbb E\Big[-\tfrac12\sum_iQ_i(s,a^\pi)+\alpha\,\tfrac1{|\mathcal A|}
 
 $a$ 是 dataset 里的 action，$a^\pi$ 是 reparameterized sample。$\alpha$ 大，policy 贴着 data；$\alpha$ 小，policy 去追 Q。HW5 说 $\alpha$ 是最敏感的 hyperparameter，要逐个 task 调。BC 项对 action 维取 mean，如果写成 sum，等效的 $\alpha$ 就乘了 $|\mathcal A|$，handout 给的 grid 就对不上了。
 
-“贴着 data”用什么量？Lecture 17 比较了两个方向的 KL。Behavior 是两个 mode 的 mixture $\tfrac12\mathcal N(-1,0.1^2)+\tfrac12\mathcal N(1,0.1^2)$，用一个 Gaussian 去 fit：最小化 $\mathrm{KL}(\pi_\beta\|\pi)$（mode covering）得到 moment matching 的 $\mathcal N(0,1.005^2)$，mean 落在两个 mode 中间 behavior density 几乎为 0 的地方；最小化 $\mathrm{KL}(\pi\|\pi_\beta)$（mode seeking）只盖住一个 mode。Lecture 17 说真正想要的是 support constraint：只禁止 behavior policy 不可能做的 action，在 data 支持的范围内随便选。它很难直接实现。MSE 形式的 BC 项和 forward KL 一样会把 unimodal 的 policy 拉向两个 mode 的中间，这是 FQL 要解决的问题。
+Lecture 18 把这类做法叫 explicit policy constraint：在 actor 的 objective 里加一项到 behavior policy 的 divergence，命名常是“[method]+BC”（DDPG+BC、TD3+BC、SAC+BC）。Slide 的评价是“generally not the best way to fix the problem, but can work well if done right”。它只在每个 state 上各自约束 actor：$Q$ 里没有任何“离 data 多远”的信息，所以 actor 在 $s$ 处挑 action 时，不知道这个 action 会不会把它带到一个将来不得不偏离 data 的 state。Lecture 18 接着给出第二种 explicit constraint，把 divergence 放进 reward：$\tilde r(s,a)=r(s,a)-\beta\,D\big(\pi(\cdot\mid s),\pi_\beta(\cdot\mid s)\big)$，于是 critic 学到的 value 也会为将来的偏离付出代价（slide：“also accounts for future divergence”），代价是要先估出 $\pi_\beta$，通常配合 reverse KL 和 MaxEnt RL（BRAC 一类方法）。
+
+“贴着 data”用什么量？Lecture 17 和 Lecture 18 都比较了两个方向的 KL。Behavior 是两个 mode 的 mixture $\tfrac12\mathcal N(-1,0.1^2)+\tfrac12\mathcal N(1,0.1^2)$，用一个 Gaussian 去 fit：最小化 $\mathrm{KL}(\pi_\beta\|\pi)$（mode covering）得到 moment matching 的 $\mathcal N(0,1.005^2)$，mean 落在两个 mode 中间 behavior density 几乎为 0 的地方；最小化 $\mathrm{KL}(\pi\|\pi_\beta)$（mode seeking）只盖住一个 mode。Lecture 17 说真正想要的是 support constraint：只禁止 behavior policy 不可能做的 action，在 data 支持的范围内随便选。它很难直接实现。MSE 形式的 BC 项和 forward KL 一样会把 unimodal 的 policy 拉向两个 mode 的中间，这是 FQL 要解决的问题。
 
 ### AWR：只在 dataset action 上做 weighted maximum likelihood
 
-另一种实现 constraint 的办法不显式惩罚，而是把 constraint 问题解出来。对每个 $s$：
+另一种实现 constraint 的办法不显式惩罚，而是把 constraint 问题解出来，Lecture 18 叫它 implicit policy constraint：optimal 的 constrained policy“straightforward to show via duality”，再“approximate via weighted max likelihood”。对每个 $s$：
 
 $$\max_\pi\ \mathbb E_{a\sim\pi}\big[A(s,a)\big]\qquad\text{subject to}\qquad\mathrm{KL}\big(\pi(\cdot\mid s)\,\|\,\pi_\beta(\cdot\mid s)\big)\le\epsilon$$
 
@@ -968,7 +1013,7 @@ $$\begin{aligned}\arg\min_\phi\mathrm{KL}(\pi^*\|\pi_\phi)&=\arg\max_\phi\mathbb
 
 $$L(\pi)=\mathbb E_{(s,a)\sim\mathcal D}\Big[-\min\big(\exp(\alpha A(s,a)),\,M\big)\log\pi(a\mid s)\Big]$$
 
-$\alpha=0$ 是纯 BC，$\alpha$ 很大时只模仿 advantage 最大的那些 action。
+$\alpha=0$ 是纯 BC，$\alpha$ 很大时只模仿 advantage 最大的那些 action。Lecture 18 的“AWAC-like algorithm”就是两步交替：用 dataset 的 $(s,a,r,s')$ 和当前 policy 的 $a'\sim\pi$ fit $Q$，再用上式 update actor。Slide 留了一个问题：这样做还有什么毛病？答案在 critic：$Q$ 的 target 里 $a'$ 由 $\pi$ 抽出，$\pi$ 偏离 data 的地方仍然要 query OOD action。下面的 IQL 就是为了连这一步也去掉。
 
 ### IQL：用 expectile 代替 max
 
@@ -996,7 +1041,110 @@ HW5 的三个 loss（$\tau=0.9$，两个 target Q 取 min）：
 
 $$L(V)=\mathbb E\big[\ell_\tau^2\big(\min_i\bar Q_i(s,a)-V(s)\big)\big],\qquad L(Q)=\sum_i\mathbb E\big[\big(Q_i(s,a)-r-\gamma V(s')\big)^2\big]$$
 
-加上上面的 AWR actor loss。为什么要分开 $V$ 和 $Q$，不直接对 $r+\gamma V(s')$ 取 expectile？因为 $s'$ 也是 random 的：对 $r+\gamma V(s')$ 取高 expectile，会同时对“哪个 action”和“运气好转到哪个 next state”取乐观，后者不是 agent 能选的。$Q$ 用普通 MSE 对 $s'$ 求平均，$V$ 的 expectile 只作用在 action 的选择上。
+加上上面的 AWR actor loss。HW5 的 IQL 默认 `expectile=0.9`、`alpha=10`，和 IQL 论文 Appendix B 给 AntMaze 的 $\tau=0.9$、$\beta=10$ 相同（论文在 MuJoCo locomotion 上用 $\tau=0.7$、$\beta=3$）。
+
+为什么要分开 $V$ 和 $Q$，不直接对 TD target 取 expectile？IQL 论文第 4.2 节的解释：那样做会把 environment dynamics $s'\sim p(\cdot\mid s,a)$ 的 randomness 也带进来，一个大的 target 不一定说明存在一个能拿到它的 action，可能只是一次“lucky”的 transition。用上面的例子算一下差多少：设某个 $(s,a)$ 以 0.9 的 probability 转到 value 为 0 的 state、以 0.1 转到 value 为 10 的 state，reward 为 0，$\gamma=1$。真正的 $Q(s,a)=0.9\times0+0.1\times10=1$。对这两个 target 取 $\tau=0.9$ 的 expectile，first-order condition 是 $0.9\times0.1\times(10-m)=0.1\times0.9\times m$，得 $m=5$，是真值的 5 倍，而这个 $(s,a)$ 上根本没有可选的东西。$Q$ 用普通 MSE 对 $s'$ 求平均，$V$ 的 expectile 只作用在 action 的选择上，两种 randomness 就分开了。Lecture 18 的说法是 $V$ 的 distribution“induced by actions only”，value 的 update 因此“without ever risking out-of-distribution actions”。
+
+### CQL：直接把 Q 往下压
+
+:::skip
+HW5 不考 CQL。跳过它会少掉第二条原则的具体做法，以及“pessimism 在最简单的情形下就是一个 policy constraint”这个对应；下一小节的 offline 到 online 会用到这里的 penalty 公式。
+:::
+
+第二条原则不去管 policy，而是让 Q 本身不 overestimate。Lecture 18 的 CQL 分两步。第一步在 Q 的 regression loss 上加一项“push down big Q-values”的 term（CQL 论文 Eq. 1）：
+
+$$\hat Q^{k+1}=\arg\min_Q\ \alpha\,\mathbb E_{s\sim\mathcal D,a\sim\mu(a\mid s)}\big[Q(s,a)\big]+\tfrac12\,\mathbb E_{(s,a)\sim\mathcal D}\Big[\big(Q(s,a)-\hat{\mathcal B}^\pi\hat Q^k(s,a)\big)^2\Big]$$
+
+$\mu$ 选在 Q 大的地方，实际就取当前 policy $\pi$。论文的 Theorem 3.1 证明这样得到的 $\hat Q$ 对每一个 $(s,a)$ 都是 $Q^\pi$ 的 lower bound，但太保守了：data 里的 action 也被一起压低。第二步（Eq. 2）再减去一项，“push up on $(s,a)$ samples in data”：
+
+$$\begin{aligned}\hat Q^{k+1}=\arg\min_Q\ &\alpha\Big(\mathbb E_{s\sim\mathcal D,a\sim\mu}\big[Q(s,a)\big]-\mathbb E_{(s,a)\sim\mathcal D}\big[Q(s,a)\big]\Big)\\&+\tfrac12\,\mathbb E_{(s,a,s')\sim\mathcal D}\Big[\big(Q(s,a)-\hat{\mathcal B}^\pi\hat Q^k(s,a)\big)^2\Big]\end{aligned}$$
+
+这时 $\hat Q$ 不再逐点小于 $Q^\pi$，Theorem 3.2 换成了对 value 的保证：$\mu=\pi$ 时 $\hat V^\pi(s)\le V^\pi(s)$，前提是 $\alpha$ 大到能盖住 sampling error 那一项。
+
+**Tabular 时它在做什么。** 每个 $(s,a)$ 是一个独立的 parameter。记 data 里 state 的 distribution 为 $d(s)$、behavior policy 为 $\pi_\beta$，上式对 $Q(s,a)$ 求 derivative 令其为 0：
+
+$$\alpha\,d(s)\big(\mu(a\mid s)-\pi_\beta(a\mid s)\big)+d(s)\,\pi_\beta(a\mid s)\big(Q(s,a)-\hat{\mathcal B}^\pi\hat Q^k(s,a)\big)=0$$
+
+两边除以 $d(s)\pi_\beta(a\mid s)$：
+
+$$\hat Q^{k+1}(s,a)=\hat{\mathcal B}^\pi\hat Q^k(s,a)-\alpha\Big(\frac{\mu(a\mid s)}{\pi_\beta(a\mid s)}-1\Big)$$
+
+这正是 CQL 论文里的 tabular update。$\mu$ 比 $\pi_\beta$ 更爱选的 action 被扣分，$\mu$ 比 $\pi_\beta$ 更少选的 action 反而加分；$\mu=\pi_\beta$ 时什么也不改。
+
+**一个 state 的例子。** 一个 state，自己转回自己，$\gamma=0.9$，三个 action。Data 里 $\pi_\beta=(0.7,\ 0.25,\ 0.05)$，真实 reward 是 $(0,\ 1,\ 0.5)$；action 2 在 data 里很少，它的几个 sample 恰好偏高，估出的 $\hat r=(0,\ 1,\ 2)$。Data 里最好的 policy 是一直选 action 1，return $1/(1-\gamma)=10$。
+
+取 $\mu=\pi$，fixed point 满足 $\hat Q(a)=\hat r(a)-\alpha\big(\pi(a)/\pi_\beta(a)-1\big)+\gamma\hat V$，$\hat V=\sum_a\pi(a)\hat Q(a)$。按 $\pi(a)$ 加权求和：
+
+$$\hat V=\sum_a\pi(a)\hat r(a)-\alpha\Big(\sum_a\frac{\pi(a)^2}{\pi_\beta(a)}-1\Big)+\gamma\hat V\qquad\Longrightarrow\qquad\hat V=\frac{\mathbb E_\pi[\hat r]-\alpha\,\chi^2(\pi\|\pi_\beta)}{1-\gamma}$$
+
+其中用到了 $\sum_a\pi^2/\pi_\beta-1=\sum_a(\pi-\pi_\beta)^2/\pi_\beta$（展开右边：$\sum\pi^2/\pi_\beta-2\sum\pi+\sum\pi_\beta$），这就是 $\chi^2(\pi\|\pi_\beta)$。在这个例子里，CQL 的 pessimism 恰好是一个 policy constraint：每个 policy 的 value 被扣掉它离 $\pi_\beta$ 的 $\chi^2$ divergence，$\pi=\pi_\beta$ 时一分不扣。
+
+在所有 policy 里挑 $\hat V$ 最大的，就是最大化 $\sum_a\pi(a)\hat r(a)-\alpha\sum_a\pi(a)^2/\pi_\beta(a)$，约束 $\sum_a\pi(a)=1$、$\pi\ge0$。对 $\pi(a)$ 求 derivative，加 Lagrange multiplier $\lambda$：$\hat r(a)-2\alpha\pi(a)/\pi_\beta(a)=\lambda$，所以
+
+$$\pi(a)=\max\Big(0,\ \frac{\pi_\beta(a)\,\big(\hat r(a)-\lambda\big)}{2\alpha}\Big)$$
+
+$\lambda$ 由和为 1 定出。以 $\alpha=0.15$ 为例：先猜 action 0 的 probability 为 0，则 $\frac{0.25(1-\lambda)+0.05(2-\lambda)}{0.3}=1$，$0.35-0.3\lambda=0.3$，$\lambda=0.167$；$\pi(1)=0.25\times0.833/0.3=0.694$，$\pi(2)=0.05\times1.833/0.3=0.306$；action 0 的式子给出负数，确实为 0。这个 policy 的真实 return 是 $(0.694\times1+0.306\times0.5)/0.1=8.47$。
+
+| $\alpha$ | $\pi$ | $\hat V$ | 真实 return |
+|---|---|---|---|
+| 0（普通 Q-learning） | $(0,\ 0,\ 1)$ | 20.00 | 5.00 |
+| 0.05 | $(0,\ 0.417,\ 0.583)$ | 12.58 | 7.08 |
+| 0.15 | $(0,\ 0.694,\ 0.306)$ | 8.86 | 8.47 |
+| 0.3 | $(0.292,\ 0.521,\ 0.188)$ | 6.23 | 6.15 |
+| 1 | $(0.578,\ 0.331,\ 0.091)$ | 4.32 | 3.77 |
+| $\infty$ | $\pi_\beta$ | 3.50 | 2.75 |
+
+::fig[cs285-cql] 同一份 data 下，CQL 的 $\alpha$ 从 0 到 $\infty$ 时 policy 的变化。$\alpha$ 小，policy 追着 sample 偏高的 action 2；$\alpha$ 大，policy 退回 $\pi_\beta$，连没用的 action 0 都选；真实 return 在中间最高。
+
+读这张表有三点。$\alpha=0$ 时 greedy 地选 action 2，$\hat V=20$，真实只有 5，这就是 offline 的 overestimation。$\alpha$ 越大，policy 越贴近 $\pi_\beta$，$\alpha\to\infty$ 时退化成 behavior cloning，真实 return 只剩 2.75；真实 return 在 $\alpha$ 取中间值时最高，和 HW5 里“$\alpha$ 是最敏感的 hyperparameter”是同一件事。表里每一行的 $\hat V$ 都还高于真实 return：action 2 的 reward 估高了 1.5，被选中的 policy 恰恰偏爱它。Theorem 3.2 的 lower bound 要求 $\alpha$ 盖住 sampling error，而 policy 又专挑 sampling error 偏乐观的地方，在 data 很少的 action 上这个要求很难满足。
+
+上面是“在所有 policy 里挑 $\hat V$ 最大的”。CQL 实际是 actor-critic 交替：actor 对固定的 $\hat Q$ 做 improvement。交替到不动时，被选中的 action 的 $\hat Q(a)=\hat r(a)-\alpha\pi(a)/\pi_\beta(a)+\text{const}$ 必须相等，这和上面的 stationarity condition 只差把 $2\alpha$ 换成 $\alpha$：actor-critic 用 $\alpha$ 时停在表里 $\alpha/2$ 那一行的 policy，表的形状不变。
+
+实用的版本是 CQL($\mathcal H$)（论文 Eq. 4）：push down 的那一项取成 $\log\sum_a\exp Q(s,a)$，即对一个 maximum entropy 的 $\mu$ 取 soft maximum，continuous action 时用 sample 估。论文还证明了“gap-expanding”：$\alpha$ 够大时，$\hat Q$ 在 $\pi_\beta$ 和 $\mu$ 上的 expectation 之差比真实 Q 的差更大，data 外的 action 不会显得比 data 里的好。
+
+### 从 offline 到 online
+
+:::skip
+HW5 不做 online fine-tuning，Spring 2026 的“Offline-to-Online RL”default final project 做。跳过它会少掉 fine-tuning 一开始那段 performance 下跌的原因。
+:::
+
+实际用法常常是先用 offline data pretrain，再让 agent 和环境交互 fine-tune。Lecture 18 的“What's the problem?”一页拿 CQL 举例：第 50k 步切到 online 之后，performance 先掉下去再慢慢爬回来，slide 的说法是 offline 阶段“underestimating too much”，online 一开始的那段时间都在“recalibrating the value function”，白白用来恢复 offline 已经有的 performance；“Different offline RL algorithms have different versions of this problem.”
+
+上一小节的公式说明了 underestimation 有多大、为什么会被慢慢收回。$\alpha=0.15$ 时 policy 是 $(0,\ 0.694,\ 0.306)$，CQL 对它的 value 扣掉 $\alpha\chi^2(\pi\|\pi_\beta)/(1-\gamma)=0.15\times2.796/0.1=4.19$。Online 阶段 buffer 里不断加入这个 policy 自己的 data，buffer 的 behavior distribution 变成 mixture $w\pi_\beta+(1-w)\pi$，$w$ 是 offline data 所占的比例：
+
+| Offline data 占 buffer 的比例 $w$ | 1 | 0.5 | 0.2 | 0.1 |
+|---|---|---|---|---|
+| Buffer 的 behavior distribution | $(0.7,\ 0.25,\ 0.05)$ | $(0.35,\ 0.472,\ 0.178)$ | $(0.14,\ 0.606,\ 0.254)$ | $(0.07,\ 0.65,\ 0.28)$ |
+| $\chi^2(\pi\|\text{buffer})$ | 2.796 | 0.546 | 0.163 | 0.075 |
+| CQL 扣掉的 value | 4.19 | 0.82 | 0.25 | 0.11 |
+
+Value 要从被压低 4.19 的位置一路涨回来，critic 在涨回来之前给 actor 的信号是错的。把 $\alpha$ 一下子调成 0 也不行，那就回到了 $\alpha=0$ 那一行的 overestimation。
+
+Lecture 18 介绍的 simple baseline 来自 RLPD（Ball、Smith、Kostrikov、Levine 2023），slide 称它“embarrassingly effective”。它干脆不做 offline pretraining，从零开始跑 online off-policy RL，只是把 offline data 放进来，三个设计：
+
+1. **Symmetric sampling。** 每个 batch 一半从 offline data 抽，一半从 online 的 replay buffer 抽。
+2. **LayerNorm。** Critic 最后一层之前加 LayerNorm。先不算它可学的 scale 和 shift，LayerNorm 的输出 $h$ 满足 $\|h\|_2=\sqrt d$（$d$ 是维数，每一维减 mean 除 std 之后平方和为 $d$），所以 $|Q|=|w^\top h|\le\|w\|_2\sqrt d$，data 外的 action 也不可能让 $Q$ 涨过这个界。对照本站开头的 linear Q：feature 是 $a$ 本身，没有上界，$Q(9)$ 才会一路涨到 90。
+3. **Large ensemble 和高 UTD。** 用多个 critic，每个 environment step 做多次 update。
+
+Lecture 18 的最后一点：actor 换成 diffusion 或 flow matching 往往让 offline 到 online 更顺利，slide 的推测是这类 actor 不需要靠 RL update 去捕捉多个 mode。列出的例子有 IDQL、FQL（下一小节），以及 diffusion steering（Wagenmaker 等）：在 diffusion policy 的 latent noise 空间里做 online RL，不管 noise 怎么选，decode 出来的 action 都在 data 的 distribution 里。Final project 的 starter code 里就有 SAC+BC、FQL、IFQL、QSM、DSRL 五个 agent。
+
+### Model-based offline RL
+
+:::skip
+不在 HW5 里。跳过它会少掉“model 的 uncertainty 怎样当 penalty 用”。
+:::
+
+[第 7 站](#mbrl)的 planner 会去 model 错的地方，offline 时没有新 data 来纠正，问题更严重。Lecture 18 的 MOPO 在 model 生成的 reward 上减一项 uncertainty penalty：
+
+$$\tilde r(s,a)=r(s,a)-\lambda\,u(s,a)$$
+
+$u$ 要满足 $d_{\mathcal F}\big(\hat T(s,a),T(s,a)\big)\le u(s,a)$，即 model 的 transition 和真实 transition 之间的差距处处不超过它。MOPO 论文的 Theorem 4.4 证明，在 $\tilde r$ 定义的 model MDP 里求出的 policy $\hat\pi$ 满足
+
+$$\eta_M(\hat\pi)\ \ge\ \sup_\pi\big\{\eta_M(\pi)-2\lambda\,u(\pi)\big\}$$
+
+$\eta_M$ 是真实环境里的 return，$u(\pi)$ 是 $\pi$ 在 model 里走过的地方的平均 uncertainty。右边对任何 $\pi$ 成立：$\hat\pi$ 至少和“真实 return 高、又只走 model 有把握的地方”的那个 policy 差不多好，例如 behavior policy 本身，它走的正是 data 覆盖的地方。实际的 $u(s,a)$ 取 model ensemble 里各个 model 预测的 std 的最大值，ensemble 在 [RB4301 的 mpc 站](../courses/RB4301.html#mpc)讲过；取 max 而不取 mean 是为了更保守。
+
+COMBO 把 CQL 用到 model 上：slide 的原话是“just like CQL minimizes Q-value of policy actions, we can minimize Q-value of model state-action tuples”，push down 的对象换成 model rollout 产生的 $(s,a)$，push up 的仍是真实 data。它不需要显式的 uncertainty estimate。MOReL（Kidambi 等）是和 MOPO 同期的做法。
 
 ### FQL：flow policy 负责 BC，one-step policy 负责 Q
 
@@ -1006,7 +1154,7 @@ FQL 的办法是两个 policy 分工。$\pi_v$ 只做 flow matching 的 BC（第
 
 $$L(\pi_\omega)=\mathbb E\Big[-\tfrac12\sum_iQ_i\big(s,\pi_\omega(s,z)\big)+\frac{\alpha}{|\mathcal A|}\big\|\pi_\omega(s,z)-\pi_v(s,z)\big\|^2\Big]$$
 
-$\pi_v(s,z)$ 是同一个 $z$ 经过 10 步 Euler 得到的 action，distillation 项不对它求 gradient，$Q$ 项只对 $\pi_\omega$ 做一次普通的 backward pass。关键在 distillation 是按 $z$ 对齐的：在第 1 站 $\pm1$ 的例子里，$\pi_v(s,z)$ 对 $z>0$ 给出 $+1$ 附近、对 $z<0$ 给出 $-1$ 附近，所以 $\pi_\omega$ 学的是“正的 $z$ 去右边的 mode、负的 $z$ 去左边的 mode”，每个 target 都在 data 的 support 里，不会被拉到中间；$Q$ 项再在各个 mode 内往高处推。Critic 的 target 和 evaluation 都用 $\pi_\omega$。FQL 论文在 OGBench 的 antsoccer 任务上平均 60，IQL 8，ReBRAC 0。
+$\pi_v(s,z)$ 是同一个 $z$ 经过 10 步 Euler 得到的 action，distillation 项不对它求 gradient，$Q$ 项只对 $\pi_\omega$ 做一次普通的 backward pass。关键在 distillation 是按 $z$ 对齐的：在第 1 站 $\pm1$ 的例子里，$\pi_v(s,z)$ 对 $z>0$ 给出 $+1$ 附近、对 $z<0$ 给出 $-1$ 附近，所以 $\pi_\omega$ 学的是“正的 $z$ 去右边的 mode、负的 $z$ 去左边的 mode”，每个 target 都在 data 的 support 里，不会被拉到中间；$Q$ 项再在各个 mode 内往高处推。Critic 的 target 和 evaluation 都用 $\pi_\omega$，FQL 论文说 test 时部署的就是 one-step policy；所有任务都用 10 步 Euler，论文的 ablation 说只要步数不太少，结果对它不敏感。论文 Table 2（OGBench，每个环境 5 个 task 的平均 success rate，%）：antsoccer-arena 上 FQL 60、IQL 8、ReBRAC 0、直接 backprop through the flow 的 FBRAC 16；cube-single 上 FQL 96、ReBRAC 91、IQL 83、FBRAC 79，这两个正是 HW5 用的环境。
 
 ### Q 值的 sanity check
 
@@ -1025,12 +1173,12 @@ Flow matching policy 在[第 1 站](#il)；AWR 的 Lagrangian 和[第 6 站](#ll
 :::
 
 :::from
-Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 的 overestimation 图、三条原则、forward 与 reverse KL、support constraint 来自 [Spring 2026 Lecture 17](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-17.pdf)（只读到文字）。Lecture 18 抓取被拒，没有读到；explicit 与 implicit constraint、AWR 由 duality 得到、IQL 的问法用的是 [Fall 2023 Lecture 16](https://rail.eecs.berkeley.edu/deeprlcourse-fa23/deeprlcourse-fa23/static/slides/lec-16.pdf) 的文字，AWR 的 Lagrangian 推导 slides 上是图，按自己的知识补全。Expectile loss、三个 loss 和 Lemma 1 来自 [IQL 论文](https://ar5iv.arxiv.org/html/2110.06169)；FQL 的动机、loss 和 antsoccer 的数字来自 [FQL 论文](https://arxiv.org/pdf/2502.02538)；SAC+BC、IQL、FQL 在作业里的具体写法和 Q 值范围来自 [HW5 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf)。Linear Q 的例子、expectile 的数表、两种 KL fit、Q 与步数的对照是为这一页算的；“分开 $V$ 和 $Q$ 是为了不对 transition 的运气乐观”是凭自己对 IQL 论文的理解写的，读到的部分没有这句话。
+Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 的 overestimation 图、三条原则、forward 与 reverse KL、support constraint 来自 [Spring 2026 Lecture 17](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-17.pdf)。Explicit 与 reward-modifying 两种 policy constraint 和对 TD3+BC 的评价、implicit constraint 由 duality 得到并用 weighted max likelihood 近似、AWAC-like algorithm 和它留的问题、IQL 的“induced by actions only”、CQL 的两步、offline 到 online 的 underestimation 与 50/50 的 baseline 及 diffusion/flow actor 的几篇论文、MOPO 与 COMBO，来自 [Spring 2026 Lecture 18](https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-18.pdf)；Fall 2023 的 [Lecture 16](https://rail.eecs.berkeley.edu/deeprlcourse-fa23/deeprlcourse-fa23/static/slides/lec-16.pdf) 讲同样的内容，用来对照顺序。两讲都只读到文字和标题，公式是图：AWR 的 Lagrangian 推导按自己的知识补全；CQL 的 objective、Theorem 3.1 与 3.2、tabular update 和 CQL($\mathcal H$) 来自 [CQL 论文](https://arxiv.org/pdf/2006.04779)；RLPD 的三个设计和 LayerNorm 的论证来自 [RLPD 论文](https://arxiv.org/pdf/2302.02948)；MOPO 的 penalty、admissible 的条件和 Theorem 4.4 来自 [MOPO 论文](https://arxiv.org/pdf/2005.13239)。Expectile loss、三个 loss、Lemma 1、分开 $V$ 和 $Q$ 的理由（第 4.2 节）和 Appendix B 的 hyperparameter 来自 [IQL 论文](https://arxiv.org/pdf/2110.06169)；FQL 的动机、loss、10 步 Euler 和 Table 2 的数字来自 [FQL 论文](https://arxiv.org/pdf/2502.02538)；SAC+BC、IQL、FQL 在作业里的具体写法和 Q 值范围来自 [HW5 handout](https://rail.eecs.berkeley.edu/deeprlcourse/static/homeworks/hw5.pdf)，默认的 expectile 与 $\alpha$ 来自 starter code 的 config。Linear Q 的例子、expectile 的数表、lucky transition 的两点例子、两种 KL fit、CQL 的一个 state 例子（$\chi^2$ 的形式、$\alpha$ 的数表、actor-critic 时 $\alpha$ 减半）、buffer mixture 的数表、LayerNorm 的 $\sqrt d$ 界、Q 与步数的对照是为这一页推导并用 `python3 -I` 算的。
 :::
 
 ## 作业
 
-五份作业都在 GitHub 的 `berkeleydeeprlcourse/homework_spring2026` 里，handout 公开。所有命令都用 `uv run` 执行（每个作业带 `pyproject.toml` 和 `uv.lock`）；autograder 在 Gradescope、Modal 的算力额度只给注册学生，自学时没有人给分，用 handout 里的目标数字当 test。下面每条提示后面注明来源：handout 指对应作业的 PDF，“调研”指本站调研条目里核对过的说法，“经验”是没有官方出处的工程经验。
+五份作业都在 GitHub 的 `berkeleydeeprlcourse/homework_spring2026` 里，handout 公开。所有命令都用 `uv run` 执行（每个作业带 `pyproject.toml` 和 `uv.lock`，HW1 的 README 明确说不要直接跑 `python` 或 `pip`）；autograder 在 Gradescope，课程提供的 Modal 额度只给注册学生，自学时没有人给分，用 handout 里的目标数字当 test。HW1 的 README 说新注册的 Modal 账号会有 30 美元的免费额度，对 HW1 绰绰有余。下面每条提示后面注明来源：handout 指对应作业的 PDF，README 和代码指 starter code 仓库，“调研”指本站调研条目里的说法，“经验”是没有官方出处的工程经验。
 
 | 作业 | 本地 CPU | 需要 GPU 的部分 | 免费 Colab | 优先级 |
 |---|---|---|---|---|
@@ -1042,11 +1190,11 @@ Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 
 
 ### 环境：uv、MuJoCo 与没有显示器的服务器
 
-- 每个作业目录里 `uv sync` 装好依赖，之后一律 `uv run ...`；HW1、HW4 要 WandB 账号，HW3、HW4 的 Modal 先 `uv run modal token new` 登录（handout）。
-- HW2、HW3 的 HalfCheetah-v4、InvertedPendulum-v4、Hopper-v4 是 Gymnasium 的 MuJoCo 环境，用 pip 的 `mujoco` 包，不需要 license，也不需要旧的 `mujoco-py`（调研）。
-- LunarLander 依赖 Box2D，`box2d-py` 从源码编译时需要系统里有 `swig`，装不上时先装 swig（经验）。
-- 在没有显示器的服务器上录 MuJoCo 视频，设 `MUJOCO_GL=egl`（有 NVIDIA driver）或 `MUJOCO_GL=osmesa`，否则会报 OpenGL 相关的错（调研，经验）。
-- 仓库根目录的 README 这一页没有抓到，具体的 Python 版本以 README 为准。
+- 每个作业目录里 `uv sync` 装好依赖，之后一律 `uv run ...`；要用 WandB 的先 `uv run wandb login`，用 Modal 的先 `uv run modal token new`（README）。
+- Python 版本各不相同，`uv` 会按 `pyproject.toml` 自己装：HW1 和 HW5 要 3.11 以上，HW2 要 3.10 以上，HW3 必须是 3.10，HW4 是 3.12（pyproject）。
+- HW2、HW3 用的不是 Gymnasium，而是旧版的 `gym[...,mujoco,box2d]==0.25.2`，`env.step` 返回四项（pyproject、代码）。HalfCheetah-v4、InvertedPendulum-v4、Hopper-v4 走的是 pip 的 `mujoco` 包，不需要 license，也不需要更旧的 `mujoco-py`（调研，与 pyproject 一致）。
+- LunarLander 依赖 Box2D，`box2d-py` 编译时需要系统里有 `swig` 和 `cmake`，Mac 上 `brew install swig cmake`、Ubuntu 上 `sudo apt-get install swig`；本地装不上可以全部改在 Modal 上跑（HW2、HW3 的 README）。
+- 在没有显示器的服务器上录 MuJoCo 视频，设 `MUJOCO_GL=egl`（有 NVIDIA driver）或 `MUJOCO_GL=osmesa`，否则会报 OpenGL 相关的错（经验）。
 
 ### HW1：Imitation learning（Push-T 上的 MSE chunking policy 与 flow matching policy）
 
@@ -1055,7 +1203,7 @@ Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 
 - Flow matching 的 network 必须以 $\tau$ 为 input（handout）。漏掉时会发生什么，第 1 站在一维的例子上算过：12% 的 sample 停在两个 mode 中间。
 - 训练中要周期性调用 `evaluate_policy`，不要改它；结束时调用 `logger.dump_for_grading()`（handout）。
 - 目标：MSE policy 的 reward 至少 0.5，flow policy 至少 0.7（handout）。
-- Optimizer 用 PyTorch 自带的 Adam，train step 加 `torch.compile`，handout 说提速明显。
+- Optimizer 用 PyTorch 自带的 Adam，train step 加 `torch.compile`，handout 说提速明显。README 说 Modal 对这份作业多半没必要，测试时笔记本 CPU 反而快得多。
 - 报告要求根据视频比较两种 policy。MSE policy 学的是 conditional mean，T 两侧都可以推的 state 上它会输出两种推法的平均；从这里入手看视频（调研里的理解，handout 没有给结论）。
 
 ### HW2：Policy gradients（reward-to-go、baseline、GAE）
@@ -1071,13 +1219,15 @@ Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 
 
 ### HW3：Q-learning 与 actor-critic（DQN、Double DQN、SAC）
 
-**要实现的**：DQN 的 critic update、$\varepsilon$-greedy、target network、Double DQN；SAC 的 bootstrapped critic（hard 与 soft target update）、entropy bonus、reparameterized actor、自动 temperature、clipped double-Q。**做完会的**：[第 4 站](#q)的全部，以及一套以后可以直接拿去做机器人 RL 的 off-policy 代码。**时间和算力**：CartPole、LunarLander、InvertedPendulum、Hopper 本地即可；MsPacman 和 HalfCheetah 即使在 GPU 上也约 3 小时一个 run，handout 建议用 Modal 并尽早开始。没有课程额度时用实验室 GPU；Colab 免费版的会话时长有限，3 小时的 run 要能断点续训（经验）。**优先级**：先做。
+**要实现的**：DQN 的 critic update、$\varepsilon$-greedy、target network、Double DQN；SAC 的 bootstrapped critic（hard 与 soft target update）、entropy bonus、reparameterized actor、自动 temperature、clipped double-Q。**做完会的**：[第 4 站](#q)的全部，以及一套以后可以直接拿去做机器人 RL 的 off-policy 代码。**时间和算力**：CartPole、LunarLander、InvertedPendulum、Hopper 本地即可；MsPacman 和 HalfCheetah 即使在 GPU 上也约 3 小时一个 run，handout 建议用 Modal 并尽早开始。没有课程额度时用实验室 GPU；Colab 免费版的会话时长有限，HW3 的 starter code 不像 HW5 那样自带 checkpoint 续跑，3 小时的 run 要自己加（代码，经验）。**优先级**：先做。
 
 - Critic 的 sanity check（InvertedPendulum，没有 actor）：Q 值应稳定在一个合理的值；发散到无穷大或一直是 0 就是 bug（handout）。
-- Entropy 的 sanity check：只让 entropy 驱动 actor 时，1 维 tanh-squashed action 的 entropy 应升到约 $\log2\approx0.69$（handout）。一路涨过 1，多半漏了 tanh 的修正项；停在很低，查 sign（经验，第 4 站的表）。
-- Actor loss 里用 `.rsample()`，不要用 `.sample()`（handout）。
+- Entropy 的 sanity check：`sanity_invertedpendulum.yaml` 上 1 维 tanh-squashed action 的 entropy 应升到约 $\log2\approx0.69$，明显偏高或偏低就有 bug（handout）。`log_prob` 里的 tanh 修正 starter code 已经做了（`make_tanh_transformed`）；一路涨过 1，多半是 entropy 算在了 tanh 之前的 Gaussian 上；不涨，多半是 `entropy()` 里用了 `.sample()`（代码；读法是第 4 站的推导）。
+- Actor loss 里用 `.rsample()`（handout：“Be careful to use the reparametrization trick for sampling!”）。
+- 目标：CartPole-v1 至少一次到 500，LunarLander-v2 至少一次到 200，MsPacman 约 1500，Hopper 上 clipped double-Q 至少一次到 1500（handout）。HW3 的 CartPole 是 v1，HW2 的是 v0，满分分别是 500 和 200（config）。
 - 别忘了在 `update()` 里调用 `update_actor()` 和 `update_alpha()`（handout）。
-- MsPacman 用默认 config（double Q 开着）应能到约 1500，到不了多半是实现的问题（handout）。
+- MsPacman 用默认 config（double Q 开着，`target_update_period: 2000`、`clip_grad_norm: 10.0`），到不了约 1500 多半是实现的问题（handout，config）。
+- Critic 的输出要是 `(num_critic_networks, batch_size)`，starter code 里每一步都 assert 了 shape，不要为了让它通过而乱 reshape：多出一个长度为 1 的维度时，和 shape 为 `(batch_size,)` 的 reward 相加会 broadcast 成 `batch_size × batch_size` 的矩阵，loss 照样算得出来，不报错（代码；broadcast 的后果是经验）。
 - 长 run 用 Modal 时加 `--detach`，结果用 `uv run modal volume get hw3-ql-volume exp/` 下载（handout）。
 - Hopper 上比较 single Q 与 clipped double Q 时把 Q 值曲线也画出来，overestimation 在 Q 值上比在 return 上明显（handout 要求画，读法是经验）。
 
@@ -1095,7 +1245,7 @@ Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 
 
 ### HW5：Offline RL（SAC+BC、IQL、FQL，OGBench）
 
-**要实现的**：`sacbc_agent.py`、`iql_agent.py`、`fql_agent.py`，在 OGBench 的 cube-single 和 antsoccer-arena 上调 $\alpha$；antmaze-medium 只用来 debug。**做完会的**：[第 8 站](#offline)的全部，三种“用固定 data 做 RL”的主流做法各写一遍，其中 FQL 把第 1 站的 flow policy 接上了 Q-learning。**时间和算力**：单个 run 最长约 6 小时；handout 建议一张 GPU 并行跑 4 个 agent，4 个 agent 到 1M 步在 T4 上 3 到 7 小时、A10 上 2 到 6 小时，视 algorithm 而定。T4 级别的卡就够，但免费 Colab 的会话会断，要每隔固定步数把 agent、optimizer 和 replay buffer 的内容存到 Google Drive，重连后从最近的 checkpoint 继续（调研，经验）。**优先级**：先做。
+**要实现的**：`sacbc_agent.py`、`iql_agent.py`、`fql_agent.py`，在 OGBench 的 cube-single 和 antsoccer-arena 上调 $\alpha$；antmaze-medium 只用来 debug。**做完会的**：[第 8 站](#offline)的全部，三种“用固定 data 做 RL”的主流做法各写一遍，其中 FQL 把第 1 站的 flow policy 接上了 Q-learning。**时间和算力**：单个 run 最长约 6 小时；handout 建议一张 GPU 并行跑 4 个 agent，4 个 agent 到 1M 步在 T4 上 3 到 7 小时、A10 上 2 到 6 小时，视 algorithm 而定。T4 级别的卡就够，但免费 Colab 的会话会断。Starter code 已经处理了续跑：`run.py` 每次 eval 时把 agent、所有 optimizer 和 random state 存成 `checkpoint.pt`，同一条命令再跑一次就从最近的 checkpoint 接着跑（README、代码）；offline 的 dataset 是固定的，没有 replay buffer 要存。在 Colab 上把 `exp/` 放到挂载的 Google Drive 里即可（经验）。**优先级**：先做。
 
 - 每个 Bellman backup 都要带 done（handout）。
 - BC 项对 action 维取 mean，handout 给的 $\alpha$ grid 是按 mean 定的（handout）。
@@ -1104,17 +1254,19 @@ Offline RL 的设定、三种超过 data 的机制、counterfactual query、SAC 
 - FQL：送进 Q 之前把 flow policy 的 action clip 到 $[-1,1]$；distillation 项里不要 clip one-step policy 的 action，否则它没法纠正越界的输出；evaluation 和 backup 都用 one-step policy（handout）。
 - antsoccer-arena 上 FQL 和 SAC+BC 的 target 用两个 Q 的平均而不是 min；成功率低是正常的，但不应该是 0（handout）。
 - Debug 时可以关掉 `@torch.compile`；antmaze-medium 是最快的 sanity check（handout）。
+- 默认值：IQL `expectile=0.9`、`alpha=10`，FQL `flow_steps=10`，三者 `discount=0.99`（config）。
 
 ### RL 不报错但不学：先查这几样
 
 1. 横轴是 environment step 吗？多跑了几个 seed 吗？单个 seed 的好坏说明不了问题（HW2、HW3 handout）。
 2. Q 值有没有发散、是不是一直是 0、有没有跑出 reward 决定的范围（HW3、HW5 handout）。
-3. Bellman target 里有没有 $(1-d)$；episode 是终止还是被时限截断（HW3、HW5 handout；截断凭经验，第 3 站）。
+3. Bellman target 里有没有 $(1-d)$；episode 是终止还是被时限截断（HW3、HW5 handout；截断的处理见第 3 站，HW3 的 starter code 已经区分）。
 4. Advantage 有没有 detach、sign 对不对；pseudo-loss 的数值别当成 performance（经验）。
-5. Reparameterized sample 用的是 `.rsample()` 吗；tanh 的 log-probability 修正加了吗（HW3 handout；第 4 站）。
-6. LLM 的 loss 有没有只算 completion token，logits 和 token 有没有错一位（HW4 handout）。
-7. 拿 handout 的目标数字比；比不上而且换了 2 到 3 个 seed 仍然比不上，回头查实现，而不是调 hyperparameter（HW2、HW3 handout）。
+5. Reparameterized sample 用的是 `.rsample()` 吗，entropy 是在 tanh 之后的 action 上算的吗（HW3 handout 与代码；第 4 站）。
+6. Tensor 的 shape 有没有悄悄 broadcast（HW3 代码里的 assert）。
+7. LLM 的 loss 有没有只算 completion token，logits 和 token 有没有错一位（HW4 handout）。
+8. 拿 handout 的目标数字比；比不上而且换了 2 到 3 个 seed 仍然比不上，回头查实现，而不是调 hyperparameter（HW2、HW3 handout）。
 
 :::note 专门练习找这类 bug
-OpenAI Spinning Up 的 Exercise 2.2 “Silent Bug in DDPG” 给一份能跑、不报错、performance 却明显变差的 DDPG，让你找出 bug。CPU 就够，需要 MuJoCo 环境（它用的是旧版的 HalfCheetah-v2 等，安装比 CS285 麻烦）。做完 HW3 之后做它，正好检验上面这张清单。
+OpenAI Spinning Up 的 Exercise 2.2 “Silent Bug in DDPG” 给一份能跑、不报错、performance 却明显变差的 DDPG：跑有 bug 和没 bug 各 3 个 seed，每个约 10 分钟，然后不看 `core.py` 推断 bug 是什么、怎样破坏了 learning，bonus 是找出哪些 hyperparameter 会掩盖它。Solution 的结果图是在旧版的 HalfCheetah-v2 上画的，所以需要能装旧版 MuJoCo 环境。做完 HW3 之后做它，正好检验上面这张清单；答案在 Spinning Up 的 solution 页，先别看。
 :::

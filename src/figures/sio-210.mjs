@@ -1,6 +1,7 @@
 import { svg, svgA, lin, d, path, line, rect, circle, poly, text, it, arrow, curve, axes, apath, acircle, ashow, anim, animRot, f1 } from '../lib/svg.mjs';
 
 // 所有数字都在这里算：常数取自正文
+const TAU0 = 1.3 * 1.1e-3 * 8 * 8; // Talley：rho_air = 1.3，c_D = 1.1e-3，U10 = 8 m/s
 const R = Math.PI / 180, g = 9.81, Om = 7.2921e-5, Re = 6.371e6;
 const fcor = (lat) => 2 * Om * Math.sin(lat * R);
 const sub = (s) => `<tspan class="sub" dy="3">${s}</tspan><tspan dy="-3">​</tspan>`;
@@ -12,6 +13,41 @@ function rho0(S, t) {
   const B = -5.72466e-3 + 1.0227e-4 * t - 1.6546e-6 * t ** 2;
   return rw + A * S + B * S ** 1.5 + 4.8314e-4 * S * S;
 }
+
+// EOS-80 带 pressure（UNESCO 1983：secant bulk modulus；Bryden 1973 的 lapse rate 与 RK4 的 potential temperature）
+const T68 = (t) => t * 1.00024, T90 = (t) => t / 1.00024;
+function dens0(S, t) {
+  const T = T68(t);
+  const rw = 999.842594 + T * (6.793952e-2 + T * (-9.09529e-3 + T * (1.001685e-4 + T * (-1.120083e-6 + T * 6.536332e-9))));
+  return rw + (8.24493e-1 + T * (-4.0899e-3 + T * (7.6438e-5 + T * (-8.2467e-7 + T * 5.3875e-9)))) * S + (-5.72466e-3 + T * (1.0227e-4 - 1.6546e-6 * T)) * S * Math.sqrt(S) + 4.8314e-4 * S * S;
+}
+function seck(S, t, pdb) {
+  const p = pdb / 10, T = T68(t), rS = Math.sqrt(S);
+  const AW = 3.239908 + T * (1.43713e-3 + T * (1.16092e-4 - 5.77905e-7 * T));
+  const BW = 8.50935e-5 + T * (-6.12293e-6 + 5.2787e-8 * T);
+  const KW = 19652.21 + T * (148.4206 + T * (-2.327105 + T * (1.360477e-2 - 5.155288e-5 * T)));
+  const A = AW + (2.2838e-3 + T * (-1.0981e-5 - 1.6078e-6 * T) + 1.91075e-4 * rS) * S;
+  const B = BW + (-9.9348e-7 + T * (2.0816e-8 + 9.1697e-10 * T)) * S;
+  const K0 = KW + (54.6746 + T * (-0.603459 + T * (1.09987e-2 - 6.167e-5 * T)) + (7.944e-2 + T * (1.6483e-2 - 5.3009e-4 * T)) * rS) * S;
+  return K0 + (A + B * p) * p;
+}
+const densP = (S, t, p) => dens0(S, t) / (1 - p / 10 / seck(S, t, p));
+function adtg(S, t, p) {
+  const T = T68(t);
+  return 3.5803e-5 + (8.5258e-6 + (-6.836e-8 + 6.6228e-10 * T) * T) * T + (1.8932e-6 - 4.2393e-8 * T) * (S - 35)
+    + (1.8741e-8 + (-6.7795e-10 + (8.733e-12 - 5.4481e-14 * T) * T) * T + (-1.1351e-10 + 2.7759e-12 * T) * (S - 35)) * p
+    + (-4.6206e-13 + (1.8676e-14 - 2.1687e-16 * T) * T) * p * p;
+}
+function ptmp(S, t, p, pr) {
+  const dP = pr - p, r2 = Math.SQRT2;
+  let dth = dP * adtg(S, t, p), th = T68(t) + 0.5 * dth, q = dth;
+  dth = dP * adtg(S, T90(th), p + 0.5 * dP); th += (1 - 1 / r2) * (dth - q); q = (2 - r2) * dth + (-2 + 3 / r2) * q;
+  dth = dP * adtg(S, T90(th), p + 0.5 * dP); th += (1 + 1 / r2) * (dth - q); q = (2 + r2) * dth + (-2 - 3 / r2) * q;
+  dth = dP * adtg(S, T90(th), p + dP);
+  return T90(th + (dth - 2 * q) / 6);
+}
+const sigma0 = (S, th) => dens0(S, th) - 1000;
+const sigma4 = (S, th) => densP(S, ptmp(S, th, 0, 4000), 4000) - 1000;
 
 // marching squares：返回 level c 的等值线（一串线段）
 function contour(F, nx, ny, c, X, Y) {
@@ -268,14 +304,14 @@ function pump() {
   o += rect(sx(0), sy(40), sx(8000) - sx(0), sy(25) - sy(40), 'wash');
   for (const lat of [20, 25, 30, 35, 40, 45]) o += text(sx(0) - 6, sy(lat) + 4, lat + '°N', 'ts', 'end');
   o += text(sx(0), sy(20) + 18, '0', 'ts', 'middle') + text(sx(8000), sy(20) + 18, '8000 km', 'ts', 'middle');
-  const tau = (lat) => -Math.cos((Math.PI * (lat - 25)) / 15); // 以 0.104 Pa 为单位
+  const tau = (lat) => -Math.cos((Math.PI * (lat - 25)) / 15); // 以 TAU0 为单位
   for (const lat of [25, 28.75, 36.25, 40]) {
     const L = 60 * tau(lat);
     for (const x of [1600, 4000, 6400]) o += arrow(sx(x) - L / 2, sy(lat), sx(x) + L / 2, sy(lat), 'ink', 6);
   }
   o += text(sx(4000), sy(32.5) + 4, 'wind = 0', 'ts', 'middle');
   // Ekman transport：25°N 往北，40°N 往南
-  const V25 = 0.104 / (1025 * fcor(25)), V40 = 0.104 / (1025 * fcor(40));
+  const V25 = TAU0 / (1025 * fcor(25)), V40 = TAU0 / (1025 * fcor(40));
   for (const x of [800, 2800, 5200, 7200]) {
     o += arrow(sx(x), sy(25) + 12, sx(x), sy(25) - 12 - 14 * V25, 'ln', 7);
     o += arrow(sx(x), sy(40) - 12, sx(x), sy(40) + 12 + 14 * V40, 'ln', 7);
@@ -500,6 +536,111 @@ function kelvinA() {
   return svgA(560, 300, o, '动图：西太平洋一阵 westerly wind burst 把 thermocline 压下去一块，这块 depression 以每秒 2.1 米往东走，约 72 天到达南美，把东边原本很浅的 thermocline 压深');
 }
 
+// ---------- 第 1 站：σ0 与 σ4（thermobaricity） ----------
+function thermobar() {
+  const sx = lin(34, 37.5, 70, 470), sy = lin(-1, 15, 262, 34);
+  const nx = 70, ny = 64, F0 = [], F4 = [];
+  const Sg = (i) => 34 + (3.5 * i) / nx, Tg = (j) => -1 + (16 * j) / ny;
+  for (let j = 0; j <= ny; j++) { const r0 = [], r4 = []; for (let i = 0; i <= nx; i++) { r0.push(sigma0(Sg(i), Tg(j))); r4.push(sigma4(Sg(i), Tg(j))); } F0.push(r0); F4.push(r4); }
+  const X = (i) => sx(Sg(i)), Y = (j) => sy(Tg(j));
+  let o = axes({ sx, sy, x0: 34, x1: 37.5, y0: -1, y1: 15, xt: [34, 35, 36, 37], yt: [0, 5, 10, 15], xl: 'salinity S', yl: 'θ（°C）' });
+  // 找 θ = th、σ0 = sg 的 S
+  const Sfor = (th, sg) => { let lo = 30, hi = 42; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (sigma0(m, th) < sg) lo = m; else hi = m; } return lo; };
+  const SP = Sfor(0, 27.8), SM = Sfor(13, 27.8), s4P = sigma4(SP, 0), s4M = sigma4(SM, 13);
+  for (const c of [27.4, 27.6, 28.0]) o += path(contour(F0, nx, ny, c, X, Y), 'mute');
+  o += path(contour(F0, nx, ny, 27.8, X, Y), 'ink-b');
+  for (const c of [s4M, s4P]) o += path(contour(F4, nx, ny, c, X, Y), 'ln-dash');
+  for (const c of [(2 * s4M + s4P) / 3, (s4M + 2 * s4P) / 3]) o += path(contour(F4, nx, ny, c, X, Y), 'dash');
+  o += circle(sx(SP), sy(0), 5, 'ln-f') + circle(sx(SM), sy(13), 5, 'ln-f');
+  o += text(sx(SP) - 9, sy(0) + 4, 'P', 'tl', 'end') + text(sx(SM) + 9, sy(13) + 4, 'M', 'tl');
+  o += text(482, 54, 'M：S = ' + SM.toFixed(2), 'ts') + text(482, 70, 'θ = 13 °C', 'ts') + text(482, 86, 'σ₀ = 27.80', 'ts') + text(482, 102, 'σ₄ = ' + s4M.toFixed(2), 'tl');
+  o += text(482, 194, 'P：S = ' + SP.toFixed(2), 'ts') + text(482, 210, 'θ = 0 °C', 'ts') + text(482, 226, 'σ₀ = 27.80', 'ts') + text(482, 242, 'σ₄ = ' + s4P.toFixed(2), 'tl');
+  o += text(sx(Sfor(15, 27.8)) - 4, sy(15) - 5, 'σ₀ = 27.8', 'tb', 'end');
+  o += text(270, 22, '实线：σ₀（相对海面）　虚线：σ₄（相对 4000 dbar）', 'ts', 'middle');
+  o += text(270, 320, '两团水在海面一样重；压到 4000 dbar，冷的 P 重 ' + (s4P - s4M).toFixed(2) + ' kg/m³', 'ts', 'middle');
+  return svg(560, 328, o, 'theta-S 图上的 sigma0 与 sigma4 等值线：P 和 M 在同一条 sigma0 等于 27.8 的线上，但 sigma4 不同，冷的 P 在深处更重，sigma4 的线比 sigma0 的线平');
+}
+
+// ---------- 第 5 站：long Rossby wave 为什么往西 ----------
+function rossby() {
+  const c0 = [300, 140], rx = 62, ry = 50;
+  let o = '';
+  for (const k of [1, 0.7, 0.4]) o += `<ellipse cx="${c0[0]}" cy="${c0[1]}" rx="${f1(rx * k)}" ry="${f1(ry * k)}" class="${k === 1 ? 'ink' : 'mute'}"/>`;
+  o += `<ellipse cx="${c0[0] - 46}" cy="${c0[1]}" rx="${rx}" ry="${ry}" class="ln-dash"/>`;
+  o += text(c0[0], c0[1] + 5, 'high', 'tb', 'middle');
+  // 顺时针的 geostrophic flow
+  const xw = c0[0] - 46 - rx - 14;
+  o += arrow(xw, c0[1] + 30, xw, c0[1] - 30, 'ln', 8);
+  o += arrow(c0[0] + rx + 16, c0[1] - 30, c0[0] + rx + 16, c0[1] + 30, 'ln', 8);
+  o += arrow(c0[0] - 30, c0[1] - ry - 14, c0[0] + 30, c0[1] - ry - 14, 'ink', 7);
+  o += arrow(c0[0] + 30, c0[1] + ry + 14, c0[0] - 30, c0[1] + ry + 14, 'ink', 7);
+  o += text(xw - 10, c0[1] - 8, '往北：f 变大，', 'ts', 'end') + text(xw - 10, c0[1] + 8, 'column 被拉长，h 变大', 'ts', 'end');
+  o += text(c0[0] + rx + 26, c0[1] - 8, '往南：f 变小，', 'ts') + text(c0[0] + rx + 26, c0[1] + 8, 'column 被压扁，h 变小', 'ts');
+  o += text(c0[0] - 46, c0[1] + ry + 40, '虚线：稍后 high 所在的位置', 'tl', 'middle');
+  // 往西的 arrow 与速度
+  const Om = 7.292e-5, lat = 24, b = (2 * Om * Math.cos(lat * R)) / Re, f = fcor(lat), gH = 0.003 * 9.81 * 150, cR = (b * gH) / (f * f);
+  o += arrow(c0[0] - 10, 34, c0[0] - 90, 34, 'ink-b', 8) + text(c0[0] - 2, 38, '往西传播；24°N 处 c' + sub('R') + ' = βg′H/f² = ' + (cR * 100).toFixed(1) + ' cm/s', 'ts');
+  o += arrow(40, 220, 40, 180, 'ink', 6) + text(40, 172, 'N', 'ts', 'middle') + arrow(40, 220, 80, 220, 'ink', 6) + text(86, 224, 'E', 'ts');
+  o += text(300, 262, '俯视。High 的地方上层更厚、thermocline 更深，绕它的 geostrophic flow 顺时针', 'ts', 'middle');
+  return svg(560, 272, o, '一个上层变厚的高压：绕它顺时针的 geostrophic flow 在西边往北、东边往南，西边的 column 被拉长，高压往西移');
+}
+
+// ---------- 第 6 站：Stommel–Arons 的 abyssal circulation ----------
+function abyss() {
+  const S0 = 15, x0 = 70, x1 = 380, sy = lin(0, 75, 268, 40);
+  let o = rect(x0, sy(75), x1 - x0, sy(0) - sy(75), 'frame');
+  o += rect(x0, sy(75), x1 - x0, sy(0) - sy(75), 'wash2');
+  for (const lat of [0, 15, 30, 45, 60, 75]) o += text(x0 - 6, sy(lat) + 4, lat === 0 ? 'equator' : lat + '°N', 'ts', 'end');
+  // 源头
+  o += circle(x0 + 16, sy(73), 8, 'solid') + text(x0 + 30, sy(73) + 4, '源头 S₀ = ' + S0 + ' Sv', 'tl');
+  // interior：V = R tanφ W0，方向往北，长度按 tanφ
+  for (const lat of [10, 25, 40, 55]) {
+    const Lp = Math.min(46, 14 * Math.tan(lat * R));
+    for (const xf of [0.3, 0.55, 0.8]) { const x = x0 + (x1 - x0) * xf; o += arrow(x, sy(lat) + Lp / 2, x, sy(lat) - Lp / 2, 'ink', 6); }
+  }
+  o += text(x0 + (x1 - x0) * 0.55, sy(5) + 4, 'interior：V = R tanφ W₀，往北', 'ts', 'middle');
+  // DWBC
+  o += path(d([[x0 + 10, sy(70)], [x0 + 10, sy(2)]]), 'ln');
+  for (const lat of [60, 30, 10]) {
+    const Tw = 2 * S0 * Math.sin(lat * R);
+    o += arrow(x0 + 10, sy(lat) - 12, x0 + 10, sy(lat) + 12, 'ln', 8);
+    o += text(x1 + 12, sy(lat) + 4, lat + '°N：DWBC ' + Tw.toFixed(1) + ' Sv 往南', 'tl');
+    o += text(x1 + 12, sy(lat) + 20, 'interior ' + (S0 * Math.sin(lat * R)).toFixed(1) + ' Sv 往北', 'ts');
+    o += line(x0 + 16, sy(lat), x1 + 8, sy(lat), 'grid');
+  }
+  o += text(x0, 24, 'west', 'ts') + text(x1, 24, 'east', 'ts', 'end');
+  o += text(280, 292, 'deep layer 俯视。处处以 W₀ 往上 upwell；DWBC 的 transport = −2S₀ sinφ', 'ts', 'middle');
+  return svg(560, 300, o, 'Stommel–Arons 的 abyssal circulation：源头在西北角，interior 处处往北，越往北越强；deep western boundary current 沿西岸往南，60 度 N 处 26 Sv，到 equator 减为零');
+}
+
+// ---------- 综合走读：2019 年期末第 8 题，South Pacific ----------
+function q8() {
+  const x0 = 70, x1 = 400, sy = lin(-10, -50, 40, 260);
+  let o = rect(x0, sy(-10), x1 - x0, sy(-50) - sy(-10), 'frame');
+  o += rect(x0, sy(-25), x1 - x0, sy(-40) - sy(-25), 'wash');
+  for (const lat of [-10, -20, -30, -40, -50]) o += text(x0 - 6, sy(lat) + 4, -lat + '°S', 'ts', 'end');
+  // wind：25°S 往西，40°S 往东
+  for (const x of [130, 230, 330]) { o += arrow(x + 22, sy(-25), x - 22, sy(-25), 'ink', 6); o += arrow(x - 22, sy(-40), x + 22, sy(-40), 'ink', 6); }
+  // Ekman：wind 左边 90°
+  for (const x of [180, 280]) { o += arrow(x, sy(-25) - 4, x, sy(-25) + 18, 'ln', 7); o += arrow(x, sy(-40) + 4, x, sy(-40) - 18, 'ln', 7); }
+  // interior 往北
+  for (const x of [160, 260, 360]) o += arrow(x, sy(-34) + 10, x, sy(-30) - 4, 'dash', 6);
+  // WBC：沿西岸往南
+  o += arrow(x0 + 10, sy(-22), x0 + 10, sy(-40), 'ln', 8);
+  o += text(x0 + 18, sy(-18), 'East Australian', 'tl') + text(x0 + 18, sy(-18) + 15, 'Current', 'tl');
+  // 东岸 upwelling：wind 往北，Ekman 往西
+  o += arrow(x1 - 10, sy(-34), x1 - 10, sy(-16), 'ink', 6) + arrow(x1 - 14, sy(-25) + 14, x1 - 44, sy(-25) + 14, 'ln', 6);
+  const Q = (TAU0 / (1025 * fcor(25)) + TAU0 / (1025 * fcor(40))) * 8e6, w = -Q / (8e6 * 15 * 111.12e3);
+  const f = fcor(-32.5), b = (2 * 7.292e-5 * Math.cos(32.5 * R)) / Re, V = (f * w) / b;
+  o += text(x1 + 12, sy(-25) - 6, '25°S：trades，', 'tb') + text(x1 + 12, sy(-25) + 10, 'Ekman 往南', 'tl');
+  o += text(x1 + 12, sy(-40) - 6, '40°S：westerlies，', 'tb') + text(x1 + 12, sy(-40) + 10, 'Ekman 往北', 'tl');
+  o += text(x1 + 12, sy(-32.5) - 6, 'convergence，', 'ts') + text(x1 + 12, sy(-32.5) + 10, 'Sverdrup 往北 ' + V.toFixed(2) + ' m²/s', 'ts');
+  o += text(x1 + 12, sy(-14), 'Peru–Chile：', 'ts') + text(x1 + 12, sy(-14) + 15, 'Ekman 往 offshore', 'ts');
+  o += text(x0, 26, 'Australia（west）', 'ts') + text(x1, 26, 'South America（east）', 'ts', 'end');
+  o += text(280, 286, '黑 arrow：wind　彩 arrow：Ekman transport 与 boundary current　虚线：interior', 'ts', 'middle');
+  return svg(560, 296, o, '南半球的 subtropical gyre：南边 westerlies、北边 trades，Ekman transport 在 wind 左边 90 度、汇到中间；interior 往北，回流沿 Australia 东岸往南');
+}
+
 export default {
   'sio-210-nansen': nansen,
   'sio-210-wbc': wbc,
@@ -517,4 +658,8 @@ export default {
   'sio-210-decl': decl,
   'sio-210-springneap': springneap,
   'sio-210-kelvin': kelvinA,
+  'sio-210-thermobar': thermobar,
+  'sio-210-rossby': rossby,
+  'sio-210-abyss': abyss,
+  'sio-210-q8': q8,
 };

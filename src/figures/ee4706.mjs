@@ -84,9 +84,9 @@ function layers() {
   let o = '';
   const box = (y, h, title, rate, desc, cls) => rect(20, y, 250, h, cls, 6) + text(32, y + 20, title, 'tb') + text(258, y + 20, rate, 'tl', 'end') + text(32, y + 38, desc, 'ts');
   o += text(145, 16, '经典的三层 architecture', 'tb', 'middle') + text(420, 16, 'π0.5 里的对应', 'tb', 'middle');
-  o += box(28, 52, 'Deliberator', '秒级', '想下一步做什么：plan、推理', 'paper');
-  o += box(108, 52, 'Sequencer', '每个 subtask', '挑出并切换 skill，监视成败', 'paper');
-  o += box(188, 52, 'Controller', '50 Hz 以上', '把 skill 变成 motor command', 'wash');
+  o += box(28, 52, 'Deliberator', '秒级', 'plan、search；存对未来的 prediction', 'paper');
+  o += box(108, 52, 'Sequencer', '每个 subtask', '挑出、切换 skill；存过去的 memory', 'paper');
+  o += box(188, 52, 'Controller', '50 Hz 以上', 'skill → motor command；不存 state', 'wash');
   o += arrow(145, 80, 145, 106, 'ink') + arrow(145, 160, 145, 186, 'ink');
   o += arrow(110, 186, 110, 162, 'mute') + arrow(110, 106, 110, 82, 'mute');
   o += text(152, 98, '往下传：目标', 'ts') + text(152, 178, '往下传：skill', 'ts');
@@ -286,7 +286,7 @@ function saycan() {
   o += text(340, Y + 26, 'sponge 在 counter 上，不在视野里：', 'ts');
   o += text(340, Y + 44, '“pick up the sponge” 此刻做不成，', 'ts');
   o += text(340, Y + 62, 'affordance 只有 0.05。', 'ts');
-  o += text(10, Y + 112, 'Instruction：“I spilled my coke, can you bring me something to clean it up?”（数字为示意）', 'ts');
+  o += text(10, Y + 112, 'Instruction：“I spilled my coke, can you bring me something to clean it up?”（本页设定的场景，数字为示意）', 'ts');
   return svg(560, 356, o, 'SayCan 对四个 skill 打分：LLM 最看好 pick up the sponge，但 sponge 不在视野里，affordance 只有 0.05；两者相乘后 find a sponge 得分最高');
 }
 
@@ -450,16 +450,133 @@ function rtcA() {
   return svgA(560, 412, o, '上图：naive asynchronous 在新 chunk 可用的那一步直接切换，action 跳到另一个 mode；下图：real-time chunking 让新 chunk 的前 5 步等于旧 chunk，后面按 soft mask 逐渐过渡，action 连续');
 }
 
+
+// 第 1 站：Brooks 1986 的前三层与 suppression 节点
+function subsume() {
+  let o = '';
+  const bw = 78, bh = 30;
+  const box = (x, y, name, cls = 'paper') => rect(x, y, bw, bh, cls, 5) + text(x + bw / 2, y + 20, name, 't', 'middle');
+  const S = (x, y) => circle(x, y, 10, 'paper') + text(x, y + 4.5, 'S', 'tb', 'middle');
+  o += rect(10, 14, 540, 58, 'wash2', 6) + rect(10, 82, 540, 70, 'wash2', 6) + rect(10, 162, 540, 128, 'wash', 6);
+  o += text(20, 34, 'level 2', 'tb') + text(20, 52, 'explore', 'ts');
+  o += text(20, 108, 'level 1', 'tb') + text(20, 126, 'wander', 'ts');
+  o += text(20, 188, 'level 0', 'tb') + text(20, 206, 'avoid', 'ts') + text(20, 222, 'collision', 'ts');
+  const xs = 84, xf = 190, xr = 296, xm = 466;
+  const yA = 186, yB = 244;
+  o += box(xs, yA, 'sonar') + box(xf, yA, 'feelforce') + box(xr, yA, 'runaway') + box(xm, yA + 28, 'motor', 'wash-strong ink-s');
+  o += box(xf, yB, 'collide');
+  o += arrow(xs + bw, yA + 15, xf, yA + 15) + arrow(xf + bw, yA + 15, xr, yA + 15);
+  const sx0 = 434, sy0 = yA + 15;
+  o += line(xr + bw, sy0, sx0 - 10, sy0) + S(sx0, sy0);
+  o += line(sx0 + 10, sy0, 454, sy0) + arrow(454, sy0, xm, yA + 34);
+  o += line(xs + bw / 2, yA + bh, xs + bw / 2, yB + 15) + arrow(xs + bw / 2, yB + 15, xf, yB + 15);
+  o += line(xf + bw, yB + 15, 454, yB + 15) + arrow(454, yB + 15, xm, yA + 50);
+  o += text(360, yB + 10, 'halt', 'ts', 'middle') + text(401, yA + 8, 'command', 'ts', 'middle');
+  o += text((xs + bw + xf) / 2, yA + 8, 'map', 'ts', 'middle') + text((xf + bw + xr) / 2, yA + 8, 'force', 'ts', 'middle');
+  const y1 = 100;
+  o += box(xs, y1, 'wander') + box(328, y1, 'avoid');
+  const sx1 = 290, sy1 = y1 + 15;
+  o += line(xs + bw, sy1, sx1 - 10, sy1) + S(sx1, sy1) + arrow(sx1 + 10, sy1, 328, sy1);
+  o += text(222, sy1 - 8, 'heading', 'ts', 'middle');
+  o += line(xf + bw / 2, yA, xf + bw / 2, 140) + arrow(xf + bw / 2, 140, 328, y1 + 25);
+  o += line(328 + bw, sy1, sx0, sy1) + arrow(sx0, sy1, sx0, sy0 - 11, 'ln');
+  o += text(sx0 + 6, 160, 'suppress', 'tl');
+  const y2 = 28;
+  o += box(xf, y2, 'pathplan');
+  o += line(xf + bw, y2 + 15, sx1, y2 + 15) + arrow(sx1, y2 + 15, sx1, sy1 - 11, 'ln');
+  o += text(sx1 + 6, 64, 'suppress', 'tl');
+  o += text(330, 46, '目标 heading 替换随机 heading', 'ts');
+  o += text(10, 312, 'S = suppression：高层的消息在一段时间里替换掉送进这个点的 input。', 'ts');
+  o += text(10, 330, '另一种接法 inhibition 接在 output 上，在一段时间里把消息丢掉（图里没有画）。', 'ts');
+  return svg(560, 338, o, 'Brooks 1986 年的前三层：level 0 从 sonar 经 feelforce、runaway 到 motor，collide 直接发 halt；level 1 的 wander 和 avoid 通过 suppression 节点接管 runaway 的 command；level 2 的 pathplan 再 suppress wander 的 heading');
+}
+
+// 第 5 站：symexp twohot 编码
+function twohot() {
+  const se = (k) => Math.sign(k) * (Math.exp(Math.abs(k)) - 1);
+  const sx = lin(0, 8, 70, 530);
+  let o = '';
+  const enc = (y) => {
+    // 返回两个 bin 的下标与 weight
+    let k = 0; while (se(k + 1) <= y) k++;
+    const w1 = (y - se(k)) / (se(k + 1) - se(k));
+    return [k, 1 - w1, w1];
+  };
+  const row = (y0, target, title) => {
+    const [k, wa, wb] = enc(target);
+    let q = text(10, y0 - 66, title, 'tb');
+    q += line(sx(0), y0, sx(8), y0, 'axis');
+    for (let j = 0; j <= 8; j++) q += line(sx(j), y0, sx(j), y0 + 4, 'axis');
+    const hmax = 52;
+    for (const [j, w] of [[k, wa], [k + 1, wb]]) {
+      q += rect(sx(j) - 12, y0 - hmax * w, 24, hmax * w, 'solid');
+      q += text(sx(j), y0 + 18, w.toFixed(3), 'tl', 'middle');
+    }
+    // target 的位置（按 symlog 刻度）
+    const xt = sx(Math.log(target + 1));
+    q += line(xt, y0 - 60, xt, y0, 'dash');
+    q += text(xt + 4, y0 - 50, `y = ${target}`, 'ts', 'start');
+    return q;
+  };
+  o += row(110, 1, 'y = 1：落在 symexp(0) 和 symexp(1) 之间');
+  o += row(226, 1000, 'y = 1000：落在 symexp(6) 和 symexp(7) 之间');
+  for (let j = 0; j <= 8; j++) {
+    const v = se(j);
+    o += text(sx(j), 266, v < 10 ? v.toFixed(2) : v.toFixed(0), 'ts', 'middle');
+  }
+  o += text(sx(8), 284, 'bin 的位置 symexp(k)，k = 0 … 8；横轴按 symlog 等距', 'ts', 'end');
+  o += text(10, 292 + 14, '两个 target 差 1000 倍，各自只占两个相邻的 bin，weight 都在 0 到 1 之间，', 'ts');
+  o += text(10, 324, 'cross-entropy 对 logit 的 gradient = softmax − twohot，每个分量也都在 −1 到 1 之间。', 'ts');
+  return svg(560, 332, o, '两个 target 的 twohot 编码：y = 1 在 symexp(0) 和 symexp(1) 两个 bin 上分别是 0.418 和 0.582，y = 1000 在 symexp(6) 和 symexp(7) 上分别是 0.138 和 0.862');
+}
+
+// 第 7 站：一次 decision 的分项 latency，画在 20 ms 一格的 controller 时间轴上
+function latency() {
+  const rows = [
+    ['π0，on-board', [['image enc.', 14], ['prefill', 32], ['10 × action', 27]]],
+    ['π0，off-board', [['image enc.', 14], ['prefill', 32], ['10 × action', 27], ['network', 13]]],
+    ['π0.5 + RTC，mobile', [['resize', 11.22], ['model（含 RTC）', 96.89], ['network', 21.2], ['其他', 9.67]]],
+  ];
+  const sx = lin(0, 140, 150, 545);
+  let o = '';
+  for (let t = 0; t <= 140; t += 20) {
+    o += line(sx(t), 30, sx(t), 214, 'grid');
+    o += text(sx(t), 232, String(t), 'ts', 'middle');
+  }
+  o += text(sx(140), 250, '时间（ms）；竖线是 50 Hz controller 每 20 ms 要一个 action 的时刻', 'ts', 'end');
+  const cls = ['wash', 'solid', 'wash-strong', 'wash2 ink-s'];
+  rows.forEach(([name, segs], r) => {
+    const y = 44 + r * 60;
+    o += text(140, y + 17, name, 'tb', 'end');
+    let t0 = 0;
+    segs.forEach(([lab, ms], k) => {
+      const c = cls[k];
+      o += rect(sx(t0), y, sx(t0 + ms) - sx(t0), 26, c);
+      const w = sx(t0 + ms) - sx(t0);
+      if (w > lab.length * 6.5 + 8) o += text(sx(t0 + ms / 2), y + 17, lab, k === 1 ? 'tw' : 'ts', 'middle');
+      else o += text(sx(t0 + ms / 2), y + 42, lab, 'ts', 'middle');
+      t0 += ms;
+    });
+    const dd = Math.floor(t0 / 20);
+    o += text(sx(t0) + 4, y - 4, `${t0.toFixed(0)} ms，d = ${dd}`, 'tl', t0 > 125 ? 'end' : 'start');
+  });
+  o += text(10, 276, '前两条：π0 论文 Table I（RTX 4090，3 个 camera）。第三条：RTC 论文 Table 2，顺序为示意。', 'ts');
+  return svg(560, 284, o, '三次实测的 decision latency：π0 在 RTX 4090 上 73 ms，走网络 86 ms，π0.5 加 RTC 在 mobile robot 上 139 ms，都跨过多个 20 ms 的 controller 周期');
+}
+
 export default {
   'ee4706-pause': pause,
   'ee4706-react': reactA,
   'ee4706-layers': layers,
+  'ee4706-subsume': subsume,
   'ee4706-clip': clip,
   'ee4706-grid': gridA,
   'ee4706-vlmap': vlmap,
   'ee4706-saycan': saycan,
   'ee4706-rssm': rssm,
+  'ee4706-twohot': twohot,
   'ee4706-legible': legibleA,
   'ee4706-assist': assist,
+  'ee4706-latency': latency,
   'ee4706-rtc': rtcA,
 };
