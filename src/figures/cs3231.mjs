@@ -52,7 +52,8 @@ function frames(durs) {
   return { T, kt, fg, fr };
 }
 const cell = (x, y, w, h, s, cls = 'paper', tcls = 't') => rect(x, y, w, h, cls) + text(x + w / 2, y + h / 2 + 5, s, tcls, 'middle');
-const q = (i) => `q<tspan class="sub" dy="3">${i}</tspan><tspan dy="-3">​</tspan>`;
+const sb = (b, i) => `${b}<tspan class="sub" dy="3">${i}</tspan><tspan dy="-3">​</tspan>`;
+const q = (i) => sb('q', i);
 
 // 1. 被 3 整除的 DFA 读 1001
 function mod3() {
@@ -175,29 +176,34 @@ function subset() {
   return svgA(560, 248, o, '动图：对倒数第二个是 1 的 NFA 做 subset construction，依次生成 {q0}、{q0,q1}、{q0,q2}、{q0,q1,q2} 四个 state 及其 transition');
 }
 
-// 5. 0*1 的 ε-NFA
+// 5. 0*1 的 ε-NFA（讲义的构造：concatenation 也另加 start 和 accepting state）
 function thompson() {
-  const P = { s: [40, 100], s0: [140, 100], f0: [240, 100], f: [340, 100], s1: [430, 100], f1: [525, 100] };
-  const r = 15, E = 'ε';
+  const xs = [26, 96, 166, 236, 306, 376, 446, 524], Y0 = 112;
+  const keys = ['q0', 's', 's0', 'f0', 'f', 's1', 'f1', 'qf'];
+  const P = Object.fromEntries(keys.map((k, i) => [k, [xs[i], Y0]]));
+  const r = 14, E = 'ε';
   let o = '';
-  o += rect(120, 40, 140, 100, 'wash2', 6) + text(190, 54, '0 的 automaton', 'ts', 'middle');
-  o += rect(410, 40, 135, 100, 'wash2', 6) + text(477, 54, '1 的 automaton', 'ts', 'middle');
-  o += ed(P.s, P.s0, E, { r }) + ed(P.s0, P.f0, '0', { r, lo: -14 }) + ed(P.f0, P.f, E, { r }) + ed(P.f, P.s1, E, { r }) + ed(P.s1, P.f1, '1', { r });
-  o += ed(P.s, P.f, E, { bend: -62, r, lo: 10 }) + ed(P.f0, P.s0, E, { bend: -40, r, lo: 8 });
-  o += start(P.s, -30, 0, r);
-  const lab = { s: 's', s0: 's₀', f0: 'f₀', f: 'f', s1: 's₁', f1: 'f₁' };
-  for (const k in P) o += st(P[k][0], P[k][1], lab[k], { acc: k === 'f1', r });
-  o += text(190, 26, 'star 加上 s、f 和四条 ε', 'ts', 'middle');
-  o += line(40, 30, 40, 34, 'mute') + line(40, 32, 120, 32, 'mute') + line(260, 32, 340, 32, 'mute') + line(340, 30, 340, 34, 'mute');
-  const Y = 196;
+  o += rect(144, 64, 114, 82, 'wash2', 6) + text(201, 78, '0 的 automaton', 'ts', 'middle');
+  o += rect(354, 64, 114, 82, 'wash2', 6) + text(411, 78, '1 的 automaton', 'ts', 'middle');
+  o += ed(P.q0, P.s, E, { r }) + ed(P.s, P.s0, E, { r }) + ed(P.s0, P.f0, '0', { r, lo: -14 }) + ed(P.f0, P.f, E, { r });
+  o += ed(P.f, P.s1, E, { r }) + ed(P.s1, P.f1, '1', { r, lo: -14 }) + ed(P.f1, P.qf, E, { r });
+  o += ed(P.s, P.f, E, { bend: -58, r, lo: 10 }) + ed(P.f0, P.s0, E, { bend: -34, r, lo: 8 });
+  o += arrow(P.q0[0], Y0 + 44, P.q0[0], Y0 + r, 'ink') + text(P.q0[0] + 6, Y0 + 54, 'start', 'ts', 'middle');
+  const lab = { q0: q(0), s: 's', s0: 's₀', f0: 'f₀', f: 'f', s1: 's₁', f1: 'f₁', qf: q('f') };
+  for (const k of keys) o += st(P[k][0], P[k][1], lab[k], { acc: k === 'qf', r });
+  // star 的范围（s 到 f）和 concatenation 的范围（q0 到 qf）
+  const brk = (x1, x2, y, s) => line(x1, y - 3, x1, y + 3, 'mute') + line(x1, y, x2, y, 'mute') + line(x2, y - 3, x2, y + 3, 'mute') + text((x1 + x2) / 2, y - 6, s, 'ts', 'middle');
+  o += brk(xs[0], xs[7], 18, `concatenation：另加 ${q(0)}、${q('f')} 和三条 ε（${q(0)} → s，f → s₁，f₁ → ${q('f')}）`);
+  o += brk(xs[1], xs[4], 44, 'star：另加 s、f 和四条 ε');
+  const Y = 214;
   const rows = [
-    ['start', 'ECLOSE(s) = {s, s₀, f, s₁}'],
-    ['读 0', 's₀ → f₀，ECLOSE(f₀) = {f₀, s₀, f, s₁}'],
+    ['start', `Eclose(${q(0)}) = {${q(0)}, s, s₀, f, s₁}`],
+    ['读 0', 's₀ → f₀，Eclose(f₀) = {f₀, s₀, f, s₁}'],
     ['读 0', '同上，{f₀, s₀, f, s₁}'],
-    ['读 1', 's₁ → f₁，ECLOSE(f₁) = {f₁}，含 accepting state，accept'],
+    ['读 1', `s₁ → f₁，Eclose(f₁) = {f₁, ${q('f')}}，含 accepting state ${q('f')}，accept`],
   ];
   rows.forEach(([a, b], i) => { o += text(60, Y + i * 20, a, 'tb', 'end') + text(72, Y + i * 20, b, 't'); });
-  return svg(560, 266, o, '按 Thompson 式构造为 0 星 1 造出的 epsilon-NFA，共 6 个 state，以及它读 001 时每一步的 active set');
+  return svg(560, 284, o, '按讲义的构造为 0 星 1 造出的 epsilon-NFA，共 8 个 state，以及它读 001 时每一步的 active set');
 }
 
 // 6. 奇数个 1 的 DFA 与 R^(1)_22
@@ -219,7 +225,7 @@ function pump() {
   let o = '';
   const cw = 26, X0 = 98, Y0 = 26;
   const s = '00000001111111';
-  o += text(X0 - 10, Y0 + 18, 's', 'tl', 'end');
+  o += text(X0 - 10, Y0 + 18, 'w', 'tl', 'end');
   for (let i = 0; i < 14; i++) o += cell(X0 + i * cw, Y0, cw, 26, s[i], i >= 2 && i < 5 ? 'wash' : 'paper');
   const br = (a, b, lab) => { const x1 = X0 + a * cw + 2, x2 = X0 + b * cw - 2, y = Y0 + 34; return line(x1, y, x2, y, 'mute') + line(x1, y - 3, x1, y + 3, 'mute') + line(x2, y - 3, x2, y + 3, 'mute') + text((x1 + x2) / 2, y + 16, lab, 'ts', 'middle'); };
   o += br(0, 2, 'x = 00') + br(2, 5, 'y = 000') + br(5, 14, 'z = 00 1111111');
@@ -230,15 +236,15 @@ function pump() {
   o += ed(P[2], L1, '0', { r, cls: 'ln', tcls: 'tl' }) + ed(L1, L2, '0', { r, cls: 'ln', tcls: 'tl' }) + ed(L2, P[2], '0', { r, cls: 'ln', tcls: 'tl' });
   o += ed(P[2], T[0], '0', { r, lo: -13 }) + ed(T[0], T[1], '0', { r }) + line(T[1][0] + r, 205, 440, 205, 'ink') + text(458, 209, '…', 't', 'middle') + arrow(476, 205, T[2][0] - r, 205, 'ink');
   o += text(458, 192, '读 1⁷', 'ts', 'middle');
-  o += st(...P[0], 'r₀', { r }) + st(...P[1], 'r₁', { r }) + st(...P[2], '', { r, cls: 'wash-strong' }) + st(...L1, 'r₃', { r }) + st(...L2, 'r₄', { r });
-  o += st(...T[0], 'r₆', { r }) + st(...T[1], 'r₇', { r }) + st(...T[2], '', { r, acc: true });
-  o += text(P[2][0], P[2][1] + 30, 'r₂ = r₅', 'tb', 'middle') + start(P[0], -34, 0, r);
+  o += st(...P[0], 'q₀', { r }) + st(...P[1], 'q₁', { r }) + st(...P[2], '', { r, cls: 'wash-strong' }) + st(...L1, 'q₃', { r }) + st(...L2, 'q₄', { r });
+  o += st(...T[0], 'q₆', { r }) + st(...T[1], 'q₇', { r }) + st(...T[2], '', { r, acc: true });
+  o += text(P[2][0], P[2][1] + 30, 'q₂ = q₅', 'tb', 'middle') + start(P[0], -34, 0, r);
   o += text(262, 112, 'y 的圈', 'tl', 'start');
   o += text(T[2][0], 234, '终点', 'ts', 'middle');
-  const rows = [['i = 0', 'xz = 0⁴1⁷', '不绕圈'], ['i = 1', 'xyz = 0⁷1⁷', '绕一圈'], ['i = 2', 'xy²z = 0¹⁰1⁷', '绕两圈']];
+  const rows = [['k = 0', 'xz = 0⁴1⁷', '不绕圈'], ['k = 1', 'xyz = 0⁷1⁷', '绕一圈'], ['k = 2', 'xy²z = 0¹⁰1⁷', '绕两圈']];
   rows.forEach(([a, b, c], i) => { const y = 262 + i * 19; o += text(120, y, a, 'tb', 'end') + text(132, y, b, 't') + text(250, y, c, 'ts'); });
   o += text(330, 272, '三条 path 的终点相同，', 'ts') + text(330, 290, '所以 0⁴1⁷、0¹⁰1⁷ 也会被 accept，', 'ts') + text(330, 308, '但它们不在 {0ⁿ1ⁿ} 里。', 'ts');
-  return svg(560, 314, o, '读 0 的 7 次方 1 的 7 次方时前 8 个 state 中 r2 等于 r5，path 形成套索：x 是柄，y 是圈，z 是剩下的路；绕圈 0、1、2 次终点相同');
+  return svg(560, 314, o, '常数 n 等于 7，读 0 的 7 次方 1 的 7 次方时前 8 个 state 中 q2 等于 q5，path 形成套索：x 是柄，y 是圈，z 是剩下的路；绕圈 0、1、2 次终点相同');
 }
 
 // 8. minimization
@@ -317,90 +323,96 @@ function cflpump() {
     for (let i = 0; i < labs.length; i++) {
       const a = xs[i] + 2, b = xs[i + 1] - 2;
       s += line(a, by + 8, b, by + 8, 'mute') + line(a, by + 5, a, by + 11, 'mute') + line(b, by + 5, b, by + 11, 'mute');
-      s += text((a + b) / 2, by + 26, labs[i], labs[i] === 'v' || labs[i] === 'y' ? 'tl' : 't', 'middle');
+      s += text((a + b) / 2, by + 26, labs[i], labs[i] === 'v' || labs[i] === 'x' ? 'tl' : 't', 'middle');
     }
     return s;
   };
   // 左：原来
   const by = 220;
   o += tri(140, 28, 20, 262, by, 'paper') + tri(150, 88, 70, 226, by, 'wash') + tri(152, 150, 116, 186, by, 'wash-strong');
-  o += text(140, 22, 'S', 'tb', 'middle') + text(150, 84, 'R', 'tl', 'middle') + text(152, 146, 'R', 'tl', 'middle');
+  o += text(140, 22, 'S', 'tb', 'middle') + text(150, 84, 'A', 'tl', 'middle') + text(152, 146, 'A', 'tl', 'middle');
   o += line(140, 32, 150, 74, 'dash') + line(150, 92, 152, 136, 'dash');
-  o += seg([20, 70, 116, 186, 226, 262], ['u', 'v', 'x', 'y', 'z'], by);
-  o += text(141, 270, 's = uvxyz', 't', 'middle');
+  o += seg([20, 70, 116, 186, 226, 262], ['u', 'v', 'w', 'x', 'y'], by);
+  o += text(141, 270, 'z = uvwxy', 't', 'middle');
   // 右：i = 2
   const ox = 290;
   o += tri(ox + 130, 28, ox, ox + 262, by, 'paper') + tri(ox + 138, 70, ox + 40, ox + 238, by, 'wash') + tri(ox + 140, 118, ox + 76, ox + 206, by, 'wash') + tri(ox + 141, 166, ox + 112, ox + 172, by, 'wash-strong');
-  o += text(ox + 130, 22, 'S', 'tb', 'middle') + text(ox + 138, 66, 'R', 'tl', 'middle') + text(ox + 140, 114, 'R', 'tl', 'middle') + text(ox + 141, 162, 'R', 'tl', 'middle');
-  o += seg([ox, ox + 40, ox + 76, ox + 112, ox + 172, ox + 206, ox + 238, ox + 262], ['u', 'v', 'v', 'x', 'y', 'y', 'z'], by);
-  o += text(ox + 131, 270, 'uv²xy²z', 't', 'middle');
+  o += text(ox + 130, 22, 'S', 'tb', 'middle') + text(ox + 138, 66, 'A', 'tl', 'middle') + text(ox + 140, 114, 'A', 'tl', 'middle') + text(ox + 141, 162, 'A', 'tl', 'middle');
+  o += seg([ox, ox + 40, ox + 76, ox + 112, ox + 172, ox + 206, ox + 238, ox + 262], ['u', 'v', 'v', 'w', 'x', 'x', 'y'], by);
+  o += text(ox + 131, 270, 'uv²wx²y', 't', 'middle');
   o += line(275, 20, 275, 250, 'grid');
-  return svg(560, 278, o, '左边：parse tree 的一条 path 上 variable R 出现两次，上面的 R 生成 vxy，下面的生成 x；右边：把下面的 R 换成上面 subtree 的 copy，得到 u v v x y y z');
+  return svg(560, 278, o, '左边：parse tree 的一条 path 上 variable A 出现两次，上面的 A 生成 vwx，下面的生成 w；右边：把下面的 A 换成上面 subtree 的 copy，得到 u v v w x x y');
 }
 
-// 12. TM 读 0011
+// 12. 讲义的 TM：a 和 b 个数相等，读 abba
 function tm() {
-  const dl = { 'q0,0': ['q1', 'X', 'R'], 'q0,Y': ['q3', 'Y', 'R'], 'q1,0': ['q1', '0', 'R'], 'q1,1': ['q2', 'Y', 'L'], 'q1,Y': ['q1', 'Y', 'R'], 'q2,0': ['q2', '0', 'L'], 'q2,X': ['q0', 'X', 'R'], 'q2,Y': ['q2', 'Y', 'L'], 'q3,Y': ['q3', 'Y', 'R'], 'q3,B': ['q4', 'B', 'R'] };
-  const tape = '0011BBB'.split('');
-  let h = 0, s = 'q0';
+  const dl = {
+    'q0,a': ['q1', 'X', 'R'], 'q0,b': ['q2', 'X', 'R'], 'q0,X': ['q0', 'X', 'R'], 'q0,B': ['qA', 'B', 'R'],
+    'q1,a': ['q1', 'a', 'R'], 'q1,b': ['q3', 'X', 'L'], 'q1,X': ['q1', 'X', 'R'],
+    'q2,a': ['q3', 'X', 'L'], 'q2,b': ['q2', 'b', 'R'], 'q2,X': ['q2', 'X', 'R'],
+    'q3,a': ['q3', 'a', 'L'], 'q3,b': ['q3', 'b', 'L'], 'q3,X': ['q3', 'X', 'L'], 'q3,B': ['q0', 'B', 'R'],
+  };
+  const tape = 'BabbaBB'.split('');
+  let h = 1, s = 'q0';
   const ids = [];
-  for (let n = 0; n < 40; n++) {
+  for (let n = 0; n < 60; n++) {
     const m = dl[s + ',' + tape[h]];
     ids.push({ t: tape.slice(), h, s, key: m ? s + ',' + tape[h] : null });
     if (!m) break;
     tape[h] = m[1]; h += m[2] === 'R' ? 1 : -1; s = m[0];
   }
-  const N = ids.length; // 14
-  const { fg } = frames(ids.map((_, i) => (i === N - 1 ? 3 : 0.95)));
-  const X0 = 90, Y = 34, cw = 40;
+  const N = ids.length; // 18 个 ID，17 步
+  const { fg } = frames(ids.map((_, i) => (i === N - 1 ? 3 : 0.9)));
+  const X0 = 100, Y = 34, cw = 40;
   let o = text(X0 - 12, Y + 22, 'tape', 'ts', 'end');
   for (let i = 0; i < 7; i++) o += rect(X0 + i * cw, Y, cw, 32, 'paper');
-  o += text(X0 + 7 * cw + 12, Y + 22, '…', 't');
-  const syms = ['0', '1', 'X', 'Y', 'B'], sts = ['q0', 'q1', 'q2', 'q3', 'q4'];
-  const TX = [70, 165, 255, 345, 435, 520], TY = 150, rh = 21;
-  o += line(30, TY - 4, 560, TY - 4, 'axis');
+  o += text(X0 + 7 * cw + 8, Y + 22, '…', 't');
+  const syms = ['a', 'b', 'X', 'B'], sts = ['q0', 'q1', 'q2', 'q3', 'qA'];
+  const TX = [60, 170, 280, 390, 500], TY = 150, rh = 21;
+  o += line(20, TY - 4, 560, TY - 4, 'axis');
   syms.forEach((c, j) => { o += text(TX[j + 1], TY - 10, c, 'tb', 'middle'); });
-  const cellC = (s0, c) => { const m = dl[s0 + ',' + c]; return m ? `(${m[0].replace('q', 'q')}, ${m[1]}, ${m[2]})` : ''; };
-  const sub = (x) => x.replace(/q(\d)/g, (m, a) => q(a));
+  const sub = (x) => x.replace(/q(\d|A)/g, (m, a) => q(a));
+  const cellC = (s0, c) => { const m = dl[s0 + ',' + c]; return m ? `(${m[0]}, ${m[1]}, ${m[2]})` : ''; };
   ids.forEach((f, k) => {
     let g = '';
-    if (f.key) { const [s0, c] = f.key.split(','); const i = sts.indexOf(s0), j = syms.indexOf(c); g += rect(TX[j + 1] - 44, TY + i * rh, 88, rh, 'wash-strong'); }
-    for (let i = 0; i < 7; i++) g += text(X0 + i * cw + cw / 2, Y + 21, f.t[i] === 'B' ? 'B' : f.t[i], f.t[i] === 'B' ? 'ts' : 't', 'middle');
+    if (f.key) { const [s0, c] = f.key.split(','); const i = sts.indexOf(s0), j = syms.indexOf(c); g += rect(TX[j + 1] - 50, TY + i * rh, 100, rh, 'wash-strong'); }
+    for (let i = 0; i < 7; i++) g += text(X0 + i * cw + cw / 2, Y + 21, f.t[i], f.t[i] === 'B' ? 'ts' : 't', 'middle');
     const hx = X0 + f.h * cw + cw / 2;
-    g += head(hx, Y + 36, -Math.PI / 2, 'ink', 7) + line(hx, Y + 37, hx, Y + 50, 'ink') + text(hx, Y + 66, sub(f.s), f.s === 'q4' ? 'tl' : 'tb', 'middle');
+    g += head(hx, Y + 36, -Math.PI / 2, 'ink', 7) + line(hx, Y + 37, hx, Y + 50, 'ink') + text(hx, Y + 66, sub(f.s), f.s === 'qA' ? 'tl' : 'tb', 'middle');
     g += text(560, Y + 10, `第 ${k} 步`, 'ts', 'end');
-    if (f.s === 'q4') g += text(560, Y + 30, '进入 q₄ ∈ F：accept', 'tl', 'end');
+    if (f.s === 'qA') g += text(560, Y + 30, `进入 ${q('A')} ∈ F：accept`, 'tl', 'end');
     o += fg(k, g);
   });
   sts.forEach((s0, i) => {
     o += text(TX[0], TY + i * rh + 15, sub(s0), 'tb', 'middle');
     syms.forEach((c, j) => { o += text(TX[j + 1], TY + i * rh + 15, sub(cellC(s0, c)), 'ts', 'middle'); });
   });
-  o += text(280, TY + 5 * rh + 20, '深色格是当前 ID 下要用的 transition：(新 state, 写下的 symbol, head 移动方向)', 'ts', 'middle');
-  return svgA(560, 282, o, '动图：识别 0 的 n 次方 1 的 n 次方的 TM 读 0011，13 步后进入 accepting state q4；每一帧显示 tape、head 位置、当前 state 和用到的 transition');
+  o += text(280, TY + 5 * rh + 20, '深色格是当前 ID 下要用的 transition：(新 state, 写下的 symbol, head 移动方向)；空格是没有定义', 'ts', 'middle');
+  return svgA(560, 282, o, `动图：讲义里识别 a 和 b 个数相等的 TM 读 abba，${N - 1} 步后进入 accepting state qA；每一帧显示 tape、head 位置、当前 state 和用到的 transition`);
 }
 
-// 13. diagonalization 的表
+// 13. diagonalization 的表：L_d
 function diag() {
-  const rowsN = ['M₁', 'M₂', 'M₃', 'M₄', 'M₅'], cols = ['⟨M₁⟩', '⟨M₂⟩', '⟨M₃⟩', '⟨M₄⟩', '⟨M₅⟩', '⟨D⟩'];
-  const T = [[1, 0, 1, 1, 0, 1], [0, 0, 1, 0, 1, 0], [1, 1, 1, 0, 0, 1], [0, 1, 0, 1, 1, 0], [1, 0, 0, 1, 0, 1]];
-  const X0 = 110, Y0 = 44, cw = 70, rh = 30;
+  const rowsN = ['M₁', 'M₂', 'M₃', 'M₄', 'M₅'], cols = ['w₁', 'w₂', 'w₃', 'w₄', 'w₅'];
+  const T = [[1, 0, 1, 1, 0], [0, 0, 1, 0, 1], [1, 1, 1, 0, 0], [0, 1, 0, 1, 1], [1, 0, 0, 1, 0]];
+  const X0 = 120, Y0 = 44, cw = 76, rh = 30;
   let o = '';
   cols.forEach((c, j) => { o += text(X0 + j * cw + cw / 2, Y0 - 10, c, 'tb', 'middle'); });
+  o += text(X0 + 5 * cw + 14, Y0 + 2.5 * rh + 4, '…', 't');
   const lab = (v) => (v ? 'acc' : 'rej');
   T.forEach((r, i) => {
     o += text(X0 - 14, Y0 + i * rh + 20, rowsN[i], 'tb', 'end');
     r.forEach((v, j) => { o += rect(X0 + j * cw, Y0 + i * rh, cw, rh, i === j ? 'wash-strong' : 'paper') + text(X0 + j * cw + cw / 2, Y0 + i * rh + 20, lab(v), i === j ? 'tb' : 't', 'middle'); });
   });
-  const yD = Y0 + 5 * rh + 12;
-  o += text(X0 - 14, yD + 20, 'D', 'tl', 'end');
-  for (let j = 0; j < 6; j++) {
-    const v = j < 5 ? 1 - T[j][j] : null;
-    o += rect(X0 + j * cw, yD, cw, rh, j < 5 ? 'wash' : 'solid') + text(X0 + j * cw + cw / 2, yD + 20, j < 5 ? lab(v) : '?', j < 5 ? 'tl' : 'tw', 'middle');
+  const yD = Y0 + 5 * rh + 14;
+  o += text(X0 - 14, yD + 20, sb('L', 'd'), 'tl', 'end');
+  for (let j = 0; j < 5; j++) {
+    const inL = 1 - T[j][j];
+    o += rect(X0 + j * cw, yD, cw, rh, 'wash') + text(X0 + j * cw + cw / 2, yD + 20, inL ? '在' : '不在', 'tl', 'middle');
   }
-  o += text(20, yD + 52, 'acc：accept；rej：不 accept（reject 或永远不停）。深色是对角线，D 的每一格把它取反。', 'ts');
-  o += text(20, yD + 72, 'D 在 ⟨D⟩ 上：accept 当且仅当不 accept，填不出来。', 'ts');
-  return svg(560, 276, o, '一张表的第 i 行第 j 列是 Mi 在 Mj 的编码上是否 accept；D 的一行把对角线逐格取反，在 D 自己的编码那一格产生矛盾');
+  o += text(20, yD + 54, `acc：${sb('M', 'i')} accept ${sb('w', 'j')}；rej：不 accept（halt 但不 accept，或永远不停）。深色是对角线。`, 'ts');
+  o += text(20, yD + 74, `${sb('L', 'd')} 一行写 ${sb('w', 'j')} 在不在 ${sb('L', 'd')} 里，在第 j 列和 ${sb('M', 'j')} 相反。`, 'ts');
+  return svg(560, 290, o, '一张表的第 i 行第 j 列是 Mi 是否 accept wj；L_d 一行把对角线逐格取反，所以和每一行都在对角线那格不同');
 }
 
 // 14. 隔一个划一个：a^6 b^6
@@ -431,6 +443,149 @@ function cross() {
   return svg(560, Y0 + rounds.length * rh + 14, o, 'a 的 6 次方 b 的 6 次方在 O(n log n) machine 上的各轮：剩余个数 6、3、1、0，parity 依次 0、1、1');
 }
 
+
+// 15. CYK：S → AT | AB，T → SB，A → 0，B → 1，读 0011
+function cyk() {
+  const w = '0011';
+  const G = { S: [['A', 'T'], ['A', 'B']], T: [['S', 'B']] }, U = { A: '0', B: '1' };
+  const n = w.length, X = {};
+  for (let i = 1; i <= n; i++) X[`${i},${i}`] = Object.keys(U).filter((v) => U[v] === w[i - 1]);
+  const why = {};
+  for (let L = 2; L <= n; L++) for (let i = 1; i + L - 1 <= n; i++) {
+    const j = i + L - 1, set = new Set(), notes = [];
+    for (let k = i; k < j; k++) for (const B of X[`${i},${k}`]) for (const C of X[`${k + 1},${j}`]) for (const A in G) if (G[A].some(([b, c]) => b === B && c === C)) { set.add(A); notes.push(`${B}${C} → ${A}`); }
+    X[`${i},${j}`] = [...set]; why[`${i},${j}`] = notes;
+  }
+  // 帧：0 = 完成的表；1..4 = 逐层填
+  const durs = [3.2, 1.8, 2.2, 2.2, 2.6];
+  const T = durs.reduce((a, b) => a + b, 0), kt = [];
+  let c0 = 0; for (const d0 of durs) { kt.push(c0 / T); c0 += d0; }
+  const showIn = (fs, body) => (fs.includes(0) ? `<g>${body}${anim('opacity', durs.map((_, f) => (fs.includes(f) ? 1 : 0)), kt, T, true)}</g>` : `<g opacity="0">${body}${anim('opacity', durs.map((_, f) => (fs.includes(f) ? 1 : 0)), kt, T, true)}</g>`);
+  const X0 = 80, step = 100, cw = 96, ch = 34, yOf = (L) => 176 - (L - 1) * 42;
+  const xOf = (i, L) => X0 + (i - 1) * step + (L - 1) * (step / 2);
+  let o = text(280, 20, 'CYK：每格是能生成那一段 substring 的 variable', 'tb', 'middle');
+  for (let L = 1; L <= n; L++) {
+    o += text(36, yOf(L) + 22, `长 ${L}`, 'ts', 'end');
+    for (let i = 1; i + L - 1 <= n; i++) {
+      const j = i + L - 1, x = xOf(i, L), y = yOf(L), v = X[`${i},${j}`];
+      o += rect(x, y, cw, ch, 'paper');
+      const lab = text(x + 6, y + 12, sb('X', `${i}${j}`), 'ts');
+      const val = text(x + cw / 2, y + 25, v.length ? '{' + v.join(', ') + '}' : '∅', v.includes('S') && L === n ? 'tl' : 't', 'middle');
+      const fsFull = [0]; for (let f = L; f <= n; f++) fsFull.push(f);
+      // 正在填的这一层加底色
+      o += showIn([L], rect(x + 1, y + 1, cw - 2, ch - 2, 'wash'));
+      o += lab + showIn(fsFull, (L === n && v.includes('S') ? rect(x + 3, y + 3, cw - 6, ch - 6, 'wash') : '') + val);
+    }
+  }
+  for (let i = 1; i <= n; i++) o += text(xOf(i, 1) + cw / 2, yOf(1) + ch + 22, w[i - 1], 'tb', 'middle');
+  const msg = [
+    ['完成的表：最上面一格 X₁₄ 含 S，所以 0011 ∈ L(G)。', '下面一层一层地填一遍。'],
+    [`长度 1：${sb('X', 'ii')} 是 A → 0、B → 1 里右边等于这个 symbol 的 variable。`, ''],
+    ['长度 2：X₂₃ 拆成 X₂₂ X₃₃ = A B，由 S → AB 得 S。', 'X₁₂ 是 A A、X₃₄ 是 B B，没有对应的 production，∅。'],
+    ['长度 3：X₂₄ 拆成 X₂₃ X₄₄ = S B，由 T → SB 得 T。', 'X₁₃ 的两种拆法 A S、∅ A 都没有对应的 production。'],
+    ['长度 4：X₁₄ 拆成 X₁₁ X₂₄ = A T，由 S → AT 得 S。', '其余两种拆法都含 ∅。S ∈ X₁₄，accept。'],
+  ];
+  msg.forEach(([a, b], f) => { o += showIn([f], text(20, 258, a, 't') + text(20, 278, b, 'ts')); });
+  return svgA(560, 286, o, '动图：CYK 对 0011 填表，X23 = {S}，X24 = {T}，X14 = {S}，所以 0011 在 language 里');
+}
+
+// 16. linear speedup：m = 3，home cell 和左右邻居
+function speedup() {
+  const m = 3, G = 6, cw = 26, X0 = 46, Y1 = 46, home = 2;
+  const content = 'abbaXbabXXaabbaBBB';
+  let o = text(X0 - 8, Y1 + 18, 'M', 'tb', 'end');
+  const win0 = X0 + (home - 1) * m * cw, win1 = X0 + (home + 2) * m * cw;
+  o += rect(win0 - 3, Y1 - 6, win1 - win0 + 6, 40, 'wash', 6);
+  for (let i = 0; i < G * m; i++) o += cell(X0 + i * cw, Y1, cw, 28, content[i] === 'B' ? 'B' : content[i], 'paper', content[i] === 'B' ? 'ts' : 't');
+  for (let g = 0; g <= G; g++) o += line(X0 + g * m * cw, Y1 - 4, X0 + g * m * cw, Y1 + 32, 'ink-b');
+  o += text(X0 + (home + 0.5) * m * cw, Y1 - 12, 'home', 'tl', 'middle');
+  o += text(X0 + (home - 0.5) * m * cw, Y1 - 12, '左邻居', 'ts', 'middle') + text(X0 + (home + 1.5) * m * cw, Y1 - 12, '右邻居', 'ts', 'middle');
+  // M 的 head：从 home 最右一格出发向右走 3 步（最坏的出发点）
+  const start = home * m + m - 1, path = [start, start + 1, start + 2, start + 3];
+  const { fg } = frames([1.6, 1.1, 1.1, 2.4]);
+  path.forEach((c, k) => {
+    const hx = X0 + c * cw + cw / 2;
+    let g = head(hx, Y1 + 36, -Math.PI / 2, 'ink', 7) + line(hx, Y1 + 37, hx, Y1 + 50, 'ink');
+    g += text(280, Y1 + 70, k === 0 ? 'M 的 head 从 home cell 的最右一格出发（离出口最近）' : `M 走了第 ${k} 步，仍在三组之内`, k === 3 ? 'tl' : 't', 'middle');
+    o += fg(k, g);
+  });
+  // M' 的 tape：每格是 M 的一组 3 个 cell
+  const Y2 = 160, bw = m * cw;
+  o += text(X0 - 8, Y2 + 26, "M′", 'tb', 'end');
+  o += rect(X0 + (home - 1) * bw - 3, Y2 - 6, 3 * bw + 6, 52, 'wash', 6);
+  for (let g = 0; g < G; g++) {
+    o += rect(X0 + g * bw, Y2, bw, 40, 'paper');
+    o += text(X0 + g * bw + bw / 2, Y2 + 25, content.slice(g * m, g * m + m).split('').join(' '), 't', 'middle');
+    o += line(X0 + g * bw + bw / 2, Y1 + 80, X0 + g * bw + bw / 2, Y2 - 8, 'grid');
+  }
+  o += text(X0 + (home + 0.5) * bw, Y2 + 58, 'M′ 的 head 在 home cell', 'ts', 'middle');
+  o += text(20, Y2 + 86, 'M 的 head 离开这 3 组（9 个 cell）至少要走 m = 3 步；M′ 读、写这 3 个大 cell 最多 8 步。', 'ts');
+  o += text(20, Y2 + 106, '所以 M′ 每 8 步至少 simulate M 的 m 步，m 取得够大就压下任意常数倍。', 'ts');
+  return svgA(560, 276, o, '动图：m 等于 3 时，M 的 tape 每 3 格压成 M′ 的 1 格；M 的 head 从 home cell 出发走 3 步仍在 home 和左右邻居三组之内');
+}
+
+// 17. PCP 的解 2,1,1,3
+function pcp() {
+  const A = ['1', '10111', '10'], B = ['111', '10', '0'], seq = [2, 1, 1, 3];
+  let o = text(20, 18, 'A = (1, 10111, 10)，B = (111, 10, 0)，index 序列 2, 1, 1, 3', 'tb');
+  // domino
+  let x = 20;
+  seq.forEach((i) => {
+    const w = Math.max(A[i - 1].length, B[i - 1].length) * 13 + 24;
+    o += rect(x, 34, w, 66, 'paper', 6) + line(x, 67, x + w, 67, 'mute');
+    o += text(x + w / 2, 56, A[i - 1], 't', 'middle') + text(x + w / 2, 89, B[i - 1], 't', 'middle');
+    o += text(x + w / 2, 116, String(i), 'tl', 'middle');
+    x += w + 14;
+  });
+  // 逐个 symbol 对齐
+  const top = seq.map((i) => A[i - 1]).join(''), bot = seq.map((i) => B[i - 1]).join('');
+  const cw = 30, X0 = 100, YT = 154, YB = 192;
+  o += text(X0 - 12, YT + 20, '上面', 'ts', 'end') + text(X0 - 12, YB + 20, '下面', 'ts', 'end');
+  for (let c = 0; c < top.length; c++) { o += cell(X0 + c * cw, YT, cw, 28, top[c]); o += cell(X0 + c * cw, YB, cw, 28, bot[c]); }
+  // 每块 domino 在两行里各占哪一段：上面的括号画在上方，下面的画在下方
+  const segs = (lens) => { const r = []; let t = 0; lens.forEach((l) => { r.push([t, t + l]); t += l; }); return r; };
+  const brk = (a0, a1, y, up, lab) => { const x1 = X0 + a0 * cw + 3, x2 = X0 + a1 * cw - 3, d0 = up ? 4 : -4; return line(x1, y, x2, y, 'ln') + line(x1, y, x1, y + d0, 'ln') + line(x2, y, x2, y + d0, 'ln') + text((x1 + x2) / 2, up ? y - 5 : y + 15, lab, 'tl', 'middle'); };
+  segs(seq.map((i) => A[i - 1].length)).forEach(([a0, a1], k) => { o += brk(a0, a1, YT - 6, true, String(seq[k])); });
+  segs(seq.map((i) => B[i - 1].length)).forEach(([a0, a1], k) => { o += brk(a0, a1, YB + 34, false, String(seq[k])); });
+  o += text(X0 + top.length * cw + 12, YT + 20, `${top.length} 个 symbol`, 'ts') + text(X0 + top.length * cw + 12, YB + 20, `${bot.length} 个 symbol`, 'ts');
+  o += text(20, 266, '括号是每块 domino 占的一段：上面在第 5、6、7、9 个 symbol 后切开，下面在第 2、5、8、9 个后。', 'ts');
+  o += text(20, 286, '两行的内容逐个相同，边界却一直错开，直到最后一块才同时收尾。', 'ts');
+  return svg(560, 294, o, 'PCP 的解 2 1 1 3：四块 domino，上面接起来和下面接起来都是 101111110，但 domino 的边界上下错开');
+}
+
+// 18. 3-SAT 到 vertex cover
+function vc() {
+  const r = 15;
+  const top = { u1: [60, 52], w1: [124, 52], u2: [236, 52], w2: [300, 52], u3: [412, 52], w3: [476, 52] };
+  const cx = [92, 280, 468], lits = [[['x', 1, 1], ['x', 2, 0], ['x', 3, 1]], [['x', 1, 0], ['x', 2, 1], ['x', 3, 1]], [['x', 1, 0], ['x', 2, 0], ['x', 3, 0]]];
+  const Z = {};
+  cx.forEach((c, j) => { Z[`${j + 1}1`] = [c - 46, 236]; Z[`${j + 1}2`] = [c, 168]; Z[`${j + 1}3`] = [c + 46, 236]; });
+  const cover = new Set(['w1', 'w2', 'u3', 'z11', 'z13', 'z22', 'z23', 'z32', 'z33']);
+  let o = '';
+  // literal edges
+  lits.forEach((cl, j) => cl.forEach(([, v, pos], rr) => {
+    const z = Z[`${j + 1}${rr + 1}`], t = top[(pos ? 'u' : 'w') + v];
+    o += line(z[0], z[1] - r, t[0], t[1] + r, 'mute');
+  }));
+  // variable edges
+  for (let v = 1; v <= 3; v++) o += line(top['u' + v][0] + r, 52, top['w' + v][0] - r, 52, 'ink-b');
+  // triangles
+  cx.forEach((c, j) => {
+    const a = Z[`${j + 1}1`], b = Z[`${j + 1}2`], d = Z[`${j + 1}3`];
+    o += line(a[0], a[1], b[0], b[1], 'ink-b') + line(b[0], b[1], d[0], d[1], 'ink-b') + line(a[0], a[1], d[0], d[1], 'ink-b');
+    o += text(c, 276, sb('c', j + 1), 'tb', 'middle');
+  });
+  const node = (P, name, lab) => {
+    const on = cover.has(name);
+    return circle(P[0], P[1], r, on ? 'solid' : 'paper') + text(P[0], P[1] + 4.5, lab, on ? 'tw' : 't', 'middle');
+  };
+  for (const k in top) o += node(top[k], k, sb(k[0], k[1]));
+  lits.forEach((cl, j) => cl.forEach(([, v, pos], rr) => { o += node(Z[`${j + 1}${rr + 1}`], `z${j + 1}${rr + 1}`, (pos ? '' : '¬') + sb('x', v)); }));
+  o += text(560, 16, '实心 9 个 = cover；k = 2m + n = 9', 'ts', 'end');
+  o += text(20, 16, sb('u', 'i') + ' 代表 ' + sb('x', 'i') + '，' + sb('w', 'i') + ' 代表 ¬' + sb('x', 'i'), 'ts');
+  return svg(560, 284, o, '3-SAT 公式的 vertex cover 构造：上面三对 u w，下面三个 clause triangle，triangle 的每个 vertex 连向它的 literal；实心的 9 个 vertex 是 cover');
+}
+
 export default {
   'cs3231-mod3': mod3,
   'cs3231-product': product,
@@ -446,4 +601,8 @@ export default {
   'cs3231-tm': tm,
   'cs3231-diag': diag,
   'cs3231-cross': cross,
+  'cs3231-cyk': cyk,
+  'cs3231-speedup': speedup,
+  'cs3231-pcp': pcp,
+  'cs3231-vc': vc,
 };
