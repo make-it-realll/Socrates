@@ -141,6 +141,10 @@ function sanfen() {
 }
 
 // ---------- 第 3 站：几种 scale 怎样分 octave ----------
+// UC Irvine 的 Sri Duhita primer 给的“相对 Western pitch 的偏差”，换成从最低音起的 cents
+const fromDev = (devs) => { const abs = devs.map(([semi, dev]) => semi * 100 + dev); const o0 = abs[0]; return [...abs.map((c) => c - o0), 1200]; };
+const SLENDRO = fromDev([[2, 28], [5, -35], [7, 17], [9, 40], [12, -10]]);          // D+28 F−35 G+17 A+40 C−10
+const PELOG = fromDev([[2, -26], [3, -10], [5, -45], [7, 24], [8, 43], [9, 43], [11, 35]]); // D−26 E♭−10 F−45 G+24 G♯+43 A+43 B+35
 function scales() {
   const sx = lin(0, 1200, 176, 536);
   const rows = [
@@ -148,23 +152,24 @@ function scales() {
     ['natural minor', 'C D E♭ F G A♭ B♭', [0, 200, 300, 500, 700, 800, 1000, 1200]],
     ['gong mode', '三分损益的五声，从 gong 起', [0, 204, 408, 702, 906, 1200]],
     ['in scale', 'E F A B C（koto、shamisen）', [0, 100, 500, 700, 800, 1200]],
-    ['slendro（理想化）', '五个音等分 octave', [0, 240, 480, 720, 960, 1200]],
+    ['slendro（一套实测）', '从 gulu 起', SLENDRO],
+    ['pelog（同一份讲义）', '从 panunggul 起', PELOG],
   ];
   let o = text(sx(0), 14, '0', 'ts', 'middle') + text(sx(600), 14, '600¢', 'ts', 'middle') + text(sx(1200), 14, '1200¢（octave）', 'ts', 'end');
-  for (let c = 0; c <= 1200; c += 100) o += line(sx(c), 22, sx(c), 236, 'grid');
+  for (let c = 0; c <= 1200; c += 100) o += line(sx(c), 22, sx(c), 280, 'grid');
   rows.forEach(([nm, sub, cs], i) => {
     const y = 46 + i * 44;
     o += text(0, y + 2, nm, 'tb') + text(0, y + 17, sub, 'ts');
     o += line(sx(0), y, sx(1200), y, 'axis');
     for (let j = 0; j < cs.length - 1; j++) {
-      const step = cs[j + 1] - cs[j], semi = step <= 112;
+      const step = cs[j + 1] - cs[j], semi = step <= 125;
       if (semi) o += line(sx(cs[j]) + 4, y, sx(cs[j + 1]) - 4, y, 'ln');
       o += text((sx(cs[j]) + sx(cs[j + 1])) / 2, y - 7, String(step), semi ? 'tl' : 'ts', 'middle');
     }
     cs.forEach((c) => (o += circle(sx(c), y, 4, 'ink-f')));
   });
-  o += text(176, 262, '数字是相邻两音的距离（cents）；粗线标出 semitone 一级的小步。', 'ts');
-  return svg(560, 270, o, '五种 scale 在 0 到 1200 cents 的 octave 里的位置：major、natural minor、gong mode 五声、Japanese in scale、理想化的 slendro');
+  o += text(176, 306, '数字是相邻两音的距离（cents）；粗线标出 100 cents 左右的小步。', 'ts');
+  return svg(560, 314, o, '六种 scale 在 0 到 1200 cents 的 octave 里的位置：major、natural minor、gong mode 五声、Japanese in scale，以及一套 gamelan 实测的 slendro 与 pelog');
 }
 
 // ---------- 第 4 站：四种 texture ----------
@@ -217,15 +222,16 @@ function form() {
   row(1, 'ternary', '离开，再回来', [['A', 128], ['B', 128], ['A', 128]]);
   row(2, 'rondo', 'Mouret 那一段（第 11 讲）', [['A', 72, '8 bars'], ['B', 72, '8 bars'], ['A', 56, '缩短'], ['C', 108, '约 20 bars'], ['A', 72]]);
   row(3, 'theme and variations', 'Brahms：每段都是 a b c b', [['a b c b', 96, 'theme'], ['a′ b′ c′ b′', 96, 'var. 1'], ['a″ b″ c″ b″', 96, 'var. 2'], ['…', 96]]);
+  row(4, 'AABA（32 bars）', 'Over the Rainbow', [['intro', 40, '4'], ['A', 86, '8 bars'], ['A', 86, '8 bars'], ['B', 86, 'bridge 8'], ['A', 86, '8 bars']]);
   // ostinato：上面一直变，下面同一个 cycle
-  const y = 14 + 4 * 60;
+  const y = 14 + 5 * 60;
   o += text(0, y + 12, 'ostinato', 'tb') + text(0, y + 28, '下层同一个 cycle 一再重复，', 'ts') + text(0, y + 43, '上层不断变化', 'ts');
   const tops = ['A', 'B', 'C', 'D', 'E'];
   for (let j = 0; j < 5; j++) {
     o += rect(X + j * 77, y, 73, 20, j % 2 ? 'wash' : 'wash2', 3) + text(X + j * 77 + 36, y + 14, 'upper ' + tops[j], 'ts', 'middle');
     o += rect(X + j * 77, y + 24, 73, 20, 'solid2', 3) + text(X + j * 77 + 36, y + 38, 'bass cycle', 'tw', 'middle');
   }
-  return svg(560, 306, o, '五种 form 的排法：strophic 的 A A A，ternary 的 A B A，rondo 的 A B A C A，theme and variations 的每段 a b c b，ostinato 的下层重复、上层变化');
+  return svg(560, 366, o, '六种 form 的排法：strophic 的 A A A，ternary 的 A B A，rondo 的 A B A C A，theme and variations 的每段 a b c b，AABA 的 4 个 8 bar 段落，ostinato 的下层重复、上层变化');
 }
 
 // ---------- 第 5 站：ladrang 的 colotomic cycle（动图） ----------
@@ -403,7 +409,7 @@ function tihai() {
   const ex = (y, p, g) => {
     const total = 3 * p + 2 * g, start = 18 - total;
     o += text(0, y - 8, `phrase ${p} 拍` + (g ? `，中间空 ${g} 拍` : '，不留空'), 'tb');
-    o += text(0, y + 26, `3 × ${p}` + (g ? ` + 2 × ${g}` : '') + ` = ${total}；起点 = 17 − ${total} = ${start}`, 'ts');
+    o += text(0, y + 26, `3 × ${p}` + (g ? ` + 2 × ${g}` : '') + ` = ${total}；起点 = 18 − ${total} = ${start}`, 'ts');
     let k = start;
     for (let r = 0; r < 3; r++) {
       o += rect(cx(k) + 1, y, p * u - 5, 14, r === 2 ? 'solid' : 'solid2', 3);
@@ -414,6 +420,107 @@ function tihai() {
   ex(104, 3, 1);
   ex(170, 5, 0);
   return svg(560, 206, o, '两种 tihai：3 拍的 phrase 中间各空 1 拍、从 matra 7 起；5 拍的 phrase 不留空、从 matra 3 起；两者的最后一个音都落在下一个 cycle 的 sam 上');
+}
+
+// ---------- 第 1 站：string 的 harmonic 与 gamelan bar 的 partial ----------
+function partials() {
+  const f0 = 393.5, sx = logx(0.9, 7.4, 40, 540);
+  const rows = [
+    ['string', '理想 string：1、2、3……倍', [1, 2, 3, 4, 5, 6, 7], 90],
+    ['jublag bar 4', 'Jones、Gee 与 Grimshaw 2010 实测', [1, 2.77, 5.18, 5.33, 6.32], 196],
+  ];
+  let o = text(10, 14, `fundamental 都是 ${f0} Hz；竖线下的数字是 frequency ratio，括号里是 Hz`, 'ts');
+  rows.forEach(([nm, sub, rs, y], i) => {
+    o += text(10, y - 46, nm, 'tb') + text(10 + (i ? 104 : 60), y - 46, sub, 'ts');
+    for (let n = 1; n <= 7; n++) o += line(sx(n), y - 34, sx(n), y + 4, 'grid');
+    o += line(sx(0.95), y, sx(7.3), y, 'axis');
+    rs.forEach((r, k) => {
+      const x = sx(r);
+      o += line(x, y, x, y - (k === 0 ? 30 : 22), i ? 'ln' : 'ink-b');
+      const pair = i === 1 && (r === 5.18 || r === 5.33);
+      const dx = !pair ? 0 : r === 5.18 ? -4 : 4, anc = !pair ? 'middle' : r === 5.18 ? 'end' : 'start';
+      o += text(x + dx, y + 15, String(r), 'ts', anc);
+      if (i === 1 && !pair) o += text(x, y + 29, '(' + f1(f0 * r) + ')', 'ts', 'middle');
+    });
+  });
+  const a = f0 * 5.18, b = f0 * 5.33;
+  o += text(sx(5.25) + 20, 246, `${f1(a)} 与 ${f1(b)} Hz 只差 ${Math.round(b - a)} Hz：roughness`, 'tl', 'end');
+  return svg(560, 256, o, '理想 string 的 harmonic 是 1 到 7 倍的整数；Balinese gamelan 一根 jublag bar 实测的 partial 是 1、2.77、5.18、5.33、6.32 倍，其中 5.18 与 5.33 只差 59 Hz');
+}
+
+// ---------- 第 2 站：hemiola，同一串 eighth note 两种分组（动图） ----------
+function hemiola() {
+  const N = 12, e = 0.3, Tp = N * e, T = Tp + 1.2, x0 = 150, W = 384, xe = (k) => x0 + 12 + (W * k) / N;
+  let o = text(10, 14, `12 个 eighth note（动图按每个 ${e} s 走）`, 'tb');
+  o += text(10, 54, 'eighth note', 't');
+  for (let k = 0; k < N; k++) o += circle(xe(k), 50, 3, 'mute-f') + text(xe(k), 36, String(k + 1), 'ts', 'middle');
+  const row = (y, g, name, sub) => {
+    o += text(10, y + 2, name, 'tb') + text(10, y + 17, sub, 'ts');
+    for (let k = 0; k < N; k += g) {
+      o += rect(xe(k) - 10, y - 14, (W * g) / N - 4, 28, g === 3 ? 'wash' : 'wash2', 4);
+    }
+    for (let k = 0; k < N; k++) {
+      const strong = k % g === 0;
+      o += circle(xe(k), y, strong ? 8 : 3.5, strong ? 'ink-f' : 'paper');
+      if (strong) o += `<g>${circle(xe(k), y, 12, 'ln')}${flash(k * e, 0.22, T)}</g>`;
+    }
+  };
+  row(100, 3, '6/8：3 + 3', '两拍一组，每拍三份');
+  row(160, 2, 'hemiola：2 + 2 + 2', '临时改成三组二');
+  for (const k of [0, 6]) o += line(xe(k), 76, xe(k), 182, 'dash');
+  o += text(xe(6) - 6, 206, '只在第 1、7 个 eighth note 上两行同时重', 'ts', 'end');
+  const ph = (x) => d([[x, 26], [x, 190]]);
+  o += apath([ph(xe(0) - 10), ph(xe(N) - 10), ph(xe(N) - 10)], [0, Tp / T, 1], T, 'ln');
+  return svgA(560, 216, o, '动图：12 个 eighth note，上面按 3 + 3 分组，重音在 1、4、7、10；下面按 2 + 2 + 2 分组，重音在 1、3、5、7、9、11；两行只在 1 和 7 同时重');
+}
+
+// ---------- 第 4 站：Bach C minor fugue 前 20 个 bar 的 subject ----------
+function fugue() {
+  const B = 20, x0 = 92, W = 444, xb = (bar) => x0 + (W * (bar - 1)) / B; // 第 bar 个 bar 的起点
+  const Y = { soprano: 60, alto: 104, bass: 148 };
+  let o = '';
+  for (let b = 1; b <= B + 1; b++) for (const y of [60, 104, 148]) o += line(xb(b), y - 4, xb(b), y + 4, 'mute');
+  for (const b of [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]) o += text(xb(b) + W / B / 2, 30, String(b), 'ts', 'middle');
+  o += text(10, 30, 'bar', 'ts');
+  for (const [v, y] of Object.entries(Y)) o += text(10, y + 4, v, 'tb') + line(x0, y, x0 + W, y, 'axis');
+  const ent = [['alto', 1, 'C minor'], ['soprano', 3, ''], ['bass', 7, ''], ['soprano', 11, 'major'], ['alto', 15, '']];
+  ent.forEach(([v, b, k], i) => {
+    o += rect(xb(b) + 1, Y[v] - 9, 2 * (W / B) - 2, 18, i < 3 ? 'solid' : 'solid2', 3);
+    o += text(xb(b) + W / B, Y[v] + 4, 'subject', 'tw', 'middle');
+    if (k) o += text(xb(b) + W / B, Y[v] - 14, k, 'ts', 'middle');
+  });
+  // exposition bracket
+  o += line(xb(1), 176, xb(9), 176, 'ink') + line(xb(1), 172, xb(1), 180, 'ink') + line(xb(9), 172, xb(9), 180, 'ink');
+  o += text((xb(1) + xb(9)) / 2, 194, 'exposition', 'tb', 'middle') + text((xb(1) + xb(9)) / 2, 208, '三个 voice 依次进来', 'ts', 'middle');
+  o += rect(xb(9) + 2, 172, 2 * (W / B) - 4, 8, 'wash2', 2) + text(xb(10), 194, 'episode', 'ts', 'middle');
+  o += text(xb(10), 208, 'minor → major', 'ts', 'middle');
+  o += rect(xb(17) + 2, 172, 4 * (W / B) - 4, 8, 'wash2', 2) + text(xb(19), 194, 'motive 互换', 'ts', 'middle');
+  o += text(xb(19), 208, 'bass ↔ alto', 'ts', 'middle');
+  o += text(10, 232, 'exposition 里的三次 subject 和之后的两次 entry 用两种颜色区分；每块按 2 个 bar 画。', 'ts');
+  o += text(10, 248, '第 20 bar 之后音乐回到 C minor，subject 在 soprano 里最后出现一次，以 major chord 结束。', 'ts');
+  return svg(560, 258, o, 'Bach 的 C minor fugue 前 20 个 bar：alto 在第 1 bar、soprano 在第 3 bar、bass 在第 7 bar 奏 subject，构成 exposition；第 9 到 10 bar 的 episode 从 minor 走到 major；soprano 在第 11 bar、alto 在第 15 bar 再奏 subject；第 17 到 20 bar 两个 motive 在 bass 和 alto 之间互换');
+}
+
+// ---------- 第 6 站：Bhupali 与 Deshkar，同样五个音 ----------
+function deshkar() {
+  const sx = lin(0, 1200, 120, 520);
+  const notes = [['Sa', 0], ['Re', 200], ['Ga', 400], ['Pa', 700], ['Dha', 900], ['Sȧ', 1200]];
+  const rows = [
+    ['Bhupali', 'Kalyan thaat，晚上', { Ga: ['vadi', 12, 'solid'], Dha: ['samvadi', 8, 'paper'], Re: ['', 5, 'ink-f'] }, 70],
+    ['Deshkar', 'Bilawal thaat，早晨', { Dha: ['vadi', 12, 'solid'], Ga: ['samvadi', 8, 'paper'], Re: ['弱化', 3, 'mute-f'] }, 160],
+  ];
+  let o = rect(sx(600), 120, sx(1200) - sx(600) + 14, 76, 'wash', 4) + text(sx(1200) + 10, 212, 'Deshkar 在上半个 octave 展开', 'ts', 'end');
+  rows.forEach(([nm, sub, w, y]) => {
+    o += text(0, y + 2, nm, 'tb') + text(0, y + 17, sub, 'ts');
+    o += line(sx(0) - 8, y, sx(1200) + 8, y, 'axis');
+    for (const [n, c] of notes) {
+      const [lab, r, cls] = w[n] || ['', 5, 'ink-f'];
+      o += circle(sx(c), y, r, cls) + text(sx(c), y - 18, n, 't', 'middle');
+      if (lab) o += text(sx(c), y + 30, lab, lab === 'vadi' ? 'tl' : 'ts', 'middle');
+    }
+  });
+  o += text(120, 238, '横轴按 equal temperament 的 cents 画（Sa = 0），只为看清位置。', 'ts');
+  return svg(560, 246, o, 'Bhupali 与 Deshkar 用同样的 Sa Re Ga Pa Dha：Bhupali 的 vadi 是 Ga、samvadi 是 Dha，晚上奏；Deshkar 的 vadi 是 Dha、samvadi 是 Ga，Re 被弱化，在上半个 octave 展开，早晨奏');
 }
 
 export default {
@@ -429,4 +536,8 @@ export default {
   'gec1014-raga': raga,
   'gec1014-tintal': tintal,
   'gec1014-tihai': tihai,
+  'gec1014-partials': partials,
+  'gec1014-hemiola': hemiola,
+  'gec1014-fugue': fugue,
+  'gec1014-deshkar': deshkar,
 };
