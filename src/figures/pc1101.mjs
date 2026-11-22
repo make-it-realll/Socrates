@@ -292,12 +292,15 @@ function elevator() {
 }
 
 // ---------- 第 5 站：S2 绕 Sgr A* ----------
+// GRAVITY 2018 Table A.1：a = 125.40 mas，e = 0.88466，P = 16.0518 yr，R0 = 8122 pc
 function s2A() {
-  const a = 1026.6, e = 0.884, P = 16.05, b = a * Math.sqrt(1 - e * e), s = 0.215;
+  const R0 = 8122, aAs = 0.1254, e = 0.8847, P = 16.05;
+  const a = aAs * R0, b = a * Math.sqrt(1 - e * e), s = 0.215;
   const F = [470, 130], X = (x) => F[0] + x * s, Y = (y) => F[1] - y * s;
   const pos = (E) => [a * (Math.cos(E) - e), b * Math.sin(E)];
   const N = 240, kt = [], xs = [], ys = [], vs = [];
   const GM = 4 * Math.PI ** 2 * (a ** 3 / P ** 2); // AU³/yr²
+  const kms = 1.496e11 / 3.156e7 / 1e3; // 1 AU/yr = 4.74 km/s
   for (let i = 0; i <= N; i++) {
     const E = 2 * Math.PI * i / N, M = E - e * Math.sin(E);
     kt.push(M / (2 * Math.PI));
@@ -315,17 +318,21 @@ function s2A() {
   o += circle(F[0], F[1], 4, 'ink-f') + text(F[0] - 8, F[1] + 18, 'Sgr A*', 'tb', 'end');
   // 速度 arrow（长度 ∝ speed）
   const k = 0.0068;
-  o += apath(xs.map((x, i) => d([[x, ys[i]], [x + vs[i][0] * k * s / 0.215 * 0.215, ys[i] - vs[i][1] * k]])), kt, T, 'ink');
+  o += apath(xs.map((x, i) => d([[x, ys[i]], [x + vs[i][0] * k, ys[i] - vs[i][1] * k]])), kt, T, 'ink');
   o += acircle(xs, ys, kt, T, 5.5, 'ln-f');
+  const rp = a * (1 - e), ra = a * (1 + e);
+  const vp = Math.sqrt(GM / a * (1 + e) / (1 - e)) * kms, va = vp * rp / ra;
+  const Rs = 2.95 * GM / (4 * Math.PI ** 2) / 1.496e8; // AU
+  const r10 = (v) => (Math.round(v / 10) * 10).toLocaleString('en-US');
   const [px] = pos(0), [ax] = pos(Math.PI);
-  o += text(X(px) + 8, F[1] - 26, 'pericenter', 'ts', 'start') + text(X(px) + 8, F[1] - 10, '119 AU', 'ts', 'start');
-  o += text(X(px) - 8, F[1] + 40, '7,680 km/s', 'tl', 'end');
-  o += text(X(ax) + 16, F[1] - 8, 'apocenter', 'ts', 'start') + text(X(ax) + 16, F[1] + 8, '1,934 AU', 'ts', 'start') + text(X(ax) + 16, F[1] + 24, '473 km/s', 'tl', 'start');
+  o += text(X(px) + 8, F[1] - 26, 'pericenter', 'ts', 'start') + text(X(px) + 8, F[1] - 10, Math.round(rp) + ' AU', 'ts', 'start');
+  o += text(X(px) - 8, F[1] + 40, r10(vp) + ' km/s', 'tl', 'end');
+  o += text(X(ax) + 16, F[1] - 8, 'apocenter', 'ts', 'start') + text(X(ax) + 16, F[1] + 8, r10(ra) + ' AU', 'ts', 'start') + text(X(ax) + 16, F[1] + 24, Math.round(va) + ' km/s', 'tl', 'start');
   o += line(60, 262, 60 + 200 * s, 262, 'ink-b') + text(60 + 100 * s, 278, '200 AU', 'ts', 'middle');
-  o += text(300, 262, '灰点：每隔 1 年的位置（period 16.05 年）', 'ts', 'middle');
-  o += text(300, 278, 'Sgr A* 的 R' + sub('s') + ' = 0.083 AU，在这个比例下不到 0.02 px', 'ts', 'middle');
+  o += text(300, 262, '灰点：每隔 1 年的位置（period ' + P.toFixed(2) + ' 年）', 'ts', 'middle');
+  o += text(300, 278, 'Sgr A* 的 R' + sub('s') + ' = ' + Rs.toFixed(3) + ' AU，在这个比例下只有 ' + (Rs * s).toFixed(2) + ' px', 'ts', 'middle');
   o += text(300, 20, '在 orbit 自己的 plane 里画；动画按真实时间推进（Kepler equation）', 'ts', 'middle');
-  return svgA(560, 286, o, '动图：S2 star 沿 eccentricity 0.884 的 ellipse 绕 Sgr A star 转一圈，16 年里大部分时间在远处缓慢移动，在 pericenter 附近几个月内以每秒 7680 公里急速掠过');
+  return svgA(560, 286, o, '动图：S2 star 沿 eccentricity 0.885 的 ellipse 绕 Sgr A star 转一圈，16 年里大部分时间在远处缓慢移动，在 pericenter 附近几个月内以每秒约 7640 公里急速掠过');
 }
 
 // ---------- 第 6 站：photoelectric effect ----------
@@ -347,19 +354,65 @@ function photo() {
   const sx = lin(0, 12, 280, 548), sy = lin(-2.5, 2, 236, 30), h = 4.135667696e-15 * 1e14;
   o += axes({ sx, sy, x0: 0, x1: 12, y0: -2.5, y1: 2, xt: [0, 2, 4, 6, 8, 10, 12], yt: [-2, -1, 0, 1, 2], xAt: 0, grid: false });
   o += text(sx(12), sy(-2.5) + 16, 'f（10¹⁴ Hz）', 'ts', 'end') + text(sx(0) + 6, sy(2) - 2, 'KE' + sub('max') + '（eV）', 'ts', 'start');
-  const met = [[2.3, 'sodium：φ = 2.3 eV', 'ln'], [4.3, 'φ = 4.3 eV 的 metal', 'ink']];
+  const PNa = 2.46, PZn = 4.31; // OpenStax UP3 Table 6.1
+  const met = [[PNa, 'sodium', 'ln'], [PZn, 'zinc', 'ink']];
   for (const [phi, lab, cls] of met) {
     const f0 = phi / h;
     const fs = Math.max(0, (phi - 2.5) / h);
     o += line(sx(f0), sy(0), sx(Math.min(12, (2 + phi) / h)), sy(Math.min(2, h * 12 - phi)), cls) + line(sx(fs), sy(h * fs - phi), sx(f0), sy(0), 'dash');
     o += circle(sx(f0), sy(0), 3.5, cls === 'ln' ? 'ln-f' : 'ink-f');
   }
-  o += text(sx(9.9), sy(1.95), 'sodium', 'tl', 'end') + text(sx(12), sy(h * 12 - 4.3) - 12, 'φ = 4.3 eV', 'tb', 'end');
+  o += text(sx(9.7), sy(1.95), 'sodium：φ = ' + PNa + ' eV', 'tl', 'end') + text(sx(12), sy(h * 12 - PZn) - 12, 'zinc：φ = ' + PZn + ' eV', 'tb', 'end');
   const f400 = 2.99792458e8 / 400e-9 / 1e14, f600 = 2.99792458e8 / 600e-9 / 1e14;
-  o += circle(sx(f400), sy(h * f400 - 2.3), 5, 'ln-f') + text(sx(f400) - 8, sy(h * f400 - 2.3) - 6, '400 nm：0.80 eV', 'tl', 'end');
+  o += circle(sx(f400), sy(h * f400 - PNa), 5, 'ln-f') + text(sx(f400) - 8, sy(h * f400 - PNa) - 6, '400 nm：' + (h * f400 - PNa).toFixed(2) + ' eV', 'tl', 'end');
   o += circle(sx(f600), sy(0), 5, 'paper') + text(sx(0.4), sy(1.62), '600 nm（空心点）在 sodium 的', 'ts', 'start') + text(sx(0.4), sy(1.32), 'threshold 左边，没有 electron', 'ts', 'start');
-  o += text(280, 272, '虚线延长到 f = 0 处是 −φ（sodium 是 −2.3）；', 'ts', 'start') + text(280, 288, '两条 line 平行，slope 都是 h。', 'ts', 'start');
+  o += text(280, 272, '虚线延长到 f = 0 处是 −φ（sodium 是 −' + PNa + '）；', 'ts', 'start') + text(280, 288, '两条 line 平行，slope 都是 h。', 'ts', 'start');
   return svg(560, 294, o, '左边是 photoelectric effect 的装置：light 照到 metal 上打出 electron，用反向 voltage 测最大 kinetic energy；右边是最大 kinetic energy 对 frequency 的两条平行 line，slope 都是 Planck constant，与横轴交于各自的 threshold frequency');
+}
+
+// ---------- 第 6 站：Compton scattering ----------
+function compton() {
+  const h = 6.62607e-34, me = 9.10938e-31, c = 2.99792e8;
+  const lam = 71e-12, th = 30 * R, lc = h / (me * c);
+  const lam2 = lam + lc * (1 - Math.cos(th));
+  const r = lam / lam2;                       // p_f′ / p_f
+  const pe = [1 - r * Math.cos(th), -r * Math.sin(th)]; // electron momentum（以 p_f 为单位，y 向上）
+  const phiE = Math.atan2(pe[1], pe[0]);
+  // 波浪线：沿方向 ang 从 (x0, y0) 走 len，wavelength wl（屏幕坐标 y 向下，ang 按数学方向）
+  const wave = (x0, y0, ang, len, wl, amp) => {
+    const ux = Math.cos(ang), uy = -Math.sin(ang), nx = -uy, ny = ux, pts = [];
+    for (let t = 0; t <= len; t += 1) { const o = amp * Math.sin(2 * Math.PI * t / wl); pts.push([x0 + t * ux + o * nx, y0 + t * uy + o * ny]); }
+    return d(pts);
+  };
+  let o = '';
+  // 左：碰撞
+  const E = [150, 130], wl = 14;
+  o += path(wave(20, E[1], 0, 112, wl, 5), 'ln') + arrow(E[0] - 18, E[1], E[0] - 9, E[1], 'ln', 6);
+  o += circle(E[0], E[1], 6, 'ink-f') + text(E[0] - 10, E[1] + 24, 'electron（静止）', 'ts', 'end');
+  const L2 = 112, ex = E[0] + 18 * Math.cos(th), ey = E[1] - 18 * Math.sin(th);
+  o += path(wave(ex, ey, th, L2, wl / r, 5), 'ln');
+  const tx = ex + (L2 + 8) * Math.cos(th), ty = ey - (L2 + 8) * Math.sin(th);
+  o += arrow(tx - 10 * Math.cos(th), ty + 10 * Math.sin(th), tx, ty, 'ln', 6);
+  o += arrow(E[0] + 8 * Math.cos(phiE), E[1] - 8 * Math.sin(phiE), E[0] + 70 * Math.cos(phiE), E[1] - 70 * Math.sin(phiE), 'ink');
+  o += text(E[0] + 70 * Math.cos(phiE) + 8, E[1] - 70 * Math.sin(phiE) + 4, 'electron 弹开', 'ts', 'start');
+  o += line(E[0] + 10, E[1], E[0] + 120, E[1], 'dash');
+  const arc = []; for (let k = 0; k <= 20; k++) { const a = th * k / 20; arc.push([E[0] + 52 * Math.cos(a), E[1] - 52 * Math.sin(a)]); }
+  o += path(d(arc), 'ink') + text(E[0] + 60, E[1] - 8, 'θ = 30°', 'ts', 'start');
+  o += text(20, E[1] - 16, 'λ = 71 pm', 'tl', 'start');
+  o += text(tx - 4, ty - 12, 'λ′ = ' + (lam2 * 1e12).toFixed(3) + ' pm', 'tl', 'end');
+  o += text(20, 236, 'λ′ 只比 λ 长 ' + ((lam2 / lam - 1) * 100).toFixed(2) + '%，图上的波看不出差别。', 'ts', 'start');
+  // 右：momentum 三角形
+  const O = [318, 190], S = 180;
+  const A = [O[0] + S, O[1]], B = [O[0] + S * r * Math.cos(th), O[1] - S * r * Math.sin(th)];
+  o += arrow(O[0], O[1], A[0], A[1], 'ln') + arrow(O[0], O[1], B[0], B[1], 'ln') + arrow(B[0], B[1], A[0], A[1], 'ink-b');
+  o += text((O[0] + A[0]) / 2, O[1] + 20, 'p' + sub('f') + ' = h/λ', 'tl', 'middle');
+  o += text((O[0] + B[0]) / 2 - 8, (O[1] + B[1]) / 2 - 8, 'p' + sub('f') + '′ = h/λ′', 'tl', 'end');
+  o += text((A[0] + B[0]) / 2 + 10, (A[1] + B[1]) / 2 - 4, 'p', 'tb', 'start') + text((A[0] + B[0]) / 2 + 10, (A[1] + B[1]) / 2 + 12, 'electron', 'ts', 'start');
+  const arc2 = []; for (let k = 0; k <= 20; k++) { const a = th * k / 20; arc2.push([O[0] + 46 * Math.cos(a), O[1] - 46 * Math.sin(a)]); }
+  o += path(d(arc2), 'ink') + text(O[0] + 52, O[1] - 8, 'θ', 'ts', 'start');
+  o += text(O[0] - 6, 40, 'momentum 守恒：p' + sub('f') + ' = p' + sub('f') + '′ + p', 'tb', 'start');
+  o += text(O[0] - 6, 236, '|p| = ' + Math.hypot(pe[0], pe[1]).toFixed(3) + ' p' + sub('f') + '，方向在水平线下 ' + (-phiE / R).toFixed(1) + '°', 'ts', 'start');
+  return svg(560, 246, o, '左：wavelength 71 pm 的 X-ray photon 撞上静止的 electron，向 30 度方向 scatter 出去，wavelength 变为 71.325 pm，electron 向右下方弹开；右：撞前 photon 的 momentum 等于撞后 photon 的 momentum 加 electron 的 momentum，画成一个三角形');
 }
 
 // ---------- 第 6 站：Mach–Zehnder，单个 photon ----------
@@ -495,6 +548,7 @@ export default {
   'pc1101-elevator': elevator,
   'pc1101-s2': s2A,
   'pc1101-photo': photo,
+  'pc1101-compton': compton,
   'pc1101-mz': mzA,
   'pc1101-buildup': buildupA,
   'pc1101-bell': bell,
