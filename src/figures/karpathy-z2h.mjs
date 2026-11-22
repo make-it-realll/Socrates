@@ -1,4 +1,4 @@
-import { svg, svgA, anim, ashow, f1, lin, d, path, line, rect, circle, poly, text, arrow, axes } from '../lib/svg.mjs';
+import { svg, svgA, anim, ashow, f1, lin, d, path, line, rect, circle, poly, text, arrow, axes, esc } from '../lib/svg.mjs';
 
 // 数据：h 的 histogram 来自为本页写的 numpy 复现（makemore part 2/3 的 MLP，200k step，batch 32，
 // 每个记录点用 dev set 前 1000 个 example 统计），deep 来自 5 层 tanh MLP 在 1000 个 example 上的一次 forward。
@@ -401,7 +401,55 @@ function split() {
   return svg(560, y + 54, o, 'GPT-2 和 GPT-4 的 regex 对一段 Python code 的切分：GPT-4 把 12345 切成 123 和 45，把冒号和换行放在一起');
 }
 
+// ---------- 第 7 站：sentencepiece 的 vocabulary 排列与 byte fallback ----------
+function spm() {
+  // Colab（Llama 2 设置，vocab_size 400）里 sp.encode("hello 안녕하세요") 的结果：
+  // 前 6 个 piece 和 id 直接取自 Colab 的 output；韩文部分由 UTF-8 byte 加 3 算出（3 个 special token 排在 byte token 前面）
+  const head = [['▁', 362], ['h', 378], ['e', 361], ['l', 372], ['lo', 358], ['▁', 362]];
+  const kor = [...'안녕하세요'];
+  const enc = new TextEncoder();
+  const groups = kor.map((ch) => [...enc.encode(ch)].map((b) => ['<0x' + b.toString(16).toUpperCase().padStart(2, '0') + '>', b + 3, b]));
+  let o = '';
+  // 1. vocabulary 的排列
+  const V = 400, x0 = 10, x1 = 550, sx = lin(0, V, x0, x1), yb = 34;
+  o += text(x0, 18, 'vocabulary 400 的排列（id 从左到右）', 'ts');
+  o += rect(sx(0), yb, sx(3) - sx(0), 22, 'solid2') + rect(sx(3), yb, sx(259) - sx(3), 22, 'wash-strong') + rect(sx(259), yb, sx(V) - sx(259), 22, 'wash2');
+  o += text((sx(3) + sx(259)) / 2, yb + 15, '256 个 byte token：id 3 到 258', 't', 'middle');
+  o += text((sx(259) + sx(V)) / 2, yb + 15, 'merges，然后是单个 code point', 't', 'middle');
+  o += text(sx(0), yb + 38, '0、1、2：<unk>、<s>、</s>'.replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'ts');
+  // 2. encode 的结果
+  const box = (x, y, w, s, id, cls) => {
+    const tc = cls === 'solid' ? 'tw' : 't', ic = cls === 'solid' ? 'tw' : 'ts';
+    return rect(x, y, w, 40, cls, 4) + text(x + w / 2, y + 17, esc(s), tc, 'middle') + text(x + w / 2, y + 33, String(id), ic, 'middle');
+  };
+  const y1 = 110;
+  o += text(x0, y1 - 12, 'sp.encode("hello 안녕하세요")：每个方块上面是 piece，下面是 token id', 'ts');
+  let x = x0;
+  head.forEach(([s, id]) => { const w = 38; o += box(x, y1, w, s, id, s === 'lo' ? 'solid' : 'paper'); x += w + 4; });
+  o += text(x + 6, y1 + 17, '← 开头的 ▁ 是 add_dummy_prefix 加的', 'ts');
+  o += text(x + 6, y1 + 33, '　 lo 是一次 merge，其余是单个 code point', 'ts');
+  // 韩文：每个 syllable 3 个 byte token，分两行
+  const bw = 54, gap = 4, rows = [groups.slice(0, 3), groups.slice(3)];
+  let y = y1 + 78;
+  rows.forEach((row) => {
+    let xx = x0;
+    row.forEach((g, gi) => {
+      const ch = kor[groups.indexOf(g)];
+      const gx0 = xx, gw = g.length * (bw + gap) - gap;
+      o += path(d([[gx0, y - 6], [gx0, y - 10], [gx0 + gw, y - 10], [gx0 + gw, y - 6]]), 'mute');
+      o += text(gx0 + gw / 2, y - 15, ch + '：UTF-8 ' + g.map((t) => t[2]).join(' '), 'ts', 'middle');
+      g.forEach(([s, id]) => { o += box(xx, y, bw, s, id, 'wash-strong'); xx += bw + gap; });
+      xx += 8;
+    });
+    y += 76;
+  });
+  o += text(x0, y - 20, '训练文本里没有韩文：每个 code point 都退回 UTF-8 byte，byte b 的 token id 是 b + 3。', 'ts');
+  o += text(x0, y - 3, '关掉 byte_fallback 重训，这 15 个 token 会变成一个 <unk>（id 0）。'.replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'ts');
+  return svg(560, y + 4, o, 'sentencepiece 的 vocabulary：id 0 到 2 是 special token，3 到 258 是 256 个 byte token，之后是 merges 和单个 code point。hello 编成 ▁ h e l lo，韩文 안녕하세요 的 15 个 UTF-8 byte 各自变成一个 byte token，id 是 byte 加 3');
+}
+
 export default {
+  'z2h-spm': spm,
   'z2h-graph': graphA,
   'z2h-fork': fork,
   'z2h-counts': counts,

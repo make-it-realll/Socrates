@@ -1,8 +1,8 @@
 ---
 code: KARPATHY-Z2H
 evidence: syllabus
-evidenceNote: "Andrej Karpathy 的 Neural Networks: Zero to Hero（课程页标注 ongoing，目前 8 讲，约 14.5 小时）。讲法跟着课程自己的材料：nn-zero-to-hero 仓库里全部 7 个 notebook（读的是 code 和保存下来的 output），ng-video-lecture 的 gpt.py、bigram.py 和它的 git log，minbpe 的 README、exercise.md、lecture.md 和源码，nanoGPT 的 README 和 config。YouTube 视频本身没有看，也没有读到逐字稿；只在视频里出现的说法按记忆写，并在每站的 :::from 里注明。页面上 MLP、activation 统计、BatchNorm 的数字是为这一页用 numpy 重跑的。这不是 NUS 课，没有 NUSMods 页面和学生评价。"
-exam: "无考试；以作业为主。课程没有 autograder：作业是跟着每一讲的 notebook 从零重写一遍，外加第 5 讲的 Colab exercise 和 minbpe 的 exercise.md。nn-zero-to-hero 的 README 说每讲还有写在视频描述里的 exercise，这次没有逐一核对。"
+evidenceNote: "Andrej Karpathy 的 Neural Networks: Zero to Hero（课程页标注 ongoing，目前 8 讲，约 14.5 小时）。讲法跟着课程自己的材料：nn-zero-to-hero 仓库里全部 7 个 notebook（code 和保存下来的 output）；8 讲视频的逐字稿（第三方用 Whisper 转写、放在 GitHub 上的 whisperzh，不是官方字幕，按每站要核对的说法读了对应段落，没有从头通读）；Google Drive 上的两个官方 Colab（Backprop Ninja exercise 和 Tokenization，读的是全文）；ng-video-lecture 的 gpt.py 与完整 git log 和 diff；minbpe 的 README、exercise.md、lecture.md 和源码；nanoGPT、nanochat 的 README。YouTube 视频页面抓不到，视频描述里的 exercise 是从第三方仓库的转录读到的，没能和原页面逐字核对。页面上 MLP、activation 统计、BatchNorm 的数字是为这一页用 numpy 重跑的。这不是 NUS 课，没有 NUSMods 页面和学生评价。"
+exam: "无考试；以作业为主。课程没有 autograder：作业是跟着每一讲的 notebook 从零重写一遍，外加写在视频描述里的 exercise（第 5 讲是一个 Colab，第 8 讲指向 minbpe 的 exercise.md）。YouTube 页面抓不到，其余几讲的题面取自第三方仓库的转录，见“作业”一节。"
 subskills:
   - id: micrograd
     name: Autograd：从 derivative 到 micrograd
@@ -45,16 +45,28 @@ open:
     note: "8 讲的标题、时长、描述和前置要求。"
   - label: "karpathy/nn-zero-to-hero：micrograd 两个 notebook 与 makemore part 1 至 5 的 notebook"
     url: "https://github.com/karpathy/nn-zero-to-hero"
-    note: "第 1 至 5 站的主要讲法来源。读的是 notebook 的 code 和保存的 output，没有看视频。"
-  - label: "karpathy/ng-video-lecture：gpt.py、bigram.py 与 git log"
+    note: "第 1 至 5 站的主要讲法来源。读的是 notebook 的 code 和保存的 output。"
+  - label: "8 讲视频的逐字稿（Whisper 转写，ckarageorgkaneen/whisperzh）"
+    url: "https://www.github.com/ckarageorgkaneen/whisperzh"
+    note: "核对只在视频里出现的说法，每站 :::from 里写“逐字稿”的地方。第三方自动转写，不是官方字幕；按要核对的说法读了对应段落，没有从头通读。"
+  - label: "Backprop Ninja exercise 的 Colab（Google Drive）"
+    url: "https://colab.research.google.com/drive/1WV2oi2fh9XXyldh02wupFQX0wh5ZC-z-?usp=sharing"
+    note: "第 4 站与作业：exercise 1 至 4 的题面、起始 code 和注释，读的是全文。"
+  - label: "Let's build the GPT Tokenizer 的 Colab（Google Drive）"
+    url: "https://colab.research.google.com/drive/1y0KnCFZvGVf_odSfcNAws6kcDD7HsI0L?usp=sharing"
+    note: "第 7 站：视频后半段的 code，包括 GPT-2 的 encoder.json、special token 和 sentencepiece 的示例，读的是全文和保存的 output。"
+  - label: "karpathy/ng-video-lecture：gpt.py、bigram.py 与完整 git log"
     url: "https://github.com/karpathy/ng-video-lecture"
-    note: "第 6 站。每个组件带来的 val loss 取自 commit message。"
-  - label: "karpathy/minbpe：README、exercise.md、lecture.md 与 base.py、basic.py"
+    note: "第 6 站。每个组件的 val loss 取自 commit message 和逐字稿，每个 commit 的 diff 也读了。"
+  - label: "karpathy/minbpe：README、exercise.md、lecture.md 与 base.py、basic.py、regex.py"
     url: "https://github.com/karpathy/minbpe"
-    note: "第 7 站。BasicTokenizer 是在本地实际跑过的。"
+    note: "第 7 站。BasicTokenizer 的结果用同样的算法在本地重跑核对过。"
   - label: "karpathy/nanoGPT：README 与 config/train_shakespeare_char.py"
     url: "https://github.com/karpathy/nanoGPT"
     note: "第 6 站和作业里的算力数字。"
+  - label: "karpathy/nanochat：README 与 runs/ 下的脚本"
+    url: "https://github.com/karpathy/nanochat"
+    note: "作业最后一节。读的是 2026 年 7 月的版本。"
   - label: "Stanford CS231n 讲义：Backpropagation, Intuitions（GitHub 上课程讲义仓库的镜像）"
     url: "https://github.com/j-min/cs231n/blob/master/optimization-2.md"
     note: "第 1、4 站：gate 的 local gradient、fork 处 gradient 相加、用 shape 推 matmul 的 backward。读的是镜像里的 markdown 原文，不是课程网站。"
@@ -72,18 +84,30 @@ open:
     note: "第 2 站的 MLP language model 和 curse of dimensionality 的数字。"
   - label: "Ioffe 与 Szegedy 2015，Batch Normalization（ar5iv）"
     url: "https://ar5iv.labs.arxiv.org/html/1502.03167"
-    note: "第 3、4 站：Algorithm 1 与 backward 的 chain rule。只读到 Section 3 前半，inference 的 Algorithm 2 没有读到。"
+    note: "第 3、4 站：Algorithm 1、2，Section 3.1 的 inference 统计量，Section 3.3 的 scale invariance，Section 3.4 的 regularization。"
   - label: "van den Oord et al. 2016，WaveNet（ar5iv）"
     url: "https://ar5iv.labs.arxiv.org/html/1609.03499"
-    note: "第 5 站：dilated causal convolution 与 receptive field。只读了 Section 2。"
+    note: "第 5 站：Section 2.1 的 dilated causal convolution 与 receptive field；Section 2.3、2.4 只读了公式和开头一段。"
+  - label: "PyTorch 文档：torch.nn.BatchNorm1d"
+    url: "https://docs.pytorch.org/docs/main/generated/torch.nn.BatchNorm1d.html"
+    note: "第 3、4 站：训练时 normalize 用 biased variance，running variance 存 unbiased 的，momentum 默认 0.1。"
+  - label: "PyTorch 文档：torch.Tensor.index_add_"
+    url: "https://docs.pytorch.org/docs/main/generated/torch.Tensor.index_add_.html"
+    note: "第 4 站 embedding backward 的累加写法。"
 sources:
   - label: "nn-zero-to-hero README（每讲的简介与 exercise 的说明）"
     url: "https://github.com/karpathy/nn-zero-to-hero"
+  - label: "spolivin/nnzerotohero_solutions：第 2 至 6 讲视频描述里 exercise 的转录"
+    url: "https://github.com/spolivin/nnzerotohero_solutions"
+  - label: "anubhavmaity：micrograd 与 makemore part 1 exercise 的转录"
+    url: "https://anubhavmaity.github.io/NeuralNetworks-Zero-To-Hero/exercises/micrograd_from_scratch_exercise.html"
+  - label: "chizkidd：Let's build GPT 笔记末尾的 Suggested Exercises（未注明出处）"
+    url: "https://chizkidd.github.io/Karpathy-Neural-Networks-Zero-to-Hero/007_GPT/gpt.html"
 ---
 
 先看三件事。三次程序都没有报错。
 
-**第一件。** 一个 MLP 要从 27 个 character 里预测下一个。什么都没学的时候，最合理的猜法是 27 个 character 各给 $1/27$，loss 是 $-\ln(1/27)=3.2958$。按 makemore 第 2 讲的写法初始化，第一个 batch 的 loss 是 22.9。
+**第一件。** 一个 MLP 要从 27 个 character 里预测下一个。什么都没学的时候，最合理的猜法是 27 个 character 各给 $1/27$，loss 是 $-\ln(1/27)=3.2958$。按 makemore 第 2 讲的写法初始化，视频里第一步记下的 loss 是 27。
 
 **第二件。** 一个 bigram model 把 count matrix 每行除以行和得到 probability。把 `sum(1, keepdim=True)` 少写了 `keepdim`，matrix 变成每一列除以某个数，每一行加起来是 6.92，已经不是 probability distribution。可是它在 training set 上的 average negative log likelihood 和正确版本一模一样，都是 2.454577。
 
@@ -239,14 +263,14 @@ for k in range(20):
 ```
 
 :::wrong Loss 降得很好，training loop 就没有 bug
-把清零那两行删掉，再跑一遍。为这一页实际跑的结果（同一个 random seed，learning rate 0.05）：
+视频里就出过这个 bug：Karpathy 第一次写这个 loop 时没有清零，loss 降得很快，写完才发现，说这是他 tweet 过的常见错误清单里的第三条（forgot to zero grad before `.backward()`）。为这一页把清零那两行删掉重跑（同一个 random seed，learning rate 0.05）：
 
 | step | 0 | 2 | 5 | 10 | 20 |
 |---|---|---|---|---|---|
 | 有清零 | 6.2443 | 3.3275 | 0.8482 | 0.1612 | 0.0562 |
 | 没有清零 | 6.2443 | 3.1352 | 0.3035 | 0.0072 | 0.0012 |
 
-没有清零的版本降得更快。可它已经不是 gradient descent 了：第 $k$ 步用的 grad 是前 $k$ 步所有 gradient 的和，相当于一个永远不衰减的 momentum。这个 4 个 example 的问题太简单，怎么走都能走到底，所以看不出问题；loss 曲线本身不能证明 backward 写对了。
+没有清零的版本降得更快。可它已经不是 gradient descent 了：第 $k$ 步用的 grad 是前 $k$ 步所有 gradient 的和，相当于一个永远不衰减的 momentum，视频里的说法是“等于用了一个很大的 step size”。这个 4 个 example 的问题太简单，怎么走都能走到底，所以看不出问题；Karpathy 的原话是，问题复杂一点，这个 bug 就会让 loss 降不下去。Loss 曲线本身不能证明 backward 写对了。
 :::
 
 ### 怎么知道 backward 写对了
@@ -260,7 +284,7 @@ $$\text{centered: }1.0000000000787,\quad\text{relative error }7.9\times10^{-11};
 单边的那个落在“需要怀疑”的区间里，centered 的几乎完全一致。$h$ 也不是越小越好：$h=10^{-11}$ 时 centered difference 给出 $0.9999945$，numerator 是两个几乎相等的数相减，[DSA2102 第 1 站](../courses/DSA2102.html#fp)讲过这种 cancellation 怎样把 rounding error 放大。
 
 :::from
-Derivative 的两个实验、$L=d\cdot f$ 的例子和它的数字、neuron 的数字与 $b$ 的取法、PyTorch 的对照、`a + a` 和 $f=(ab)(a+b)$ 的例子、`exp` 里关于 `=` 的注释、41 个 parameter 的 MLP 和 4 个 example，全部来自 nn-zero-to-hero 的两个 micrograd notebook（读的是 code 和 output）。“gate 只需要 local gradient”“gradients add up at forks”和 gradient check 的三条标准来自 CS231n 讲义 Backpropagation, Intuitions 与 Neural Networks Part 3（GitHub 镜像）；reverse mode 的代价和 $x=17$ 的例子来自 Cornell CS4787 Lecture 4。去掉清零的对比实验和 gradient check 的数字是为这一页实际跑的。PyTorch 那边尾数差别的原因是按 notebook 的 code 推断的。
+Derivative 的两个实验、$L=d\cdot f$ 的例子和它的数字、neuron 的数字与 $b$ 的取法、PyTorch 的对照、`a + a` 和 $f=(ab)(a+b)$ 的例子、`exp` 里关于 `=` 的注释、41 个 parameter 的 MLP 和 4 个 example，全部来自 nn-zero-to-hero 的两个 micrograd notebook（读的是 code 和 output）。`+=` 的修正、视频里漏写清零的经过和“太简单才没出事”的解释，以及“operation 拆多细由你决定”，对照逐字稿核对过。“gate 只需要 local gradient”“gradients add up at forks”和 gradient check 的三条标准来自 CS231n 讲义 Backpropagation, Intuitions 与 Neural Networks Part 3（GitHub 镜像）；reverse mode 的代价和 $x=17$ 的例子来自 Cornell CS4787 Lecture 4。去掉清零的对比实验和 gradient check 的数字是为这一页实际跑的。视频里说 cast 成 double 是因为 PyTorch 默认 float32、Python 是 float64；尾数差别的具体原因（$b$ 先以 float32 存进 `torch.Tensor` 再转 double）是按 notebook 的 code 推断的。
 :::
 
 ## [lm] Bigram 与 MLP language model
@@ -299,7 +323,7 @@ Count matrix 里有 102 个 0。Notebook 拿 `andrejq` 试：`jq` 一次也没�
 :::wrong Loss 和预期一样，probability matrix 就算对了
 把 `P = N / N.sum(1, keepdim=True)` 写成 `P = N / N.sum(1)`。`N.sum(1)` 的 shape 是 `(27,)`，broadcasting 规则从右边对齐，把它当成 `(1, 27)`，于是第 $j$ 列被除以第 $j$ 行的 row sum。程序照样运行，每行加起来却是 6.92（`.` 那一行）之类的数。
 
-在 training set 上，它的 NLL 和正确版本完全相同，都是 2.454577。这不是巧合。正确版本里每个 bigram $(c_i,c_{i+1})$ 被除以 $S(c_i)$，错误版本被除以 $S(c_{i+1})$，$S$ 是 row sum。对一个名字 $c_1\cdots c_m$，所有 bigram 的第一个 character 是 $\{.,c_1,\dots,c_m\}$，第二个 character 是 $\{c_1,\dots,c_m,.\}$，两个 multiset 完全一样，所以 $\sum\ln S(\text{第一个})=\sum\ln S(\text{第二个})$。training set 上的 loss 天生看不出这个 bug。Sampling 时 `torch.multinomial` 会自动把一行重新 normalize，同样不报错，只是抽出来的 distribution 错了。要查出它，只能直接检查 `P.sum(1)` 是不是全为 1，或者检查 shape。
+在 training set 上，它的 NLL 和正确版本完全相同，都是 2.454577。这不是巧合。正确版本里每个 bigram $(c_i,c_{i+1})$ 被除以 $S(c_i)$，错误版本被除以 $S(c_{i+1})$，$S$ 是 row sum。对一个名字 $c_1\cdots c_m$，所有 bigram 的第一个 character 是 $\{.,c_1,\dots,c_m\}$，第二个 character 是 $\{c_1,\dots,c_m,.\}$，两个 multiset 完全一样，所以 $\sum\ln S(\text{第一个})=\sum\ln S(\text{第二个})$。training set 上的 loss 天生看不出这个 bug。Sampling 时 `torch.multinomial` 会自动把一行重新 normalize，同样不报错，但抽出来的 distribution 错了。视频里就是这样发现的：同一个 random seed 下，正确版本 sample 出和之前一模一样的名字，去掉 `keepdim` 之后变成乱码，再打印 `P[0].sum()`，得到约 7 而不是 1。所以要查出它，看 sample，或者直接检查 `P.sum(1)` 是不是全为 1；只看 loss 是查不出来的。
 :::
 
 ### 同一个 model 写成 neural network
@@ -348,16 +372,18 @@ Context 里 `m` 出现了两次，它们取的是 $C$ 的同一行。Backward �
 
 每一步用全部 182,625 个训练 example 算 gradient 太慢。每次随机取 32 个，算出的 gradient 是全量 gradient 的一个有噪声的估计，方向大致对，代价小几千倍。走更多、更粗糙的步，通常比走更少、更精确的步划算。
 
-Learning rate 的选法：notebook 里留着 `lre = torch.linspace(-3, 0, 1000)`、`lrs = 10**lre` 两行，做法是让第 $i$ 步用 `lrs[i]`，从 0.001 一路升到 1，记下每一步的 loss，画 loss 对 exponent 的图，选 loss 下降最快、还没开始乱跳的那一段。最后的 schedule 是前 100,000 步用 0.1、后 100,000 步用 0.01。
+Learning rate 的选法：notebook 里留着 `lre = torch.linspace(-3, 0, 1000)`、`lrs = 10**lre` 两行，做法是让第 $i$ 步用 `lrs[i]`，从 0.001 一路升到 1，记下每一步的 loss，画 loss 对 exponent 的图，选 loss 下降最快、还没开始乱跳的那一段。视频里从图上读出 exponent 约是 $-1$，也就是 0.1，恰好是之前随手用的值。最后的 schedule 是前 100,000 步用 0.1、后 100,000 步用 0.01。
 
 Data 按 80%、10%、10% 分成 train、dev、test：182,625、22,655、22,866 个 example。Train 用来更新 parameter；dev 用来选 hyperparameter（embedding 维数、hidden 大小、learning rate）；test 只在最后看一次，否则它也变成了被调过的东西。200,000 步之后 notebook 的结果是 train 2.1260、dev 2.1701，比 bigram 的 2.45 好得多。Sample 出来的是 `carmahela`、`jhovi`、`kimrin`、`quinton`，已经像名字了。
 
 :::wrong Dev loss 比 train loss 高，说明 overfitting，该加 regularization
-2.1260 和 2.1701 只差 0.044。Overfitting 指 model 记住了 training set 里的偶然细节，那时 train loss 会继续下降而 dev loss 停住甚至上升，两者的差距越拉越大。差距这么小，说明 model 连 training set 都还没拟合好，问题在 capacity 不够：hidden layer 加宽、embedding 加到更多维、context 加长，train 和 dev 都会一起降。第 5 站把 context 加到 8、parameter 加到 76,579 之后，差距才扩大到 0.22，那时才轮到考虑 regularization。
+视频里用的判断是：train 和 dev 差不多，叫 underfitting，model 还没大到能记住 training set，该把 network 加大。训练到后面 train 和 dev 开始分开时（视频里是 2.17 对 2.2），Karpathy 说的是“也许开始慢慢 overfit 了”，可他接着列的改进方向全是加 capacity：hidden 加宽、embedding 加维、context 加长。后面几讲的结果说明这个方向是对的：第 3 站修好 initialization，第 5 站把 context 加到 8、parameter 加到 76,579，dev 从 2.17 一路降到 1.993，train 和 dev 的差距这时才扩大到 0.22。
+
+Overfitting 的标志是 train loss 继续下降而 dev loss 停住甚至上升。只看到一个 0.044 的差距下不了这个结论；只要加 capacity 还能让 dev 往下走，问题就不在 regularization。
 :::
 
 :::from
-`names.txt`、count matrix、sampling、NLL 的推导顺序、`andrejq` 的例子、+1 smoothing、one-hot 乘 $W$、`0.01*(W**2).mean()`、MLP 的结构与 shape、`view` 和 `cat` 的对比、learning rate 的扫法、split 的比例、train 2.1260 与 dev 2.1701 都来自 makemore part 1、part 2 的 notebook。Notebook 里保存的整个 training set NLL 输出是 2.4765，按 notebook 的 code 重算是 2.4546，这里用重算的数；保存的 output 可能来自 kernel 里某个中间状态的 $P$。Broadcasting bug 是视频里讲过的例子（凭记忆），“两种写法 loss 相同”的证明、`emma` 那一行、gradient 的推导、gradient descent 的数、3 character context 的统计是为这一页写的或算的。Curse of dimensionality 的数字和 cat、dog 的例子来自 Bengio 等人 2003 年的论文。
+`names.txt`、count matrix、sampling、NLL 的推导顺序、`andrejq` 的例子、+1 smoothing、one-hot 乘 $W$、`0.01*(W**2).mean()`、MLP 的结构与 shape、`view` 和 `cat` 的对比、learning rate 的扫法、split 的比例、train 2.1260 与 dev 2.1701 都来自 makemore part 1、part 2 的 notebook。Notebook 里保存的整个 training set NLL 输出是 2.4765，视频里也说加了 smoothing 之后是 2.47；按 notebook 的 code 重算是 2.4546（+0 到 +10 的 smoothing 都在 2.454 到 2.462 之间），这里用重算的数，保存的 output 可能来自 kernel 里某个中间状态的 $P$。Broadcasting bug 的经过（sample 变成乱码、第一行加起来约是 7）、learning rate 读成 0.1、underfitting 与“开始慢慢 overfit”的说法对照逐字稿核对过。“两种写法 loss 相同”的证明、`emma` 那一行、gradient 的推导、gradient descent 的数、3 character context 的统计是为这一页写的或算的。Curse of dimensionality 的数字和 cat、dog 的例子来自 Bengio 等人 2003 年的论文。
 :::
 
 ## [stats] Activation、gradient 的统计与 BatchNorm
@@ -368,11 +394,11 @@ Data 按 80%、10%、10% 分成 train、dev、test：182,625、22,655、22,866 �
 
 ### 第一个数就不对：initialization 时的 loss
 
-开头那个 22.9 就出在第 2 站的 MLP 上。还没有学到任何东西时，model 对 27 个 character 应该没有偏好，loss 应该是 $\ln27=3.2958$。CS231n 讲义把这当作训练前的第一项检查：10 个 class 的 softmax，initialization 时的 loss 应该是 $\ln10=2.302$，不是就先查 initialization。
+开头那个 27 就出在第 2 站的 MLP 上。还没有学到任何东西时，model 对 27 个 character 应该没有偏好，loss 应该是 $\ln27=3.2958$。视频里 Karpathy 一看到第 0 步的 27 就说 initialization 坏了：训练 neural net 时几乎总能事先算出 initialization 时的 loss 该是多少。CS231n 讲义同样把这当作训练前的第一项检查：10 个 class 的 softmax，initialization 时的 loss 应该是 $\ln10=2.302$，不是就先查 initialization。
 
-22.9 从哪里来？`W2` 是 standard normal，`h` 的 200 个 entry 大多贴近 $\pm1$。每个 logit 是 200 项 $h_kW_{2,kj}$ 之和加一个 bias，variance 是 $200\,\mathbb E[h^2]+1$。这次 initialization 时测得 $\mathbb E[h^2]=0.80$，所以 logit 的 standard deviation 约是 $\sqrt{200\times0.80+1}=12.7$。27 个 logit 拉得这么开，softmax 几乎把全部 probability 给了最大的那个，而它多半不是正确答案。按 12.7 的 std 随机生成 logit 再算 loss，expectation 是 25.5，和实测的 22.9 是同一回事。Model 一开始就“很有把握地错着”，前几千步都花在把 logit 压回来上。
+27 从哪里来？`W2` 是 standard normal，`h` 的 200 个 entry 大多贴近 $\pm1$。每个 logit 是 200 项 $h_kW_{2,kj}$ 之和加一个 bias，variance 是 $200\,\mathbb E[h^2]+1$。为这一页用 numpy 重跑，initialization 时测得 $\mathbb E[h^2]=0.80$，所以 logit 的 standard deviation 约是 $\sqrt{200\times0.80+1}=12.7$。27 个 logit 拉得这么开，softmax 几乎把全部 probability 给了最大的那个，而它多半不是正确答案。按 12.7 的 std 随机生成 logit 再算 loss，expectation 是 25.5；视频里第一个 batch 是 27，numpy 重跑的第一个 batch 是 22.9，都是同一个 distribution 里抽出的一次。视频的说法是 model 一开始就“confidently wrong”，前几千步都花在把 logit 压回来上，loss 曲线因此呈 hockey stick 的形状。
 
-修法是让 logit 一开始就接近 0：`W2 *= 0.01`，`b2 *= 0`。为这一页用 numpy 重跑的结果，initialization 时的 loss 变成 3.283；训练完 train 2.069、dev 2.131，原来是 2.132、2.171。Notebook 的 loss log 记的是 2.07、2.13 和 2.1245、2.1682，趋势相同。
+修法是让 logit 一开始就接近 0：`W2 *= 0.01`，`b2 *= 0`。为这一页用 numpy 重跑的结果，initialization 时的 loss 变成 3.283；训练完 train 2.069、dev 2.131，原来是 2.132、2.171。Notebook 的 loss log 记的是 2.07、2.13 和 2.1245、2.1682，趋势相同。Loss 曲线的 hockey stick 也随之消失。
 
 `W2` 不能直接取 0：取 0 时 `h` 的 gradient $dh=dlogits\,W_2^\top$ 全是 0，第一层一步也学不到（第 1 站的 neuron 里 $w_2$ 的 gradient 是 0，是同一个道理的另一面）。取很小的随机数，logit 接近 0，gradient 又能流下去。
 
@@ -384,15 +410,15 @@ tanh 的 local derivative 是 $1-t^2$。$|t|>0.97$ 时它小于 $1-0.97^2=0.059$
 
 ::fig[z2h-sat] 同一个 MLP，左右只差 $W_1$ 和 $b_1$ 的 scale。每一帧是训练到某一步时，dev set 前 1000 个 example 上 200 个 hidden unit 的 output 的 histogram。
 
-左边一开始 64% 的 entry 在 $\pm0.97$ 以外，训练过程中这个比例不降反升，到最后是 87%。这次重跑里没有出现对 1000 个 example 全部 saturated 的 unit，但每个 unit 在大多数 example 上都只能传回很小的 gradient。右边把 `hpreact` 的 std 压到约 1.4，saturated 比例从 12% 开始，训练中逐渐升到 31%，分布一直铺在整个 $(-1,1)$ 上。结果：train 2.038、dev 2.102，又好了一截（notebook 是 2.0356、2.1027）。
+左边一开始 64% 的 entry 在 $\pm0.97$ 以外，训练过程中这个比例不降反升，到最后是 87%。这次重跑里没有出现对 1000 个 example 全部 saturated 的 unit，但每个 unit 在大多数 example 上都只能传回很小的 gradient。右边把 `hpreact` 的 std 压到约 1.4，saturated 比例从 12% 开始，训练中逐渐升到 31%，分布一直铺在整个 $(-1,1)$ 上。结果：train 2.038、dev 2.102，又好了一截（notebook 里同样的 scale 是 2.0377、2.1070）。
 
 ### 为什么是 $(5/3)/\sqrt{\text{fan-in}}$
 
-上面右边用的 scale 不是随手试出来的。先只看 linear 的部分：$s=\sum_{i=1}^nw_ix_i$，$w_i$ 和 $x_i$ 互相独立、mean 都是 0。CS231n 讲义的推导：
+视频里右边的 scale 是分两步得到的。先看着 histogram 手调：$W_1$ 乘 0.1 时已经没有 entry 超过 $\pm0.99$，再放宽到 0.2，让分布铺得更开（notebook 的 loss log：2.0356、2.1027）；再按下面的推导换成 $(5/3)/\sqrt{30}=0.304$，结果几乎一样（2.0377、2.1070）。推导的好处是不用每层都去看图手调。先只看 linear 的部分：$s=\sum_{i=1}^nw_ix_i$，$w_i$ 和 $x_i$ 互相独立、mean 都是 0。CS231n 讲义的推导：
 
 $$\mathrm{Var}(s)=\sum_{i=1}^n\mathrm{Var}(w_ix_i)=\sum_{i=1}^n\mathrm{Var}(w_i)\,\mathrm{Var}(x_i)=n\,\mathrm{Var}(w)\,\mathrm{Var}(x)$$
 
-第二个等号用了 mean 为 0：一般地 $\mathrm{Var}(wx)=\mathbb E[w]^2\mathrm{Var}(x)+\mathbb E[x]^2\mathrm{Var}(w)+\mathrm{Var}(w)\mathrm{Var}(x)$，前两项是 0。要让 $\mathrm{Var}(s)=\mathrm{Var}(x)$，就要 $\mathrm{Var}(w)=1/n$，也就是 standard normal 乘 $1/\sqrt n$。为这一页叠 5 个这样的 linear layer（没有 nonlinearity），output 的 std 依次是 1.005、1.02、1.002、1.046、1.088，一直守在 1 附近；不除以 $\sqrt n$ 的话，一个 $1000\times1000$ 的 matrix 乘一个 standard normal vector，std 就变成 31。
+第二个等号用了 mean 为 0：一般地 $\mathrm{Var}(wx)=\mathbb E[w]^2\mathrm{Var}(x)+\mathbb E[x]^2\mathrm{Var}(w)+\mathrm{Var}(w)\mathrm{Var}(x)$，前两项是 0。要让 $\mathrm{Var}(s)=\mathrm{Var}(x)$，就要 $\mathrm{Var}(w)=1/n$，也就是 standard normal 乘 $1/\sqrt n$。为这一页叠 5 个这样的 linear layer（没有 nonlinearity），output 的 std 依次是 1.005、1.02、1.002、1.046、1.088，一直守在 1 附近；不除以 $\sqrt n$ 的话，一个 $1000\times1000$ 的 standard normal matrix 乘一个 standard normal vector，std 就变成 $\sqrt{1000}=31.6$（notebook 末尾一个视频里没讲的 bonus cell 实测是 31.0）。
 
 tanh 会把分布往里收：input 的 std 是 1 时，output 的 std 明显小于 1。一层层叠下去，每层都缩一点。补偿的办法是给 weight 再乘一个 gain，PyTorch 给 tanh 定的 gain 是 $5/3$。ReLU 把一半的 input 变成 0，补偿的 gain 是 $\sqrt2$，[CS3244 第 6 站](../courses/CS3244.html#nn)推过这个 $2/n$。
 
@@ -428,16 +454,16 @@ $$\mu_B=\frac1m\sum_{i=1}^mx_i,\qquad\sigma_B^2=\frac1m\sum_{i=1}^m(x_i-\mu_B)^2
 
 ### 一个 batch 的副作用，以及 inference 时怎么办
 
-用了 batch 的 mean 和 variance，一个 example 的 output 就取决于它碰巧和哪 31 个 example 分在一个 batch。这个抖动起了一点 regularization 的作用（视频里的说法），也带来一个实际问题：训练完以后要对单个 example 做预测，没有 batch 可算。
+用了 batch 的 mean 和 variance，一个 example 的 output 就取决于它碰巧和哪 31 个 example 分在一个 batch。视频里说，这个抖动相当于给每个 example 加了一点 noise，像一种 data augmentation，让 network 更难记住具体的 example，所以起了 regularization 的作用；Ioffe 和 Szegedy 的 Section 3.4 报告了同样的效果，并说加了 BatchNorm 之后 Dropout 可以去掉或减弱。视频也说，batch 内 example 互相耦合会带来很多 bug，所以大家一直想换成不跨 example 的 normalization。耦合带来的一个实际问题是：训练完以后要对单个 example 做预测，没有 batch 可算。
 
-两种办法。一是训练结束后把整个 training set 过一遍，算出每个 unit 的 mean 和 std 存下来，notebook 叫作 calibrate。二是训练时顺手维护一个 running average：
+两种办法。一是训练结束后把整个 training set 过一遍，算出每个 unit 的 mean 和 std 存下来，notebook 叫作 calibrate；论文的 Algorithm 2 做的是同一件事，对很多个 mini-batch 的统计量取平均，variance 再乘 $m/(m-1)$ 变成 unbiased 的估计。统计量固定以后，BatchNorm 就只是一个 linear transform $y=\dfrac{\gamma}{\sqrt{\mathrm{Var}[x]+\varepsilon}}\,x+\Big(\beta-\dfrac{\gamma\,\mathbb E[x]}{\sqrt{\mathrm{Var}[x]+\varepsilon}}\Big)$，可以并进前一层的 weight 和 bias。二是训练时顺手维护一个 running average：
 
 ```python
 bnmean_running = 0.999 * bnmean_running + 0.001 * bnmeani
 bnstd_running  = 0.999 * bnstd_running  + 0.001 * bnstdi
 ```
 
-Inference 时用这两个 running 的值代替 batch 的统计量。Notebook 的结果：用 running 的值是 train 2.0674、val 2.1057，和 calibrate 的结果几乎一样，省掉了训练后那一遍。后面 PyTorch 风格的 `BatchNorm1d` 默认 `momentum=0.1`，就是这里的 0.001 换成 0.1；batch 只有 32 时，统计量本身噪声很大，momentum 取小一些更稳。代码里要有一个 `training` 开关，评估前把每一层设成 `training = False`，忘了这一步，评估就仍在用 batch 的统计量。
+Inference 时用这两个 running 的值代替 batch 的统计量。Notebook 的结果：用 running 的值是 train 2.0674、val 2.1057，和 calibrate 的结果几乎一样，省掉了训练后那一遍。后面 PyTorch 风格的 `BatchNorm1d` 默认 `momentum=0.1`（PyTorch 文档的默认值也是 0.1），就是这里的 0.001 换成 0.1。视频的解释：batch 很大时每个 batch 算出的统计量都差不多，momentum 可以大；batch 只有 32 时统计量本身 noise 很大，momentum 取小一些更稳。代码里要有一个 `training` 开关，评估前把每一层设成 `training = False`，忘了这一步，评估就仍在用 batch 的统计量。
 
 :::wrong 有了 BatchNorm，weight 的 scale 就无所谓了
 Forward 确实无所谓，上面四种 gain 给出完全相同的 activation。Backward 不是。设这一层的 loss 满足 $L(\lambda W)=L(W)$，两边对 $W$ 求 gradient：
@@ -448,7 +474,9 @@ Weight 大 $\lambda$ 倍，gradient 反而小 $\lambda$ 倍。同一个 learning
 
 $$\frac{\text{lr}\,\|\nabla L(\lambda W)\|}{\|\lambda W\|}=\frac1{\lambda^2}\cdot\frac{\text{lr}\,\|\nabla L(W)\|}{\|W\|}$$
 
-Weight 初始化大 10 倍，每一步相对的改动就小 100 倍，等于把 learning rate 调小了 100 倍，训练慢得像停住了。所以加了 BatchNorm 之后 initialization 仍然要合理，下一小节的 update:data ratio 能直接看出这个问题。
+Weight 初始化大 10 倍，每一步相对的改动就小 100 倍，等于把 learning rate 调小了 100 倍，训练慢得像停住了。
+
+Ioffe 和 Szegedy 的 Section 3.3 写的正是这两条：$\mathrm{BN}(W\mathbf u)=\mathrm{BN}((aW)\mathbf u)$，而对 $aW$ 的 gradient 是对 $W$ 的 $1/a$ 倍，“larger weights lead to smaller gradients”。论文把它当作好处（BatchNorm 会抑制 weight 的增长），但反过来读就是上面的问题。makemore part 3 notebook 末尾有一个视频里没讲的 bonus cell 做了这个实验：$1000\times1000$ 的 weight 不除以 $\sqrt{1000}$，后面接 standardize，output 的 std 照样是 1，weight 的 gradient 的 std 却只有 0.0312。为这一页把 weight 除以 $\sqrt{1000}$ 重跑同一个实验，weight 的 gradient 的 std 是 1.03，正好大了约 $\sqrt{1000}=31.6$ 倍；grad:data ratio 则差了约 1000 倍，就是 $\lambda^2$。所以加了 BatchNorm 之后 initialization 仍然要合理，下一小节的 update:data ratio 能直接看出这个问题。
 :::
 
 ### 训练时看哪几张图
@@ -457,8 +485,8 @@ makemore 第 3 讲最后把上面的东西整理成每次训练都该看的几�
 
 - **每层 activation 的 histogram**，打印 mean、std 和 saturated 比例。Notebook 里 5 层 tanh 加 BatchNorm 的 network 训练 1000 步之后，五层的 std 都是 0.63 到 0.65，saturated 1.7% 到 2.8%。
 - **每层 activation 收到的 gradient 的 histogram**。各层的 std 应该相近；notebook 里是 $2.6\times10^{-3}$ 到 $2.0\times10^{-3}$。
-- **每个 weight 的 grad:data ratio**，即 `p.grad.std() / p.data.std()`。Notebook 里 embedding 是 $8.0\times10^{-3}$，几个 Linear 是 $4.9\times10^{-2}$ 到 $7.0\times10^{-2}$。
-- **Update:data ratio**，每一步记下 `((lr * p.grad).std() / p.data.std()).log10()`，画随 step 变化的 curve。Notebook 在 $-3$ 画了一条横线：这个 ratio 应该在 $10^{-3}$ 左右。CS231n 讲义给的是同一个数，并说低于它多半是 learning rate 太小，高于它多半是太大。
+- **每个 weight 的 grad:data ratio**，即 `p.grad.std() / p.data.std()`。Notebook 里 embedding 是 $8.0\times10^{-3}$，中间几个 Linear 是 $4.9\times10^{-2}$ 到 $7.0\times10^{-2}$，最后的 $(100,27)$ 是 $1.16\times10^{-1}$。视频在 initialization 时看这张图，专门指出最后一层是 troublemaker：那时它的 gradient 比其他 weight 大约 10 倍，用简单的 SGD，这一层会比别的层学得快约 10 倍。Notebook 保存的是 1000 步之后的数，差距已经缩小到 2 倍以内，和视频说的“多训练一会儿会自己缓和”一致。
+- **Update:data ratio**，每一步记下 `((lr * p.grad).std() / p.data.std()).log10()`，画随 step 变化的 curve。视频的理由是 grad:data ratio 其实不太说明问题，真正改变 parameter 的是 `lr * grad`。Notebook 在 $-3$ 画了一条横线：这个 ratio 应该在 $10^{-3}$ 左右，视频和 CS231n 讲义都说低于它多半是 learning rate 太小，高于它多半是太大。
 
 最后一条是这几张图里最直接的一张：它把“learning rate 合不合适”和“weight 的 scale 合不合适”放进同一个数里，上面那个 $1/\lambda^2$ 的问题在这里会表现成一条远低于 $-3$ 的 curve。
 
@@ -467,7 +495,7 @@ $\sigma_B^2=0$，$\hat x$ 全是 0，BatchNorm 的 output 只剩 $\beta$，所�
 :::
 
 :::from
-Initialization loss 的检查、`W2 *= 0.01`、tanh 饱和与 dead neuron、$(5/3)/\sqrt{\text{fan-in}}$、`bias=False`、running mean 的 0.999 与 0.001、calibrate、`training` 开关、四种统计图和 $-3$ 的参考线、所有标明 “notebook” 的数字来自 makemore part 3 的 notebook（读的是 code 和 output）。$\mathrm{Var}(s)=n\,\mathrm{Var}(w)\,\mathrm{Var}(x)$ 的推导来自 CS231n Neural Networks Part 2，initial loss 2.302 和 update ratio 约 $10^{-3}$ 来自 Part 3（均为 GitHub 镜像）。BatchNorm 的 formula、$\gamma,\beta$ 的理由、bias 被减掉的论证来自 Ioffe 与 Szegedy 2015 的 Section 2、3。“batch 的抖动有 regularization 作用”是视频里的说法，凭记忆。动图和 5 层 network 的数字、logit std 12.7 与 25.5、四种 gain 加 BatchNorm 的结果、$1/\lambda^2$ 的推导是为这一页用 numpy 算或写的；numpy 的 random number 和 PyTorch 不同，所以 loss 与 notebook 有 0.01 量级的差别。
+Initialization loss 的检查、`W2 *= 0.01`、tanh 饱和与 dead neuron、$(5/3)/\sqrt{\text{fan-in}}$、`bias=False`、running mean 的 0.999 与 0.001、calibrate、`training` 开关、四种统计图和 $-3$ 的参考线、所有标明 “notebook” 的数字来自 makemore part 3 的 notebook（读的是 code 和 output）。$\mathrm{Var}(s)=n\,\mathrm{Var}(w)\,\mathrm{Var}(x)$ 的推导来自 CS231n Neural Networks Part 2，initial loss 2.302 和 update ratio 约 $10^{-3}$ 来自 Part 3（均为 GitHub 镜像）。BatchNorm 的 formula、$\gamma,\beta$ 的理由、bias 被减掉的论证、Algorithm 2 的 inference 统计量、Section 3.3 的 scale invariance 与 $1/a$、Section 3.4 的 regularization 来自 Ioffe 与 Szegedy 2015。第 0 步的 loss 27、confidently wrong 与 hockey stick、先手调 0.1 和 0.2 再换成公式、batch 抖动相当于 regularization、momentum 与 batch size 的关系、最后一层是 troublemaker、为什么看 update 而不是 grad，对照逐字稿核对过；`momentum` 的默认值核对了 PyTorch 文档。动图和 5 层 network 的数字、logit std 12.7 与 25.5、numpy 重跑的 22.9、四种 gain 加 BatchNorm 的结果、$1/\lambda^2$ 的推导和 1.03 那次重跑是为这一页用 numpy 算或写的；numpy 的 random number 和 PyTorch 不同，所以 loss 与 notebook 有 0.01 量级的差别。
 :::
 
 ## [ninja] Tensor 层面的手写 backprop
@@ -593,7 +621,7 @@ $$dx_k=\frac1{4\times3.5590}\Big(4\,dy_k+0.25-\frac43\times0.1405\,\hat x_k\Big)
 :::
 
 :::edge Bessel's correction 用不用
-Ioffe 和 Szegedy 的 Algorithm 1 用 $1/m$，notebook 用 $1/(n-1)$，并在注释里专门标出。两种写法 backward formula 里 $\frac n{n-1}$ 那个 factor 不同，必须和 forward 一致，否则 `cmp` 对不上。PyTorch 的 `BatchNorm1d` 在训练时用 $1/n$ 做 normalization、用 $1/(n-1)$ 更新 running variance（这一点是自己的知识，不是 notebook 里写的），所以 batch 小时训练和 inference 用的 variance 会差 $n/(n-1)$ 倍，batch 32 时是 1.03。
+Ioffe 和 Szegedy 的 Algorithm 1 在训练时用 $1/m$，Algorithm 2 在 inference 时却用 unbiased 的 $\frac m{m-1}\,\mathbb E_{\mathcal B}[\sigma_{\mathcal B}^2]$。PyTorch 的 `BatchNorm1d` 照这个做：文档写明训练时 normalize 用 biased estimator，running variance 里存的是 unbiased 的。于是 batch 小时训练和 inference 用的 variance 差 $n/(n-1)$ 倍，batch 32 时是 1.03。视频里 Karpathy 把这个 train/test mismatch 叫作 bug，所以 notebook 在训练和 inference 都用 $1/(n-1)$，并在注释里专门标出。两种写法 backward formula 里 $\frac n{n-1}$ 那个 factor 不同，必须和 forward 一致，否则 `cmp` 对不上。
 :::
 
 ### Embedding：按 index 加回去
@@ -610,15 +638,15 @@ for k in range(Xb.shape[0]):
 `demb` 本身来自 `dembcat.view(emb.shape)`：forward 的 `view` 只是换了读 memory 的方式，backward 换回去即可。
 
 :::wrong 两层 loop 太慢，写成一句 dC[Xb] += demb
-这句话不报错，结果却是错的。Fancy indexing 的 `+=` 先把 `dC[Xb]` 读出来、加上 `demb`、再写回去，同一个 index 出现两次时，后一次的写入盖掉前一次，只算了一份。用 numpy 看最小的情形：`a = np.zeros(3); a[[0, 0]] += 1` 之后 `a[0]` 是 1，不是 2。Context `emm` 里 `m` 出现两次，就会丢掉一份 gradient。要用专门做累加的操作：numpy 的 `np.add.at(dC, Xb, demb)`，PyTorch 的 `dC.index_add_(0, Xb.view(-1), demb.view(-1, 10))`。
+这句话不报错，结果却是错的。Fancy indexing 的 `+=` 先把 `dC[Xb]` 读出来、加上 `demb`、再写回去，同一个 index 出现两次时，后一次的写入盖掉前一次，只算了一份。用 numpy 看最小的情形：`a = np.zeros(3); a[[0, 0]] += 1` 之后 `a[0]` 是 1，不是 2（本地实跑；PyTorch 的同一写法这次没有在本地验证）。Context `emm` 里 `m` 出现两次，就会丢掉一份 gradient。视频里 Karpathy 说他不知道比两层 loop 更好的 vectorized 写法；专门做累加的操作是有的：numpy 的 `np.add.at(dC, Xb, demb)`（本地实跑，`a[[0, 0]]` 那个例子给出 2），PyTorch 的 `dC.index_add_(0, Xb.view(-1), demb.view(-1, 10))`，文档写明它把 `source` 的第 $i$ 行加到 `self` 的第 `index[i]` 行，重复的 index 会依次累加。
 :::
 
 ### 拼起来训练
 
-Exercise 4 把上面的一次性 formula 放进 training loop，删掉 `loss.backward()`，外面套一个 `torch.no_grad()`，整个 backward 只剩十几行：cross-entropy 一行、第二层三行、tanh 一行、BatchNorm 三行、第一层三行、embedding 的 loop。Notebook 训练 200,000 步，结果是 train 2.0705、val 2.1099，注释里 Karpathy 自己的是 2.0719、2.1162，和第 3 站用 autograd 训练的结果相当。调试时 notebook 留了一行注释掉的 code：对每个 parameter 用 `cmp` 比较手写的 grad 和 `p.grad`，先只跑几步，全部对上再去掉 `loss.backward()`。
+Exercise 4 把上面的一次性 formula 放进 training loop，删掉 `loss.backward()`，外面套一个 `torch.no_grad()`。这里的 network 和第 3 站一样宽，hidden 是 200，共 12,297 个 parameter（前三个 exercise 用的是 hidden 64 的 4,137 个）。整个 backward 只剩二十行左右：cross-entropy 三行、第二层三行、tanh 一行、BatchNorm 三行（$\gamma$、$\beta$ 各一行，加上那一行长 formula）、第一层三行、`view` 一行、embedding 的 loop。Notebook 训练 200,000 步，结果是 train 2.0705、val 2.1099，注释里 Karpathy 自己的是 2.0719、2.1162，和第 3 站用 autograd 训练的结果相当。调试时 notebook 留了一行注释掉的 code：对每个 parameter 用 `cmp` 比较手写的 grad 和 `p.grad`，先只跑几步，全部对上再去掉 `loss.backward()`。
 
 :::from
-Exercise 1 至 4 的切分方式、`cmp` 的三种比较、非零 initialization 的理由、每一行 backward 的 code、`dlogits` 每行和为 $1.4\times10^{-9}$ 和第 0 行的数、两次比较的最大差、`counts_sum**-1` 的注释、BatchNorm 一次性 formula、Bessel's correction 的注释、embedding 的 loop、train 2.0705 与 val 2.1099 都来自 makemore part 4 的 notebook。用 shape 推 matmul 的 backward 来自 CS231n Backpropagation, Intuitions（GitHub 镜像）；Ioffe 与 Szegedy 论文 Section 3 给的是不合并的 chain rule，这里的合并推导、$n=4$ 的例子、两个 orthogonality 检查、`a[[0, 0]] += 1` 的演示是为这一页写的，PyTorch 的 `index_add_` 写法和 running variance 的细节是自己的知识。
+Exercise 1 至 4 的切分方式、`cmp` 的三种比较、非零 initialization 的理由、每一行 backward 的 code、`dlogits` 每行和为 $1.4\times10^{-9}$ 和第 0 行的数、两次比较的最大差、`counts_sum**-1` 的注释、BatchNorm 一次性 formula、Bessel's correction 的注释、embedding 的 loop、Exercise 4 的 network 大小、train 2.0705 与 val 2.1099 都来自 makemore part 4 的 notebook，题面和“my solution is 3 lines”之类的提示来自 Google Drive 上的 exercise Colab。`dlogit_maxes` 在 $10^{-9}$ 量级、`dlogits` 最大差 $5\times10^{-9}$、Karpathy 把训练与 inference 的 variance 不一致叫作 bug、embedding 只能写 loop 的说法，对照逐字稿核对过。用 shape 推 matmul 的 backward 来自 CS231n Backpropagation, Intuitions（GitHub 镜像）；Ioffe 与 Szegedy 论文 Section 3 给的是不合并的 chain rule，Algorithm 2 给的是 inference 时的 unbiased variance；running variance 的细节和 `index_add_` 的语义核对了 PyTorch 文档。这里的合并推导、$n=4$ 的例子、两个 orthogonality 检查、`a[[0, 0]] += 1` 的演示是为这一页写的。
 :::
 
 ## [wavenet] WaveNet：把 context 分层合并
@@ -629,7 +657,7 @@ Exercise 1 至 4 的切分方式、`cmp` 的三种比较、非零 initialization
 
 ### Context 从 3 加到 8
 
-第 2 站的 MLP 只看 3 个 character。Notebook 的 performance log 第一行是这个 model：12K 个 parameter，train 2.058，val 2.105。把 `block_size` 改成 8，其余不变，parameter 变成 22,097（$27\times10$ 的 embedding、$80\times200$ 的 Linear、BatchNorm 的 400 个、$200\times27+27$ 的 output），val 降到 2.027。
+第 2 站的 MLP 只看 3 个 character。Notebook 的 performance log 第一行是它加上第 3 站的 BatchNorm 之后的版本：12K 个 parameter，train 2.058，val 2.105。把 `block_size` 改成 8，其余不变，parameter 变成 22,097（$27\times10$ 的 embedding、$80\times200$ 的 Linear、BatchNorm 的 400 个、$200\times27+27$ 的 output），val 降到 2.027。
 
 但这个结构有一个问题：8 个 character 的 embedding 拼成 80 维，第一个 Linear 一步就把它们全部揉在一起。Context 越长，这一层越宽，而且“哪两个 character 挨着”这种局部信息，只能靠这一层的 weight 自己去发现。
 
@@ -682,23 +710,27 @@ xmean = x.mean(dim, keepdim=True)  # (1, 1, 68)
 ```
 
 :::wrong 程序没有报错，shape 也都对，BatchNorm 就没问题
-错误的版本里 `xmean` 是 $(1,4,68)$，`x - xmean` 照样 broadcast 成 $(32,4,68)$；running mean 也悄悄变成了 $(1,4,68)$，同样能 broadcast。每一步的 shape 都合法，最终 output 的 shape 也对。差别只在统计量：每个 unit 被分成 4 份分别 standardize，每份的 sample 少了 4 倍，噪声更大，还把“4 个位置本该共享同一个 Linear”的结构拆开了。唯一的线索是 `running_mean.shape`：它应该是 $(1,1,68)$，却是 $(1,4,68)$。视频里正是打印各层 output 和 buffer 的 shape 时才发现的（凭记忆），notebook 里只留下了修好的版本。这和第 2 站漏写 `keepdim` 是同一类 bug：broadcasting 让错误的 shape 也能算下去。
+错误的版本里 `xmean` 是 $(1,4,68)$，`x - xmean` 照样 broadcast 成 $(32,4,68)$；running mean 也悄悄变成了 $(1,4,68)$，同样能 broadcast。每一步的 shape 都合法，最终 output 的 shape 也对。差别只在统计量：每个 unit 被分成 4 份分别 standardize，每份的 sample 少了 4 倍，噪声更大，还把“4 个位置本该共享同一个 Linear”的结构拆开了。唯一的线索是 `running_mean.shape`：它应该是 $(1,1,68)$，却是 $(1,4,68)$。视频里的经过是：hierarchical 版本的 val 2.029 没有比 flat 的 2.027 好，Karpathy 说 BatchNorm 里可能还有个 bug，用逐层打印 shape 的 inspector 看到 input 是 $(32,4,68)$，再查第一个 BatchNorm 的 running mean，才看到 $(1,4,68)$。Notebook 里只留下了修好的版本。这和第 2 站漏写 `keepdim` 是同一类 bug：broadcasting 让错误的 shape 也能算下去。
+:::
+
+:::edge 换成 PyTorch 的 nn.BatchNorm1d
+PyTorch 的 `BatchNorm1d` 接受 $(N,C)$ 或 $(N,C,L)$，channel 在第 1 维，3 维 input 时沿第 0、2 维求统计。这里的 input 是 $(B,T,C)$，channel 在最后。直接把自己写的换成 `nn.BatchNorm1d(68)`，它会把 $T=4$ 当成 channel 数，shape 对不上就报错；碰巧 $T$ 等于 channel 数时则会悄悄沿错的 dimension 统计。视频里指出了这个差别，选择保留自己的 $(N,L,C)$ 约定。
 :::
 
 ### 和 WaveNet、convolution 的关系
 
 WaveNet 论文的结构是 dilated causal convolution。Causal 指第 $t+1$ 个 sample 的预测只依赖 $x_1,\dots,x_t$；dilated 指每层的 filter 跳着取 input，dilation 每层翻倍。论文的设定是 dilation $1,2,4,\dots,512$，一组 10 层的 receptive field 是 1024，这样一组重复三次。上面的 tree 就是 kernel 大小为 2、dilation 为 1、2、4 的三层，receptive field 是 $2^3=8$。
 
-Tree 只对一个位置做预测。训练时一个名字 `diondre.` 有 8 个位置要预测，notebook 最后演示的做法是把 `Xtr[7:15]` 这 8 行逐个送进 model，用一个 for loop。这样每个位置都要算完整的 tree：第一层 4 个 node、第二层 2 个、第三层 1 个，共 7 个。可相邻位置的 tree 有大量重复：位置 $t$ 和 $t+2$ 的第一层 node 有三个是同一组 character 对。Convolution 把“对每个位置都做一遍”变成一次运算，每层在每个位置只算一个 node，中间结果被所有用得到它的位置共享，每个位置只要 3 个 node。Notebook 在这里停下，注释写着 convolution 就是一个 for loop，它让 Linear 能高效地在空间上滑过去；真正的 dilated convolution 实现视频里没有讲。
+Tree 只对一个位置做预测。训练时一个名字 `diondre.` 有 8 个位置要预测，notebook 最后演示的做法是把 `Xtr[7:15]` 这 8 行逐个送进 model，用一个 for loop。这样每个位置都要算完整的 tree：第一层 4 个 node、第二层 2 个、第三层 1 个，共 7 个。可相邻位置的 tree 有大量重复：位置 $t$ 和 $t+2$ 的第一层 node 有三个是同一组 character 对。Convolution 把“对每个位置都做一遍”变成一次运算，每层在每个位置只算一个 node，中间结果被所有用得到它的位置共享，每个位置只要 3 个 node。视频里指着 WaveNet 论文的图讲的是同一件事：一个 node 既是右边那棵 tree 的左 child，又是左边那棵的右 child，naive 的写法要算两遍，convolution 只算一遍；另一个好处是那个 for loop 从 Python 挪进了 CUDA kernel。Notebook 在这里停下，注释写着 convolution 就是一个 for loop，它让 Linear 能高效地在空间上滑过去。真正的 dilated convolution 视频里没有实现，论文里每层还有的 gated activation unit $\mathbf z=\tanh(W_{f,k}*\mathbf x)\odot\sigma(W_{g,k}*\mathbf x)$ 和 residual、skip connection 也没有实现，这里每层只是 Linear、BatchNorm、tanh。
 
 ### 把它做大
 
-Notebook 最后把 embedding 加到 24 维、hidden 加到 128：parameter 是 $27\times24+48\times128+256+256\times128+256+256\times128+256+128\times27+27=76{,}579$，train 1.769，val 1.993。比第 2 站的 MLP（val 2.105）好了 0.11。Sample 出来的有 `chetta`、`hendrix`、`jamylie`、`aubreana`。
+Notebook 最后把 embedding 加到 24 维、hidden 加到 128：parameter 是 $27\times24+48\times128+256+256\times128+256+256\times128+256+128\times27+27=76{,}579$，train 1.769，val 1.993。比 performance log 第一行的 3 character MLP（val 2.105）好了 0.11。Sample 出来的有 `chetta`、`hendrix`、`jamylie`、`aubreana`。
 
-Train 和 val 的差距从 0.05 拉到了 0.22，这时 model 开始记住 training set 的细节了。Notebook 的 performance log 到此为止；继续往下要做的是在 dev set 上系统地调 hyperparameter，视频里说这一步需要一套 experiment 的基础设施，这门课没有做。
+Train 和 val 的差距从 0.05 拉到了 0.22，这时 model 开始记住 training set 的细节了。Notebook 的 performance log 到此为止。视频结尾说得很直白：每次实验越来越慢，hyperparameter 全靠猜，因为这里没有 experimental harness（一套能批量开实验、同时看 train 和 val curve 的设施），这一步这门课没有做。
 
 :::from
-Context 8、FlattenConsecutive、Sequential 的写法、matmul 对前导维度的处理、performance log 的五行数字、BatchNorm 的 bug 与修法、76,579 个 parameter、sample、“convolution is a for loop”的演示，都来自 makemore part 5 的 notebook。Notebook 里只留下了最终 $h=128$ 的 code，$h=68$ 是凭视频的记忆，22,397 和 22,097 是按 code 数出来的。Dilated causal convolution 的定义、dilation 到 512、receptive field 1024 来自 WaveNet 论文 Section 2.1；tree 与 dilation 的对应、7 个与 3 个 node 的对比是为这一页写的。“需要 experiment 基础设施”是视频里的说法，凭记忆。
+Context 8、FlattenConsecutive、Sequential 的写法、matmul 对前导维度的处理、performance log 的五行数字、BatchNorm 的 bug 与修法、76,579 个 parameter、sample、“convolution is a for loop”的演示，都来自 makemore part 5 的 notebook。Notebook 里只留下了最终 $h=128$ 的 code；$h=68$（视频里说选它是为了让 parameter 也在 22K）、发现 BatchNorm bug 的经过、PyTorch `BatchNorm1d` 的 $(N,C,L)$ 约定、convolution 里 node 被两棵 tree 共用、没有 experimental harness，对照逐字稿核对过。22,397 和 22,097 是按 code 数出来的。直接换成 `nn.BatchNorm1d` 会报错还是悄悄算错，是按视频里讲的 shape 约定推的，没有实跑。Dilated causal convolution 的定义、dilation 到 512、receptive field 1024 来自 WaveNet 论文 Section 2.1，gated activation unit 的公式来自 Section 2.3；tree 与 dilation 的对应、7 个与 3 个 node 的对比是为这一页写的。
 :::
 
 ## [gpt] 从零写 GPT
@@ -761,33 +793,33 @@ out = wei @ v       # (B, T, head_size)
 Attention 本身不知道 token 的顺序：把前面的 token 换个次序，weighted average 不变。所以 model 在 input 处给每个位置加一个学出来的 vector：`x = tok_emb + pos_emb`，position embedding table 是 `(block_size, n_embd)`。
 
 :::wrong Scaling 用 n_embd 还是 head_size 无所谓，反正都是常数
-视频里的 code 写的是 `* C**-0.5`，`C` 是 `n_embd`。仓库后来有一个 commit 叫 “scale by head size”，把它改成 `k.shape[-1]**-0.5`。最终的配置里 `n_embd = 384`、6 个 head，`head_size = 64`，除以 $\sqrt{384}$ 而不是 $\sqrt{64}$，score 被多缩小了 $\sqrt6=2.449$ 倍。这相当于给 softmax 加了一个 2.449 的 temperature。拿一行 score $(2,\,0,\,-1,\,1)$ 看：正确 scaling 下 weight 是 $(0.644,\,0.087,\,0.032,\,0.237)$，多缩小 2.449 倍之后是 $(0.417,\,0.184,\,0.122,\,0.277)$，attention 变得更平均，更接近上一小节的“一视同仁”。Training 可以学着把 $W^Q$、$W^K$ 调大来补偿，所以程序照样能训练，只是起点和 variance 的论证都不对了。
+视频里口头讲的是除以 $\sqrt{\text{head\_size}}$，code 写的却是 `* C**-0.5`，`C` 来自 `B, T, C = x.shape`，是 `n_embd`。只有一个 head 的那个 commit 里 `head_size = n_embd = 32`，两者恰好相等，所以看不出问题；从 multi-head 起（4 个 8 维的 head），每个 score 就被多缩小了 $\sqrt4=2$ 倍。视频发布后，一位外部贡献者提了 pull request #6（“We should scale attention by head size”），commit 叫 “scale by head size”，改成 `k.shape[-1]**-0.5`。最终的配置里 `n_embd = 384`、6 个 head，`head_size = 64`，除以 $\sqrt{384}$ 而不是 $\sqrt{64}$，score 被多缩小了 $\sqrt6=2.449$ 倍。这相当于给 softmax 加了一个 2.449 的 temperature。拿一行 score $(2,\,0,\,-1,\,1)$ 看：正确 scaling 下 weight 是 $(0.644,\,0.087,\,0.032,\,0.237)$，多缩小 2.449 倍之后是 $(0.417,\,0.184,\,0.122,\,0.277)$，attention 变得更平均，更接近上一小节的“一视同仁”。Training 可以学着把 $W^Q$、$W^K$ 调大来补偿，所以程序照样能训练，只是起点和 variance 的论证都不对了。
 :::
 
 ### 每加一个组件，val loss 降多少
 
-ng-video-lecture 仓库的 git log 记下了视频里一步步加组件的过程，几个 commit message 里写着当时的 val loss（这一阶段的 v2.py 是 `n_embd = 32`、`block_size = 8`、`batch_size = 32`、learning rate $10^{-3}$、5000 步）：
+ng-video-lecture 仓库的 git log 记下了视频里一步步加组件的过程，几个 commit message 里写着当时的 val loss。从加 self-attention 那个 commit 起，v2.py 是 `n_embd = 32`、`block_size = 8`、`batch_size = 32`、5000 步，learning rate 从 bigram 时的 $10^{-2}$ 降到 $10^{-3}$；视频里的解释是 self-attention 受不了太大的 learning rate。下表把 commit message 和视频里口头报的数放在一起：
 
-| commit | 加了什么 | commit message 里的 val loss |
-|---|---|---|
-| bigram model | baseline | 没有写；按 count 算的最优值是 2.48 |
-| add a single self-attention head | 一个 head | 2.5 |
-| multi-headed attention | 4 个 head，每个 8 维 | 2.28 |
-| add a computation block | 每个 token 后接一个 MLP | 2.24 |
-| introduce the residual block | residual 与 projection | 没有写 |
-| add layernorms | LayerNorm | 2.06 |
+| commit | 这个 commit 的 diff 加了什么 | commit message | 视频里报的 val loss |
+|---|---|---|---|
+| bigram model | baseline | 没有写 | 约 2.5（按 count 算的最优值是 2.48） |
+| add a single self-attention head | 一个 head，`head_size = n_embd = 32` | 2.5 | 2.4 |
+| multi-headed attention | 4 个 head，每个 8 维 | 2.28 | 2.28 |
+| add a computation block | 每个位置后接 `Linear(32, 32)` 和 ReLU | 2.24 | 2.24 |
+| introduce the residual block | `Block` 叠 3 层、residual、projection、feed-forward 加宽到 4 倍 | 没有写 | 2.08 |
+| add layernorms | 每个 block 两个 LayerNorm，最后再一个 | 2.06 | 2.06 |
 
 每一步都是为了补上一版缺的东西。
 
 **Multi-head。** 一个 head 给每个 token 一组 weight、一次 weighted average。一个 token 可能同时需要好几种信息（前一个 character 是什么、这个词从哪里开始），一组 weight 没法同时照顾。4 个各 8 维的 head 并排算，output 拼回 32 维，计算量和一个 32 维的 head 相同。
 
-**Feed-forward。** Attention 的 output 只是 value 的 weighted average，对 value 来说是 linear 的。Token 们交流完之后，每个 token 要各自处理收到的东西：一个 `Linear(n_embd, 4*n_embd)`、ReLU、`Linear(4*n_embd, n_embd)`，对每个位置独立地做。视频里的说法是 attention 负责 communication，feed-forward 负责 computation。
+**Feed-forward。** Attention 的 output 只是 value 的 weighted average，对 value 来说是 linear 的。视频里的说法是：token 们看过彼此之后，还没来得及“想一想”收到的东西，就直接算 logits 了。于是在每个位置后面各自接一个小 MLP，对每个位置独立地做；最初的 commit 只是 `Linear(n_embd, n_embd)` 加 ReLU，到 residual 那一步才照原始论文（512 进、2048 中间）改成 `Linear(n_embd, 4*n_embd)`、ReLU、`Linear(4*n_embd, n_embd)`。视频把 attention 叫作 communication，feed-forward 叫作 computation，一个 block 就是先 communicate 再 compute（gpt.py 里 `Block` 的 docstring 也这样写）。
 
-**Residual。** Block 一叠多，训练就变难，这和第 3 站深层 network 的问题是同一个。写成 `x = x + self.sa(x)`、`x = x + self.ffwd(x)`：第 1 站说过，加法把 gradient 原样交给两个 input，所以从 loss 到 embedding 有一条不经过任何 block 的路，gradient 沿着它不衰减地传回去。每个 block 只往这条“residual stream”上加一点修正；为了让加上去的东西和 stream 的维度一致，attention 拼接之后要再过一个 `proj` Linear。
+**Residual。** Block 一叠多，训练就变难，这和第 3 站深层 network 的问题是同一个。写成 `x = x + self.sa(x)`、`x = x + self.ffwd(x)`：第 1 站说过，加法把 gradient 原样交给两个 input，所以从 loss 到 embedding 有一条不经过任何 block 的路，视频称之为 residual pathway，gradient 沿着这条“superhighway”不衰减地传回去。每个 block 从这条路分叉出去算一点东西，再加回来；视频还说，residual block 在 initialization 时贡献很小，几乎等于不存在，训练中才逐渐起作用。为了让加回去的东西和 pathway 的 dimension 一致，attention 拼接之后要再过一个 `proj` Linear。
 
 **LayerNorm。** 和第 3 站的 BatchNorm 一样做 standardize，区别在统计的方向：BatchNorm 对一个 unit 沿 batch 求 mean，LayerNorm 对一个 token 沿它自己的 `n_embd` 个 feature 求 mean。于是 batch 里的 example 互不影响，不需要 running statistics，训练和 inference 完全一样，第 3 站的 batch size 为 1 的问题也不存在。gpt.py 把 LayerNorm 放在 attention 和 feed-forward 之前（`x + self.sa(self.ln1(x))`），和原始 Transformer 论文放在之后不同，叫 pre-norm；为什么现在都这样放，见 [CS336 第 2 站](../courses/STANFORD-CS336.html#arch)。最后一个 block 之后、`lm_head` 之前再加一个 `ln_f`。
 
-**Dropout 与放大。** 最后把 model 放大到 `n_embd = 384`、6 个 head、6 层、`block_size = 256`，parameter 一多，train 和 val 的差距会拉开，于是在 attention weight、projection 和 feed-forward 的 output 上加 `dropout = 0.2`：训练时每次随机把 20% 的 activation 置 0，迫使 network 不依赖个别 unit。视频里这个配置的 val loss 约是 1.48（凭记忆）；nanoGPT 的 README 用同样的结构、`learning_rate = 1e-3` 加 warmup 和 decay，一张 A100 上约 3 分钟到 1.4697。
+**Dropout 与放大。** 最后把 model 放大到 `n_embd = 384`、6 个 head（每个 64 维）、6 层、`block_size = 256`、`batch_size = 64`，learning rate 降到 $3\times10^{-4}$。在 residual 那一步视频里已经看到 train loss 开始领先 val loss；parameter 再一多差距会更大，于是在 attention weight、projection 和 feed-forward 的 output 上加 `dropout = 0.2`：训练时每次随机把 20% 的 activation 置 0。视频的解释是每次 forward 关掉的 unit 不同，相当于训练了一堆 sub-network，测试时全部打开，等于把它们合成一个 ensemble。这个配置在视频里的 val loss 是 1.48，在一张 A100 上大约训练了 15 分钟；nanoGPT 的 README 用同样的结构、`learning_rate = 1e-3` 加 warmup 和 decay，一张 A100 上约 3 分钟到 1.4697。
 
 ### 数 parameter
 
@@ -830,13 +862,13 @@ Mask 是因为这里在做 language modeling。做 sentiment classification 之�
 :::
 
 :::from
-Data 的处理、`"hii there"` 的 encoding、chunk 里藏着 8 个 example、三种写法的平均、query/key/value 的说法、position embedding、组件的顺序、commit message 里的 val loss、“scale by head size” 的 commit、gpt.py 的全部配置、`generate` 的 code、initialization 的补充说明来自 ng-video-lecture 仓库的 code、README 和 git log，以及 minbpe 的 lecture.md。“communication 与 computation”、“residual stream”、encoder 与 decoder 的区分、1.48 是视频里的说法，凭记忆。1.4697 和 3 分钟来自 nanoGPT 的 README。Count bigram 的 2.4819、scaling 错误的数字例子、parameter 表是为这一页算的。
+Data 的处理、`"hii there"` 的 encoding、chunk 里藏着 8 个 example、三种写法的平均、query/key/value 的说法、position embedding、组件的顺序和每个 commit 的 diff、commit message 里的 val loss、“scale by head size” 的 pull request、gpt.py 的全部配置、`generate` 的 code、initialization 的补充说明来自 ng-video-lecture 仓库的 code、README 和 git log，以及 minbpe 的 lecture.md。视频里报的每一步 val loss、learning rate 降低的理由、“communication 与 computation”、residual pathway 与 gradient superhighway、residual block 初始时几乎不起作用、dropout 的 ensemble 解释、encoder 与 decoder 的区分、1.48 与 15 分钟，对照逐字稿核对过。1.4697 和 3 分钟来自 nanoGPT 的 README。Count bigram 的 2.4819、scaling 错误的数字例子、parameter 表是为这一页算的。
 :::
 
 ## [tok] GPT tokenizer
 
 :::skip
-快速路线必读。BPE training 的算法本身（数 pair、并列时选谁、增量更新）在 [CS4248 第 1 站](../courses/CS4248.html#token)和 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)讲过，这里讲 minbpe 的实现、encode 的规则、为什么要先用 regex 切块，以及 GPT-4 tokenizer 的细节。能手算一次 encode、说出不切块会学出什么样的 token，就读完了这门课。
+快速路线必读。BPE training 的算法本身（数 pair、并列时选谁、增量更新）在 [CS4248 第 1 站](../courses/CS4248.html#token)和 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)讲过，这里讲 minbpe 的实现、encode 的规则、为什么要先用 regex 切块、GPT-4 tokenizer 的细节，以及 vocab_size 的代价和 sentencepiece 的不同做法。能手算一次 encode、说出不切块会学出什么样的 token，就读完了这门课。
 :::
 
 ### 为什么不直接用 character
@@ -922,21 +954,57 @@ Special token 不经过 BPE，直接映射到一个固定的 id。GPT-4 的 `<|e
 
 exercise.md 的第 3 步要求加载 GPT-4 的 merge，逐 token 复现 tiktoken 的结果，会遇到两个坑。第一，tiktoken 只存了每个 token 的 bytes 和 rank（`_mergeable_ranks`），没有存“由哪两个 token 合成”，要从 rank 反推出 merges，minbpe 的 `gpt4.py` 里有一个 `recover_merges`。第二，GPT-4 的前 256 个 token 不是按 byte 的值排列的，存在一个 permutation，encode 前和 decode 后都要按 `byte_shuffle` 换回来。
 
+GPT-2 的 tokenizer 也可以拆开看。视频的 Colab 下载了 OpenAI 发布的 `encoder.json` 和 `vocab.bpe`：前者对应 minbpe 的 `vocab`，后者对应 `merges`。`len(encoder)` 是 50,257，等于 256 个 byte token、50,000 次 merge、加 1 个 special token；`encoder['<|endoftext|>']` 是 50256，GPT-2 base model 只用这一个 special token。
+
+### vocab_size 设多大
+
+vocab_size 在第 6 站的 gpt.py 里只出现在两处：token embedding 有 vocab_size 行，`lm_head` 要为每个 token 输出一个 logit。视频里列了它不能无限加大的三个原因：这两层的 parameter 和计算量跟着涨；每个 token 在训练数据里出现得更少，它的 embedding 训练不足；一个 token 装进太多文本，Transformer 一次 forward 来不及处理。好处则是 sequence 变短，同样的 context 能看到更多文本。视频说这基本是一个靠实验定的 hyperparameter，当时的 state of the art 在几万到 100,000 左右。
+
+拿第 6 站的 model 算一次代价。vocab 是 65 时，这两层是 $65\times384+(384\times65+65)=49{,}985$ 个 parameter，占 10,788,929 的 0.46%。换成 GPT-2 的 50,257，其余部分不变（10,738,944 个），这两层变成
+
+$$50257\times384+(384\times50257+50257)=19{,}298{,}688+19{,}348{,}945=38{,}647{,}633$$
+
+是 model 其余部分的 3.6 倍，全部 parameter 的 78%。
+
+在已经训练好的 model 上加 token 是常见操作，比如 fine-tune 成 chat model 时要加一批标记对话结构的 special token。做法是一次很轻的“model surgery”：embedding 加几行、`lm_head` 加几列，新的部分用很小的 random number 初始化；可以 freeze 原来的 model，只训练新加的 parameter。
+
+### sentencepiece：在 code point 上做 BPE
+
+:::skip
+只做 exercise.md 前 4 步时可以跳过，代价是读 Llama、Mistral 的 tokenizer 时不知道 `<0xEC>` 这种 token 和开头多出来的 `▁` 从哪里来。
+:::
+
+exercise.md 的第 5 步提到，Llama、Mistral 这些 OpenAI 以外的 model 多用 sentencepiece；Colab 里写的理由是它和 tiktoken 不同，training 和 inference 都能高效地做。它和 tiktoken 的顺序相反：tiktoken 先 UTF-8 encode，再在 byte 上做 BPE；sentencepiece 直接在 Unicode code point 上做 BPE。训练文本里很少出现的 code point（由 `character_coverage` 决定）不进 vocabulary，遇到时要么变成 `<unk>`，要么在 `byte_fallback=True` 时退回到 UTF-8 byte，每个 byte 有一个专门的 token。
+
+视频的 Colab 用 Llama 2 的设置在一小段英文上训练了一个 vocabulary 400 的 sentencepiece model，然后 encode `"hello 안녕하세요"`：
+
+::fig[z2h-spm] 上面是 vocabulary 的排列，下面是 encode 的结果。英文部分是 code point 和 merge，韩文部分全是 byte token。
+
+- id 0、1、2 是 `<unk>`、`<s>`、`</s>`，接着 id 3 到 258 是 256 个 byte token `<0x00>` 到 `<0xFF>`，所以 byte $b$ 的 token id 是 $b+3$。
+- 训练文本里没有韩文。`안` 的 UTF-8 是 236、149、136，于是 encode 成 239、152、139，显示为 `<0xEC>`、`<0x95>`、`<0x88>`。整个 `안녕하세요` 是 15 个 byte token，和前面在 Taylor Swift 上训练的 BasicTokenizer 一样，一个 merge 也用不上。
+- 把 `byte_fallback` 关掉重训，整串韩文变成一个 id 0，也就是 `<unk>`：model 只知道“这里有个不认识的东西”。视频认为这正是 Llama 打开 byte fallback 的理由。
+- 结果的第一个 piece 是 `▁`（sentencepiece 用它显示空格），可 input 并不以空格开头。这是 `add_dummy_prefix=True` 加上的，目的是让句首的 `hello` 和句中的 `␣hello` 变成同一个 token；在 tiktoken 里这两个是不同的 id，model 要自己从数据里学到它们是同一个词。
+
 :::edge 结尾多一个空格
-GPT 的 tokenizer 把空格放在词的前面：` is` 是一个 token（GPT-2 里是 318），空格本身不单独成 token。Prompt 如果以空格结尾，这个空格就只能单独成一个 token，而训练数据里几乎所有空格都和后面的词粘在一起，model 很少见过这种情形，接下来的预测会变差。lecture.md 把 “trailing whitespace 的 warning” 列为 tokenization 引起的现象之一；这里的解释是视频里的讲法，凭记忆。
+GPT 的 tokenizer 把空格放在词的前面，空格通常不单独成 token。视频里的例子：在 GPT-3.5 Turbo Instruct（completion model）里输入 `Here's a tagline for an ice cream shop`，结尾多打一个空格，界面直接警告 trailing space 会让效果变差。原因是在训练数据里，tagline 的第一个词带着前面的空格，比如 `␣O` 是一个 token（8840）；结尾单独的空格却被 encode 成 token 220，相当于把下一个 token 拆了一半先给出来，这种序列 model 几乎没见过，接下来的预测就出了 distribution。
 :::
 
 :::from
-BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode 的 code 和 “subtle” 的注释、`errors="replace"`、`aaabdaaabac` 的例子、Taylor Swift 的测试文件、special token 和 `allowed_special` 的理由、GPT-4 的 pattern、`recover_merges` 和 byte shuffle 都来自 minbpe 的 README、exercise.md 和源码；512 与 1024、50,257、` is` 的 id 318、127 与 677 的例子和怪现象的清单来自 lecture.md（它只写到视频的前半段）。Taylor Swift 上的 merge、压缩比、几个 encode 结果、`aaab` 等三个例子、最长匹配的反例是用 minbpe 的 BasicTokenizer 在本地实际跑的。GPT-2 与 GPT-4 两个 pattern 的切分是用 JavaScript 和 Python 的 regex 在本地跑的近似（Python 的 `re` 不支持 `\p{L}`，用 `[^\W\d_]` 代替，只对 ASCII 文本等价）；本地装不了 tiktoken，没有和它对照。
+BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode 的 code 和 “subtle” 的注释、`errors="replace"`、`aaabdaaabac` 的例子、Taylor Swift 的测试文件、special token 和 `allowed_special` 的理由、GPT-4 的 pattern、`recover_merges` 和 byte shuffle 都来自 minbpe 的 README、exercise.md 和源码；512 与 1024、127 与 677 的例子和怪现象的清单来自 lecture.md（它只写到视频的前半段）。视频后半段读的是 Google Drive 上的 Tokenization Colab（`encoder.json` 的 50,257 与 50256、sentencepiece 的设置和 `hello 안녕하세요` 的 encode 结果）和逐字稿（vocab_size 的三个考虑、model surgery、byte fallback 与 `add_dummy_prefix` 的解释、trailing space 的例子和 8840、220 两个 id）。Taylor Swift 上的 merge、压缩比、几个 encode 结果、`aaab` 等三个例子、最长匹配的反例是用 minbpe 的 BasicTokenizer 在本地跑的，这次又用同样的算法重跑了一遍，数字一致；vocab_size 的 parameter 账是为这一页算的。GPT-2 与 GPT-4 两个 pattern 的切分是用 JavaScript 和 Python 的 regex 在本地跑的近似（Python 的 `re` 不支持 `\p{L}`，用 `[^\W\d_]` 代替，只对 ASCII 文本等价）；本地装不了 tiktoken，没有和它对照。
 :::
 
 ## 作业
 
-课程没有 autograder，也没有 handout。nn-zero-to-hero 的 README 说每一讲都有写在 YouTube 视频描述里的 exercise，这次没有逐一核对视频描述，下面只写能在仓库里读到的部分。所有作业的做法都一样：开着 notebook，关掉视频，自己从空文件写一遍，卡住了再去看。
+课程没有 autograder，也没有 handout。所有作业的做法都一样：开着 notebook，关掉视频，自己从空文件写一遍，卡住了再去看。nn-zero-to-hero 的 README 说每一讲另有写在 YouTube 视频描述里的 exercise。YouTube 页面这次抓不到：第 5 讲的 exercise 是 README 链接的 Colab，从 Google Drive 读了全文；第 8 讲指向 minbpe 的 exercise.md；其余几讲的题面取自第三方仓库的转录（frontmatter 的 sources 里列了），能找到两份转录的地方两边一致，但没能和原页面逐字核对。下面用“视频描述的 exercise”标出这些题。
 
 ### micrograd（backprop 不熟练时先做）
 
 **要从零写什么。** 一个 scalar 的 `Value` class：`+`、`*`、`**`（常数 exponent）、`tanh`、`exp`，以及 `__radd__`、`__rmul__`、`__neg__`、`__sub__`、`__truediv__` 这些让 `2 * a`、`a - b` 能写的反向运算；一个用 topological sort 的 `backward()`；`Neuron`、`Layer`、`MLP` 三个 class；在 4 个 example 上训练。
+
+**视频描述的 exercise。** 一个 Colab，两部分（两份转录一致）：
+
+1. $f(a,b,c)=-a^3+\sin(3b)-1/c+b^{2.5}-a^{0.5}$。先手推 analytical gradient；再不用公式，按视频里的 $\big(f(x+h)-f(x)\big)/h$ 估计；最后实现 symmetric derivative $\big(f(x+h)-f(x-h)\big)/2h$，确认同一个 $h$ 下它更准。在 $(a,b,c)=(2,3,4)$，答案是 $(-12.3536,\ 10.2570,\ 0.0625)$。
+2. 给 `Value` 补上需要的运算（`exp`、除法、`log` 等），让 4 个 logit 的 softmax 加 negative log likelihood 能 backward，再用 PyTorch 核对。Logits 是 $(0,3,-2,1)$、label 是第 3 维时，loss 是 2.1755，gradient 应是 $(0.0418,\ 0.8390,\ 0.0057,\ -0.8865)$，正好是第 2 站说的 $p-y$。
 
 **做完会什么。** 第 1 站的全部内容；之后看任何 autograd 框架都知道它在每个 op 里存了什么。
 
@@ -954,6 +1022,12 @@ BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode �
 
 **要从零写什么。** Count 的 bigram、one-hot 加 $W$ 的 bigram、第 2 站的 MLP，以及第 3 站的诊断：initialization loss、activation 与 gradient 的 histogram、update:data ratio，最后加上 BatchNorm。
 
+**视频描述的 exercise。**
+
+- Part 1（两份转录一致）：E01 做 trigram model，用两个 character 预测第三个，count 或 neural net 都行，和 bigram 比 loss。E02 按 80/10/10 随机分 train、dev、test，只在 train 上训练 bigram 和 trigram，看 dev 和 test。E03 用 dev set 调 trigram 的 smoothing（或 regularization）强度，观察 train 和 dev loss 随强度怎么变，最后只在 test 上评一次。E04 既然 one-hot 只是取出 $W$ 的一行，去掉 `F.one_hot`，直接 index。E05 换成 `F.cross_entropy`，结果应该一样，并想想为什么更该用它（第 2 站列了两个理由）。E06 自己出一个题做。
+- Part 2（一份转录）：E01 调 hyperparameter，超过 Karpathy 的 best validation loss 2.2（视频结尾口头说的是 2.17）。E02 他承认这一讲没认真做 initialization：先算出 initialization 时 probability 完全 uniform 的 loss 是多少，再调 initialization 让起始 loss 接近它，这正是第 3 站第一小节。E03 读 Bengio 等人 2003 年的论文，实现其中一个想法，看有没有用。
+- Part 3（一份转录）：E01 把所有 weight 和 bias 初始化成 0 再训练。题面说结果既不是“照样能训练”也不是“完全不动”，而是只训练了一部分、最终很差，要你看 gradient 和 activation 找出哪一部分在学、为什么。E02 训练一个带 BatchNorm 的 3 层 MLP，然后把每个 BatchNorm 的 $\gamma,\beta$ 和 running 统计量 fold 进前一个 Linear 的 $W,b$，删掉 BatchNorm，验证 inference 的 output 不变；第 3 站引的论文 Algorithm 2 那个 linear transform 就是要 fold 进去的东西。
+
 **做完会什么。** 一个 language model 从 data 到 sample 的完整流程，以及训练出问题时先看哪几个数。
 
 **时间与算力。** 三讲视频合计约 5 小时；CPU 或免费 Colab 都够，MLP 训练 200,000 步在 CPU 上估计几分钟（为这一页用 numpy 重跑，一次约 40 秒）。
@@ -961,18 +1035,18 @@ BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode �
 **提示。**
 
 - 在训练之前先看第一个 batch 的 loss，和 $\ln27=3.2958$ 比；差得远就先修 initialization，不要急着训练。（第 3 站；CS231n 讲义）
-- 每次 broadcasting 之后检查 shape，normalize 之后检查 `P.sum(1)` 是不是全为 1；第 2 站的 bug 在 loss 上看不出来。（第 2 站）
+- 每次 broadcasting 之后检查 shape，normalize 之后检查 `P.sum(1)` 是不是全为 1；第 2 站的 bug 在 loss 上看不出来，视频里是 sample 出乱码才发现的。（第 2 站；逐字稿）
 - 第 3 讲的 notebook 在 1000 步时就 `break`，先只看统计图；确认健康后再去掉 `break` 跑完整的 200,000 步。（notebook）
 - 评估前把 BatchNorm 设成 `training = False`，用 running 的统计量。（notebook）
 - 把每一次改动后的 train / dev loss 记成一张表，就像 notebook 里的 “loss log”，这是比较不同想法的唯一可靠办法。（notebook）
 
 ### Becoming a Backprop Ninja（值得做）
 
-**要从零写什么。** README 链接的 Colab 里的 4 个 exercise：逐个中间 tensor 的 backward；cross-entropy 的一次性 backward；BatchNorm 的一次性 backward；用手写的 backward 训练整个 network。
+**要从零写什么。** README 链接的 Colab 里的 4 个 exercise（从 Google Drive 读了全文）：Exercise 1 逐个中间 tensor 写 backward，Colab 里已经列好 26 行注释掉的 `cmp`，从 `logprobs` 一直到 `C`；Exercise 2 看着 loss 的数学式子求导、化简，一次写出 `dlogits`，注释说作者的解是 3 行，只能做到 approximate，最大差约 $6\times10^{-9}$；Exercise 3 同样一次写出 BatchNorm 的 `dhprebn`，注释说作者的解是“1 (long) line”，最大差约 $9\times10^{-10}$，并给了论文链接；Exercise 4 把手写的 backward 放进 hidden 200 的完整 training loop，Colab 里先留着 `loss.backward()` 和 `if i >= 100: break` 供对照，写对之后再删掉。作者给出的参考结果是 train 2.0719、val 2.1162。
 
 **做完会什么。** 第 4 站的全部内容；以后写自定义 layer、读 kernel 的 backward 时不再怕 shape。
 
-**时间与算力。** 视频 1 小时 55 分；README 建议边做边看、卡住才看答案，估计 4 到 6 小时（调研时的估计）。CPU 或免费 Colab。
+**时间与算力。** 视频 1 小时 55 分；README 说这一讲不是拿来“看”的，建议自己做 exercise，卡住了再看视频里的答案，估计 4 到 6 小时（调研时的估计）。CPU 或免费 Colab。
 
 **提示。**
 
@@ -981,20 +1055,40 @@ BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode �
 - 一个 tensor 在 forward 里被用了两次（`counts`、`bndiff`、`hprebn`），第二份 gradient 要用 `+=` 加上去。（第 4 站）
 - Exercise 3 先在纸上对一个 unit 推，再写成 tensor；推完用 $\sum dx=0$、$\sum dx\,\hat x=0$ 两个检查。（第 4 站）
 - Embedding 的 backward 不要写成 `dC[Xb] += demb`，重复的 index 只会加一次。（第 4 站）
-- Exercise 1、2 做不到 bit-exact 不一定是错，`allclose` 为 True、最大差在 $10^{-9}$ 量级就可以。（notebook 的注释）
+- Exercise 2、3 做不到 bit-exact 不一定是错，`allclose` 为 True、最大差在 $10^{-9}$ 量级就可以。（Colab 的注释）
+- Exercise 1 是能做到逐 bit 相等的，但 forward 的写法别改：Colab 的注释说，把 `counts_sum**-1` 换成 `1.0 / counts_sum`，作者自己也做不到 bit-exact 了。（Colab 的注释）
+
+### makemore part 5：WaveNet（有余力再做）
+
+**要从零写什么。** `Embedding`、`FlattenConsecutive`、`Sequential` 三个 module，三层 hierarchical 的 MLP，以及能处理 3 维 input 的 `BatchNorm1d`。
+
+**视频描述的 exercise。** 只找到一份转录，而且只有一句概括：调这个 model，把 validation loss 降下去。视频结尾口头说得更具体：试着超过 1.993；Karpathy 没怎么试过不同的 channel 分配，embedding 维数也许就不对；也许把原来只有一个 hidden layer 的 flat network 做得足够大，就能赢过 hierarchical 的版本；也可以读 WaveNet 论文，自己实现 gated activation、residual 和 skip connection。
+
+**做完会什么。** 第 5 站的全部内容，以及自己写 module 时逐层追踪 3 维 shape 的习惯。
+
+**时间与算力。** 视频 56 分钟。76,579 个 parameter 的 model 训练 200,000 步，CPU 能跑，免费 Colab 更快（这一条是估计，没有实测）。
+
+**提示。**
+
+- 每改一处结构，就逐层打印 output 的 shape 和每个 BatchNorm 的 `running_mean.shape`，第 5 站的 bug 就是这样查出来的。（逐字稿）
+- 比较 flat 和 hierarchical 时，先把 parameter 数调到一样，视频里是 $h=68$ 对 22K。（逐字稿、notebook 的 performance log）
+- 每次实验记一行 performance log，写明 parameter 数和 train、val loss。（notebook）
 
 ### Let's build GPT（先做）
 
 **要从零写什么。** 从 bigram 出发，依次写出 self-attention head、multi-head、feed-forward、residual 加 projection、LayerNorm、dropout，在 tiny Shakespeare 上训练 character-level GPT 并 sample。之后可以用 nanoGPT 的 `config/train_shakespeare_char.py` 复现。
 
+**视频描述的 exercise。** 没有找到可靠的转录。一份第三方笔记（chizkidd）末尾列了四道 “Suggested Exercises”，没有注明出处，这里照列，供参考：把 `Head` 和 `MultiHeadAttention` 合成一个 class，所有 head 在一个 4 维 tensor 里并行算；在自己选的 dataset 上训练这个 GPT，进阶版是教它做加法，再做 `+-*/` 的计算器；找一个大到看不出 train 和 val 差距的 dataset 先 pretrain，再在 tiny Shakespeare 上 fine-tune，看 val loss 能不能更低；读几篇 Transformer 的论文，实现一个大家常用的改动。
+
 **做完会什么。** 一个 decoder-only Transformer 的每一行 code；之后读 CS336 Assignment 1 的要求时，只需要关心它和这里的差别（RMSNorm、SwiGLU、RoPE 等，见 [CS336 第 2 站](../courses/STANFORD-CS336.html#arch)）。
 
-**时间与算力。** 视频 1 小时 56 分；跟着写估计 4 小时（调研时的估计）。nanoGPT 的 README：一张 A100 上约 3 分钟到 val loss 1.4697；只有 CPU 时用 `--device=cpu --compile=False` 加上更小的配置（`block_size=64`、`batch_size=12`、4 层、4 个 head、`n_embd=128`、2000 步、`dropout=0.0`），约 3 分钟到 1.88；Apple Silicon 加 `--device=mps`，快 2 到 3 倍。免费 Colab 的 T4 足够跑完整配置。
+**时间与算力。** 视频 1 小时 56 分；跟着写估计 4 小时（调研时的估计）。视频里完整配置在一张 A100 上训练了约 15 分钟（逐字稿）。nanoGPT 的 README：一张 A100 上约 3 分钟到 val loss 1.4697；只有 CPU 时用 `--device=cpu --compile=False` 加上更小的配置（`block_size=64`、`batch_size=12`、4 层、4 个 head、`n_embd=128`、2000 步、`dropout=0.0`），约 3 分钟到 1.88；Apple Silicon 加 `--device=mps`，快 2 到 3 倍。调研条目的判断是免费 Colab 的 T4 足够跑完整配置，这次没有实测。
 
 **提示。**
 
 - 按 git log 的顺序一个组件一个组件地加，每加一个就看 val loss 有没有按上面的表下降；没有降就先别往下加。（ng-video-lecture 的 git log）
-- Attention 的 scaling 用 `head_size**-0.5`，不是 `n_embd**-0.5`。（仓库的 “scale by head size” commit）
+- Attention 的 scaling 用 `head_size**-0.5`，不是 `n_embd**-0.5`。只有一个 head 时两者相等，从 multi-head 起才会出错。（仓库的 pull request #6）
+- 加 self-attention 时把 learning rate 从 $10^{-2}$ 降到 $10^{-3}$，步数从 3000 加到 5000。（commit “add a single self-attention head” 的 diff；逐字稿）
 - `generate` 里要截取最后 `block_size` 个 token，否则 position embedding 会越界。（gpt.py）
 - 加上 nanoGPT 里的 `_init_weights`（std 0.02），收敛会快一些；ng-video-lecture 的 README 专门补充了这一点。（README）
 - `torch.compile` 在 Windows 等平台不可用，加 `--compile=False` 照样能跑，只是慢一些。（nanoGPT README）
@@ -1006,7 +1100,7 @@ BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode �
 
 **做完会什么。** 第 7 站的全部内容；CS336 Assignment 1 的 BPE 部分只剩性能问题。
 
-**时间与算力。** 视频 2 小时 13 分；exercise 估计 4 到 6 小时（调研时的估计）。CPU 即可；README 说 `train.py` 在 M1 MacBook 上约 25 秒，本地跑 BasicTokenizer（vocabulary 512）是 11 秒。
+**时间与算力。** 视频 2 小时 13 分；exercise 估计 4 到 6 小时（调研时的估计）。CPU 即可；README 说 `train.py` 在 M1 MacBook 上约 25 秒，本地跑 BasicTokenizer（vocabulary 512）两次分别是 11 秒和 6 秒。
 
 **提示。**
 
@@ -1016,18 +1110,21 @@ BasicTokenizer 和 RegexTokenizer 的结构、`get_stats` 与 `merge`、encode �
 - GPT-4 pattern 要用 `regex` 库，Python 自带的 `re` 不支持 `\p{L}`。（minbpe 的 `regex.py` 用的就是 `import regex as re`）
 - 第 3 步卡在 merges 和 byte shuffle 上时，可以直接参考 `minbpe/gpt4.py` 的 `recover_merges`，exercise.md 允许照抄。（exercise.md）
 - 用仓库的 pytest 测试和 tiktoken 的结果对照，要逐 token 一致才算对。（README、tests）
+- 第 1 步写完 decode，先用 `decode([128])` 试一次，应该得到 `�` 而不是报错。（Tokenization Colab）
+- 第 5 步要复现 Llama 2，可以直接抄 Colab 里那组 sentencepiece 的 option（`model_type="bpe"`、`byte_fallback=True`、`add_dummy_prefix=True`、`character_coverage=0.99995`、`split_digits=True` 等），它是作者从 Meta 发布的 `tokenizer.model` 的 protobuf 里读出来的；视频说 sentencepiece 的文档不全，很多 option 和 BPE 无关。（Tokenization Colab；逐字稿）
 - minbpe 每次 merge 都重算全部 pair count，没有为大文件优化（README 的 todo）。之后做 CS336 Assignment 1 时要改成增量维护 count，并且把 pre-tokenization 并行化，见 [CS336 第 1 站](../courses/STANFORD-CS336.html#bpe)。（README、CS336 handout）
 
 ### nanochat（有余力再做）
 
-**要从零写什么。** 这不是本课的作业，是同一作者后来的仓库：一个单机的完整 LLM 流程，包括 tokenizer 训练、pretraining、SFT、RL、evaluation 和 chat 推理。
+**要从零写什么。** 这不是本课的作业，是同一作者后来的仓库：一个单机的完整 LLM 流程，包括 tokenizer 训练、pretraining、SFT、RL、evaluation 和 chat 推理。README 自称是“训练 LLM 最简单的 experimental harness”，正好补上第 5 站结尾说这门课缺的那一块。
 
 **做完会什么。** 把这门课的每一块放回一个真实系统里，看它们怎样接在一起。
 
-**时间与算力。** 以下转引自调研条目里对 nanochat README 的摘录，这次没有重读 README：`runs/speedrun.sh` 在 8 张 H100 上约 1.5 小时训练出一个约 100 美元的 d20 model；单卡去掉 `torchrun` 也能得到几乎相同的结果，但要 8 倍时间；`runs/runcpu.sh` 能在 CPU 或 Apple Silicon 上跑一个大幅缩小的版本，README 明说效果不好。免费 Colab 只适合读 code 和跑缩小版。
+**时间与算力。** 以下来自 2026 年 7 月版的 README 和脚本。整个仓库只用一个设置 `--depth`（Transformer 的 layer 数）控制规模，width、head 数、learning rate、训练长度等都按它自动算出。`runs/speedrun.sh` 现在训练的是 depth 24、达到 GPT-2 水平（DCLM CORE 超过 GPT-2 的 0.2565）的 model，设计在一台 8 张 H100 的机器上跑，README 正文说约 1.5 小时；leaderboard 上最好的记录是 1.65 小时，按每张卡每小时约 3 美元，2 小时约 48 美元。单卡去掉 `torchrun` 也能得到几乎相同的结果，但要 8 倍时间。`runs/runcpu.sh` 把 model 缩到 depth 6，能在 CPU 或 Apple Silicon 上跑几十分钟，README 明说效果不好。免费 Colab 只适合读 code 和跑缩小版。
 
 **提示。**
 
-- 显存小于 80 GB 时，把 `--device-batch-size` 从 32 依次降到 16、8、4、2、1；README 说再往下要改更多东西。（nanochat README，转引自调研条目）
+- 显存小于 80 GB 时，把 `--device-batch-size` 从默认的 32 依次降到 16、8、4、2、1；README 说再往下就要更懂行地改别的东西。（nanochat README）
+- 想快速试一个改动，README 推荐在 8 卡机器上训练 depth 12（GPT-1 大小）的 model，一次 pretraining 约 5 分钟，看 `val_bpb` 和 CORE 有没有变好。（nanochat README）
 - 把它当作 CS336 五个作业串起来的参考实现来读，比自己从头训练划算。（建议）
 
