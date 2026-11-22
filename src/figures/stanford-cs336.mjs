@@ -547,6 +547,171 @@ function ring() {
   return svgA(560, 296, o, '动图：4 块 GPU 排成一圈做 ring all-gather。开始时每块卡只有自己的一段；每一步每块卡把一段沿 ring 传给下一块，四条 link 同时在用；3 步之后每块卡都有 A、B、C、D');
 }
 
+
+// 第 8 站：静态 batching 与 continuous batching，3 个 slot、5 个请求
+function contbatch() {
+  const reqs = [
+    { id: 'R1', arr: 0, len: 8 }, { id: 'R2', arr: 0, len: 3 }, { id: 'R3', arr: 0, len: 5 },
+    { id: 'R4', arr: 2, len: 4 }, { id: 'R5', arr: 4, len: 3 },
+  ];
+  const S = 3, T = 13;
+  // 静态：前 3 个一批，等最长的结束，再开下一批
+  const stat = [[], [], []];
+  let t0 = 0, queue = reqs.slice();
+  while (queue.length) {
+    const batch = queue.splice(0, S);
+    const start = Math.max(t0, ...batch.map((r) => r.arr));
+    batch.forEach((r, k) => stat[k].push({ ...r, s: start, e: start + r.len }));
+    t0 = start + Math.max(...batch.map((r) => r.len));
+  }
+  // continuous：每一步结束时有空 slot 且有已到达的请求就接上
+  const cont = [[], [], []], free = [0, 0, 0];
+  for (const r of reqs) {
+    let k = 0; for (let j = 1; j < S; j++) if (free[j] < free[k]) k = j;
+    const st = Math.max(free[k], r.arr);
+    cont[k].push({ ...r, s: st, e: st + r.len }); free[k] = st + r.len;
+  }
+  const cls = { R1: 'wash', R2: 'wash-strong', R3: 'wash', R4: 'solid', R5: 'solid' };
+  const tcls = { R1: 't', R2: 't', R3: 't', R4: 'tw', R5: 'tw' };
+  const x0 = 86, cw = 34, ch = 24;
+  let o = '';
+  const panel = (y0, rows, title) => {
+    o += text(20, y0 - 30, title, 'tb');
+    for (const r of reqs.filter((q) => q.arr > 0)) o += line(x0 + r.arr * cw, y0 - 8, x0 + r.arr * cw, y0 - 1, 'ink') + text(x0 + r.arr * cw + 3, y0 - 10, r.id + ' 到达', 'ts');
+    const end = Math.max(...rows.flat().map((r) => r.e));
+    for (let k = 0; k < S; k++) {
+      const y = y0 + k * (ch + 4);
+      o += text(x0 - 8, y + 17, 'slot ' + (k + 1), 'ts', 'end');
+      for (let t = 0; t < end; t++) o += rect(x0 + t * cw + 1, y, cw - 2, ch, 'wash2', 2);
+      for (const r of rows[k]) {
+        o += rect(x0 + r.s * cw + 1, y, r.len * cw - 2, ch, cls[r.id], 3) + text(x0 + (r.s + r.len / 2) * cw, y + 17, r.id, tcls[r.id], 'middle');
+      }
+    }
+    o += line(x0 + end * cw, y0 - 4, x0 + end * cw, y0 + S * (ch + 4), 'ln') + text(x0 + end * cw - 4, y0 + S * (ch + 4) + 10, `第 ${end} 步全部完成`, 'tl', 'end');
+    return end;
+  };
+  const e1 = panel(62, stat, '静态 batching：一批要等最长的 R1 结束');
+  const e2 = panel(232, cont, 'Continuous batching：每一步结束都可以换人');
+  // 时间轴
+  const ya = 232 + S * (ch + 4) + 26;
+  for (let t = 0; t <= T; t += 2) o += text(x0 + t * cw, ya, String(t), 'ts', 'middle');
+  o += text(x0 + T * cw, ya + 16, 'decode 步数', 'ts', 'end');
+  o += text(20, ya + 16, '灰色：slot 空着在等', 'ts');
+  const fin = (rows, id) => rows.flat().find((r) => r.id === id).e;
+  return svg(560, ya + 26, o, `3 个 slot 服务 5 个请求。静态 batching 下 R4、R5 要等第一批里最长的 R1 在第 8 步结束，全部在第 ${e1} 步完成，R4 第 ${fin(stat, 'R4')} 步完成；continuous batching 下 R4 在 R2 结束后立刻接上，第 ${fin(cont, 'R4')} 步完成，全部在第 ${e2} 步完成`);
+}
+
+// 第 8 站：PagedAttention，两个请求共享 system prompt 的 block
+function paged() {
+  const B = 4; // 每个 block 4 个 token
+  const logical = {
+    A: [{ fill: 4, shared: true, p: 4 }, { fill: 4, shared: true, p: 1 }, { fill: 4, p: 6 }, { fill: 1, p: 2 }],
+    B: [{ fill: 4, shared: true, p: 4 }, { fill: 4, shared: true, p: 1 }, { fill: 3, p: 5 }],
+  };
+  const tokCls = (b, r) => (b.shared ? 'solid' : r === 'A' ? 'wash-strong' : 'wash');
+  const bw = 64, bh = 26, tw = bw / B;
+  let o = text(20, 22, '逻辑上：每个请求的 block 连续编号', 'tb') + text(390, 22, '物理 block', 'tb');
+  const occ = {};
+  ['A', 'B'].forEach((r, i) => {
+    const y = 56 + i * 104;
+    o += text(20, y + 18, '请求 ' + r, 't');
+    logical[r].forEach((b, j) => {
+      const x = 78 + j * (bw + 8);
+      o += rect(x, y, bw, bh, 'paper', 3);
+      for (let k = 0; k < b.fill; k++) o += rect(x + k * tw + 2, y + 4, tw - 4, bh - 8, tokCls(b, r), 2);
+      o += text(x + bw / 2, y + bh + 16, 'L' + j + ' → P' + b.p, b.shared ? 'tl' : 'ts', 'middle');
+      occ[b.p] = { ...b, r };
+    });
+  });
+  o += text(78, 260, 'L → P 就是 block table：逻辑 block 存在哪个物理 block。', 'ts');
+  // 物理 block：8 个排成一列
+  const px = 410, py0 = 36, ph = 26;
+  for (let p = 0; p < 8; p++) {
+    const y = py0 + p * (ph + 5);
+    o += text(px - 8, y + 18, 'P' + p, 'ts', 'end');
+    o += rect(px, y, bw, ph, 'paper', 3);
+    const b = occ[p];
+    if (b) {
+      for (let k = 0; k < b.fill; k++) o += rect(px + k * tw + 2, y + 4, tw - 4, ph - 8, tokCls(b, b.r), 2);
+      o += text(px + bw + 8, y + 18, b.shared ? 'A、B 共用' : '只属于 ' + b.r, b.shared ? 'tl' : 'ts');
+    } else o += text(px + bw + 8, y + 18, '空闲', 'ts');
+  }
+  // 图例
+  const ly = 308;
+  [['solid', 'system prompt 的 token（共享）'], ['wash-strong', '请求 A 自己的 token'], ['wash', '请求 B 自己的 token']].forEach(([c, t], k) => {
+    const x = [20, 240, 404][k];
+    o += rect(x, ly - 11, 12, 14, c, 2) + text(x + 18, ly, t, 'ts');
+  });
+  o += text(20, 332, '只有每个请求最后一个 block 可能没填满，最多浪费 3 个位置；', 'ts') + text(20, 350, '新 token 填满一个 block 之后才再分配下一个。', 'ts');
+  return svg(560, 362, o, 'PagedAttention：两个请求的 KV cache 在逻辑上各自连续编号，物理上分散在 8 个 block 里；共享的 system prompt 占两个 block，只存一份，由两个请求的 block table 同时指向');
+}
+
+// 第 11 站：一个 token 的 top-2 routing
+function moe() {
+  const logit = [1.2, 0.3, 2.0, -0.5];
+  const ex = logit.map(Math.exp), Z = ex.reduce((a, b) => a + b, 0), s = ex.map((v) => v / Z);
+  const order = [0, 1, 2, 3].sort((a, b) => s[b] - s[a]), top = order.slice(0, 2);
+  const tot = top.reduce((a, i) => a + s[i], 0);
+  let o = '';
+  // token
+  o += rect(20, 118, 70, 34, 'paper', 6) + text(55, 140, 'token u', 't', 'middle');
+  // router bars
+  o += text(120, 30, 'router：softmax(uᵀeᵢ)', 'tb');
+  const bx = 120, by = 46, bwid = 110;
+  s.forEach((v, i) => {
+    const y = by + i * 40;
+    const on = top.includes(i);
+    o += rect(bx, y, bwid, 22, 'wash2', 3) + rect(bx, y, bwid * v, 22, on ? 'solid' : 'mute-f', 3);
+    o += text(bx + bwid + 6, y + 16, v.toFixed(3), on ? 'tl' : 'ts');
+  });
+  o += arrow(92, 135, 116, 120, 'mute');
+  // experts
+  const ex0 = 290;
+  s.forEach((v, i) => {
+    const y = by + i * 40, on = top.includes(i);
+    o += rect(ex0, y - 2, 92, 26, on ? 'wash-strong' : 'wash2', 5) + text(ex0 + 46, y + 15, 'FFN' + '₁₂₃₄'[i], on ? 'tb' : 'ts', 'middle');
+    if (on) o += arrow(bx + bwid + 50, y + 11, ex0 - 4, y + 11, 'ln');
+    else o += text(ex0 + 98, y + 15, '不计算', 'ts');
+  });
+  // sum
+  const sx = 470, sy = 120;
+  o += circle(sx, sy, 16, 'paper') + text(sx, sy + 5, '+', 'tb', 'middle');
+  top.forEach((i) => { const y = by + i * 40 + 11; o += arrow(ex0 + 94, y, sx - 16, sy + (y < sy ? -6 : 6), 'ink'); o += text(ex0 + 140, y + (i === top[0] ? 18 : -6), '× ' + s[i].toFixed(3), 'tl', 'middle'); });
+  o += path(d([[55, 154], [55, 230], [sx, 230], [sx, sy + 18]]), 'dash') + text(260, 224, 'residual：+ u', 'ts', 'middle');
+  o += arrow(sx + 16, sy, 540, sy, 'ink') + text(540, sy - 8, 'h', 'tb', 'end');
+  o += text(20, 262, `top-2 选 FFN₃ 和 FFN₁；gate 先 softmax 再选是 ${s[top[0]].toFixed(3)}、${s[top[1]].toFixed(3)}，`, 'ts');
+  o += text(20, 280, `选了再 normalize 是 ${(s[top[0]] / tot).toFixed(3)}、${(s[top[1]] / tot).toFixed(3)}。另外两个 expert 的 parameter 在，但这个 token 不经过它们。`, 'ts');
+  return svg(560, 292, o, 'MoE 的 top-2 routing：router 给 4 个 expert 的 probability 是 0.262、0.107、0.583、0.048，只计算 expert 3 和 expert 1，按 gate 加权后加回 residual');
+}
+
+// 第 13 站：CLIP 的 3 × 3 logits 与两个方向的 cross-entropy
+function clip3() {
+  const L = [[4, 1, 0], [1, 3, 1], [0, 2, 3]];
+  const lse = (v) => { const m = Math.max(...v); return m + Math.log(v.reduce((a, x) => a + Math.exp(x - m), 0)); };
+  const row = L.map((r, i) => lse(r) - r[i]);
+  const col = [0, 1, 2].map((j) => lse(L.map((r) => r[j])) - L[j][j]);
+  const x0 = 150, y0 = 60, c = 58;
+  let o = '';
+  for (let j = 0; j < 3; j++) o += text(x0 + j * c + c / 2, y0 - 12, 'text ' + (j + 1), 'ts', 'middle');
+  for (let i = 0; i < 3; i++) {
+    o += text(x0 - 12, y0 + i * c + c / 2 + 5, 'image ' + (i + 1), 'ts', 'end');
+    for (let j = 0; j < 3; j++) {
+      const diag = i === j;
+      o += rect(x0 + j * c + 2, y0 + i * c + 2, c - 4, c - 4, diag ? 'solid' : (L[i][j] >= 2 ? 'wash-strong' : 'wash2'), 4);
+      o += text(x0 + j * c + c / 2, y0 + i * c + c / 2 + 6, String(L[i][j]), diag ? 'tw' : 't', 'middle');
+    }
+    o += text(x0 + 3 * c + 14, y0 + i * c + c / 2 + 5, row[i].toFixed(3), 'tl');
+  }
+  for (let j = 0; j < 3; j++) o += text(x0 + j * c + c / 2, y0 + 3 * c + 20, col[j].toFixed(3), 'tl', 'middle');
+  o += text(x0 + 3 * c + 14, y0 - 12, '按行：image → text', 'ts');
+  o += text(x0 - 12, y0 + 3 * c + 20, '按列：', 'ts', 'end');
+  const ra = row.reduce((a, b) => a + b, 0) / 3, ca = col.reduce((a, b) => a + b, 0) / 3;
+  o += text(x0 + 3 * c + 14, y0 + 3 * c + 20, `平均 ${ra.toFixed(3)} 与 ${ca.toFixed(3)}，loss = ${((ra + ca) / 2).toFixed(3)}`, 'tb');
+  o += text(20, y0 + 3 * c + 50, '深色对角线是正确的配对；中间色的 2 是最像正确答案的错配（image 3 与 text 2），', 'ts');
+  o += text(20, y0 + 3 * c + 68, '所以第 3 行、第 2 列的 loss 最大。', 'ts');
+  return svg(560, y0 + 3 * c + 80, o, 'CLIP 的 3 乘 3 logits，对角线是配对；按行的 cross-entropy 是 0.066、0.240、0.349，按列是 0.066、0.408、0.170，总 loss 0.216');
+}
+
 export default {
   'cs336-bpeindex': bpeindex,
   'cs336-bpemerges': bpemerges,
@@ -565,4 +730,8 @@ export default {
   'cs336-kv': kv,
   'cs336-lsh': lsh,
   'cs336-clip': clip,
+  'cs336-contbatch': contbatch,
+  'cs336-paged': paged,
+  'cs336-moe': moe,
+  'cs336-clipmat': clip3,
 };

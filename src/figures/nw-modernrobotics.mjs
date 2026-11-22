@@ -632,7 +632,85 @@ function capxerr() {
   return svg(560, 424, o, 'Capstone 的 Xerr 六个 component 随时间的变化：上图 Kp 1.5、Ki 0，单调衰减；下图 Kp 2、Ki 6，越过零之后回来');
 }
 
+// ---------- 第 5 站：virtual potential field，q̇ = F(q)，两个起点（一个卡在 local minimum） ----------
+function potential() {
+  const OB = [[0.5, 0.15, 0.1], [0.5, -0.15, 0.1]], G = [1, 0], k = 1e-3;
+  const F = (x, y) => {
+    let fx = G[0] - x, fy = G[1] - y;
+    for (const [cx, cy, R] of OB) { const vx = x - cx, vy = y - cy, n = Math.hypot(vx, vy), dd = n - R, s = k / dd ** 3 / n; fx += s * vx; fy += s * vy; }
+    return [fx, fy];
+  };
+  // Euler 积分 q̇ = F(q)，h = 1e-3，到 t = 8 s；每 0.04 s 记一点
+  const run = (q0) => { let [x, y] = q0; const pts = [[0, x, y]]; const h = 1e-3;
+    for (let i = 1; i <= 8000; i++) { const [fx, fy] = F(x, y); x += h * fx; y += h * fy; if (i % 40 === 0) pts.push([i * h, x, y]); }
+    return pts; };
+  const A = run([0, 0]), B = run([0, 0.3]);
+  const sx = lin(-0.08, 1.12, 30, 30 + 1.2 * 300), sy = lin(0.42, -0.3, 30, 30 + 0.72 * 300);
+  let o = '';
+  // 力的方向场（灰色短箭头）
+  // 标注所在的区域不画箭头（world 坐标的矩形）
+  const keep = [[-0.1, 0.33, 0.42, 0.42], [-0.1, -0.12, 0.42, -0.02], [0.95, -0.12, 1.12, 0.06]];
+  for (let gx = 0; gx <= 1.05; gx += 0.1) for (let gy = -0.25; gy <= 0.4; gy += 0.1) {
+    if (OB.some(([cx, cy, R]) => Math.hypot(gx - cx, gy - cy) < R + 0.03)) continue;
+    if (keep.some(([a, b, c, e]) => gx >= a && gx <= c && gy >= b && gy <= e)) continue;
+    const [fx, fy] = F(gx, gy), n = Math.hypot(fx, fy); if (n < 1e-9) continue;
+    const L = 0.045; o += arrow(sx(gx), sy(gy), sx(gx + L * fx / n), sy(gy + L * fy / n), 'grid', 4);
+  }
+  for (const [cx, cy, R] of OB) o += circle(sx(cx), sy(cy), R * 300, 'band-n');
+  o += circle(sx(G[0]), sy(G[1]), 5, 'ln-f') + text(sx(G[0]), sy(G[1]) + 24, 'goal (1, 0)', 'tl', 'middle');
+  const tr = (P, cls) => path(d(P.map(([, x, y]) => [sx(x), sy(y)])), cls);
+  o += tr(A, 'ink') + tr(B, 'ln-dash');
+  const eA = A[A.length - 1], eB = B[B.length - 1];
+  o += circle(sx(A[0][1]), sy(A[0][2]), 4, 'ink-f') + text(sx(0) - 14, sy(0) + 20, 'start (0, 0)', 'ts', 'start');
+  o += circle(sx(B[0][1]), sy(B[0][2]), 4, 'ink-f') + text(sx(0) - 14, sy(0.3) - 14, 'start (0, 0.3)', 'ts', 'start');
+  o += line(sx(eA[1]), sy(eA[2]) + 4, sx(eA[1]), sy(eA[2]) + 22, 'mute') + text(sx(eA[1]) + 4, sy(eA[2]) + 36, 'local minimum x = ' + eA[1].toFixed(3), 'tb', 'middle');
+  // 动画：两个点按同一时间走
+  const pre = 0.6, play = 6, post = 1.6, T = pre + play + post, tEnd = 8;
+  const kt = [0, ...A.map(([t]) => (pre + play * t / tEnd) / T), 1];
+  const xs = (P) => [P[0][1], ...P.map((p) => p[1]), P[P.length - 1][1]].map(sx), ys = (P) => [P[0][2], ...P.map((p) => p[2]), P[P.length - 1][2]].map(sy);
+  o += acircle(xs(A), ys(A), kt, T, 5.5, 'ink-f') + acircle(xs(B), ys(B), kt, T, 5.5, 'ln-f');
+  const tx = 420;
+  o += text(tx, 60, 'dq/dt = F(q)', 'tb') + text(tx + 90, 60, 'k = 10⁻³', 'ts');
+  o += text(tx, 86, '两个 obstacle 的 center', 'ts') + text(tx, 102, '(0.5, ±0.15)，radius 0.1', 'ts');
+  o += text(tx, 118, '中间的缝宽 0.1', 'ts');
+  o += text(tx, 150, '黑线：停在缝前', 'ts') + text(tx, 166, '（两边的推力和', 'ts') + text(tx, 182, '拉力抵消）', 'ts');
+  o += text(tx, 210, '彩色虚线：绕过上面', 'ts') + text(tx, 226, '的 obstacle，停在', 'ts') + text(tx, 242, '(' + eB[1].toFixed(3) + ', ' + Math.abs(eB[2]).toFixed(2) + ')', 'ts');
+  return svgA(560, 270, o, '动图：point robot 在 potential field 里沿 F(q) 走。从 (0,0) 出发的点沿 x 轴走到 x=' + eA[1].toFixed(3) + ' 停住，那里是 local minimum；从 (0,0.3) 出发的点绕过上面的 obstacle 到达 goal 附近');
+}
+
+// ---------- 第 7 站：A 字形的两块木板，地面 friction 与顶端 contact ----------
+function aframe() {
+  const u = 300, X = (x) => 40 + x * u, Y = (y) => 290 - y * u, mu = 0.375;
+  let o = line(X(-0.1), Y(0), X(1.3), Y(0), 'ink-b');
+  for (let x = -0.08; x < 1.3; x += 0.06) o += line(X(x), Y(0) + 2, X(x) - 7, Y(0) + 10, 'mute');
+  // 木板画成有厚度的长条
+  const plank = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = -dy / L * 0.018, ny = dx / L * 0.018;
+    return poly([[X(a[0] + nx), Y(a[1] + ny)], [X(b[0] + nx), Y(b[1] + ny)], [X(b[0] - nx), Y(b[1] - ny)], [X(a[0] - nx), Y(a[1] - ny)]], 'wash'); };
+  o += plank([0, 0], [0.6, 0.8]) + plank([1.2, 0], [0.6, 0.8]);
+  // friction cone（μ = 0.375 的临界值）
+  const cone = (p, ang) => { const al = Math.atan(mu), R = 0.22; return poly([[X(p[0]), Y(p[1])], [X(p[0] + R * Math.cos(ang + al)), Y(p[1] + R * Math.sin(ang + al))], [X(p[0] + R * Math.cos(ang - al)), Y(p[1] + R * Math.sin(ang - al))]], 'band-p'); };
+  o += cone([0, 0], Math.PI / 2) + cone([1.2, 0], Math.PI / 2);
+  // 力（N 为单位，1 N 画 0.018）
+  const s = 0.018, F = (p, f, cls, lab, dx, dy, anc = 'start') => arrow(X(p[0]), Y(p[1]), X(p[0] + s * f[0]), Y(p[1] + s * f[1]), cls) + text(X(p[0] + s * f[0]) + dx, Y(p[1] + s * f[1]) + dy, lab, cls === 'ln' ? 'tl' : 'tb', anc);
+  // 力矩平衡：N = 0.3·10/0.8
+  const N = 0.3 * 10 / 0.8;
+  o += F([0.3, 0.4], [0, -10], 'ink', '10 N', 6, -4) + F([0.9, 0.4], [0, -10], 'ink', '10 N', 6, -4);
+  o += F([0, 0], [N, 10], 'ln', '(' + N.toFixed(2) + ', 10)', 6, 0) + F([1.2, 0], [-N, 10], 'ln', '(−' + N.toFixed(2) + ', 10)', -6, 0, 'end');
+  o += F([0.6, 0.8], [-N, 0], 'ln', '', 0, 0) + text(X(0.6 - s * N) - 4, Y(0.8) - 8, N.toFixed(2) + ' N', 'tl', 'end');
+  o += F([0.6, 0.8], [N, 0], 'ln', '', 0, 0);
+  o += circle(X(0.3), Y(0.4), 3.5, 'ink-f') + circle(X(0.9), Y(0.4), 3.5, 'ink-f');
+  o += text(X(0.6), Y(0.8) - 22, 'contact 3：左右互推，大小相等、方向相反', 'ts', 'middle');
+  o += text(X(0) - 2, Y(0) + 26, 'contact 1 (0, 0)', 'ts', 'middle') + text(X(1.2) + 2, Y(0) + 26, 'contact 2 (1.2, 0)', 'ts', 'middle');
+  o += text(X(0.6), Y(0) + 26, '彩色扇形：μ = ' + mu + ' 的 friction cone', 'ts', 'middle');
+  const tx = 420;
+  o += text(tx, 70, '左板对 foot 的', 'ts') + text(tx, 88, 'moment 平衡：', 'ts') + text(tx, 106, '0.8N − 0.3 × 10 = 0', 'ts') + text(tx, 124, 'N = ' + N.toFixed(2), 'ts');
+  o += text(tx, 154, 'friction 要 ' + N.toFixed(2) + '，', 'ts') + text(tx, 172, 'normal 是 10，', 'ts') + text(tx, 190, '所以 μ ≥ ' + (N / 10).toFixed(3), 'ts');
+  return svg(560, 330, o, 'A 字形的两块木板：各重 10 牛，顶端互相顶住。对左板 foot 取 moment 得顶端推力 3.75 牛，地面 force 为 (3.75, 10)，正好落在 mu 等于 0.375 的 friction cone 边上');
+}
+
 export default {
+  'mr-potential': potential,
+  'mr-aframe': aframe,
   'mr-pillar': pillar,
   'mr-twistframe': twistframe,
   'mr-ffonly': ffonly,

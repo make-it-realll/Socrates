@@ -371,6 +371,85 @@ function exploit() {
   return svg(560, 270, o, '真实 dynamics tanh(a) 与在 [-0.5,0.5] 上拟合的 cubic；planner 在 a=-2.5 处找到 model 预测命中 +2 的点，真实结果是 -0.987');
 }
 
+// ---------- 第 3 站：nominal model 加 GP residual，chance constraint 下的 MPC ----------
+function gpFit(X0, y, sf = 0.5, ell = 0.5, sn = 0.01) {
+  const X = X0.slice();
+  const k = (a, b) => sf * sf * Math.exp(-0.5 * ((a - b) / ell) ** 2);
+  const n = X.length;
+  const K = X.map((a, i) => X.map((b, j) => k(a, b) + (i === j ? sn * sn : 0)));
+  // Cholesky
+  const L = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) {
+    let s = K[i][j];
+    for (let p = 0; p < j; p++) s -= L[i][p] * L[j][p];
+    L[i][j] = i === j ? Math.sqrt(s) : s / L[j][j];
+  }
+  const fwd = (b) => { const z = []; for (let i = 0; i < n; i++) { let s = b[i]; for (let p = 0; p < i; p++) s -= L[i][p] * z[p]; z.push(s / L[i][i]); } return z; };
+  const bwd = (z) => { const x = new Array(n); for (let i = n - 1; i >= 0; i--) { let s = z[i]; for (let p = i + 1; p < n; p++) s -= L[p][i] * x[p]; x[i] = s / L[i][i]; } return x; };
+  const al = bwd(fwd(y));
+  return (a) => {
+    const ks = X.map((b) => k(a, b));
+    const m = ks.reduce((s, v, i) => s + v * al[i], 0);
+    const v = fwd(ks);
+    return [m, Math.sqrt(Math.max(sf * sf - v.reduce((s, t) => s + t * t, 0), 0))];
+  };
+}
+function gp() {
+  const X0 = Array.from({ length: 11 }, (_, i) => -0.5 + 0.1 * i);
+  const wall = 2.2, goal = 2, z95 = 1.645;
+  const grid = Array.from({ length: 1201 }, (_, i) => -3 + i * 0.005);
+  // MPC：每步在 chance constraint μ + 1.645σ ≤ 2.2 下最小化 (μ − 2)² + σ²，执行后把 transition 加进 GP
+  const frames = [];
+  let X = X0.slice(), s = 0;
+  for (let t = 0; t < 4; t++) {
+    const g = gpFit(X, X.map((a) => Math.tanh(a) - a));
+    let best = null;
+    for (const a of grid) {
+      const [m, sd] = g(a), mu = s + a + m;
+      if (mu + z95 * sd > wall) continue;
+      const c = (mu - goal) ** 2 + sd * sd;
+      if (!best || c < best.c) best = { a, mu, sd, c };
+    }
+    frames.push({ g, s, X: X.slice(), ...best, next: s + Math.tanh(best.a) });
+    X.push(best.a); s += Math.tanh(best.a);
+  }
+  const sx = lin(-3, 3, 60, 470), sy = lin(-3.2, 3.2, 250, 26);
+  let o = rect(sx(-0.5), sy(3.2), sx(0.5) - sx(-0.5), sy(-3.2) - sy(3.2), 'wash2');
+  o += text(sx(0), sy(3.2) + 14, 'data', 'ts', 'middle');
+  o += axes({ sx, sy, x0: -3, x1: 3, y0: -3.2, y1: 3.2, xt: [-3, -2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), yt: [-3, -2, -1, 0, 1, 2, 3].map((v) => [v, String(v).replace('-', '−')]), xAt: -3.2, xl: 'action a', yl: '预测的 Δs' });
+  // 第 1 步的 GP（静态的第一帧）以及后面几帧
+  const xs = Array.from({ length: 241 }, (_, i) => -3 + i * 0.025);
+  const clampY = (v) => sy(Math.max(-3.2, Math.min(3.2, v)));
+  const bandD = (g) => { const up = xs.map((a) => { const [m, sd] = g(a); return [sx(a), clampY(a + m + z95 * sd)]; }); const lo = xs.map((a) => { const [m, sd] = g(a); return [sx(a), clampY(a + m - z95 * sd)]; }).reverse(); return d(up.concat(lo)) + 'Z'; };
+  const meanD = (g) => d(xs.map((a) => [sx(a), clampY(a + g(a)[0])]));
+  const hold = 2.2, T = hold * frames.length;
+  const kt = [0, ...frames.flatMap((_, i) => (i ? [i / frames.length] : [])), 1];
+  const pick = (arr) => [...arr, arr[arr.length - 1]];
+  o += apath(pick(frames.map((f) => bandD(f.g))), kt, T, 'wash', true);
+  o += clipped((a) => a, -3, 3, sx, sy, -3.2, 3.2, 'dash');
+  o += path(curve(Math.tanh, -3, 3, sx, sy), 'ink-b');
+  o += apath(pick(frames.map((f) => meanD(f.g))), kt, T, 'ln', true);
+  for (const a of X0) o += circle(sx(a), sy(Math.tanh(a)), 2.2, 'ink-f');
+  // 每帧新加入的 data 点
+  frames.forEach((f, i) => { if (i) { const a = f.X[f.X.length - 1]; const on = frames.map((_, j) => (j >= i ? 1 : 0)); o += `<circle cx="${f1(sx(a))}" cy="${f1(sy(Math.tanh(a)))}" r="3.5" class="ink-f">${ashow(pick(on), kt, T)}</circle>`; } });
+  // 墙：这一帧的 Δs 上限是 wall − s
+  o += apath(pick(frames.map((f) => d([[sx(-3), sy(wall - f.s)], [sx(3), sy(wall - f.s)]]))), kt, T, 'ink', true);
+  o += apath(pick(frames.map((f) => d([[sx(-3), sy(goal - f.s)], [sx(3), sy(goal - f.s)]]))), kt, T, 'mute', true);
+  // 选中的 action：mean 和上界
+  o += acircle(pick(frames.map((f) => sx(f.a))), pick(frames.map((f) => sy(f.mu - f.s))), kt, T, 4.5, 'ln-f');
+  o += apath(pick(frames.map((f) => d([[sx(f.a), sy(f.mu - f.s)], [sx(f.a), sy(f.mu - f.s + z95 * f.sd)]]))), kt, T, 'ln', true);
+  const fx = (v) => v.toFixed(2).replace('-', '−');
+  o += phases(frames.map((f, i) => [i / frames.length, `第 ${i + 1} 步：s = ${fx(f.s)}，选 a = ${fx(f.a)}，预测 Δs = ${fx(f.mu - f.s)} ± ${fx(z95 * f.sd)}，实际 Δs = ${fx(f.next - f.s)}`, i ? 't' : 'tl']), T, 265, 300);
+  const atext = (ys, s0, cls) => `<text x="478" y="${f1(ys[0])}" class="${cls}" text-anchor="start">${s0}${anim('y', pick(ys).map(f1), kt, T, true)}</text>`;
+  o += atext(frames.map((f) => sy(wall - f.s) - 2), '墙 s′ = 2.2', 'tb');
+  o += atext(frames.map((f) => sy(goal - f.s) + 14), '目标 s′ = 2', 'ts');
+  o += text(sx(-2.6), sy(-0.62), 'tanh(a)', 'tb', 'start');
+  o += text(sx(3) - 4, sy(-1.5), '虚线：nominal model Δs = a', 'ts', 'end');
+  o += text(sx(3) - 4, sy(-1.5) + 16, '彩线：nominal 加 GP 的 mean', 'ts', 'end');
+  o += text(sx(3) - 4, sy(-1.5) + 32, '浅色带子：mean ± 1.645 std', 'ts', 'end');
+  return svgA(560, 316, o, '动图：nominal model 加 GP residual 的预测。离开 data 时 mean 贴回 nominal model，不确定带子变宽；planner 在 95% 不撞墙的 chance constraint 下选 action，每走一步把新 transition 加入 GP，带子在走过的地方收窄，第 3 步到达目标');
+}
+
 // ---------- 第 4 站：sim 里最好的 controller 到真机上 ----------
 function simgap() {
   const N = 14;
@@ -394,6 +473,7 @@ export default {
   'rb4301-simgap': simgap,
   'rb4301-soft': soft,
   'rb4301-ens': ens,
+  'rb4301-gp': gp,
   'rb4301-dr': dr,
   'rb4301-compound': compound,
   'rb4301-dagger': dagger,

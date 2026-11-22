@@ -1,4 +1,4 @@
-import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, apath, anim, ashow, f1 } from '../lib/svg.mjs';
+import { svg, svgA, lin, d, path, line, rect, circle, poly, text, arrow, apath, acircle, anim, ashow, f1 } from '../lib/svg.mjs';
 
 // 一个 rect 的 path 形式（宽度为 0 时退化成一条竖线，方便做 d 的动画）
 const rp = (x, y, w, h) => `M${f1(x)} ${f1(y)}H${f1(x + Math.max(w, 0))}V${f1(y + h)}H${f1(x)}Z`;
@@ -272,7 +272,132 @@ function asyncA() {
   return svgA(560, 282, o, '动图：时间轴上依次出现三个 chunk A、B、C。B 在 tick 35 拍下 observation、tick 44 到达，前 9 格标为 trim，A 剩下的 6 格被丢掉；竖线是当前时刻，执行过的部分逐渐填满');
 }
 
+// ---------- 第 1 站（classic）：planar 2R arm ----------
+const DEG = Math.PI / 180;
+const fk2 = (q, l) => [l * Math.cos(q[0]) + l * Math.cos(q[0] + q[1]), l * Math.sin(q[0]) + l * Math.sin(q[0] + q[1])];
+const elb = (q, l) => [l * Math.cos(q[0]), l * Math.sin(q[0])];
+const ik2 = (p, l, sgn) => {
+  const c2 = (p[0] ** 2 + p[1] ** 2 - 2 * l * l) / (2 * l * l), t2 = sgn * Math.acos(c2);
+  return [Math.atan2(p[1], p[0]) - Math.atan2(l * Math.sin(t2), l + l * Math.cos(t2)), t2];
+};
+const jinv2 = (q, l) => {
+  const a = q[0], b = q[1];
+  const J = [[-l * Math.sin(a) - l * Math.sin(a + b), -l * Math.sin(a + b)], [l * Math.cos(a) + l * Math.cos(a + b), l * Math.cos(a + b)]];
+  const det = J[0][0] * J[1][1] - J[0][1] * J[1][0];
+  return [[J[1][1] / det, -J[0][1] / det], [-J[1][0] / det, J[0][0] / det]];
+};
+// 一条有厚度的 link：从 a 到 b 的长方形（像素坐标），返回 path 的 d
+const slab = (a, b, w) => {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = (-dy / L) * w / 2, ny = (dx / L) * w / 2;
+  return `M${f1(a[0] + nx)} ${f1(a[1] + ny)}L${f1(b[0] + nx)} ${f1(b[1] + ny)}L${f1(b[0] - nx)} ${f1(b[1] - ny)}L${f1(a[0] - nx)} ${f1(a[1] - ny)}Z`;
+};
+
+function ik() {
+  const l = 0.1, u = 1400, B = [110, 214], P = ([x, y]) => [B[0] + x * u, B[1] - y * u];
+  const tgt = [0.12, 0.09];
+  let o = text(40, 18, 'IK：同一个 p* = (0.12, 0.09) m，两组 q', 'tb', 'start');
+  o += rect(40, B[1], 250, 14, 'wash2') + line(40, B[1], 290, B[1], 'ink') + text(46, B[1] + 28, 'surface（y = 0）', 'ts', 'start');
+  const sols = [ik2(tgt, l, 1), ik2(tgt, l, -1)];
+  sols.forEach((q, i) => {
+    const e = P(elb(q, l)), h = P(fk2(q, l));
+    const cls = i === 0 ? 'mute-f' : 'wash-strong';
+    o += `<path d="${slab(B, e, 9)}" class="${cls}" opacity="${i === 0 ? 0.55 : 1}"/>` + `<path d="${slab(e, h, 8)}" class="${cls}" opacity="${i === 0 ? 0.55 : 1}"/>`;
+    o += circle(e[0], e[1], 4.5, 'paper');
+  });
+  o += circle(B[0], B[1], 6, 'paper');
+  const T = P(tgt);
+  o += circle(T[0], T[1], 4, 'ln-f') + text(T[0] + 8, T[1] - 6, 'p*', 'tl', 'start');
+  const eA = P(elb(sols[0], l)), eB = P(elb(sols[1], l));
+  o += text(eB[0] - 8, eB[1] - 10, 'elbow B', 'ts', 'end');
+  o += text(eA[0] + 2, eA[1] + 22, 'elbow A：在 surface 下 ' + (-elb(sols[0], l)[1] * 100).toFixed(1) + ' cm', 'ts', 'middle');
+  const X = 330;
+  const fmt = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+  o += text(X, 60, 'l = 0.10 m，r = |p*| = 0.15 m', 't', 'start');
+  o += text(X, 80, 'cos θ₂ = (r² − 2l²) / (2l²) = 0.125', 't', 'start');
+  o += text(X, 108, 'A：θ₂ = +' + (sols[0][1] / DEG).toFixed(1) + '°，θ₁ = ' + fmt(sols[0][0] / DEG) + '°', 't', 'start');
+  o += text(X, 126, 'θ₁ < 0：link 1 往下，违反 θ₁ ∈ [0, π]', 'ts', 'start');
+  o += text(X, 154, 'B：θ₂ = ' + fmt(sols[1][1] / DEG) + '°，θ₁ = ' + fmt(sols[1][0] / DEG) + '°', 'tl', 'start');
+  o += text(X, 172, '两段 link 都在 surface 之上，可行', 'ts', 'start');
+  return svg(560, 252, o, '平面两连杆机械臂到达同一目标点的两组关节角：A 的肘部在桌面以下，不可行；B 的肘部在上方，可行');
+}
+
+function fbA() {
+  const lm = 0.1, lt = 0.11, dt = 1 / 30, NT = 60, KP = 5;
+  const q0 = ik2([0.12, 0.09], lm, -1);
+  const sim = (kp) => {
+    const q = [...q0], st = [];
+    for (let k = 0; k <= NT; k++) {
+      const ps = [0.12 - 0.03 * k * dt, 0.09], p = fk2(q, lt);
+      st.push({ q: [...q], p, e: Math.hypot(ps[0] - p[0], ps[1] - p[1]) });
+      if (k === NT) break;
+      const v = [-0.03 + kp * (ps[0] - p[0]), kp * (ps[1] - p[1])], Ji = jinv2(q, lm);
+      q[0] += dt * (Ji[0][0] * v[0] + Ji[0][1] * v[1]); q[1] += dt * (Ji[1][0] * v[0] + Ji[1][1] * v[1]);
+    }
+    return st;
+  };
+  const H0 = 2.2, Tm = NT * dt, Tend = 1.0, TT = H0 + Tm + Tend;
+  // 帧：先停在终点（静态截图看到的就是它），再从 t = 0 播放，最后停 1 s
+  const frames = [NT, NT], kt = [0, H0 / TT];
+  for (let k = 0; k <= NT; k++) { frames.push(k); kt.push((H0 + 0.001 + k * dt) / TT); }
+  frames.push(NT); kt.push(1);
+  const u = 1250;
+  let o = '';
+  const panel = (x0, kp, title, cls) => {
+    const st = sim(kp), B = [x0 + 75, 212], P = ([x, y]) => [B[0] + x * u, B[1] - y * u];
+    let g = text(x0 + 4, 18, title, 'tb', 'start');
+    g += line(x0 + 4, B[1], x0 + 262, B[1], 'ink') + rect(x0 + 4, B[1], 258, 10, 'wash2');
+    g += path(d([P([0.12, 0.09]), P([0.06, 0.09])]), 'dash') + text(P([0.12, 0.09])[0] + 6, P([0.12, 0.09])[1] + 22, '虚线：要走的 p*(t)', 'ts', 'end');
+    const tr = (k) => d(st.slice(0, Math.max(k, 1) + 1).map((s) => P(s.p)));
+    g += apath(frames.map(tr), kt, TT, cls);
+    g += apath(frames.map((k) => slab(B, P(elb(st[k].q, lt)), 9)), kt, TT, 'wash-strong');
+    g += apath(frames.map((k) => slab(P(elb(st[k].q, lt)), P(st[k].p), 8)), kt, TT, 'wash-strong');
+    const ex = frames.map((k) => P(elb(st[k].q, lt))), hx = frames.map((k) => P(st[k].p));
+    g += acircle(ex.map((p) => p[0]), ex.map((p) => p[1]), kt, TT, 4.5, 'paper');
+    g += acircle(hx.map((p) => p[0]), hx.map((p) => p[1]), kt, TT, 3.5, 'ink-f');
+    g += circle(B[0], B[1], 6, 'paper');
+    const mm = (k) => (st[k].e * 1000).toFixed(st[k].e < 0.002 ? 2 : 1);
+    g += text(x0 + 4, 244, '误差：t = 0 时 ' + mm(0) + ' mm，0.5 s 时 ' + mm(15) + ' mm，', 'ts', 'start');
+    g += text(x0 + 4, 260, '2 s 时 ' + mm(NT) + ' mm', kp ? 'tl' : 'ts', 'start');
+    return g;
+  };
+  o += panel(0, 0, 'open loop：dq/dt = J⁺ · dp*/dt', 'ink');
+  o += panel(286, KP, 'feedback：dq/dt = J⁺ (dp*/dt + 5 Δp)', 'ln');
+  o += text(280, 284, 'Model 以为 l = 0.10 m，真实 l = 0.11 m；手以 3 cm/s 往左走 2 s，Δt = 1/30 s', 'ts', 'middle');
+  return svgA(560, 292, o, '动图：左右两条平面两连杆机械臂沿同一条水平直线往左走。左边只用 Jacobian 伪逆开环跟踪，实际手的位置一直偏离直线一厘米以上；右边加了比例反馈，半秒内误差降到不到半毫米');
+}
+
+// ---------- 第 8 站（rl）：HIL-SERL 的 buffer 与 batch ----------
+function rlbuf() {
+  const demo = 1200, onl = 6000, inter = 600, B = 32, half = B / 2;
+  const offTot = demo + inter;
+  const eOn = half * inter / onl, eOff = half * inter / offTot, share = (eOn + eOff) / B, base = inter / (demo + onl);
+  let o = text(40, 18, 'Learner 每个 batch：16 个来自 online buffer，16 个来自 offline buffer', 'tb', 'start');
+  // actor
+  o += rect(40, 40, 120, 54, 'paper', 6) + text(100, 62, 'Actor', 'tb', 'middle') + text(100, 80, 'robot + policy', 'ts', 'middle');
+  o += rect(400, 40, 120, 54, 'paper', 6) + text(460, 62, 'Learner', 'tb', 'middle') + text(460, 80, 'SAC update', 'ts', 'middle');
+  o += arrow(162, 58, 396, 58, 'ink') + text(280, 52, '每个 transition', 'ts', 'middle');
+  o += arrow(398, 80, 164, 80, 'mute') + text(280, 96, '新的 policy weight', 'ts', 'middle');
+  // 两个 buffer
+  const sx = lin(0, onl, 40, 520), BW = sx(onl) - sx(0);
+  const by1 = 140, by2 = 206;
+  o += text(40, by1 - 8, 'online buffer：所有 transition，' + onl + ' 个', 'ts', 'start');
+  o += rect(sx(0), by1, sx(onl - inter) - sx(0), 22, 'wash2') + rect(sx(onl - inter), by1, sx(onl) - sx(onl - inter), 22, 'solid');
+  o += text(sx(0) + 6, by1 + 15, 'policy 自己跑的 ' + (onl - inter), 'ts', 'start') + text(sx(onl) - 4, by1 + 15, inter, 'tw', 'end');
+  const ox = lin(0, onl, 40, 520);
+  o += text(40, by2 - 8, 'offline buffer：示教 ' + demo + ' 个 + 人的 intervention ' + inter + ' 个（同一批 intervention 也在上面）', 'ts', 'start');
+  o += rect(ox(0), by2, ox(demo) - ox(0), 22, 'wash') + rect(ox(demo), by2, ox(offTot) - ox(demo), 22, 'solid');
+  o += text(ox(0) + 6, by2 + 15, '示教', 'ts', 'start') + text(ox(offTot) - 4, by2 + 15, inter, 'tw', 'end');
+  o += text(ox(offTot) + 8, by2 + 15, '这里每个 intervention 被抽中的概率是 online 里的 ' + (onl / offTot).toFixed(1) + ' 倍', 'ts', 'start');
+  void BW;
+  o += text(40, 262, 'Batch 里 intervention 的期望个数 = 16 × ' + inter + '/' + onl + ' + 16 × ' + inter + '/' + offTot + ' = ' + eOn.toFixed(2) + ' + ' + eOff.toFixed(2) + ' = ' + (eOn + eOff).toFixed(2), 't', 'start');
+  o += text(40, 280, '占 batch 的 ' + (100 * share).toFixed(1) + '%；它们只占全部 ' + (demo + onl) + ' 个不同 transition 的 ' + (100 * base).toFixed(1) + '%', 'tl', 'start');
+  return svg(560, 290, o, 'HIL-SERL 的 actor 把 transition 发给 learner；所有 transition 进 online buffer，人的 intervention 同时进 offline buffer；每个 batch 两个 buffer 各抽一半，intervention 的占比因此被放大');
+}
+
 export default {
+  'hfl-ik': ik,
+  'hfl-fb': fbA,
+  'hfl-rlbuf': rlbuf,
   'hfl-cadence': cadence,
   'hfl-blind': blind,
   'hfl-stall': stall,

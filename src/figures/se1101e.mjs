@@ -249,8 +249,8 @@ function portsA() {
     ['Palembang（Srivijaya）', PORT.Palembang, [[670, 1025]], 'Palembang', 8, 4, 'start'],
     ['Malacca', PORT.Malacca, [[1400, 1511]], 'Malacca', -8, -4, 'end'],
     ['Aceh', PORT.Aceh, [[1520, 1690]], 'Aceh', -8, 4, 'end'],
-    ['Banten', PORT.Banten, [[1527, 1682]], 'Banten', -8, -6, 'end'],
-    ['Makassar', PORT.Makassar, [[1600, 1669]], 'Makassar', 8, 4, 'start'],
+    ['Banten', PORT.Banten, [[1527, 1683]], 'Banten', -8, -6, 'end'],
+    ['Makassar', PORT.Makassar, [[1607, 1669]], 'Makassar', 8, 4, 'start'],
     ['Batavia', PORT.Batavia, [[1619, 1900]], 'Batavia', 6, 13, 'start'],
     ['Singapore', PORT.Singapore, [[1819, 1900]], 'Singapore', 8, -4, 'start'],
   ];
@@ -371,19 +371,19 @@ function malacca() {
     ['Shahbandar 1', ['Gujarat']],
     ['Shahbandar 2', ['Coromandel、Bengal、', 'Pegu、Pasai']],
     ['Shahbandar 3', ['Java、Maluku、Banda、', 'Palembang、Borneo、', 'Luzon']],
-    ['Shahbandar 4', ['China、Ryukyu、', 'Champa']],
+    ['Shahbandar 4', ['Laksamana 兼任：', 'China、Ryukyu、', 'Cochin China、Champa']],
   ];
   const bw = 130, gap = 6, x0 = 11, by = 82, bh = 84;
   sb.forEach(([t, ls], i) => {
     const x = x0 + i * (bw + gap);
     o += box(x, by, bw, bh, t, ls) + line(x + bw / 2, by, 280, 54, 'mute');
   });
-  o += rect(150, 204, 260, 50, 'wash', 8) + lab(280, 225, 'Malacca：river mouth、市场、仓库', 'tb', 'middle') + lab(280, 243, '每一船货按定好的 percentage 收税', 'ts', 'middle');
+  o += rect(150, 204, 260, 64, 'wash', 8) + lab(280, 225, 'Malacca：river mouth、市场、仓库', 'tb', 'middle') + lab(280, 243, 'Vann：每船货按定好的 percentage 收税', 'ts', 'middle') + lab(280, 259, 'Pires：China 的 junk 不交税，只送礼', 'ts', 'middle');
   sb.forEach((_, i) => { const x = x0 + i * (bw + gap) + bw / 2; o += line(x, by + bh, 175 + i * 70, 204, 'mute'); });
   o += arrow(10, 236, 146, 236, 'ln', 8) + lab(12, 226, '西边来的船', 'tb') + lab(12, 254, '随 SW monsoon 到', 'ts');
   o += arrow(550, 236, 414, 236, 'ln', 8) + lab(548, 226, '东边来的船', 'tb', 'end') + lab(548, 254, '随 NE monsoon 到', 'ts', 'end');
-  o += lab(280, 284, '每个 shahbandar 管一组按来处划分的 merchant，并向他们收税', 'ts', 'middle');
-  return svg(560, 292, o, 'Malacca 约 1500 年的 port 管理：四个 shahbandar 各管一组按来处划分的 merchant，上面一位 officer 裁决群体之间的纠纷；西边的船随 SW monsoon 来，东边的船随 NE monsoon 来');
+  o += lab(280, 290, '每个 shahbandar 管一组按来处划分的 merchant，并向他们收税或收礼', 'ts', 'middle');
+  return svg(560, 298, o, 'Malacca 约 1500 年的 port 管理：四个 shahbandar 各管一组按来处划分的 merchant，上面一位 officer 裁决群体之间的纠纷；西边的船随 SW monsoon 来，东边的船随 NE monsoon 来');
 }
 
 // ---------- 第 4 站：language family 的示意分布 ----------
@@ -430,13 +430,14 @@ function faithA() {
   const y0 = 300, y1 = 1800, sx = lin(y0, y1, 176, 470);
   // 段：[起, 止, 文字, class]；split 段：[起, 止, 文字, 上半 class, 下半 class]
   const rows = [
-    ['Burma、Siam、Cambodia', [[300, 1100, 'Hindu-Buddhist', 'wash'], [1100, 1800, 'Theravada', 'wash-strong']], 'Theravada'],
+    ['Burma', [[300, 1056, 'Hindu-Buddhist', 'wash'], [1056, 1800, 'Theravada', 'wash-strong']], 'Theravada'],
+    ['Siam、Laos、Cambodia', [[300, 1300, 'Hindu-Buddhist', 'wash'], [1300, 1800, 'Theravada', 'wash-strong']], 'Theravada'],
     ['Vietnam（Red River）', [[300, 1800, 'Mahayana + Confucian', 'wash2']], 'Mahayana'],
-    ['Sumatra、Malay 半岛', [[300, 650, '', 'paper'], [650, 1300, 'Buddhist', 'wash'], [1300, 1450, '', 'band-n', 'wash'], [1450, 1800, 'Islam', 'band-n']], 'Muslim'],
-    ['Java', [[300, 450, '', 'paper'], [450, 1450, 'Hindu-Buddhist', 'wash'], [1450, 1530, '', 'band-n', 'wash'], [1530, 1800, 'Islam', 'band-n']], 'Muslim'],
+    ['Sumatra、Malay 半岛', [[300, 650, '', 'paper'], [650, 1297, 'Buddhist', 'wash'], [1297, 1450, '', 'band-n', 'wash'], [1450, 1800, 'Islam', 'band-n']], 'Muslim'],
+    ['Java', [[300, 450, '', 'paper'], [450, 1450, 'Hindu-Buddhist', 'wash'], [1450, 1527, '', 'band-n', 'wash'], [1527, 1800, 'Islam', 'band-n']], 'Muslim'],
     ['Bali', [[300, 900, '', 'paper'], [900, 1800, 'Hindu-Buddhist', 'wash']], 'Hindu'],
     ['Maluku', [[300, 1465, 'local', 'paper'], [1465, 1620, '', 'band-n', 'paper'], [1620, 1800, 'Islam', 'band-n']], 'Muslim'],
-    ['Sulu、west Mindanao', [[300, 1450, 'local', 'paper'], [1450, 1800, 'Islam', 'band-n']], 'Muslim'],
+    ['Sulu、west Mindanao', [[300, 1457, 'local', 'paper'], [1457, 1800, 'Islam', 'band-n']], 'Muslim'],
     ['Luzon、Visayas', [[300, 1500, 'local', 'paper'], [1500, 1571, '', 'band-n', 'paper'], [1571, 1800, 'Catholic', 'band-p']], 'Catholic'],
   ];
   const top = 40, rh = 30;
@@ -459,12 +460,16 @@ function faithA() {
   // 光标：匀速走，在每个事件处停一下，让文字读得完
   const evs = [
     [300, 'Hindu、Buddhist 的 idea 经由 court 进入'],
-    [1100, '11 世纪起 mainland 转向 Theravada'],
-    [1297, '1297：Sumatra 北端的 Pasai 已有 Muslim ruler'],
+    [1056, '1056：Pagan 的 Anawrahta 改信 Theravada'],
+    [1297, '1297：Pasai 已有 Muslim ruler（Malik al-Salih 的墓）'],
+    [1300, '13、14 世纪：Theravada 传到 Siam、Laos、Cambodia'],
     [1450, '15 世纪：Java 北岸的 merchant 后代成了 Muslim lord'],
+    [1457, '约 1457：Sulu 成为 sultanate'],
     [1465, '约 1465：Maluku 的 ruler convert，百姓多数还不是'],
+    [1527, '1527：Demak 攻下 Daha，Majapahit 的 court 退往 Bali'],
     [1571, '1571：Spain 占 Manila，Islam 在 Luzon 被截断'],
-    [1620, '17 世纪：Maluku、Makassar 的多数成为 Muslim'],
+    [1605, '1605：Makassar 的 ruler convert'],
+    [1620, '17 世纪：Maluku 的多数成为 Muslim（年份示意）'],
     [1800, 'Bali 一直留在 Hindu-Buddhist 一层'],
   ];
   const speed = 260, dwell = 1.6; // 年/秒，停留秒数
@@ -478,7 +483,7 @@ function faithA() {
     const a = kt[2 * i], b = i + 1 < evs.length ? kt[2 * i + 2] : 1;
     o += `<text x="176" y="${ay + 40}" class="tb" text-anchor="start" opacity="${i ? 0 : 1}">${s}${showWin([[a, b]], T)}</text>`;
   });
-  return svgA(560, ay + 50, o, '动图：八个地区从 300 年到 1800 年的 religion 层次，光标扫过时间轴并在每个关键年份停下：Hindu-Buddhist 经由 court 进入，mainland 转向 Theravada，Islam 沿 port 传播，Spain 在 Islam 刚到 Manila 时占领了它，Bali 一直保持 Hindu-Buddhist');
+  return svgA(560, ay + 50, o, '动图：九个地区从 300 年到 1800 年的 religion 层次，光标扫过时间轴并在每个关键年份停下：Hindu-Buddhist 经由 court 进入，mainland 转向 Theravada，Islam 沿 port 传播，Spain 在 Islam 刚到 Manila 时占领了它，Bali 一直保持 Hindu-Buddhist');
 }
 
 // ---------- 第 5 站：colonial 的势力范围随时间变化 ----------

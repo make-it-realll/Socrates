@@ -174,7 +174,7 @@ function q1row() {
       c += p;
     });
   });
-  o += text(300, 158, 'Singapore：1978–82 年出生的 son，本人 income 对父亲 income（MOF 2015）', 'ts', 'middle');
+  o += text(300, 158, 'Singapore：1978–82 年出生的长子，本人 income 对父亲 income（MOF 2015）', 'ts', 'middle');
   o += text(300, 174, 'US：1980–82 年出生的孩子，family income 对父母 family income（Chetty et al. 2014）', 'ts', 'middle');
   return svg(560, 182, o, '两条 100% 堆叠横条：Singapore 父亲在最低 quintile 的孩子分布为 24.0、22.0、20.9、18.8、14.3；US 为 33.7、28.0、18.4、12.3、7.5');
 }
@@ -274,6 +274,140 @@ function eip() {
   return svg(560, yl + 42, o, '一栋 100 户的 block，87 户 Chinese、9 户 Malay、4 户 Indian 与 Others；一户 Malay 屋主卖给 Chinese 买家不获批准，卖给 Malay 或 Indian 买家可以');
 }
 
+// ---------- 第 7 站：两个 occupation 的 pay gap 拆分（数字是为页面造的） ----------
+const OCC = {
+  men: { share: [0.6, 0.4], pay: [8000, 4000] },
+  women: { share: [0.3, 0.7], pay: [7600, 3800] },
+};
+function gapdecomp() {
+  const avg = (sh, pay) => sh[0] * pay[0] + sh[1] * pay[1];
+  const M = avg(OCC.men.share, OCC.men.pay), W = avg(OCC.women.share, OCC.women.pay);
+  const C = avg(OCC.men.share, OCC.women.pay); // women 换上 men 的分布
+  const raw = (100 * (M - W)) / M, within = (100 * (M - C)) / M, comp = raw - within;
+  const X0 = 150, BW = 280, H = 30;
+  let o = '';
+  const bar = (y, name, sub, sh, pay, av, cls2) => {
+    o += text(X0 - 10, y + 13, name, 'tb', 'end') + (sub ? text(X0 - 10, y + 27, sub, 'ts', 'end') : '');
+    const w0 = BW * sh[0];
+    o += rect(X0, y, w0, H, 'solid') + rect(X0 + w0, y, BW - w0, H, 'wash');
+    o += rect(X0, y, BW, H, cls2);
+    o += text(X0 + w0 / 2, y + 13, 'Manager ' + Math.round(100 * sh[0]) + '%', 'tw', 'middle') + text(X0 + w0 / 2, y + 26, 'S$' + pay[0].toLocaleString('en-US'), 'tw', 'middle');
+    o += text(X0 + w0 + (BW - w0) / 2, y + 13, 'Clerk ' + Math.round(100 * sh[1]) + '%', 't', 'middle') + text(X0 + w0 + (BW - w0) / 2, y + 26, 'S$' + pay[1].toLocaleString('en-US'), 'ts', 'middle');
+    o += text(X0 + BW + 12, y + 13, '平均', 'ts') + text(X0 + BW + 12, y + 28, 'S$' + av.toLocaleString('en-US'), 'tb');
+  };
+  o += text(X0 + BW / 2, 14, '人数按比例画；每一段里写的是这个 occupation 的 pay', 'ts', 'middle');
+  bar(26, 'Men', '', OCC.men.share, OCC.men.pay, M, 'frame');
+  bar(70, 'Women', '', OCC.women.share, OCC.women.pay, W, 'frame');
+  bar(124, 'Women', '换上 men 的分布', OCC.men.share, OCC.women.pay, C, 'dash');
+  o += text(X0 + BW + 12, 172, '只比 men 低 ' + within.toFixed(1) + '%', 'ts');
+  // 下：gap 的拆分
+  const sx = lin(0, 25, X0, X0 + BW), Y = 206;
+  o += text(X0 - 10, Y + 15, 'Raw gap', 'tb', 'end') + text(X0 - 10, Y + 29, raw.toFixed(1) + '%', 'ts', 'end');
+  o += rect(sx(0), Y, sx(comp) - sx(0), 22, 'wash-strong') + rect(sx(comp), Y, sx(raw) - sx(comp), 22, 'solid');
+  o += rect(sx(0), Y, sx(raw) - sx(0), 22, 'frame');
+  o += text((sx(0) + sx(comp)) / 2, Y + 15, 'composition ' + comp.toFixed(1), 't', 'middle');
+  o += text(sx(raw) + 8, Y + 15, '← within-occupation ' + within.toFixed(1), 'ts');
+  for (const v of [0, 5, 10, 15, 20, 25]) o += line(sx(v), Y + 26, sx(v), Y + 30, 'axis') + text(sx(v), Y + 43, v + '%', 'ts', 'middle');
+  o += line(sx(0), Y + 26, sx(25), Y + 26, 'axis');
+  return svg(560, Y + 50, o, '两个 occupation 的例子：men 60% 是 manager，平均 6400；women 30% 是 manager，平均 4940；women 换上 men 的分布后平均 6080；raw gap 22.8% 拆成 composition 17.8 与 within-occupation 5.0');
+}
+
+// ---------- 第 7 站：Correll et al. (2007) 的 audit study ----------
+// Table 6：callback 数 / 职位数
+const CORRELL = [['Mother', 10, 320], ['没有孩子的 woman', 21, 320], ['Father', 16, 318], ['没有孩子的 man', 9, 318]];
+function correll() {
+  let o = '';
+  // 左：一对履历，只差一行
+  const card = (x, y, hl) => {
+    o += rect(x, y, 104, 132, 'paper', 4);
+    for (let k = 0; k < 7; k++) {
+      const yy = y + 16 + k * 16, w = [70, 84, 60, 80, 76, 66, 50][k];
+      if (k === 4) o += rect(x + 8, yy - 6, 88, 13, 'wash-strong', 2) + text(x + 52, yy + 4, hl, 'ts', 'middle');
+      else o += rect(x + 10, yy - 2, w, 5, 'wash2', 2);
+    }
+  };
+  o += text(118, 14, '同一个职位收到的两份履历', 'tb', 'middle');
+  card(10, 26, 'PTA officer'); card(124, 26, 'alumni officer');
+  o += text(62, 176, '带 parent 信号', 'ts', 'middle') + text(176, 176, '不带', 'ts', 'middle');
+  o += text(118, 196, '其余经历、学历相当；', 'ts', 'middle') + text(118, 211, 'cover letter 里一份提到家人', 'ts', 'middle');
+  // 右：callback
+  const sx = lin(0, 8, 360, 548);
+  o += text(454, 14, 'Callback 的比例', 'tb', 'middle');
+  CORRELL.forEach(([lab, k, n], i) => {
+    const v = (100 * k) / n, y = 32 + i * 40 + (i >= 2 ? 14 : 0);
+    o += text(352, y + 15, lab, 't', 'end');
+    o += rect(sx(0), y, sx(v) - sx(0), 22, i % 2 === 0 ? 'solid' : 'wash-strong');
+    o += text(sx(v) + 6, y + 15, v.toFixed(1) + '%', 'tb') ;
+    o += text(sx(v) + 6, y + 29, k + '/' + n, 'ts');
+  });
+  o += line(sx(0), 26, sx(0), 210, 'axis');
+  o += text(454, 226, 'Women 一对：差别 significant', 'ts', 'middle') + text(454, 242, 'Men 一对：差别不 significant', 'ts', 'middle');
+  return svg(560, 248, o, 'Correll 等人 2007 年的 audit study：两份只差 parent 信号的履历；mother 的 callback 是 3.1%，没有孩子的 woman 6.6%，father 5.0%，没有孩子的 man 2.8%');
+}
+
+// ---------- 第 9 站：Chapel Hill 研究的结构 ----------
+function agenda() {
+  let o = '';
+  const box = (x, y, w, h, l1, l2, l3) => {
+    o += rect(x, y, w, h, 'paper', 6) + text(x + w / 2, y + 20, l1, 'tb', 'middle');
+    if (l2) o += text(x + w / 2, y + 37, l2, 'ts', 'middle');
+    if (l3) o += text(x + w / 2, y + 52, l3, 'ts', 'middle');
+  };
+  box(10, 10, 170, 62, '9 个 media', '5 份报纸、2 份周刊、2 家电视', '9 月 12 日到 10 月 6 日');
+  box(380, 10, 170, 62, '100 个 undecided voter', '五个选区随机抽', '9 月 18 日到 10 月 6 日访问');
+  o += arrow(95, 74, 160, 112, 'mute', 6) + text(60, 100, 'content analysis', 'ts', 'middle');
+  o += arrow(465, 74, 400, 112, 'mute', 6) + text(505, 100, '“最该关注的两三件事”', 'ts', 'middle');
+  // 中：issue 表
+  const X = 155, Y = 116, RW = 250, RH = 22;
+  o += rect(X, Y, RW, RH, 'wash2') + text(X + 45, Y + 15, 'Issue', 'tb', 'middle') + text(X + 130, Y + 15, '报道份额', 'tb', 'middle') + text(X + 210, Y + 15, 'voter 份额', 'tb', 'middle');
+  const rows = ['issue 1', 'issue 2', 'issue 3', '…', 'issue k'];
+  rows.forEach((r, i) => {
+    const y = Y + RH * (i + 1);
+    o += rect(X, y, RW, RH, 'frame') + text(X + 45, y + 15, r, 't', 'middle');
+    if (r !== '…') o += rect(X + 110, y + 8, 40, 6, 'solid', 2) + rect(X + 190, y + 8, 40, 6, 'wash-strong', 2);
+  });
+  o += line(X + 90, Y, X + 90, Y + RH * 6, 'frame') + line(X + 170, Y, X + 170, Y + RH * 6, 'frame');
+  o += rect(X, Y, RW, RH * 6, 'frame');
+  const yb = Y + RH * 6;
+  o += text(X + RW / 2, yb + 20, '在行之间算 correlation：major +.967，minor +.979', 'tl', 'middle');
+  o += text(X + RW / 2, yb + 38, '每一行是一个 issue，不是一个人', 'ts', 'middle');
+  // 没有做的一步
+  o += rect(60, yb + 52, 440, 26, 'dash', 6) + text(280, yb + 70, '没有做的一步：把每个 voter 自己的 agenda 和他自己看的 media 配对', 'ts', 'middle');
+  return svg(560, yb + 82, o, 'Chapel Hill 研究：一边对 9 个 media 做 content analysis，一边访问 100 个 undecided voter，两边按同一套 issue category 算份额，在 issue 之间算 correlation');
+}
+
+// ---------- 第 9 站：Table 3，agenda-setting 对 selective perception ----------
+// McCombs & Shaw (1972) Table 3：[media, group, major-all, major-own, minor-all, minor-own]
+const MS3 = [
+  ['NYT', 'D', .89, .79, .97, .85], ['NYT', 'R', .80, .40, .88, .98], ['NYT', 'W', .89, .25, .78, -.53],
+  ['DMH', 'D', .84, .74, .95, .83], ['DMH', 'R', .59, .88, .84, .69], ['DMH', 'W', .82, .76, .79, .00],
+  ['CBS', 'D', .83, .83, .81, .71], ['CBS', 'R', .50, .00, .57, .40], ['CBS', 'W', .78, .80, .86, .76],
+  ['NBC', 'D', .57, .76, .64, .73], ['NBC', 'R', .27, .13, .66, .63], ['NBC', 'W', .84, .21, .48, -.33],
+];
+function selective() {
+  const pts = [];
+  for (const r of MS3) { pts.push([r[3], r[2], 'major', r[0] + ' ' + r[1]]); pts.push([r[5], r[4], 'minor', r[0] + ' ' + r[1]]); }
+  const above = pts.filter((p) => p[1] > p[0]).length, tie = pts.filter((p) => p[1] === p[0]).length, below = pts.length - above - tie;
+  const sx = lin(-0.6, 1, 70, 330), sy = lin(0, 1, 290, 30);
+  let o = axes({ sx, sy, x0: -0.6, x1: 1, y0: 0, y1: 1, xt: [-0.5, 0, 0.5, 1], yt: [0, 0.25, 0.5, 0.75, 1], xl: '和“本党候选人新闻”的 correlation', grid: true });
+  o += text(70, 18, '和“全部新闻”的 correlation', 'ts');
+  o += line(sx(0), sy(0), sx(1), sy(1), 'dash');
+  o += text(sx(0.12), sy(0.02) - 6, 'y = x', 'ts');
+  for (const [x, y, k] of pts) o += k === 'major' ? circle(sx(x), sy(y), 4.5, 'ln-f') : rect(sx(x) - 4, sy(y) - 4, 8, 8, 'paper');
+  // 右栏说明
+  const X = 360;
+  o += circle(X + 6, 60, 4.5, 'ln-f') + text(X + 18, 64, 'major 报道', 't');
+  o += rect(X + 2, 78, 8, 8, 'paper') + text(X + 18, 86, 'minor 报道', 't');
+  o += text(X, 120, '对角线以上：' + above + ' 对', 'tl');
+  o += text(X, 138, '和全部新闻更一致', 'ts');
+  o += text(X, 166, '正好在线上：' + tie + ' 对', 't');
+  o += text(X, 184, '（CBS、D 组、major）', 'ts');
+  o += text(X, 212, '对角线以下：' + below + ' 对', 't');
+  o += text(X, 230, '和本党新闻更一致', 'ts');
+  o += text(X, 262, 'D、R、W：偏 Humphrey、', 'ts') + text(X, 278, 'Nixon、Wallace 的三组', 'ts');
+  return svg(560, 330, o, 'McCombs 与 Shaw 1972 年 Table 3 的 24 对 correlation 的散点图：' + above + ' 对在对角线以上，' + tie + ' 对相等，' + below + ' 对在以下');
+}
+
 export default {
   'sc1101e-suicide': suicide,
   'sc1101e-frame': frame,
@@ -284,4 +418,8 @@ export default {
   'sc1101e-q1row': q1row,
   'sc1101e-genA': genA,
   'sc1101e-eip': eip,
+  'sc1101e-gapdecomp': gapdecomp,
+  'sc1101e-correll': correll,
+  'sc1101e-agenda': agenda,
+  'sc1101e-selective': selective,
 };

@@ -88,30 +88,38 @@ function vowels() {
 // 3. VOT：同一条 continuum，三种语言切法不同（示意）
 function vot() {
   let o = '';
-  const sx = lin(-100, 120, 150, 540);
+  const sx = lin(-180, 120, 150, 540);
+  // 色块：示意的区域；dots：Abramson & Whalen (2017) 图注里的单个 token（ms）
   const rows = [
-    ['Hindi', 46, [[-95, 0, '/b/ bal', 'wash2'], [0, 25, '/p/ pal', 'wash'], [25, 115, '/pʰ/ pʰal', 'wash-strong']]],
-    ['Mandarin', 100, [[0, 25, 'b 爸 bà', 'wash'], [25, 115, 'p 怕 pà', 'wash-strong']]],
-    ['English（词首）', 154, [[0, 25, '/b/ bin', 'wash'], [25, 115, '/p/ pin', 'wash-strong']]],
-    ['English（s 之后）', 208, [[0, 25, '/p/ spin', 'wash']]],
+    ['Thai', 'Abramson 的三个 token', [[-175, 0, '/b/', 'wash2'], [0, 25, '/p/', 'wash'], [25, 115, '/pʰ/', 'wash-strong']], [[-158, '−158'], [13, '13'], [62, '62']]],
+    ['Hindi', 'bal · pal · pʰal', [[-175, 0, '/b/', 'wash2'], [0, 25, '/p/', 'wash'], [25, 115, '/pʰ/', 'wash-strong']], []],
+    ['Mandarin', '爸 bà · 怕 pà', [[0, 25, 'b', 'wash'], [25, 115, 'p', 'wash-strong']], []],
+    ['English（词首）', 'bin · pin', [[0, 25, '/b/', 'wash'], [25, 115, '/p/', 'wash-strong']], [[5, 'books 5'], [-67, 'two books −67']]],
+    ['English（s 之后）', 'spin', [[0, 25, '/p/', 'wash']], []],
   ];
-  for (const [name, y, bands] of rows) {
-    o += text(140, y + 5, name, 'tb', 'end');
+  const y0 = 62, dy = 64;
+  rows.forEach(([name, sub, bands, dots], k) => {
+    const y = y0 + k * dy;
+    o += text(140, y + 1, name, 'tb', 'end') + text(140, y + 18, sub, 'ts', 'end');
     for (const [a, b, lab, cls] of bands) {
-      o += rect(sx(a), y - 16, sx(b) - sx(a), 30, cls, 4);
-      const w = sx(b) - sx(a);
-      if (w > 60) o += text((sx(a) + sx(b)) / 2, y + 5, lab, 't', 'middle');
-      else o += text(sx(a) + 3, y - 22, lab, 'ts');
+      o += rect(sx(a), y - 15, sx(b) - sx(a), 30, cls, 4);
+      o += text((sx(a) + sx(b)) / 2, y + 5, lab, 't', 'middle');
     }
-  }
-  const ya = 238;
-  o += line(sx(-100), ya, sx(120), ya, 'axis');
-  for (const [v, s] of [[-100, '−100'], [-50, '−50'], [0, '0'], [25, '25'], [50, '50'], [100, '100']]) o += line(sx(v), ya, sx(v), ya + 4, 'axis') + text(sx(v), ya + 17, s, 'ts', 'middle');
-  o += line(sx(0), 22, sx(0), ya, 'grid') + line(sx(25), 22, sx(25), ya, 'dash');
-  o += text(sx(25) + 4, 16, '24.900 给的分界：约 25 ms', 'ts');
-  o += text(sx(-50), 272, 'voicing lead', 'ts', 'middle') + text(sx(12), 272, 'short lag', 'ts', 'middle') + text(sx(75), 272, 'long lag = aspirated', 'ts', 'middle');
-  o += text(540, 290, 'VOT（ms）：release 之后多久 vocal folds 开始振动；负数表示 release 之前就在振动', 'ts', 'end');
-  return svg(560, 300, o, 'Voice onset time 的 continuum 被三种语言切成不同的类：Hindi 切成三类，Mandarin 和 English 词首切成两类；English 在 s 之后的 p 落在 short lag 区。区域边界是示意');
+    // 0 与 25 ms 的参考线只画在色块这一行里，行与行之间留给标注
+    o += line(sx(0), y - 15, sx(0), y + 15, 'grid') + line(sx(25), y - 15, sx(25), y + 15, 'dash');
+    for (const [v, lab] of dots) {
+      o += circle(sx(v), y - 15, 4.5, 'ink-f');
+      o += text(sx(v), y - 25, lab, 'ts', 'middle');
+    }
+  });
+  const ya = y0 + 4 * dy + 34;
+  o += line(sx(25), 24, sx(25), y0 - 15, 'dash');
+  o += text(sx(25) + 4, 18, '24.900 给的分界：约 25 ms', 'ts');
+  o += line(sx(-180), ya, sx(120), ya, 'axis');
+  for (const [v, s] of [[-150, '−150'], [-100, '−100'], [-50, '−50'], [0, '0'], [25, '25'], [50, '50'], [100, '100']]) o += line(sx(v), ya, sx(v), ya + 4, 'axis') + text(sx(v), ya + 17, s, 'ts', 'middle');
+  o += text(sx(-90), ya + 36, 'voicing lead', 'ts', 'middle') + text(sx(12), ya + 36, 'short lag', 'ts', 'middle') + text(sx(75), ya + 36, 'long lag = aspirated', 'ts', 'middle');
+  o += text(540, ya + 56, 'VOT（ms）：release 之后多久 vocal folds 开始振动；负数表示 release 之前就在振动', 'ts', 'end');
+  return svg(560, ya + 66, o, 'Voice onset time 的 continuum 被几种语言切成不同的类：Thai 和 Hindi 用到 lead、short lag、long lag 三个区，Mandarin 和 English 词首只用 short lag 和 long lag；圆点是实测 token：Thai 的 −158、13、62 ms，English books 的 5 ms 与 two books 的 −67 ms。色块边界是示意');
 }
 
 // 4. Mandarin 四个 tone（Chao 五度标记）与 third-tone sandhi
@@ -363,10 +371,10 @@ function grimm() {
     });
   };
   block(10, 'voiceless stop → fricative', [['labial', 'p', 'f', 'pater', 'father'], ['dental', 't', 'θ', 'tres', 'three'], ['velar', 'k', 'h', 'cornu', 'horn']]);
-  block(290, 'voiced stop → voiceless stop', [['labial', 'b', 'p', '（表里', '没有例词）', true], ['dental', 'd', 't', 'decem', 'ten'], ['velar', 'g', 'k', 'genu', 'knee']]);
+  block(290, 'voiced stop → voiceless stop', [['labial', 'b', 'p', 'labium', 'lip'], ['dental', 'd', 't', 'duo', 'two'], ['velar', 'g', 'k', 'genus', 'kin']]);
   o += line(280, 14, 280, 206, 'grid');
   o += text(280, 228, '每一格上面是 Latin，下面是 English。同一个 manner 的一整行在三个 place 上一起变：', 'ts', 'middle') + text(280, 246, '变的是一个 natural class，不是一个个 sound。', 'ts', 'middle');
-  return svg(560, 258, o, 'Grimm’s law：Latin 保留的 voiceless stop p、t、k 在 English 里对应 fricative f、θ、h，voiced stop d、g 对应 voiceless stop t、k；例词是 pater 和 father、tres 和 three、cornu 和 horn、decem 和 ten、genu 和 knee');
+  return svg(560, 258, o, 'Grimm’s law：Latin 保留的 voiceless stop p、t、k 在 English 里对应 fricative f、θ、h，voiced stop b、d、g 对应 voiceless stop p、t、k；例词是 pater 和 father、tres 和 three、cornu 和 horn、labium 和 lip、duo 和 two、genus 和 kin');
 }
 
 export default {

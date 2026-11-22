@@ -131,6 +131,49 @@ function rectify() {
   return svg(560, 262, o, '同一块 tile 地面三次变换：原图中 parallel 的边相交；affine rectification 后 parallel 恢复但 tile 是斜的 parallelogram；metric rectification 后 tile 恢复成 square');
 }
 
+// 图：五对 perpendicular line 直接求 C*∞′，再 rectify
+export function directRect() {
+  const img = (X, Z) => prj(P1, [X, 0, Z]);
+  // normalization：u/320 − 1，v/320 − 0.75
+  const T = [[1 / 320, 0, -1], [0, 1 / 320, -0.75], [0, 0, 1]], Ti = inv(T);
+  const nl = (a, b) => { const l = cross(mv(T, [...img(...a), 1]), mv(T, [...img(...b), 1])), s = nrm(l); return l.map((v) => v / s); };
+  const pairs = [[[[0, 2], [0, 6]], [[0, 2], [3, 2]]], [[[3, 2], [3, 6]], [[0, 6], [3, 6]]], [[[1, 2], [1, 6]], [[0, 4], [3, 4]]], [[[0, 2], [1, 3]], [[1, 2], [0, 3]]], [[[2, 4], [3, 5]], [[3, 4], [2, 5]]]];
+  const meet = [[0, 2], [3, 6], [1, 4], [0.5, 2.5], [2.5, 4.5]];
+  const rows = pairs.map(([p, q]) => { const l = nl(...p), m = nl(...q); return [l[0] * m[0], l[0] * m[1] + l[1] * m[0], l[1] * m[1], l[0] * m[2] + l[2] * m[0], l[1] * m[2] + l[2] * m[1], l[2] * m[2]]; });
+  const [ev, V] = eigSym(mm(tr(rows), rows)), c = V.map((r) => r[5]);
+  const Cn = [[c[0], c[1], c[3]], [c[1], c[2], c[4]], [c[3], c[4], c[5]]];
+  let C = mm(mm(Ti, Cn), tr(Ti)); C = C.map((r) => r.map((v) => v / C[0][0]));
+  const [w, U] = eigSym(C);
+  const Hr = inv(mm(U, [[Math.sqrt(w[0]), 0, 0], [0, Math.sqrt(w[1]), 0], [0, 0, 1]]));
+  const rect = (X, Z) => hom(mv(Hr, [...img(X, Z), 1]));
+  let o = '';
+  const panel = (x0, w0, h0, map, title) => {
+    const pts = []; for (let X = 0; X <= 3; X++) for (let Z = 2; Z <= 6; Z++) pts.push(map(X, Z));
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const [a, b, cc, e] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const sc = Math.min(w0 / (b - a), h0 / (e - cc));
+    const Tm = (X, Z) => { const p = map(X, Z); return [x0 + (w0 - sc * (b - a)) / 2 + sc * (p[0] - a), 44 + (h0 - sc * (e - cc)) / 2 + sc * (p[1] - cc)]; };
+    const q = { s: '' }; tileGrid(Tm, q); o += q.s;
+    o += poly([Tm(0, 2), Tm(1, 2), Tm(1, 3), Tm(0, 3)], 'wash-strong');
+    o += text(x0 + w0 / 2, 24, title, 'tb', 'middle');
+    return Tm;
+  };
+  const A = panel(14, 250, 200, img, '原来的 image：五对 perpendicular line');
+  pairs.forEach(([p, q], k) => {
+    for (const s of [p, q]) o += path(d([A(...s[0]), A(...s[1])]), 'ln');
+    const m = A(...meet[k]); o += circle(m[0], m[1], 3, 'ln-f');
+  });
+  const lab = [[-14, 4, 'end'], [12, 4, 'start'], [-12, -6, 'end'], [12, 14, 'start'], [12, -4, 'start']];
+  meet.forEach((p, k) => { const m = A(...p); o += text(m[0] + lab[k][0], m[1] + lab[k][1], String(k + 1), 'tl', lab[k][2]); });
+  const B = panel(330, 200, 200, rect, '只用这五对求出的 rectification');
+  const u = sub(rect(0, 3), rect(0, 2)), v = sub(rect(1, 2), rect(0, 2));
+  const ang = Math.acos(dot(u, v) / nrm(u) / nrm(v)) / D;
+  o += text(430, 268, '深色那格：angle ' + ang.toFixed(1) + '°，两边之比 1 : ' + (nrm(u) / nrm(v)).toFixed(2), 'ts', 'middle');
+  o += text(140, 268, '1、2、3 是 tile 的边，4、5 是两格的 diagonal', 'ts', 'middle');
+  o += arrow(282, 140, 316, 140, 'ink') + text(296, 130, 'H', 'ts', 'middle') + text(301, 134, 'r', 'ts', 'start');
+  return svg(560, 282, o, '左边是斜拍的 tile 地面，标出五对在地面上互相 perpendicular 的 line；右边是只用这五对求出 C*∞′ 之后 rectify 的结果，tile 恢复成 square');
+}
+
 // 图 3：地上一个 1 m 的 box，三个 orthogonal 方向的 vanishing point 和 principal point
 function vp3() {
   const v = [mv(P1, [1, 0, 0, 0]), mv(P1, [0, 0, 1, 0]), mv(P1, [0, 1, 0, 0])].map(hom);
@@ -566,6 +609,7 @@ function sweepA() {
 export default {
   'cs4277-tiles': tiles,
   'cs4277-rectify': rectify,
+  'cs4277-direct': directRect,
   'cs4277-vp3': vp3,
   'cs4277-projrecon': projrecon,
   'cs4277-rig': rig,

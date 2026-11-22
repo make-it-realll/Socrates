@@ -14,7 +14,7 @@ function kuleshov() {
   const sx = lin(0, 6, 20, 320);
   let o = text(20, 16, '每一行是一个 6 s 的 sequence：face 1.5 s → scene 3 s → 同一张 face 1.5 s', 'ts');
   const rows = [
-    ['neutral scene', 'baseline（对照）', '', 'wash2'],
+    ['neutral scene', 'baseline（对照）', '分类时最多人选 sadness 25.0%', 'wash2'],
     ['fearful scene', 'valence 低 1.25，arousal 高 1.29', '最多人选 fear 24.4%、sadness 22.6%', 'wash'],
     ['happy scene', '和 neutral 没有显著差别', '选 happiness 的占 35.7%', 'wash'],
   ];
@@ -72,6 +72,40 @@ function lighting() {
   return svg(560, 262, o, '左边是 three-point lighting 的俯视机位图：key light 在 camera 左前方，fill light 在右前方，back light 在 subject 后方；右边两个 head 显示 high-key 时 shadow side 很浅，low-key 时 shadow side 很暗');
 }
 
+// ---------- 第 2 站：Greed 的婚礼与窗外的送葬行列（multiplane composition） ----------
+function greed() {
+  let o = '';
+  const X0 = 20, Y0 = 20, W = 400, H = 225;
+  o += rect(X0, Y0, W, H, 'wash2');
+  // 后墙上的窗：窗外是街道
+  const wx = 150, wy = 44, ww = 140, wh = 92;
+  o += rect(wx, wy, ww, wh, 'paper-f') + line(wx, wy + 62, wx + ww, wy + 62, 'axis');
+  // 送葬行列：一辆灵车加几个小人，从左往右走
+  const hx = wx + 30, hy = wy + 62;
+  o += rect(hx, hy - 20, 34, 16, 'ink-f') + rect(hx + 6, hy - 25, 22, 5, 'ink-f');
+  o += circle(hx + 7, hy - 3, 3.4, 'paper') + circle(hx + 27, hy - 3, 3.4, 'paper');
+  o += rect(hx + 38, hy - 16, 14, 10, 'ink-f') + line(hx + 38, hy - 6, hx + 36, hy, 'ink') + line(hx + 50, hy - 6, hx + 52, hy, 'ink');
+  for (let k = 0; k < 4; k++) { const px = hx - 8 - k * 9; o += circle(px, hy - 15, 2.2, 'ink-f') + rect(px - 2, hy - 13, 4, 12, 'ink-f'); }
+  o += rect(wx, wy, ww, wh, 'ink') + line(wx + ww / 2, wy, wx + ww / 2, wy + wh, 'ink');
+  o += line(X0, Y0 + 150, X0 + W, Y0 + 150, 'mute');
+  // 前景：新郎、新娘、主持婚礼的人，比窗外的人大得多
+  const fig = (x, top, w, cls) => circle(x, top + 11, 11, 'paper') + path(d([[x - w, top + 26], [x + w, top + 26], [x + w + 4, Y0 + H], [x - w - 4, Y0 + H]]) + 'Z', cls);
+  o += fig(110, 128, 15, 'paper') + fig(330, 136, 14, 'paper');
+  // 新娘：白色的长纱
+  o += circle(205, 141, 11, 'paper') + path(d([[193, 156], [217, 156], [236, Y0 + H], [174, Y0 + H]]) + 'Z', 'paper');
+  o += path(d([[196, 133], [214, 133], [242, Y0 + H], [168, Y0 + H]]) + 'Z', 'wash');
+  o += circle(205, 141, 11, 'paper');
+  o += circle(252, 139, 11, 'paper') + path(d([[238, 154], [266, 154], [270, Y0 + H], [234, Y0 + H]]) + 'Z', 'ink-f');
+  // 标注
+  const lx = 434;
+  o += text(lx, 70, 'background（窗外）', 'tb') + text(lx, 88, '送葬的行列经过', 't') + text(lx, 106, '人只有指头大', 'ts');
+  o += line(wx + ww + 2, 90, lx - 6, 84, 'axis');
+  o += text(lx, 186, 'foreground', 'tb') + text(lx, 204, '婚礼正在举行', 't') + text(lx, 222, '人占了半个画面高', 'ts');
+  o += line(352, 200, lx - 6, 200, 'axis');
+  o += text(X0, 266, '一个 frame、两个平面：婚礼和葬礼在 story 里无关，构图让它们互相评论。', 'ts');
+  return svg(560, 272, o, '示意图：一个室内的 frame，前景是新郎、白纱的新娘和主持婚礼的人，后墙的窗外远处一辆灵车和几个送葬的人正经过；右边标出 foreground 是婚礼，background 是送葬行列');
+}
+
 // ---------- 第 3 站：shot scale ----------
 function scale() {
   const H = 200, y0 = 50, cx = 215, Y = (u) => y0 + u * H;
@@ -110,7 +144,7 @@ function dofOf(f, N, s) {
 }
 const blurOf = (f, N, s, dd) => f * f / (N * (s - f)) * Math.abs(dd - s) / dd / C;
 function dofA() {
-  const steps = [[50, 2], [50, 8], [50, 22], [25, 8]], D = [1.5, 3, 10], s = 3000;
+  const steps = [[50, 2], [50, 8], [50, 22], [25, 8], [24, 11]], D = [1.5, 3, 10], s = 3000;
   const n = steps.length, T = 2.6 * n, kt = [...steps.map((_, i) => i / n), 1];
   const sx = lin(0, 12, 74, 540), G = 186;
   let o = '';
@@ -149,7 +183,7 @@ function dofA() {
   });
   o += text(20, 44, 'blur 写的是 blur circle 是 0.03 mm 的几倍；不超过 1 倍就算 sharp。', 'ts');
   o += text(20, 254, '同一个 3 m 的 focus：f-number 越大、focal length 越短，sharp zone 越深。', 'ts');
-  return svgA(560, 262, o, '动图：camera 对焦在 3 米，前景 1.5 米、背景 10 米各站一个人；50 毫米 f/2 时 sharp zone 只有 2.80 到 3.23 米，前后两人都糊；换成 f/8、f/22 逐渐变深；25 毫米 f/8 时从 1.41 米到无穷远都清楚');
+  return svgA(560, 262, o, '动图：camera 对焦在 3 米，前景 1.5 米、背景 10 米各站一个人；50 毫米 f/2 时 sharp zone 只有 2.80 到 3.23 米，前后两人都糊；换成 f/8、f/22 逐渐变深；25 毫米 f/8 时从 1.40 米到无穷远都清楚；24 毫米 f/11 时从 1.11 米到无穷远都清楚');
 }
 
 // ---------- 第 4 站：180° rule（动图） ----------
@@ -289,8 +323,8 @@ function bomb() {
 // ---------- 第 6 站：Citizen Kane 的 plot 与 story ----------
 function kane() {
   const P = ['开场：Kane 死于 Xanadu', 'Newsreel：一生的公开版本', 'Thatcher 的 memoir', 'Bernstein', 'Leland', 'Susan', 'Raymond（butler）', '结尾：sled 被烧'];
-  const S = ['童年：Colorado，sled', '接手 Inquirer', '和 Emily 的婚姻', '遇到 Susan，竞选失败', 'Susan 的 opera 生涯（首演讲两次）', 'Xanadu，Susan 离开', '死亡'];
-  const map = [[6], [0, 1, 2, 3, 4, 5, 6], [0, 1], [1], [2, 3, 4], [4, 5], [5], [0]];
+  const S = ['童年：Colorado，sled', '接手 Inquirer', '和 Emily 的婚姻', '遇到 Susan，竞选失败', 'Susan 的 opera（首演讲两次）', '1929 后卖报；Susan 离开', '死亡'];
+  const map = [[6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 5], [1, 2], [2, 3, 4], [4, 5], [5], [0]];
   const yP = (i) => 50 + i * 30, yS = (j) => 58 + j * 34;
   let o = text(110, 20, 'Plot：银幕上的顺序', 'tb', 'middle') + text(450, 20, 'Story：事件发生的顺序', 'tb', 'middle');
   map.forEach((js, i) => {
@@ -303,7 +337,7 @@ function kane() {
   P.forEach((s, i) => { o += rect(6, yP(i) - 12, 216, 24, i === 1 ? 'wash2' : 'paper', 4) + text(14, yP(i) + 5, (i + 1) + '. ' + s, 't'); });
   S.forEach((s, j) => { o += rect(340, yS(j) - 13, 214, 26, 'wash', 4) + text(348, yS(j) + 5, s, 't'); });
   o += text(6, 300, '曲线是每一段 flashback 讲到的时期；粗线是开头和结尾，两端正好接在 story 的两头。', 'ts');
-  return svg(560, 306, o, 'Citizen Kane 的 plot 顺序和 story 顺序：开场是死亡，newsreel 概括一生，之后五个讲述者的 flashback 大致按时间先后覆盖童年到 Xanadu，Susan 的 opera 首演被讲了两次，结尾的 sled 回到童年');
+  return svg(560, 306, o, 'Citizen Kane 的 plot 顺序和 story 顺序：开场是死亡，newsreel 概括一生，之后五个讲述者的 flashback 大致按时间先后覆盖童年到 Xanadu，Thatcher 那一段跳到 1929 年以后，Susan 的 opera 首演被讲了两次，结尾的 sled 回到童年');
 }
 
 // ---------- 第 7 站：The Searchers 的首尾两个 doorway ----------
@@ -333,6 +367,7 @@ function searchers() {
 
 export default {
   'gec1017-kuleshov': kuleshov,
+  'gec1017-greed': greed,
   'gec1017-light': lighting,
   'gec1017-scale': scale,
   'gec1017-dof': dofA,

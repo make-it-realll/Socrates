@@ -1,4 +1,4 @@
-import { svg, svgA, anim, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, arrow } from '../lib/svg.mjs';
+import { svg, svgA, anim, apath, acircle, ashow, f1, lin, d, path, line, rect, circle, poly, text, it, sub, arrow } from '../lib/svg.mjs';
 
 const SQ = Math.SQRT2, TAU = 2 * Math.PI;
 const kts = (v) => (Math.round(v * 1e5) / 1e5).toString();
@@ -95,8 +95,18 @@ function segRect(a, b, r) {
   return true;
 }
 const rfree = (a, b) => ROBS.every((r) => !segRect(a, b, r));
+// 16-782 的 short-cutting：从当前点出发，尽量连到最远的、连线不碰的后续点
+export function shortcut(P) {
+  const out = [P[0]]; let i = 0;
+  while (i < P.length - 1) { let j = i + 1; while (j + 1 < P.length && rfree(P[i], P[j + 1])) j++; out.push(P[j]); i = j; }
+  return out;
+}
+export function rrtPath(R) {
+  let best = Infinity, bi = -1; R.V.forEach((v, i) => { if (dist(v.p, RGOAL) < 0.5) { const c = v.c + dist(v.p, RGOAL); if (c < best) { best = c; bi = i; } } });
+  const pts = [RGOAL]; let q = bi; while (q >= 0) { pts.push(R.V[q].p); q = R.V[q].par; } return pts.reverse();
+}
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
-export function rrt(star, N, seed, snapAt = [], eta = 0.8, gamma = 12, goalR = 0.5) {
+export function rrt(star, N, seed, snapAt = [], eta = 0.8, gamma = 13, goalR = 0.5) {
   const R = rng(seed); const V = [{ p: RSTART, par: -1, c: 0, born: 0 }]; const costAt = []; const snaps = {}; const goalNodes = [];
   for (let n = 1; n <= N; n++) {
     let s; do { s = [R() * 10, R() * 10]; } while (ROBS.some((r) => s[0] > r[0] && s[0] < r[2] && s[1] > r[1] && s[1] < r[3]));
@@ -159,14 +169,18 @@ function rrtStarA() {
     const lab = (X, c) => text(X + 125, Y + 272, c < Infinity ? `n = ${n}：path cost ${c.toFixed(2)}` : `n = ${n}：还没到 goal`, 'ts', 'middle');
     o += g(lab(XA, sa.best), span(n === N, t0, t1, T)) + g(lab(XB, sn.best), span(n === N, t0, t1, T));
   });
+  // 左：RRT 的 path 做 short-cutting 之后（只在最后一段和第一帧显示）
+  const SC = shortcut(rrtPath(A)), scL = SC.slice(1).reduce((acc, q, i) => acc + dist(q, SC[i]), 0);
+  o += g(path(d(SC.map(PA)), 'ln-dash'), span(true, tAt(N), 1, T));
+  o += g(text(XA + 125, Y + 290, `虚线：short-cutting 之后 ${scL.toFixed(2)}`, 'ts', 'middle'), span(true, tAt(N), 1, T));
   for (const [X, Pp] of [[XA, PA], [XB, PB]]) {
     const a = Pp(RSTART), b = Pp(RGOAL);
     o += circle(a[0], a[1], 4.5, 'ink-f') + circle(b[0], b[1], 4.5, 'paper');
     o += rect(a[0] - 16, a[1] + 7, 32, 14, 'paper-f', 3) + text(a[0], a[1] + 18, 'start', 'ts', 'middle');
     o += rect(b[0] - 14, b[1] + 7, 28, 14, 'paper-f', 3) + text(b[0], b[1] + 18, 'goal', 'ts', 'middle');
   }
-  o += text(280, 330, '两边用同一串 random sample。最短 path 擦过 obstacle 的角，cost 11.21。', 'ts', 'middle');
-  return svgA(560, 338, o, '动图：同一串 random sample 下 RRT 和 RRT* 的 tree 逐步长大；RRT 找到 path 后 cost 一直是 13.48，RRT* 的 cost 随 sample 增多从 13.03 降到 11.67');
+  o += text(280, 346, '两边用同一串 random sample。最短 path 擦过 obstacle 的角，cost 11.21。', 'ts', 'middle');
+  return svgA(560, 354, o, '动图：同一串 random sample 下 RRT 和 RRT* 的 tree 逐步长大；RRT 找到 path 后 cost 一直是 13.48，RRT* 的 cost 随 sample 增多从 13.03 降到 11.67');
 }
 
 // 第 2 站：choose parent 与 rewire 的手算例子
@@ -258,39 +272,56 @@ function dubinsA() {
   return svgA(560, 196, o, '动图：从 (0, 0) 朝上到 (5, 0) 朝下，五个可行的 Dubins word 用虚线画出并标了长度，最短的是 RSR，长 6.14 m，一辆 car 沿它行驶');
 }
 
-// 第 3 站：motion primitive 展开两层
+// 第 3 站：两种 motion primitive。左：固定转角的 arc，endpoint 落在 cell 里的任意位置；右：state lattice，endpoint 都在 cell 中心
+const RHO = 1.8, LR = 1 / (1 - Math.cos(Math.PI / 4)) - 1; // 右边 lattice 的 arc radius = 1 + √2 = 2.414
+export function arcPts(q, R, dth, n = 16) {
+  const pts = [], sg = Math.sign(dth);
+  for (let i = 0; i <= n; i++) { const a = (dth * i) / n; pts.push([q[0] + sg * R * (Math.sin(q[2] + a) - Math.sin(q[2])), q[1] + sg * R * (-Math.cos(q[2] + a) + Math.cos(q[2])), q[2] + a]); }
+  return pts;
+}
+const lineTo = (q, L) => [q, [q[0] + L * Math.cos(q[2]), q[1] + L * Math.sin(q[2]), q[2]]];
+// naive：左转到底 45°、直走同样长度、右转到底 45°
+export const naivePrims = (q) => [arcPts(q, RHO, Math.PI / 4), lineTo(q, (RHO * Math.PI) / 4), arcPts(q, RHO, -Math.PI / 4)];
+// lattice：heading 只取 45° 的倍数。heading 是 0° 的倍数（轴向）时：直走 1 格，或 arc（R = 1 + √2）转 45° 再直走 √2 − 1，到 (2, ±1)；
+// heading 是 45° 的倍数（斜向）时：直走到 (1, 1)，或直走 √2 − 1 再 arc 转 45°，到 (2, 1) 或 (1, 2)
+export function latticePrims(q) {
+  const k = Math.round(q[2] / (Math.PI / 4)), diag = ((k % 2) + 2) % 2 === 1, out = [];
+  if (!diag) {
+    out.push(lineTo(q, 1));
+    for (const sg of [1, -1]) { const a = arcPts(q, LR, (sg * Math.PI) / 4); out.push([...a, ...lineTo(a[a.length - 1], Math.SQRT2 - 1).slice(1)]); }
+  } else {
+    out.push(lineTo(q, Math.SQRT2));
+    for (const sg of [1, -1]) { const l = lineTo(q, Math.SQRT2 - 1); out.push([l[0], ...arcPts(l[1], LR, (sg * Math.PI) / 4)]); }
+  }
+  return out;
+}
 function lattice() {
-  const u = 80, P = ([x, y]) => [60 + x * u, 130 - y * u];
-  const R = Math.PI / 180, prims = [['L', 45 * R], ['S', 0], ['R', -45 * R]];
-  const step = (q, [ty, dth]) => {
-    if (ty === 'S') return { pts: [q, [q[0] + 0.785 * Math.cos(q[2]), q[1] + 0.785 * Math.sin(q[2]), q[2]]] };
-    const pts = []; for (let i = 0; i <= 12; i++) { const a = (dth * i) / 12, sg = Math.sign(dth); pts.push([q[0] + sg * (Math.sin(q[2] + a) - Math.sin(q[2])), q[1] + sg * (-Math.cos(q[2] + a) + Math.cos(q[2])), q[2] + a]); }
-    return { pts };
-  };
+  const u = 40;
   let o = '';
-  // hybrid A* 的 cell：0.5 m
-  for (let x = 0; x <= 2.5 + 1e-9; x += 0.5) { const a = P([x, -1.25]), b = P([x, 1.25]); o += line(a[0], a[1], b[0], b[1], 'grid'); }
-  for (let y = -1.25; y <= 1.25 + 1e-9; y += 0.5) { const a = P([0, y]), b = P([2.5, y]); o += line(a[0], a[1], b[0], b[1], 'grid'); }
-  const q0 = [0, 0, 0];
-  const ends1 = [];
-  for (const p of prims) { const { pts } = step(q0, p); o += path(d(pts.map(P)), 'ink-b'); ends1.push(pts[pts.length - 1]); }
-  for (const e of ends1) for (const p of prims) { const { pts } = step(e, p); o += path(d(pts.map(P)), 'mute'); const z = P(pts[pts.length - 1]); o += circle(z[0], z[1], 2.5, 'mute-f'); }
-  for (const e of ends1) { const z = P(e); o += circle(z[0], z[1], 3.5, 'ink-f'); }
-  const z0 = P(q0); o += circle(z0[0], z0[1], 4.5, 'ln-f') + text(z0[0] - 8, z0[1] + 4, 'start', 'ts', 'end');
-  const a1 = P(ends1[0]); o += text(a1[0] - 6, a1[1] - 8, 'L', 'tb', 'end');
-  const a2 = P(ends1[1]); o += text(a2[0] + 2, a2[1] - 8, 'S', 'tb', 'middle');
-  const a3 = P(ends1[2]); o += text(a3[0] - 6, a3[1] + 18, 'R', 'tb', 'end');
-  const X = 300;
-  o += text(X, 30, '每个 state 三个 successor：', 'tb', 'start');
-  o += text(X, 52, 'L：沿 ρ = 1 m 左转 45°（长 0.785 m）', 'ts', 'start');
-  o += text(X, 70, 'S：直走 0.785 m', 'ts', 'start');
-  o += text(X, 88, 'R：右转 45°', 'ts', 'start');
-  o += text(X, 118, '黑点：第一层，9 个灰点：第二层。', 'ts', 'start');
-  o += text(X, 136, '格子是 0.5 m 的 cell；endpoint 落在', 'ts', 'start');
-  o += text(X, 154, 'cell 里的任意位置，不在 cell 中心。', 'ts', 'start');
-  o += text(X, 184, '每条 edge 自己就满足 ρ ≥ 1 m，', 'ts', 'start');
-  o += text(X, 202, '所以 graph 上的任何 path 都开得出来。', 'ts', 'start');
-  return svg(560, 240, o, '从一个 pose 出发用左转、直行、右转三个 motion primitive 展开两层，共 3 个和 9 个 endpoint，背景是 0.5 米的 grid');
+  const panel = (X, title, prims, note) => {
+    const P = ([x, y]) => [X + 40 + x * u, 176 - y * u];
+    o += text(X + 140, 18, title, 'tb', 'middle');
+    for (let x = -0.5; x <= 4.5 + 1e-9; x += 1) { const a = P([x, -3.5]), b = P([x, 3.5]); o += line(a[0], a[1], b[0], b[1], 'grid'); }
+    for (let y = -3.5; y <= 3.5 + 1e-9; y += 1) { const a = P([-0.5, y]), b = P([4.5, y]); o += line(a[0], a[1], b[0], b[1], 'grid'); }
+    for (let x = 0; x <= 4; x++) for (let y = -3; y <= 3; y++) { const z = P([x, y]); o += circle(z[0], z[1], 1.6, 'mute-f'); }
+    const q0 = [0, 0, 0], first = prims(q0), ends2 = [];
+    for (const pr of first) { const e = pr[pr.length - 1]; for (const p2 of prims(e)) { o += path(d(p2.map(P)), 'mute'); ends2.push(p2[p2.length - 1]); } }
+    for (const e of ends2) { const z = P(e); o += circle(z[0], z[1], 2.6, 'ink-f'); }
+    for (const pr of first) { o += path(d(pr.map(P)), 'ln'); const z = P(pr[pr.length - 1]); o += circle(z[0], z[1], 3.6, 'ln-f'); }
+    const z0 = P(q0); o += circle(z0[0], z0[1], 4, 'ink-f') + text(z0[0] - 8, z0[1] + 4, 'start', 'ts', 'end');
+    note.forEach((l, i) => (o += text(X + 140, 336 + i * 17, l, 'ts', 'middle')));
+    const onC = ends2.filter((e) => Math.abs(e[0] - Math.round(e[0])) < 1e-6 && Math.abs(e[1] - Math.round(e[1])) < 1e-6).length;
+    return { first, onC };
+  };
+  const A = panel(0, '固定转角的 arc（hybrid A* 的 successor）', naivePrims, []);
+  const e1 = A.first[0][A.first[0].length - 1];
+  o += text(140, 336, `第一层 L 的终点 (${e1[0].toFixed(2)}, ${e1[1].toFixed(2)})，heading 45°；`, 'ts', 'middle');
+  o += text(140, 353, `9 个第二层终点里落在 cell 中心的有 ${A.onC} 个`, 'ts', 'middle');
+  const B = panel(280, 'State lattice', latticePrims, []);
+  o += text(420, 336, '第一层终点 (1, 0)、(2, 1)、(2, −1)；', 'ts', 'middle');
+  o += text(420, 353, `9 个第二层终点里落在 cell 中心的有 ${B.onC} 个`, 'ts', 'middle');
+  o += text(280, 378, '小点是 1 m cell 的中心。左边 arc 的 radius 是 ρ = 1.8 m；右边的 arc radius 是 1 + √2 = 2.41 m，不小于 ρ。', 'ts', 'middle');
+  return svg(560, 388, o, '左边：左转 45°、直走、右转 45° 三个 primitive 展开两层，终点散落在 cell 内部；右边：state lattice 的 primitive 每一条都从 cell 中心连到 cell 中心，heading 是 45° 的倍数');
 }
 
 // ================= 第 4 站：trajectory optimization =================
@@ -574,6 +605,162 @@ function replanA() {
   return svgA(560, Y + GH * s + 44, o, '动图：robot 假设未知的 cell 都是空的，一路沿 A* plan 走进 U 形 obstacle，边走边看到 wall、replan 12 次，最后绕出来到达 goal，共走 47.3');
 }
 
+// 第 7 站：backward search 的 cost-to-goal 在看到 wall 前后哪些变了
+const DIRS8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+const stepCost = (m, a, b, dx, dy) => {
+  const ok = (c, r) => c >= 0 && r >= 0 && c < GW && r < GH && !m[r][c];
+  if (!ok(a, b) || !ok(a + dx, b + dy)) return Infinity;
+  if (dx && dy && (!ok(a + dx, b) || !ok(a, b + dy))) return Infinity;
+  return dx && dy ? SQ : 1;
+};
+export function costToGoal(m) {
+  const g = Array.from({ length: GH }, () => Array(GW).fill(Infinity)); g[GG[1]][GG[0]] = 0;
+  const Q = [[0, GG[0], GG[1]]], done = new Set();
+  while (Q.length) {
+    Q.sort((a, b) => a[0] - b[0]); const [dd, c, r] = Q.shift(); if (done.has(r * GW + c)) continue; done.add(r * GW + c);
+    for (const [dx, dy] of DIRS8) { const k = stepCost(m, c + dx, r + dy, -dx, -dy); if (k < Infinity && dd + k < g[r + dy][c + dx] - 1e-12) { g[r + dy][c + dx] = dd + k; Q.push([dd + k, c + dx, r + dy]); } }
+  }
+  return g;
+}
+export function firstReplanChange() {
+  const S = replanSim(), k = S.frames.findIndex((f) => f.re);
+  const before = S.known.map((r) => r.map((v) => (v && v <= k ? 1 : 0))), after = S.known.map((r) => r.map((v) => (v && v <= k + 1 ? 1 : 0)));
+  const g1 = costToGoal(before), g2 = costToGoal(after), ch = [];
+  for (let r = 0; r < GH; r++) for (let c = 0; c < GW; c++) if (Math.abs((g1[r][c] === Infinity ? 1e9 : g1[r][c]) - (g2[r][c] === Infinity ? 1e9 : g2[r][c])) > 1e-9) ch.push([c, r]);
+  return { pos: S.frames[k].pos, before, after, ch };
+}
+// D* Lite（Koenig & Likhachev 2002 的基本版本），unknown 当 free，sensor radius 2.5，每步走一格
+export function dstarLite() {
+  const truth = mapM(), known = Array.from({ length: GH }, () => Array(GW).fill(0));
+  const K = (c, r) => r * GW + c, X = (k) => [k % GW, Math.floor(k / GW)];
+  const nb = (u) => { const [a, b] = X(u), o = []; for (const [dx, dy] of DIRS8) { const c = a + dx, r = b + dy; if (c >= 0 && r >= 0 && c < GW && r < GH) o.push([K(c, r), dx, dy]); } return o; };
+  const cst = (u, dx, dy) => { const [a, b] = X(u); return stepCost(known, a, b, dx, dy); };
+  const h = (a, b) => octile(X(a), X(b));
+  const g = new Map(), rhs = new Map(), U = new Map(), G = (k) => g.get(k) ?? Infinity, R = (k) => rhs.get(k) ?? Infinity;
+  const goal = K(...GG); let start = K(...GS), last = start, km = 0;
+  const key = (s) => { const m = Math.min(G(s), R(s)); return [m + h(start, s) + km, m]; };
+  const lt = (a, b) => a[0] < b[0] - 1e-9 || (Math.abs(a[0] - b[0]) <= 1e-9 && a[1] < b[1] - 1e-9);
+  const top = () => { let bk = null, bs = null; for (const [s, k] of U) if (!bk || lt(k, bk)) { bk = k; bs = s; } return [bs, bk]; };
+  const upd = (u) => { if (u !== goal) { let m = Infinity; for (const [s, dx, dy] of nb(u)) m = Math.min(m, cst(u, dx, dy) + G(s)); rhs.set(u, m); } U.delete(u); if (Math.abs(G(u) - R(u)) > 1e-9) U.set(u, key(u)); };
+  const compute = () => { let e = 0; for (;;) { const [u, ko] = top(); if (u === null) break; if (!(lt(ko, key(start)) || Math.abs(R(start) - G(start)) > 1e-9)) break; const kn = key(u); if (lt(ko, kn)) { U.set(u, kn); continue; } U.delete(u); e++; if (G(u) > R(u)) { g.set(u, R(u)); for (const [s] of nb(u)) upd(s); } else { g.set(u, Infinity); upd(u); for (const [s] of nb(u)) upd(s); } } return e; };
+  const scratch = (s) => { // backward A* 从头算，h 指向 robot
+    const gg = new Map([[goal, 0]]), cl = new Set(), Q = [[h(goal, s), 0, goal]]; let e = 0;
+    while (Q.length) { Q.sort((a, b) => a[0] - b[0] || a[1] - b[1]); const [, , u] = Q.shift(); if (cl.has(u)) continue; cl.add(u); e++; if (u === s) break;
+      for (const [v, dx, dy] of nb(u)) { const c = cst(v, -dx, -dy); if (c === Infinity) continue; const ng = gg.get(u) + c; if (!gg.has(v) || ng < gg.get(v) - 1e-12) { gg.set(v, ng); Q.push([ng + h(v, s), h(v, s), v]); } } }
+    return e;
+  };
+  rhs.set(goal, 0); U.set(goal, key(goal));
+  const events = [{ at: X(start), dl: compute(), sc: scratch(start) }];
+  let steps = 0, len = 0;
+  while (start !== goal && steps < 200) {
+    const [sc, sr] = X(start), newly = [];
+    for (let r = 0; r < GH; r++) for (let c = 0; c < GW; c++) if (truth[r][c] && !known[r][c] && Math.hypot(c - sc, r - sr) <= 2.5) { known[r][c] = 1; newly.push(K(c, r)); }
+    if (newly.length) {
+      km += h(last, start); last = start;
+      const aff = new Set(); for (const v of newly) { aff.add(v); for (const [n] of nb(v)) { aff.add(n); for (const [n2] of nb(n)) aff.add(n2); } }
+      for (const u of aff) upd(u);
+      events.push({ at: X(start), dl: compute(), sc: scratch(start) });
+    }
+    let best = null, bv = Infinity; for (const [s, dx, dy] of nb(start)) { const v = cst(start, dx, dy) + G(s); if (v < bv - 1e-12) { bv = v; best = [s, dx, dy]; } }
+    len += cst(start, best[1], best[2]); start = best[0]; steps++;
+  }
+  return { events, steps, len };
+}
+function ctgChange() {
+  const { pos, after, ch } = firstReplanChange(), s = 18, X = 55, Y = 26;
+  let o = rect(X, Y, GW * s, GH * s, 'frame');
+  const truth = mapM(), hid = [], kn = [];
+  truth.forEach((row, r) => row.forEach((v, c) => { if (v) (after[r][c] ? kn : hid).push([c, r]); }));
+  o += path(cellsPath(hid, X, Y, s), 'grid') + path(cellsPath(ch, X, Y, s), 'wash-strong') + path(cellsPath(kn, X, Y, s), 'solid2');
+  const R0 = cpt(pos, X, Y, s), G0 = cpt(GG, X, Y, s);
+  o += circle(R0[0], R0[1], 6, 'ink-f') + text(R0[0] - 10, R0[1] + 4, 'robot', 'ts', 'end');
+  o += circle(G0[0], G0[1], 5, 'paper') + text(G0[0], G0[1] - 10, 'goal', 'ts', 'middle');
+  o += text(X, Y + GH * s + 18, `深色：robot 在 (${pos.join(', ')}) 时已经看到的 wall；浅色轮廓：还没看到的 obstacle。`, 'ts', 'start');
+  o += text(X, Y + GH * s + 36, `带底色的 ${ch.length} 个 cell：看到新 wall 前后，从 goal 往回算的 cost-to-goal 变了。其余 ${GW * GH - ch.length} 个没变。`, 'ts', 'start');
+  return svg(560, Y + GH * s + 44, o, `robot 在 U 形口里第一次看到底部的 wall，375 个 cell 里只有 ${ch.length} 个 cell 的 cost-to-goal 改变，集中在 wall 左侧`);
+}
+
+// ================= 第 9 站：informative path planning =================
+// frontier-based exploration：总去最近的、旁边还有没看过的 cell 的那个已知 free cell
+export function exploreSim(rad = 2.5) {
+  const truth = mapM(), seen = Array.from({ length: GH }, () => Array(GW).fill(0));
+  let pos = GS, len = 0; const frames = [];
+  const sense = (p, step) => { let n = 0; for (let r = 0; r < GH; r++) for (let c = 0; c < GW; c++) if (!seen[r][c] && Math.hypot(c - p[0], r - p[1]) <= rad) { seen[r][c] = step + 1; n++; } return n; };
+  for (let step = 0; step < 400; step++) {
+    sense(pos, step);
+    const m = seen.map((row, r) => row.map((v, c) => (!v || truth[r][c] ? 1 : 0)));
+    const isF = (c, r) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const a = c + dx, b = r + dy; return a >= 0 && b >= 0 && a < GW && b < GH && !seen[b][a]; });
+    // Dijkstra 到最近的 frontier cell（相当于 16-782 的 multi-goal A*：所有 frontier 连到一个 imaginary goal）
+    const gv = new Map(), par = new Map(), Q = [[0, pos]], done = new Set(); gv.set(pos.join(), 0); let tgt = null;
+    while (Q.length) { Q.sort((a, b) => a[0] - b[0]); const [dd, p] = Q.shift(); const k = p.join(); if (done.has(k)) continue; done.add(k);
+      if (isF(...p)) { tgt = p; break; }
+      for (const [dx, dy] of DIRS8) { const k2 = stepCost(m, p[0], p[1], dx, dy); if (k2 === Infinity) continue; const q = [p[0] + dx, p[1] + dy], kk = q.join(); if (!gv.has(kk) || dd + k2 < gv.get(kk) - 1e-12) { gv.set(kk, dd + k2); par.set(kk, p); Q.push([dd + k2, q]); } } }
+    if (!tgt) { frames.push({ pos, tgt: null }); break; }
+    const pl = [tgt]; while (pl[0].join() !== pos.join()) pl.unshift(par.get(pl[0].join()));
+    frames.push({ pos, tgt });
+    if (pl.length < 2) { frames.pop(); frames.push({ pos, tgt }); }
+    const nx = pl.length > 1 ? pl[1] : pos; len += Math.hypot(nx[0] - pos[0], nx[1] - pos[1]); pos = nx;
+    if (pl.length < 2) break;
+  }
+  let nSeen = 0; seen.forEach((row) => row.forEach((v) => (nSeen += v ? 1 : 0)));
+  return { frames, seen, len, nSeen };
+}
+function exploreA() {
+  const { frames, seen } = exploreSim(), s = 18, X = 55, Y = 30, n = frames.length, dt = 0.12, T = +(n * dt + 2).toFixed(2), tA = (i) => (i * dt) / T;
+  let o = rect(X, Y, GW * s, GH * s, 'frame');
+  const truth = mapM();
+  for (let k = 1; k <= n; k++) {
+    const fr = [], ob = []; seen.forEach((row, r) => row.forEach((v, c) => { if (v === k) (truth[r][c] ? ob : fr).push([c, r]); }));
+    if (fr.length) o += g(path(cellsPath(fr, X, Y, s), 'wash'), span(true, tA(k - 1), 1, T));
+    if (ob.length) o += g(path(cellsPath(ob, X, Y, s), 'solid2'), span(true, tA(k - 1), 1, T));
+  }
+  const C = (p) => cpt(p, X, Y, s), kt = frames.map((_, i) => tA(i)); kt.push(1);
+  const trails = frames.map((_, i) => d(frames.slice(0, i + 1).map((f) => C(f.pos))));
+  o += apath([trails[n - 1], ...trails.slice(1), trails[n - 1]], [0, ...kt.slice(1)], T, 'ln', true);
+  const xs = frames.map((f) => C(f.pos)[0]), ys = frames.map((f) => C(f.pos)[1]);
+  o += acircle([xs[n - 1], ...xs.slice(1), xs[n - 1]], [ys[n - 1], ...ys.slice(1), ys[n - 1]], [0, ...kt.slice(1)], T, 6, 'ink-f');
+  const S0 = C(GS); o += circle(S0[0], S0[1], 4, 'paper') + text(S0[0], S0[1] - 10, 'start', 'ts', 'middle');
+  frames.forEach((f, i) => { const t0 = i === 0 ? 0.0005 : tA(i), t1 = i + 1 < n ? tA(i + 1) : 1; o += g(text(X, Y - 10, `第 ${i} 步`, 'tl', 'start'), span(i === n - 1, t0, t1, T)); });
+  o += text(X, Y + GH * s + 18, '浅底：已经看过的 free cell；深色：已经看到的 obstacle；白色：还没看过。粗线：走过的路。', 'ts', 'start');
+  o += text(X, Y + GH * s + 36, '每一步都朝“最近的、旁边还有没看过的 cell 的 free cell”走一格，到了再挑下一个。', 'ts', 'start');
+  return svgA(560, Y + GH * s + 44, o, '动图：robot 从 Map M 的 start 出发，每次去最近的 frontier cell，边走边看，直到整张 map 都看过');
+}
+export const SV = { P: [[12, 7], [10, 1], [10, 13]], names: ['P1', 'P2', 'P3'] };
+export function surveyCosts() {
+  const occ = mapM(), all = [GS, ...SV.P], D = all.map((a) => all.map((b) => (a === b ? 0 : gsearch(occ, a, b, octile).cost)));
+  const perms = [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]];
+  const tours = perms.map((p) => ({ p, c: D[0][p[0]] + D[p[0]][p[1]] + D[p[1]][p[2]] }));
+  let cur = 0, left = [1, 2, 3], nn = []; while (left.length) { left.sort((a, b) => D[cur][a] - D[cur][b]); cur = left.shift(); nn.push(cur); }
+  return { D, tours, nn };
+}
+function survey() {
+  const occ = mapM(), s = 18, X = 55, Y = 22, { D, tours, nn } = surveyCosts(), all = [GS, ...SV.P];
+  const best = tours.slice().sort((a, b) => a.c - b.c)[0], nnT = tours.find((t) => t.p.join() === nn.join());
+  let o = gridBg(occ, X, Y, s);
+  const legPath = (seq, cls) => { for (let i = 0; i + 1 < seq.length; i++) o += path(d(gsearch(occ, all[seq[i]], all[seq[i + 1]], octile).path.map((p) => cpt(p, X, Y, s))), cls); };
+  legPath([0, ...nnT.p], 'ln-dash'); legPath([0, ...best.p], 'ln');
+  all.forEach((p, i) => { const q = cpt(p, X, Y, s); o += circle(q[0], q[1], 6, i ? 'paper' : 'ink-f') + text(q[0] + 9, q[1] - 7, i ? SV.names[i - 1] : 'start', 'tb', 'start'); });
+  const nm = (p) => p.map((i) => SV.names[i - 1]).join(' → ');
+  o += text(X, Y + GH * s + 18, `粗线：optimal 的顺序 start → ${nm(best.p)}，cost ${best.c.toFixed(2)}。`, 'ts', 'start');
+  o += text(X, Y + GH * s + 36, `虚线：每次去最近的那个，start → ${nm(nn)}，cost ${nnT.c.toFixed(2)}。`, 'ts', 'start');
+  void D;
+  return svg(560, Y + GH * s + 44, o, `Map M 上三个要访问的 waypoint：optimal 顺序 cost ${best.c.toFixed(2)}，nearest-neighbor 顺序 cost ${nnT.c.toFixed(2)}`);
+}
+function budget() {
+  const sx = lin(-3, 11, 40, 520), Y = 90;
+  // budget 10：[-10, 10] 都够得着，画布只画到 -3
+  let o = rect(sx(-3), Y - 10, sx(10) - sx(-3), 20, 'wash') + line(sx(-3), Y, sx(11), Y, 'axis');
+  for (let x = -2; x <= 10; x += 2) o += line(sx(x), Y - 4, sx(x), Y + 4, 'axis') + text(sx(x), Y + 20, String(x), 'ts', 'middle');
+  const pt = (x, lab, w, cls, anc, dx) => { o += circle(sx(x), Y, 8, cls) + text(sx(x), Y - 16, lab, 'tb', 'middle') + text(sx(x) + dx, Y + 40, w, 'ts', anc); };
+  pt(0, `${it('v')}${sub('0')}`, 'start', 'ink-f', 'start', -4); pt(-1, 'A', 'weight 1', 'paper', 'end', 6); pt(10, 'B', 'weight 9', 'paper', 'middle', 0);
+  o += path(`M${f1(sx(0))} ${Y - 30}Q${f1(sx(-0.5))} ${Y - 52} ${f1(sx(-1))} ${Y - 30}`, 'ln-dash');
+  o += text(sx(-0.5), Y - 58, 'greedy：1/1 = 1', 'ts', 'middle');
+  o += path(`M${f1(sx(0))} ${Y + 52}Q${f1(sx(5))} ${Y + 80} ${f1(sx(10))} ${Y + 52}`, 'ln');
+  o += text(sx(5), Y + 92, 'optimal：只去 B，cost 10，weight 9', 'tl', 'middle');
+  o += text(280, 16, `浅底：从 ${it('v')}${sub('0')} 出发、travel budget ${it('L')} = 10 以内够得着的范围`, 'ts', 'middle');
+  return svg(560, 196, o, '一条直线上的 budget 例子：A 在左边 1 m、weight 1，B 在右边 10 m、weight 9，budget 10；greedy 按 weight 除以 cost 先去 A，之后去不了 B；optimal 是直接去 B');
+}
+
 // ================= 第 8 站：multi-robot =================
 // plus 形路口：a1 从 W2 到 E2，a2 从 N2 到 S2
 function cbsA() {
@@ -684,4 +871,8 @@ export default {
   'rb3302-replan': replanA,
   'rb3302-cbs': cbsA,
   'rb3302-prio': prio,
+  'rb3302-ctg': ctgChange,
+  'rb3302-explore': exploreA,
+  'rb3302-survey': survey,
+  'rb3302-budget': budget,
 };

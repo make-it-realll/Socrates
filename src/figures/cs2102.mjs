@@ -4,6 +4,18 @@ import { svg, svgA, d, path, line, rect, circle, poly, text, arrow, ashow, f1 } 
 const STU = [[1, 'Ana', 'CS'], [2, 'Ben', 'DSA'], [3, 'Cai', 'CS'], [4, 'Dee', 'Math']];
 const ENR = [[1, 'CS2102', 'A'], [1, 'CS2040', 'B'], [2, 'CS2102', 'B'], [2, 'MA2101', 'C'], [3, 'CS2040', 'A']];
 
+// 双线（total participation / covering），head 为真时末端加箭头（key constraint / 不能 overlap）
+function dbl(x1, y1, x2, y2, head = false, size = 8) {
+  const L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / L, uy = (y2 - y1) / L, nx = -uy, ny = ux, g = 2.2;
+  const ex = head ? x2 - ux * (size - 1) : x2, ey = head ? y2 - uy * (size - 1) : y2;
+  let o = line(x1 + nx * g, y1 + ny * g, ex + nx * g, ey + ny * g, 'ink') + line(x1 - nx * g, y1 - ny * g, ex - nx * g, ey - ny * g, 'ink');
+  if (head) {
+    const a = Math.atan2(uy, ux), q = (ang) => [x2 - size * Math.cos(a + ang), y2 - size * Math.sin(a + ang)];
+    o += poly([[x2, y2], q(0.5), q(-0.5)], 'ink-f');
+  }
+  return o;
+}
+
 const grp = (body, on, kt, T) => `<g opacity="${on[0] ? 1 : 0}">${body}${ashow(on, kt, T)}</g>`;
 
 // 一张 table：header + rows；fill(i) 给第 i 行的底色 class（或 null）
@@ -256,11 +268,11 @@ function erinst() {
   const ent = (cx, s, w = 78) => rect(cx - w / 2, Y - 16, w, 32, 'paper') + text(cx, Y + 5, s, 't', 'middle');
   const dia = (cx, s, hw = 38) => poly([[cx - hw, Y], [cx, Y - 20], [cx + hw, Y], [cx, Y + 20]], 'paper') + text(cx, Y + 5, s, 'ts', 'middle');
   o += ent(50, 'Student') + line(89, Y, 102, Y, 'ink') + dia(140, 'Enrolls') + line(178, Y, 191, Y, 'ink') + ent(230, 'Course');
-  o += ent(330, 'Student') + arrow(369, Y, 382, Y, 'ink-b', 8) + dia(420, 'MajorIn') + line(458, Y, 470, Y, 'ink') + ent(510, 'Department', 80);
-  o += text(140, Y + 40, '两边都是细线', 'ts', 'middle');
-  o += text(420, Y + 40, 'Student 一侧：箭头 = 最多一个（key constraint）', 'ts', 'middle') + text(420, Y + 57, '粗线 = 至少一个（total participation）', 'ts', 'middle');
+  o += ent(326, 'Student', 70) + dbl(361, Y, 390, Y, true) + dia(426, 'MajorIn', 36) + line(462, Y, 476, Y, 'ink') + ent(514, 'Department', 76);
+  o += text(140, Y + 40, '两边都是单线，没有箭头', 'ts', 'middle');
+  o += text(420, Y + 40, 'Student 一侧：箭头 = 最多一个（key constraint）', 'ts', 'middle') + text(420, Y + 57, '双线 = 至少一个（total participation）', 'ts', 'middle');
   o += line(280, 14, 280, Y + 60, 'grid');
-  return svg(560, Y + 64, o, '上方画出两个 relationship set 的实际 instance：Enrolls 中学生可以连任意多门课，MajorIn 中每个学生恰好连一个 department；下方是对应的 ER 记号，MajorIn 在 Student 一侧画粗线加箭头');
+  return svg(560, Y + 64, o, '上方画出两个 relationship set 的实际 instance：Enrolls 中学生可以连任意多门课，MajorIn 中每个学生恰好连一个 department；下方是对应的 ER 记号，MajorIn 在 Student 一侧画双线加箭头');
 }
 
 // 第 4 站：完整的 ER diagram
@@ -287,12 +299,12 @@ function er() {
   o += att(304, 84, 'cid', 1, 52) + att(374, 84, 'title', 0, 56);
   o += ent(300, 150, 80, 'Course');
   // weak entity：Tutorial
-  o += line(380, 170, 402, 170, 'ink') + arrow(484, 170, 462, 170, 'ink-b', 8);
-  o += dia(432, 170, 30, 'Has', true);
+  o += line(380, 170, 400, 170, 'ink') + dbl(484, 170, 456, 170, true);
+  o += dia(428, 170, 28, 'Has', true);
   o += line(518, 98, 518, 150, 'ink') + att(512, 84, 'group', 2, 64);
   o += ent(484, 150, 72, 'Tutorial', true);
   // MajorIn
-  o += arrow(85, 190, 85, 270, 'ink-b', 8) + line(127, 294, 210, 294, 'ink');
+  o += dbl(85, 190, 85, 270, true) + line(127, 294, 210, 294, 'ink');
   o += dia(85, 294, 42, 'MajorIn');
   // Offers
   o += arrow(340, 190, 340, 238, 'ink', 7) + line(318, 274, 300, 274, 'ink');
@@ -307,7 +319,32 @@ function er() {
   o += text(384, 274, '（GEA1000 没有）', 'ts');
   o += text(396, 318, 'Tutorial 双线框：weak entity，', 'ts') + text(396, 334, '要带上 Course 的 cid 才能区分', 'ts');
   o += text(396, 350, 'group 虚下划线：partial key', 'ts');
-  return svg(560, 370, o, 'ER diagram：Student 和 Course 通过 Enrolls 相连，Enrolls 带 grade；Student 用粗线加箭头连到 MajorIn，每个学生恰好一个 Dept；Course 用细箭头连到 Offers；Tutorial 是 weak entity，通过双线 diamond Has 依附于 Course');
+  return svg(560, 370, o, 'ER diagram：Student 和 Course 通过 Enrolls 相连，Enrolls 带 grade；Student 用双线加箭头连到 MajorIn，每个学生恰好一个 Dept；Course 用单线箭头连到 Offers；Tutorial 是 weak entity，通过双线 diamond Has 依附于 Course');
+}
+
+// 第 4 站：ISA 上 overlap / covering 的四种画法
+function isa() {
+  let o = '';
+  const panels = [
+    { head: false, two: false, a: '单线', b: '0 个、1 个或 2 个 subclass' },
+    { head: true, two: false, a: '箭头：不能 overlap', b: '最多 1 个 subclass' },
+    { head: false, two: true, a: '双线：covering', b: '至少 1 个 subclass' },
+    { head: true, two: true, a: '双线加箭头', b: '恰好 1 个 subclass' },
+  ];
+  panels.forEach((p, k) => {
+    const cx = 70 + 140 * k;
+    o += rect(cx - 36, 14, 72, 30, 'paper') + text(cx, 34, 'Student', 't', 'middle');
+    const y0 = 44, y1 = 92;
+    if (p.two) o += dbl(cx, y0, cx, y1, p.head);
+    else o += p.head ? arrow(cx, y0, cx, y1, 'ink', 8) : line(cx, y0, cx, y1, 'ink');
+    o += poly([[cx, y1], [cx - 26, y1 + 38], [cx + 26, y1 + 38]], 'paper') + text(cx, y1 + 32, 'ISA', 'ts', 'middle');
+    o += line(cx - 12, y1 + 38, cx - 34, 152, 'ink') + line(cx + 12, y1 + 38, cx + 34, 152, 'ink');
+    o += rect(cx - 66, 152, 62, 28, 'paper') + text(cx - 35, 170, 'Exchange', 'ts', 'middle');
+    o += rect(cx + 4, 152, 62, 28, 'paper') + text(cx + 35, 170, 'Local', 'ts', 'middle');
+    o += text(cx, 204, p.a, 'tb', 'middle') + text(cx, 222, p.b, 'ts', 'middle');
+    if (k > 0) o += line(140 * k, 10, 140 * k, 228, 'grid');
+  });
+  return svg(560, 234, o, 'ISA 的四种画法：Student 连到 ISA 三角形的线是单线、箭头、双线或双线加箭头，分别表示每个 Student 属于任意多个、最多一个、至少一个、恰好一个 subclass');
 }
 
 // 第 5 站：attribute closure 逐步计算
@@ -409,6 +446,7 @@ export default {
   'cs2102-fk': fkA,
   'cs2102-erinst': erinst,
   'cs2102-er': er,
+  'cs2102-isa': isa,
   'cs2102-closure': closureA,
   'cs2102-lossy': lossy,
   'cs2102-bcnf': bcnfA,

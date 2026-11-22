@@ -774,7 +774,75 @@ function bfgraph() {
   return svg(560, 286, o, 'Bellman–Ford 的例子：s、a、b、c 四个 vertex，四条 edge，其中 b 到 a 的 weight 是负 4');
 }
 
+// ---------- Floyd–Warshall：在 Bellman–Ford 的例子上，k 按 s、a、b、c 的次序 ----------
+function fw() {
+  let o = '';
+  const V = ['s', 'a', 'b', 'c'];
+  const E = [['a', 'c', 1], ['b', 'a', -4], ['s', 'a', 2], ['s', 'b', 5]];
+  const n = V.length, id = Object.fromEntries(V.map((v, i) => [v, i]));
+  const D = V.map((_, i) => V.map((_, j) => (i === j ? 0 : Infinity)));
+  for (const [u, v, w] of E) D[id[u]][id[v]] = w;
+  const mats = [D.map((r) => r.slice())], changed = [[]], when = V.map(() => V.map(() => -1));
+  for (let k = 0; k < n; k++) {
+    const ch = [];
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      if (D[i][k] + D[k][j] < D[i][j]) { ch.push([i, j, D[i][j], D[i][k] + D[k][j]]); D[i][j] = D[i][k] + D[k][j]; when[i][j] = k; }
+    }
+    mats.push(D.map((r) => r.slice())); changed.push(ch);
+  }
+  const fmt = (x) => (x === Infinity ? '∞' : x < 0 ? '−' + -x : String(x));
+  // 帧 0 = 算完的总结；帧 1 = D⁰；帧 2..5 = 许经过 s、a、b、c
+  const nf = n + 2;
+  const F = frames([3.2, 2.2, 2, 2.4, 2.4, 2]);
+  const onAt = (f) => Array.from({ length: nf }, (_, m) => m === f);
+  const mOf = (f) => (f === 0 ? mats[n] : mats[f - 1]);
+  const kOf = (f) => (f >= 2 ? f - 2 : -1);
+  const titles = [
+    '算完：彩色格子是中途改小过的，小字是在哪一轮',
+    'D⁰：只许直接走一条 edge',
+    ...V.map((v, k) => (changed[k + 1].length ? `许经过 ${v}：` + changed[k + 1].map(([i, j, a, b]) => `(${V[i]}, ${V[j]}) ${fmt(a)} → ${fmt(b)}`).join('，') : `许经过 ${v}：没有格子变小`)),
+  ];
+  titles.forEach((t, f) => { o += sText(280, 18, t, 'tb', 'middle', onAt(f), F); });
+  // 左边：graph
+  const P = { s: [34, 140], a: [124, 74], b: [124, 206], c: [214, 74] };
+  const wo = { 'a-c': [0, -10, 'middle'], 'b-a': [10, 4, 'start'], 's-a': [-8, -8, 'end'], 's-b': [-8, 18, 'end'] };
+  for (const [u, v, w] of E) {
+    o += dedge(P[u], P[v], 'ink', 15);
+    const [mx, my] = mid(P[u], P[v]);
+    const [dx, dy, an] = wo[`${u}-${v}`];
+    o += text(mx + dx, my + dy, fmt(w), 't', an);
+  }
+  V.forEach((v, k) => {
+    const [x, y] = P[v];
+    const isK = Array.from({ length: nf }, (_, f) => kOf(f) === k);
+    o += circle(x, y, 15, 'paper') + sCircle(x, y, 15, 'solid', isK, F);
+    o += sText(x, y + 4.5, v, 't', 'middle', isK.map((b) => !b), F) + sText(x, y + 4.5, v, 'tw', 'middle', isK, F);
+  });
+  o += text(124, 252, '深色的 vertex：这一轮许用的中间点', 'ts', 'middle');
+  // 右边：matrix
+  const x0 = 300, y0 = 64, cw = 58, ch = 44;
+  V.forEach((v, j) => { o += text(x0 + j * cw + cw / 2, y0 - 10, v, 'tb', 'middle'); });
+  V.forEach((v, i) => { o += text(x0 - 12, y0 + i * ch + ch / 2 + 4.5, v, 'tb', 'middle'); });
+  o += text(x0 + 2 * cw, y0 - 30, '终点 →', 'ts', 'middle');
+  o += text(x0 - 30, y0 + 2 * ch + 4, '起点', 'ts', 'end');
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const x = x0 + j * cw, y = y0 + i * ch;
+    o += rect(x, y, cw, ch, 'paper');
+    const hl = Array.from({ length: nf }, (_, f) => (f === 0 ? when[i][j] >= 0 : f >= 2 && changed[f - 1].some(([a, b]) => a === i && b === j)));
+    o += sRect(x + 1, y + 1, cw - 2, ch - 2, 'wash', 0, hl, F);
+    for (let f = 0; f < nf; f++) {
+      const isHl = hl[f];
+      const ty = f === 0 && when[i][j] >= 0 ? y + ch / 2 + 1 : y + ch / 2 + 5;
+      o += sText(x + cw / 2, ty, fmt(mOf(f)[i][j]), isHl ? 'tl' : 't', 'middle', onAt(f), F);
+    }
+    if (when[i][j] >= 0) o += sText(x + cw / 2, y + ch - 6, `k = ${V[when[i][j]]}`, 'ts', 'middle', onAt(0), F);
+  }
+  o += text(x0 + 2 * cw, y0 + 4 * ch + 26, '第一行 0, 1, 5, 2 就是从 s 出发的 δ', 'ts', 'middle');
+  return svgA(560, 300, o, `动图：Floyd–Warshall 在 s、a、b、c 四个 vertex 的 graph 上依次许 s、a、b、c 当中间点。许经过 a 时 (s, c) 变成 3、(b, c) 变成 −3；许经过 b 时 (s, a) 变成 1、(s, c) 变成 2；最后第一行是 0, 1, 5, 2`);
+}
+
 export default {
+  'cs2040-fw': fw,
   'cs2040-chain': chain,
   'cs2040-dtree': dtree,
   'cs2040-linsert': linsert,

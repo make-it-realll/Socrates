@@ -87,7 +87,7 @@ export function momentumRun() {
   return { frames, rep };
 }
 const interp = (pts) => (t) => { if (t <= pts[0][0]) return pts[0][1]; for (let k = 1; k < pts.length; k++) if (t <= pts[k][0]) { const [a, x] = pts[k - 1], [b, y] = pts[k]; return x + ((y - x) * (t - a)) / (b - a); } return pts[pts.length - 1][1]; };
-export const sgTFR = interp([[1957, 6.0], [1960, 6.0], [1975, 2.1], [1987, 1.44], [2014, 1.25], [2019, 1.14], [2024, 0.97]]);
+export const sgTFR = interp([[1957, 6.0], [1960, 6.0], [1975, 2.1], [1987, 1.44], [2014, 1.25], [2019, 1.14], [2020, 1.10], [2023, 0.97], [2024, 0.97], [2025, 0.87]]);
 export const sgE0 = interp([[1900, 30], [1950, 60], [1970, 68], [2000, 78], [2020, 83], [2060, 87]]);
 export function sgRun() {
   let F = stable(mortality(30), 6.0); const out = {};
@@ -236,11 +236,55 @@ function decomp() {
   o += rect(xs[0], sy(Bc), bw, sy(0) - sy(Bc), 'wash2') + text(xs[0] + bw / 2, sy(Bc) - 8, Bc.toFixed(2), 'tb', 'middle') + text(xs[0] + bw / 2, 250, 'B 的 crude', 'ts', 'middle');
   o += rect(xs[1], sy(Bc + ageP), bw, sy(Bc) - sy(Bc + ageP), 'wash-strong') + text(xs[1] + bw / 2, sy(Bc + ageP) - 8, '+' + ageP.toFixed(2), 'tb', 'middle');
   o += text(xs[1] + bw / 2, 250, '年龄结构的差', 'ts', 'middle') + text(xs[1] + bw / 2, 266, 'A 老人多', 'ts', 'middle');
-  o += rect(xs[2], sy(Bc + ageP), bw, sy(A) - sy(Bc + ageP), 'solid') + text(xs[2] + bw / 2, sy(A) + 18, rateP.toFixed(2).replace('-', '−'), 'tw', 'middle');
+  o += rect(xs[2], sy(Bc + ageP), bw, sy(A) - sy(Bc + ageP), 'solid') + text(xs[2] + bw / 2, (sy(Bc + ageP) + sy(A)) / 2 + 5, rateP.toFixed(3).replace('-', '−'), 'tw', 'middle');
   o += text(xs[2] + bw / 2, 250, 'age-specific rate 的差', 'ts', 'middle') + text(xs[2] + bw / 2, 266, 'A 每层都更低', 'ts', 'middle');
   o += rect(xs[3], sy(A), bw, sy(0) - sy(A), 'wash2') + text(xs[3] + bw / 2, sy(A) - 8, A.toFixed(3), 'tb', 'middle') + text(xs[3] + bw / 2, 250, 'A 的 crude', 'ts', 'middle');
   o += line(xs[0] + bw, sy(Bc), xs[1], sy(Bc), 'dash') + line(xs[1] + bw, sy(Bc + ageP), xs[2], sy(Bc + ageP), 'dash') + line(xs[2] + bw, sy(A), xs[3], sy(A), 'dash');
   return svg(560, 272, o, '从 B 的 crude death rate 5.69 出发，年龄结构的差贡献加 3.58，age-specific rate 的差贡献减 1.545，得到 A 的 7.725');
+}
+
+// 第 3 站：direct 与 indirect standardization 并排
+function smrFig() {
+  const ages = ['0–14', '15–64', '65+'];
+  const std = POP.A.w.map((w, k) => (w + POP.B.w[k]) / 2);
+  const dirA = std.reduce((s, w, k) => s + w * POP.A.r[k], 0), dirB = std.reduce((s, w, k) => s + w * POP.B.r[k], 0);
+  const expB = POP.B.w.reduce((s, w, k) => s + w * POP.A.r[k], 0), obsB = crude(POP.B);
+  const fmt = (v) => String(+v.toFixed(3)), fw = (v) => v.toFixed(2), fr = (v) => (v < 10 ? v.toFixed(1) : String(v));
+  let o = '';
+  const top = 58, rh = 34;
+  // 一个表：cols = [[x, w, header, (k) => text, cls]]
+  const table = (cols) => {
+    cols.forEach(([x, w, h1, h2, cell, cls]) => {
+      o += text(x + w / 2, top - 22, h1, 'ts', 'middle') + text(x + w / 2, top - 8, h2, 'ts', 'middle');
+      for (let k = 0; k < 3; k++) {
+        o += rect(x, top + k * rh, w - 4, rh - 4, cls, 3);
+        o += text(x + (w - 4) / 2, top + k * rh + 19, cell(k), 't', 'middle');
+      }
+    });
+  };
+  o += text(135, 18, 'Direct：同一套 standard weight', 'tb', 'middle');
+  table([
+    [8, 52, '', 'age', (k) => ages[k], 'wash2'],
+    [60, 66, 'standard', 'weight', (k) => fw(std[k]), 'wash-strong'],
+    [126, 66, 'A 的', 'rate（‰）', (k) => fr(POP.A.r[k]), 'paper'],
+    [192, 66, 'B 的', 'rate（‰）', (k) => fr(POP.B.r[k]), 'paper'],
+  ]);
+  const yT = top + 3 * rh + 18;
+  o += text(135, yT, 'A：Σ weight × rate = ' + fmt(dirA), 't', 'middle');
+  o += text(135, yT + 18, 'B：Σ weight × rate = ' + fmt(dirB), 't', 'middle');
+  o += text(135, yT + 40, 'CMR = ' + fmt(dirB) + ' / ' + fmt(dirA) + ' = ' + (dirB / dirA).toFixed(2), 'tl', 'middle');
+  o += line(280, 10, 280, yT + 56, 'grid');
+  o += text(425, 18, 'Indirect：B 自己的 weight', 'tb', 'middle');
+  table([
+    [298, 52, '', 'age', (k) => ages[k], 'wash2'],
+    [350, 66, 'B 的', 'weight', (k) => fw(POP.B.w[k]), 'wash-strong'],
+    [416, 66, 'A 的 rate', '（standard）', (k) => fr(POP.A.r[k]), 'paper'],
+    [482, 74, 'weight', '× rate', (k) => fmt(POP.B.w[k] * POP.A.r[k]), 'paper'],
+  ]);
+  o += text(425, yT, 'expected E = ' + fmt(expB) + '（每 1000 人）', 't', 'middle');
+  o += text(425, yT + 18, 'B 实际的 crude rate O = ' + fmt(obsB), 't', 'middle');
+  o += text(425, yT + 40, 'SMR = O / E = ' + fmt(obsB) + ' / ' + fmt(expB) + ' = ' + (obsB / expB).toFixed(2), 'tl', 'middle');
+  return svg(560, yT + 50, o, '左边 direct standardization：标准 weight 0.25、0.64、0.11 分别乘 A 和 B 的 age-specific rate，得到 6.125 和 7.67，CMR 1.25；右边 indirect：B 的 weight 乘 A 的 rate 得到 expected 4.525，B 实际 5.69，SMR 1.26');
 }
 
 // 第 4 站：SIR 动图，400 个人的格子 + 三条 curve
@@ -446,7 +490,7 @@ function sgA() {
   o += text(X, 196, '模型没有 migration；mortality 按假设', 'ts', 'start');
   o += text(X, 212, '的 e₀ 路径（30 岁在 1900 年 → 87 岁', 'ts', 'start');
   o += text(X, 228, '在 2060 年）逐步改善。', 'ts', 'start');
-  return svgA(560, 262, o, '动图：从 1960 到 2060 年，一个没有 migration、TFR 从 6 降到 0.97 的 population，pyramid 从底宽的三角形变成上宽下窄；old-age support ratio 从 14.8 降到 1.2');
+  return svgA(560, 262, o, '动图：从 1960 到 2060 年，一个没有 migration、TFR 从 6 降到 0.87 的 population，pyramid 从底宽的三角形变成上宽下窄；old-age support ratio 从 14.8 降到 1.1');
 }
 
 // 第 7 站：causal diagram（toy numbers）
@@ -460,7 +504,7 @@ function dag() {
   o += arrow(150, 122, 216, 66, 'ink') + arrow(366, 66, 438, 122, 'ink');
   o += arrow(156, 140, 433, 140, 'ln');
   o += arrow(250, 210, 150, 160, 'mute') + arrow(330, 210, 438, 160, 'mute');
-  o += text(150, 84, '低 grade 60% 吸烟', 'ts', 'end') + text(150, 100, '高 grade 20%', 'ts', 'end');
+  o += text(150, 84, '低 grade 61% 吸烟', 'ts', 'end') + text(150, 100, '高 grade 29%', 'ts', 'end');
   o += text(412, 84, 'risk × 2', 'ts', 'start');
   o += text(290, 121, '其余 pathway（job control 等）：risk × 2.5', 'tl', 'middle');
   o += text(290, 286, '箭头表示 cause；Age 同时影响 grade 和 CHD，所以要 adjust；Smoking 在 grade 到 CHD 的路上。', 'ts', 'middle');
@@ -501,6 +545,7 @@ export default {
   'mih1101-tank': tankA,
   'mih1101-designs': designs,
   'mih1101-decomp': decomp,
+  'mih1101-smr': smrFig,
   'mih1101-sir': sirA,
   'mih1101-final': finalPlot,
   'mih1101-trans': transA,
