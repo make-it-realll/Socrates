@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PH2203 道德哲学名家 · Socrates</title>
+<link rel="stylesheet" href="../assets/katex/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="p-course" style="--line-l:#8B5E34;--line-dk:#D2A679">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="top">
+  <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true"></span>Socrates</a>
+  <nav class="top-nav" aria-label="全站">
+    <a href="../index.html#map">谱系图</a>
+    <a href="../index.html#lines">全部课程</a>
+    <a href="../index.html#threads">概念线</a>
+    <a href="../labs.html">动手做</a>
+    <a href="../index.html#how">怎么用</a>
+  </nav>
+</header>
+<main id="main" class="course" data-course="PH2203" data-title="Major Moral Philosophers" data-zh="道德哲学名家">
+<header class="c-head">
+  <p class="c-line">哲学线</p>
+  <h1><span class="c-code">PH2203</span><span class="c-zh">道德哲学名家</span></h1>
+  <p class="c-title">Major Moral Philosophers</p>
+  <dl class="c-meta">
+    <div><dt>依据</dt><dd><strong>只有大纲</strong>课程描述取自 NUSMods（AY26/27）：介绍主要的 Western moral philosophers 对“该做什么、该成为什么样的人”的回答，覆盖 deontological、consequentialist、virtue-based 三条路，结合 historical 与 contemporary sources。NUSMods 的 Disqus 评价没有加载出来，也没有找到公开的 syllabus 或学生回顾；哲学系 AY26/27 的 course list 只列了 lecturer（Walker M）和上课时间。所以本页按课程描述的三条路选了 Aristotle、Hume、Kant、Mill 四人，实际读哪些文本、各占几周，以当学期 Canvas 为准。还没有对着往年卷子核过。</dd></div>
+    <div><dt>考试</dt><dd>NUSMods 显示 AY26/27 第二学期开课，期末考试 120 分钟（2027 年 5 月 6 日下午）。期末之外的考核（essay、tutorial 等）和比重没有查到，以当学期 Canvas 为准。</dd></div>
+  </dl>
+</header>
+<div class="c-grid">
+<nav class="rail" aria-label="本课各站"><ol><li class="rs"><a href="#ergon" data-skill="ergon"><span class="dot" aria-hidden="true"></span><span class="rl">Aristotle：eudaimonia 与 function argument</span></a></li><li class="rs"><a href="#mean" data-skill="mean"><span class="dot" aria-hidden="true"></span><span class="rl">Aristotle：virtue、habituation 与 doctrine of the mean</span></a></li><li class="rs"><a href="#hume" data-skill="hume"><span class="dot" aria-hidden="true"></span><span class="rl">Hume：reason、passion 与 is–ought</span></a></li><li class="rs"><a href="#ful" data-skill="ful"><span class="dot" aria-hidden="true"></span><span class="rl">Kant：categorical imperative 与 universalizability test</span></a></li><li class="rs"><a href="#humanity" data-skill="humanity"><span class="dot" aria-hidden="true"></span><span class="rl">Kant：Formula of Humanity 与 murderer at the door</span></a></li><li class="rs"><a href="#mill" data-skill="mill"><span class="dot" aria-hidden="true"></span><span class="rl">Mill：higher pleasures 与 proof of utility</span></a></li><li class="rp"><a href="#sec-7"><span class="dot" aria-hidden="true"></span><span class="rl">真题走读：待补</span></a></li></ol></nav>
+<div class="c-body">
+<section class="mine" aria-label="我的进度">
+  <h2>我的进度</h2>
+  <div class="map-rows" id="skill-map"></div>
+  <p class="mine-note">等级自己点，标准写在每一站开头。想被真正提问，把进度块贴回 Claude 对话里说 “resume from:”。</p>
+  <div class="mine-act"><button type="button" id="btn-copy">复制进度块</button><span id="copy-ok" aria-live="polite"></span>
+  <details><summary>从进度块恢复</summary><textarea id="imp" rows="5" aria-label="粘贴进度块"></textarea><button type="button" id="btn-imp">恢复</button><span id="imp-ok" aria-live="polite"></span></details></div>
+</section>
+<section class="plain lead"><p>先看四个 case。每一个里常识都给得出回答，可是换一个 case，同一条常识就推出相反的东西。</p>
+<p><strong>第一个。</strong> 两个店主都从不多收顾客的钱。一个是因为老实做生意对他有利；另一个是因为多收不对，哪怕永远不会被发现他也不多收。两人做的事一模一样，多数人还是觉得第二个更值得称赞。如果 moral evaluation 只看做了什么，两人没有差别。</p>
+<p><strong>第二个。</strong> 两个人都不多吃。一个每次都要跟自己的 appetite 斗一番才忍住；另一个根本不想多吃，吃够了就满足。说前一个更 virtuous，理由是他克服了更多；说后一个更 virtuous，理由是他的 desire 本身就对。两种回答对“moral evaluation 评价的是什么”给出了不同的答案。</p>
+<p><strong>第三个。</strong> 朋友躲在你家，一个要杀他的人敲门，问他在不在。几乎所有人都觉得这时可以说谎。可是如果理由是“说谎的结果更好”，那么只要结果更好，什么谎都可以说，这又是多数人不接受的。</p>
+<p><strong>第四个。</strong> 一个人一辈子读书思考，常常不满足；另一个人一辈子玩简单的游戏，非常满足。如果好的 life 就是 pleasure 多、pain 少，后一个过得更好。Mill 说 “better to be Socrates dissatisfied than a fool satisfied”，可要说清为什么，就得承认 pleasure 除了多少还有别的区别。</p>
+<p>四个 case 背后是同一个问题：moral evaluation 落在哪里。MIT 24.01 讲 Mill 的那一讲把一个 action 可能承载 moral value 的地方分成三处：做它的 agent 和他的 character；action 本身，也就是使它成为这个 action 的东西；它的 consequences。Aristotle 放在第一处，Kant 放在第二处，Mill 放在第三处。在 Kant 那里，使一个 action 成为这个 action 的是它出自的 maxim，所以下图把第二处画成 maxim。四个 case 对“做了什么”都没有分歧，分歧在于该看链条上的哪一格。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 252" role="img" aria-label="一个 action 从 character 到 maxim 到 action 本身再到 consequences 的链条：Aristotle 评价 character，Kant 评价 maxim，Mill 评价 consequences，Hume 看的是 spectator 看到 character 时的 approval"><rect x="0" y="96" width="122" height="52" rx="6" class="wash ink-s"/><text x="61" y="118" class="tb" text-anchor="middle">Character</text><text x="61" y="136" class="ts" text-anchor="middle">stable hexis</text><line x1="124" y1="122" x2="142" y2="122" class="ink"/><polygon points="144,122 137.6,119.1 137.6,124.9" class="ink-f"/><rect x="146" y="96" width="122" height="52" rx="6" class="wash ink-s"/><text x="207" y="118" class="tb" text-anchor="middle">Maxim</text><text x="207" y="136" class="ts" text-anchor="middle">agent 的 principle</text><line x1="270" y1="122" x2="288" y2="122" class="ink"/><polygon points="290,122 283.6,119.1 283.6,124.9" class="ink-f"/><rect x="292" y="96" width="122" height="52" rx="6" class="paper"/><text x="353" y="118" class="tb" text-anchor="middle">Action</text><text x="353" y="136" class="ts" text-anchor="middle">实际做了什么</text><line x1="416" y1="122" x2="434" y2="122" class="ink"/><polygon points="436,122 429.6,119.1 429.6,124.9" class="ink-f"/><rect x="438" y="96" width="122" height="52" rx="6" class="wash ink-s"/><text x="499" y="118" class="tb" text-anchor="middle">Consequences</text><text x="499" y="136" class="ts" text-anchor="middle">受影响者的得失</text><line x1="61" y1="152" x2="61" y2="164" class="mute"/><text x="61" y="182" class="tb" text-anchor="middle">Aristotle</text><text x="61" y="199" class="ts" text-anchor="middle">384–322 BC</text><text x="61" y="216" class="ts" text-anchor="middle">Nicomachean Ethics</text><text x="61" y="233" class="ts" text-anchor="middle">第 1、2 站</text><line x1="207" y1="152" x2="207" y2="164" class="mute"/><text x="207" y="182" class="tb" text-anchor="middle">Kant</text><text x="207" y="199" class="ts" text-anchor="middle">1724–1804</text><text x="207" y="216" class="ts" text-anchor="middle">Groundwork 1785</text><text x="207" y="233" class="ts" text-anchor="middle">第 4、5 站</text><line x1="499" y1="152" x2="499" y2="164" class="mute"/><text x="499" y="182" class="tb" text-anchor="middle">Mill</text><text x="499" y="199" class="ts" text-anchor="middle">1806–1873</text><text x="499" y="216" class="ts" text-anchor="middle">Utilitarianism 1863</text><text x="499" y="233" class="ts" text-anchor="middle">第 6 站</text><text x="353" y="182" class="ts" text-anchor="middle">四个人对这一格</text><text x="353" y="199" class="ts" text-anchor="middle">的描述没有分歧</text><rect x="30" y="6" width="196" height="46" rx="6" class="paper"/><text x="128" y="25" class="tb" text-anchor="middle">Spectator</text><text x="128" y="42" class="ts" text-anchor="middle">从 common point of view 看</text><path d="M80 54L62 92" class="dash"/><polygon points="61,95 58.5,86 65.5,88.5" class="ink-f"/><text x="80" y="78" class="ts" text-anchor="start">approval</text><text x="244" y="25" class="tb" text-anchor="start">Hume　1711–1776</text><text x="244" y="42" class="ts" text-anchor="start">Treatise 1739–40，第 3 站</text></svg><figcaption>同一个 action 的链条。四个人对中间那一格的描述一致，分歧在于 moral evaluation 放在哪一格：Aristotle 看 character，Kant 看 maxim，Mill 看 consequences，Hume 看一个 spectator 看到 character 时产生的 approval。</figcaption></figure>
+<p>课程描述说这门课覆盖三条路：virtue-based、deontological、consequentialist。本页每条路取最经典的来源，再加上 Hume，因为他提出的问题（moral distinction 到底来自 reason 还是 sentiment）是后面 Kant 和 Mill 都要回答的。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>站</th>
+<th>哲学家</th>
+<th>要回答的问题</th>
+<th>开头的哪个 case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 1 站</td>
+<td>Aristotle</td>
+<td>所有选择最终为了什么；human good 是什么</td>
+<td>第四个</td>
+</tr>
+<tr>
+<td>第 2 站</td>
+<td>Aristotle</td>
+<td>Virtue 是哪一类东西、怎样获得、为什么在“中间”</td>
+<td>第二个</td>
+</tr>
+<tr>
+<td>第 3 站</td>
+<td>Hume</td>
+<td>Moral distinction 来自 reason 还是 sentiment</td>
+<td>四个都涉及</td>
+</tr>
+<tr>
+<td>第 4 站</td>
+<td>Kant</td>
+<td>有没有不靠任何 desire 的 ought；怎样检验一个 maxim</td>
+<td>第一个、第二个</td>
+</tr>
+<tr>
+<td>第 5 站</td>
+<td>Kant</td>
+<td>Formula of Humanity；能不能对 murderer 说谎</td>
+<td>第三个</td>
+</tr>
+<tr>
+<td>第 6 站</td>
+<td>Mill</td>
+<td>Pleasure 有没有 quality 的高低；utilitarianism 能不能 proof</td>
+<td>第四个</td>
+</tr>
+</tbody>
+</table></div>
+<p>几门已有的课和这一页重叠，重叠处只链接不重讲。<a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>讲了 utilitarianism 的三个 component、“多数人说了算”的误读、experience machine、transplant，以及 Kant 的 false promise 怎样走 universal law test、Formula of Humanity 里 “merely” 的意思。<a href="../courses/LC1002A.html#moral">LC1002A 第 1 站</a>讲了 Bentham 与 Kant 怎样论证 punishment。<a href="../courses/PH2222.html#justice">PH2222</a> 讲了 Plato 的 Republic，Aristotle 的 function argument 在 Republic Book I 有一个前身。</p>
+<p>全页的做法和那几门课一样：每个 argument 都写成编号的 premise 和 conclusion，先问它是否 valid，再问反对者否认的是哪一条。这些问题没有定论，本页把各方最强的说法摆出来，不替你选。</p>
+</section>
+<section class="stop" id="ergon" data-skill="ergon" data-name="Aristotle：eudaimonia 与 function argument">
+<header class="stop-h"><span class="stop-n">第 1 站</span><h2>Aristotle：eudaimonia 与 function argument</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 eudaimonia 的两条 formal criteria，并用它们排除 wealth、honour、pleasure。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立把 function argument 重构成 P1–P4、L、C1、C2，并指出开头的 regress argument 从“每条链都有终点”到“只有一个终点”推不过去。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能讲清三个 objection 各打在哪条 premise 上、各自的回应要付什么代价，并用 C2 说明 eudaimonia 为什么是 activity 而不是 feeling。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-ergon">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-ergon"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能把 function argument 重构成编号的 premise，说出三个 objection 各打在哪一条上、Aristotle 一方怎样回应，并解释 eudaimonia 为什么是 activity 而不是一种 feeling，就可以去第 2 站。</p>
+</aside>
+<h3>每个选择都“为了”别的东西，链条停在哪里</h3>
+<p>你今晚复习 PH2203，为了期末考好；考好是为了 grade；grade 是为了申请；申请是为了一份工作；工作是为了钱；钱是为了……每一步都可以再问一次“为了什么”。Nicomachean Ethics 第 I 卷就从这里开始。Aristotle 区分两种 end：只因为别的东西才被选的（钱就是这样），和因为它自己而被选的。如果每个 end 都只是为了下一个，链条就没有尽头，desire 会变得 “empty and vain”（I.2，1094a20–21）。</p>
+<p>为什么要找一个最终的 end？MIT 24.01 的讲义给了一个理由：practical reason 能替每个 end 找 means，所以一个人可以同时有很多 end；一旦两个 end 冲突，要么没有 rational 的办法往下走，要么需要一个排出先后的标准。讲义用的是 Sartre 的例子：一个学生要在照顾母亲和加入 French Resistance 之间选择，两边都是他真心看重的 end。Aristotle 的办法是让所有 end 都按一个 ultimate end 排序，一个井然有序的 life 把所有 action 和 desire 都指向它。</p>
+<p>写成编号的形式：</p>
+<ul>
+<li><strong>P1.</strong> 我们追求的每个 end，要么只为了别的 end，要么至少部分地为了它自己。</li>
+<li><strong>P2.</strong> 不可能每个 end 都只为了别的 end，否则 desire 永远落不了地。</li>
+<li><strong>C1.</strong> 至少有一个 end 是为了它自己而被追求的。</li>
+</ul>
+<p>这一段 valid。Aristotle 要的却是更强的结论：</p>
+<ul>
+<li><strong>C2.</strong> 有一个 end，所有其他 end 都为了它。这就是 the highest good。</li>
+</ul>
+<p>从 C1 到 C2 推不过去。C1 说每条链都有终点，C2 说所有链的终点是同一个。用同样 form 的推理检验：从“每个人都有一个 mother”推不出“有一个人是所有人的 mother”。MIT 24.01 的讲义在这里直接指出，这个 argument 本身证明不了 final good 只有一个，并且追问：为什么假定 supreme good 对所有人都一样？有人作为 professor flourish，有人作为 doctor、musician、carpenter flourish，每个人的 life 可以各有一个 supreme good，却不是同一个。</p>
+<p>所以 Aristotle 需要另外的理由说明 the highest good 只有一个，并且说明它是什么。他先给出两条 formal criteria，再用 function argument 填进内容。</p>
+<h3>两条 formal criteria：拿三个候选去试</h3>
+<p>人们对 the highest good 叫什么没有分歧，都叫它 eudaimonia（通常译作 happiness，更贴切的译法是 flourishing 或 living well）。分歧在于它由什么构成：有人说 pleasure，有人说 wealth，有人说 honour。Aristotle 在 I.7 给出两条不依赖这场争论的 criteria：</p>
+<ol>
+<li><strong>Complete（final）</strong>：只因为它自己而被选，从不为了别的东西而被选。</li>
+<li><strong>Self-sufficient</strong>：“that which when isolated makes life desirable and lacking in nothing”。</li>
+</ol>
+<p>拿三个流行的候选和 eudaimonia 本身去试：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>候选</th>
+<th>为了它自己而选？</th>
+<th>也为了别的东西而选？</th>
+<th>通过 criterion 1？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wealth</td>
+<td>否，“merely useful and for the sake of something else”（I.5）</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Honour</td>
+<td>是</td>
+<td>是，我们也为了 eudaimonia 而要它</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Pleasure</td>
+<td>是</td>
+<td>是，同上</td>
+<td>否</td>
+</tr>
+<tr>
+<td>Eudaimonia</td>
+<td>是</td>
+<td>否，没有人为了别的东西而要 flourishing</td>
+<td>是</td>
+</tr>
+</tbody>
+</table></div>
+<p>表里第二、三行出自 I.7：“honour, pleasure, reason, and every virtue we choose indeed for themselves”，但也为了 happiness 而选它们。它们本身是 good，落选是因为同时还为了别的东西而被选。Honour 另有一个毛病，I.5 说它 “depends on those who bestow honour rather than on him who receives it”，这和“属于自己的 good”对不上。</p>
+<p>可是这两条 criteria 只说出 the highest good 的 formal property。说“the highest good 是 eudaimonia”几乎是同义反复，内容还空着。</p>
+<h3>Function argument：从“做好 function”到 human good</h3>
+<p>Aristotle 从有 function（ergon）的东西入手。Ergon 也可以译作 work 或 characteristic activity。一个 flute-player、一个 sculptor、任何一个 artist，他的 good、他的 “well”，就在于把他的 function 做好。Eye、hand、foot 也各有 function。那么 human being 作为 human，是不是也有一个 function？如果有，human good 就是把它做好。</p>
+<p>MIT 24.01 的讲义把 I.7 的论证分成三段：human function 是否存在（1097b28–33）、它是什么（1097b33–1098a7）、它和 happiness 的联系（1098a7–20）。重构成四条 premise、两个中间结论：</p>
+<ul>
+<li><strong>P1.</strong> 一个东西 X 如果有 function，X 的 good 就在于把这个 function 做好。</li>
+<li><strong>P2.</strong> 把 function 做好，就是依照 X 的 virtue（aretē，excellence）去做。Lyre-player 的 function 是弹 lyre，good lyre-player 的 function 是弹得好。讲义的例子：一把削水果的 knife，function 是切，它的 virtue 是锋利、好握、好洗；一个 doctor，function 是治病，他的 virtue 是医学知识、运用它的技能和对病人的态度。</li>
+<li><strong>L.</strong>（由 P1、P2）有 function 的 X，它的 good 就是依照 virtue 做好它的 function。</li>
+<li><strong>P3.</strong> Human being 有 function。“Have the carpenter, then, and the tanner certain functions or activities”，而 man 生来就没有吗？Eye、hand、foot 都有 function，作为整体的 human 不会没有。</li>
+<li><strong>P4.</strong> Human 的 function 是 human 特有的 activity。“Let us exclude, therefore, the life of nutrition and growth”，那是 plant 也有的；perception “common even to the horse, the ox, and every animal”。剩下的是 “an active life of the element that has a rational principle”（1098a3–4）。</li>
+<li><strong>C1.</strong>（由 P3、P4）Human 的 function 是 soul 依照 reason（至少不脱离 reason）的 activity（1098a7–8）。</li>
+<li><strong>C2.</strong>（由 L、C1）“Human good turns out to be activity of soul in accordance with virtue”，如果 virtue 不止一种，就依照最好、最 complete 的那一种（1098a16–18），而且要 “in a complete life”：“one swallow does not make a summer”，一天或一小段时间也不使人 blessed and happy。</li>
+</ul>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 346" role="img" aria-label="Function argument 的 argument map：P1、P2 推出 L，P3、P4 推出 C1，L 和 C1 推出 C2；三个 objection 分别打在 P3、P4 和 P1 上"><rect x="0" y="8" width="132" height="112" rx="6" class="paper"/><text x="10" y="27" class="tb" text-anchor="start">P1</text><text x="10" y="45" class="ts" text-anchor="start">X 有 function，</text><text x="10" y="61" class="ts" text-anchor="start">X 的 good 就在于</text><text x="10" y="77" class="ts" text-anchor="start">把 function 做好</text><text x="10" y="93" class="ts tl" text-anchor="start">C：good X ≠</text><text x="10" y="109" class="ts tl" text-anchor="start">good for X</text><rect x="140" y="8" width="132" height="112" rx="6" class="paper"/><text x="150" y="27" class="tb" text-anchor="start">P2</text><text x="150" y="45" class="ts" text-anchor="start">function 做得好</text><text x="150" y="61" class="ts" text-anchor="start">= 依照 X 的</text><text x="150" y="77" class="ts" text-anchor="start">virtue 去做</text><text x="150" y="93" class="ts" text-anchor="start">lyre-player、knife</text><rect x="288" y="8" width="132" height="112" rx="6" class="paper"/><text x="298" y="27" class="tb" text-anchor="start">P3</text><text x="298" y="45" class="ts" text-anchor="start">Human 有 function</text><text x="298" y="61" class="ts" text-anchor="start">carpenter 有，</text><text x="298" y="77" class="ts" text-anchor="start">eye、hand 也有</text><text x="298" y="93" class="ts tl" text-anchor="start">A：谁给的？</text><rect x="428" y="8" width="132" height="112" rx="6" class="paper"/><text x="438" y="27" class="tb" text-anchor="start">P4</text><text x="438" y="45" class="ts" text-anchor="start">Human 的 function</text><text x="438" y="61" class="ts" text-anchor="start">是它特有的 activity</text><text x="438" y="77" class="ts" text-anchor="start">排除 plants、animals</text><text x="438" y="93" class="ts tl" text-anchor="start">B：特有 = best？</text><rect x="20" y="150" width="232" height="70" rx="6" class="paper"/><text x="30" y="169" class="tb" text-anchor="start">L（由 P1、P2）</text><text x="30" y="187" class="ts" text-anchor="start">X 的 good =</text><text x="30" y="203" class="ts" text-anchor="start">依照 virtue 做好 function</text><rect x="308" y="150" width="232" height="70" rx="6" class="paper"/><text x="318" y="169" class="tb" text-anchor="start">C1（由 P3、P4）</text><text x="318" y="187" class="ts" text-anchor="start">Human 的 function =</text><text x="318" y="203" class="ts" text-anchor="start">soul 依照 reason 的 activity</text><line x1="66" y1="122" x2="108.3" y2="147" class="ink"/><polygon points="110,148 105.9,142.3 103,147.2" class="ink-f"/><line x1="206" y1="122" x2="163.7" y2="147" class="ink"/><polygon points="162,148 169,147.2 166.1,142.3" class="ink-f"/><line x1="354" y1="122" x2="396.3" y2="147" class="ink"/><polygon points="398,148 393.9,142.3 391,147.2" class="ink-f"/><line x1="494" y1="122" x2="451.7" y2="147" class="ink"/><polygon points="450,148 457,147.2 454.1,142.3" class="ink-f"/><rect x="110" y="262" width="340" height="72" rx="6" class="wash ink-s"/><text x="120" y="281" class="tb" text-anchor="start">C2　Human good（I.7）</text><text x="120" y="299" class="ts" text-anchor="start">activity of soul in accordance with virtue，</text><text x="120" y="315" class="ts" text-anchor="start">in a complete life（1098a16–18）</text><line x1="136" y1="222" x2="218.2" y2="259.2" class="ink"/><polygon points="220,260 215.4,254.8 213,260" class="ink-f"/><line x1="424" y1="222" x2="341.8" y2="259.2" class="ink"/><polygon points="340,260 347,260 344.6,254.8" class="ink-f"/></svg><figcaption>四条 premise 分两路汇合。主题色的字是三个 objection 打在哪里：A、B 打右边那一路的 P3、P4，C 打左边那一路的 P1。</figcaption></figure>
+<p>先查 validity。L 是 P1、P2 合起来的直接结论。把 C1 代进 L 里的 X：human 的 good 是依照 human 的 virtue 做好“soul 依照 reason 的 activity”，这就是 C2。四条 premise 都 true，C2 就 true。所以要反对，只能挑 premise。</p>
+<h3>三个 objection 和回应</h3>
+<p><strong>Objection A，打 P3：谁给 human 定的 function？</strong> Knife 的 function 来自制造它、使用它的人；eye 的 function 来自它在 body 这个更大的整体里起的作用。Human being 作为整体，没有制造者（除非引进 God），也不是某个更大整体的零件。所以“carpenter 有 function，human 就有 function”这一步，是从一个 role 跳到了一个 kind。</p>
+<p>回应来自 SEP 的 Aristotle's Ethics 条目：这个 argument 靠的是 Aristotle 的 biology。每一种 living thing 都有它 characteristic 的活法：plant 只有 nutritive soul，animal 加上 perceptive 和 locomotive 的 capacity，human 还有 rational soul。在这个意义上 function 不需要 designer，它就是“这一种东西特有的 life”。代价是 P3 现在依赖一整套关于 species 和 soul 的 theory，不接受这套 theory 的人，P3 也就失去了支持。</p>
+<p><strong>Objection B，打 P4：特有的就是 best 吗？</strong> P4 的检验标准是“只有 human 才有”，Aristotle 要找的是 “the special function of a human being”（1097b34）。MIT 24.01 的讲义在这里连问两句：为什么 human 的 function 必须是 human 独有的？如果遇到会 rational 思考的 alien，又怎么办？如果 human good 取决于别的 species 有没有某种 capacity，这个标准就选错了东西。</p>
+<p>回应：把 P4 读成“使 human 成为 human、并组织其他 capacity 的那个 capacity”。人怎样吃、怎样感知、怎样行动，都由 reason 安排，所以 reason 是 human life 的组织者，和别的 species 有没有它无关。这样读，alien 的问题就消失了。这个回应是我顺着 SEP 的 biological 读法引申的，条目里没有这样写。</p>
+<p><strong>Objection C，打 P1：good X 与 good for X。</strong> “Good knife”的 good 是 functional 的，说它是一把好刀。“Good for me”的 good 是 prudential 的，说它让我过得好。P1 把两者等同了。一个 good assassin 把他的 function 做得很好，并不因此 flourish；一个人可能不是 human 的好样本，却过得很满足。如果 P1 只说 functional good，C2 就只能推出“什么是一个 good human”，推不出“什么 life 对 human 最好”，而第 I 卷问的是后者。</p>
+<p>回应：对 living thing 来说，两种 good 在这里重合。一棵 plant 长得好，就是它 flourishing；一个 living thing 过得好，就是把它特有的那种 life 活好。批评者会说这正是需要证明的东西。Objection C 和这个回应是我按常见的讨论整理的，前面引用的材料都没有这样写。</p>
+<h3>Eudaimonia 是 activity</h3>
+<p>C2 有一个直接的后果：eudaimonia 是 activity，不是一种 state，更不是一种 feeling。SEP 的说法是 Aristotle 修正了“happiness 就是 virtue”的传统看法：happiness 是 virtuous 的 activity，是一辈子把 rational part 的 virtue 实际用出来。只有 virtue 而不运用它也不够。I.5 在否定“political life 的 end 是 virtue”时给的理由正是：拥有 virtue “compatible with being asleep, or with lifelong inactivity”，而没有人会说这样的人 happy。</p>
+<p>这正好回答了 GEX1015 里 <a href="../courses/GEX1015.html#ethics">experience machine</a> 留下的问题。接上机器的人以为自己有朋友、做成了事，pleasure 一分不少。按 hedonism，他过得最好。按 C2，他没有在真实的 friendship 和真实的 action 里运用任何 virtue，所以没有 flourish。多数人不愿接上机器的那个 intuition，Aristotle 的 theory 给出了解释。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Eudaimonia 就是 happiness，也就是一种开心的 feeling</span></p><p>用 C2 检验两个人的一天。A 整天躺着，服了一种让人持续愉快的药，什么也没做。B 整天在做困难而正当的事：照顾生病的朋友，把一份难写的 report 写完，中间有烦躁也有疲惫。按“开心的 feeling”，A 的一天胜过 B。按 C2，A 这一天没有任何依照 virtue 的 activity，B 有。而且 C2 要求 a complete life，单独一天、单独一个时刻的 feeling，无论多好，都还不构成 eudaimonia。把 eudaimonia 译成 happiness 不算错，错在把 happiness 理解成心情。</p>
+</aside>
+<h3>External goods 与 luck</h3>
+<p>依照 virtue 的 activity 需要条件。I.8 说 happiness 还需要 friends、wealth、political power 这些 external goods，以及 “good birth, goodly children, beauty”；“the man who is very ugly in appearance or ill-born or solitary and childless is not very likely to be happy”。SEP 的总结是：在某种程度上，living well 需要 good fortune，“happenstance can rob even the most excellent human beings of happiness”。同时，virtue 本身不是碰运气得来的，获得和运用 virtue 是我们自己要负责的事。</p>
+<p>于是 Aristotle 的 good life 有一部分不由我们决定。第 4 站的 Kant 会走相反的路：他要找一种完全不受 luck 影响的 moral worth，good will 即使什么也没做成，也 “would still shine by its own light”。</p>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">Priam：盛年顺遂，晚年遭了大难</span></p><p>I.9 提到 Trojan Cycle 里的 Priam：前半生顺遂，晚年国破家亡。I.10 先引 Solon 的问题，是不是要 “see the end” 才能说一个人 happy，然后给出两条看起来相反的话。一方面，happiness 由依照 virtue 的 activity 决定，virtuous 的人 “bears all the chances life becomingly”，“the happy man can never become miserable”；另一方面，“he will not reach blessedness, if he meet with fortunes like those of Priam”。两条合起来，就是 C2 的位置：virtue 是 eudaimonia 的核心，厄运夺不走它，所以不会 miserable；但它不是充分条件，足够大的厄运会让人够不着 blessedness。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>论证的顺序（先问 end 的链条、再给 formal criteria、最后是 function argument 的三段）、为什么需要一个 supreme good 和 Sartre 的例子、regress argument 证明不了只有一个 final good 以及 professor 与 doctor 的追问、按 plant 与 animal 逐层排除、knife 与 doctor 的例子、“为什么必须独有”和 rational alien 的问题、各处 Bekker 页码，都来自 <a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/resources/mit24_01s16_ses8/">MIT 24.01 Session 8 的讲义</a>（逐节读了两遍，抓取工具给出的是按条目的贴近转述加短引文）。I.2、I.5、I.7、I.8、I.9、I.10 的引文出自 <a href="https://classics.mit.edu/Aristotle/nicomachaen.1.i.html">Book I 的 Ross 译本</a>（逐章读了，同样是转述加短引文）。Biological premise、happiness 是 activity 而不是 state、luck 的那一句，来自 <a href="https://plato.stanford.edu/archives/spr2022/entries/aristotle-ethics/">SEP 的 Aristotle's Ethics</a> §2（读了前十万字符）。</p>
+<p>凭我自己的知识写、没有来源核对的部分：mother 的反例；四个候选那张表的整理；Objection A、C 的表述和对 B、C 的回应。页面开头那张图里的年份：Hume 的生卒年见 Berkeley 的 handout，Mill 的生年和 Utilitarianism 的成书年份见 MIT 24.01 Session 21 的讲义，Aristotle 与 Kant 的生卒年、Treatise 与 Groundwork 的出版年份是凭我自己的知识写的。</p>
+</aside>
+
+</section>
+<section class="stop" id="mean" data-skill="mean" data-name="Aristotle：virtue、habituation 与 doctrine of the mean">
+<header class="stop-h"><span class="stop-n">第 2 站</span><h2>Aristotle：virtue、habituation 与 doctrine of the mean</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能列出 courage、temperance 等 virtue 两侧的 vice，复述 Milo 的数字。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立用 II.5 的 elimination 论证 virtue 是 state，解释“becoming just by doing just acts”为什么不是循环，并用 mean relative to us 分析一个具体的 anger 场景。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能把“mean 给不出 guidance”写成 valid 的 argument，按 Kraut 的方式逐条回应，并说明 practical wisdom 与 ethical virtue 怎样互相依赖。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-mean">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-mean"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能用 II.5 的 elimination 说明 virtue 为什么是 state，用 Milo 的数字说明 mean relative to us 和 arithmetic mean 的区别，并说清“mean 给不出 guidance”这条 objection 与 Kraut 的回应，就可以去第 3 站。</p>
+</aside>
+<h3>Virtue 是哪一类东西</h3>
+<p>第 1 站的 C2 说 human good 是依照 virtue 的 activity。那 virtue 是什么？Book II 第 5 章用 elimination 回答：</p>
+<ul>
+<li><strong>P1.</strong> Soul 里只有三类东西：passions（anger、fear、confidence、envy、joy 等）、faculties（能感受这些 passion 的 capacity）、states of character。</li>
+<li><strong>P2.</strong> Virtue 不是 passion。“We are neither praised nor blamed for our passions”，却因为 virtue 受称赞；而且 passion 不经 choice 就来，virtue 是 choice 或者离不开 choice。</li>
+<li><strong>P3.</strong> Virtue 不是 faculty。Faculty 是天生的，可是 “we are not made good or bad by nature”。</li>
+<li><strong>C.</strong> Virtue 是 state of character（hexis）。</li>
+</ul>
+<p>这是 disjunctive syllogism，valid。最容易被追问的是 P1：三分法是否 exhaustive，Aristotle 没有论证。</p>
+<p>用 courage 检验。在战场上感到 fear，是 passion；能感到 fear，是 faculty，人人都有；在该怕的时候、对该怕的东西、怕到适当的程度，并且照样做该做的事，这种稳定的倾向是 state。被称赞的只有第三样。MIT 24.01 的讲义特别强调，这个 state 同时管 action 和 feeling：有 virtue 的人在该有某种 feeling 时就有那种 feeling，不只是做出正确的 action。</p>
+<h3>怎样获得：做 just 的事，成为 just 的人</h3>
+<p>II.1 的回答是 habit：“we become just by doing just acts, temperate by doing temperate acts, brave by doing brave acts”，就像 “men become builders by building and lyreplayers by playing the lyre”。Virtue 不是天生的，但我们天生适于接受它，靠练习把它完成。</p>
+<p>这里有一个 puzzle。要成为 just 的人，得先做 just 的事；可是一个人能做 just 的事，他不就已经 just 了吗？如果是这样，解释就绕成了一个圈。</p>
+<p>Aristotle 在 II.4 先用 grammar 作对照：一个人可能碰巧、或者照别人的提示写出一句合乎 grammar 的话，他不因此就是 grammarian。Ethics 里也要区分两件事：一个 act 是 just 的，和一个 agent 在 justly 地行动。后者要求三个条件：（1）他知道自己在做什么；（2）他 choose 这样做，而且是为了这件事本身而 choose；（3）他出自一种稳定、不会动摇的 state。一个孩子把捡到的钱包交给失主，因为父亲叫他这么做。这个 act 和一个 just 的人会做的完全一样，所以它是 just 的；但条件（2）和（3）不满足，孩子还不是 just 的人。这样的 act 重复多了，state 就形成了。最初的那些 act 是第一种意义上的 just，后来的是第二种，圈就解开了。II.4 的结论仍然是 “it is by doing just acts that the just man is produced”；只谈 theory 不去做的人，像认真听医生讲话却一条也不照做的病人。</p>
+<p>这三个条件也回答了开头第二个 case。II.3 说，pleasure 和 pain 是 state 的标志：“the man who abstains from bodily pleasures and delights in this very fact is temperate”，为此感到烦恼的人则是 self-indulgent 的；所以 moral education 要从小训练人对该高兴的事高兴、对该痛苦的事痛苦。每次都要跟 appetite 斗一番才忍住的人，Aristotle 在 Book VII 归为 continent（enkratês）：他做对了，但他的 desire 还没有被训练对，在 Aristotle 的排序里低于 virtuous。第 4 站会看到 Kant 在这里给出相反的判断。</p>
+<h3>Mean relative to us：Milo 的数字</h3>
+<p>II.6 给出 virtue 的位置：在两个 vice 之间的 mean。但这个 mean 不是算术平均。Aristotle 的例子用的是食物的量：对某个人来说，10 pounds 太多，2 pounds 太少。按 arithmetical proportion，中间是 6，因为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn>4</mn><mo>=</mo><mn>10</mn><mo>−</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">6-2=4=10-6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">10</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">6</span></span></span></span>。可是 trainer 不会因此给每个人 6 pounds：“it does not follow that the trainer will order six pounds”。6 对摔跤手 Milo 太少，对刚开始训练的人又太多。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 256" role="img" aria-label="Milo 的例子：10 磅太多、2 磅太少，arithmetic mean 是 6；但 6 对 beginner 太多、对 wrestler Milo 太少，mean relative to us 因人而异"><line x1="36" y1="92" x2="524" y2="92" class="axis"/><line x1="36" y1="88" x2="36" y2="96" class="axis"/><text x="36" y="112" class="ts" text-anchor="middle">0</text><line x1="117.3" y1="88" x2="117.3" y2="96" class="axis"/><text x="117.3" y="112" class="ts" text-anchor="middle">2</text><line x1="198.7" y1="88" x2="198.7" y2="96" class="axis"/><text x="198.7" y="112" class="ts" text-anchor="middle">4</text><line x1="280" y1="88" x2="280" y2="96" class="axis"/><text x="280" y="112" class="ts" text-anchor="middle">6</text><line x1="361.3" y1="88" x2="361.3" y2="96" class="axis"/><text x="361.3" y="112" class="ts" text-anchor="middle">8</text><line x1="442.7" y1="88" x2="442.7" y2="96" class="axis"/><text x="442.7" y="112" class="ts" text-anchor="middle">10</text><line x1="524" y1="88" x2="524" y2="96" class="axis"/><text x="524" y="112" class="ts" text-anchor="middle">12</text><text x="524" y="130" class="ts" text-anchor="end">pounds of food</text><circle cx="117.3" cy="92" r="5" class="ink-f"/><circle cx="442.7" cy="92" r="5" class="ink-f"/><circle cx="280" cy="92" r="5" class="ln-f"/><text x="117.3" y="72" class="t" text-anchor="middle">2：too little</text><text x="442.7" y="72" class="t" text-anchor="middle">10：too much</text><text x="280" y="72" class="tl" text-anchor="middle">arithmetic mean 6</text><line x1="123.3" y1="40" x2="274" y2="40" class="mute"/><line x1="123.3" y1="36" x2="123.3" y2="44" class="mute"/><line x1="274" y1="36" x2="274" y2="44" class="mute"/><text x="198.7" y="34" class="ts" text-anchor="middle">4</text><line x1="286" y1="40" x2="436.7" y2="40" class="mute"/><line x1="286" y1="36" x2="286" y2="44" class="mute"/><line x1="436.7" y1="36" x2="436.7" y2="44" class="mute"/><text x="361.3" y="34" class="ts" text-anchor="middle">4</text><text x="117.3" y="24" class="ts" text-anchor="start">6 − 2 与 10 − 6 相等，这是“对于 object 的 mean”</text><text x="36" y="164" class="tb" text-anchor="start">Beginner</text><rect x="117.3" y="150" width="162.7" height="20" rx="4" class="wash"/><text x="198.7" y="164" class="ts" text-anchor="middle">mean 在 6 以下</text><text x="292" y="164" class="ts" text-anchor="start">6 对他 too much</text><text x="36" y="200" class="tb" text-anchor="start">Milo</text><rect x="280" y="186" width="162.7" height="20" rx="4" class="wash"/><text x="361.3" y="200" class="ts" text-anchor="middle">mean 在 6 以上</text><text x="454.7" y="200" class="ts" text-anchor="start">6 对他 too little</text><line x1="280" y1="140" x2="280" y2="212" class="dash"/><text x="280" y="236" class="ts" text-anchor="middle">浅色带只表示“在 6 的哪一边”，Aristotle 没有给两人的具体数字（II.6）</text></svg><figcaption>横轴是食物的量。2 和 10 两端到 6 的距离相等，6 是对于 object 的 mean。Beginner 和 Milo 各自的 mean 在 6 的两侧，原文只说了在哪一侧，没有给数字。</figcaption></figure>
+<p>于是 virtue 的定义（II.6）是：“a state of character concerned with choice, lying in a mean”，这个 mean 是 relative to us 的，由 rational principle 决定，也就是由一个有 practical wisdom 的人（phronimos）会用来决定它的那个 principle 决定（1106b36–1107a2）。</p>
+<p>拿定义去分析一次 anger。同一个人，在 tutorial 上被同学当众嘲笑他的 essay 写得蠢，和被人不小心踩了一下鞋，适当的 anger 不同。MIT 24.01 的讲义举的正是这两种失误：对轻微的冒犯也中等程度地发火，不是 virtue；对严重的冒犯只中等程度地发火，同样不是。SEP 的说法是，适当的量 “proportionate to the seriousness of the situation”，情况严重时 anger 可以很强烈，只要它不压倒 reason。所以 mean 可以落在 scale 的高端。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Doctrine of the mean 就是“凡事适度”</span></p><p>用这一站已有的三个事实检验。第一，Milo：2 和 10 的中间是 6，可 6 对 beginner 和对 Milo 都不对，trainer 不按算术上的中间开量。第二，anger：对严重的冒犯，适当的 anger 是强烈的，“适度地发一点火”反而偏离了 mean。第三，有些 action 根本没有 mean。II.6 列出 adultery、theft、murder，以及 spite、shamelessness、envy 这些 passion：“simply to do any of them is to go wrong”，不存在适量的 adultery。MIT 24.01 的讲义把这一点概括为：处在 mean 的是 disposition，不是 action；virtue 是一种 intermediate disposition，不是一种总做中间程度的事的 disposition。</p>
+</aside>
+<h3>两个 vice 之间：哪一边离得更远</h3>
+<p>II.7 把 virtue 和两侧的 vice 逐个列出：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Feeling 或 action 的范围</th>
+<th>Deficiency</th>
+<th>Mean</th>
+<th>Excess</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fear 与 confidence</td>
+<td>cowardice</td>
+<td>courage</td>
+<td>rashness</td>
+</tr>
+<tr>
+<td>Bodily pleasures</td>
+<td>insensibility</td>
+<td>temperance</td>
+<td>self-indulgence</td>
+</tr>
+<tr>
+<td>给出和取得钱财</td>
+<td>meanness</td>
+<td>liberality</td>
+<td>prodigality</td>
+</tr>
+<tr>
+<td>大的 honour</td>
+<td>undue humility</td>
+<td>proper pride</td>
+<td>empty vanity</td>
+</tr>
+<tr>
+<td>Anger</td>
+<td>inirascibility</td>
+<td>good temper</td>
+<td>irascibility</td>
+</tr>
+<tr>
+<td>关于自己的真话</td>
+<td>mock modesty</td>
+<td>truthfulness</td>
+<td>boastfulness</td>
+</tr>
+<tr>
+<td>消遣中的谈笑</td>
+<td>boorishness</td>
+<td>ready wit</td>
+<td>buffoonery</td>
+</tr>
+<tr>
+<td>日常交往中讨人喜欢</td>
+<td>quarrelsome、surly</td>
+<td>friendliness</td>
+<td>obsequiousness</td>
+</tr>
+</tbody>
+</table></div>
+<p>Insensibility 这个名称是 Aristotle 自己起的，在 bodily pleasure 上不足的人很少见，没有现成的叫法。</p>
+<p>II.8 补了一个不对称：两个 extreme 彼此最对立，但对 mean 来说，常常有一个 extreme 更像它的对立面。Cowardice 比 rashness 更 opposed to courage，self-indulgence 比 insensibility 更 opposed to temperance。理由有两个：一个 extreme 可能本来就更像 mean（rashness 至少敢上前）；我们天生更容易滑向某一边，尤其是 pleasure 那一边，于是那一边显得是更大的危险。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 278" role="img" aria-label="两条 scale：courage 在 cowardice 与 rashness 之间，更靠近 rashness，cowardice 与它更 opposed；temperance 在 insensibility 与 self-indulgence 之间，更靠近 insensibility；adultery、theft、murder 没有 mean"><text x="120" y="28" class="tb" text-anchor="start">Fear 与 confidence</text><line x1="120" y1="72" x2="440" y2="72" class="axis"/><line x1="120" y1="67" x2="120" y2="77" class="axis"/><line x1="440" y1="67" x2="440" y2="77" class="axis"/><text x="110" y="76" class="tl" text-anchor="end">cowardice</text><text x="450" y="76" class="t" text-anchor="start">rashness</text><text x="110" y="93" class="ts" text-anchor="end">更 opposed</text><circle cx="318.4" cy="72" r="6" class="ln-f"/><text x="318.4" y="94" class="tl" text-anchor="middle">courage</text><text x="120" y="93" class="ts" text-anchor="start">deficiency</text><text x="440" y="93" class="ts" text-anchor="end">excess</text><line x1="318.4" y1="60" x2="362.4" y2="60" class="ink"/><polygon points="364.4,60 358.9,57.6 358.9,62.4" class="ink-f"/><text x="341.4" y="52" class="ts" text-anchor="middle">瞄准时往这边偏</text><text x="120" y="134" class="tb" text-anchor="start">Bodily pleasures</text><line x1="120" y1="178" x2="440" y2="178" class="axis"/><line x1="120" y1="173" x2="120" y2="183" class="axis"/><line x1="440" y1="173" x2="440" y2="183" class="axis"/><text x="110" y="182" class="t" text-anchor="end">insensibility</text><text x="450" y="182" class="tl" text-anchor="start">self-indulgence</text><text x="450" y="199" class="ts" text-anchor="start">更 opposed</text><circle cx="235.2" cy="178" r="6" class="ln-f"/><text x="235.2" y="200" class="tl" text-anchor="middle">temperance</text><text x="120" y="199" class="ts" text-anchor="start">deficiency</text><text x="440" y="199" class="ts" text-anchor="end">excess</text><line x1="235.2" y1="166" x2="191.2" y2="166" class="ink"/><polygon points="189.2,166 194.7,168.4 194.7,163.6" class="ink-f"/><text x="212.2" y="158" class="ts" text-anchor="middle">瞄准时往这边偏</text><text x="120" y="240" class="tb" text-anchor="start">Adultery、theft、murder</text><text x="120" y="258" class="ts" text-anchor="start">没有这样一条 scale：simply to do any of them is to go wrong（II.6）</text></svg><figcaption>两条 scale 上的 mean 都不在正中：courage 更靠近 rashness，temperance 更靠近 insensibility。主题色标出更 opposed 的那个 vice，箭头是 II.9 的建议：瞄准时往另一边偏。最下面一行没有 scale。</figcaption></figure>
+<p>II.9 由此给出实际的建议：“we must drag ourselves away to the contrary extreme”，就像把弯了的木棍掰直时要往反方向用力。他还引了 Calypso 的劝告：先让船远离更危险的那片浪花。一个知道自己容易 self-indulgent 的人，瞄准时应该往 insensibility 那一边偏一点，落点才会接近 temperance。</p>
+<h3>最强的 objection：mean 给不出 guidance</h3>
+<p>SEP 条目区分了 doctrine of the mean 的两个 thesis：每个 virtue 处在两个 vice 之间；有 virtue 的人 choose 时瞄准一个 intermediate 的 act。Kraut 认为后一个更容易受攻击。把 objection 写成 argument：</p>
+<ul>
+<li><strong>P1.</strong> 一个 ethical theory 应该告诉行动者，在具体情形里该做什么。</li>
+<li><strong>P2.</strong> “Aim at the mean, as the phronimos would determine it”不能告诉一个还不是 phronimos 的人该做什么：要知道 mean 在哪，先得有 practical wisdom，而 practical wisdom 恰恰就是会找 mean 的能力。</li>
+<li><strong>P3.</strong> 有些选择根本不是“多少”的问题。SEP 的例子是：去参加一场婚礼，还是去履行另一项冲突的 obligation。这里找不到一条 too much 与 too little 的 scale，mean 是 “inapplicable or unilluminating”。</li>
+<li><strong>C.</strong> Doctrine of the mean 不是一个合格的 ethical theory。</li>
+</ul>
+<p>这个 argument valid。Kraut 的回应是逐条处理 premise。</p>
+<p><strong>否认 P1。</strong> Aristotle 明确拒绝提供 decision procedure：ethical theory 不能给出一套 rule，解决所有实际问题。Doctrine of the mean 的用处是找出有哪些 virtue、说明它们好在哪里，并让我们认出那些还没有名字的 mean state（比如关于 anger 的那一个）。这不等于什么都不说：spite、adultery、theft 永远是 wrong 的，所以 ethics 虽然不能归结为 rule，却有一些不可违背的 rule。</p>
+<p><strong>削弱 P2 的循环。</strong> 循环只在“先有 practical wisdom 才能做对，先做对才能有 practical wisdom”同时成立时才是真的。SEP §4 描述了两个阶段：孩子先靠 habit 获得一种 “low-grade form of ethical virtue”，practical wisdom 随着 reason 成熟才发展起来。起点是被教养、被要求去做 just 的事，不需要已经知道 mean 在哪。到了成熟阶段，两者互相依赖：“virtue makes the goal right, practical wisdom the things leading to it”（1144a7–8）。缺了 virtue 的 practical skill 只是 cleverness，会被用在不值得的 end 上。</p>
+<p><strong>扩大 P3 里 mean 的意思。</strong> 在广义上，有 virtue 的人瞄准的 mean 是：对各个相关因素既不过多也不过少地关注。去不去婚礼没有一条 scale，但“对朋友的 claim 关注得太少”和“为了朋友的 claim 完全不顾另一项 obligation”是两种失误。</p>
+<p>还剩下一个更根本的问题：为什么 anger、fear 这样的 emotion 应该由 mean 来管？SEP 提到 Stoics 就否认这一点，他们认为这些 passion 应该被消除，而 Aristotle 没有对此作出完整的辩护。</p>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>这一站解释的是<a href="#ergon">第 1 站</a> P2 里的 “virtue”：做好 human 的 function，就是出自这一站所说的 state，在 mean relative to us 上 choose。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Habituation 的两处引文、II.5 的 elimination、Milo 的数字与原话、virtue 的定义、没有 mean 的 action、II.7 的 virtue 与 vice 列表、II.8 哪一边更 opposed、II.9 的木棍与 Calypso，都来自 <a href="https://classics.mit.edu/Aristotle/nicomachaen.2.ii.html">Nicomachean Ethics Book II 的 Ross 译本</a>（读了整卷，抓取工具返回的是逐章转述加短引文）。State 同时管 action 和 feeling、mean 在 disposition 不在 action、两种 anger 的失误、普通人与 athlete 吃多少不同，来自 <a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/resources/mit24_01s16_ses9/">MIT 24.01 Session 9 的讲义</a>。两个 thesis 的区分、“inapplicable or unilluminating”、婚礼的例子、Kraut 对 decision procedure 的说法、两个阶段与 reciprocity 的引文、Stoics，来自 <a href="https://plato.stanford.edu/archives/spr2022/entries/aristotle-ethics/">SEP 的 Aristotle's Ethics</a> §§4–5。</p>
+<p>II.3 的 pleasure 为 state 的标志、II.4 的 grammar 对照、三个条件和病人的比较，是第二次逐章读 Book II 时核对过的。为这一页构造的部分：钱包的例子；嘲笑 essay 与踩鞋的 anger 场景。凭我自己的知识写、没有来源核对的部分：continent 出自 Book VII（这次没有读 Book VII，SEP §4 只说 Aristotle 区分了 continent 与 incontinent）；insensibility 没有现成名称的原因（转述里只说它是 Aristotle 起的 unnamed term）。把 objection 写成 P1–P3、用 SEP §4 的两个阶段回应循环，是我的组织，条目没有这样对应。SEP 里说明广义 mean 的 juror 例子我没有读到细节，所以没有用。</p>
+</aside>
+
+</section>
+<section class="stop" id="hume" data-skill="hume" data-name="Hume：reason、passion 与 is–ought">
+<header class="stop-h"><span class="stop-n">第 3 站</span><h2>Hume：reason、passion 与 is–ought</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 T 2.3.3 的两种 reasoning、两种 unreasonable passion，以及“slave of the passions”的意思。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立重构 influence argument，用 bridge 反例说明它缺了“alone”就 invalid，并说出 externalist 与 Kant 各否认哪一条。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 oak 与 parricide 讲清 Hume 为什么说 vice 不是 relation，分辨 is–ought 一段的几种读法，并解释 common point of view 要解决什么问题。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-hume">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-hume"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能重构 T 2.3.3 和 T 3.1.1 的两个 argument，用 bridge 反例说出 influence argument 缺了哪一个词，并说清 oak 与 parricide 的例子、is–ought 一段的几种读法、common point of view 要解决的问题，就可以去第 4 站。</p>
+</aside>
+<h3>要推翻的 picture</h3>
+<p>Berkeley Phil 104 的 handout 把 Hume 要推翻的看法写成两句：每个 rational creature 都有义务用 reason 规范自己的 action；任何别的 motive 如果和 reason 争夺对 conduct 的指挥，就应该被压制，直到它服从 reason。Moral rationalist 再加一句：right 和 wrong 像 mathematics 里的 truth 一样，由 reason 发现。</p>
+<p>Hume 用两步推翻它。第一步说 reason alone 根本不能 motivate，所以谈不上和 passion 争夺指挥。第二步说 morality 能 motivate，所以 morality 不来自 reason alone。</p>
+<h3>第一步：reason alone 不能 motivate（T 2.3.3）</h3>
+<p>按 handout 的逐段重构：</p>
+<ul>
+<li><strong>P1.</strong> Reasoning 只有两种：demonstrative 的，关于 ideas 之间的 relation（logic、mathematics）；probable 的，关于 cause and effect（T 2.3.3.2）。</li>
+<li><strong>P2.</strong> Demonstrative reasoning 只在帮助我们判断 cause and effect 时，才和 action 有关。</li>
+<li><strong>P3.</strong> Causal reasoning 告诉我 Y 会带来 X；只有我已经 desire X，这个 belief 才让我去做 Y。Impulse “arises from the prospect of pain or pleasure”（T 2.3.3.3），reason 只替它指出方向。</li>
+<li><strong>C1.</strong> Reason alone 不能成为 action 的 motive。</li>
+<li><strong>P4.</strong> 要阻止一个 passion，需要一个方向相反的 impulse。</li>
+<li><strong>C2.</strong> 由 C1、P4：reason alone 也不能 oppose passion。</li>
+</ul>
+<p>于是有了那句话：“Reason is, and ought only to be the slave of the passions, and can never pretend to any other office than to serve and obey them.”（T 2.3.3.4）</p>
+<p>用一个例子走一遍。你想及格，这是 passion。Reason 告诉你：每周读两小时 Groundwork，期末及格的可能更大，这是 causal belief。于是你去读。如果你根本不在乎及格，同一条 causal belief 原封不动，你一页也不会读。Reason 改变的是 desire 的去向，不提供 desire 本身。</p>
+<p>T 2.3.3.5 另给一个 argument。Passion 是 “an original existence”，它 “contains not any representative quality”，不是对任何别的东西的 copy。只有 representation 才有 true 和 false，才能与 reason 的 conclusion 相 contradict。所以 passion 不可能 contrary to reason。由此有了最出名的一句：“'Tis not contrary to reason to prefer the destruction of the whole world to the scratching of my finger.”（T 2.3.3.6）</p>
+<p>Hume 承认有两种情形，人们会说一个 passion unreasonable（T 2.3.3.6）：它建立在一个 false supposition 上，以为某个东西存在而它其实不存在；或者它选了不足以达到目的的 means。严格说来，这时 unreasonable 的是那个 judgment，不是 passion。</p>
+<p>拿这两种情形检验。你口渴，想喝桌上那杯 water，其实那是一杯消毒液。你想喝它，错在 belief “这是 water”，属于第一种情形。别人告诉你真相，你就不想喝了：“our passions yield to our reason without any opposition”（T 2.3.3.7）。再拿 destruction of the world 那一句来试：这个偏好既没有建立在 false belief 上，也没有选错 means，reason 找不到可以指出的毛病。</p>
+<p>最后一段（T 2.3.3.8）解释人们为什么以为 reason 在和 passion 搏斗：benevolence、resentment、love of life 这类 calm passion 感觉起来很平静，“very readily taken for the determinations of reason”。所谓 reason 战胜 passion，实际上是 calm passion 战胜 violent passion。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Hume 是说人该跟着 impulse 走，reason 没有用</span></p><p>Reason 在 Hume 这里有两项实实在在的工作：告诉我们什么东西存在，以及什么 means 能达到 end（上面的 P3 和两种 unreasonable 的情形）。消毒液的例子里，正是 reason 让你放下了杯子。“Slave” 说的是 motivation 的来源：最终推动 action 的总是某个 passion。这也不是劝人放纵：calm passion（比如 love of life）可以压过 violent passion（比如一时的 anger），一个按长远打算生活的人，在 Hume 的描述里同样是 passion 在推动他。</p>
+</aside>
+<h3>第二步：moral distinctions 不来自 reason（T 3.1.1）</h3>
+<p>T 3.1.1.6 的 influence argument 只用一条新的 premise：</p>
+<ul>
+<li><strong>P5.</strong> “Morals excite passions, and produce or prevent actions.” 人们因为觉得某事 unjust 而不做，因为觉得某事是 obligation 而去做。</li>
+<li><strong>C1.</strong>（第一步的结论）Reason alone 不能 produce or prevent action，“utterly impotent in this particular”。</li>
+<li><strong>C3.</strong> “The rules of morality, therefore, are not conclusions of our reason.”</li>
+</ul>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 332" role="img" aria-label="Hume 的 influence argument：P1、P2、P3 推出 C1，reason alone 不能 motivate；加上 P5，morals 能 motivate，推出 C3，moral distinctions 不来自 reason；objection 分别打在 C1、P5 和最后一步推理上"><rect x="0" y="8" width="176" height="74" rx="6" class="paper"/><text x="10" y="27" class="tb" text-anchor="start">P1　两种 reasoning</text><text x="10" y="45" class="ts" text-anchor="start">demonstrative：ideas</text><text x="10" y="61" class="ts" text-anchor="start">probable：cause & effect</text><rect x="192" y="8" width="176" height="74" rx="6" class="paper"/><text x="202" y="27" class="tb" text-anchor="start">P2　Demonstrative</text><text x="202" y="45" class="ts" text-anchor="start">只通过 causal judgment</text><text x="202" y="61" class="ts" text-anchor="start">影响 action</text><rect x="384" y="8" width="176" height="74" rx="6" class="paper"/><text x="394" y="27" class="tb" text-anchor="start">P3　Causal reasoning</text><text x="394" y="45" class="ts" text-anchor="start">只替已有的 passion</text><text x="394" y="61" class="ts" text-anchor="start">指出 object 和 means</text><rect x="40" y="122" width="270" height="76" rx="6" class="paper"/><text x="50" y="141" class="tb" text-anchor="start">C1　Reason alone 不能 motivate</text><text x="50" y="159" class="ts" text-anchor="start">T 2.3.3：reason 是 passions 的 slave</text><text x="50" y="175" class="ts tl" text-anchor="start">Kant 否认：pure practical reason</text><rect x="340" y="122" width="220" height="76" rx="6" class="paper"/><text x="350" y="141" class="tb" text-anchor="start">P5　Morals 能 motivate</text><text x="350" y="159" class="ts" text-anchor="start">produce or prevent actions</text><text x="350" y="175" class="ts" text-anchor="start">（T 3.1.1.6）</text><text x="350" y="191" class="ts tl" text-anchor="start">Externalist 否认</text><line x1="88" y1="84" x2="138.4" y2="118.9" class="ink"/><polygon points="140,120 136.4,114 133.1,118.7" class="ink-f"/><line x1="280" y1="84" x2="191.9" y2="119.3" class="ink"/><polygon points="190,120 197,120.3 194.9,115" class="ink-f"/><line x1="472" y1="84" x2="252" y2="119.7" class="ink"/><polygon points="250,120 256.8,121.8 255.9,116.2" class="ink-f"/><rect x="130" y="262" width="300" height="56" rx="6" class="wash ink-s"/><text x="140" y="281" class="tb" text-anchor="start">C3　Moral distinctions</text><text x="140" y="299" class="ts" text-anchor="start">不是 reason alone 的 conclusion（T 3.1.1.6）</text><line x1="175" y1="200" x2="238.5" y2="258.6" class="ink"/><polygon points="240,260 237.2,253.6 233.4,257.8" class="ink-f"/><line x1="450" y1="200" x2="331.8" y2="259.1" class="ink"/><polygon points="330,260 337,259.7 334.4,254.6" class="ink-f"/><text x="18" y="232" class="ts tl" text-anchor="start">这一步：bridge 反例</text><text x="18" y="248" class="ts" text-anchor="start">（见正文）</text></svg><figcaption>P1–P3 推出 C1，再加上 P5，推出 C3。主题色的字是三种反对：Kant 否认 C1，externalist 否认 P5，bridge 反例针对最后一步推理本身。</figcaption></figure>
+<p>它 valid 吗？把 form 抽出来：A alone 不能产生 X；B 能产生 X；所以 B 不是 A alone 的产物。SEP 指出，这依赖一条可疑的 transitivity。造一个 premise 都 true、conclusion false 的例子：</p>
+<p>你开车到河边，看到水位暴涨，收音机说上游决堤，你推断出 “the bridge is out”。这个 belief 完全是 causal reasoning 的产物，是 reason alone 产生的。它让你停了车，因为你想活。代入那个 form：reason alone 不能让你停车（Hume 的 C1）；“the bridge is out”这个 belief 让你停了车；所以这个 belief 不是 reason 的产物。Conclusion 是 false 的，两条 premise 按 Hume 自己的看法都是 true 的，所以这个 form invalid。SEP 的说法是：premise 1 和 Hume 自己的 causal theory 不好协调，因为 causal belief 确实会引起 passion。</p>
+<p>补救的办法是把 P5 加强成：moral judgment <strong>alone</strong>，不靠任何别的 desire，就能 produce action。这样 argument 变得 valid：bridge 的 belief 要靠“想活”才起作用，moral judgment 却不需要帮手，所以它和 causal belief 不是一类东西。SEP 指出，Hume 没有为这个加强版给出支持。今天这条加强的 premise 叫 motivational internalism。</p>
+<p>加强之后，两边各有一种反对。</p>
+<p><strong>Externalist 否认加强的 P5。</strong> 设想一个 amoralist：他真诚地判断作弊是 wrong 的，却一点也不在乎，照作不误。如果这样的人是可能的，moral judgment 就不能单独 motivate，加强的 P5 是 false。Hume 一方的回应是：这个人并没有真的作出 moral judgment，他只是在报告别人管什么叫 wrong，就像说“这在当地算失礼”而自己毫无所感。</p>
+<p><strong>Kant 否认 C1。</strong> 第 4 站会看到，Kant 认为存在 pure practical reason：reason 自己就能给出一个不靠任何 desire 的 ought，并且能推动 action。如果他是对的，第一步就倒了，第二步也跟着倒。</p>
+<p>T 3.1.1.9–10 用 representation 的 argument 又推了一次：passion、volition、action 是 “original facts and realities, compleat in themselves”，不 represent 任何东西，所以 “Actions may be laudable or blameable; but they cannot be reasonable or unreasonable.” SEP 指出，“passion 没有 representative quality”这条 premise 没有得到辩护，Hume 后来在 Enquiry 里干脆不再用这个 argument。</p>
+<h3>Oak 与 parricide：vice 在哪里</h3>
+<p>光说 reason 推不出 morality 还不够，Hume 要给出 vice 实际所在的地方。T 3.1.1.26 让你看一桩 wilful murder，从各个角度看，你找到的只有 “certain passions, motives, volitions and thoughts”，找不到 vice 这样一个 fact。“You never can find it, till you turn your reflection into your own breast”，在那里你发现一种 disapprobation 的 sentiment。它也是一个 fact，“but 'tis the object of feeling, not of reason”。</p>
+<p>T 3.1.1.24 用一个例子排除“vice 是某种 relation”的说法。一棵老 oak 落下种子，长出的小树越长越高，最后遮住并毁掉了老树。小树出自老树，又导致了老树的死亡。这正是 parricide 里的 relation：子出自父，又杀死了父。Rationalist 会回答：区别在于人有 will，是自己选择这样做的。Hume 的回答是：“Here then the same relations have different causes; but still the relations are the same.” 人的 will 只是让这些 relation 发生的 cause 不同，relation 本身一样。如果 vice 就是 relation，小树也就有了 parricide 的罪。</p>
+<p>T 3.1.1.25 再举 animal 之间的 incest。“Animals are susceptible of the same relations, with respect to each other, as the human species”，我们却不认为它们有罪。Rationalist 的回答是：人有 reason，能发现这种行为的 turpitude，animal 不能。Hume 说，reason 要发现 turpitude，turpitude 得先在那里；reason “must find them, and can never produce them”，所以这个回答预设了要证明的东西。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Reason 找到的 relation</th>
+<th>我们的反应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>人杀死父亲</td>
+<td>出自对方，导致对方死亡</td>
+<td>强烈的 disapprobation</td>
+</tr>
+<tr>
+<td>小 oak 毁掉老 oak</td>
+<td>出自对方，导致对方死亡</td>
+<td>没有</td>
+</tr>
+<tr>
+<td>人之间的 incest</td>
+<td>同一组 kinship relation</td>
+<td>强烈的 disapprobation</td>
+</tr>
+<tr>
+<td>Animal 之间的 incest</td>
+<td>同一组 kinship relation</td>
+<td>没有</td>
+</tr>
+</tbody>
+</table></div>
+<p>两组 case，relation 完全相同，反应不同，所以造成差别的不在 relation 里。</p>
+<h3>Is 与 ought（T 3.1.1.27）</h3>
+<p>T 3.1.1 的最后一段是一个观察。Hume 说他读过的每一个 moral system，作者都先用 “is” 和 “is not” 连接命题，然后不知不觉换成 “an ought, or an ought not”。这个新的 relation 需要解释，它怎样从完全不同的命题里推出来，看起来 “altogether inconceivable”。</p>
+<p>用一个 argument 看问题出在哪里：</p>
+<ul>
+<li><strong>P1.</strong> 这条 policy 会让 1,000 个家庭失去收入。</li>
+<li><strong>C.</strong> 所以不该推行这条 policy。</li>
+</ul>
+<p>它 invalid：完全可能 P1 true 而 C false，比如这条 policy 能阻止一场让 10,000 个家庭失去收入的危机。要让它 valid，得加一条 premise，例如“凡是会让人失去收入的 policy 都不该推行”。这条 premise 本身是一个 ought，而且像这样写出来是 false 的（它连那场危机也一并禁止了）。任何 valid 的版本都需要某个 ought premise。</p>
+<p>把这个观察推广成“no ought follows validly from purely factual premises”，是二十世纪的主流读法，R. M. Hare 称之为 Hume's Law。SEP 列出这一段的其他读法，它们分歧很大：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>读法</th>
+<th>这一段说的是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hume's Law（Hare）</td>
+<td>纯 factual 的 premise 逻辑上推不出 ought</td>
+</tr>
+<tr>
+<td>Noncognitivist</td>
+<td>Moral judgment 不是 truth-apt 的，所以不能从 fact 推出</td>
+</tr>
+<tr>
+<td>Cognitivist 读法之一</td>
+<td>只是给“demonstrative reason 发现不了 moral property”再添一条理由</td>
+</tr>
+<tr>
+<td>Cognitivist 读法之二</td>
+<td>说的是 virtue 最初怎样被发现：必须经过 sentiment</td>
+</tr>
+</tbody>
+</table></div>
+<p>SEP 还提到 Francis Snare 的一个提醒：Hume's Law 的读法要求 Hume 不加论证地假定，没有任何 factual proposition 本身带有 evaluation。而 Hume 自己经常从“某个 trait 对旁观者有什么效果”这类 fact 推出 ought。所以“Hume 证明了 is 推不出 ought”是一种读法，不是定论。</p>
+<h3>如果 moral 来自 sentiment，它会不会因人而异</h3>
+<p>先说 Hume 对 approval 的描述。一个 trait 被无私地看待时引起 approval 这种 pleasure，它就是 virtue。这种 pleasure “may arise from four different sources”（T 3.3.1.30）：这个 trait 对别人 useful、对拥有者自己 useful、让别人 agreeable、让拥有者自己 agreeable。Sympathy 是一种机制：看到别人的 passion 的表现，我对那个 passion 的 idea 被加强，直到成为接近 impression 的东西。</p>
+<p>Hume 自己提出了最直接的 objection（T 3.3.1.14）：sympathy 随远近变化，我们对邻居、熟人、同胞的感受比对陌生人强；可是同样的 quality，在 China 和在 England 我们称赞得一样多。“The sympathy varies without a variation in our esteem.” 如果 approval 来自 sympathy，它为什么不跟着变？</p>
+<p>他的例子（T 3.3.1.16）：我们的仆人如果勤快可靠，在我们心里激起的 love and kindness，可能比历史上的 Marcus Brutus 更强，但我们不会因此说仆人更值得称赞。我们知道，如果离 Brutus 一样近，他会赢得多得多的 admiration。T 3.3.1.15 说得更直接：对两千年前活在 Greece 的人，我感受到的 warmth 比不上对一个好朋友，可我并不因此更 esteem 这位朋友。</p>
+<p>回答是：因为人人所处的位置不同，我们 “fix on some steady and general points of view”，不管自己此刻站在哪里，都从那里作判断（T 3.3.1.15）。这和感官的校正是同一回事：二十步外的一张脸给人的 pleasure 比近处少，我们并不因此认为它变丑了，我们会 “correct its momentary appearance”；“Such corrections are common with regard to all the senses”（T 3.3.1.16）。SEP 把这个立场叫作 common point of view：设想一个 trait 按它通常的作用方式，会让那些和它打交道的人有什么 sentiment，忽略距离和意外。</p>
+<p>同一个办法处理另一处不合。一个人有 virtue，却因为厄运没有机会运用，没有给任何人带来好处，我们照样 approve 他：“Virtue in rags is still virtue”（T 3.3.1.19）。Hume 的回应（T 3.3.1.20）是拿房子作对照：一座设计周到、样样便利的房子，即使没有人住进去，也让我们愉快。我们 approve 的是这个 trait 通常会产生的效果，不是它这一次实际产生了什么。</p>
+<p>剩下的分歧是：经过 common point of view 校正的 sentiment，算不算对某种 fact 的认识？SEP 提醒，moral judgment 起源于 sentiment 而不起源于 reason，并不推出它没有 truth value。Noncognitivist 和 cognitivist 两种读法在这里分开，本页不替你选。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Hume 的意思是 moral judgment 只是个人喜好，所以无所谓对错</span></p><p>Hume 要解释的恰恰是 moral judgment 为什么不像个人喜好那样因人而异。仆人与 Brutus 的例子里，个人的 love and kindness 偏向仆人，经过 general point of view 校正之后的 esteem 偏向 Brutus，而且人人一样。错的 moral judgment 也有：一个人因为不喜欢某个同事，就说他的诚实是虚伪，他是在从自己的位置而不是从 general point of view 判断，和把二十步外的脸看成丑脸是同一类错误。至于这种校正后的 sentiment 能不能叫 true，是另一个问题，SEP 认为不能从“起源于 sentiment”直接推出“没有 truth value”。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>T 2.3.3 的逐段结构、rationalist 的两句话、(a) reason 不能 motivate 与 (b) reason 不能 oppose passion 的分法、representation 的说明、两种 unreasonable passion、calm passion 的诊断，来自 <a href="https://www.ocf.berkeley.edu/~ngkolodny/S07Phil104H01(Hume).pdf">Berkeley Phil 104 的 Hume handout</a>（读完了，这份 handout 不涉及 T 3.1.1）。所有带段落号的引文出自 Hume Texts Online 的 <a href="https://davidhume.org/texts/t/2/3/3">T 2.3.3</a>、<a href="https://davidhume.org/texts/t/3/1/1">T 3.1.1</a> 和 <a href="https://davidhume.org/texts/t/3/3/1">T 3.3.1</a>（三节都按段读了，抓取工具给出的是逐段转述加短引文）；仆人与 Brutus、Greece、China 与 England、二十步外的脸、virtue in rags 与房子，都是 Hume 自己的例子。Influence argument 需要 “alone”、transitivity 的问题、causal belief 会引起 passion 这个反驳、representation premise 没有辩护且 Enquiry 不再用、Hume's Law 与 Hare、Snare 的提醒、几种读法、sympathy 作为机制、common point of view 这个名称，来自 <a href="https://plato.stanford.edu/Entries/hume-moral/">SEP 的 Hume's Moral Philosophy</a> §§3–5、8（读了前十万字符，约占全文 95%）。</p>
+<p>为这一页构造的部分：及格、消毒液、bridge、policy 的例子（bridge 是把 SEP 的那条反驳做成了具体的 counterexample）；relation 的那张表。凭我自己的知识写、没有来源核对的部分：motivational internalism 这个名称；amoralist 与“只是在报告别人管什么叫 wrong”的回应。</p>
+</aside>
+
+</section>
+<section class="stop" id="ful" data-skill="ful" data-name="Kant：categorical imperative 与 universalizability test">
+<header class="stop-h"><span class="stop-n">第 4 站</span><h2>Kant：categorical imperative 与 universalizability test</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能区分 hypothetical 与 categorical imperative，说出 universal law test 的四步。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立把 Kant 的四个例子走完 test，分出 perfect 与 imperfect duty、to self 与 to others。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能用 Korsgaard 的 logical、teleological、practical 三种读法检验 false promise、succor the poor、为工作杀人三个 maxim，并说出每种读法错在哪个 case 上。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-ful">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-ful"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>读过 <a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>里 false promise 的例子之后，能区分 hypothetical 与 categorical imperative，能把 Kant 的四个例子都走完 test，并用 Korsgaard 的三种 contradiction 读法说出每种读法在哪个 maxim 上出错，就可以去第 5 站。</p>
+</aside>
+<h3>两种 ought</h3>
+<p>“If you want to be a concert pianist, you ought to practise four hours a day.” 一个不想当 pianist 的人可以平静地回答“那我没有这个 ought”，他没有犯任何错。</p>
+<p>“You ought not to lie.” Kant 自己给出它的两种读法：“I ought not to lie, if I would retain my reputation”，和 “I ought not to lie, although it should not bring me the least discredit”。如果只有前一种，一个不在乎名声、又确定不会被发现的人，也可以平静地说“那我没有这个 ought”。第 3 站的 Hume 正好给出这样的 picture：reason 只替已有的 passion 找 means，所以每一个 ought 背后都是某个 desire。结论是：只要一个人的 desire 足够特殊，任何 moral requirement 都可以合理地不约束他。MIT 24.01 的讲义把这叫作 “opt out”：如果 moral law 是 hypothetical 的，不再在乎那个 condition，就退出了它。几乎没有人接受这个结论。</p>
+<p>Kant 在 Groundwork 第二章把两种 imperative 分开。Hypothetical imperative “represent the practical necessity of a possible action as means to something else that is willed”；categorical imperative 则把一个 action “represented … as necessary of itself without reference to another end”。SEP 的解释是：hypothetical imperative 之所以约束你，是因为你 will 了那个 end，而“will 一个 end 就要 will 它必要的 means”是 rational agency 本身的要求。24.01 的讲义写成：如果你 intend X，又得知 X 需要 Y，你要么放弃 intend X，要么 intend Y，两者都不做就是 irrational 的。至于 happiness，它是一个不确定的 end，rationality 关于它只能给出 “counsels”。</p>
+<p>那么一个 categorical 的 law 从哪里来？讲义的回答是：它必须来自对它所约束的人必然成立的东西，也就是 rational faculty 本身。每条 moral law 大致都是“如果你是 rational agent，就这样做”的形式，而这个 condition 对 rational agent 必然满足，没有办法 opt out。讲义用 theoretical reason 作对照：“不要相信 contradiction”“只做有根据的 inference”也是 categorical 的要求，你可以不 rational，却不能宣布自己不受它们约束。</p>
+<p>所以，如果 moral requirement 存在，它必须是 categorical 的。这是一个 conditional。SEP 提醒，Groundwork 第二章的论证 “merely analytic”（G 4:445），只说明 moral requirement 的 concept 包含什么，并不证明真有东西符合这个 concept。</p>
+<h3>从 categorical 到 universal law</h3>
+<p>SEP §3 给出这一步的核心：moral requirement 在任何情况下都有 reason-giving force，所以它的 content 必须是 universal 的，只有 universal law 能成为这样的 requirement。展开成编号的步骤：</p>
+<ul>
+<li><strong>P1.</strong> 一条 moral requirement 对每一个 rational agent 都成立，不管他有什么 desire。</li>
+<li><strong>P2.</strong> 一条 principle 的 content 如果取决于某个特定的 end（health、名声、某个人的 happiness），它就只约束有这个 end 的人。</li>
+<li><strong>C1.</strong> Moral requirement 的 content 不能取决于任何特定的 end。</li>
+<li><strong>P3.</strong> 一条 principle 去掉所有特定的 end 之后，剩下的只有它作为 law 的 form：对所有 rational agent 同样有效。</li>
+<li><strong>C2.</strong> 所以 categorical imperative 只能要求：只按照那种你同时能 will 它成为 universal law 的 maxim 去行动。</li>
+</ul>
+<p>这就是 Formula of Universal Law（FUL）：“Act only on that maxim whereby thou canst at the same time will that it should become a universal law.” Kant 紧接着给了一个变体：“Act as if the maxim of thy action were to become by thy will a universal law of nature.” 下面的 test 用的是这个变体。24.01 讲义的白话说法是：只按那种对任何人都能算作可接受的理由去行动，否则你就是在 inconsistent 地行动。</p>
+<p>争议最大的是 P3：去掉特定的 end 之后，剩下的真的只有“能不能成为 law”吗？下面会看到 Hegel 的 objection 正是说，单靠这一点什么也检验不出来。</p>
+<p>Groundwork 第一章走的是另一条路：从 good will 和 acting from duty 出发，到同一条 principle。店主的例子和 from duty 与 in conformity with duty 的区分，<a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>已经讲过。这里只补开头第二个 case 需要的那一处。Kant 的 philanthropist 出于天生的 sympathy 帮助别人，做得很好，却没有 moral worth；只有当他失去了这种 inclination，仍然 “beneficent, not from inclination, but from duty”，他的 action 才有 moral worth。这和第 2 站的 Aristotle 正相反：Aristotle 认为以做对的事为乐、毫不挣扎的人更高，Kant 认为在没有 inclination 帮忙时仍然做对的人，才显出 moral worth。SEP 记了常见的 objection：我们并不觉得出于爱去照顾家人的人不如出于 duty 的人。Kant 一方的回应是：这些 motive 可以欣赏；要点在于，从行动者 deliberation 的角度看，duty 必须是起决定作用的那一个，good will 本身和 feeling 并不冲突。</p>
+<h3>四个例子走完 test</h3>
+<p>SEP 按 O'Neill 和 Rawls 的整理，把 FUL 的用法写成四步：写出 maxim；把它设想成所有 rational agent 都遵循的 universal law of nature；问这样一个 world 能不能被 conceive（contradiction in conception）；如果能，再问你能不能 rationally will 这样一个 world（contradiction in will）。Kant 在 Groundwork 里用四个例子走了一遍。</p>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 376" role="img" aria-label="动图：universalizability test 的四步流程。Kant 的 suicide 和 false promise 两个 maxim 在 step 3 失败，得到 perfect duty；talents 和 beneficence 通过 step 3、在 step 4 失败，得到 imperfect duty；每天早上跑步两步都通过，是 permissible"><rect x="0" y="8" width="220" height="42" rx="6" class="paper"/><g opacity="0"><rect x="0" y="8" width="220" height="42" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;1;0;1;0;1;0;0" keyTimes="0;0.07801;0.11348;0.24113;0.2766;0.40426;0.43972;0.60284;0.6383;0.80142;0.83688;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="34" class="t" text-anchor="start">Step 1　写出 maxim</text><rect x="0" y="70" width="220" height="42" rx="6" class="paper"/><g opacity="0"><rect x="0" y="70" width="220" height="42" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;1;0;1;0;1;0;0" keyTimes="0;0.11348;0.14894;0.2766;0.31206;0.43972;0.47518;0.6383;0.67376;0.83688;0.87234;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="96" class="t" text-anchor="start">Step 2　当作 universal law of nature</text><rect x="0" y="150" width="220" height="42" rx="6" class="paper"/><g opacity="0"><rect x="0" y="150" width="220" height="42" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;1;0;1;0;1;0;0" keyTimes="0;0.14894;0.1844;0.31206;0.34752;0.47518;0.51064;0.67376;0.70922;0.87234;0.9078;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="176" class="t" text-anchor="start">Step 3　能 conceive 吗？</text><rect x="0" y="230" width="220" height="42" rx="6" class="paper"/><g opacity="0"><rect x="0" y="230" width="220" height="42" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;1;0;0" keyTimes="0;0.51064;0.5461;0.70922;0.74468;0.9078;0.94326;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="256" class="t" text-anchor="start">Step 4　能 will 吗？</text><line x1="110" y1="51" x2="110" y2="66" class="ink"/><polygon points="110,68 112.9,61.6 107.1,61.6" class="ink-f"/><line x1="110" y1="113" x2="110" y2="146" class="ink"/><polygon points="110,148 112.9,141.6 107.1,141.6" class="ink-f"/><line x1="110" y1="193" x2="110" y2="226" class="ink"/><polygon points="110,228 112.9,221.6 107.1,221.6" class="ink-f"/><text x="118" y="216" class="ts" text-anchor="start">yes</text><rect x="290" y="146" width="270" height="50" rx="6" class="paper"/><g opacity="0"><rect x="290" y="146" width="270" height="50" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;0" keyTimes="0;0.1844;0.24113;0.34752;0.40426;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="300" y="167" class="tb" text-anchor="start">Perfect duty：一律不许</text><text x="300" y="185" class="ts" text-anchor="start">Kant 的例子：suicide、false promise</text><rect x="290" y="226" width="270" height="50" rx="6" class="paper"/><g opacity="0"><rect x="290" y="226" width="270" height="50" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;0;1;0;0" keyTimes="0;0.5461;0.60284;0.74468;0.80142;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="300" y="247" class="tb" text-anchor="start">Imperfect duty：不许一概不做</text><text x="300" y="265" class="ts" text-anchor="start">Kant 的例子：talents、beneficence</text><rect x="0" y="312" width="220" height="50" rx="6" class="paper"/><g opacity="0"><rect x="0" y="312" width="220" height="50" rx="6" class="wash-strong"/><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.94326;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><text x="10" y="333" class="tb" text-anchor="start">Permissible</text><text x="10" y="351" class="ts" text-anchor="start">例：每天早上跑步</text><line x1="222" y1="171" x2="286" y2="171" class="ink"/><polygon points="288,171 281.6,168.1 281.6,173.9" class="ink-f"/><text x="255" y="165" class="ts" text-anchor="middle">no</text><line x1="222" y1="251" x2="286" y2="251" class="ink"/><polygon points="288,251 281.6,248.1 281.6,253.9" class="ink-f"/><text x="255" y="245" class="ts" text-anchor="middle">no</text><line x1="110" y1="273" x2="110" y2="308" class="ink"/><polygon points="110,310 112.9,303.6 107.1,303.6" class="ink-f"/><text x="118" y="296" class="ts" text-anchor="start">yes</text><rect x="244" y="8" width="316" height="126" rx="6" class="frame"/><g opacity="1"><text x="256" y="32" class="tb" text-anchor="start">Kant 自己的四个例子（G 4:421–423）</text><text x="256" y="52" class="ts" text-anchor="start">加一个 permissible 的 maxim，</text><text x="256" y="69" class="ts" text-anchor="start">依次走一遍流程。</text><text x="256" y="94" class="ts" text-anchor="start">前两个停在 step 3，后两个停在 step 4。</text><animate attributeName="opacity" values="1;0;0" keyTimes="0;0.07801;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="30" class="ts tl" text-anchor="start">Maxim</text><text x="256" y="48" class="t" text-anchor="start">生活带来的 pain 多于 pleasure 时，</text><text x="256" y="65" class="t" text-anchor="start">出于 self-love 结束生命</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.07801;0.24113;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="92" class="ts" text-anchor="start">Step 3：用 self-love 毁掉 life：作为 nature 自相矛盾</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.14894;0.24113;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="30" class="ts tl" text-anchor="start">Maxim</text><text x="256" y="48" class="t" text-anchor="start">缺钱时就借钱并承诺归还，</text><text x="256" y="65" class="t" text-anchor="start">尽管知道自己还不了</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.24113;0.40426;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="92" class="ts" text-anchor="start">Step 3：人人如此，promise 就没人信：conceive 不了</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.31206;0.40426;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="30" class="ts tl" text-anchor="start">Maxim</text><text x="256" y="48" class="t" text-anchor="start">有 talent 也不去发展，</text><text x="256" y="65" class="t" text-anchor="start">宁可图安逸</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.40426;0.60284;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="92" class="ts" text-anchor="start">Step 3：人人如此的 world 可以 conceive</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.47518;0.60284;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="112" class="ts" text-anchor="start">Step 4：rational being 必然 will 自己的 faculties 发展</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.51064;0.60284;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="30" class="ts tl" text-anchor="start">Maxim</text><text x="256" y="48" class="t" text-anchor="start">自己过得好，</text><text x="256" y="65" class="t" text-anchor="start">别人有难一概不帮</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.60284;0.80142;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="92" class="ts" text-anchor="start">Step 3：人人如此的 world 可以 conceive</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.67376;0.80142;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="112" class="ts" text-anchor="start">Step 4：我会需要别人帮：这样 will 就自相矛盾</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.70922;0.80142;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="30" class="ts tl" text-anchor="start">Maxim</text><text x="256" y="48" class="t" text-anchor="start">为了 health，</text><text x="256" y="65" class="t" text-anchor="start">每天早上跑步</text><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.80142;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="92" class="ts" text-anchor="start">Step 3：conceive 得了</text><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.87234;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="256" y="112" class="ts" text-anchor="start">Step 4：will 得了</text><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.9078;1" dur="28.200000000000003s" repeatCount="indefinite" calcMode="discrete"/></g></svg><figcaption>左边是四步流程，右边的方框依次换成 Kant 的四个 maxim 和一个 permissible 的 maxim，主题色的块跟着它走到哪一步。静止时右上角是说明，结论框里写着哪些例子落在那里。</figcaption></figure>
+<p><strong>Suicide。</strong> Maxim：生活继续下去带来的 pain 多于它许诺的 pleasure 时，出于 self-love 缩短自己的 life。Kant 说，self-love 这种 feeling 本来的作用是推动 life 延续下去，一个以它来毁掉 life 为 law 的 nature “would contradict itself and, therefore, could not exist as a system of nature”。在 step 3 失败。</p>
+<p><strong>False promise。</strong> 缺钱时就借钱并承诺归还，尽管知道自己还不了。人人如此，“the promise itself would become impossible”，这个 maxim “would necessarily destroy itself”。在 step 3 失败。详细的走法见 GEX1015。</p>
+<p><strong>Talents。</strong> 有 talent 也不去发展，宁可图安逸。人人如此的 world 可以 conceive，人类照样能活下去。但 “he cannot possibly will that this should be a universal law of nature”，因为一个 rational being 必然 will 自己的 faculties 得到发展，它们对各种可能的目的都有用。在 step 4 失败。SEP 指出这个例子很弱：rationality 并不显然要求发展<strong>所有</strong> talent；论证还依赖几个额外的假设：我们必然 will 自己的 happiness，developed talent 是它的必要 means，rational agent 会 will 必要的 means。</p>
+<p><strong>Beneficence。</strong> 自己过得好，别人有难一概不帮。人人如此，人类照样能存活，所以可以 conceive。但会有需要别人帮助的时候，“a will which resolved this would contradict itself”：它会在自己最需要帮助时，剥夺自己得到帮助的希望。在 step 4 失败。</p>
+<p>Kant 的总结是：有些 maxim 的 universal 版本 “cannot without contradiction be even conceived”，对应 strict（perfect）duty；有些可以 conceive，但 “it is impossible to will” 它成为 law，对应 laxer（imperfect）duty。合起来是一张 2 × 2 的表：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th></th>
+<th>To self</th>
+<th>To others</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Perfect（step 3 失败）</td>
+<td>不许 suicide</td>
+<td>不许作 false promise</td>
+</tr>
+<tr>
+<td>Imperfect（step 4 失败）</td>
+<td>要发展 talent</td>
+<td>有时要帮助别人</td>
+</tr>
+</tbody>
+</table></div>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Categorical 的意思是“没有例外”，所以 Kant 的每条 duty 都要求在任何情况下做同一件事</span></p><p>Categorical 说的是这个 imperative 不以行动者的某个 end 为条件，和有没有 latitude 是两回事。上面的表里，imperfect duty 同样是 categorical 的，却留有余地：beneficence 的 test 否决的是“一概不帮”这条 maxim，并不要求每次遇到需要帮助的人都帮，帮谁、帮多少由判断决定。SEP 把这条 duty 写作 “aid others sometimes”。反过来，hypothetical imperative 也可以毫无例外：对任何一个 will 了“九点前到 Changi”的人，“那就必须八点前出门”都成立。</p>
+</aside>
+<h3>Contradiction 指什么：三种读法</h3>
+<p>False promise 在 step 3 失败，这一点在任何读法下都一样。可是“contradiction in conception”到底是什么样的 contradiction，换几个 maxim 就会分出差别。Korsgaard 1985 年的文章区分了三种读法。</p>
+<p><strong>Logical contradiction。</strong> 那条 universal law 所描述的 world 根本不可能存在。False promise 最符合这种读法：人人作假承诺，“no one would believe what was promised to him”，promise 这种 practice 消失了。</p>
+<p><strong>Teleological contradiction。</strong> 那条 law 和一个有目的的 nature 冲突。Kant 对 suicide 的说法属于这一种：self-love 的目的是保存 life，用它毁掉 life 与它的目的冲突。</p>
+<p><strong>Practical contradiction。</strong> 行动者想通过这个 action 达到某个 purpose；把这个 action 设想成所有人达到这个 purpose 的通常办法，如果那样一来他自己的 purpose 就落空了，他就是在 “in effect will the thwarting of your own purpose”。False promise 的 purpose 是借到钱；在人人作假承诺的 world 里，靠假承诺借不到钱。假承诺之所以能奏效，全靠别人都诚实。</p>
+<p>拿四个 maxim 检验 logical 和 practical 两种读法：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Maxim</th>
+<th>Logical 读法</th>
+<th>Practical 读法</th>
+<th>我们认为应有的判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>缺钱时作 false promise</td>
+<td>失败</td>
+<td>失败</td>
+<td>不许</td>
+</tr>
+<tr>
+<td>遇到穷人就帮（Bradley 的 “Succor the poor”）</td>
+<td>失败</td>
+<td>通过</td>
+<td>允许</td>
+</tr>
+<tr>
+<td>为了得到一份工作，杀掉竞争者</td>
+<td>通过</td>
+<td>失败</td>
+<td>不许</td>
+</tr>
+<tr>
+<td>出于报复杀人</td>
+<td>通过</td>
+<td>通过</td>
+<td>不许</td>
+</tr>
+</tbody>
+</table></div>
+<p>逐行看。</p>
+<p><strong>Succor the poor。</strong> 人人都帮穷人，穷人就没有了，“帮穷人”这件事也就无从做起，按 logical 读法，这个 maxim 自我毁灭，于是被禁止。这显然错了，Bradley 用它说明 test 太强。按 practical 读法，这个 maxim 的 purpose 是消除 poverty，一个没有 poverty 的 world 恰好实现了它，没有落空，所以通过。Korsgaard 说 practical 读法处理这个 case “readily” 而且 “correctly”。</p>
+<p><strong>为了工作杀掉竞争者。</strong> Killing 是一种 natural action，不依赖任何 practice；人人都杀竞争者的 world 完全可以存在。按 logical 读法，没有 contradiction，于是允许，这又错了。Korsgaard 的 practical 分析是：这个人的 purpose 是<strong>拥有</strong>这份工作，而活着是拥有一份工作的必要条件；在人人都杀竞争者的 world 里，他自己也会成为别人的竞争者和受害者，purpose 落空，所以失败。她把这一点和 Mill 的看法联系起来：security 是所有其他 good 的条件。</p>
+<p><strong>出于报复杀人。</strong> 这里 practical 读法也出了问题，Korsgaard 自己承认：报复者要的就是当下那个结果，不是一种需要长久维持的状态；人人都这样做，他的 purpose 照样达到。Suicide 也类似：从痛苦中解脱这个 purpose，不会因为人人如此而落空。</p>
+<p>Teleological 读法另有麻烦。Korsgaard 指出，想自杀的人不必 will 那个有目的的 nature，他可能根本不在乎自我保存；Paton 用“purposes 的 systematic harmony”来处理 false promise，又预设了 promise 对这种 harmony 必不可少，等于先假定了要证明的东西。</p>
+<p>Hegel 有一个更一般的 objection：FUL 是空的。一个根本没有 deposit（寄存财物）这种制度的 world，并不包含 contradiction，所以“把别人寄存的东西据为己有”的 universal 版本，只在你已经接受了 deposit 制度时才自相矛盾，test 本身说不出这个制度该不该有。Practical 读法的回答是：问题不在制度该不该有，而在这个行动者自己<strong>想要</strong> deposit 制度，他要靠它来得到东西；他一边享用制度，一边让自己成为例外，这是 unfair。</p>
+<p>把这些合起来，是 FUL 最强的 objection：每一种读法都至少在一个 case 上给错判断，有时放过 wrong 的 maxim，有时禁止无害的 maxim。Korsgaard 的结论是 practical 读法 “better than the other two, although not always with complete success”。她对剩下难题的诊断是：Kant 设计这个 test 时心里的典型情形，是人想让自己成为例外的那种 temptation；出于 despair 或疾病的暴力不是这种情形。另一种回应是不让 FUL 单独承担，用第 5 站的 Formula of Humanity 补上。</p>
+
+<aside class="blk blk-edge"><p class="blk-h"><span class="blk-k">边界情况</span><span class="blk-t">把 maxim 写得更窄</span></p><p>MIT 24.01 的讲义用考试作例子。Maxim 一：“每逢考试而我又不想复习，我就抄邻座的。”人人如此，就没有人复习，也就没有可抄的东西，purpose 落空。Maxim 二把它收窄：“只在其他人都准备充分、而且我不会被抓到时，我才抄。”收窄之后，人人遵循这条 maxim 的 world 里，抄袭只在别人都准备好的时候发生，看起来不再自我毁灭，于是通过了 test。讲义用这个例子说明，maxim 的描述稍微一改，结论就变了，所以“maxim 该怎样描述”是 FUL 的一个开放问题；它接着指出，Formula of Humanity 会禁止 maxim 二（第 5 站）。Korsgaard 1985 年的文章从另一面处理考试：抄袭 “parasitic” 于考试这种选拔方法的存在，人人都抄，这种方法本身就会改变。还有一种常见的回答，是我凭自己的知识补的：maxim 是行动者实际据以行动的理由，这个人的理由是“我不想复习，而抄能得分”，“别人都准备好了”在他的 reasoning 里只是让抄袭更安全的条件，不是他行动的理由。</p>
+</aside>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>这一站开头的“两种 ought”针对的是<a href="#hume">第 3 站</a> P3 和 C1 描述的 Hume 的 picture。Kant 认为 reason 自己就能给出 categorical imperative，正是对 C1 的否认。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>“Opt out” 的论证、intend X 与 Y 的写法、categorical 的要求来自 rational faculty、theoretical reason 的对照、FUL 的白话说法、考试的两个 maxim 和“maxim 该怎样描述”的问题，来自 <a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/resources/mit24_01s16_ses19/">MIT 24.01 Session 19 的讲义</a>（逐节读了；讲义本身没有逐个走 contradiction in conception 和 contradiction in will 两步，只列出这个区分）。Hypothetical 与 categorical 的两处定义、关于 reputation 的两句、FUL 及其变体、philanthropist、四个例子的原话、“cannot … be even conceived”与“impossible to will”的区分，出自 <a href="https://www.gutenberg.org/cache/epub/5682/pg5682.html">Abbott 译本</a>（全文分两段读完）。Hypothetical imperative 的约束力来自 will 了 end、happiness 只给出 counsels、Groundwork II “merely analytic”、universal content 的说法、四步流程、四个例子的分类表和对 talents 例子的批评、moral worth 的 objection 与 Kant 一方的回应，来自 <a href="https://plato.stanford.edu/archives/win2021/entries/kant-moral/">SEP 的 Kant's Moral Philosophy</a> §§2–5、10（读了前十万字符）。三种读法、natural action 与 conventional action 的区分、四个 maxim 的处理、Bradley、Hegel、Paton、考试是 parasitic 的、Korsgaard 承认的难题与诊断，来自 <a href="https://dash.harvard.edu/bitstream/handle/1/3201869/Korsgaard_KantForumulaUniversalLaw.pdf">Korsgaard 1985</a>（读完了，抓取工具返回的是详细转述）。</p>
+<p>为这一页构造的部分：pianist 的 ought、P1–P3 的展开（SEP 只给了核心一句）、Changi 的例子。“遇到穷人就帮”“为了工作杀人”两行在表里的四格，是我按 Korsgaard 的分析填的；“出于报复杀人”在 logical 读法下通过，是我按她对 natural action 的说法推的。</p>
+</aside>
+
+</section>
+<section class="stop" id="humanity" data-skill="humanity" data-name="Kant：Formula of Humanity 与 murderer at the door">
+<header class="stop-h"><span class="stop-n">第 5 站</span><h2>Kant：Formula of Humanity 与 murderer at the door</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能说出 Formula of Humanity 里 humanity 和 merely 的意思，复述 murderer at the door 的设定和 Kant 的回答。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立用 consent test 判断 deception 与 coercion，并用 practical contradiction test 说明为什么对隐瞒来意的 murderer 说谎能通过 FUL、对公开来意的 murderer 说谎通不过。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能讲清 FUL 与 FH 在这个 case 上为什么分歧，以及 Korsgaard 的 double-level theory 怎样处理分歧、给它设了哪些限制。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-humanity">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-humanity"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能用 Formula of Humanity 的 consent test 判断 deception 和 coercion，能复述 Kant 对 murderer 的回答，说清 Korsgaard 为什么认为 FUL 允许那个谎、FH 不允许，以及 double-level theory 怎样处理这个冲突，就可以去第 6 站。</p>
+</aside>
+<h3>一个让 Kant 的读者分裂的 case</h3>
+<p>开头第三个 case 有一个出处。法国作家 Benjamin Constant 在 France, for the year 1797 里主张：“To tell the truth then is a duty, but only towards him who has a right to the truth.” 要杀人的人没有这个 right，所以可以对他说谎。Kant 写了一篇短文回应他，Abbott 的译本题为 On a Supposed Right to Tell Lies from Benevolent Motives。文中的 case 是：你的朋友躲在你家，一个要杀他的人来到门口，问他在不在。Kant 的回答是：不许说谎。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 296" role="img" aria-label="Murderer at the door 的设定：friend 躲在屋里，也许已从后门离开；murderer 在前门问你他在不在。右边是 Kant 文中的两条分支：说真话，murderer 进屋搜，friend 若已出门反而碰不上，邻居可能抓住他；说谎，friend 若已出门，murderer 离开时正好撞上他，Kant 认为说谎的人要负责"><path d="M70 190L20 190L20 40L220 40L220 130" class="ink-b"/><path d="M220 166L220 190L106 190" class="ink-b"/><text x="88" y="206" class="ts" text-anchor="middle">front door</text><text x="226" y="184" class="ts" text-anchor="start">back door</text><line x1="130" y1="40" x2="130" y2="104" class="ink"/><line x1="130" y1="104" x2="170" y2="104" class="ink"/><circle cx="180" cy="62" r="8" class="ln-f"/><text x="180" y="88" class="tl" text-anchor="middle">friend</text><path d="M189 64L208 70L208 148L264 148" class="ln-dash"/><text x="236" y="106" class="ts" text-anchor="start">也许已经</text><text x="236" y="122" class="ts" text-anchor="start">从后门出去</text><circle cx="88" cy="164" r="8" class="paper"/><text x="88" y="148" class="tb" text-anchor="middle">you</text><circle cx="88" cy="230" r="8" class="ink-f"/><text x="104" y="234" class="t" text-anchor="start">murderer：“Is he here?”</text><text x="104" y="252" class="ts" text-anchor="start">他得装成路人，以为你不知道他是谁</text><text x="330" y="22" class="tb" text-anchor="start">Kant 文中的两条分支</text><rect x="330" y="36" width="230" height="86" rx="6" class="paper"/><text x="340" y="56" class="t" text-anchor="start">Truth：“He is here.”</text><text x="340" y="74" class="ts" text-anchor="start">Murderer 进屋搜；friend 若已</text><text x="340" y="90" class="ts" text-anchor="start">出门，反而碰不上；</text><text x="340" y="106" class="ts" text-anchor="start">neighbors 可能赶来抓住他</text><rect x="330" y="134" width="230" height="70" rx="6" class="paper"/><text x="340" y="154" class="t" text-anchor="start">Lie：“He is not here.”</text><text x="340" y="172" class="ts" text-anchor="start">Friend 若已从后门出去，</text><text x="340" y="188" class="ts" text-anchor="start">murderer 离开时正好撞上他</text><line x1="445" y1="206" x2="445" y2="226" class="ln"/><polygon points="445,228 447.9,221.6 442.1,221.6" class="ln-f"/><rect x="330" y="230" width="230" height="50" rx="6" class="wash ink-s"/><text x="340" y="250" class="ts" text-anchor="start">with justice be accused as</text><text x="340" y="266" class="ts" text-anchor="start">the cause of his death</text></svg><figcaption>左边是设定：friend 在屋里，也许已经从后门出去；murderer 在前门问你，他得装成普通路人。右边是 Kant 在文章里给出的两条分支。</figcaption></figure>
+<p>Kant 的理由有两层。</p>
+<p>第一层关于 lie 本身。他把 lie 定义为一个对别人作出的、有意的 false declaration，不需要加上“伤害了别人”这个条件，因为 lie “always injures another”：即使没有伤害某个具体的人，也伤害了 “mankind generally, since it vitiates the source of justice”。所有 contract 和 right 都建立在 declaration 可信的基础上。所以对 murderer 说谎，在 jurist 的意义上也许没有对哪个具体的人犯 wrong，却是对 humanity 犯的 wrong。</p>
+<p>第二层关于后果。如果你如实回答“他在”，而朋友其实已经趁人不注意出了门，murderer 进屋搜不到人，反而碰不上他；邻居也可能赶来把 murderer 抓住。如果你说谎，说朋友不在，而他其实已经出了门，murderer 离开时正好撞上他，那么 “you might with justice be accused as the cause of his death”。反过来，说真话之后无论发生什么，public justice “can find no fault with you, be the unforeseen consequence what it may”。重构一下：</p>
+<ul>
+<li><strong>P1.</strong> 你说真话之后，murderer 做的事是他的 action，不算在你头上。</li>
+<li><strong>P2.</strong> 你说谎之后，谎言引起的一切后果都算在你头上，包括你没有预见到的。</li>
+<li><strong>P3.</strong> 后果事先无法确定：朋友可能已经出门，邻居可能赶来。</li>
+<li><strong>C.</strong> 你不能用“说谎的后果更好”替这个谎辩护，说谎却要让你承担后果；所以不说谎。</li>
+</ul>
+<p>最受质疑的是 P1 和 P2 的不对称：既然后果无法确定，说真话同样可能把 murderer 引向朋友，为什么那一份后果就不算你的？Kant 的立场最终并不靠这段后果的计算，他的结论是 truthfulness 是 “an unconditional duty which holds in all circumstances”；Constant 想用来开出例外的那些中间 principle，只能说明一条 rule 怎样应用，不能给它造出例外。Korsgaard 记录了两种读者的反应：不同情 Kant 的人认为这是 rationalism 的僵硬；同情他的人认为，Kant 是把自己的 test 用错了。要判断后一种说法，先得看 Formula of Humanity。</p>
+<h3>Formula of Humanity</h3>
+<p>Groundwork 里的第二个 formula（FH）：“So act as to treat humanity, whether in thine own person or in that of any other, in every case as an end withal, never as means only.”</p>
+<p>SEP 的解释有三点。第一，humanity 指的是使我们成为 human 的 rational capacity，即自己设定 end、自己追求它的能力，不指“人类”这个 species。第二，“never as means only” 里的 only（merely）不能漏，<a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>用坐出租车的例子讲过：使用别人的服务，只要以对方可能同意的方式进行，就不是 merely as a means。第三，“当作 end” 有两层：一层是 negative 的，它限制你可以对别人做什么，是 perfect duty 的来源；一层是 positive 的，要去促进它，是发展自己的 talent、促进别人的 end 这些 imperfect duty 的来源。</p>
+<p>Kant 自己把 FH 用在 false promise 上时，说的就是同意：作假承诺的人是在 “using another man merely as a mean”，因为对方 “cannot possibly assent to my mode of acting towards him”。Korsgaard 把它说得更精确：对方必须能够 assent 你对待他的方式，并且能够 “contain the end of this action in himself”，即能把你这个 action 的 end 也当作自己的 end。Assent 需要两样东西：knowledge 和 power。Deception 拿走前者：谎言只在对方不知道它是谎言时才起作用，对方无从同意一个他不知道的计划。Coercion 拿走后者：对方知道，却没有拒绝的能力。两者都把对方的 reason 当作工具，借它来达到你的目的。</p>
+<p>FH 从哪里来？MIT 24.01 的讲义承认它初看像 “some sort of trick”，引了 Rae Langton 的一个重构：</p>
+<ol>
+<li>作为 rational being，我们是 autonomous 的 deliberator。</li>
+<li>把一个 rational being merely as a means 对待，就是颠覆他 autonomous deliberation 的 rational capacity。</li>
+<li>如果我 will 对别人的这种颠覆，按 FUL，我也就 will 了对我自己的这种颠覆。</li>
+<li>Will 颠覆自己的 will 是 irrational 的。</li>
+<li>所以，FH。</li>
+</ol>
+<p>第 3 步把 FUL 当作 premise 用，这个重构因此也是一种“两个 formula 有联系”的说明。讲义还指出，第 4 站考试的 maxim 二虽然可能通过 FUL，却被 FH 禁止。用下面的 consent test 可以看出原因（这是我的解释）：只在别人都准备好时才抄，是拿别人的诚实备考当自己得分的工具，而他们如果知道，不会同意。</p>
+<p>用 consent test 检验两个 case。False promise：借钱的人如果知道你不打算还，就不会借，FH 禁止，这是 Kant 自己的结论。对 murderer 说谎：谎言同样只在他不知道时才起作用，所以 FH 同样禁止。Korsgaard 的总结是：按 FH，所有的谎都是 wrong 的。</p>
+<p>Kant 区分了 price 和 dignity：“Whatever has a value can be replaced by something else which is equivalent”；高于一切 value、没有任何等价物的东西，“has a dignity”，有 morality 能力的 humanity 就是这样的东西。SEP 据此区分两种 respect：基于成就的 appraisal respect，和基于对方是什么的 recognition respect。Kant 说的是后者，一个人不会因为做了坏事就失去它。所以 murderer 也有 humanity，这正是 FH 在这里不放过谎言的原因。</p>
+<h3>Korsgaard：FUL 允许这个谎</h3>
+<p>现在用第 4 站的 practical contradiction test 检验对 murderer 说谎：</p>
+<ol>
+<li><strong>Maxim。</strong> 有人为了杀人而向我打听受害者在哪里时，我说谎，以救下受害者。</li>
+<li><strong>Universal law。</strong> 所有人都对这样打听的 murderer 说谎。</li>
+<li><strong>在那个 world 里，这个谎还管用吗？</strong> Murderer 要得到消息，就必须让你以为他不是 murderer，他 “must assume you do not know who he is or what he intends”。在他看来，你并不知道面前站着一个 murderer，“人人都对 murderer 说谎”这条 law 落不到你身上，他照样指望你说真话。谎照样管用。</li>
+<li><strong>结论。</strong> Purpose 没有落空，没有 practical contradiction，FUL 允许这个谎。</li>
+</ol>
+<p>和 false promise 对照：那里借钱的人知道人人都作假承诺，所以不再相信承诺，谎失效；这里 murderer 自己的 deception 让他相信你被蒙在鼓里，谎不失效。Korsgaard 还用 publicity 检验：即使你公开宣布“我会对 murderer 说谎”，也不会让谎失效，因为 murderer 照样以为你不知道自己面对的是 murderer。她的说法是，一个 deceiver “has, so to speak, placed himself in a morally unprotected position”。</p>
+<p>用同一个 test 检验一个变体：murderer 直接说出来意，“我要杀他，他在不在？”这时第 3 步不成立了：人人都对公开来意的 murderer 说谎，他就不会相信你的回答，谎失效，maxim 通不过。Korsgaard 说在这种情形下，你唯一的办法是拒绝回答。</p>
+<p>于是两个 formula 在同一个 case 上给出相反的判断：FUL 允许，FH 禁止。Kant 说几个 formula “only so many formulae of the very same law”，它们之间的差别 “rather subjectively than objectively practical”，只是让同一个 idea 更接近 intuition（G 4:435）。Korsgaard 的看法是，两者不对称：违反 FUL 的一定违反 FH，因为违反 FUL 的人总是让自己成为例外、给自己的理由特殊的分量；反过来不成立，FH 更严格。</p>
+<h3>Double-level theory</h3>
+<p>Korsgaard 借用 Rawls 对 ideal theory 与 nonideal theory 的区分来处理这个冲突。</p>
+<ul>
+<li>FH 和 Kingdom of Ends 描述的是 ideal：日常生活里，人和人之间应该怎样相待。</li>
+<li>在 evil 的情形里，坚持 ideal 会让你成为 evil 的工具（a “tool of evil”），这时可以偏离 ideal。Ideal 变成一个要努力去实现的目标，它的 priority 仍然指导你：选择偏离得最少的那种做法。</li>
+<li>FUL 是不能再往下退的底线，是 “the point at which morality becomes uncompromising”。</li>
+</ul>
+<p>照这个 theory，对隐瞒来意的 murderer 说谎，不只是 permitted。Korsgaard 认为它是 required 的，理由有两条：互相帮助的 imperfect duty，以及一条 self-respect 的 perfect duty：不让自己的诚实被 evil 利用。这是 virtue 的 duty，不是 justice 的 duty，所以拒绝说谎的人并不因此成了 murderer 的同谋。她给这个许可设了几条限制：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>限制</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只适用于 evil 的情形，不适用于日常</td>
+<td>否则 FH 这个 ideal 就失去了作用</td>
+</tr>
+<tr>
+<td>Murderer 公开来意时，只能拒绝回答；除非他用 force 逼出回答，才可以说谎</td>
+<td>上面的变体通不过 FUL</td>
+</tr>
+<tr>
+<td>能用不严重伤害他的 force 拦住他时，用 force 比说谎 “cleaner”</td>
+<td>偏离 ideal 要选偏离得最少的那种</td>
+</tr>
+<tr>
+<td>FUL 始终是底线</td>
+<td>这是 morality 不再让步的地方</td>
+</tr>
+</tbody>
+</table></div>
+<p>她认为这比 consequentialist 的处理好：后者没有真正的 ideal 与 nonideal 之分，“后果好就可以说谎”会一路滑下去；double-level theory 给出一个不靠计算后果的门槛，也解释了为什么做了正确的事之后仍然会 regret。</p>
+<p>三种立场各自最强的版本是：Kant 本人，truthfulness 没有例外，后果不能拿来为谎辩护；Korsgaard，FUL 设底线、FH 设 ideal，evil 的情形下可以甚至必须偏离 ideal；consequentialist，说谎救人的后果更好，所以应该说谎，门槛就是后果的比较。分歧在于：一条 moral principle 能不能因为别人先作了恶而改变它对你的要求。本页不下结论。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Kant 说几个 formula 是同一条 law，所以拿哪一个检验都会得到同样的判断，挑最顺手的用就行</span></p><p>SEP 指出，Kant 没有说明它们在什么意义上等价，评论者的读法至少有三种：意思相同、可以互相推出、推出同一批 duty。也有评论者（Wood、Cureton）怀疑 universal law 的读法能否涵盖 FH 的全部意思。Murderer 的 case 给出一个具体的检验：照 Korsgaard 对两个 formula 的读法，FUL 允许而 FH 禁止。换一种读法也许能让它们重新一致，但那需要论证；不能事先假定它们一致，只拿一个去检验就下结论。</p>
+</aside>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>Practical contradiction test 和“让自己成为例外”的诊断在<a href="#ful">第 4 站</a>。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Constant 的那句话、Kant 对 lie 的定义、“mankind generally”、两条分支、“with justice be accused as the cause of his death”、“can find no fault with you”、“an unconditional duty which holds in all circumstances”、中间 principle 不能造出例外、jurist 意义上的 wrong 与对 humanity 的 wrong，出自 <a href="https://blogs.ubc.ca/phil230/files/2014/08/Online-Library-of-Liberty-Kant%E2%80%99s-Critique-of-Practical-Reason-and-Other-Works-on-the-Theory-of-Ethics-Portable-Library-of-Liberty-Kant_0212_EBk_v6.0-OnSupposedRightToLie.pdf">Kant 那篇文章的 Abbott 译本</a>（UBC Phil 230 课程网站上的 PDF，逐段读了）。Langton 的五步、“some sort of trick”、FH 禁止考试的 maxim 二，来自 <a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/resources/mit24_01s16_ses19/">MIT 24.01 Session 19 的讲义</a>。两种读者的反应、FUL 允许而 FH 禁止的分析、publicity、“morally unprotected position”、两个 formula 的不对称、double-level theory、required 的两条理由、四条限制、和 consequentialism 的对比，来自 <a href="https://dash.harvard.edu/server/api/core/bitstreams/7312037c-70d5-6bd4-e053-0100007fdf3b/content">Korsgaard 1986</a>（读完了，抓取工具返回的是详细转述）。FH 的原文、Kant 对 false promise 的“cannot possibly assent”、price 与 dignity、“only so many formulae of the very same law”，出自 <a href="https://www.gutenberg.org/cache/epub/5682/pg5682.html">Groundwork 的 Abbott 译本</a>。Humanity 的意思、merely、三种意义上的 end、两种 respect、几个 formula 是否等价及 Wood 与 Cureton 的怀疑，来自 <a href="https://plato.stanford.edu/archives/win2021/entries/kant-moral/">SEP 的 Kant's Moral Philosophy</a> §§6–9。</p>
+<p>我自己的整理：把 Kant 的后果论证写成 P1–P3；“P1 与 P2 不对称”的质疑；用 consent test 解释考试的 maxim 二；最后“三种立场”一段。Langton 的原文没有读，只读了讲义里的五步。</p>
+</aside>
+
+</section>
+<section class="stop" id="mill" data-skill="mill" data-name="Mill：higher pleasures 与 proof of utility">
+<header class="stop-h"><span class="stop-n">第 6 站</span><h2>Mill：higher pleasures 与 proof of utility</h2></header>
+<div class="lv"><dl class="crits"><div class="crit"><dt><span class="crit-n">3</span>有提示能做</dt><dd>能复述 swine objection、competent judges test，以及 Socrates 与 fool 那一句。</dd></div><div class="crit"><dt><span class="crit-n">4</span>能独立做</dt><dd>能独立用一组人数说明 Mill 的 test 数的是谁，并把“higher pleasures 与 hedonism 不一致”写成 valid 的 argument。</dd></div><div class="crit"><dt><span class="crit-n">5</span>能讲给别人</dt><dd>能区分“any quantity”的两种读法和它们对 aggregation 的后果，并说出 Chapter IV 的 proof 八步里每条 objection 打在哪一步。</dd></div></dl>
+<div class="rate"><span class="rate-l" id="rl-mill">我现在在几级</span><div class="rate-bs" role="group" aria-labelledby="rl-mill"><button type="button" class="rate-b" data-level="0" aria-label="0 级：没听过" aria-pressed="false">0</button><button type="button" class="rate-b" data-level="1" aria-label="1 级：听过" aria-pressed="false">1</button><button type="button" class="rate-b" data-level="2" aria-label="2 级：能跟上" aria-pressed="false">2</button><button type="button" class="rate-b" data-level="3" aria-label="3 级：有提示能做" aria-pressed="false">3</button><button type="button" class="rate-b" data-level="4" aria-label="4 级：能独立做" aria-pressed="false">4</button><button type="button" class="rate-b" data-level="5" aria-label="5 级：能讲给别人" aria-pressed="false">5</button></div><span class="rate-now" aria-live="polite"></span></div></div>
+
+<aside class="blk blk-skip"><p class="blk-h"><span class="blk-k">可以跳过吗</span></p><p>能说清 competent judges test 数的是谁、“higher pleasures 与 hedonism 不一致”这条 argument 和两种回应、“any quantity”的两种读法，以及 Chapter IV proof 八步里每条 objection 打在哪一步，就读完了这一页。Utilitarianism 的基本结构见 <a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>。</p>
+</aside>
+<h3>Swine objection</h3>
+<p>Bentham 的 hedonism 只有一种 good：pleasure。一个 activity 的 value 只取决于它带来的 pleasure 有多少，看的是 intensity、duration、extent 这些 quantity 的维度。SEP 的 Mill 条目提到，Bentham 在 The Rationale of Reward 里说 push-pin（一种简单的游戏）至少和 poetry 一样有 value。</p>
+<p>这招来一个 objection，Mill 引作 “a doctrine worthy only of swine”。如果只看 quantity，一头 pig 一生的 pleasure 总量只要超过 Socrates，pig 的 life 就更好。</p>
+<p>Mill 的回答分三层。</p>
+<p>第一层是反驳这个 objection 的前提：“it is not they, but their accusers, who represent human nature in a degrading light”。说 pleasure 只配 pig 追求，预设了 human 能享受的 pleasure 和 pig 一样；可是 human 有更高的 faculties，一旦意识到这些 faculties，就不会把不包含它们满足的东西当作 happiness。</p>
+<p>第二层是 extrinsic 的：SEP 说，Mill 承认可以用 quantity 为 mental pleasure 辩护，它们更 intense、更持久、更 fecund（II 4）。这是 Bentham 也能接受的说法。</p>
+<p>第三层才是 Mill 自己的：pleasure 除了 quantity 还有 quality。“It would be absurd that while, in estimating all other things, quality is considered as well as quantity”，唯独评价 pleasure 时只看 quantity。</p>
+<h3>Competent judges test</h3>
+<p>怎样判断两种 pleasure 哪一种 quality 更高？Mill 的 test：两种 pleasure 中，如果 “all or almost all who have experience of both give a decided preference” 于其中一种，而且这种偏好不是出于觉得自己有 moral obligation 去偏好它，那一种就是更 desirable 的 pleasure。如果判断者之间有分歧，就看 “the judgment of those who are qualified by knowledge of both, or, if they differ, that of the majority among them”，它 “must be admitted as final”。</p>
+<p>为这一页构造一组人数，看这个 test 数的是谁。50 个人，12 人两种都试过，其中 11 人偏好 poetry、1 人偏好 push-pin；30 人只玩过 push-pin；8 人只读过 poetry。</p>
+
+<figure class="fig"><svg class="fig-svg" viewBox="-4 -6 568 250" role="img" aria-label="为本页构造的 50 人：12 人两种都试过，其中 11 人 prefer poetry；30 人只试过 push-pin；8 人只试过 poetry。全体举手 push-pin 31 比 poetry 19，Mill 的 test 只数两种都试过的人，poetry 11 比 1"><rect x="0" y="6" width="172" height="128" rx="6" class="wash ink-s"/><text x="10" y="26" class="tb" text-anchor="start">两种都试过</text><text x="10" y="43" class="ts" text-anchor="start">competent judges</text><circle cx="18" cy="64" r="6" class="ln-f"/><circle cx="35" cy="64" r="6" class="ln-f"/><circle cx="52" cy="64" r="6" class="ln-f"/><circle cx="69" cy="64" r="6" class="ln-f"/><circle cx="86" cy="64" r="6" class="ln-f"/><circle cx="103" cy="64" r="6" class="ln-f"/><circle cx="18" cy="81" r="6" class="ln-f"/><circle cx="35" cy="81" r="6" class="ln-f"/><circle cx="52" cy="81" r="6" class="ln-f"/><circle cx="69" cy="81" r="6" class="ln-f"/><circle cx="86" cy="81" r="6" class="ln-f"/><circle cx="103" cy="81" r="6" class="paper"/><text x="10" y="114" class="ts" text-anchor="start">11 人 prefer poetry（实心）</text><text x="10" y="129" class="ts" text-anchor="start">1 人 prefer push-pin（空心）</text><rect x="186" y="6" width="196" height="128" rx="6" class="paper"/><text x="196" y="26" class="tb" text-anchor="start">只试过 push-pin</text><circle cx="206" cy="46" r="6" class="paper"/><circle cx="223" cy="46" r="6" class="paper"/><circle cx="240" cy="46" r="6" class="paper"/><circle cx="257" cy="46" r="6" class="paper"/><circle cx="274" cy="46" r="6" class="paper"/><circle cx="291" cy="46" r="6" class="paper"/><circle cx="308" cy="46" r="6" class="paper"/><circle cx="325" cy="46" r="6" class="paper"/><circle cx="342" cy="46" r="6" class="paper"/><circle cx="359" cy="46" r="6" class="paper"/><circle cx="206" cy="63" r="6" class="paper"/><circle cx="223" cy="63" r="6" class="paper"/><circle cx="240" cy="63" r="6" class="paper"/><circle cx="257" cy="63" r="6" class="paper"/><circle cx="274" cy="63" r="6" class="paper"/><circle cx="291" cy="63" r="6" class="paper"/><circle cx="308" cy="63" r="6" class="paper"/><circle cx="325" cy="63" r="6" class="paper"/><circle cx="342" cy="63" r="6" class="paper"/><circle cx="359" cy="63" r="6" class="paper"/><circle cx="206" cy="80" r="6" class="paper"/><circle cx="223" cy="80" r="6" class="paper"/><circle cx="240" cy="80" r="6" class="paper"/><circle cx="257" cy="80" r="6" class="paper"/><circle cx="274" cy="80" r="6" class="paper"/><circle cx="291" cy="80" r="6" class="paper"/><circle cx="308" cy="80" r="6" class="paper"/><circle cx="325" cy="80" r="6" class="paper"/><circle cx="342" cy="80" r="6" class="paper"/><circle cx="359" cy="80" r="6" class="paper"/><text x="196" y="124" class="ts" text-anchor="start">30 人，都说 push-pin 好</text><rect x="396" y="6" width="164" height="128" rx="6" class="paper"/><text x="406" y="26" class="tb" text-anchor="start">只试过 poetry</text><circle cx="414" cy="46" r="6" class="ln-f"/><circle cx="431" cy="46" r="6" class="ln-f"/><circle cx="448" cy="46" r="6" class="ln-f"/><circle cx="465" cy="46" r="6" class="ln-f"/><circle cx="482" cy="46" r="6" class="ln-f"/><circle cx="499" cy="46" r="6" class="ln-f"/><circle cx="414" cy="63" r="6" class="ln-f"/><circle cx="431" cy="63" r="6" class="ln-f"/><text x="406" y="124" class="ts" text-anchor="start">8 人，都说 poetry 好</text><text x="0" y="166" class="t" text-anchor="start">全部 50 人举手：push-pin 31，poetry 19</text><text x="0" y="184" class="ts" text-anchor="start">多数选 push-pin；但 30 人只知道 their own side of the question</text><text x="0" y="212" class="tl" text-anchor="start">Mill 的 test 只数第一组：poetry 11 比 1</text><text x="0" y="230" class="ts" text-anchor="start">92%，算得上 “all or almost all”，所以 poetry 是 higher quality 的 pleasure</text></svg><figcaption>为本页构造的 50 个人。实心点偏好 poetry，空心点偏好 push-pin。全体举手和 Mill 的数法得出相反的结论。</figcaption></figure>
+<p>全体举手：push-pin 得 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>31</mn></mrow><annotation encoding="application/x-tex">30+1=31</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">30</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">31</span></span></span></span> 票，poetry 得 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>11</mn><mo>+</mo><mn>8</mn><mo>=</mo><mn>19</mn></mrow><annotation encoding="application/x-tex">11+8=19</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">11</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">8</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">19</span></span></span></span> 票，多数选 push-pin。Mill 的 test 只数第一组：poetry 11 票，push-pin 1 票，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>11</mn><mi mathvariant="normal">/</mi><mn>12</mn><mo>≈</mo><mn>92</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">11/12\approx92\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">11/12</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">92%</span></span></span></span>，算得上 “all or almost all”，所以 poetry 是 quality 更高的 pleasure。另外 38 个人被排除，理由是 Mill 那句：如果 fool 或 pig 意见不同，“it is because they only know their own side of the question”。</p>
+<p>这一组判断的强度，Mill 用另外两句话描述。熟悉两种 pleasure 的人，即使知道更高的那种带着更多的 discontent，也 “would not resign it for any quantity of the other pleasure which their nature is capable of”；这时更高的 quality “so far outweighing quantity as to render it, in comparison, of small account”。“Few human creatures would consent to be changed into any of the lower animals”，哪怕许给他们 animal 的全部 pleasure。Mill 把这种偏好最贴切的名称叫作 “a sense of dignity”。于是有了开头第四个 case 里的那句：“better to be a human being dissatisfied than a pig satisfied; better to be Socrates dissatisfied than a fool satisfied”。</p>
+<p>MIT 24.01 的讲义在这里把 Mill 和第 1 站的 Aristotle 对照。Aristotle 认为探究能揭示 human 的 proper function，懂行的人可以纠正我们的混乱；Mill 则看人们实际怎样选择来确定什么对 human 好，讲义称之为一种更 “democratic” 或 “populist” 的 epistemology of value。上图的数字显示这种 democracy 有它的范围：投票的只是两种都试过的那 12 个人。</p>
+
+<aside class="blk blk-wrong"><p class="blk-h"><span class="blk-k">看起来对，其实不对</span><span class="blk-t">Higher pleasure 赢，是因为它更 intense 或更持久</span></p><p>那是 Mill 的第二层回答，Bentham 也能接受。Mill 自己的主张更强。设读一晚 poetry 是 intensity 2、持续 3 小时，按 Bentham 的算法是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>3</mn><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">2\times3=6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">6</span></span></span></span> 个 unit；玩一晚 push-pin 是 intensity 4、持续 2 小时，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>×</mo><mn>2</mn><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">4\times2=8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">8</span></span></span></span> 个 unit。只看 quantity，push-pin 赢。Mill 的 test 问的是两种都熟悉的人选哪一个；如果他们选 poetry，即使明知它带来更多的 discontent，poetry 也是更 desirable 的 pleasure。在这个例子里 poetry 的 intensity 和 quantity 都更低，它赢靠的只是 quality。</p>
+</aside>
+<h3>Test 的两个难处</h3>
+<p><strong>有判断者选了 lower pleasure。</strong> 上面那 1 个人两种都试过，却偏好 push-pin。现实里这样的人很多。Mill 的回答是：“Men often, from infirmity of character, make their election for the nearer good”，他们并不认为 push-pin 更好，只是意志薄弱，选了近在眼前的那个；还有人年轻时有高的志趣，后来丢了，那是因为 “capacity for the nobler feelings is in most natures a very tender plant”，环境把它摧毁了，他已经不再是 competent judge。</p>
+<p>问题在于：如果每一个偏好 lower pleasure 的判断者，都可以被归为 infirmity of character 或者失去了 capacity，那么 test 的结果事先就定了，无论人数怎样，都会是 “all or almost all” 选 higher pleasure。要让 test 有内容，需要一个独立于“他选了什么”的标准，来判断一个人是不是意志薄弱。这个追问是我的整理，MIT 24.231 的讲义问的是相近的问题：这个 test 是否 plausible。</p>
+<p><strong>偏好是 value 的来源，还是 value 的证据？</strong> SEP 的 Brink 区分两种读法。按 constitutive 读法，judges 的偏好<strong>使得</strong> poetry 更有 value；按 evidential 读法，偏好是一个<strong>迹象</strong>，说明 poetry 本来就更有 value。MIT 24.231 的讲义把它写成一个 Euthyphro 式的问题：activity 有 value 是因为它 pleasurable，还是它 pleasurable 是因为它有 value？结构和 <a href="../courses/PH2222.html#dilemma">PH2222 里的 Euthyphro dilemma</a> 一样。Constitutive 一边的麻烦是：judges 的偏好如果背后没有理由，就显得 arbitrary。Brink 跟随 T. H. Green 选 evidential 一边：judges 的偏好出自 sense of dignity，反映的是对 value 的判断，“we take pleasure in these activities because they are valuable”。这样读，value 就不再由 pleasure 构成，于是引出下一节。</p>
+<h3>这还是 hedonism 吗</h3>
+<ul>
+<li><strong>P1.</strong> Hedonism：只有 pleasure 是 intrinsically good，一个 pleasure 的 value 只取决于它是多少 pleasure。</li>
+<li><strong>P2.</strong> Mill：两个 pleasure，quantity 相同甚至更少的那个，可以因为 quality 更高而更有 value。</li>
+<li><strong>P3.</strong> 如果 quantity 相同而 value 不同，决定 value 的就还有 pleasure 的 quantity 以外的东西。</li>
+<li><strong>C.</strong> Mill 的立场与 hedonism 不一致。</li>
+</ul>
+<p>Valid。SEP 说 Sidgwick、Bradley、Green、Moore 都认为这个 doctrine 很难与 hedonism “as traditionally formulated” 调和：Mill 的 higher pleasure 看起来是 activity，不是 mental state，而如果只有 pleasure 本身有 intrinsic value，一种 activity 不能因为它是什么 activity 而更好。MIT 24.231 的讲义加了一问：如果 higher 和 lower pleasure 不是同一种东西，它们怎么相加？Utilitarianism 恰恰需要相加。</p>
+<p><strong>回应一：否认 P1 是 hedonism 的定义。</strong> Hedonism 只需要说 pleasure 是唯一的 intrinsic good；quality 可以是 pleasure 本身的一个维度，就像 intensity 一样，是它被感受到的样子的一部分。这样 P3 就不成立：决定 value 的仍然只是 pleasure 的 property。批评者会问：读 poetry 的 pleasure “感受起来更高”，这种 quality 如果不提到 poetry 这个 activity 本身，能说清楚吗？这个回应和追问是我的整理。</p>
+<p><strong>回应二：接受 C，把 Mill 读成 perfectionist。</strong> Brink 的建议是：在 higher pleasures 这个 doctrine 里，“pleasure” 指的是带来 pleasure 的那些 activity；happiness 在于运用 higher capacities，尤其是 deliberative 的 capacity，sense of dignity 正是对这些 capacity 的看重。Brink 认为这样读，Mill 的 doctrine “consistent and coherent”，只是 Mill 的措辞有误导性。代价是放弃了传统的 hedonism。</p>
+<h3>“Not for any quantity”：两种读法</h3>
+<p>Mill 的两句话指向两个方向。“Would not resign it for any quantity of the other pleasure”听起来是：多少 lower pleasure 都换不来 higher pleasure。“So far outweighing quantity as to render it, in comparison, of small account”听起来是：higher pleasure 远远胜过，但仍然可以比较。</p>
+<p>沿用上面的数字，读一晚 poetry 是 6 个 unit。让 push-pin 的 quantity 不断加大，看三种算法什么时候改判。</p>
+
+<figure class="fig"><svg class="fig-svg fig-anim" viewBox="-4 -6 568 278" role="img" aria-label="动图：poetry 一晚是 6 个 unit，push-pin 的 quantity 从 12 加到 40。只比 quantity 时 push-pin 超过 6 就胜出；把 quality 当作乘 5 的 weight 时要超过 30；按 Mill 的 not for any quantity，push-pin 给多少都不改判"><text x="0" y="30" class="tb" text-anchor="start">Poetry 一晚</text><text x="0" y="46" class="ts" text-anchor="start">intensity 2 × 3 h</text><rect x="120" y="18" width="57.3" height="22" rx="3" class="solid"/><text x="185.3" y="34" class="ts" text-anchor="start">6 units</text><text x="0" y="84" class="tb" text-anchor="start">Push-pin</text><text x="0" y="100" class="ts" text-anchor="start">给多少都行</text><rect x="120" y="72" width="114.5" height="22" rx="3" class="wash-strong"><animate attributeName="width" values="114.5;381.8;381.8;0;0;114.5" keyTimes="0;0.54688;0.70313;0.7032;0.76563;1" dur="12.8s" repeatCount="indefinite" calcMode="linear"/></rect><line x1="120" y1="112" x2="540" y2="112" class="axis"/><line x1="120" y1="112" x2="120" y2="116" class="axis"/><text x="120" y="130" class="ts" text-anchor="middle">0</text><line x1="215.5" y1="112" x2="215.5" y2="116" class="axis"/><text x="215.5" y="130" class="ts" text-anchor="middle">10</text><line x1="310.9" y1="112" x2="310.9" y2="116" class="axis"/><text x="310.9" y="130" class="ts" text-anchor="middle">20</text><line x1="406.4" y1="112" x2="406.4" y2="116" class="axis"/><text x="406.4" y="130" class="ts" text-anchor="middle">30</text><line x1="501.8" y1="112" x2="501.8" y2="116" class="axis"/><text x="501.8" y="130" class="ts" text-anchor="middle">40</text><text x="540" y="146" class="ts" text-anchor="end">push-pin 的 quantity（units）</text><line x1="177.3" y1="64" x2="177.3" y2="112" class="dash"/><line x1="406.4" y1="64" x2="406.4" y2="112" class="dash"/><text x="181.3" y="62" class="ts" text-anchor="start">= 6</text><text x="410.4" y="62" class="ts" text-anchor="start">= 6 × 5</text><text x="0" y="186" class="t" text-anchor="start">Bentham：只比 quantity</text><g opacity="1"><text x="300" y="186" class="t" text-anchor="start">→ 选 push-pin</text><animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.7032;0.88281;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="0"><text x="300" y="186" class="tl" text-anchor="start">→ 选 poetry</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.7032;0.88281;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g><text x="0" y="220" class="t" text-anchor="start">Quality 是一个 weight（例：× 5）</text><g opacity="0"><text x="300" y="220" class="t" text-anchor="start">→ 选 push-pin</text><animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.35156;0.7032;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="1"><text x="300" y="220" class="tl" text-anchor="start">→ 选 poetry</text><animate attributeName="opacity" values="1;0;1;1" keyTimes="0;0.35156;0.7032;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g><text x="0" y="254" class="tl" text-anchor="start">Mill：not for any quantity</text><g opacity="0"><text x="300" y="254" class="t" text-anchor="start">→ 选 push-pin</text><animate attributeName="opacity" values="0;0" keyTimes="0;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g><g opacity="1"><text x="300" y="254" class="tl" text-anchor="start">→ 选 poetry</text><animate attributeName="opacity" values="1;1" keyTimes="0;1" dur="12.8s" repeatCount="indefinite" calcMode="discrete"/></g></svg><figcaption>Push-pin 的 bar 按匀速加长，三行判断各自在跨过自己的门槛时改判。静止时 push-pin 是 12 个 unit：只比 quantity 的算法已经改选 push-pin，另外两种还选 poetry。</figcaption></figure>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>读法</th>
+<th>Poetry 一晚按多少算</th>
+<th>Push-pin 超过多少就改判</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bentham：只比 quantity</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn></mrow><annotation encoding="application/x-tex">6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">6</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn></mrow><annotation encoding="application/x-tex">6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">6</span></span></span></span></td>
+</tr>
+<tr>
+<td>Quality 是一个大的 weight（例：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\times5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">×</span><span class="mord">5</span></span></span></span>）</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>×</mo><mn>5</mn><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">6\times5=30</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">5</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">30</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn></mrow><annotation encoding="application/x-tex">30</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">30</span></span></span></span></td>
+</tr>
+<tr>
+<td>“Not for any quantity”：lexical</td>
+<td>无法用 unit 表示</td>
+<td>永不改判</td>
+</tr>
+</tbody>
+</table></div>
+<p>两种读法对 aggregation 的后果差别很大。设一项 policy 让一个人多读一晚 poetry，另一项让一百万人各多玩一晚 push-pin，每人 8 个 unit。按 weight 读法，比较的是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn></mrow><annotation encoding="application/x-tex">30</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">30</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1,000,000</mn><mo>×</mo><mn>8</mn><mo>=</mo><mn>8,000,000</mn></mrow><annotation encoding="application/x-tex">1{,}000{,}000\times8=8{,}000{,}000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">8</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">8</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span><span class="mord"><span class="mpunct">,</span></span><span class="mord">000</span></span></span></span>，后一项 policy 好得多。按 lexical 读法，前一项 policy 更好，而且无论多少人、每人玩多久都一样。前一种读法让 higher pleasure 只是“更值钱”；后一种让它压倒任何数量的 lower pleasure，一个人的一晚 poetry 胜过一百万人的一晚 push-pin，这和 utilitarianism 的出发点“每个人的同等得失分量相同”很难相容，因为这里决定结果的已经不是人和人之间的比较。Mill 的原文两种说法都有，哪一种是他的意思，本页不下结论；上面的 weight 5 和 8 个 unit 是为了演示而设的数字。</p>
+<h3>Proof（Chapter IV）：Mill 的原文与八步重构</h3>
+<p>Chapter IV 开头，Mill 承认 ultimate end 不能在 “the ordinary acceptation of the term” 上被 proof，他给的是另一种支持。原文的推进是这样的：一个东西 visible 的唯一证明是人们看见它，audible 的唯一证明是人们听见它；同样，“the sole evidence it is possible to produce that anything is desirable, is that people do actually desire it”。每个人都 desire 自己的 happiness，所以 “each person's happiness is a good to that person, and the general happiness, therefore, a good to the aggregate of all persons”。到这里 Mill 只说 happiness 是 morality 的 ends 之一。要说它是唯一的 end，还得处理 objection：人们明明还 desire 别的东西，比如 virtue。Mill 的回答是，money 起初只是 means，miser 却为了它本身而要它，它成了 “part of the end”；virtue 也是这样，通过 association 成了 happiness 的一部分。最后他把问题交给 fact：desire 一个东西和觉得它 pleasant，是分不开的，这要靠对自己和别人的观察来判定；而 will 是 “the child of desire”，只是在 habit 之下才显得独立于 desire。</p>
+<p>MIT 24.231 的 handout 把它整理成八步：</p>
+<ol>
+<li>Utilitarianism 为真，当且仅当 happiness 是唯一因其自身而 desirable 的东西。</li>
+<li>一个东西 desirable 的唯一证据，是人们实际 desire 它。</li>
+<li>每个人都因其自身而 desire 自己的 happiness。</li>
+<li>所以，从全人类（所有人的 aggregate）的角度看，happiness 因其自身而被 desire。</li>
+<li>所以，happiness 因其自身而 desirable。</li>
+<li>Happiness 是唯一因其自身而被 desire 的东西。别的东西（virtue、health、music、money、power）被 desire，是因为它们成了 happiness 的一部分。</li>
+<li>所以，happiness 是唯一因其自身而 desirable 的东西。</li>
+<li>所以，utilitarianism 为真。</li>
+</ol>
+<p>每条 objection 打在哪一步：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>步</th>
+<th>Objection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1、2、5</td>
+<td>Equivocation：第 1 步需要 desirable 指“值得被 desire”，第 2 步只在它指“能够被 desire”时才说得通（像 visible 指“能被看见”）。GEX1015 第 7 站讲过</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Masochist 或完全无私的 altruist 可能并不因其自身而 desire 自己的 happiness</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Aggregate 不是 person，可能没有 desire；从成员的 desire 推出整体的 desire 是 fallacy of composition</td>
+</tr>
+<tr>
+<td>6</td>
+<td>把 desire 的东西说成“happiness 的一部分”，扩张了 happiness 的意思</td>
+</tr>
+<tr>
+<td>1、8</td>
+<td>即使证明了 happiness 是唯一的 good，也没有证明 right action 就是 maximize 它：从 good 到 right 还差一步</td>
+</tr>
+<tr>
+<td>4 到 8</td>
+<td>就算全部成立，也可能只推出“整体应促进整体的 happiness、个人应促进个人的 happiness”，这不是 utilitarianism</td>
+</tr>
+</tbody>
+</table></div>
+<p>第 6 步值得单独走一遍，因为它在 GEX1015 里没有讲。讲义给出一个反例：一个人 desire Amazon rainforest 在他死后仍然存在，这件事不会给他带来任何 pleasure，说它是他 happiness 的一部分很勉强。Mill 的原文已经准备了回答：desire 一个东西和觉得它 pleasant 分不开，这个人想到 rainforest 存续时，这个 idea 就是 pleasant 的。</p>
+<p>这个回答把问题推到“pleasant”是什么意思上，由此可以构造一个两难（这是我的整理）：</p>
+<ul>
+<li>如果“觉得 pleasant”是 desire 之外另一种 mental state，Mill 的话是一个 empirical claim，rainforest 的例子正是它的麻烦：这个人此刻想到 rainforest 时也许愉快，可他 desire 的是 rainforest 在他死后存续，不是这份愉快；把这份愉快拿走，他照样 desire 那件事。</li>
+<li>如果“觉得 pleasant”就是“desire 它”的另一种说法，第 6 步成了同义反复，true 而无内容；第 7 步说的是“唯一 desirable 的就是人们因其自身而 desire 的东西”，这是一种 desire-satisfaction 的 theory，Chapter II 里按 pleasure 的 quantity 和 quality 求和的那套做法就推不出来了。</li>
+</ul>
+<p>无论哪一边，第 6 步都撑不起第 7、8 步需要的那个意思。</p>
+<p>MIT 24.01 讲 Mill 的那一讲给出另一种重构，不靠第 2 步那种类比，靠的是把 prudence 推广到别人身上：</p>
+<ol>
+<li>Practical rationality 在于选择能让你达到你所选的 end（或对你最好的 end）的 action。</li>
+<li>Moral rationality 在于选择能达到 moral end 的 action。</li>
+<li>Human effort 的 rational goal 是 happiness，所以它也是 moral goal。</li>
+<li>Moral goal 包含 impartiality：没有人比别人算得更多。</li>
+<li>所以 moral goal 要求所有人（或所有能有 happiness 的 sentient being）的 happiness 的总和。</li>
+<li>所以 moral rationality 就是 maximize happiness，也就是 greatest happiness principle。</li>
+</ol>
+<p>第 4 步的来历是 prudence。考试前一晚想去 party，prudent 的人会把 party 的 pleasure 和考砸的 pain 放在一起比，不因为一个在今晚、一个在下周就偏向今晚：prudence 要求对自己 life 的各个时段 impartial。Mill 把这种对时间的 impartiality 推广成对人的 impartiality：如果 happiness 是最终重要的东西，是谁的 happiness 就不重要。SEP 的 Brink 给出的宽容读法与此一致：prudence 只偏向自己这一个人（partial），对自己的各个时段一视同仁；morality 则对所有人一视同仁（impartial）。这样读，八步的字面形式不必逐步成立，争论转到第 3 步和第 4 步上：human effort 的 rational goal 是不是 happiness，以及从时间上的 impartiality 能不能推到人与人之间。</p>
+
+<aside class="blk blk-back"><p class="blk-h"><span class="blk-k">回头看</span></p><p>Competent judges 背后的 Euthyphro 结构在 <a href="../courses/PH2222.html#dilemma">PH2222</a>。Experience machine、transplant 和 rule consequentialism 在 <a href="../courses/GEX1015.html#ethics">GEX1015 第 7 站</a>。和<a href="#ergon">第 1 站</a>对照：Aristotle 认为 happiness 是依照 virtue 的 activity，Brink 的 perfectionist 读法让 Mill 向这个方向靠近了一步。</p>
+</aside>
+
+<aside class="blk blk-from"><p class="blk-h"><span class="blk-k">讲法来源</span></p><p>Swine、“not they, but their accusers”、quality 与 quantity、competent judges 的两处引文、“any quantity”与“of small account”、lower animals、sense of dignity、Socrates 与 fool、“their own side of the question”、infirmity of character、tender plant，出自 <a href="https://www.marxists.org/reference/archive/mill-john-stuart/1863/utility/ch02.htm">Utilitarianism Chapter II</a>（读了整章）。Chapter IV 的推进和引文（“ordinary acceptation”、visible 与 audible、“the sole evidence”、“a good to the aggregate of all persons”、只说是 ends 之一、miser 与 “part of the end”、desire 与 pleasant 分不开、“the child of desire”）出自 <a href="https://www.marxists.org/reference/archive/mill-john-stuart/1863/utility/ch04.htm">Utilitarianism Chapter IV</a>（读了整章）。Proof 的八步、每一步的 objection、rainforest、Euthyphro 式的追问、higher 与 lower 怎么相加，来自 <a href="https://ocw.mit.edu/courses/24-231-ethics-fall-2009/resources/mit24_231f09_lec11/">MIT 24.231 Lecture 11 的 handout</a>（讲义注明部分改编自 Brink 的 SEP 条目）。六步的重构、party 的例子、从时间上的 impartiality 推广到人、Aristotle 的 expert 与 Mill 的 “democratic” epistemology 的对比，来自 <a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/resources/mit24_01s16_ses21/">MIT 24.01 Session 21 的讲义</a>（Haslanger，逐节读了）。Bentham 的 push-pin、extrinsic 的辩护、constitutive 与 evidential、Green、Sidgwick 等四人的批评、perfectionist 读法、impartiality 的宽容读法，来自 <a href="https://plato.stanford.edu/archives/sum2014/entries/mill-moral-political/">SEP 的 Mill's Moral and Political Philosophy</a> §2（读了前十万字符，约占全文 38%）。</p>
+<p>为这一页构造的部分：50 个人的数字；6、8、30 个 unit 和一百万人的例子；test 事先定了结果的追问；回应一及其追问；第 6 步的两难。Chapter V 的原文没有读。</p>
+</aside>
+
+</section>
+<section class="plain" id="sec-7"><h2>真题走读：待补</h2><p>这一页还没有对着往年卷子核过，所以没有真题走读，各站的等级标准也是按“能做什么”而不是“能做对哪道题”写的。图书馆的卷子需要 NUSNET 登录才能读。补上之后这一节会换成一道跨站的真题，从头走到尾。</p>
+<p>在那之前，复习以课程自己的 tutorial、指定读物和讲义为准，这一页只负责把每一站的道理讲通。</p>
+</section>
+<section class="plain" id="open"><h2>公开课对照</h2><p>讲法不同、内容对得上的公开材料。想换个角度看同一件事，从这里进。</p><ul class="links"><li><a href="https://ocw.mit.edu/courses/24-01-classics-of-western-philosophy-spring-2016/pages/lecture-notes/" rel="noopener">MIT 24.01 Classics of Western Philosophy（Spring 2016）Session 8 Happiness、9 Virtue、19 Hypothetical and Categorical Imperatives、21 Utilitarianism 的讲义</a><span>第 1、2 站的论证顺序和多数例子；第 4、5 站的 opt out、考试的两个 maxim、Langton 的五步；第 6 站的六步重构和开头的三分法。四份 PDF 都逐节读了，抓取工具返回的是贴近原文的逐条转述加短引文，不是逐字全文。</span></li><li><a href="https://ocw.mit.edu/courses/24-231-ethics-fall-2009/resources/mit24_231f09_lec11/" rel="noopener">MIT 24.231 Ethics（Fall 2009）Lecture 11：Mill on utilitarianism（Julia Markovits 的 handout）</a><span>第 6 站 proof 的八步和每一步的 objection，以及 higher pleasures 的几个追问。</span></li><li><a href="https://www.ocf.berkeley.edu/~ngkolodny/S07Phil104H01(Hume).pdf" rel="noopener">UC Berkeley Phil 104（Niko Kolodny）2007 年 1 月 18 日的 Hume handout</a><span>第 3 站 T 2.3.3 的逐段重构。这份 handout 不讲 T 3.1.1 和 is–ought。</span></li><li><a href="https://dash.harvard.edu/bitstream/handle/1/3201869/Korsgaard_KantForumulaUniversalLaw.pdf" rel="noopener">Christine Korsgaard, Kant's Formula of Universal Law（1985，Harvard DASH）</a><span>第 4 站三种 contradiction 的读法和它们各自处理的 case。</span></li><li><a href="https://dash.harvard.edu/server/api/core/bitstreams/7312037c-70d5-6bd4-e053-0100007fdf3b/content" rel="noopener">Christine Korsgaard, The Right to Lie: Kant on Dealing with Evil（1986，Harvard DASH）</a><span>第 5 站 murderer at the door 的分析和 double-level theory。</span></li><li><a href="https://plato.stanford.edu/archives/spr2022/entries/aristotle-ethics/" rel="noopener">Stanford Encyclopedia of Philosophy：Aristotle's Ethics（Kraut，Spring 2022 存档）、Hume's Moral Philosophy（Cohon）、Kant's Moral Philosophy（Winter 2021 存档）、Mill's Moral and Political Philosophy（Brink，Summer 2014 存档）</a><span>各站的 objection 与 reply 主要靠这四个条目核对。都只读了前十万字符：Hume 那条约占全文 95%，Aristotle 约 70%，Kant 约 84%，Mill 约 38%。</span></li><li><a href="https://classics.mit.edu/Aristotle/nicomachaen.1.i.html" rel="noopener">Aristotle, Nicomachean Ethics Book I、II（W. D. Ross 译，MIT Internet Classics Archive）</a><span>第 1、2 站的引文、Milo 的数字和 Priam。Book II 的链接在第 2 站末尾。两卷都逐章读了；Book VI、VII 没有读原文。</span></li><li><a href="https://davidhume.org/texts/t/2/3/3" rel="noopener">Hume, A Treatise of Human Nature 2.3.3、3.1.1、3.3.1（Hume Texts Online，带段落编号）</a><span>第 3 站的引文和 Hume 自己的例子。另两节的链接在第 3 站末尾。</span></li><li><a href="https://www.gutenberg.org/cache/epub/5682/pg5682.html" rel="noopener">Kant, Fundamental Principles of the Metaphysic of Morals（T. K. Abbott 译，Project Gutenberg）</a><span>第 4、5 站的引文。全文分两段读完。</span></li><li><a href="https://blogs.ubc.ca/phil230/files/2014/08/Online-Library-of-Liberty-Kant%E2%80%99s-Critique-of-Practical-Reason-and-Other-Works-on-the-Theory-of-Ethics-Portable-Library-of-Liberty-Kant_0212_EBk_v6.0-OnSupposedRightToLie.pdf" rel="noopener">Kant, On a Supposed Right to Tell Lies from Benevolent Motives（Abbott 译，UBC Phil 230 课程网站上的 PDF）</a><span>第 5 站 Kant 对 murderer 的回答。逐段读了。</span></li><li><a href="https://www.marxists.org/reference/archive/mill-john-stuart/1863/utility/ch02.htm" rel="noopener">Mill, Utilitarianism Chapter II、IV（marxists.org）</a><span>第 6 站的引文。Chapter IV 的链接在第 6 站末尾。Chapter V 没有读。</span></li></ul></section>
+
+
+<section class="plain" id="src"><h2>来源</h2><ul class="links"><li><a href="https://nusmods.com/courses/PH2203" rel="noopener">NUSMods：PH2203 Major Moral Philosophers（课程描述、开课学期、期末时长）</a></li><li><a href="https://fass.nus.edu.sg/philo/wp-content/uploads/sites/6/2026/11/AY2026-2027-Course-list.pdf" rel="noopener">NUS 哲学系：AY2026/2027 Course list（列出 lecturer 与上课时间）</a></li></ul></section>
+</div></div></main>
+<footer class="foot">
+  <p>讲义是按公开课、课程大纲和可查到的往年卷子写的自学笔记，不是任何课程的官方材料，可能有错。往年卷子的原题不在本站，页面里给的是图书馆的链接。</p>
+  <p>等级是你自己点的，只存在这台设备的浏览器里。</p>
+</footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
