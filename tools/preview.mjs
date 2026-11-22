@@ -10,10 +10,13 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const code = (process.argv[2] || '').toUpperCase();
 if (!code) { console.error('用法：node tools/preview.mjs <课程代码>'); process.exit(2); }
-const out = `/tmp/socrates-${code.toLowerCase()}`;
+// 概念线：node tools/preview.mjs thread:least-squares
+const isThread = code.startsWith('THREAD:');
+const slug = isThread ? code.slice(7).toLowerCase() : '';
+const out = isThread ? `/tmp/socrates-thread-${slug}` : `/tmp/socrates-${code.toLowerCase()}`;
 const NP = [path.join(ROOT, 'node_modules'), '/opt/npm-tools/node_modules', ...(process.env.NODE_PATH || '').split(':')].filter((d) => d && fs.existsSync(path.join(d, 'markdown-it'))).concat(['/opt/npm-tools/node_modules'])[0];
 try {
-  console.log(execFileSync('node', ['src/build.mjs'], { cwd: ROOT, env: { ...process.env, NODE_PATH: NP, SOCRATES_OUT: out, ONLY: code }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim());
+  console.log(execFileSync('node', ['src/build.mjs'], { cwd: ROOT, env: { ...process.env, NODE_PATH: NP, SOCRATES_OUT: out, ONLY: isThread ? '__NONE__' : code }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim());
 } catch (e) { console.error('构建失败：\n' + (e.stdout || '') + (e.stderr || '')); process.exit(1); }
 
 const require = createRequire(NP + '/');
@@ -21,7 +24,19 @@ const { chromium } = require('playwright');
 const shots = path.join(out, 'shots');
 fs.rmSync(shots, { recursive: true, force: true }); fs.mkdirSync(shots, { recursive: true });
 const b = await chromium.launch();
-const url = 'file://' + path.join(out, 'courses', code + '.html');
+const url = 'file://' + (isThread ? path.join(out, 'threads', slug + '.html') : path.join(out, 'courses', code + '.html'));
+// 概念线里指向课程页的链接：课要已发布，#id 要是那门课真有的站
+if (isThread) {
+  const pub = new Set(fs.readFileSync(path.join(ROOT, 'tools/published.txt'), 'utf8').split(/\s+/).filter(Boolean));
+  const md = fs.readFileSync(path.join(ROOT, 'content/threads', slug + '.md'), 'utf8');
+  const dead = [];
+  for (const m of md.matchAll(/\.\.\/courses\/([A-Za-z0-9.\-]+)\.html(?:#([\w-]+))?/g)) {
+    const [, c, id] = m;
+    if (!pub.has(c)) { dead.push(`${c}（还没发布）`); continue; }
+    if (id) { const cm = fs.readFileSync(path.join(ROOT, 'content/courses', c + '.md'), 'utf8'); if (!new RegExp('^## \\[' + id + '\\]', 'm').test(cm) && !cm.includes(`id="${id}"`) && !new RegExp('^## [^\\n]*\\{#' + id + '\\}', 'm').test(cm)) dead.push(`${c}#${id}（没有这一站）`); }
+  }
+  if (dead.length) { console.log('概念线里有失效的链接：' + [...new Set(dead)].join('，')); }
+}
 let bad = 0;
 for (const w of [1180, 390]) {
   const p = await b.newPage({ viewport: { width: w, height: 1200 } });

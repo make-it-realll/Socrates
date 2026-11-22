@@ -19,7 +19,7 @@ const ONLY = process.env.ONLY ? process.env.ONLY.split(',').map((x) => x.trim().
 // src/figures/ 里每个 .mjs 默认导出 { '图的名字': () => svg 字符串 }，这里全部自动载入。
 const figures = {};
 for (const f of fs.readdirSync(path.join(ROOT, 'src/figures')).filter((x) => x.endsWith('.mjs')).sort()) {
-  if (ONLY && !ONLY.includes(f.replace(/\.mjs$/, '').toUpperCase())) continue;
+  if (ONLY && !f.startsWith('thread-') && !ONLY.includes(f.replace(/\.mjs$/, '').toUpperCase())) continue; // 概念线的图（thread-*.mjs）总是载入
   Object.assign(figures, (await import('./figures/' + f)).default);
 }
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false });

@@ -214,6 +214,18 @@ export default {
 - **作业是重点**：页面最后不写“真题走读：待补”，改为一个不带 id 的 `## 作业` 小节。每个作业一个 `###`：要从零实现什么、做完会什么、所需时间和算力（免费 Colab 够不够）、先做 / 值得做 / 有余力再做，然后是具体的提示，每条提示注明来源（handout、FAQ、仓库 README，或“经验”）。调研条目里的提示可以用，但要核对；能读到 handout 就再读一遍补充。
 - frontmatter：`evidence: syllabus`，`evidenceNote` 写明期次和材料来源，`exam` 写“无考试；以作业为主”或课程实际的考核方式。
 
+## 概念线（content/threads/）
+
+概念线不是“这个词在哪几门课出现过”的目录，而是一份独立的讲义：同一个想法在不同课里换了名字、换了记号、换了用途，单读一门课看不出它们是同一件事。概念线要把这件事讲透，让读者读完能在任何一门课里认出它、并用另一门课的理解去帮这一门。
+
+- **从一个具体问题开始**，用必要性引出核心想法（和课程页一样，不用比喻凑数），然后把核心想法**完整推一遍**：这一推导是各门课共同的骨架，写在概念线里，课程页只负责各自的细节。
+- **逐门课走过去**，每一处都说清三件事：这门课里它叫什么、记号是什么（用表格把各课的名字和记号对齐）；这门课往骨架上加了什么（新的约束、新的问题、新的算法）；具体链接到哪一站（`../courses/CODE.html#站id`）。先读那一站的正文，链接和说法要对得上，不要凭标题猜。
+- **讲出课程页里没有的桥**：例如 Kalman gain 就是 recursive least squares 的增益；PageRank 就是 stationary distribution，就是 power iteration 求 dominant eigenvector；distance-vector routing 就是 Bellman–Ford，就是 value iteration 的一个特例。每座桥都要给出具体的对应（哪个量对应哪个量），最好用同一个小例子在两边各算一遍。
+- **顺序**由浅入深，按读者可能的学习顺序排；还没写页面的课只用文字提一句，不放链接（preview 会检查链接）。
+- 篇幅通常 25–50 KB；图照课程页的标准（画东西本身、过程做动图），放在 src/figures/thread-<slug>.mjs，图 id 以 `thread-<slug>-` 开头。
+- frontmatter：`title`（中文短名）、`lead`（一句话：这条线串起什么）、`line`（主要所属的线路 id）。
+- 检查：`node tools/preview.mjs thread:<slug>`。
+
 ## 交付前自查
 
 - `node tools/preview.mjs <CODE>` 两种宽度都“没有发现版面问题”。
