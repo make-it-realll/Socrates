@@ -97,6 +97,40 @@ function batch() {
   return svg(560, 290, o, '大规模并行 PPO 的一轮：4096 个 robot 各走 24 步，得到约十万个 sample，做 5 个 epoch、每个 4 个 minibatch 共 20 个 gradient step');
 }
 
+// 第 2 站：history-based policy 配 state critic。S 出发，直接去岔口 F，或绕到 P 看告示再去 F；
+// F 两端一边 +1 一边 −1（随机）。q = 绕路的 probability，critic 用 TD(0) 学到的 value。
+function asym() {
+  const g = 0.9, q = 0.5;
+  // state critic：F 处把两种 robot 平均；P 的 TD target 是 γV(F)
+  const sF = q * 1 + (1 - q) * 0, sP = g * sF;
+  // history-state critic：F 处按有没有看过告示分开
+  const hFv = 1, hFn = 0, hP = g * hFv;
+  const diffS = g * sP - g * sF, diffH = g * hP - g * hFn;
+  const fmt = (x) => String(Number(x.toFixed(3))).replace('-', '−');
+  let o = '';
+  const panel = (x0, title, labP, labF, diff) => {
+    const S = [x0 + 28, 150], P = [x0 + 100, 82], F = [x0 + 168, 150], L = [x0 + 236, 110], R = [x0 + 236, 190];
+    o += text(x0 + 130, 22, title, 'tb', 'middle');
+    o += arrow(S[0] + 16, S[1], F[0] - 18, F[1], 'ink');
+    o += arrow(S[0] + 12, S[1] - 12, P[0] - 13, P[1] + 11, 'ln') + arrow(P[0] + 13, P[1] + 11, F[0] - 12, F[1] - 12, 'ln');
+    o += arrow(F[0] + 15, F[1] - 8, L[0] - 22, L[1] + 4, 'mute') + arrow(F[0] + 15, F[1] + 8, R[0] - 22, R[1] - 4, 'mute');
+    o += circle(S[0], S[1], 16, 'paper') + text(S[0], S[1] + 5, 'S', 'tb', 'middle');
+    o += circle(P[0], P[1], 16, 'wash') + text(P[0], P[1] + 5, 'P', 'tb', 'middle');
+    o += circle(F[0], F[1], 16, 'paper') + text(F[0], F[1] + 5, 'F', 'tb', 'middle');
+    o += rect(L[0] - 20, L[1] - 13, 40, 26, 'wash2', 4) + text(L[0], L[1] + 5, '±1', 'ts', 'middle');
+    o += rect(R[0] - 20, R[1] - 13, 40, 26, 'wash2', 4) + text(R[0], R[1] + 5, '∓1', 'ts', 'middle');
+    o += text(S[0] + 50, S[1] - 6, 'direct', 'ts', 'middle') + text(x0 + 46, 104, '绕路', 'tl', 'middle');
+    o += text(P[0], P[1] - 34, '看告示', 'ts', 'middle') + text(P[0], P[1] - 20, labP, 'tl', 'middle');
+    labF.forEach((s2, i) => { o += text(F[0] + 12, F[1] + 32 + i * 16, s2, labF.length === 1 ? 'tl' : 't', 'end'); });
+    o += text(x0 + 130, 234, 'δ(绕路) − δ(direct) = ' + fmt(diff), diff < 0 ? 'tl' : 'tb', 'middle');
+  };
+  panel(10, '只看 state 的 critic', 'V(P) = ' + fmt(sP), ['V(F) = ' + fmt(sF)], diffS);
+  panel(290, '看 history 和 state 的 critic', 'V(P) = ' + fmt(hP), ['看过告示：V(F) = ' + fmt(hFv), '没看过：V(F) = ' + fmt(hFn)], diffH);
+  o += line(280, 34, 280, 244, 'grid');
+  o += text(280, 264, `q = ${q}，γ = ${g}；真实的 Q(S, 绕路) − Q(S, direct) = ${fmt(g * g)}。F 两端哪边是 +1 每个 episode 随机。`, 'ts', 'middle');
+  return svg(560, 276, o, '同一个设定下两种 critic 学到的 value：只看 state 的 critic 在岔口 F 只有一个平均值 0.5，算出绕路的 TD error 比直接走小 0.045；同时看 history 的 critic 在 F 分出看过告示的 1 和没看过的 0，绕路的好处 0.81 留在 TD error 里');
+}
+
 // 5. Teacher–student：先用 privileged information 训练 teacher，再用 DAgger 蒸馏给只看 proprioception 的 student
 function teacher() {
   let o = '';
@@ -476,6 +510,7 @@ export default {
   'mrl-clip': clip,
   'mrl-epochs': epochs,
   'mrl-batch': batchA,
+  'mrl-asym': asym,
   'mrl-teacher': teacher,
   'mrl-dr': dr,
   'mrl-shaping': shaping,
