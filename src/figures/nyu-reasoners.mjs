@@ -382,6 +382,63 @@ function ci() {
   return svg(560, 292, o, '95% 区间的半宽随题数增加而按一除以根号 n 下降：30 题时 17.9 个百分点，500 题时 4.4，1319 题时 2.7');
 }
 
+
+// ---------- 第 5 站：DAPO 的 soft overlong punishment ----------
+function overlong() {
+  let o = '';
+  // DAPO §4.1：expected maximum length 16,384，另加 4,096 的 soft punish cache，生成上限 20,480。
+  // 式 13 里的 L_max 是生成上限 20,480（verl 的 dapo reward manager：expected_len = max_resp_len − buffer）。
+  const Lc = 4096, Lmax = 16384 + Lc, a = Lmax - Lc;
+  const R = (y) => (y <= a ? 0 : y <= Lmax ? (a - y) / Lc : -1);
+  const sx = lin(10000, 22000, 70, 530), sy = lin(-1.15, 0.2, 230, 40);
+  o += axes({ sx, sy, x0: 10000, x1: 22000, y0: -1.15, y1: 0.2, xt: [[10000, '10k'], [a, '16,384'], [Lmax, '20,480']], yt: [[-1, '−1'], [-0.5, '−0.5'], [0, '0']], grid: true, xl: '回复长度 |y|（token）', yl: 'R_length' });
+  o += line(sx(Lmax), sy(0.2), sx(Lmax), sy(-1.15), 'dash') + text(sx(Lmax) + 6, sy(0.12), '生成上限', 'ts', 'start') + text(sx(Lmax) + 6, sy(0.12) + 15, '= L_max', 'ts', 'start');
+  o += path(d([[sx(10000), sy(0)], [sx(a), sy(0)], [sx(Lmax), sy(-1)]]), 'ln');
+  o += text((sx(10000) + sx(a)) / 2, sy(0) - 10, '不扣分（expected max length 以内）', 'ts', 'middle');
+  o += text(sx(a) - 8, sy(-0.82), '线性扣分', 'ts', 'end') + text(sx(a) - 8, sy(-0.82) + 15, '（宽 L_cache = 4,096）', 'ts', 'end');
+  const ex = 18000, ey = R(ex);
+  o += circle(sx(ex), sy(ey), 5, 'ln-f') + text(sx(ex) + 10, sy(ey) - 24, '|y| = 18,000', 't', 'start') + text(sx(ex) + 10, sy(ey) - 9, `R = ${ey.toFixed(3).replace('-', '−')}`, 't', 'start');
+  return svg(560, 272, o, 'DAPO 的 soft overlong punishment：回复长度在 16384 以内为 0，从 16384 到生成上限 20480 线性降到负 1；18000 个 token 的回复得负 0.395');
+}
+
+// ---------- 第 7 站：Lecture 11 的 10 道题，paired bootstrap 的精确 distribution ----------
+function paired() {
+  let o = '';
+  const A = [0, 0, 1, 0, 0, 1, 1, 1, 1, 1], B = [0, 0, 0, 0, 1, 0, 0, 1, 1, 1];
+  const cw = 30, x0 = 170;
+  const X = (j) => x0 + j * (cw + 4);
+  A.forEach((_, j) => { if (A[j] !== B[j]) o += rect(X(j) - 2, 14, cw + 4, 66, 'wash', 3); });
+  const row = (v, y, lab) => {
+    o += text(20, y + 15, lab, 't', 'start');
+    v.forEach((c, j) => { o += rect(X(j), y, cw, 22, c ? 'solid' : 'paper', 3); if (c) o += text(X(j) + cw / 2, y + 16, '✓', 'tw', 'middle'); });
+  };
+  row(A, 20, '系统 1（6/10）');
+  row(B, 52, '系统 2（4/10）');
+  o += text(X(0), 98, '浅色列：只有一方做对的题（系统 1 独对 3 道，系统 2 独对 1 道）', 'ts', 'start');
+  // 精确 pmf：每次抽中“1 独对”0.3、“2 独对”0.1、“一样”0.6，抽 10 次
+  const lf = [0]; for (let i = 1; i <= 10; i++) lf.push(lf[i - 1] + Math.log(i));
+  const pm = new Map();
+  for (let u = 0; u <= 10; u++) for (let w = 0; u + w <= 10; w++) {
+    const z = 10 - u - w, pr = Math.exp(lf[10] - lf[u] - lf[w] - lf[z] + u * Math.log(0.3) + w * Math.log(0.1) + z * Math.log(0.6));
+    const k = u - w; pm.set(k, (pm.get(k) || 0) + pr);
+  }
+  const sx = lin(-5.5, 9.5, 60, 540), sy = lin(0, 0.24, 278, 128);
+  let pLe0 = 0, pGt = 0;
+  for (let k = -5; k <= 9; k++) {
+    const pr = pm.get(k) || 0, x = sx(k - 0.42), w = sx(k + 0.42) - sx(k - 0.42);
+    const cls = k <= 0 ? 'solid2' : k > 4 ? 'wash ln' : 'wash2';
+    o += rect(x, sy(pr), w, sy(0) - sy(pr), cls);
+    if (k <= 0) pLe0 += pr; if (k > 4) pGt += pr;
+  }
+  for (const [k, lab] of [[-4, '−0.4'], [0, '0'], [2, '0.2'], [4, '0.4'], [8, '0.8']]) o += line(sx(k), sy(0), sx(k), sy(0) + 4, 'axis') + text(sx(k), sy(0) + 17, lab, 'ts', 'middle');
+  o += line(sx(-5.5), sy(0), sx(9.5), sy(0), 'axis');
+  o += line(sx(2), sy(0.235), sx(2), sy(0), 'dash') + text(sx(2) + 5, sy(0.225), '观察到的 Δ = 0.2', 'ts', 'start');
+  o += text(sx(-2.8), sy(0.2), `δ′ ≤ 0：${pLe0.toFixed(3)}`, 'tb', 'middle');
+  o += text(sx(7), sy(0.12), `δ′ > 2Δ：${pGt.toFixed(3)}`, 'tl', 'middle');
+  o += text(300, 314, '重抽后两系统 accuracy 之差 δ′（系统 1 减系统 2）', 'ts', 'middle');
+  return svg(560, 322, o, 'Lecture 11 的 10 道题：系统 1 做对 6 道，系统 2 做对 4 道，只有一方做对的有 4 道。下方是 paired bootstrap 下差值的精确分布，差值小于等于 0 的概率 0.212，大于 0.4 的概率 0.091');
+}
+
 export default {
   'nyu-reasoners-tree': tree,
   'nyu-reasoners-depth': depth,
@@ -393,4 +450,6 @@ export default {
   'nyu-reasoners-lennorm': lennorm,
   'nyu-reasoners-sftmask': sftmask,
   'nyu-reasoners-ci': ci,
+  'nyu-reasoners-overlong': overlong,
+  'nyu-reasoners-paired': paired,
 };
