@@ -159,13 +159,13 @@ function states() {
   const node = ([x, y], s, hot) => box(x - 45, y - 18, 90, 36, hot ? 'wash ink-s' : 'paper', 18) + text(x, y + 5, s, 'tb', 'middle');
   o += node(N.New, 'New') + node(N.Ready, 'Ready', true) + node(N.Running, 'Running', true) + node(N.Term, 'Terminated') + node(N.Blocked, 'Blocked');
   o += arrowH(100, 62, 153, 62, 'ink', 'ink-f') + text(127, 52, 'admit', 'ts', 'middle');
-  o += arrowH(245, 54, 313, 54, 'ln', 'ln-f') + text(279, 40, 'dispatch', 'tl', 'middle');
-  o += arrowH(315, 72, 247, 72, 'ink', 'ink-f') + text(281, 94, 'preempt', 'ts', 'middle') + text(281, 109, '（timer interrupt）', 'ts', 'middle');
+  o += arrowH(245, 54, 313, 54, 'ln', 'ln-f') + text(279, 40, 'switch（scheduled）', 'tl', 'middle');
+  o += arrowH(315, 72, 247, 72, 'ink', 'ink-f') + text(281, 94, 'switch', 'ts', 'middle') + text(281, 109, '（preempt 或 yield）', 'ts', 'middle');
   o += arrowH(405, 62, 453, 62, 'ink', 'ink-f') + text(429, 52, 'exit', 'ts', 'middle');
-  o += arrowH(370, 81, 312, 170, 'ink', 'ink-f') + text(356, 136, 'wait for event', 'ts', 'start') + text(356, 151, '（读 disk、wait()）', 'ts', 'start');
-  o += arrowH(248, 170, 192, 81, 'ink', 'ink-f') + text(206, 136, 'event 发生', 'ts', 'end');
+  o += arrowH(370, 81, 312, 170, 'ink', 'ink-f') + text(356, 136, 'event wait', 'ts', 'start') + text(356, 151, '（读 disk、wait()）', 'ts', 'start');
+  o += arrowH(248, 170, 192, 81, 'ink', 'ink-f') + text(206, 136, 'event occurs', 'ts', 'end');
   o += text(280, 232, 'Scheduler 只在 Ready 里挑；Blocked 的 process 给它 CPU 也没用。', 'ts', 'middle');
-  return svg(560, 240, o, 'Process 的五个 state：New 经 admit 到 Ready，Ready 经 dispatch 到 Running，Running 被 preempt 回 Ready、等待事件进入 Blocked、exit 进入 Terminated，Blocked 在事件发生后回到 Ready');
+  return svg(560, 240, o, 'Process 的五个 state：New 经 admit 到 Ready，Ready 经 switch 到 Running，Running 被 preempt 或主动 yield 时 switch 回 Ready、event wait 进入 Blocked、exit 进入 Terminated，Blocked 在 event occurs 后回到 Ready');
 }
 
 // ---------- 第 2 站：SJF 与 SRT ----------
@@ -494,20 +494,22 @@ function index() {
   let o = '';
   // 上左：FAT
   o += text(20, 16, 'FAT：chain 在一张表里', 'tb', 'start');
-  const fat = { 2: 'EOF', 5: '9', 9: '2' }, RH = 14, ry = (i) => 26 + i * RH;
+  // NUS L12 的例子：ex1.c 3 → 5 → 8，ex2.c 6 → 7，test 2
+  const fat = { 2: 'EOF', 3: '5', 5: '8', 6: '7', 7: 'EOF', 8: 'EOF' }, RH = 14, ry = (i) => 26 + i * RH;
+  const chain = [3]; while (fat[chain[chain.length - 1]] !== 'EOF') chain.push(+fat[chain[chain.length - 1]]);
   for (let i = 0; i < 11; i++) {
-    const y = ry(i), hot = i in fat;
-    o += box(60, y, 70, RH, hot ? 'wash-strong' : 'paper', 0) + text(54, y + 11, String(i), 'ts', 'end') + text(95, y + 11, hot ? fat[i] : i === 0 || i === 1 ? '—' : '0', hot ? 'tb' : 'ts', 'middle');
+    const y = ry(i), used = i in fat, hot = chain.includes(i);
+    o += box(60, y, 70, RH, hot ? 'wash-strong' : used ? 'wash' : 'paper', 0) + text(54, y + 11, String(i), 'ts', 'end') + text(95, y + 11, used ? fat[i] : i < 2 ? '—' : 'FREE', hot ? 'tb' : 'ts', 'middle');
   }
   const hop = (a, b, bend) => { const ya = ry(a) + RH / 2, yb = ry(b) + RH / 2; return path(`M132 ${ya} C ${bend} ${ya}, ${bend} ${yb}, 134 ${yb}`, 'ln') + poly([[133, yb], [141, yb - 4], [141, yb + 4]], 'ln-f'); };
-  o += hop(5, 9, 160) + hop(9, 2, 185);
-  o += text(200, 40, 'directory：file → 5', 'ts', 'start');
-  o += text(200, 100, '5 → 9 → 2', 'tl', 'start') + text(200, 118, '找第 k 个 block', 'ts', 'start') + text(200, 134, '要顺着走 k 步', 'ts', 'start');
+  for (let k = 0; k + 1 < chain.length; k++) o += hop(chain[k], chain[k + 1], 158 + 14 * k);
+  o += text(200, 40, 'directory：ex1.c → 3', 'ts', 'start');
+  o += text(200, 100, chain.join(' → '), 'tl', 'start') + text(200, 118, '找第 k 个 block', 'ts', 'start') + text(200, 134, '要顺着走 k 步', 'ts', 'start');
   // 上右：inode
   o += text(310, 16, 'inode：自己的 index', 'tb', 'start');
   o += box(310, 30, 90, 94, 'paper') + text(355, 48, 'inode', 'tb', 'middle');
-  ['ptr 0 → 5', 'ptr 1 → 9', 'ptr 2 → 2'].forEach((s, i) => { o += text(320, 70 + i * 18, s, 't', 'start'); });
-  [5, 9, 2].forEach((b, i) => { const y = 40 + i * 30; o += box(470, y, 70, 24, 'wash', 2) + text(505, y + 17, 'block ' + b, 't', 'middle') + arrowH(400, 66 + i * 18, 468, y + 12, 'mute', 'mute-f'); });
+  chain.forEach((b, i) => { o += text(320, 70 + i * 18, `ptr ${i} → ${b}`, 't', 'start'); });
+  chain.forEach((b, i) => { const y = 40 + i * 30; o += box(470, y, 70, 24, 'wash', 2) + text(505, y + 17, 'block ' + b, 't', 'middle') + arrowH(400, 66 + i * 18, 468, y + 12, 'mute', 'mute-f'); });
   o += text(310, 150, '第 k 个 block 就是第 k 个 pointer', 'ts', 'start');
   // 下：15 个 pointer 的覆盖
   const Y = 222;
@@ -522,7 +524,412 @@ function index() {
     o += text(350, ty, nm + ' indirect', i === 13 ? 'tl' : 't', 'start') + text(350, ty + 15, s, 'ts', 'start');
   });
   o += text(20, Y + 92, '第 5,000,000 个 byte：block 1220', 'ts', 'start') + text(20, Y + 110, '= 12 + 1024 + 184，落在 double indirect', 'ts', 'start') + text(20, Y + 128, '下第 0 个 pointer 的第 184 项', 'ts', 'start');
-  return svg(560, Y + 162, o, '上左：FAT 中 file 的 chain 5 到 9 到 2；上右：inode 里三个 pointer 直接列出 block 5、9、2；下：ext2 inode 的 12 个 direct pointer 与 single、double、triple indirect 各自覆盖 48 KB、4 MB、4 GB、4 TB');
+  return svg(560, Y + 162, o, '上左：FAT 中 ex1.c 的 chain 3 到 5 到 8；上右：inode 里三个 pointer 直接列出 block 3、5、8；下：ext2 inode 的 12 个 direct pointer 与 single、double、triple indirect 各自覆盖 48 KB、4 MB、4 GB、4 TB');
+}
+
+// ---------- 第 1 站：stack frame ----------
+function stack() {
+  // 从高 address（上）到低 address（下），每格一行
+  const rows = [
+    ['main', 'saved register、旧 FP', 0],
+    ['main', 'local r', 0],
+    ['f', 'argument x = 5', 1],
+    ['f', 'return PC（回到 main）', 1],
+    ['f', 'saved FP（main 的）', 1],
+    ['f', 'saved register', 1],
+    ['f', 'local y', 1],
+    ['g', 'argument a = 5', 2],
+    ['g', 'argument b = 3', 2],
+    ['g', 'return PC（回到 f）', 2],
+    ['g', 'saved FP（f 的）', 2],
+    ['g', 'saved register', 2],
+    ['g', 'local t = 15', 2],
+  ];
+  const X = 170, W = 210, Y0 = 26, RH = 20;
+  let o = text(X + W / 2, 16, 'stack（此刻在 g 里面）', 'tb', 'middle');
+  rows.forEach(([fn, s, k], i) => {
+    const y = Y0 + i * RH;
+    o += box(X, y, W, RH, k === 2 ? 'wash' : k === 1 ? 'wash2' : 'paper', 0) + rect(X, y, W, RH, 'frame') + text(X + 10, y + 14, s, 't', 'start');
+  });
+  // 右边：每个 frame 的范围
+  ['main', 'f', 'g'].forEach((fn, k) => {
+    const idx = rows.map((r, i) => (r[2] === k ? i : -1)).filter((i) => i >= 0);
+    const y1 = Y0 + idx[0] * RH + 2, y2 = Y0 + (idx[idx.length - 1] + 1) * RH - 2, x = X + W + 10;
+    o += path(d([[x, y1], [x + 6, y1], [x + 6, y2], [x, y2]]), 'ink') + text(x + 14, (y1 + y2) / 2 + 4, `${fn} 的 stack frame`, k === 2 ? 'tl' : 'ts', 'start');
+  });
+  // 左边：FP、SP
+  const fpY = Y0 + 10 * RH + RH / 2, spY = Y0 + rows.length * RH;
+  o += arrowH(X - 60, fpY, X - 3, fpY, 'ln', 'ln-f') + text(X - 66, fpY + 4, 'FP', 'tl', 'end');
+  o += arrowH(X - 60, spY, X - 3, spY, 'ln', 'ln-f') + text(X - 66, spY + 4, 'SP', 'tl', 'end');
+  o += text(24, Y0 + 10, '高 address', 'ts', 'start') + arrowH(40, Y0 + 20, 40, Y0 + 120, 'mute', 'mute-f') + text(48, Y0 + 75, 'stack 往下长', 'ts', 'start');
+  o += text(24, spY - 24, '低 address', 'ts', 'start');
+  const by = spY + 26;
+  o += text(20, by, 't 在 FP 往下 2 格、a 在 FP 往上 3 格：g 运行期间 SP 会变，这两个距离不变。', 'ts', 'start');
+  return svg(560, by + 8, o, 'main 调用 f，f 调用 g 时的 stack：从高 address 往下依次是 main、f、g 三个 stack frame，每个 callee 的 frame 里有 argument、return PC、saved FP、saved register 和 local variable；FP 指向 g 的 saved FP，SP 指向栈顶 local t');
+}
+
+// ---------- 第 1 站：kernel 的结构 ----------
+function kernel() {
+  const cols = [
+    { t: 'monolithic', x: 10, rows: [[['app', 'app']], [['scheduler、memory', 'file system', 'driver']], [['hardware']]], kern: 1 },
+    { t: 'microkernel', x: 148, rows: [[['app', 'file system', 'driver']], [['microkernel', 'IPC、底层', 'scheduling']], [['hardware']]], kern: 1 },
+    { t: 'type 1 hypervisor', x: 286, rows: [[['guest OS 1', 'guest OS 2']], [['type 1 hypervisor']], [['hardware']]] },
+    { t: 'type 2 hypervisor', x: 424, rows: [[['guest OS', 'app']], [['type 2 hypervisor', '']], [['host OS']], [['hardware']]] },
+  ];
+  const W = 126, RH = 44, top = 34;
+  let o = '';
+  cols.forEach((c) => {
+    o += text(c.x + W / 2, 18, c.t, 'tb', 'middle');
+    const n = c.rows.length, H = 4 * RH, rh = H / n;
+    c.rows.forEach((r, i) => {
+      const y = top + i * rh, cells = r[0].filter((v, k, a) => !(c.t.startsWith('type 2') && i === 1 && k === 1));
+      if (c.t.startsWith('type 2') && i === 0) {
+        // guest OS 在 hypervisor 上，program 直接在 host OS 上
+        o += box(c.x, y + 2, W / 2 - 2, rh - 4, 'wash', 3) + text(c.x + W / 4, y + rh / 2 + 4, 'guest OS', 'ts', 'middle');
+        o += box(c.x + W / 2 + 2, y + 2, W / 2 - 2, rh * 2 - 4, 'paper', 3) + text(c.x + 3 * W / 4, y + rh + 4, 'app', 'ts', 'middle');
+        return;
+      }
+      if (c.t.startsWith('type 2') && i === 1) {
+        o += box(c.x, y + 2, W / 2 - 2, rh - 4, 'wash-strong', 3) + text(c.x + W / 4, y + rh / 2 - 2, 'type 2', 'ts', 'middle') + text(c.x + W / 4, y + rh / 2 + 11, 'hypervisor', 'ts', 'middle');
+        return;
+      }
+      const isHw = cells[0] === 'hardware';
+      if (cells.length > 1 && i === 0) {
+        const w = (W - 4 * (cells.length - 1)) / cells.length;
+        cells.forEach((s, k) => {
+          const xx = c.x + k * (w + 4), hot = s === 'file system' || s === 'driver' || s.startsWith('guest');
+          const words = s.split(' ');
+          o += box(xx, y + 2, w, rh - 4, hot ? 'wash' : 'paper', 3);
+          if (words.length === 2 && w < 50) o += text(xx + w / 2, y + rh / 2 - 2, words[0], 'ts', 'middle') + text(xx + w / 2, y + rh / 2 + 11, words[1], 'ts', 'middle');
+          else o += text(xx + w / 2, y + rh / 2 + 4, s, 'ts', 'middle');
+        });
+      } else {
+        const cls = isHw ? 'wash2' : c.kern && i === 1 ? 'solid' : s0(cells[0]);
+        o += box(c.x, y + 2, W, rh - 4, cls, 3);
+        cells.forEach((s, k) => { o += text(c.x + W / 2, y + rh / 2 + 4 + (k - (cells.length - 1) / 2) * 15, s, cls === 'solid' ? 'tw' : 'ts', 'middle'); });
+      }
+    });
+    if (c.kern) o += line(c.x - 2, top + RH * 4 / 3, c.x + W + 2, top + RH * 4 / 3, 'dash');
+  });
+  function s0(s) { return s.includes('hypervisor') ? 'wash-strong' : 'paper'; }
+  o += text(10, top + 4 * RH + 22, '左边两栏：虚线上面是 user mode，深色是 kernel mode；file system 和 driver 放在哪一边是区别所在。', 'ts', 'start');
+  o += text(10, top + 4 * RH + 40, '右边两栏：浅色是 guest OS，深一些的是 hypervisor。', 'ts', 'start');
+  return svg(560, top + 4 * RH + 48, o, '四栏对比：monolithic kernel 把 scheduler、memory、file system、driver 都放在 kernel mode；microkernel 只留 IPC 和底层 scheduling，file system 和 driver 在 user mode；type 1 hypervisor 直接在 hardware 上跑多个 guest OS；type 2 hypervisor 跑在 host OS 上');
+}
+
+// ---------- 第 2 站：priority inversion ----------
+function invSim(inherit) {
+  const T = {
+    H: { prio: 3, arrive: 2, prog: [['lock'], ['cpu', 2], ['unlock']] },
+    M: { prio: 2, arrive: 3, prog: [['cpu', 10]] },
+    L: { prio: 1, arrive: 0, prog: [['cpu', 1], ['lock'], ['cpu', 4], ['unlock'], ['cpu', 1]] },
+  };
+  for (const k in T) Object.assign(T[k], { eff: T[k].prio, pc: 0, left: null, blocked: false, done: false, holds: false });
+  let holder = null; const waiters = [], segs = [], events = [];
+  for (let t = 0; t < 40; t++) {
+    const ready = () => Object.keys(T).filter((k) => T[k].arrive <= t && !T[k].blocked && !T[k].done);
+    let cur = null;
+    for (let guard = 0; guard < 20; guard++) {
+      const r = ready(); if (!r.length) { cur = null; break; }
+      cur = r.reduce((a, b) => (T[b].eff > T[a].eff ? b : a));
+      const P = T[cur], op = P.prog[P.pc];
+      if (!op) { P.done = true; continue; }
+      if (op[0] === 'lock') {
+        if (holder === null) { holder = cur; P.holds = true; P.pc++; continue; }
+        P.blocked = true; waiters.push(cur); events.push([cur, t, 'block']);
+        if (inherit) T[holder].eff = Math.max(T[holder].eff, P.eff);
+        continue;
+      }
+      if (op[0] === 'unlock') {
+        holder = null; P.holds = false; P.eff = P.prio; P.pc++;
+        while (waiters.length) { T[waiters.shift()].blocked = false; }
+        events.push([cur, t, 'unlock']);
+        continue;
+      }
+      break;
+    }
+    if (!cur) { if (Object.values(T).every((P) => P.done)) break; continue; }
+    const P = T[cur], op = P.prog[P.pc];
+    if (P.left === null) P.left = op[1];
+    segs.push([cur, t, t + 1, P.holds]);
+    if (--P.left === 0) { P.left = null; P.pc++; if (P.pc >= P.prog.length) P.done = true; }
+  }
+  // 合并相邻段
+  const out = [];
+  for (const sg of segs) { const l = out[out.length - 1]; if (l && l[0] === sg[0] && l[2] === sg[1] && l[3] === sg[3]) l[2] = sg[2]; else out.push(sg.slice()); }
+  return { segs: out, events, end: Math.max(...out.map((s) => s[2])) };
+}
+function inv() {
+  const A = invSim(false), B = invSim(true), end = Math.max(A.end, B.end);
+  const sx = lin(0, end, 70, 540);
+  let o = '';
+  const lanes = ['H', 'M', 'L'], arrive = { H: 2, M: 3, L: 0 };
+  const panel = (R, y0, title) => {
+    o += text(20, y0, title, 'tb', 'start');
+    lanes.forEach((n, i) => {
+      const y = y0 + 28 + i * 26;
+      o += text(54, y + 15, n, 'tb', 'end') + line(sx(0), y + 10, sx(end), y + 10, 'grid');
+      o += poly([[sx(arrive[n]), y - 1], [sx(arrive[n]) - 4, y - 7], [sx(arrive[n]) + 4, y - 7]], 'ink-f');
+      for (const [p, a, b, h] of R.segs.filter((s) => s[0] === n)) o += rect(sx(a), y + 1, sx(b) - sx(a), 18, h ? 'wash-strong' : 'wash2') + rect(sx(a), y + 1, sx(b) - sx(a), 18, 'frame');
+    });
+    // H 被 R 挡住的那段
+    const blk = R.events.find((e) => e[0] === 'H' && e[2] === 'block'), hs = R.segs.find((s) => s[0] === 'H' && s[3]);
+    const y = y0 + 28, lab = `H 等 R：${hs[1] - blk[1]} ms`;
+    o += line(sx(blk[1]) + 2, y + 10, sx(hs[1]) - 2, y + 10, 'ln-dash');
+    if (sx(hs[1]) - sx(blk[1]) > 120) o += text((sx(blk[1]) + sx(hs[1])) / 2, y + 4, lab, 'tl', 'middle');
+    else o += text(sx(hs[2]) + 8, y + 15, lab, 'tl', 'start');
+    return R;
+  };
+  panel(A, 16, '没有修正');
+  panel(B, 136, 'priority inheritance：L 拿着 R 时继承 H 的 priority');
+  const ticks = [...new Set([0, ...A.segs.flatMap((s) => [s[1], s[2]]), ...B.segs.flatMap((s) => [s[1], s[2]])])].sort((a, b) => a - b);
+  const AY = 264;
+  o += line(sx(0), AY, sx(end), AY, 'axis');
+  for (const v of ticks) o += line(sx(v), AY, sx(v), AY + 4, 'axis') + text(sx(v), AY + 16, String(v), 'ts', 'middle');
+  o += text(sx(0) - 8, AY + 16, 't (ms)', 'ts', 'end');
+  o += rect(70, AY + 28, 18, 12, 'wash-strong') + rect(70, AY + 28, 18, 12, 'frame') + text(94, AY + 38, '拿着 R 在跑', 'ts', 'start');
+  o += rect(190, AY + 28, 18, 12, 'wash2') + rect(190, AY + 28, 18, 12, 'frame') + text(214, AY + 38, '没拿 R 在跑', 'ts', 'start');
+  o += poly([[320, AY + 30], [316, AY + 24], [324, AY + 24]], 'ink-f') + text(330, AY + 38, '到达', 'ts', 'start');
+  return svg(560, AY + 46, o, `priority inversion：上面没有修正，H 在 t=2 被 L 持有的 lock 挡住，M 在 t=3 抢走 CPU 跑到 13，H 等到 t=15；下面 priority inheritance，L 继承 H 的 priority，在 t=5 放掉 lock，H 只等 3 ms`);
+}
+
+// ---------- 第 3 站：user thread 与 kernel thread ----------
+function uthread() {
+  let o = '';
+  const panel = (x0, title, kernelView) => {
+    const W = 260;
+    o += text(x0 + W / 2, 16, title, 'tb', 'middle');
+    o += box(x0, 26, W, 74, 'paper', 4) + text(x0 + 8, 40, kernelView ? 'process（user mode）' : 'process（user mode，thread library 管调度）', 'ts', 'start');
+    const st = kernelView ? ['Blocked', 'Running', 'Running', 'Ready'] : ['读 disk', '能跑', '能跑', '能跑'];
+    for (let i = 0; i < 4; i++) {
+      const x = x0 + 10 + i * 62;
+      o += box(x, 48, 54, 42, i === 0 ? 'wash-strong' : 'wash', 3) + text(x + 27, 66, 'T' + (i + 1), 'tb', 'middle') + text(x + 27, 82, kernelView ? '' : st[i], 'ts', 'middle');
+    }
+    o += line(x0, 112, x0 + W, 112, 'dash');
+    if (!kernelView) {
+      o += box(x0, 122, W, 50, 'wash2', 4) + text(x0 + 8, 138, 'kernel 的 process table', 'ts', 'start');
+      o += box(x0 + 60, 144, 140, 22, 'wash-strong', 3) + text(x0 + 130, 159, '这个 process：Blocked', 'tb', 'middle');
+    } else {
+      o += box(x0, 122, W, 50, 'wash2', 4) + text(x0 + 8, 138, 'kernel 的 thread table', 'ts', 'start');
+      for (let i = 0; i < 4; i++) { const x = x0 + 10 + i * 62; o += box(x, 144, 54, 22, i === 0 ? 'wash-strong' : 'paper', 3) + text(x + 27, 159, st[i], 'ts', 'middle'); }
+    }
+    // cores
+    const core = (k, s) => { const x = x0 + 30 + k * 110; return box(x, 186, 90, 26, s ? 'solid' : 'paper', 3) + text(x + 45, 203, s || 'core ' + k + '：空闲', s ? 'tw' : 'ts', 'middle'); };
+    o += kernelView ? core(0, 'core 0：T2') + core(1, 'core 1：T3') : core(0, '') + core(1, '');
+  };
+  panel(10, 'user thread', false);
+  panel(290, 'kernel thread', true);
+  o += text(10, 232, '左：kernel 只知道有一个 process，它在等 disk，T2 到 T4 也跟着停。右：kernel 逐个 thread 调度。', 'ts', 'start');
+  return svg(560, 240, o, '左边 user thread：process 里 4 个 thread，T1 读 disk，kernel 的 process table 里整个 process 是 Blocked，两个 core 都空闲；右边 kernel thread：thread table 里 T1 Blocked、T2 和 T3 在两个 core 上 Running、T4 Ready');
+}
+
+// ---------- 第 5 站：first / best / worst fit ----------
+function fitSim(strategy, reqs) {
+  let holes = [[20, 6], [38, 4], [52, 6]];
+  const placed = [];
+  reqs.forEach((r, k) => {
+    const cand = holes.filter((h) => h[1] >= r);
+    if (!cand.length) { placed.push([k, r, null]); return; }
+    const h = strategy === 'first' ? cand[0] : strategy === 'best' ? cand.reduce((a, b) => (b[1] < a[1] ? b : a)) : cand.reduce((a, b) => (b[1] > a[1] ? b : a));
+    placed.push([k, r, h[0]]); h[0] += r; h[1] -= r; holes = holes.filter((x) => x[1] > 0);
+  });
+  return { placed, holes };
+}
+function fit() {
+  const reqs = [4, 6, 6], sx = lin(0, 64, 100, 470);
+  const fixed = [[0, 8, 'OS'], [8, 20, 'A'], [26, 38, 'B'], [42, 52, 'C'], [58, 64, 'D']];
+  let o = text(100, 16, '依次来三个 process：P1 要 4 KB，P2 要 6 KB，P3 要 6 KB', 'tb', 'start');
+  [['first', 'First-fit'], ['best', 'Best-fit'], ['worst', 'Worst-fit']].forEach(([st, name], i) => {
+    const R = fitSim(st, reqs), y = 34 + i * 58, H = 30;
+    o += text(92, y + 20, name, 'tb', 'end');
+    o += rect(sx(0), y, sx(64) - sx(0), H, 'paper-f');
+    for (const [a, b, n] of fixed) o += rect(sx(a), y, sx(b) - sx(a), H, 'wash2') + rect(sx(a), y, sx(b) - sx(a), H, 'frame') + text((sx(a) + sx(b)) / 2, y + 20, n, 'ts', 'middle');
+    for (const [k, r, at] of R.placed) if (at !== null) o += rect(sx(at), y, sx(at + r) - sx(at), H, 'wash-strong') + rect(sx(at), y, sx(at + r) - sx(at), H, 'frame') + text((sx(at) + sx(at + r)) / 2, y + 20, 'P' + (k + 1), 'tb', 'middle');
+    for (const [a, len] of R.holes) o += rect(sx(a), y, sx(a + len) - sx(a), H, 'frame') + text((sx(a) + sx(a + len)) / 2, y + H + 13, len + ' KB', 'tl', 'middle');
+    o += rect(sx(0), y, sx(64) - sx(0), H, 'ink');
+    const fail = R.placed.filter((p) => p[2] === null);
+    o += text(482, y + 20, fail.length ? fail.map((p) => 'P' + (p[0] + 1)).join('、') + ' 放不下' : '全部放下', fail.length ? 'tl' : 'ts', 'start');
+  });
+  for (const v of [0, 16, 32, 48, 64]) o += text(sx(v), 34 + 3 * 58 + 4, v + ' KB', 'ts', 'middle');
+  return svg(560, 34 + 3 * 58 + 10, o, 'First-fit、best-fit、worst-fit 处理 4、6、6 KB 三个请求：first-fit 和 worst-fit 把 P1 放进 20 KB 处的 6 KB hole，剩下 2 KB 和 4 KB 两个 hole，P3 放不下；best-fit 把 P1 放进 4 KB 的 hole，三个都放下');
+}
+
+// ---------- 第 5 站：buddy system ----------
+function buddySim() {
+  const K = 6, A = Array.from({ length: K + 1 }, () => []);
+  A[K].push(0);
+  const used = []; const states = [];
+  const snap = (label) => {
+    const blocks = [];
+    for (let j = 0; j <= K; j++) for (const a of A[j]) blocks.push([a, 1 << j, null]);
+    for (const u of used) blocks.push([u.addr, u.size, u.name, u.req]);
+    blocks.sort((x, y) => x[0] - y[0]);
+    states.push({ label, blocks });
+  };
+  const alloc = (name, n) => {
+    let S = 0; while ((1 << S) < n) S++;
+    let R = S; while (R <= K && !A[R].length) R++;
+    let addr = A[R].shift();
+    while (R > S) { R--; A[R].push(addr + (1 << R)); A[R].sort((a, b) => a - b); }
+    used.push({ name, addr, size: 1 << S, req: n });
+  };
+  const free = (name) => {
+    const i = used.findIndex((u) => u.name === name); let { addr, size } = used[i]; used.splice(i, 1);
+    let S = Math.log2(size);
+    for (;;) {
+      const b = addr ^ (1 << S), j = A[S].indexOf(b);
+      if (S < K && j >= 0) { A[S].splice(j, 1); addr = Math.min(addr, b); S++; } else { A[S].push(addr); A[S].sort((a, c) => a - c); break; }
+    }
+  };
+  snap('开始');
+  alloc('A', 10); snap('1. A 要 10');
+  alloc('B', 6); snap('2. B 要 6');
+  alloc('C', 20); snap('3. C 要 20');
+  free('A'); snap('4. 释放 A');
+  free('B'); snap('5. 释放 B');
+  return states;
+}
+function buddy() {
+  const st = buddySim(), sx = lin(0, 64, 110, 540), RH = 40;
+  let o = '';
+  st.forEach((S, i) => {
+    const y = 10 + i * RH;
+    o += text(100, y + 18, S.label, 'tb', 'end');
+    for (const [a, sz, nm, req] of S.blocks) {
+      o += rect(sx(a), y, sx(a + sz) - sx(a), 26, nm ? 'wash-strong' : 'paper') + rect(sx(a), y, sx(a + sz) - sx(a), 26, 'frame');
+      const lab = nm ? `${nm}：${req} 用 ${sz}` : `${sz}`;
+      o += text((sx(a) + sx(a + sz)) / 2, y + 18, lab, nm && sx(a + sz) - sx(a) > 80 ? 'tb' : 'ts', 'middle');
+    }
+  });
+  const by = 10 + st.length * RH;
+  for (const v of [0, 8, 16, 24, 32, 48, 64]) o += line(sx(v), by - 12, sx(v), by - 8, 'axis') + text(sx(v), by + 4, String(v), 'ts', 'middle');
+  o += text(sx(64), by + 20, 'address（KB）', 'ts', 'end');
+  o += text(20, by + 20, '白色是空闲块，数字是大小（KB）', 'ts', 'start');
+  return svg(560, by + 26, o, 'buddy system 管理 64 KB：A 要 10 KB 时 64 被分成 32、16、16，A 得 0 处的 16；B 要 6 KB 时 16 处的 16 分成两个 8，B 得 16 处的 8；C 要 20 KB 得 32 处的 32；释放 A 后 0 处 16 空闲但无法合并；释放 B 后先与 24 处的 8 合并成 16，再与 0 处的 16 合并成 32');
+}
+
+// ---------- 第 5 站：copy-on-write ----------
+function cow() {
+  let o = '';
+  const panel = (x0, title, after) => {
+    o += text(x0 + 130, 16, title, 'tb', 'middle');
+    const pt = (y, who, pf, ro) => box(x0, y, 120, 46, 'paper', 3) + text(x0 + 8, y + 16, who + ' 的 page table', 'ts', 'start') + box(x0 + 8, y + 22, 104, 18, 'wash', 2) + text(x0 + 14, y + 35, 'VP 2 → PF ' + pf, 't', 'start') + text(x0 + 108, y + 35, ro ? '只读' : '可写', ro ? 'tl' : 'ts', 'end');
+    o += pt(34, 'parent', 9, !after) + pt(120, 'child', after ? 14 : 9, !after);
+    const fr = (y, pf, val, hot) => box(x0 + 170, y, 90, 40, hot ? 'wash-strong' : 'wash2', 3) + text(x0 + 215, y + 16, 'PF ' + pf, 'tb', 'middle') + text(x0 + 215, y + 32, 'x = ' + val, 't', 'middle');
+    o += fr(50, 9, 100, false);
+    o += arrowH(x0 + 120, 65, x0 + 168, 68, 'ink', 'ink-f');
+    if (!after) o += arrowH(x0 + 120, 151, x0 + 168, 80, 'ink', 'ink-f');
+    else { o += fr(130, 14, 101, true) + arrowH(x0 + 120, 151, x0 + 168, 150, 'ln', 'ln-f'); }
+  };
+  panel(10, 'fork 刚结束', false);
+  panel(300, 'child 写了 x 之后', true);
+  o += line(285, 30, 285, 180, 'grid');
+  o += text(10, 202, '左：两个 PTE 指向同一个 frame，都只读。右：child 的写入触发 exception，OS 复制出 PF 14 给 child。', 'ts', 'start');
+  return svg(560, 210, o, 'copy-on-write：fork 刚结束时 parent 和 child 的 page table 中 VP 2 都指向 PF 9 且只读；child 写 x 后 OS 把 PF 9 复制到 PF 14，child 的 VP 2 改指 PF 14 可写，x 等于 101，parent 仍指 PF 9，x 等于 100');
+}
+
+// ---------- 第 5 站：segmentation ----------
+function seg() {
+  const T = [['0 code', 1400, 1100], ['1 data', 6300, 400], ['2 heap', 4300, 1000], ['3 stack', 3200, 1000]];
+  const sid = 2, off = 53, pa = T[sid][1] + off;
+  let o = text(20, 18, 'logical address (2, 53)', 'tb', 'start');
+  o += box(20, 26, 60, 26, 'wash-strong', 2) + text(50, 44, 'id 2', 'tb', 'middle') + box(84, 26, 70, 26, 'wash', 2) + text(119, 44, 'offset 53', 't', 'middle');
+  const TX = 44, TY = 86;
+  o += text(TX, TY - 8, 'segment table', 'ts', 'start') + text(TX + 120, TY - 8, 'base', 'ts', 'middle') + text(TX + 180, TY - 8, 'limit', 'ts', 'middle');
+  T.forEach(([n, b, l], i) => {
+    const y = TY + i * 24, hot = i === sid;
+    o += box(TX, y, 210, 24, hot ? 'wash-strong' : 'paper', 0) + text(TX + 8, y + 16, n, hot ? 'tb' : 't', 'start') + text(TX + 120, y + 16, String(b), 't', 'middle') + text(TX + 180, y + 16, String(l), 't', 'middle');
+  });
+  o += path(d([[28, 54], [28, TY + sid * 24 + 12]]), 'ln') + arrowH(28, TY + sid * 24 + 12, TX - 2, TY + sid * 24 + 12, 'ln', 'ln-f');
+  o += text(TX, TY + 4 * 24 + 24, `${off} < ${T[sid][2]}：合法`, 'tl', 'start') + text(TX, TY + 4 * 24 + 44, `physical = ${T[sid][1]} + ${off} = ${pa}`, 'tb', 'start');
+  o += text(TX, TY + 4 * 24 + 66, '(1, 500)：500 ≥ 400，segmentation fault', 'ts', 'start');
+  // physical memory
+  const sy = lin(0, 7000, 26, 290), MX = 400, MW = 120;
+  o += text(MX + MW / 2, 16, 'physical memory', 'ts', 'middle');
+  o += rect(MX, sy(0), MW, sy(7000) - sy(0), 'paper-f') + rect(MX, sy(0), MW, sy(7000) - sy(0), 'frame');
+  T.forEach(([n, b, l], i) => { o += rect(MX, sy(b), MW, sy(b + l) - sy(b), i === sid ? 'wash-strong' : 'wash') + rect(MX, sy(b), MW, sy(b + l) - sy(b), 'frame') + text(MX + MW / 2, (sy(b) + sy(b + l)) / 2 + 4, n.split(' ')[1], 'ts', 'middle'); });
+  for (const v of [0, 1400, 2500, 3200, 4200, 4300, 5300, 6300, 6700]) {
+    if (v === 4200 || v === 4300) continue;
+    o += text(MX - 6, sy(v) + 4, String(v), 'ts', 'end');
+  }
+  o += text(MX - 6, sy(4250) + 4, '4200 / 4300', 'ts', 'end');
+  o += arrowH(MX + MW + 40, sy(pa), MX + MW + 3, sy(pa), 'ln', 'ln-f') + text(MX + MW + 8, sy(pa) - 6, String(pa), 'tl', 'start');
+  return svg(560, 300, o, 'segmentation：logical address (2, 53) 用 segment id 2 查 segment table 得到 heap 的 base 4300 和 limit 1000，53 小于 1000，physical address 4353；右边四个 segment 分别在 1400、3200、4300、6300 开始，之间有空隙');
+}
+
+// ---------- 第 7 站：disk 与 partition 的布局 ----------
+function layout() {
+  let o = '';
+  const bar = (y, label, parts, x0 = 20, x1 = 540) => {
+    o += text((x0 + x1) / 2, y - 6, label, 'tb', 'middle');
+    const tot = parts.reduce((a, p) => a + p[1], 0), sx = lin(0, tot, x0, x1);
+    let acc = 0; const xs = [];
+    for (const [s, w, cls] of parts) {
+      const a = sx(acc), b = sx(acc + w); xs.push([a, b]);
+      o += rect(a, y, b - a, 30, cls || 'paper') + rect(a, y, b - a, 30, 'frame') + text((a + b) / 2, y + 19, s, 'ts', 'middle');
+      acc += w;
+    }
+    return xs;
+  };
+  const d1 = bar(24, '一块 disk', [['MBR', 1, 'wash2'], ['partition 1（FAT）', 5, 'wash'], ['partition 2（ext2）', 5, 'wash']]);
+  const f = bar(100, 'partition 1 展开：FAT', [['boot', 2, 'wash2'], ['FAT', 3, 'wash-strong'], ['FAT 副本', 3, 'wash'], ['root dir', 3], ['data blocks', 9]]);
+  o += line(d1[1][0], 54, 20, 94, 'dash') + line(d1[1][1], 54, 540, 94, 'dash');
+  const e = bar(176, 'partition 2 展开：ext2', [['boot', 2, 'wash2'], ['block group 0', 5, 'wash-strong'], ['block group 1', 5, 'wash'], ['…', 2]]);
+  bar(252, 'block group 0 展开', [['superblock', 4, 'wash2'], ['group desc', 4, 'wash2'], ['block bitmap', 4, 'wash'], ['inode bitmap', 4, 'wash'], ['inode table', 4, 'wash-strong'], ['data blocks', 5]]);
+  o += line(e[1][0], 206, 20, 246, 'dash') + line(e[1][1], 206, 540, 246, 'dash');
+  return svg(560, 288, o, 'disk 布局：MBR 后面是两个 partition；FAT partition 依次是 boot、FAT、FAT 副本、root directory、data blocks；ext2 partition 由 boot 和若干 block group 组成，每个 block group 依次是 superblock、group descriptor、block bitmap、inode bitmap、inode table、data blocks');
+}
+
+// ---------- 第 7 站：ext2 的 /sub/file ----------
+function pathWalk() {
+  const steps = [
+    ['inode 2（/）', ['data → block 15'], 'ino'],
+    ['block 15', ['.  D  2', 'sub  D  8', '…'], 'dir'],
+    ['inode 8（sub）', ['data → block 20'], 'ino'],
+    ['block 20', ['.  D  8', 'file  F  6', '…'], 'dir'],
+    ['inode 6（file）', ['检查 permission', 'data → block 23'], 'ino'],
+    ['block 23', ['file 的内容'], 'data'],
+  ];
+  const W = 150, H = 78, GX = 40;
+  let o = '';
+  const pos = (i) => [20 + (i % 3) * (W + GX), 30 + Math.floor(i / 3) * (H + 46)];
+  steps.forEach(([t, lines, k], i) => {
+    const [x, y] = pos(i);
+    o += text(x, y - 8, `${i + 1}. 读 ${t.split('（')[0]}`, 'ts', 'start');
+    o += box(x, y, W, H, k === 'ino' ? 'wash' : k === 'data' ? 'wash-strong' : 'paper', 4) + text(x + W / 2, y + 18, t, 'tb', 'middle');
+    lines.forEach((s, j) => { const hot = /sub|file  F|→/.test(s); o += text(x + W / 2, y + 38 + j * 16, s, hot ? 'tl' : 't', 'middle'); });
+    if (i < steps.length - 1) {
+      if (i % 3 < 2) o += arrowH(x + W + 2, y + H / 2, x + W + GX - 2, y + H / 2, 'ln', 'ln-f');
+      else { const [nx, ny] = pos(i + 1); o += path(d([[x + W / 2, y + H + 2], [x + W / 2, y + H + 22], [nx + W / 2, y + H + 22]]), 'ln') + arrowH(nx + W / 2, y + H + 22, nx + W / 2, ny - 18, 'ln', 'ln-f'); }
+    }
+  });
+  o += text(20, 2 * (H + 46) + 26, 'Directory entry 写成 “名字 type inode number”；root 的 inode number 约定为 2。', 'ts', 'start');
+  return svg(560, 2 * (H + 46) + 34, o, 'ext2 读 /sub/file 的六步：读 inode 2 得 block 15，block 15 里 sub 的 inode 是 8，读 inode 8 得 block 20，block 20 里 file 的 inode 是 6，读 inode 6 得 block 23，读 block 23 得到内容');
+}
+
+// ---------- 第 7 站：disk scheduling ----------
+function disk() {
+  const start = 13, req = [13, 14, 2, 18, 17, 21, 15];
+  const fcfs = req.slice();
+  const ssf = []; { let cur = start; const left = req.slice(); while (left.length) { let bi = 0; left.forEach((r, i) => { if (Math.abs(r - cur) < Math.abs(left[bi] - cur)) bi = i; }); cur = left.splice(bi, 1)[0]; ssf.push(cur); } }
+  const dist = (seq) => seq.reduce((acc, r, i) => acc + Math.abs(r - (i ? seq[i - 1] : start)), 0);
+  const sx = lin(0, 24, 50, 540);
+  let o = '';
+  const panel = (y0, name, seq) => {
+    const sy = (i) => y0 + 18 + i * 13;
+    o += text(20, y0 + 4, `${name}：${seq.join(' → ')}，共移动 ${dist(seq)} 个 track`, 'tb', 'start');
+    for (const v of [0, 2, 13, 14, 15, 17, 18, 21, 24]) o += line(sx(v), sy(0) - 4, sx(v), sy(seq.length - 1) + 4, 'grid');
+    o += path(d(seq.map((r, i) => [sx(r), sy(i)])), 'ln');
+    seq.forEach((r, i) => { o += circle(sx(r), sy(i), 3.5, i ? 'ln-f' : 'ink-f'); });
+    return sy(seq.length - 1);
+  };
+  const e1 = panel(14, 'FCFS', fcfs);
+  const e2 = panel(e1 + 32, 'SSF', ssf);
+  const AY = e2 + 14;
+  o += line(sx(0), AY, sx(24), AY, 'axis');
+  for (const v of [0, 2, 13, 14, 15, 17, 18, 21, 24]) o += line(sx(v), AY, sx(v), AY + 4, 'axis') + text(sx(v), AY + 16, String(v), 'ts', 'middle');
+  o += text(sx(0) - 8, AY + 16, 'track', 'ts', 'end');
+  return svg(560, AY + 22, o, `disk scheduling：head 在 track 13，请求 13、14、2、18、17、21、15；FCFS 按到达顺序移动 ${dist(fcfs)} 个 track，SSF 每次去最近的请求，顺序 ${ssf.join('、')}，移动 ${dist(ssf)} 个 track`);
 }
 
 export default {
@@ -541,4 +948,15 @@ export default {
   'cs2106-repl': replA,
   'cs2106-fdtab': fdtab,
   'cs2106-index': index,
+  'cs2106-stack': stack,
+  'cs2106-kernel': kernel,
+  'cs2106-inv': inv,
+  'cs2106-uthread': uthread,
+  'cs2106-fit': fit,
+  'cs2106-buddy': buddy,
+  'cs2106-cow': cow,
+  'cs2106-seg': seg,
+  'cs2106-layout': layout,
+  'cs2106-path': pathWalk,
+  'cs2106-disk': disk,
 };
