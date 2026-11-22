@@ -70,7 +70,7 @@ function lucy() {
     ['untrodden', 'ways'],
     ['none to praise', 'very few to love'],
     ['violet, half hidden', 'star, only one'],
-    ['lived unknown', 'the difference to me'],
+    ["liv'd unknown", 'the difference to me'],
   ];
   let o = '';
   const panel = (x0, title, sub, unify) => {
@@ -284,7 +284,8 @@ function leviA() {
 
 // ---------- 第 7 站：hermeneutic circle，A slumber did my spirit seal（动图） ----------
 function circleA() {
-  const P = ['A slumber did my spirit seal;', 'I had no human fears:', 'She seemed a thing that could not feel', 'The touch of earthly years.', 'No motion has she now, no force;', 'She neither hears nor sees;', "Rolled round in earth's diurnal course,", 'With rocks, and stones, and trees.'];
+  // 1800 年 Lyrical Ballads 第 2 卷的文本
+  const P = ['A slumber did my spirit seal,', 'I had no human fears:', "She seem'd a thing that could not feel", 'The touch of earthly years.', 'No motion has she now, no force', 'She neither hears nor sees', "Roll'd round in earth's diurnal course", 'With rocks and stones and trees!'];
   const ly = (i) => 46 + i * 22 + (i >= 4 ? 10 : 0);
   // 每一步：读到哪几行（高亮），对 whole 的 hypothesis
   const steps = [
@@ -310,6 +311,95 @@ function circleA() {
   o += text(271, 72, '读', 'ts', 'middle') + text(271, 146, '重读', 'ts', 'middle');
   o += text(392, 174, 'whole 改变以后，已经读过的', 'ts', 'middle') + text(392, 192, 'part 要按新的 whole 重读', 'ts', 'middle');
   return svgA(560, 248, o, '动图：读 A slumber did my spirit seal 时，读到的诗行和对整首诗的 hypothesis 交替修正：先以为她活着，读到第二节知道她死了，第 7、8 行出现两种读法，再回头重读第 3 行');
+}
+
+// ---------- 第 3 站：The Story of an Hour 每段的词数（Standard Ebooks 的 1894 年 Vogue 文本） ----------
+const HOUR_W = [28, 86, 55, 31, 63, 28, 42, 57, 51, 41, 62, 31, 65, 74, 40, 8, 40, 22, 56, 49, 68, 5, 15];
+const HOUR_BLOCKS = [
+  { from: 1, to: 3, name: 'news, grief', tempo: 'speed-up', cls: 'wash2' },
+  { from: 4, to: 16, name: 'alone in the room', tempo: 'pause, then near-isochrony', cls: 'wash-strong' },
+  { from: 17, to: 19, name: 'at the door', tempo: '', cls: 'wash' },
+  { from: 20, to: 22, name: 'Brently returns', tempo: 'speed-up, ellipsis', cls: 'wash2' },
+  { from: 23, to: 23, name: 'doctors', tempo: '', cls: 'paper' },
+];
+function hour() {
+  const total = HOUR_W.reduce((a, b) => a + b, 0);
+  const X0 = 10, X1 = 550, sx = (X1 - X0) / total;
+  const cum = [0];
+  HOUR_W.forEach((w) => cum.push(cum[cum.length - 1] + w));
+  const px = (k) => X0 + cum[k] * sx; // 第 k 段（0 起）左边界
+  const Y = 96, H = 46;
+  let o = text(8, 18, 'The Story of an Hour：23 段，共 ' + total + ' 个词；每一格的宽度按这一段的词数', 'tb');
+  HOUR_BLOCKS.forEach((b) => {
+    for (let k = b.from - 1; k < b.to; k++) o += rect(px(k), Y, px(k + 1) - px(k), H, b.cls);
+  });
+  for (let k = 0; k <= HOUR_W.length; k++) o += line(px(k), Y, px(k), Y + H, 'frame');
+  o += rect(X0, Y, X1 - X0, H, 'frame');
+  // 标注的层次和对齐：top/bot 是第几层（0 最靠近条），anchor 是对齐方式
+  const LAY = [
+    { top: 0, bot: 0, anc: 'start' },
+    { top: 0, bot: 0, anc: 'middle' },
+    { top: 0, bot: 1, anc: 'end' },
+    { top: 1, bot: 0, anc: 'end' },
+    { top: null, bot: 2, anc: 'end' },
+  ];
+  HOUR_BLOCKS.forEach((b, i) => {
+    const L = LAY[i];
+    const xa = px(b.from - 1), xb = px(b.to), xm = (xa + xb) / 2;
+    const n = cum[b.to] - cum[b.from - 1];
+    const pct = (Math.round((n / total) * 1000) / 10).toFixed(1) + '%';
+    const tx = L.anc === 'start' ? X0 : L.anc === 'middle' ? xm : i === 4 ? X1 : xb;
+    // 上方：括号 + 名字
+    o += line(xa + 1, Y - 4, xb - 1, Y - 4, 'ink') + line(xa + 1, Y - 4, xa + 1, Y - 1, 'ink') + line(xb - 1, Y - 4, xb - 1, Y - 1, 'ink');
+    const nm = b.name + '（' + b.from + (b.to > b.from ? '–' + b.to : '') + '）';
+    if (L.top !== null) {
+      const yt = Y - 10 - L.top * 20;
+      if (L.top) o += line(xm, Y - 5, xm, yt + 3, 'mute');
+      o += text(tx, yt, nm, 'ts', L.anc);
+    }
+    // 下方：词数
+    const yb = Y + H + 17 + L.bot * 18;
+    if (L.bot) o += line(xm, Y + H + 2, xm, yb - 12, 'mute');
+    o += text(tx, yb, (L.top === null ? nm + '：' : '') + n + ' words, ' + pct, i === 1 ? 'tl' : 'ts', L.anc);
+  });
+  const T = Y + H + 92;
+  o += text(8, T, 'Tempo（Jahn 5-08）：', 'tb');
+  o += text(8, T + 20, '1–3 speed-up：“When the storm of grief had spent itself” 一个分句带过大哭', 'ts');
+  o += text(8, T + 38, '5–6 pause：窗外景物 91 个词，story 几乎不动；9–11 认出 free 的过程 154 个词，接近 isochrony', 'ts');
+  o += text(8, T + 56, '22–23 ellipsis：“But Richards was too late.” 5 个词之后直接是医生的诊断', 'ts');
+  return svg(560, T + 62, o, 'The Story of an Hour 23 段的词数条：news 与 grief 169 词，房间里 593 词，门口 118 词，Brently 回来 122 词，医生 15 词；房间里的部分合计约七成');
+}
+
+// ---------- 第 6 站：Fry 的检验，没列进表的三件事 ----------
+function levi2() {
+  const cx = (c) => 70 + c * 140;
+  const heads = [['I  overrating', 'blood relations'], ['II  underrating', 'blood relations'], ['III  denial of', 'autochthony'], ['IV  persistence of', 'autochthony']];
+  const cols = [
+    ['Kadmos seeks Europa', 'Oedipus weds Jocasta', 'Antigone buries brother'],
+    ['Spartoi kill each other', 'Oedipus kills Laios', 'Eteocles kills brother'],
+    ['Kadmos kills dragon', 'Oedipus kills Sphinx'],
+    ['Labdacos = lame?', 'Laios = left-sided?', 'Oedipus = swollen foot'],
+  ];
+  let o = '';
+  heads.forEach(([a, b], c) => {
+    o += rect(cx(c) - 66, 4, 132, 40, c % 2 ? 'wash2' : 'wash', 5) + text(cx(c), 20, a, 'tb', 'middle') + text(cx(c), 37, b, 'ts', 'middle');
+    if (c) o += line(cx(c) - 70, 50, cx(c) - 70, 250, 'grid');
+  });
+  cols.forEach((col, c) => col.forEach((m, r) => { o += text(cx(c), 70 + r * 22, m, 't', 'middle'); }));
+  o += line(10, 136, 550, 136, 'dash');
+  o += text(8, 154, 'Fry 找出的、Lévi-Strauss 没有列的三件：', 'tb');
+  // Jocasta：I 或 II
+  const yJ = 186;
+  o += rect(cx(0) - 60, yJ - 16, cx(1) - cx(0) + 120, 24, 'paper', 12) + text((cx(0) + cx(1)) / 2, yJ, 'Jocasta hangs herself（I 还是 II 都说得通）', 'tl', 'middle');
+  const iv = ['feet pierced, exposed', 'swallowed by earth'];
+  iv.forEach((m, k) => {
+    const w = tw(m) + 26, y = yJ + k * 34;
+    o += rect(554 - w, y - 16, w, 24, 'paper', 12) + text(554 - w / 2, y, m, 'tl', 'middle');
+  });
+  o += text(410, yJ + 17, '落进 IV →', 'ts', 'end');
+  o += text(410, yJ + 34, '（Colonus 的结尾）', 'ts', 'end');
+  o += text(280, 248, '没被挑选过的材料也能装进去，Fry 认为这是替这张表辩护的理由', 'ts', 'middle');
+  return svg(560, 254, o, 'Lévi-Strauss 的四个 column，下方加上 Fry 找出的三件没有列进表的事：Jocasta 自尽落在 I 与 II 之间，婴儿被刺穿脚踝丢弃和 Oedipus 在 Colonus 被大地吞没落进 IV');
 }
 
 // ---------- 第 8 站：Brooks 的 plot，Oedipus 的 detour ----------
@@ -362,4 +452,6 @@ export default {
   'en1101e-levi': leviA,
   'en1101e-circle': circleA,
   'en1101e-plot': plot,
+  'en1101e-hour': hour,
+  'en1101e-levi2': levi2,
 };
